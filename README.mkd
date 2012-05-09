@@ -1,25 +1,25 @@
-ABOUT
-=====
+## ABOUT
 Java framework of Katello API/CLI Tests.
 
-CONFIGURATION
-====
- `cp katello-automation.properties automation.properties`  
- `sed -i "s/^katello.server.hostname\s*=.*$/katello.server.hostname=<your_katello_server_fqdn>/" automation.properties`  
- `sed -i "s/^katello.server.sshkey.private\s*=.*$/katello.server.sshkey.private=<.ssh\/your_private_key>/" automation.properties`  
- `sed -i "s/^katello.client.hostname\s*=.*$/katello.client.hostname=<your_katello_client_fqdn>/" automation.properties`  
- `sed -i "s/^katello.client.sshkey.private\s*=.*$/katello.client.sshkey.private=<.ssh\/your_private_key>/" automation.properties`    
- `sed -i "s/^katello.engine\s*=.*$/katello.engine=<headpin|katello>/" automation.properties # (used for CLI calls)`  
- `sed -i "s/^katello.product\s*=.*$/katello.product=<sam|cfse|katello|headpin>/" automation.properties # (used for API calls)`  
+## CONFIGURATION
+* `cp katello-automation.properties automation.properties`  
+  `sed -i "s/^katello.server.hostname\s*=.*$/katello.server.hostname=<your_katello_server_fqdn>/" automation.properties`  
+  `sed -i "s/^katello.server.sshkey.private\s*=.*$/katello.server.sshkey.private=<.ssh\/your_private_key>/" automation.properties`  
+  `sed -i "s/^katello.client.hostname\s*=.*$/katello.client.hostname=<your_katello_client_fqdn>/" automation.properties`  
+  `sed -i "s/^katello.client.sshkey.private\s*=.*$/katello.client.sshkey.private=<.ssh\/your_private_key>/" automation.properties`    
+  `sed -i "s/^katello.engine\s*=.*$/katello.engine=<headpin|katello>/" automation.properties # (used for CLI calls)`  
+  `sed -i "s/^katello.product\s*=.*$/katello.product=<sam|cfse|katello|headpin>/" automation.properties # (used for API calls)`  
   
- and specify -Dautomation.propertiesfile=${WORKSPACE}/automation.properties
+  then specify: `-Dautomation.propertiesfile=${WORKSPACE}/automation.properties` in java  
 
-REFERENCES
-==========
-https://github.com/weissjeffm/webui-framework
-Eclipse project of katello-api needs this framework as a dependency.  
-CLI run is not needed (it loads from .m2 repository)
+or
 
-NOTES
-=====
+* specify `JAVAARGS="${JAVAARGS} -Dkatello.server.hostname=<your_katello_server_fqdn> -Dkatello.client.hostname=<your_katello_client_fqdn> -Dkatello.sshkey.private=<.ssh\/your_private_key> -Dkatello.client.sshkey.private=<.ssh\/your_private_key> -Dkatello.product=<headpin|katello> -Dkatello.engine=<headpin|katello>"` in java
+
+## REFERENCES
+* `https://github.com/weissjeffm/webui-framework`  
+  Eclipse project of katello-api needs this framework as a dependency.  
+  CLI run is not needed (it loads from .m2 repository)
+
+## NOTES
 
