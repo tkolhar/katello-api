@@ -1,0 +1,10 @@
+bin
+classes
+test-output
+reports
+testplugin/target
+katello-api.log
+velocity.log
+src/debug/*
+scripts/*.pyc
+.pydevproject

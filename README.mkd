@@ -1,0 +1,17 @@
+ABOUT
+=====
+Java framework of Katello API Tests.
+
+TODO
+====
+ * TODO
+
+REFERENCES
+==========
+https://github.com/weissjeffm/webui-framework
+Eclipse project of katello-api needs this framework as a dependency.  
+CLI run is not needed (it loads from .m2 repository)
+
+NOTES
+=====
+

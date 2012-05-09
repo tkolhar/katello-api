@@ -1,0 +1,96 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+
+<suite name="Katello API Test Suite">
+
+	<!-- the hudson.groovy script already includes these listeners
+	<listeners>
+  		<listener class-name="com.redhat.qe.auto.testng.TestNGListener" />
+  		<listener class-name="com.redhat.qe.auto.bugzilla.BugzillaTestNGListener" />
+	</listeners>
+	-->
+	
+	<test name="Smoke_Tests" preserve-order="true">
+		<classes>
+			<class name="com.redhat.qe.katello.tests.api.EnvironmentsTest"/>
+			<class name="com.redhat.qe.katello.tests.api.ProvidersTest"/>	
+			<class name="com.redhat.qe.katello.tests.api.UsersTest"/>
+		</classes>
+	</test>
+	
+	<test name="CLI_Tests" preserve-order="true">
+		<classes>
+			<class name="com.redhat.qe.katello.tests.cli.SystemTests"/>
+			<class name="com.redhat.qe.katello.tests.cli.OrgTests"/>
+			<class name="com.redhat.qe.katello.tests.cli.ProviderTests"/>
+			<class name="com.redhat.qe.katello.tests.cli.ProductTests"/>
+			<class name="com.redhat.qe.katello.tests.cli.ActivationKeyTests"/>
+			<class name="com.redhat.qe.katello.tests.cli.UserTests"/>
+			<class name="com.redhat.qe.katello.tests.cli.FilterTests"/>
+		</classes>
+	</test>
+	
+	<test name="E2E_Tests" preserve-order="true">
+		<classes>
+			<class name="com.redhat.qe.katello.tests.e2e.BPMTests"/>
+			<class name="com.redhat.qe.katello.tests.e2e.PackagesWithGPGKey"/>
+			<class name="com.redhat.qe.katello.tests.e2e.PromoteErrata"/>
+			<class name="com.redhat.qe.katello.tests.e2e.SystemsReport"/>
+			<class name="com.redhat.qe.katello.tests.e2e.RhsmOnlyPermissions"/>
+			<class name="com.redhat.qe.katello.tests.e2e.PromoteWithFilters"/>
+		</classes>
+	</test>
+	
+	<test name="Longrun_Tests" preserve-order="true">
+		<classes>
+			<class name="com.redhat.qe.katello.tests.e2e.TdlExportFedora"/>
+			<class name="com.redhat.qe.katello.tests.e2e.TdlExportRhel"/>
+		</classes>
+	</test>
+	
+	<!-- Test group that could be run on SAM server(s) as well -->
+	<test name="SAM_Tests" preserve-order="true">
+		<classes>
+			<class name="com.redhat.qe.katello.tests.cli.UserTests"/>
+			<class name="com.redhat.qe.katello.tests.cli.OrgTests"/>
+			<class name="com.redhat.qe.katello.tests.cli.SystemTests"/>
+			<class name="com.redhat.qe.katello.tests.api.A_ConsumersTest"/>
+			<class name="com.redhat.qe.katello.tests.api.EnvironmentsTest"/>
+			<class name="com.redhat.qe.katello.tests.api.UsersTest"/>
+		</classes>		
+	</test>
+
+	<!-- ** ** ** CFSE ** ** ** -->
+	<test name="CFSE_API_Tests" preserve-order="true">
+		<packages>
+			<package name="com.redhat.qe.katello.tests.api"/>
+		</packages>
+		<groups>
+			<run>
+				<include name="cfse-api"/>
+			</run>
+		</groups>
+	</test>
+
+	<test name="CFSE_CLI_Tests" preserve-order="true">
+		<packages>
+			<package name="com.redhat.qe.katello.tests.cli"/>
+		</packages>
+		<groups>
+			<run>
+				<include name="cfse-cli"/>
+			</run>
+		</groups>
+	</test>
+
+	<test name="CFSE_E2E_Tests" preserve-order="true">
+		<packages>
+			<package name="com.redhat.qe.katello.tests.e2e"/>
+		</packages>
+		<groups>
+			<run>
+				<include name="cfse-e2e"/>
+			</run>
+		</groups>
+	</test>
+
+</suite>
