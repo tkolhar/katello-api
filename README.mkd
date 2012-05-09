@@ -4,7 +4,11 @@ Java framework of Katello API Tests.
 
 TODO
 ====
- `cp katello-automation.properties`
+ `cp katello-automation.properties`  
+ `sed -i "s/^katello.server.hostname\s*=.*$/katello.server.hostname=<your_katello_server_fqdn>/" automation.properties`
+ `sed -i "s/^katello.client.hostname\s*=.*$/katello.client.hostname=<your_katello_client_fqdn>/" automation.properties`
+ `sed -i "s/^katello.client.hostname\s*=.*$/katello.client.hostname=<your_katello_client_fqdn>/" automation.properties`  
+  
  and specify -Dautomation.propertiesfile=${WORKSPACE}/automation.properties
 
 REFERENCES
