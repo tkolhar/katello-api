@@ -1,13 +1,16 @@
 ABOUT
 =====
-Java framework of Katello API Tests.
+Java framework of Katello API/CLI Tests.
 
-TODO
+CONFIGURATION
 ====
- `cp katello-automation.properties`  
- `sed -i "s/^katello.server.hostname\s*=.*$/katello.server.hostname=<your_katello_server_fqdn>/" automation.properties`
- `sed -i "s/^katello.client.hostname\s*=.*$/katello.client.hostname=<your_katello_client_fqdn>/" automation.properties`
+ `cp katello-automation.properties automation.properties`  
+ `sed -i "s/^katello.server.hostname\s*=.*$/katello.server.hostname=<your_katello_server_fqdn>/" automation.properties`  
+ `sed -i "s/^katello.server.sshkey.private\s*=.*$/katello.server.sshkey.private=<.ssh\/your_private_key>/" automation.properties`  
  `sed -i "s/^katello.client.hostname\s*=.*$/katello.client.hostname=<your_katello_client_fqdn>/" automation.properties`  
+ `sed -i "s/^katello.client.sshkey.private\s*=.*$/katello.client.sshkey.private=<.ssh\/your_private_key>/" automation.properties`    
+ `sed -i "s/^katello.engine\s*=.*$/katello.engine=<headpin|katello>/" automation.properties # (used for CLI calls)`  
+ `sed -i "s/^katello.product\s*=.*$/katello.product=<sam|cfse|katello|headpin>/" automation.properties # (used for API calls)`  
   
  and specify -Dautomation.propertiesfile=${WORKSPACE}/automation.properties
 

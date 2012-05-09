@@ -12,7 +12,6 @@ import org.json.simple.JSONObject;
 import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.cli.KatelloEnvironment;
 import com.redhat.qe.katello.common.KatelloConstants;
-import com.redhat.qe.katello.common.KatelloInfo;
 import com.redhat.qe.tools.ExecCommands;
 import com.redhat.qe.tools.SSHCommandResult;
 import com.redhat.qe.tools.SSHCommandRunner;
@@ -28,14 +27,12 @@ public class KatelloTasks {
 		Logger.getLogger(KatelloTasks.class.getName());
 	private SSHCommandRunner sshCommandRunner = null;
 	private ExecCommands localCommandRunner = null;
-	private KatelloInfo katelloInfo = null;
 // # ************************************************************************* #
 // # PUBLIC section                                                            #
 // # ************************************************************************* #	
 	public KatelloTasks(SSHCommandRunner sshRunner, ExecCommands localRunner) {
 		setSSHCommandRunner(sshRunner);
 		setLocalCommandRunner(localRunner);
-		katelloInfo = KatelloInfo.getInstance();
 	}
 
 	public void setSSHCommandRunner(SSHCommandRunner runner) {
@@ -56,10 +53,10 @@ public class KatelloTasks {
 	public String apiKatello_POST(
 			String content, String call) throws IOException{
 		Object[] call_args ={
-				katelloInfo.getUsernameUI(),
-				katelloInfo.getPasswordUI(),
+				System.getProperty("katello.admin.user", "admin"),
+				System.getProperty("katello.admin.password", "admin"),
 				content,
-				katelloInfo.getServername(),
+				System.getProperty("katello.server.hostname", "localhost"),
 				call};
 		String url = KatelloConstants.KATELLO_HTTP_POST;
 		String mCall = MessageFormat.format(url, call_args);
@@ -69,10 +66,10 @@ public class KatelloTasks {
 	public String apiKatello_POST_manifest(
 			String manifest, String call) throws IOException{
 		Object[] call_args ={
-				katelloInfo.getUsernameUI(),
-				katelloInfo.getPasswordUI(),
+				System.getProperty("katello.admin.user", "admin"),
+				System.getProperty("katello.admin.password", "admin"),
 				manifest,
-				katelloInfo.getServername(),
+				System.getProperty("katello.server.hostname", "localhost"),
 				call};
 		String url = KatelloConstants.KATELLO_HTTP_POST_MANIFEST;
 		String mCall = MessageFormat.format(url, call_args);
@@ -87,9 +84,9 @@ public class KatelloTasks {
 	 */
 	public String apiKatello_GET(String call){
 		Object[] call_args={
-				katelloInfo.getUsernameUI(),
-				katelloInfo.getPasswordUI(),
-				katelloInfo.getServername(),
+				System.getProperty("katello.admin.user", "admin"),
+				System.getProperty("katello.admin.password", "admin"),
+				System.getProperty("katello.server.hostname", "localhost"),
 				call};
 		String url = KatelloConstants.KATELLO_HTTP_GET;
 		String mCall = MessageFormat.format(url, call_args);
@@ -107,10 +104,10 @@ public class KatelloTasks {
 	public String apiKatello_PUT(
 			String content, String call) throws IOException{
 		Object[] call_args ={
-				katelloInfo.getUsernameUI(),
-				katelloInfo.getPasswordUI(),
+				System.getProperty("katello.admin.user", "admin"),
+				System.getProperty("katello.admin.password", "admin"),
 				content,
-				katelloInfo.getServername(),
+				System.getProperty("katello.server.hostname", "localhost"),
 				call};
 		String url = KatelloConstants.KATELLO_HTTP_PUT;
 		String mCall = MessageFormat.format(url, call_args);
@@ -119,9 +116,9 @@ public class KatelloTasks {
 
 	public String apiKatello_DELETE(String call) throws IOException{
 		Object[] call_args ={
-				katelloInfo.getUsernameUI(),
-				katelloInfo.getPasswordUI(),
-				katelloInfo.getServername(),
+				System.getProperty("katello.admin.user", "admin"),
+				System.getProperty("katello.admin.password", "admin"),
+				System.getProperty("katello.server.hostname", "localhost"),
 				call};
 		String url = KatelloConstants.KATELLO_HTTP_DELETE;
 		String mCall = MessageFormat.format(url, call_args);

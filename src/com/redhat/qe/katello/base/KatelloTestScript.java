@@ -10,9 +10,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-
 import com.redhat.qe.katello.common.KatelloConstants;
-import com.redhat.qe.katello.common.KatelloInfo;
 import com.redhat.qe.katello.tasks.KatelloTasks;
 import com.redhat.qe.tools.ExecCommands;
 import com.redhat.qe.tools.SSHCommandRunner;
@@ -23,7 +21,6 @@ public class KatelloTestScript
 
 	protected static Logger log = Logger.getLogger(KatelloTestScript.class.getName());
 	
-	protected KatelloInfo katelloInfo;
 	protected KatelloTasks servertasks	= null;
 	private SimpleDateFormat dateFormatter = null;
 	
@@ -32,13 +29,12 @@ public class KatelloTestScript
 	public KatelloTestScript() {
 		super();
 		try {
-			katelloInfo = KatelloInfo.getInstance();
 			SSHCommandRunner sshRunner = null;
 			try{
 				sshRunner = new SSHCommandRunner(
-						katelloInfo.getServername(), katelloInfo.getUsernameSSH(), 
-						"null", katelloInfo.getSshKeyPrivate(), 
-						"null", null);				
+						System.getProperty("katello.server.hostname", "localhost"), "root", 
+						"null", System.getProperty("katello.server.sshkey.private", ".ssh/id_hudson_dsa"), 
+						"null", null);
 			}catch(Throwable t){
 				log.warning("Warning: Could not initialize SSHCommandRunner.");
 			}
