@@ -35,7 +35,7 @@ public class A_ConsumersTest extends KatelloTestScript {
 	@Test(groups = { "testConsumers" }, description = "Create consumer")
 	public void test_createConsumer(){
 		String pid = KatelloTestScript.getUniqueID();
-		this.consumer_name = "auto-"+pid+".brq.redhat.com";
+		this.consumer_name = "auto-"+pid+".yourorg.com";
 		String uuid = KatelloTestScript.getUUID();		
 		String s = servertasks.createConsumer( org_name, consumer_name, uuid, "data/facts-virt.json");
 		JSONObject jcons = KatelloTestScript.toJSONObj(s);
