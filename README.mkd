@@ -4,7 +4,8 @@ Java framework of Katello API Tests.
 
 TODO
 ====
- * TODO
+ `cp katello-automation.properties`
+ and specify -Dautomation.propertiesfile=${WORKSPACE}/automation.properties
 
 REFERENCES
 ==========
