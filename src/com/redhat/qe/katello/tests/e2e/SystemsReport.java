@@ -53,7 +53,7 @@ public class SystemsReport extends KatelloCliTestScript{
 					"export.zip sent successfully");			
 			this.org = "org-manifest-"+uid;
 			KatelloOrg org = new KatelloOrg(this.org, null);
-			org.create();
+			org.cli_create();
 			KatelloProvider prov = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, this.org, null, null);
 			SSHCommandResult res = prov.import_manifest("/tmp"+File.separator+"export.zip", new Boolean(true));
 			Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (provider import_manifest)");

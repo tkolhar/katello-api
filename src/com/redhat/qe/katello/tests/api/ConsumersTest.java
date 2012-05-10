@@ -9,6 +9,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.cli.KatelloEnvironment;
+import com.redhat.qe.katello.base.cli.KatelloOrg;
 
 @Test(groups={"cfse-api"})
 public class ConsumersTest extends KatelloTestScript {
@@ -24,7 +25,8 @@ public class ConsumersTest extends KatelloTestScript {
 		String uid = KatelloTestScript.getUniqueID();
 		org_name = "auto-org-"+uid; 
 		String org_descr = "Test Organization "+uid;
-		servertasks.createOrganization(org_name, org_descr);
+		KatelloOrg org = new KatelloOrg(org_name, org_descr);
+		org.api_create();
 		// create an env.
 		uid = KatelloTestScript.getUniqueID();
 		env_name = "auto-env-"+uid; 

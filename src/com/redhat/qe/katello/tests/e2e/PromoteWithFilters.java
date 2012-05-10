@@ -62,7 +62,7 @@ public class PromoteWithFilters extends KatelloCliTestScript{
 		
 		log.info("E2E - Create org/env");
 		KatelloOrg org = new KatelloOrg(this.org, null);
-		org.create();
+		org.cli_create();
 		KatelloEnvironment env = new KatelloEnvironment(this.env, null, this.org, KatelloEnvironment.LIBRARY);
 		env.create();
 	}

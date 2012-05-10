@@ -27,7 +27,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 		this.organization = "ak-"+uid;
 		this.env = "ak-"+uid;
 		KatelloOrg org = new KatelloOrg(this.organization, null);
-		res = org.create();
+		res = org.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		KatelloEnvironment env = new KatelloEnvironment(this.env, null, this.organization, KatelloEnvironment.LIBRARY);
 		res = env.create();
@@ -94,7 +94,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 
 		// create 2nd org (and the same env) 
 		KatelloOrg org = new KatelloOrg(org2, null);
-		res = org.create();
+		res = org.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		KatelloEnvironment env = new KatelloEnvironment(this.env, null, org2, KatelloEnvironment.LIBRARY);
 		res = env.create();

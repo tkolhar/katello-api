@@ -72,7 +72,7 @@ public class BPMTests extends KatelloCliTestScript{
 	public void test_createOrgUser(){
 		// Create org:
 		KatelloOrg org = new KatelloOrg(this.org_name,"BPM tests");
-		exec_result = org.create();
+		exec_result = org.cli_create();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertEquals(getOutput(exec_result).trim(), "Successfully created org [ "+org_name+" ]");
 		// Create user:

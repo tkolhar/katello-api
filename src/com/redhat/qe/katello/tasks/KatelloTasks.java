@@ -125,29 +125,6 @@ public class KatelloTasks {
 		return this.execute_local(true, mCall);
 	}
 	
-	/**
-	 * Creates an organization via Katello api call (the initial environment name takes: root):<br>
-	 * POST /api/organizations
-	 * @param name Organization name
-	 * @param description Description of the org to be created 
-	 * @return Name of the organization created or null
-	 * @author gkhachik
-	 * @since 15.Feb.2011
-	 */
-	public String createOrganization(String name, String description){
-		String _return = null;
-		String call = "{'name':'%s','description':'%s'}";
-		call = String.format(call, name, description);
-		
-		try{
-			_return = apiKatello_POST(call, "/organizations");
-			log.info(String.format("Created an org with: name=[%s]",name));
-		}catch (Exception e) {
-			log.log(Level.SEVERE, e.getMessage(), e);
-		}
-		return _return;
-	}
-	
 	public String getEnvironments(String orgName){
 		String _return = null;
 		try{

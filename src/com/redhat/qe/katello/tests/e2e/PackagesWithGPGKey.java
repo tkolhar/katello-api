@@ -56,7 +56,7 @@ public class PackagesWithGPGKey extends KatelloCliTestScript{
 		
 		log.info("E2E - Create org");
 		KatelloOrg org = new KatelloOrg(this.org, null);
-		org.create();
+		org.cli_create();
 	}
 	
 	@Test(description="Create environment, gpg key", enabled=true)

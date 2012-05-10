@@ -23,7 +23,7 @@ public class ProviderTests extends KatelloCliTestScript{
 		String uid = KatelloTestScript.getUniqueID();
 		this.org_name = "org"+uid;
 		KatelloOrg org = new KatelloOrg(this.org_name,null);
-		SSHCommandResult res = org.create();
+		SSHCommandResult res = org.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 	}
 	
@@ -33,7 +33,7 @@ public class ProviderTests extends KatelloCliTestScript{
 		String uid = KatelloTestScript.getUniqueID();
 		String tmpOrg = "tmpOrg"+uid;
 		KatelloOrg org = new KatelloOrg(tmpOrg,null);
-		SSHCommandResult res = org.create();
+		SSHCommandResult res = org.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		
 		// assertions - `provider list` 
@@ -95,7 +95,7 @@ public class ProviderTests extends KatelloCliTestScript{
 		String orgName = "delRH"+uid;
 		
 		KatelloOrg org = new KatelloOrg(orgName, null);
-		res = org.create();
+		res = org.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		
 		KatelloProvider prov = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, this.org_name, null, null);
@@ -153,7 +153,7 @@ public class ProviderTests extends KatelloCliTestScript{
 		String org1 = "anotherOrg"+uid;
 		
 		KatelloOrg org = new KatelloOrg(org1,null);
-		SSHCommandResult res = org.create();
+		SSHCommandResult res = org.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 
 		KatelloProvider prov = new KatelloProvider(provName, this.org_name, null, null);

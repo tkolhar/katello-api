@@ -11,6 +11,7 @@ import org.testng.annotations.Test;
 import com.redhat.qe.auto.testng.Assert;
 import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.cli.KatelloEnvironment;
+import com.redhat.qe.katello.base.cli.KatelloOrg;
 
 @Test(groups={"cfse-api"})
 public class EnvironmentsTest extends KatelloTestScript{
@@ -23,7 +24,8 @@ public class EnvironmentsTest extends KatelloTestScript{
 		String uid = KatelloTestScript.getUniqueID();
 		this.org_name = "auto-org-"+uid; 
 		String org_descr = "Test Organization "+uid;
-		servertasks.createOrganization(this.org_name, org_descr);
+		KatelloOrg org = new KatelloOrg(org_name, org_descr);
+		org.api_create();
 	}
 	
 	@Test (groups={"testEnvs"}, description="Existance of root env created by default", dependsOnMethods="test_createEnvironment_priorLocker")

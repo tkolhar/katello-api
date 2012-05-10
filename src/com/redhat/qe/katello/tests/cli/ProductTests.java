@@ -27,7 +27,7 @@ public class ProductTests  extends KatelloCliTestScript{
 		this.org_name = "org"+uid;
 		this.prov_name = "prov"+uid;
 		KatelloOrg org = new KatelloOrg(this.org_name, null);
-		res = org.create();
+		res = org.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (org create)");
 		KatelloProvider prov = new KatelloProvider(this.prov_name, this.org_name, null, null);
 		res = prov.create();

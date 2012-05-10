@@ -34,7 +34,7 @@ public class SystemTests extends KatelloCliTestScript{
 		this.envName_Test = "Test-"+uid;
 		
 		KatelloOrg org = new KatelloOrg(this.orgName, null);
-		exec_result = org.create();
+		exec_result = org.cli_create();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code (org create)");
 		Assert.assertTrue(exec_result.getStdout().trim().equals(String.format(KatelloOrg.OUT_CREATE,this.orgName)),
 				"Check - returned message");

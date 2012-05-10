@@ -2,6 +2,8 @@ package com.redhat.qe.katello.base.cli;
 
 import java.util.ArrayList;
 import javax.management.Attribute;
+
+import com.redhat.qe.katello.base.KatelloApi;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.tools.SSHCommandResult;
 
@@ -10,7 +12,7 @@ public class KatelloOrg {
 	// ** ** ** ** ** ** ** Public constants
 	public static final String DEFAULT_ORG = "ACME_Corporation";
 	
-	public static final String CMD_CREATE = "org create";
+	public static final String CLI_CMD_CREATE = "org create";
 	public static final String CMD_INFO = "org info";
 	public static final String CMD_LIST = "org list";
 	public static final String CMD_SUBSCRIPTIONS = "org subscriptions";
@@ -18,6 +20,7 @@ public class KatelloOrg {
 	public static final String CMD_DELETE = "org delete";
 	public static final String CMD_UPDATE = "org update";
 	
+	public static final String API_CMD_CREATE = "/organizations";
 	
 	public static final String ERR_TEMPLATE_NOTFOUND = 
 			"Could not find template [ %s ]";	
@@ -37,12 +40,19 @@ public class KatelloOrg {
 		this.opts = new ArrayList<Attribute>();
 	}
 	
-	public SSHCommandResult create(){		
+	public SSHCommandResult cli_create(){		
 		opts.clear();
 		opts.add(new Attribute("name", this.name));
 		opts.add(new Attribute("description", this.description));
-		cli = new KatelloCli(CMD_CREATE, opts);
+		cli = new KatelloCli(CLI_CMD_CREATE, opts);
 		return cli.run();
+	}
+	public SSHCommandResult api_create(){		
+		opts.clear();
+		opts.add(new Attribute("name", this.name));
+		opts.add(new Attribute("description", this.description));
+		KatelloApi api = new KatelloApi(opts);
+		return api.post(API_CMD_CREATE);
 	}
 	
 	public SSHCommandResult info(){

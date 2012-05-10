@@ -47,7 +47,7 @@ public class PromoteErrata extends KatelloCliTestScript{
 		
 		log.info("E2E - Create org");
 		KatelloOrg org = new KatelloOrg(this.org, null);
-		org.create();
+		org.cli_create();
 	}
 	
 	@Test(description="Create org, provider, product and repo", enabled=true)

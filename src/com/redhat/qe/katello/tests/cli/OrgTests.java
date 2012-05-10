@@ -28,7 +28,7 @@ public class OrgTests extends KatelloCliTestScript{
 			dataProvider = "org_create")
 	public void test_createOrg(String name, String descr){		
 		KatelloOrg org = new KatelloOrg(name, descr);
-		SSHCommandResult res = org.create();
+		SSHCommandResult res = org.cli_create();
 		
 		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
 		if(this.orgs ==null){
@@ -62,7 +62,7 @@ public class OrgTests extends KatelloCliTestScript{
 		String uniqueID = KatelloTestScript.getUniqueID();
 		KatelloOrg org = new KatelloOrg("orgUpd"+uniqueID, "Simple description");		
 		
-		res = org.create();
+		res = org.cli_create();
 		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
 		String new_desc = String.format("Updated %s",org.description);
 		res = org.update(new_desc);
@@ -79,7 +79,7 @@ public class OrgTests extends KatelloCliTestScript{
 		String uniqueID = KatelloTestScript.getUniqueID();
 		KatelloOrg org = new KatelloOrg("orgDel"+uniqueID, null);
 		
-		org.create();
+		org.cli_create();
 		SSHCommandResult res = org.delete();
 		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(res).contains(String.format("Successfully deleted org [ %s ]",org.name)),"Check - return string");

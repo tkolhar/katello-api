@@ -53,7 +53,7 @@ public class RhsmOnlyPermissions extends KatelloCliTestScript{
 
 		this.org = "org-RHSM-only-"+uid;
 		KatelloOrg org = new KatelloOrg(this.org, null);
-		org.create();
+		org.cli_create();
 		KatelloEnvironment env = new KatelloEnvironment(this.env_dev, null, this.org, KatelloEnvironment.LIBRARY);
 		env.create();
 		env = new KatelloEnvironment(this.env_test, null, this.org, KatelloEnvironment.LIBRARY);
