@@ -17,7 +17,7 @@ public class OrgTests extends KatelloCliTestScript{
 			description = "List all orgs - ACME_Corporation should be there")
 	public void test_listOrgs_ACME_Corp(){
 		KatelloOrg list_org = new KatelloOrg(null,null);
-		SSHCommandResult res = list_org.list();
+		SSHCommandResult res = list_org.cli_list();
 		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(res).contains(KatelloOrg.DEFAULT_ORG), "Check - contains: ["+KatelloOrg.DEFAULT_ORG+"]");
 	}
@@ -44,7 +44,7 @@ public class OrgTests extends KatelloCliTestScript{
 		String REG_ORG_LIST = ".*Id:\\s+\\d+.*Name:\\s+%s.*Description:\\s+%s.*";
 
 		KatelloOrg list_org = new KatelloOrg(null,null);
-		SSHCommandResult res = list_org.list();
+		SSHCommandResult res = list_org.cli_list();
 		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code (org list)");
 		
 		for(int i=0;i<this.orgs.size();i++){

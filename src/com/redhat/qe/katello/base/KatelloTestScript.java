@@ -10,9 +10,12 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+
+import com.redhat.qe.katello.base.cli.KatelloOrg;
 import com.redhat.qe.katello.common.KatelloConstants;
 import com.redhat.qe.katello.tasks.KatelloTasks;
 import com.redhat.qe.tools.ExecCommands;
+import com.redhat.qe.tools.SSHCommandResult;
 import com.redhat.qe.tools.SSHCommandRunner;
 
 public class KatelloTestScript 
@@ -112,7 +115,9 @@ public class KatelloTestScript
 	}
 	
 	private void setup_defaultOrg(){
-		JSONArray orgs = servertasks.getOrganizations();
+		KatelloOrg _org = new KatelloOrg(null, null);
+		SSHCommandResult res = _org.api_list();
+		JSONArray orgs = KatelloTestScript.toJSONArr(res.getStdout());
 		JSONObject org;
 		for(int i=0;i<orgs.size();i++){
 			org = (JSONObject)orgs.get(i);

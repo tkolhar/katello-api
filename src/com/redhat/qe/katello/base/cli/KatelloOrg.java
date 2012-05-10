@@ -21,6 +21,7 @@ public class KatelloOrg {
 	public static final String CMD_UPDATE = "org update";
 	
 	public static final String API_CMD_CREATE = "/organizations";
+	public static final String API_CMD_LIST = "/organizations";
 	
 	public static final String ERR_TEMPLATE_NOTFOUND = 
 			"Could not find template [ %s ]";	
@@ -62,12 +63,18 @@ public class KatelloOrg {
 		return cli.run();
 	}
 	
-	public SSHCommandResult list(){
+	public SSHCommandResult cli_list(){
 		opts.clear();
 		KatelloCli cli = new KatelloCli(CMD_LIST+" -v", opts);
 		return cli.run();
 	}
 		
+	public SSHCommandResult api_list(){
+		opts.clear();
+		KatelloApi api = new KatelloApi(opts);
+		return api.get(API_CMD_LIST);
+	}
+
 	public SSHCommandResult subscriptions(){
 		opts.clear();
 		opts.add(new Attribute("name", this.name));

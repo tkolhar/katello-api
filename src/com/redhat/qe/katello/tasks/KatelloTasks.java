@@ -165,18 +165,6 @@ public class KatelloTasks {
 		return _return;		
 	}
 
-	public JSONArray getOrganizations(){
-		JSONArray _return = null; String retStr;
-		try{
-			retStr = apiKatello_GET(String.format("/organizations"));
-			_return = KatelloTestScript.toJSONArr(retStr);
-			log.info("Retrieve organizations list");
-		}catch (Exception e) {
-			log.log(Level.SEVERE, e.getMessage(), e);
-		}
-		return _return;
-	}
-		
 	public String createEnvironment(String orgName, String envName, String envDesc){
 		return createEnvironment(orgName, envName, envDesc,KatelloEnvironment.LIBRARY);
 	}
