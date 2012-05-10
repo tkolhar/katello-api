@@ -11,8 +11,8 @@ import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.cli.KatelloEnvironment;
 
 @Test(groups={"cfse-api"})
-public class A_ConsumersTest extends KatelloTestScript {
-	protected static Logger log = Logger.getLogger(A_ConsumersTest.class.getName());
+public class ConsumersTest extends KatelloTestScript {
+	protected static Logger log = Logger.getLogger(ConsumersTest.class.getName());
 
 	private String consumer_id = null;
 	private String consumer_name = null;
