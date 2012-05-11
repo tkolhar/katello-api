@@ -11,6 +11,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.cli.KatelloEnvironment;
+import com.redhat.qe.katello.base.cli.KatelloProduct;
 import com.redhat.qe.katello.base.cli.KatelloProvider;
 import com.redhat.qe.katello.common.KatelloConstants;
 import com.redhat.qe.tools.ExecCommands;
@@ -294,22 +295,23 @@ public class KatelloTasks {
 		return _return;		
 	}
 	
-	public String getProducts(String orgName){
-		String _return=null;
-		try{
-			_return = apiKatello_GET("/organizations/"+orgName+"/products/");
-			log.info(String.format("Get product(s) for organization: name=[%s]", 
-					orgName));
-		}catch (Exception e) {
-			log.log(Level.SEVERE, e.getMessage(), e);
-		}
-		return _return;		
-	}
-	
+//	public String getProducts(String orgName){
+//		String _return=null;
+//		try{
+//			_return = apiKatello_GET("/organizations/"+orgName+"/products/");
+//			log.info(String.format("Get product(s) for organization: name=[%s]", 
+//					orgName));
+//		}catch (Exception e) {
+//			log.log(Level.SEVERE, e.getMessage(), e);
+//		}
+//		return _return;		
+//	}
+//	
 	public JSONObject getProductByOrg(String orgName, String productName){
 		JSONObject prod =null;
 		try{
-			JSONArray jprods = KatelloTestScript.toJSONArr(getProducts(orgName)); 
+			KatelloProduct _prod = new KatelloProduct(null, orgName, null, null, null, null, null, null);
+			JSONArray jprods = KatelloTestScript.toJSONArr(_prod.api_list().getStdout()); 
 			if(jprods ==null) return null;
 			log.info(String.format("Get product: name=[%s]",productName));
 			for(int i=0;i<jprods.size();i++){
@@ -380,22 +382,6 @@ public class KatelloTasks {
 		return _return;		
 	}
 	
-//	/**
-//	 * Returns the JSON String of all providers of Katello by specific organization 
-//	 * @param org_name Organization name to filter the returned providers for
-//	 * @return Providers list for the specified organization
-//	 */
-//	public String getProviders(String org_name){
-//		String _return=null;
-//		try{
-//			_return = apiKatello_GET("/organizations/"+org_name+"/providers");
-//			log.info("Return list of all providers for an org: ["+org_name+"]");
-//		}catch (Exception e) {
-//			log.log(Level.SEVERE, e.getMessage(), e);
-//		}
-//		return _return;
-//	}
-//
 	public JSONObject getProvider(String org_name, String byName){
 		JSONArray providers = KatelloTestScript.toJSONArr(
 				new KatelloProvider(null, org_name, null, null).api_list(org_name).getStdout());

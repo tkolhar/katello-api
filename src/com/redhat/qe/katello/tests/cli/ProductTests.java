@@ -191,7 +191,7 @@ public class ProductTests  extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(res).contains(String.format(KatelloProduct.OUT_PROMOTED,prodName,envName)), "Check - returned output string (product promote)");
 		
 		// product list --environment (1 result - just the product promoted)
-		res = prod.list(envName);
+		res = prod.cli_list(envName);
 		String REGEXP_PRODUCT_LIST = ".*Id:\\s+\\d+Name:\\s+"+prodName+".*Provider Name:\\s+"+prov_name+".*";
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST),
 				"Product list by environment - just promoted product");
@@ -235,7 +235,7 @@ public class ProductTests  extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(res).contains(String.format(KatelloProduct.OUT_PROMOTED,prodName,envName)), "Check - returned output string (product promote)");
 		
 		// product list --environment (1 result - just the product promoted)
-		res = prod.list(envName);
+		res = prod.cli_list(envName);
 		String REGEXP_PRODUCT_LIST = ".*Id:\\s+\\d+Name:\\s+"+prodName+".*Provider Name:\\s+"+prov_name+".*";
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST),
 				"Product list by environment - just promoted product");
@@ -367,7 +367,7 @@ public class ProductTests  extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST_X86_64),
 				"Repo list by environment - should contain info");
 		// Assertions - product list by env
-		res = prod.list(envName_dev);
+		res = prod.cli_list(envName_dev);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product list --environment)");
 		String REGEXP_PRODUCT_LIST = ".*Name:\\s+"+prodName+".*Provider Name:\\s+"+this.prov_name+".*";
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST), 
@@ -382,7 +382,7 @@ public class ProductTests  extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(res).contains(String.format(KatelloProduct.OUT_DELETED,prodId)), "Check - returned output string (product delete)");
 		
 		// Assertions - product list of the org
-		res = prod.list();
+		res = prod.cli_list();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product list --provider)");
 		REGEXP_PRODUCT_LIST = ".*Name:\\s+"+prodName+".*Provider Name:\\s+"+this.prov_name+".*";
 		Assert.assertFalse(getOutput(res).replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST), 
@@ -402,7 +402,7 @@ public class ProductTests  extends KatelloCliTestScript{
 		Assert.assertFalse(getOutput(res).replaceAll("\n", "").matches(REGEXP_NOREPO), "Check - `repo list --environment` output string");
 		
 		// Assertions - product list of env.
-		res = prod.list(envName_dev);
+		res = prod.cli_list(envName_dev);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product list --environment)");
 		REGEXP_PRODUCT_LIST = ".*Name:\\s+"+prodName+".*Provider Name:\\s+"+this.prov_name+".*";
 		Assert.assertFalse(getOutput(res).replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST), 

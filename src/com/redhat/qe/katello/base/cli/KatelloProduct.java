@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.logging.Logger;
 import javax.management.Attribute;
 import org.testng.Assert;
+
+import com.redhat.qe.katello.base.KatelloApi;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.tools.SSHCommandResult;
@@ -15,7 +17,7 @@ public class KatelloProduct {
 	
 	// ** ** ** ** ** ** ** Public constants
 	public static final String CMD_CREATE = "product create";
-	public static final String CMD_LIST = "product list -v";
+	public static final String CLI_CMD_LIST = "product list -v";
 	public static final String CMD_STATUS = "product status";
 	public static final String CMD_SYNC = "product synchronize";
 	public static final String CMD_PROMOTE = "product promote";
@@ -40,6 +42,8 @@ public class KatelloProduct {
 	public static final String ERR_PROMOTE_NOREPOS = 
 			"Product '%s' hasn't any repositories";
 
+	public static final String API_CMD_LIST = "/organizations/%s/products"; // by org
+	
 	// ** ** ** ** ** ** ** Class members
 	String name;
 	String org;
@@ -86,20 +90,20 @@ public class KatelloProduct {
 		return cli.run();
 	}
 	
-	public SSHCommandResult list(){
+	public SSHCommandResult cli_list(){
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("provider", provider));
-		cli = new KatelloCli(CMD_LIST, opts);
+		cli = new KatelloCli(CLI_CMD_LIST, opts);
 		return cli.run();
 	}
 
-	public SSHCommandResult list(String environment){
+	public SSHCommandResult cli_list(String environment){
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("provider", provider));
 		opts.add(new Attribute("environment", environment));
-		cli = new KatelloCli(CMD_LIST, opts);
+		cli = new KatelloCli(CLI_CMD_LIST, opts);
 		return cli.run();
 	}
 	
@@ -136,6 +140,11 @@ public class KatelloProduct {
 		return cli.run();
 	}
 	
+	public SSHCommandResult api_list(){
+		return new KatelloApi().get(String.format(API_CMD_LIST, this.org));
+	}
+
+	
 	// ** ** ** ** ** ** **
 	// ASSERTS
 	// ** ** ** ** ** ** **
@@ -146,13 +155,13 @@ public class KatelloProduct {
 		
 		REGEXP_PRODUCT_LIST = ".*Name:\\s+"+this.name+".*Provider Name:\\s+"+this.provider+".*";
 		log.info("Assertions: product exists");
-		res = list();
+		res = cli_list();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		Assert.assertTrue(KatelloCliTestScript.sgetOutput(res).replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST),
 				"List should contain info about product (requested by: provider)");
 
 		if(envName!=null){
-			res = list(envName);
+			res = cli_list(envName);
 			Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 			Assert.assertTrue(KatelloCliTestScript.sgetOutput(res).replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST), 
 					"List should contain info about product (requested by: environment)");

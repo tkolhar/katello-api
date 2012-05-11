@@ -10,6 +10,8 @@ import org.testng.annotations.Test;
 import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.cli.KatelloEnvironment;
 import com.redhat.qe.katello.base.cli.KatelloOrg;
+import com.redhat.qe.katello.base.cli.KatelloProduct;
+import com.redhat.qe.katello.base.cli.KatelloProvider;
 
 @Test(groups={"cfse-api"})
 public class ConsumersTest extends KatelloTestScript {
@@ -127,9 +129,10 @@ public class ConsumersTest extends KatelloTestScript {
 		if(servertasks.getProductByOrg(org_name, AWESOME_SERVER_BASIC)==null){ // there is no export.zip processed, FINE~
 			try{
 				String provider_id = ((Long)servertasks.getProvider(org_name, prov_MF).get("id")).toString();
-				int prods_before = ((JSONArray)KatelloTestScript.toJSONArr(servertasks.getProducts(org_name))).size();
+				KatelloProduct prod = new KatelloProduct(null, org_name, null, null, null, null, null, null);
+				int prods_before = ((JSONArray)KatelloTestScript.toJSONArr(prod.api_list().getStdout())).size();
 				String ret = servertasks.apiKatello_POST_manifest(EXPORT_ZIP_PATH, "/providers/"+provider_id+"/import_manifest");
-				int prods_after = ((JSONArray)KatelloTestScript.toJSONArr(servertasks.getProducts(org_name))).size();
+				int prods_after = ((JSONArray)KatelloTestScript.toJSONArr(prod.api_list().getStdout())).size();
 				Assert.assertEquals(ret, "Manifest imported","Output should be: \"Manifest imported\"");
 				Assert.assertTrue((prods_after-prods_before)>=PRODUCTS_IN_EXPORT_ZIP, "Check imported products: >=["+PRODUCTS_IN_EXPORT_ZIP+"]");
 			}catch(IOException ie){
