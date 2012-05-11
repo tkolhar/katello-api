@@ -295,18 +295,6 @@ public class KatelloTasks {
 		return _return;		
 	}
 	
-//	public String getProducts(String orgName){
-//		String _return=null;
-//		try{
-//			_return = apiKatello_GET("/organizations/"+orgName+"/products/");
-//			log.info(String.format("Get product(s) for organization: name=[%s]", 
-//					orgName));
-//		}catch (Exception e) {
-//			log.log(Level.SEVERE, e.getMessage(), e);
-//		}
-//		return _return;		
-//	}
-//	
 	public JSONObject getProductByOrg(String orgName, String productName){
 		JSONObject prod =null;
 		try{
@@ -323,50 +311,6 @@ public class KatelloTasks {
 			log.log(Level.SEVERE, e.getMessage(), e);
 		}
 		return null;
-	}
-	
-	public JSONObject getProductByProvider(String orgName, String providerName, String productName){
-		JSONObject prod =null;
-		try{
-			String provider_id = ((Long)getProvider(orgName, providerName).get("id")).toString();
-			JSONArray jproducts = KatelloTestScript.toJSONArr(apiKatello_GET("/providers/"+provider_id+"/products")); 
-			if(jproducts ==null) return null;
-			log.info(String.format("Get product: name=[%s]",productName));
-			for(int i=0;i<jproducts.size();i++){
-				prod = (JSONObject)jproducts.get(i);
-				if(((String)prod.get("name")).equals(productName))
-					return prod;
-			}
-		}catch (Exception e) {
-			log.log(Level.SEVERE, e.getMessage(), e);
-		}
-		return null;
-	}
-
-	public JSONObject getPool(String productName){
-		JSONObject pool =null;
-		try{
-			JSONArray jpools = KatelloTestScript.toJSONArr(apiKatello_GET("/pools/")); 
-			if(jpools ==null) return null;
-			log.info(String.format("Get pool for the product: [%s]",productName));
-			for(int i=0;i<jpools.size();i++){
-				pool = (JSONObject)jpools.get(i);
-				if(((String)pool.get("productName")).equals(productName))
-					return pool;
-			}
-		}catch (Exception e) {
-			log.log(Level.SEVERE, e.getMessage(), e);
-		}
-		return null;		
-	}
-	
-	public JSONArray getPools(){
-		try{
-			return KatelloTestScript.toJSONArr(apiKatello_GET("/pools/")); 
-		}catch (Exception e) {
-			log.log(Level.SEVERE, e.getMessage(), e);
-		}
-		return null;		
 	}
 	
 	public String subscribeConsumer(String consumerID, String poolID){
@@ -428,18 +372,6 @@ public class KatelloTasks {
 //					"/consumers?owner="+orgName);
 			log.info(String.format("Creating consumer from [%s] template with: uuid=[%s]; hostname=[%s]; org_name=[%s]", 
 					json_filename,uuid, hostname,orgName));
-		}catch (Exception e) {
-			log.log(Level.SEVERE, e.getMessage(), e);
-		}
-		return _return;		
-	}
-	
-	public String getConsumer(String consumer_id){
-		String _return=null;
-		try{
-			_return = apiKatello_GET("/consumers/"+consumer_id);
-			log.info(String.format("Return consumer details for: uuid=[%s]", 
-					consumer_id));
 		}catch (Exception e) {
 			log.log(Level.SEVERE, e.getMessage(), e);
 		}

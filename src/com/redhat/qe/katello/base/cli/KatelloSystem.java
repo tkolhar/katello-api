@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import javax.management.Attribute;
 
+import com.redhat.qe.katello.base.KatelloApi;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.tasks.KatelloTasks;
 import com.redhat.qe.tools.SSHCommandResult;
@@ -33,6 +34,9 @@ public class KatelloSystem {
 			"Organization %s has more than one environment. Please specify target environment for system registration.";
 	public static final String OUT_REMOTE_ACTION_DONE = "Remote action finished:";
 
+	public static final String API_CMD_INFO = "/consumers/%s";
+	
+	
 	// ** ** ** ** ** ** ** Class members
 	String name;
 	String org;
@@ -105,5 +109,10 @@ public class KatelloSystem {
 		cli = new KatelloCli(CMD_PACKAGES, opts);
 		return cli.run();
 	}
+	
+	public SSHCommandResult api_info(String byId){
+		return new KatelloApi().get(String.format(API_CMD_INFO, byId));
+	}
+	
 	
 }

@@ -9,9 +9,10 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.cli.KatelloEnvironment;
+import com.redhat.qe.katello.base.cli.KatelloMisc;
 import com.redhat.qe.katello.base.cli.KatelloOrg;
 import com.redhat.qe.katello.base.cli.KatelloProduct;
-import com.redhat.qe.katello.base.cli.KatelloProvider;
+import com.redhat.qe.katello.base.cli.KatelloSystem;
 
 @Test(groups={"cfse-api"})
 public class ConsumersTest extends KatelloTestScript {
@@ -51,7 +52,8 @@ public class ConsumersTest extends KatelloTestScript {
 	
 	@Test( groups = {"testConsumers"}, description = "Retrieve consumer" , dependsOnMethods = {"test_createConsumer"})
 	public void test_getConsumer(){
-		JSONObject jcons = KatelloTestScript.toJSONObj(servertasks.getConsumer(consumer_id));
+		JSONObject jcons = KatelloTestScript.toJSONObj(
+				new KatelloSystem(null, null, null, null).api_info(consumer_id).getStdout());
 		Assert.assertEquals(consumer_id, (String)jcons.get("uuid"),"Check returned: uuid");
 		
 		JSONObject json_env = servertasks.getEnvironment(org_name, env_name);
@@ -70,7 +72,8 @@ public class ConsumersTest extends KatelloTestScript {
 		
 		upd_component = "uname.release";upd_value = "2.6.32-130.el6.i386";
 		updateFacts(upd_component, upd_value);
-		JSONObject jcons = KatelloTestScript.toJSONObj(servertasks.getConsumer(consumer_id));
+		JSONObject jcons = KatelloTestScript.toJSONObj(
+				new KatelloSystem(null, null, null, null).api_info(consumer_id).getStdout());
 		Assert.assertEquals(upd_value, (String)((JSONObject)jcons.get("facts")).get(upd_component),
 				"Check updated: facts."+upd_component);
 		// TODO - check the update_at <> created_at 
@@ -82,7 +85,7 @@ public class ConsumersTest extends KatelloTestScript {
 		JSONObject _return = null; String retStr;
 		// Get facts object to modify it and update again :)
 		JSONObject jfacts = (JSONObject)KatelloTestScript.toJSONObj(
-				servertasks.getConsumer(consumer_id)).get("facts");
+				new KatelloSystem(null, null, null, null).api_info(consumer_id).getStdout()).get("facts");
 		jfacts.put(component, updValue); // <--- suppress warnings are for me
 		String updConsumer = jfacts.toJSONString().replaceAll("\"", "'");
 		updConsumer = "{'facts':"+updConsumer+"}";
@@ -110,7 +113,7 @@ public class ConsumersTest extends KatelloTestScript {
 		String ret = servertasks.deleteConsumer(cid);
 		Assert.assertEquals("", ret,"Check returned string (empty)");
 		
-		String sCons = servertasks.getConsumer(cid); // try to request the removed consumer
+		String sCons = new KatelloSystem(null, null, null, null).api_info(cid).getStdout(); // try to request the removed consumer
 		Assert.assertTrue(sCons.contains("Consumer "+cid+" has been deleted"),
 				"Check API request to get consumer: ["+cid+"]");
 	}
@@ -146,7 +149,7 @@ public class ConsumersTest extends KatelloTestScript {
 	@Test(dependsOnMethods={"test_createConsumer","test_importManifest"},
 			description="Subscribe consumer system to a pool", enabled=false)
 	public void test_subscribeConsumer(){
-		JSONObject jpool = servertasks.getPool(AWESOME_SERVER_BASIC);
+		JSONObject jpool = new KatelloMisc().api_getPoolByProduct(AWESOME_SERVER_BASIC);
 		String pool_id = (String)jpool.get("id");
 		String ret = servertasks.subscribeConsumer(consumer_id, pool_id);
 		JSONObject jentl = (JSONObject)KatelloTestScript.toJSONArr(ret).get(0);
@@ -160,7 +163,7 @@ public class ConsumersTest extends KatelloTestScript {
 	@Test(dependsOnMethods={"test_subscribeConsumer"},
 			description="Re-subscribe consumer system to a pool", enabled=false)
 	public void test_resubscribeToPool(){
-		JSONObject jpool = servertasks.getPool(AWESOME_SERVER_BASIC);
+		JSONObject jpool = new KatelloMisc().api_getPoolByProduct(AWESOME_SERVER_BASIC);
 		String pool_id = (String)jpool.get("id");
 		String ret = servertasks.subscribeConsumer(consumer_id, pool_id);
 		Assert.assertEquals(ret, "{\"displayMessage\":\"" +
@@ -176,7 +179,7 @@ public class ConsumersTest extends KatelloTestScript {
 		String s = servertasks.createConsumer(org_name, cname, uuid, "data/facts-virt.json");
 		JSONObject jcons = KatelloTestScript.toJSONObj(s);
 		String cid = (String)jcons.get("uuid");
-		JSONObject jpool = servertasks.getPool(AWESOME_SERVER_BASIC);
+		JSONObject jpool = new KatelloMisc().api_getPoolByProduct(AWESOME_SERVER_BASIC);
 		String pool_id = (String)jpool.get("id");
 		servertasks.subscribeConsumer(cid, pool_id); // Hope the 100 subscriptions did not get all consumed :P
 		JSONArray jserials = KatelloTestScript.toJSONArr(servertasks.getSerials(cid));
@@ -195,7 +198,7 @@ public class ConsumersTest extends KatelloTestScript {
 		String cname = "auto-"+KatelloTestScript.getUniqueID()+".unsubscribe.all";
 		String s = servertasks.createConsumer(org_name, cname, KatelloTestScript.getUUID(), "data/facts-virt.json");
 		String consumer_id = (String)KatelloTestScript.toJSONObj(s).get("uuid");
-		JSONArray pools = servertasks.getPools();
+		JSONArray pools = KatelloTestScript.toJSONArr(new KatelloMisc().api_getPools().getStdout());
 		for(int i=0;i<pools.size();i++){
 			pool = (JSONObject)pools.get(i);
 			if(((String)((JSONObject)pool.get("owner")).get("displayName")).equals(org_name)){
