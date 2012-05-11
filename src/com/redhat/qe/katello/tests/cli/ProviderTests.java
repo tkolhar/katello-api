@@ -56,7 +56,7 @@ public class ProviderTests extends KatelloCliTestScript{
 		
 		// assertions - `provider info`
 		// get info of "Red Hat" provider
-		res = new KatelloOrg(org_name, null).info();
+		res = new KatelloOrg(org_name, null).cli_info();
 		
 		String orgId = KatelloTasks.grepCLIOutput("Id", getOutput(res));
 		prov = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, org_name, null, null);

@@ -143,18 +143,18 @@ public class KatelloTasks {
 		return _return;		
 	}
 	
-	public JSONObject getOrganization(String orgName){
-		JSONObject _return = null; String retStr;
-		try{
-			retStr = apiKatello_GET(String.format("/organizations/%s", orgName));
-			_return = KatelloTestScript.toJSONObj(retStr);
-			log.info(String.format("Retrieve Org info for: name=[%s]",orgName));
-		}catch (Exception e) {
-			log.log(Level.SEVERE, e.getMessage(), e);
-		}
-		return _return;		
-	}
-
+//	public JSONObject getOrganization(String orgName){
+//		JSONObject _return = null; String retStr;
+//		try{
+//			retStr = apiKatello_GET(String.format("/organizations/%s", orgName));
+//			_return = KatelloTestScript.toJSONObj(retStr);
+//			log.info(String.format("Retrieve Org info for: name=[%s]",orgName));
+//		}catch (Exception e) {
+//			log.log(Level.SEVERE, e.getMessage(), e);
+//		}
+//		return _return;		
+//	}
+//
 	public String createEnvironment(String orgName, String envName, String envDesc){
 		return createEnvironment(orgName, envName, envDesc,KatelloEnvironment.LIBRARY);
 	}

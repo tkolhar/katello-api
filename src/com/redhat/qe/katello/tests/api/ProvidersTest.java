@@ -17,6 +17,7 @@ import org.testng.annotations.Test;
 
 import com.redhat.qe.auto.testng.Assert;
 import com.redhat.qe.katello.base.KatelloTestScript;
+import com.redhat.qe.katello.base.cli.KatelloOrg;
 import com.redhat.qe.katello.common.KatelloConstants;
 
 @Test(groups={"cfse-api"})
@@ -51,7 +52,7 @@ public class ProvidersTest extends KatelloTestScript {
 		Assert.assertEquals(json_prov.get("provider_type"), 
 				"Custom",
 				"Katello - Check provider: provider_type");
-		JSONObject json_org = servertasks.getOrganization(org_name);
+		JSONObject json_org = KatelloTestScript.toJSONObj(new KatelloOrg(org_name, null).api_info().getStdout());
 		Assert.assertEquals(json_prov.get("organization_id"), 
 				json_org.get("id"),
 				"Katello - Check provider: organization_id");

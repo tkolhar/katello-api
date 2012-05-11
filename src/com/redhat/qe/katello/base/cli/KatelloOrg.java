@@ -13,8 +13,8 @@ public class KatelloOrg {
 	public static final String DEFAULT_ORG = "ACME_Corporation";
 	
 	public static final String CLI_CMD_CREATE = "org create";
-	public static final String CMD_INFO = "org info";
-	public static final String CMD_LIST = "org list";
+	public static final String CLI_CMD_INFO = "org info";
+	public static final String CLI_CMD_LIST = "org list";
 	public static final String CMD_SUBSCRIPTIONS = "org subscriptions";
 	public static final String CMD_UEBERCERT = "org uebercert";
 	public static final String CMD_DELETE = "org delete";
@@ -22,6 +22,7 @@ public class KatelloOrg {
 	
 	public static final String API_CMD_CREATE = "/organizations";
 	public static final String API_CMD_LIST = "/organizations";
+	public static final String API_CMD_INFO = "/organizations/%s";
 	
 	public static final String ERR_TEMPLATE_NOTFOUND = 
 			"Could not find template [ %s ]";	
@@ -56,23 +57,24 @@ public class KatelloOrg {
 		return api.post(API_CMD_CREATE);
 	}
 	
-	public SSHCommandResult info(){
+	public SSHCommandResult cli_info(){
 		opts.clear();
 		opts.add(new Attribute("name", this.name));
-		cli = new KatelloCli(CMD_INFO, opts);
+		cli = new KatelloCli(CLI_CMD_INFO, opts);
 		return cli.run();
+	}
+	public SSHCommandResult api_info(){
+		return new KatelloApi().get(String.format(API_CMD_INFO,this.name));
 	}
 	
 	public SSHCommandResult cli_list(){
 		opts.clear();
-		KatelloCli cli = new KatelloCli(CMD_LIST+" -v", opts);
+		KatelloCli cli = new KatelloCli(CLI_CMD_LIST+" -v", opts);
 		return cli.run();
 	}
 		
 	public SSHCommandResult api_list(){
-		opts.clear();
-		KatelloApi api = new KatelloApi(opts);
-		return api.get(API_CMD_LIST);
+		return new KatelloApi().get(API_CMD_LIST);
 	}
 
 	public SSHCommandResult subscriptions(){

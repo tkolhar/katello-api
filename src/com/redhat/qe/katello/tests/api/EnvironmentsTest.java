@@ -34,7 +34,7 @@ public class EnvironmentsTest extends KatelloTestScript{
 		KatelloEnvironment env = new KatelloEnvironment(null, null, org_name, null);
 		JSONArray json = toJSONArr(env.api_list().getStdout());
 		log.finer("Returned JSON for getEnvironments(): "+json.toJSONString());
-		JSONObject json_org = servertasks.getOrganization(this.org_name);;
+		JSONObject json_org = KatelloTestScript.toJSONObj(new KatelloOrg(org_name, null).api_info().getStdout());
 		log.finer("Returned JSON for getOrganization(): "+json_org.toJSONString());
 		JSONObject json_root = null;
 		for(int i=0;i<json.size();i++){
@@ -70,7 +70,7 @@ public class EnvironmentsTest extends KatelloTestScript{
 	public void test_listEnvironment(){
         JSONObject json_env = servertasks.getEnvironment(this.org_name, this.env_name);
         Assert.assertEquals(this.env_name, json_env.get("name"),"Check: name");
-        JSONObject json_org = servertasks.getOrganization(this.org_name);
+        JSONObject json_org = KatelloTestScript.toJSONObj(new KatelloOrg(org_name, null).api_info().getStdout());
         Assert.assertEquals(json_org.get("id"), json_env.get("organization_id"),"Check: organization_id");		
 	}
 	

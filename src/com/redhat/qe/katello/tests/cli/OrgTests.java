@@ -84,7 +84,7 @@ public class OrgTests extends KatelloCliTestScript{
 		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(res).contains(String.format("Successfully deleted org [ %s ]",org.name)),"Check - return string");
 		
-		res = org.info();
+		res = org.cli_info();
 		Assert.assertEquals(res.getExitCode(), new Integer(148),"Check - return code [148]");
 		Assert.assertEquals(getOutput(res).trim(), 
 				String.format("Couldn't find organization '%s'",org.name));
@@ -93,7 +93,7 @@ public class OrgTests extends KatelloCliTestScript{
 	private void assert_orgInfo(KatelloOrg org){
 		String REG_ORG_INFO = ".*Id:\\s+\\d+.*Name:\\s+%s.*Description:.*%s.*";
 		SSHCommandResult res;
-		res = org.info();
+		res = org.cli_info();
 		String match_info = String.format(REG_ORG_INFO,org.name,org.description).replaceAll("\"", "");
 		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
 		log.finest(String.format("Org (info) match regex: [%s]",match_info));
