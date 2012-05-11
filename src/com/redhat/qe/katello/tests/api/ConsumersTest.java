@@ -111,7 +111,7 @@ public class ConsumersTest extends KatelloTestScript {
 		Assert.assertEquals("", ret,"Check returned string (empty)");
 		
 		String sCons = servertasks.getConsumer(cid); // try to request the removed consumer
-		Assert.assertTrue(sCons.contains("Couldn't find system '"+cid+"'"),
+		Assert.assertTrue(sCons.contains("Consumer "+cid+" has been deleted"),
 				"Check API request to get consumer: ["+cid+"]");
 	}
 	
