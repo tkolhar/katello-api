@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import javax.management.Attribute;
 
+import com.redhat.qe.katello.base.KatelloApi;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.tools.SSHCommandResult;
 
@@ -13,7 +14,7 @@ public class KatelloProvider {
 	public static final String PROVIDER_REDHAT = "Red Hat";
 	public static final String CMD_CREATE = "provider create";
 	public static final String CMD_IMPORT_MANIFEST = "provider import_manifest";
-	public static final String CMD_LIST = "provider list -v";
+	public static final String CLI_CMD_LIST = "provider list -v";
 	public static final String CMD_INFO = "provider info";
 	public static final String CMD_SYNCHRONIZE = "provider synchronize";
 	public static final String CMD_UPDATE = "provider update";
@@ -30,6 +31,8 @@ public class KatelloProvider {
 			"Validation failed: the following attributes can not be updated for the Red Hat provider: [ name ]";
 	public static final String OUT_UPDATE = 
 			"Successfully updated provider [ %s ]";
+	
+	public static final String API_CMD_LIST = "/organizations/%s/providers"; 
 
 	// ** ** ** ** ** ** ** Class members
 	public String name;
@@ -69,11 +72,14 @@ public class KatelloProvider {
 		return cli.run();
 	}
 
-	public SSHCommandResult list(){
+	public SSHCommandResult cli_list(){
 		opts.clear();
 		opts.add(new Attribute("org", org));
-		cli = new KatelloCli(CMD_LIST, opts);
+		cli = new KatelloCli(CLI_CMD_LIST, opts);
 		return cli.run();
+	}
+	public SSHCommandResult api_list(String byOrg){
+		return new KatelloApi().get(String.format(API_CMD_LIST, this.org));
 	}
 	
 	public SSHCommandResult info(){

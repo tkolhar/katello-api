@@ -16,8 +16,10 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.auto.testng.Assert;
+import com.redhat.qe.katello.base.KatelloApi;
 import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.cli.KatelloOrg;
+import com.redhat.qe.katello.base.cli.KatelloProvider;
 import com.redhat.qe.katello.common.KatelloConstants;
 
 @Test(groups={"cfse-api"})
@@ -126,7 +128,7 @@ public class ProvidersTest extends KatelloTestScript {
 	@Test (groups={"testProviders"}, description="List all providers", dependsOnMethods="test_updateProvider")
 	public void test_listProviders(){
 		// Get providers json string
-		String s_json_provs = servertasks.getProviders(org_name);
+		String s_json_provs = new KatelloProvider(null, org_name, null, null).api_list(org_name).getStdout();
 		JSONArray arr_provs = KatelloTestScript.toJSONArr(s_json_provs) ;
 		Assert.assertMore(arr_provs.size(), 0, "Check: providers count >0");
 		JSONObject json_prov;

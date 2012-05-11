@@ -11,6 +11,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.cli.KatelloEnvironment;
+import com.redhat.qe.katello.base.cli.KatelloProvider;
 import com.redhat.qe.katello.common.KatelloConstants;
 import com.redhat.qe.tools.ExecCommands;
 import com.redhat.qe.tools.SSHCommandResult;
@@ -143,18 +144,6 @@ public class KatelloTasks {
 		return _return;		
 	}
 	
-//	public JSONObject getOrganization(String orgName){
-//		JSONObject _return = null; String retStr;
-//		try{
-//			retStr = apiKatello_GET(String.format("/organizations/%s", orgName));
-//			_return = KatelloTestScript.toJSONObj(retStr);
-//			log.info(String.format("Retrieve Org info for: name=[%s]",orgName));
-//		}catch (Exception e) {
-//			log.log(Level.SEVERE, e.getMessage(), e);
-//		}
-//		return _return;		
-//	}
-//
 	public String createEnvironment(String orgName, String envName, String envDesc){
 		return createEnvironment(orgName, envName, envDesc,KatelloEnvironment.LIBRARY);
 	}
@@ -392,49 +381,24 @@ public class KatelloTasks {
 	}
 	
 //	/**
-//	 * Returns the JSON String of all providers of Katello 
-//	 * @return
+//	 * Returns the JSON String of all providers of Katello by specific organization 
+//	 * @param org_name Organization name to filter the returned providers for
+//	 * @return Providers list for the specified organization
 //	 */
-//	public String getProviders(){
+//	public String getProviders(String org_name){
 //		String _return=null;
 //		try{
-//			_return = apiKatello_GET("/providers");
-//			log.info("Return list of all providers");
+//			_return = apiKatello_GET("/organizations/"+org_name+"/providers");
+//			log.info("Return list of all providers for an org: ["+org_name+"]");
 //		}catch (Exception e) {
 //			log.log(Level.SEVERE, e.getMessage(), e);
 //		}
 //		return _return;
 //	}
-	
-	/**
-	 * Returns the JSON String of all providers of Katello by specific organization 
-	 * @param org_name Organization name to filter the returned providers for
-	 * @return Providers list for the specified organization
-	 */
-	public String getProviders(String org_name){
-		String _return=null;
-		try{
-			_return = apiKatello_GET("/organizations/"+org_name+"/providers");
-			log.info("Return list of all providers for an org: ["+org_name+"]");
-		}catch (Exception e) {
-			log.log(Level.SEVERE, e.getMessage(), e);
-		}
-		return _return;
-	}
-
-//	public JSONObject getProvider(String org_name, String byName){
-//		JSONArray providers = KatelloTestScript.toJSONArr(getProviders());
-//		JSONObject tmpProv;
-//		for(int i=0;i<providers.size();i++){
-//			tmpProv = (JSONObject)providers.get(i);
-//			if(tmpProv.get("name").equals(byName))
-//				return tmpProv;
-//		}
-//		return null;
-//	}
-
+//
 	public JSONObject getProvider(String org_name, String byName){
-		JSONArray providers = KatelloTestScript.toJSONArr(getProviders(org_name));
+		JSONArray providers = KatelloTestScript.toJSONArr(
+				new KatelloProvider(null, org_name, null, null).api_list(org_name).getStdout());
 		JSONObject tmpProv;
 		for(int i=0;i<providers.size();i++){
 			tmpProv = (JSONObject)providers.get(i);

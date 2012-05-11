@@ -39,7 +39,7 @@ public class ProviderTests extends KatelloCliTestScript{
 		// assertions - `provider list` 
 		// check that default provider of RedHat type is prepared
 		prov = new KatelloProvider(null, tmpOrg, null, null);
-		res = prov.list();
+		res = prov.cli_list();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		String REGEXP_PROVIDER_REDHAT = ".*Id:\\s+\\d+.*Name:\\s+"+KatelloProvider.PROVIDER_REDHAT+".*Type:\\s+Red\\sHat.*Url:\\s+https://cdn.redhat.com.*";
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(REGEXP_PROVIDER_REDHAT), 
@@ -245,7 +245,7 @@ public class ProviderTests extends KatelloCliTestScript{
 		res = prov.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		// List
-		res = prov.list();
+		res = prov.cli_list();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		String REGEXP_PROVIDER_LIST = ".*Id:\\s+\\d+.*Name:\\s+%s.*Type:\\s+Custom.*Url:\\s+None.*Description:\\s+None";
 		String match_info = String.format(REGEXP_PROVIDER_LIST,provName).replaceAll("\"", "");
@@ -271,7 +271,7 @@ public class ProviderTests extends KatelloCliTestScript{
 		res = prov.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		//List
-		res = prov.list();
+		res = prov.cli_list();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		String REGEXP_PROVIDER_LIST = ".*Id:\\s+\\d+.*Name:\\s+%s.*Type:\\s+Custom.*Url:\\s+%s.*Description:\\s+%s.*";
 		String match_info = String.format(REGEXP_PROVIDER_LIST,provName,KATELLO_SMALL_REPO,provDesc).replaceAll("\"", "");
@@ -296,7 +296,7 @@ public class ProviderTests extends KatelloCliTestScript{
 		res = prov.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		// List
-		res = prov.list();
+		res = prov.cli_list();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		String REGEXP_PROVIDER_LIST = ".*Id:\\s+\\d+.*Name:\\s+%s.*Type:\\s+Custom.*Url:\\s+%s.*Description:\\s+None";
 		String match_info = String.format(REGEXP_PROVIDER_LIST,provName,KATELLO_SMALL_REPO).replaceAll("\"", "");
