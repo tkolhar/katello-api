@@ -15,6 +15,10 @@ public class KatelloApi{
 		this.options = options;
 	}
 	
+	public KatelloApi(){
+		this.options = null;
+	}
+	
 	public SSHCommandResult get(String call){
 		try{
 			SSHCommandRunner client_sshRunner = new SSHCommandRunner(

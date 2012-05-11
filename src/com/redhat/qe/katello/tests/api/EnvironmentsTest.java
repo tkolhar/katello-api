@@ -31,8 +31,8 @@ public class EnvironmentsTest extends KatelloTestScript{
 	@Test (groups={"testEnvs"}, description="Existance of root env created by default", dependsOnMethods="test_createEnvironment_priorLocker")
 	public void test_existsDefaultRoot(){
 		JSONObject tmpEnv;
-		String envs_json = servertasks.getEnvironments(this.org_name);
-		JSONArray json = toJSONArr(envs_json);
+		KatelloEnvironment env = new KatelloEnvironment(null, null, org_name, null);
+		JSONArray json = toJSONArr(env.api_list().getStdout());
 		log.finer("Returned JSON for getEnvironments(): "+json.toJSONString());
 		JSONObject json_org = servertasks.getOrganization(this.org_name);;
 		log.finer("Returned JSON for getOrganization(): "+json_org.toJSONString());
@@ -51,7 +51,7 @@ public class EnvironmentsTest extends KatelloTestScript{
 	
 	@Test (groups={"testEnvs"}, description="List environments should be greater than 0")
 	public void test_showEnvironments(){
-		JSONArray json_envs = toJSONArr(servertasks.getEnvironments(this.org_name));
+		JSONArray json_envs = toJSONArr(new KatelloEnvironment(null, null, org_name, null).api_list().getStdout());
 		log.finer(String.format("Returned environments count is: [%s]",json_envs.size()));
 		Assert.assertMore(json_envs.size(), 0, "Should return environments >0");
 	}
@@ -120,7 +120,8 @@ public class EnvironmentsTest extends KatelloTestScript{
 		String env_id = ((Long)servertasks.getEnvironment(org_name, env_name).get("id")).toString();
 		String res = servertasks.deleteEnvironment(this.org_name, env_name);
 		Assert.assertEquals(res, "Deleted environment '"+env_id+"'","Check the text returned");
-		String nil = servertasks.getEnvironments(org_name);
+		KatelloEnvironment env = new KatelloEnvironment(null, null, org_name, null);
+		String nil = env.api_list().getStdout();
 		Assert.assertEquals(nil.indexOf(env_name), -1,
 				String.format("Returned environment list does not contain: [%s]",env_name));
 	}

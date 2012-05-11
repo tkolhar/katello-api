@@ -2,6 +2,8 @@ package com.redhat.qe.katello.base.cli;
 
 import java.util.ArrayList;
 import javax.management.Attribute;
+
+import com.redhat.qe.katello.base.KatelloApi;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.tools.SSHCommandResult;
 
@@ -12,11 +14,13 @@ public class KatelloEnvironment {
 	
 	public static final String CMD_CREATE = "environment create";
 	public static final String CMD_INFO = "environment info -v";
-	public static final String CMD_LIST = "environment list";
+	public static final String CLI_CMD_LIST = "environment list";
 	
 	public static final String OUT_CREATE = 
 			"Successfully created environment [ %s ]";
 
+	public static final String API_CMD_LIST = "/organizations/%s/environments";
+	
 	// ** ** ** ** ** ** ** Class members
 	String name;
 	String description;
@@ -51,6 +55,11 @@ public class KatelloEnvironment {
 		opts.add(new Attribute("name", name));
 		cli = new KatelloCli(CMD_INFO, opts);
 		return cli.run();
+	}
+	
+	public SSHCommandResult api_list(){
+		KatelloApi api = new KatelloApi();
+		return api.get(String.format(API_CMD_LIST, this.org));
 	}
 	
 	// ** ** ** ** ** ** **

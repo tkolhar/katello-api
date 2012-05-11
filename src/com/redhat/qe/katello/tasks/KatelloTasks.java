@@ -125,22 +125,12 @@ public class KatelloTasks {
 		return this.execute_local(true, mCall);
 	}
 	
-	public String getEnvironments(String orgName){
-		String _return = null;
-		try{
-			_return = apiKatello_GET(String.format("/organizations/%s/environments", orgName));
-			log.info(String.format("Retrieve environments of Org: name=[%s]",orgName));
-		}catch (Exception e) {
-			log.log(Level.SEVERE, e.getMessage(), e);
-		}
-		return _return;
-	}
-	
 	public JSONObject getEnvironment(String orgName, String envName){
 		JSONObject _return = null;
 		try{
 			log.info(String.format("Retrieve environment: [%s] of Org: [%s]", envName, orgName));
-			JSONArray envs = KatelloTestScript.toJSONArr(getEnvironments(orgName));
+			KatelloEnvironment _env = new KatelloEnvironment(null, null, orgName, null);
+			JSONArray envs = KatelloTestScript.toJSONArr(_env.api_list().getStdout());
 			JSONObject env;
 			for(int i=0;i<envs.size();i++){
 				env = (JSONObject)envs.get(i);
@@ -208,7 +198,8 @@ public class KatelloTasks {
 	 * @since 16.Feb.2011 
 	 */
 	public JSONObject getEnvFromOrgList(String orgName, String envName){
-		String str_envs = this.getEnvironments(orgName);
+		
+		String str_envs = new KatelloEnvironment(null, null, orgName, null).api_list().getStdout();
 		JSONArray json_envs = KatelloTestScript.toJSONArr(str_envs);
 		for(int i=0;i<json_envs.size();i++){
 			JSONObject json_env = (JSONObject)json_envs.get(i);
