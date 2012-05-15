@@ -13,8 +13,7 @@ import com.redhat.qe.tools.SSHCommandResult;
 public class OrgTests extends KatelloCliTestScript{
 	Vector<KatelloOrg> orgs;
 	
-	@Test(groups = {"cli-org"}, 
-			description = "List all orgs - ACME_Corporation should be there")
+	@Test(description = "List all orgs - ACME_Corporation should be there")
 	public void test_listOrgs_ACME_Corp(){
 		KatelloOrg list_org = new KatelloOrg(null,null);
 		SSHCommandResult res = list_org.cli_list();
@@ -22,8 +21,7 @@ public class OrgTests extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(res).contains(KatelloOrg.DEFAULT_ORG), "Check - contains: ["+KatelloOrg.DEFAULT_ORG+"]");
 	}
 	
-	@Test(groups = {"cli-org"}, 
-			description = "Create org - different variations",
+	@Test(description = "Create org - different variations",
 			dataProviderClass = KatelloCliDataProvider.class,
 			dataProvider = "org_create")
 	public void test_createOrg(String name, String descr){		
@@ -37,7 +35,7 @@ public class OrgTests extends KatelloCliTestScript{
 		this.orgs.add(org);
 	}
 	
-	@Test(groups = {"cli-org"}, description = "List orgs - created", 
+	@Test(description = "List orgs - created", 
 			dependsOnMethods={"test_createOrg"})
 	public void test_infoListOrg(){
 		KatelloOrg org;
@@ -56,7 +54,7 @@ public class OrgTests extends KatelloCliTestScript{
 		}
 	}
 	
-	@Test(description="Update org's description", groups = {"cli-org"})
+	@Test(description="Update org's description")
 	public void test_updateOrg(){
 		SSHCommandResult res;
 		String uniqueID = KatelloTestScript.getUniqueID();
@@ -74,7 +72,7 @@ public class OrgTests extends KatelloCliTestScript{
 		assert_orgInfo(org);
 	}
 	
-	@Test(description="Delete an organization", groups = {"cli-org"})
+	@Test(description="Delete an organization")
 	public void test_deleteOrg(){
 		String uniqueID = KatelloTestScript.getUniqueID();
 		KatelloOrg org = new KatelloOrg("orgDel"+uniqueID, null);
@@ -88,6 +86,17 @@ public class OrgTests extends KatelloCliTestScript{
 		Assert.assertEquals(res.getExitCode(), new Integer(148),"Check - return code [148]");
 		Assert.assertEquals(getOutput(res).trim(), 
 				String.format("Couldn't find organization '%s'",org.name));
+	}
+	
+	@Test(description="List org subscriptions.")
+	public void test_orgSubscriptions(){
+		String orgname = "subscriptions-"+KatelloTestScript.getUniqueID();
+		KatelloOrg org = new KatelloOrg(orgname, null); // or you can provide null -> "some simple description here"
+		SSHCommandResult res = org.cli_create();
+		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code (org create)");
+		
+		res = org.subscriptions();
+		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code (org subscriptions)"); // check: ($? is 0)
 	}
 	
 	private void assert_orgInfo(KatelloOrg org){
