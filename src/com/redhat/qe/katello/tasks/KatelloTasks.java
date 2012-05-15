@@ -389,19 +389,7 @@ public class KatelloTasks {
 		}
 		return _return;		
 	}
-	
-	public String getSerials(String consumer_id){
-		String _return=null;
-		try{
-			_return = apiKatello_GET("/consumers/"+consumer_id+"/certificates/serials");
-			log.info(String.format("Return subscribed serial list of consumer: [%s]", 
-					consumer_id));
-		}catch (Exception e) {
-			log.log(Level.SEVERE, e.getMessage(), e);
-		}
-		return _return;		
-	}
-	
+
 	public String unsubscribeConsumer(String consumer_id, String serial){
 		String _return=null;
 		try{

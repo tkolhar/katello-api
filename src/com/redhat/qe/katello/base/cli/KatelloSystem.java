@@ -35,6 +35,7 @@ public class KatelloSystem {
 	public static final String OUT_REMOTE_ACTION_DONE = "Remote action finished:";
 
 	public static final String API_CMD_INFO = "/consumers/%s";
+	public static final String API_CMD_GET_SERIALS = "/consumers/%s/certificates/serials";
 	
 	
 	// ** ** ** ** ** ** ** Class members
@@ -114,5 +115,7 @@ public class KatelloSystem {
 		return new KatelloApi().get(String.format(API_CMD_INFO, byId));
 	}
 	
-	
+	public SSHCommandResult api_getSerials(String customerid){
+		return new KatelloApi().get(String.format(API_CMD_GET_SERIALS, customerid));
+	}
 }

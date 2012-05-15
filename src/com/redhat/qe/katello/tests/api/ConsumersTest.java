@@ -182,12 +182,14 @@ public class ConsumersTest extends KatelloTestScript {
 		JSONObject jpool = new KatelloMisc().api_getPoolByProduct(AWESOME_SERVER_BASIC);
 		String pool_id = (String)jpool.get("id");
 		servertasks.subscribeConsumer(cid, pool_id); // Hope the 100 subscriptions did not get all consumed :P
-		JSONArray jserials = KatelloTestScript.toJSONArr(servertasks.getSerials(cid));
+		JSONArray jserials = KatelloTestScript.toJSONArr(
+				new KatelloSystem(null, null, null, null).api_getSerials(cid).getStdout());
 		Assert.assertMore(jserials.size(), 0, "Serials count: >0");
 		
 		Long serial_id1 = (Long)((JSONObject)jserials.get(0)).get("serial");
 		servertasks.unsubscribeConsumer(cid, serial_id1.toString()); // returns nothing
-		jserials = KatelloTestScript.toJSONArr(servertasks.getSerials(cid));
+		jserials = KatelloTestScript.toJSONArr(
+				new KatelloSystem(null, null, null, null).api_getSerials(cid).getStdout());
 		Assert.assertEquals(jserials.size(), 0,"Check no serials available: no subscriptions");
 	}
 	
@@ -209,12 +211,14 @@ public class ConsumersTest extends KatelloTestScript {
 		}
 		/* at this step we should have the consumer applied to all of the subscriptions 
 		 available for org = org_name (i.e.: ACME_Corporation) */
-		JSONArray jserials = KatelloTestScript.toJSONArr(servertasks.getSerials(consumer_id));
+		JSONArray jserials = KatelloTestScript.toJSONArr(
+				new KatelloSystem(null, null, null, null).api_getSerials(consumer_id).getStdout());
 		Assert.assertMore(jserials.size(), 1, "Check: subscriptions should be >1");
 		
 		// unsubscribe all
 		servertasks.unsubscribeConsumer(consumer_id);
-		jserials = KatelloTestScript.toJSONArr(servertasks.getSerials(consumer_id));
+		jserials = KatelloTestScript.toJSONArr(
+				new KatelloSystem(null, null, null, null).api_getSerials(consumer_id).getStdout());
 		Assert.assertEquals(jserials.size(), 0, "Check: subscriptions should be ==0");
 	}
 	
