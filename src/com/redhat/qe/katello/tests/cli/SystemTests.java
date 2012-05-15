@@ -17,7 +17,7 @@ import com.redhat.qe.katello.base.cli.KatelloOrg;
 import com.redhat.qe.katello.base.cli.KatelloSystem;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups={"cfse-cli"})
+@Test(groups={"cfse-cli","headpin-cli"})
 public class SystemTests extends KatelloCliTestScript{	
 	protected static Logger log = Logger.getLogger(SystemTests.class.getName());
 	

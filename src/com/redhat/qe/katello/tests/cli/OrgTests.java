@@ -9,7 +9,7 @@ import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.cli.KatelloOrg;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups={"cfse-cli"})
+@Test(groups={"cfse-cli","headpin-cli"})
 public class OrgTests extends KatelloCliTestScript{
 	Vector<KatelloOrg> orgs;
 	

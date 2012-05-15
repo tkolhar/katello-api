@@ -8,7 +8,7 @@ import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.cli.KatelloUser;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups={"cfse-cli"})
+@Test(groups={"cfse-cli","headpin-cli"})
 public class UserTests extends KatelloCliTestScript{
 
 	@Test(description="create user - for default org", enabled=true)
