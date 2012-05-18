@@ -40,7 +40,7 @@ public class KatelloProduct {
 	public static final String OUT_NOT_SYNCHRONIZED_YET = 
 			"Product '%s' was not synchronized yet";
 	public static final String ERR_PROMOTE_NOREPOS = 
-			"Product '%s' hasn't any repositories";
+			"Couldn't find Product with cp_id = ";
 
 	public static final String API_CMD_LIST = "/organizations/%s/products"; // by org
 	
