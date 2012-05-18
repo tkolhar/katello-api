@@ -1,17 +1,17 @@
-package com.redhat.qe.katello.base.cli;
+package com.redhat.qe.katello.base.obj;
 
 import java.util.ArrayList;
 import javax.management.Attribute;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.tools.SSHCommandResult;
 
-public class KatelloErrata {
+public class KatelloDistribution {
 	
 	// ** ** ** ** ** ** ** Public constants
-	public static final String CMD_INFO = "errata info";
+	public static final String CMD_LIST = "distribution list -v";
+	public static final String CMD_INFO = "distribution info -v";
 	
 	// ** ** ** ** ** ** ** Class members
-	String id;
 	String org;
 	String product;
 	String repo;
@@ -20,28 +20,26 @@ public class KatelloErrata {
 	private KatelloCli cli;
 	private ArrayList<Attribute> opts;
 	
-	public KatelloErrata(String pId, String pOrg, String pProd, String pRepo, String pEnv){
-		this.id = pId;
+	public KatelloDistribution(String pOrg, String pProduct,
+			String pRepo, String pEnvironment){
 		this.org = pOrg;
-		this.product = pProd;
+		this.product = pProduct;
 		this.repo = pRepo;
-		this.environment = pEnv;
+		this.environment = pEnvironment;
 		this.opts = new ArrayList<Attribute>();
 	}
 	
-	public SSHCommandResult info(){
+	public SSHCommandResult list(){
 		opts.clear();
-		opts.add(new Attribute("id", id));
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("product", product));
 		opts.add(new Attribute("repo", repo));
 		opts.add(new Attribute("environment", environment));
-		cli = new KatelloCli(CMD_INFO, opts);
+		cli = new KatelloCli(CMD_LIST, opts);
 		return cli.run();
 	}
 	
 	// ** ** ** ** ** ** **
 	// ASSERTS
-	// ** ** ** ** ** ** **	
-	
+	// ** ** ** ** ** ** **
 }

@@ -8,11 +8,11 @@ import com.redhat.qe.auto.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.katello.base.KatelloTestScript;
-import com.redhat.qe.katello.base.cli.KatelloEnvironment;
-import com.redhat.qe.katello.base.cli.KatelloMisc;
-import com.redhat.qe.katello.base.cli.KatelloOrg;
-import com.redhat.qe.katello.base.cli.KatelloProduct;
-import com.redhat.qe.katello.base.cli.KatelloSystem;
+import com.redhat.qe.katello.base.obj.KatelloEnvironment;
+import com.redhat.qe.katello.base.obj.KatelloMisc;
+import com.redhat.qe.katello.base.obj.KatelloOrg;
+import com.redhat.qe.katello.base.obj.KatelloProduct;
+import com.redhat.qe.katello.base.obj.KatelloSystem;
 
 @Test(groups={"cfse-api"})
 public class ConsumersTest extends KatelloTestScript {

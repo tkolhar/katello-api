@@ -10,8 +10,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.auto.testng.Assert;
 import com.redhat.qe.katello.base.KatelloTestScript;
-import com.redhat.qe.katello.base.cli.KatelloEnvironment;
-import com.redhat.qe.katello.base.cli.KatelloOrg;
+import com.redhat.qe.katello.base.obj.KatelloEnvironment;
+import com.redhat.qe.katello.base.obj.KatelloOrg;
 
 @Test(groups={"cfse-api"})
 public class EnvironmentsTest extends KatelloTestScript{

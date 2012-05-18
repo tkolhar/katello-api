@@ -6,10 +6,10 @@ import com.redhat.qe.auto.testng.Assert;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.KatelloTestScript;
-import com.redhat.qe.katello.base.cli.KatelloOrg;
-import com.redhat.qe.katello.base.cli.KatelloProduct;
-import com.redhat.qe.katello.base.cli.KatelloProvider;
-import com.redhat.qe.katello.base.cli.KatelloRepo;
+import com.redhat.qe.katello.base.obj.KatelloOrg;
+import com.redhat.qe.katello.base.obj.KatelloProduct;
+import com.redhat.qe.katello.base.obj.KatelloProvider;
+import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.tasks.KatelloTasks;
 import com.redhat.qe.tools.SSHCommandResult;
 

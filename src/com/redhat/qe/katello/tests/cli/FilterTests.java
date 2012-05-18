@@ -6,9 +6,9 @@ import org.testng.annotations.Test;
 import com.redhat.qe.auto.testng.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.KatelloTestScript;
-import com.redhat.qe.katello.base.cli.KatelloEnvironment;
-import com.redhat.qe.katello.base.cli.KatelloFilter;
-import com.redhat.qe.katello.base.cli.KatelloOrg;
+import com.redhat.qe.katello.base.obj.KatelloEnvironment;
+import com.redhat.qe.katello.base.obj.KatelloFilter;
+import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups={"cfse-cli"})

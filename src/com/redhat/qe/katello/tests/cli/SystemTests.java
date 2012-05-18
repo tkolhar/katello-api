@@ -12,9 +12,9 @@ import com.redhat.qe.auto.testng.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.KatelloTestScript;
-import com.redhat.qe.katello.base.cli.KatelloEnvironment;
-import com.redhat.qe.katello.base.cli.KatelloOrg;
-import com.redhat.qe.katello.base.cli.KatelloSystem;
+import com.redhat.qe.katello.base.obj.KatelloEnvironment;
+import com.redhat.qe.katello.base.obj.KatelloOrg;
+import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups={"cfse-cli","headpin-cli"})

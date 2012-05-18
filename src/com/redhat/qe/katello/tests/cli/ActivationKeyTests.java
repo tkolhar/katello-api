@@ -6,13 +6,13 @@ import com.redhat.qe.auto.testng.Assert;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.KatelloTestScript;
-import com.redhat.qe.katello.base.cli.KatelloActivationKey;
-import com.redhat.qe.katello.base.cli.KatelloChangeset;
-import com.redhat.qe.katello.base.cli.KatelloEnvironment;
-import com.redhat.qe.katello.base.cli.KatelloOrg;
-import com.redhat.qe.katello.base.cli.KatelloProduct;
-import com.redhat.qe.katello.base.cli.KatelloProvider;
-import com.redhat.qe.katello.base.cli.KatelloTemplate;
+import com.redhat.qe.katello.base.obj.KatelloActivationKey;
+import com.redhat.qe.katello.base.obj.KatelloChangeset;
+import com.redhat.qe.katello.base.obj.KatelloEnvironment;
+import com.redhat.qe.katello.base.obj.KatelloOrg;
+import com.redhat.qe.katello.base.obj.KatelloProduct;
+import com.redhat.qe.katello.base.obj.KatelloProvider;
+import com.redhat.qe.katello.base.obj.KatelloTemplate;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups={"cfse-cli"})

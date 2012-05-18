@@ -1,4 +1,4 @@
-package com.redhat.qe.katello.base.cli;
+package com.redhat.qe.katello.base.obj;
 
 import java.util.ArrayList;
 import java.util.logging.Logger;

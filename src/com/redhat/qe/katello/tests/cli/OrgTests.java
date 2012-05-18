@@ -6,7 +6,7 @@ import org.testng.annotations.Test;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.KatelloTestScript;
-import com.redhat.qe.katello.base.cli.KatelloOrg;
+import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups={"cfse-cli","headpin-cli"})
