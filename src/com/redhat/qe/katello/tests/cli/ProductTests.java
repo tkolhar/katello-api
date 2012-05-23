@@ -35,7 +35,7 @@ public class ProductTests  extends KatelloCliTestScript{
 	}
 	
 
-         @Test(description = "List all orgs - ACME_Corporation should be there")
+         @Test(description = "List all product for orgs")
 	 public void test_listProduct(){
 
 	 	KatelloProduct list_product = new KatelloProduct(null,"ACME_Corporation","Red Hat",null,null,null,null,null);
