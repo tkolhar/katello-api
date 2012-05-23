@@ -14,7 +14,7 @@ import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.tasks.KatelloTasks;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups={"cfse-cli"})
+@Test(groups={"cfse-cli","headpin-cli"})
 public class ProductTests  extends KatelloCliTestScript{
 
 	private String org_name;
@@ -34,6 +34,16 @@ public class ProductTests  extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (provider create)");
 	}
 	
+
+         @Test(description = "List all orgs - ACME_Corporation should be there")
+	 public void test_listProduct(){
+
+	 	KatelloProduct list_product = new KatelloProduct(null,"ACME_Corporation","Red Hat",null,null,null,null,null);
+	 	SSHCommandResult res = list_product.cli_list();
+	 	Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
+ 	}
+
+
 	@Test(description="create product - no url specified", groups = {"cli-products"}, enabled=true)
 	public void test_createProduct_noUrl(){
 		String uid = KatelloTestScript.getUniqueID();
