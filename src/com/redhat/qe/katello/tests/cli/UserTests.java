@@ -64,7 +64,7 @@ public class UserTests extends KatelloCliTestScript{
 	@Test(description = "List all users - admin should be there")
 	public void test_listUsers_admin(){
 		KatelloUser list_user = new KatelloUser(null,null, null, false);
-		SSHCommandResult res = list_user.list();
+		SSHCommandResult res = list_user.cli_list();
 		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(res).contains(KatelloUser.DEFAULT_ADMIN_USER), "Check - contains: ["+KatelloUser.DEFAULT_ADMIN_USER+"]");
 	}
@@ -75,7 +75,7 @@ public class UserTests extends KatelloCliTestScript{
 		KatelloUser list_user = createUser();
 		users.add(list_user);
 		
-		SSHCommandResult res = list_user.list();
+		SSHCommandResult res = list_user.cli_list();
 		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code (user list)");
 		
 		for(KatelloUser user : this.users){
@@ -298,7 +298,7 @@ public class UserTests extends KatelloCliTestScript{
 		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(res).contains(String.format(KatelloUser.OUT_DELETE,user.username)),"Check - return string");
 		
-		res = user.info();
+		res = user.cli_info();
 		Assert.assertEquals(res.getExitCode(), new Integer(65),"Check - return code [65]");
 		Assert.assertEquals(getOutput(res).trim(), 
 				String.format(KatelloUser.OUT_FIND_USER_ERROR,user.username));
@@ -306,7 +306,7 @@ public class UserTests extends KatelloCliTestScript{
 	
 	private void assert_userInfo(KatelloUser user){
 		SSHCommandResult res;
-		res = user.info();
+		res = user.cli_info();
 		String match_info = String.format(KatelloUser.REG_USER_LIST,user.username,user.email).replaceAll("\"", "");
 		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
 		log.finest(String.format("User (info) match regex: [%s]",match_info));
