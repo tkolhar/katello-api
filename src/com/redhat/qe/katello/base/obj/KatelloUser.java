@@ -17,12 +17,18 @@ public class KatelloUser {
 	public static final String CMD_CREATE = "user create";
 	public static final String CMD_INFO = "user info";
 	public static final String CMD_LIST = "user list";
+	public static final String CMD_DELETE = "user delete";
 	public static final String CMD_ASSIGN_ROLE = "user assign_role";
+	public static final String CMD_UNASSIGN_ROLE = "user unassign_role";
+	public static final String CMD_LIST_ROLES = "user list_roles";
 	
 	public static final String ERR_TEMPLATE_NOTFOUND = 
 			"Could not find template [ %s ]";	
 	public static final String OUT_CREATE = 
 			"Successfully created user [ %s ]";
+	
+	public static final String REG_USER_LIST = ".*Id:\\s+\\d+.*Username:\\s+%s.*Email:\\s+%s.*";
+	public static final String REG_USER_ROLE_LIST = ".*\\d+\\s+%s.*";
 
 	// ** ** ** ** ** ** ** Class members
 	public String username;
@@ -70,6 +76,28 @@ public class KatelloUser {
 		opts.add(new Attribute("username", username));
 		opts.add(new Attribute("role", role));
 		cli = new KatelloCli(CMD_ASSIGN_ROLE, opts);
+		return cli.run();
+	}
+	
+	public SSHCommandResult unassign_role(String role){
+		opts.clear();
+		opts.add(new Attribute("username", username));
+		opts.add(new Attribute("role", role));
+		cli = new KatelloCli(CMD_UNASSIGN_ROLE, opts);
+		return cli.run();
+	}
+	
+	public SSHCommandResult list_roles(){
+		opts.clear();
+		opts.add(new Attribute("username", username));
+		cli = new KatelloCli(CMD_LIST_ROLES, opts);
+		return cli.run();
+	}
+	
+	public SSHCommandResult delete(){
+		opts.clear();
+		opts.add(new Attribute("username", this.username));
+		cli = new KatelloCli(CMD_DELETE, opts);
 		return cli.run();
 	}
 
