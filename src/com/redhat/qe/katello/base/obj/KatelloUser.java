@@ -18,17 +18,25 @@ public class KatelloUser {
 	public static final String CMD_INFO = "user info";
 	public static final String CMD_LIST = "user list";
 	public static final String CMD_ASSIGN_ROLE = "user assign_role";
-	
+	public static final String CMD_DELETE_USER = "user delete";
+	public static final String CMD_REPORT = "user report";
 	public static final String ERR_TEMPLATE_NOTFOUND = 
 			"Could not find template [ %s ]";	
 	public static final String OUT_CREATE = 
 			"Successfully created user [ %s ]";
+	public static final String OUT_DELETE =
+			"Successfully deleted user [ %s ]";
+	public static final String OUT_ASSIGN_ROLE =
+			            "User \'%s\' assigned to role \'%s\'";
+	
 
 	// ** ** ** ** ** ** ** Class members
 	public String username;
 	public String email;
 	public String password;
 	public boolean disabled;
+	public String orgname="";
+	public String envname = "";
 
 	private KatelloCli cli;
 	private ArrayList<Attribute> opts;
@@ -41,6 +49,30 @@ public class KatelloUser {
 		this.opts = new ArrayList<Attribute>();
 	}
 	
+	public KatelloUser(String pName,String pEmail,String pPassword,boolean pDisabled,String pOrgname,String pEnvname){
+		   this.username = pName;
+		   this.email = pEmail;
+		   this.password = pPassword;
+		   this.disabled = pDisabled;
+		   this.orgname = pOrgname;
+		   this.envname = pEnvname;
+		   this.opts = new ArrayList<Attribute>();
+			
+	}
+	
+	public static final SSHCommandResult report(String format)
+	{
+		
+		    ArrayList<Attribute> opts= new ArrayList<Attribute>();
+		    opts.clear();
+		    if(!(format.isEmpty()))
+		       opts.add(new Attribute("format",format));
+		    KatelloCli cli = new KatelloCli(CMD_REPORT,opts);
+		    return cli.run();
+		    
+		    
+	}
+	
 	public SSHCommandResult create(){
 		opts.clear();
 		opts.add(new Attribute("username", username));
@@ -48,6 +80,10 @@ public class KatelloUser {
 		opts.add(new Attribute("email", email));
 		if(disabled)
 			opts.add(new Attribute("disabled", "true"));
+		if(!(orgname.isEmpty()))
+			opts.add(new Attribute("default_organization",orgname));
+		if(!(envname.isEmpty()))
+			opts.add(new Attribute("default_environment",envname));
 		cli = new KatelloCli(CMD_CREATE, opts);
 		return cli.run();
 	}
@@ -72,10 +108,29 @@ public class KatelloUser {
 		cli = new KatelloCli(CMD_ASSIGN_ROLE, opts);
 		return cli.run();
 	}
+	
+	 
+	public SSHCommandResult delete_user(String pName){
+		 
+		    opts.clear();
+		    opts.add(new Attribute("username", username));
+		    cli = new KatelloCli(CMD_DELETE_USER,opts);
+		    return cli.run();
+		     
+	}
+	
 
 	// ** ** ** ** ** ** **
 	// ASSERTS
 	// ** ** ** ** ** ** **
+	
+	public void asserts_delete(){
+		   SSHCommandResult res;
+		   //asserts: user list
+		   res = list();
+		   Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+CMD_LIST+")");
+		   
+	}
 	public void asserts_create(){
 		SSHCommandResult res;
 
@@ -102,5 +157,7 @@ public class KatelloUser {
 		Assert.assertTrue(KatelloCliTestScript.sgetOutput(res).replaceAll("\n", "").matches(match_info), 
 				String.format("User [%s] should contain correct info",this.username));			
 	}
+	
+	
 	
 }
