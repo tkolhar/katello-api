@@ -18,7 +18,7 @@ public class UserTests extends KatelloCliTestScript{
 	
 	List<KatelloUser> users;
 
-	@Test(description="create user - for default org")
+	@Test(description="create user - for default org", enabled=true)
 	public void test_create_DefaultOrg(){
 		SSHCommandResult res;
 		String uniqueID = KatelloTestScript.getUniqueID();
@@ -42,7 +42,7 @@ public class UserTests extends KatelloCliTestScript{
 	
 	// TODO - with dataProvider provide more variations of user names in create action.
 	
-	@Test(description="create user - for default org (disabled)")
+	@Test(description="create user - for default org (disabled)", enabled=true)
 	public void test_createDisabled_DefaultOrg(){
 		SSHCommandResult res;
 		String uniqueID = KatelloTestScript.getUniqueID();
@@ -60,6 +60,7 @@ public class UserTests extends KatelloCliTestScript{
 		usr.asserts_create();
 	}
 	
+
 	@Test(description = "List all users - admin should be there")
 	public void test_listUsers_admin(){
 		KatelloUser list_user = new KatelloUser(null,null, null, false);
@@ -84,6 +85,139 @@ public class UserTests extends KatelloCliTestScript{
 		}
 	}
 	
+	@Test(description = "delete users - for some org provided", enabled = true)
+	public void test_DeleteUserOrg() {
+		SSHCommandResult res;
+		String uniqueID = KatelloTestScript.getUniqueID();
+		String username = "user-" + uniqueID;
+		String userpass = "password";
+		String usermail = username + "@localhost";
+		String orgname = "ACME_Corporation";
+		String envname = "DEV";
+		KatelloUser usr = new KatelloUser(username, usermail, userpass, false,
+				orgname, envname);
+		res = usr.create();
+		Assert.assertTrue(res.getExitCode().intValue() == 0,
+				"Check - return code (" + KatelloUser.CMD_CREATE + ")");
+		Assert.assertTrue(
+				getOutput(res).contains(
+						String.format(KatelloUser.OUT_CREATE, username)),
+				"Check - returned output string (" + KatelloUser.CMD_CREATE
+						+ ")");
+
+		usr.asserts_create();
+		res = usr.delete();
+		Assert.assertTrue(res.getExitCode().intValue() == 0,
+				"Check - return code (" + KatelloUser.CMD_DELETE_USER + ")");
+		Assert.assertTrue(
+				getOutput(res).contains(
+						String.format(KatelloUser.OUT_DELETE, username)),
+				"Checked - returned output string ("
+						+ KatelloUser.CMD_DELETE_USER + ")");
+		usr.asserts_delete();
+
+	}
+
+	@Test(description="delete users - for default org ", enabled=true)
+	public void test_DeleteUserDefaultOrg(){
+		SSHCommandResult res;
+		String uniqueID = KatelloTestScript.getUniqueID();
+		String username = "user-"+uniqueID;
+		String userpass = "password";
+		String usermail = username+"@localhost";
+		
+		KatelloUser usr = new KatelloUser(username, usermail, userpass, false);
+		res = usr.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+KatelloUser.CMD_CREATE+")");
+		Assert.assertTrue(getOutput(res).contains(
+				String.format(KatelloUser.OUT_CREATE,username)), 
+				"Check - returned output string ("+KatelloUser.CMD_CREATE+")");
+		
+		usr.asserts_create();
+		res = usr.delete();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+KatelloUser.CMD_DELETE_USER+")");
+		Assert.assertTrue(getOutput(res).contains(String.format(KatelloUser.OUT_DELETE, username)),
+				                                  "Checked - returned output string ("+KatelloUser.CMD_DELETE_USER+")");
+		usr.asserts_delete();
+	
+	}
+	
+	
+	
+	@Test(description="Generates User Report - pdf format", enabled=true)
+	public void test_UserReport_pdf(){
+		SSHCommandResult res;
+		String format = "pdf";
+		res = KatelloUser.report(format);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+KatelloUser.CMD_REPORT+")");
+		
+	
+	}
+	
+	@Test(description="Generates User Report - html format", enabled=true)
+	public void test_UserReport_html(){
+		SSHCommandResult res;
+		String format = "html";
+		res = KatelloUser.report(format);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+KatelloUser.CMD_REPORT+")");
+		
+	
+	}
+	
+	@Test(description="Generates User Report - default format", enabled=true)
+	public void test_UserReport(){
+		SSHCommandResult res;
+		String format = "";
+		res = KatelloUser.report(format);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+KatelloUser.CMD_REPORT+")");
+		
+	
+	}
+	
+	
+	@Test(description="Generates User Report - csv format", enabled=true)
+	public void test_UserReport_csv(){
+		SSHCommandResult res;
+		String format = "csv";
+		res = KatelloUser.report(format);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+KatelloUser.CMD_REPORT+")");
+		
+	
+	} 
+	
+	@Test(description="assign roles to users", enabled=true)
+	public void test_AssignUserRoles(){
+		
+		SSHCommandResult res;
+		String uniqueID = KatelloTestScript.getUniqueID();
+		String username = "user-"+uniqueID;
+		String userpass = "password";
+		String usermail = username+"@localhost";
+		String unique_role_ID = KatelloTestScript.getUniqueID();
+		String user_role_name = "user-role"+unique_role_ID;
+		String role_desc = "Assigned " + user_role_name + " to user " + username; 
+		KatelloUser usr = new KatelloUser(username, usermail, userpass, false);
+		res = usr.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+KatelloUser.CMD_CREATE+")");
+		Assert.assertTrue(getOutput(res).contains(
+				String.format(KatelloUser.OUT_CREATE,username)), 
+				"Check - returned output string ("+KatelloUser.CMD_CREATE+")");
+		
+		usr.asserts_create();
+		KatelloUserRole usr_role = new KatelloUserRole(user_role_name,role_desc);
+        res = usr_role.create();
+        Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+KatelloUserRole.CMD_CREATE+")");
+        Assert.assertTrue(getOutput(res).contains(String.format(KatelloUserRole.OUT_CREATE, user_role_name)),
+        		                                 "Check - returned output string ("+KatelloUserRole.CMD_CREATE+")");
+
+        res = usr.assign_role(usr_role.name);
+        Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+KatelloUser.CMD_ASSIGN_ROLE+")");
+        Assert.assertTrue(getOutput(res).contains(String.format(KatelloUser.OUT_ASSIGN_ROLE, username,user_role_name)), 
+        		                                  "Check - returned output string ("+KatelloUser.CMD_ASSIGN_ROLE+")");
+	
+	}
+	
+	
 	@Test(description = "Create User and Role, assign role to user")
 	public void test_assignRole(){
 		
@@ -94,7 +228,7 @@ public class UserTests extends KatelloCliTestScript{
 		SSHCommandResult res = user.assign_role(role.name);
 		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code (user assign_role)");
 		Assert.assertEquals(getOutput(res).trim(), 
-				String.format("User '%s' assigned to role '%s'", user.username, role.name));
+				String.format(KatelloUser.OUT_ASSIGN_ROLE, user.username, role.name));
 	}
 	
 	@Test(description = "Create User and 2 Roles, assign roles to user and then unassign one of them. Verify that only one role is unassigned")
@@ -112,7 +246,7 @@ public class UserTests extends KatelloCliTestScript{
 		
 		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code (user unassign_role)");
 		Assert.assertEquals(getOutput(res).trim(), 
-				String.format("User '%s' unassigned from role '%s'", user.username, role.name));
+				String.format(KatelloUser.OUT_UNASSIGN_ROLE, user.username, role.name));
 		
 		res = user.list_roles();
 		String out = getOutput(res).replaceAll("\n", "");
@@ -162,12 +296,12 @@ public class UserTests extends KatelloCliTestScript{
 		
 		SSHCommandResult res = user.delete();
 		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
-		Assert.assertTrue(getOutput(res).contains(String.format("Successfully deleted user [ %s ]",user.username)),"Check - return string");
+		Assert.assertTrue(getOutput(res).contains(String.format(KatelloUser.OUT_DELETE,user.username)),"Check - return string");
 		
 		res = user.info();
 		Assert.assertEquals(res.getExitCode(), new Integer(65),"Check - return code [65]");
 		Assert.assertEquals(getOutput(res).trim(), 
-				String.format("Could not find user [ %s ]",user.username));
+				String.format(KatelloUser.OUT_FIND_USER_ERROR,user.username));
 	}
 	
 	private void assert_userInfo(KatelloUser user){
@@ -202,4 +336,5 @@ public class UserTests extends KatelloCliTestScript{
 		return role;
 	}
 	
+
 }
