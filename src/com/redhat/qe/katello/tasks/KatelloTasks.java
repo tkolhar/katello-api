@@ -78,23 +78,6 @@ public class KatelloTasks {
 		return this.execute_local(true, mCall);
 	}
 	
-	/** curl -s -u {username}:{password} 
-	 * http://${servername}:${port}/api${call}<br>
-	 * @param call Relative path of the call, 
-	 * e.g. "/organizations/&lt;orgid&gt;/environments"
-	 * @return The output string of the call (usually in JSON format)
-	 */
-	public String apiKatello_GET(String call){
-		Object[] call_args={
-				System.getProperty("katello.admin.user", "admin"),
-				System.getProperty("katello.admin.password", "admin"),
-				System.getProperty("katello.server.hostname", "localhost"),
-				call};
-		String url = KatelloConstants.KATELLO_HTTP_GET;
-		String mCall = MessageFormat.format(url, call_args);
-		return this.execute_local(true, mCall);		
-	}
-
 	/** curl -s -u ${username}:${password} -H \"Accept: application/json\" 
 	 * -H \"content-type: application/json\" -d \"${content}\" 
 	 * -X PUT http://${servername}:${port}/api${call}<br>

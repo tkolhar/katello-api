@@ -3,6 +3,7 @@ package com.redhat.qe.katello.base.obj;
 import java.util.ArrayList;
 import javax.management.Attribute;
 import com.redhat.qe.auto.testng.Assert;
+import com.redhat.qe.katello.base.KatelloApi;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.tools.SSHCommandResult;
@@ -15,8 +16,8 @@ public class KatelloUser {
 	public static final String DEFAULT_USER_PASS = "testing";
 	
 	public static final String CMD_CREATE = "user create";
-	public static final String CMD_INFO = "user info";
-	public static final String CMD_LIST = "user list";
+	public static final String CLI_CMD_INFO = "user info";
+	public static final String CLI_CMD_LIST = "user list";
 	public static final String CMD_ASSIGN_ROLE = "user assign_role";
 	
 	public static final String ERR_TEMPLATE_NOTFOUND = 
@@ -24,6 +25,9 @@ public class KatelloUser {
 	public static final String OUT_CREATE = 
 			"Successfully created user [ %s ]";
 
+	public static final String API_CMD_INFO = "/users/%s";
+	public static final String API_CMD_LIST = "/users";
+	
 	// ** ** ** ** ** ** ** Class members
 	public String username;
 	public String email;
@@ -52,16 +56,16 @@ public class KatelloUser {
 		return cli.run();
 	}
 	
-	public SSHCommandResult info(){
+	public SSHCommandResult cli_info(){
 		opts.clear();
 		opts.add(new Attribute("username", username));
-		cli = new KatelloCli(CMD_INFO, opts);
+		cli = new KatelloCli(CLI_CMD_INFO, opts);
 		return cli.run();
 	}
 	
-	public SSHCommandResult list(){
+	public SSHCommandResult cli_list(){
 		opts.clear();
-		cli = new KatelloCli(CMD_LIST+" -v", opts);
+		cli = new KatelloCli(CLI_CMD_LIST+" -v", opts);
 		return cli.run();
 	}
 	
@@ -72,6 +76,14 @@ public class KatelloUser {
 		cli = new KatelloCli(CMD_ASSIGN_ROLE, opts);
 		return cli.run();
 	}
+	
+	public SSHCommandResult api_info(String userid){
+		return new KatelloApi().get(String.format(API_CMD_INFO,userid));
+	}
+
+	public SSHCommandResult api_list(){
+		return new KatelloApi().get(API_CMD_LIST);
+	}
 
 	// ** ** ** ** ** ** **
 	// ASSERTS
@@ -80,8 +92,8 @@ public class KatelloUser {
 		SSHCommandResult res;
 
 		// asserts: user list
-		res = list();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+CMD_LIST+")");
+		res = cli_list();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+CLI_CMD_LIST+")");
 		String REGEXP_LIST = ".*Id:\\s+\\d+.*Username:\\s+%s.*Email:\\s+%s.*Disabled:\\s+False.*";
 		if(this.disabled)
 			REGEXP_LIST = ".*Id:\\s+\\d+.*Username:\\s+%s.*Email:\\s+%s.*Disabled:\\s+True.*";
@@ -92,8 +104,8 @@ public class KatelloUser {
 				String.format("User [%s] should be found in the list",this.username));
 		
 		// asserts: user info
-		res = info();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+CMD_INFO+")");
+		res = cli_info();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+CLI_CMD_INFO+")");
 		String REGEXP_INFO = ".*Id:\\s+\\d+.*Username:\\s+%s.*Email:\\s+%s.*Disabled:\\s+False.*";
 		if(this.disabled)
 			REGEXP_INFO = ".*Id:\\s+\\d+.*Username:\\s+%s.*Email:\\s+%s.*Disabled:\\s+True.*";
