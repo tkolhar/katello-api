@@ -11,6 +11,7 @@ public class KatelloUserRole {
 	
 	// ** ** ** ** ** ** ** Public constants
 	public static final String CMD_CREATE = "user_role create";
+	public static final String OUT_CREATE = "Successfully created user role [ %s ]";
 	
 	// ** ** ** ** ** ** ** Class members
 	public String name;
