@@ -27,7 +27,7 @@ public class KatelloTestScript
 	protected KatelloTasks servertasks	= null;
 	private SimpleDateFormat dateFormatter = null;
 	
-	protected static String default_org = null;
+	public static String default_org = null;
 	
 	public KatelloTestScript() {
 		super();

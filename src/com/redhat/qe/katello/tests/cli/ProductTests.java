@@ -35,12 +35,13 @@ public class ProductTests  extends KatelloCliTestScript{
 	}
 	
 
-         @Test(description = "List all product for orgs")
-	 public void test_listProduct(){
-
-	 	KatelloProduct list_product = new KatelloProduct(null,"ACME_Corporation","Red Hat",null,null,null,null,null);
-	 	SSHCommandResult res = list_product.cli_list();
-	 	Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
+     @Test(description = "List all product for orgs")
+	 public void test_listProductDefaultOrg(){
+      
+    	  String providername = "Red Hat";
+	 	  KatelloProduct list_product = new KatelloProduct(null,KatelloTestScript.default_org,providername,null,null,null,null,null);
+	 	  SSHCommandResult res = list_product.cli_list();
+	 	  Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
  	}
 
 
