@@ -113,7 +113,6 @@ public class KatelloUser {
 		return cli.run();
 	}
 	
-<<<<<<< HEAD
 	public SSHCommandResult api_info(String userid){
 		return new KatelloApi().get(String.format(API_CMD_INFO,userid));
 	}
@@ -138,8 +137,8 @@ public class KatelloUser {
 	public void asserts_delete(){
 		   SSHCommandResult res;
 		   //asserts: user list
-		   res = list();
-		   Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+CMD_LIST+")");
+		   res = cli_list();
+		   Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+CLI_CMD_LIST+")");
 		   
 	}
 	public void asserts_create(){
