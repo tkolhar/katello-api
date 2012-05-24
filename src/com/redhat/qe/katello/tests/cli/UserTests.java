@@ -49,4 +49,27 @@ public class UserTests extends KatelloCliTestScript{
 		usr.asserts_create();
 	}
 	
+	@Test(description="delete users - for default org ", enabled=true)
+	public void test_DeleteUserDefaultOrg(){
+		SSHCommandResult res;
+		String uniqueID = KatelloTestScript.getUniqueID();
+		String username = "user-"+uniqueID;
+		String userpass = "password";
+		String usermail = username+"@localhost";
+		
+		KatelloUser usr = new KatelloUser(username, usermail, userpass, true);
+		res = usr.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+KatelloUser.CMD_CREATE+")");
+		Assert.assertTrue(getOutput(res).contains(
+				String.format(KatelloUser.OUT_CREATE,username)), 
+				"Check - returned output string ("+KatelloUser.CMD_CREATE+")");
+		
+		usr.asserts_create();
+		res = usr.delete_user(username);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+KatelloUser.CMD_DELETE_USER+")");
+		Assert.assertTrue(getOutput(res).contains(String.format(KatelloUser.OUT_DELETE, username)),
+				                                  "Checked - returned output string ("+KatelloUser.CMD_DELETE_USER+")");
+		usr.asserts_delete();
+	
+	}
 }

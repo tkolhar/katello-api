@@ -18,11 +18,13 @@ public class KatelloUser {
 	public static final String CMD_INFO = "user info";
 	public static final String CMD_LIST = "user list";
 	public static final String CMD_ASSIGN_ROLE = "user assign_role";
-	
+	public static final String CMD_DELETE_USER = "user delete";
 	public static final String ERR_TEMPLATE_NOTFOUND = 
 			"Could not find template [ %s ]";	
 	public static final String OUT_CREATE = 
 			"Successfully created user [ %s ]";
+	public static final String OUT_DELETE =
+			"Successfully deleted user [ %s ]";
 
 	// ** ** ** ** ** ** ** Class members
 	public String username;
@@ -72,10 +74,29 @@ public class KatelloUser {
 		cli = new KatelloCli(CMD_ASSIGN_ROLE, opts);
 		return cli.run();
 	}
+	
+	 
+	public SSHCommandResult delete_user(String pName){
+		 
+		    opts.clear();
+		    opts.add(new Attribute("username", username));
+		    cli = new KatelloCli(CMD_DELETE_USER,opts);
+		    return cli.run();
+		     
+	}
+	
 
 	// ** ** ** ** ** ** **
 	// ASSERTS
 	// ** ** ** ** ** ** **
+	
+	public void asserts_delete(){
+		   SSHCommandResult res;
+		   //asserts: user list
+		   res = list();
+		   Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+CMD_LIST+")");
+		   
+	}
 	public void asserts_create(){
 		SSHCommandResult res;
 
@@ -102,5 +123,7 @@ public class KatelloUser {
 		Assert.assertTrue(KatelloCliTestScript.sgetOutput(res).replaceAll("\n", "").matches(match_info), 
 				String.format("User [%s] should contain correct info",this.username));			
 	}
+	
+	
 	
 }
