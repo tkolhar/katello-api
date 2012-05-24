@@ -11,7 +11,7 @@ import com.redhat.qe.katello.base.obj.KatelloUserRole;
 
 @Test(groups={"cfse-cli","headpin-cli"})
 public class UserTests extends KatelloCliTestScript{
-/*
+
 @Test(description="create user - for default org", enabled=true)
 	public void test_create_DefaultOrg(){
 		SSHCommandResult res;
@@ -100,9 +100,9 @@ public class UserTests extends KatelloCliTestScript{
 		usr.asserts_delete();
 	
 	}
-	*/
 	
-	/*
+	
+	
 	@Test(description="Generates User Report - pdf format", enabled=true)
 	public void test_UserReport_pdf(){
 		SSHCommandResult res;
@@ -142,7 +142,7 @@ public class UserTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+KatelloUser.CMD_REPORT+")");
 		
 	
-	} */
+	} 
 	
 	@Test(description="assign roles to users", enabled=true)
 	public void test_AssignUserRoles(){
