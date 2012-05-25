@@ -1,8 +1,12 @@
 package com.redhat.qe.katello.tests.cli;
 
-import java.util.Vector;
-import com.redhat.qe.auto.testng.Assert;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.testng.annotations.Test;
+
+import com.redhat.qe.auto.testng.Assert;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.KatelloTestScript;
@@ -11,7 +15,7 @@ import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups={"cfse-cli","headpin-cli"})
 public class OrgTests extends KatelloCliTestScript{
-	Vector<KatelloOrg> orgs;
+	List<KatelloOrg> orgs;
 	
 	@Test(description = "List all orgs - ACME_Corporation should be there")
 	public void test_listOrgs_ACME_Corp(){
@@ -30,7 +34,7 @@ public class OrgTests extends KatelloCliTestScript{
 		
 		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
 		if(this.orgs ==null){
-			this.orgs = new Vector<KatelloOrg>();
+			this.orgs = Collections.synchronizedList(new ArrayList<KatelloOrg>());
 		}
 		this.orgs.add(org);
 	}
@@ -38,17 +42,15 @@ public class OrgTests extends KatelloCliTestScript{
 	@Test(description = "List orgs - created", 
 			dependsOnMethods={"test_createOrg"})
 	public void test_infoListOrg(){
-		KatelloOrg org;
-		String REG_ORG_LIST = ".*Id:\\s+\\d+.*Name:\\s+%s.*Description:\\s+%s.*";
+		
 
 		KatelloOrg list_org = new KatelloOrg(null,null);
 		SSHCommandResult res = list_org.cli_list();
 		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code (org list)");
 		
-		for(int i=0;i<this.orgs.size();i++){
-			org = this.orgs.elementAt(i);
+		for(KatelloOrg org : orgs){
 			if(org.description ==null) org.description = "None";
-			String match_list = String.format(REG_ORG_LIST, org.name, org.description).replaceAll("\"", ""); // output not have '"' signs
+			String match_list = String.format(KatelloOrg.REG_ORG_LIST, org.name, org.description).replaceAll("\"", ""); // output not have '"' signs
 			Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_list), "Check - org matches ["+org.name+"]");
 			assert_orgInfo(org); // Assertions - `org info --name %s` 
 		}
@@ -85,7 +87,18 @@ public class OrgTests extends KatelloCliTestScript{
 		res = org.cli_info();
 		Assert.assertEquals(res.getExitCode(), new Integer(148),"Check - return code [148]");
 		Assert.assertEquals(getOutput(res).trim(), 
-				String.format("Couldn't find organization '%s'",org.name));
+				String.format(KatelloOrg.ERR_ORG_NOTFOUND,org.name));
+	}
+	
+	@Test(description="Delete an organization which does not exist")
+	public void test_deleteOrgNotExist(){
+		String uniqueID = KatelloTestScript.getUniqueID();
+		KatelloOrg org = new KatelloOrg("orgDel"+uniqueID, null);
+		
+		SSHCommandResult res = org.delete();
+		Assert.assertEquals(res.getExitCode(), new Integer(148),"Check - return code [148]");
+		Assert.assertEquals(getOutput(res).trim(), 
+				String.format(KatelloOrg.ERR_ORG_NOTFOUND,org.name));
 	}
 	
 	@Test(description="List org subscriptions.")
@@ -99,11 +112,36 @@ public class OrgTests extends KatelloCliTestScript{
 		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code (org subscriptions)"); // check: ($? is 0)
 	}
 	
+	@Test(description = "Create org - existing")
+	public void test_createOrgExists(){
+		String uniqueID = KatelloTestScript.getUniqueID();
+		KatelloOrg org = new KatelloOrg("orgCrt"+uniqueID, "Simple description");	
+		org.cli_create();
+
+		KatelloOrg org2 = new KatelloOrg("orgCrt"+uniqueID, "Simple description");	
+		SSHCommandResult res = org2.cli_create();
+		
+		Assert.assertEquals(res.getExitCode(), new Integer(144),"Check - return code [144]");
+		Assert.assertEquals(getOutput(res).trim(), 
+				KatelloOrg.ERR_ORG_EXISTS);
+	}
+	
+	@Test(description = "Create org - name is invalid")
+	public void test_createOrgInvalidName(){
+		String uniqueID = KatelloTestScript.getUniqueID();
+		KatelloOrg org = new KatelloOrg("orgCrt"+uniqueID + " very ++== invalid name", "Simple description");	
+		SSHCommandResult res = org.cli_create();
+		
+		Assert.assertEquals(res.getExitCode(), new Integer(144),"Check - return code [144]");
+		Assert.assertEquals(getOutput(res).trim(), 
+				KatelloOrg.ERR_NAME_INVALID);
+	}
+	
 	private void assert_orgInfo(KatelloOrg org){
-		String REG_ORG_INFO = ".*Id:\\s+\\d+.*Name:\\s+%s.*Description:.*%s.*";
+		
 		SSHCommandResult res;
 		res = org.cli_info();
-		String match_info = String.format(REG_ORG_INFO,org.name,org.description).replaceAll("\"", "");
+		String match_info = String.format(KatelloOrg.REG_ORG_INFO,org.name,org.description).replaceAll("\"", "");
 		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
 		log.finest(String.format("Org (info) match regex: [%s]",match_info));
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info), 

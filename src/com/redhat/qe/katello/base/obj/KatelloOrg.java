@@ -28,7 +28,16 @@ public class KatelloOrg {
 			"Could not find template [ %s ]";	
 	public static final String OUT_CREATE = 
 			"Successfully created org [ %s ]";
-
+	public static final String ERR_ORG_EXISTS = 
+			"Validation failed: Name has already been taken";
+	public static final String ERR_NAME_INVALID = 
+			"Validation failed: Cp key is invalid, Name cannot contain characters other than alpha numerals, space,'_', '-'.";
+	public static final String ERR_ORG_NOTFOUND = 
+			"Couldn't find organization '%s'";
+	
+	public static final String REG_ORG_LIST = ".*Id:\\s+\\d+.*Name:\\s+%s.*Description:\\s+%s.*";
+	public static final String REG_ORG_INFO = ".*Id:\\s+\\d+.*Name:\\s+%s.*Description:.*%s.*";
+	
 	// ** ** ** ** ** ** ** Class members
 	public String name;
 	public String description;
