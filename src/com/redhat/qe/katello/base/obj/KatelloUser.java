@@ -150,15 +150,7 @@ public class KatelloUser {
 	public SSHCommandResult api_list(){
 		return new KatelloApi().get(API_CMD_LIST);
 	}
-	 
-	public SSHCommandResult delete_user(String pName){
-		 
-		    opts.clear();
-		    opts.add(new Attribute("username", username));
-		    cli = new KatelloCli(CMD_DELETE_USER,opts);
-		    return cli.run();
-		     
-	}
+
 	
 	// ** ** ** ** ** ** **
 	// ASSERTS
