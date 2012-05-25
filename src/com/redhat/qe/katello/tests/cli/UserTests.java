@@ -4,11 +4,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.auto.testng.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.KatelloTestScript;
+import com.redhat.qe.katello.base.obj.KatelloEnvironment;
+import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloUser;
 import com.redhat.qe.katello.base.obj.KatelloUserRole;
 import com.redhat.qe.tools.SSHCommandResult;
@@ -17,6 +20,22 @@ import com.redhat.qe.tools.SSHCommandResult;
 public class UserTests extends KatelloCliTestScript{
 	
 	List<KatelloUser> users;
+	private String organization;
+	private String env;
+	
+	@BeforeClass(description="init: create org stuff")
+	public void setUp(){
+		SSHCommandResult res;
+		String uid = KatelloTestScript.getUniqueID();
+		this.organization = "ak-"+uid;
+		this.env = "ak-"+uid;
+		KatelloOrg org = new KatelloOrg(this.organization, null);
+		res = org.cli_create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		KatelloEnvironment env = new KatelloEnvironment(this.env, null, this.organization, KatelloEnvironment.LIBRARY);
+		res = env.create();
+	}
+		
 
 	@Test(description="create user - for default org", enabled=true)
 	public void test_create_DefaultOrg(){
@@ -92,10 +111,8 @@ public class UserTests extends KatelloCliTestScript{
 		String username = "user-" + uniqueID;
 		String userpass = "password";
 		String usermail = username + "@localhost";
-		String orgname = "ACME_Corporation";
-		String envname = "DEV";
 		KatelloUser usr = new KatelloUser(username, usermail, userpass, false,
-				orgname, envname);
+				this.organization, this.env);
 		res = usr.create();
 		Assert.assertTrue(res.getExitCode().intValue() == 0,
 				"Check - return code (" + KatelloUser.CMD_CREATE + ")");
