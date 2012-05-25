@@ -1,23 +1,15 @@
 package com.redhat.qe.katello.base;
 
-import java.util.ArrayList;
-
-import javax.management.Attribute;
-
 import com.redhat.qe.tools.SSHCommandResult;
 import com.redhat.qe.tools.SSHCommandRunner;
 
 public class KatelloApi{
 	static{new com.redhat.qe.auto.testng.TestScript();}// to make properties be initialized (if they don't still)
 	
-	private ArrayList<Attribute> options;
-	public KatelloApi(ArrayList<Attribute> options){
-		this.options = options;
-	}
-	
-	public KatelloApi(){
-		this.options = null;
-	}
+	public static final String _POST = "curl -sk -u%s:%s " +
+			"-H \"Accept: application/json\" " +
+			"-H \"content-type: application/json\" -d \"%s\" " +
+			"-X POST https://%s/%s/api%s";
 	
 	public SSHCommandResult get(String call){
 		try{
@@ -40,7 +32,7 @@ public class KatelloApi{
 		return null;
 	}
 	
-	public SSHCommandResult post(String call){
+	public SSHCommandResult post(KatelloPostParam[] params, String call){
 		try{
 			SSHCommandRunner client_sshRunner = new SSHCommandRunner(
 					System.getProperty("katello.client.hostname", "localhost"), 
@@ -51,15 +43,15 @@ public class KatelloApi{
 					"-H \"Accept: application/json\" " +
 					"-H \"content-type: application/json\" -d \"%s\" " +
 					"-X POST https://%s/%s/api%s";
-			String content = ""; // let's constrcut the content. will be need to remote the last "," sign...
-			if(content != null)
-				for(Attribute option: options){
-					if(option.getValue() != null)
-						content = String.format("%s'%s':'%s',", content,option.getName(),option.getValue());
-				}
+			
+			String content = "";
+			for(KatelloPostParam param: params){
+				content = String.format("%s%s,", content, param);
+			}
 			if(content.length()>1) 
 				content = content.substring(0,content.length()-1); // cut last symbol - ","
 			content = String.format("{%s}", content);
+			
 			cmd = String.format(cmd, 
 					System.getProperty("katello.admin.user", "admin"),
 					System.getProperty("katello.admin.password", "admin"),

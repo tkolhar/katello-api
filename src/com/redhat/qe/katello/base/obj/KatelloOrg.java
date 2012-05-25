@@ -5,6 +5,7 @@ import javax.management.Attribute;
 
 import com.redhat.qe.katello.base.KatelloApi;
 import com.redhat.qe.katello.base.KatelloCli;
+import com.redhat.qe.katello.base.KatelloPostParam;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class KatelloOrg {
@@ -53,8 +54,9 @@ public class KatelloOrg {
 		opts.clear();
 		opts.add(new Attribute("name", this.name));
 		opts.add(new Attribute("description", this.description));
-		KatelloApi api = new KatelloApi(opts);
-		return api.post(API_CMD_CREATE);
+		KatelloApi api = new KatelloApi();
+		KatelloPostParam[] params = {new KatelloPostParam(null, opts)};
+		return api.post(params,API_CMD_CREATE);
 	}
 	
 	public SSHCommandResult cli_info(){
