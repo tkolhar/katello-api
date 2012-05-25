@@ -307,7 +307,7 @@ public class UserTests extends KatelloCliTestScript{
 		Assert.assertTrue(out.matches(match_list), "Check - user role matches ["+role3.name+"]");
 	}
 	
-	@Test(description="Delete a user", enabled=false)
+	@Test(description="Delete a user", enabled=true)
 	public void test_deleteUser(){
 		KatelloUser user = createUser();
 		
