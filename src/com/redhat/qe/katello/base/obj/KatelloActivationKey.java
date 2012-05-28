@@ -126,7 +126,7 @@ public class KatelloActivationKey {
 		// retrieve environment_id
 		if(this.environment != null){
 			KatelloEnvironment env = new KatelloEnvironment(this.environment, null, this.org, KatelloEnvironment.LIBRARY);
-			res = env.info();
+			res = env.cli_info();
 			Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (environment info)");
 			this.environment_id = KatelloTasks.grepCLIOutput("Id", res.getStdout());				
 		}

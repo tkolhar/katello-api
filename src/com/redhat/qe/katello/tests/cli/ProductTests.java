@@ -160,7 +160,7 @@ public class ProductTests  extends KatelloCliTestScript{
 		// create env.
 		String envName = "dev-"+uid;
 		KatelloEnvironment env = new KatelloEnvironment(envName, null, this.org_name, KatelloEnvironment.LIBRARY);
-		res = env.create();
+		res = env.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (environment create)");
 		
 		// sync product (otherwise promote will fail)
@@ -189,7 +189,7 @@ public class ProductTests  extends KatelloCliTestScript{
 		
 		// create env.
 		KatelloEnvironment env = new KatelloEnvironment(envName, null, this.org_name, KatelloEnvironment.LIBRARY);
-		res = env.create();
+		res = env.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (environment create)");
 		
 		// sync product (otherwise promote will fail)
@@ -233,7 +233,7 @@ public class ProductTests  extends KatelloCliTestScript{
 		
 		// create env.
 		KatelloEnvironment env = new KatelloEnvironment(envName, null, this.org_name, KatelloEnvironment.LIBRARY);
-		res = env.create();
+		res = env.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (environment create)");
 		
 		// sync product (otherwise promote will fail)
@@ -357,7 +357,7 @@ public class ProductTests  extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product synchronize)");
 		// create env. - dev
 		KatelloEnvironment env = new KatelloEnvironment(envName_dev, null, this.org_name, KatelloEnvironment.LIBRARY);
-		res = env.create();
+		res = env.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (environment create)");
 		// create changeset
 		KatelloChangeset cs = new KatelloChangeset(csName, this.org_name, envName_dev);

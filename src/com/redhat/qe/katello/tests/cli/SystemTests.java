@@ -66,7 +66,7 @@ public class SystemTests extends KatelloCliTestScript{
 		
 		// Create the env.
 		KatelloEnvironment env = new KatelloEnvironment(this.envName_Dev, null, this.orgName, KatelloEnvironment.LIBRARY);
-		env.create();		
+		env.cli_create();		
 		KatelloSystem sys = new KatelloSystem(clienttasks, system, this.orgName, null);
 		exec_result = sys.rhsm_register(); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
@@ -124,7 +124,7 @@ public class SystemTests extends KatelloCliTestScript{
 		
 		// Create the 2nd env.
 		KatelloEnvironment env = new KatelloEnvironment(this.envName_Test, null, this.orgName, KatelloEnvironment.LIBRARY);
-		env.create();		
+		env.cli_create();		
 		KatelloSystem sys = new KatelloSystem(clienttasks, system, this.orgName, null);
 		exec_result = sys.rhsm_register(); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 255, "Check - return code");

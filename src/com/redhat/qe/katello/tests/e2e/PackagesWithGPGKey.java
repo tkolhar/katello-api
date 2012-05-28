@@ -63,7 +63,7 @@ public class PackagesWithGPGKey extends KatelloCliTestScript{
 	public void test_prepareEnvGpgKey(){
 		log.info("E2E - Create environment/gpg key");
 		KatelloEnvironment env = new KatelloEnvironment(this.env, null, this.org, KatelloEnvironment.LIBRARY);
-		env.create();
+		env.cli_create();
 		this.clienttasks.execute_remote("wget "+REPO_GPG_FILE+" -O /tmp/RPM-GPG-KEY-dummy-packages-generator");
 		KatelloGpgKey gpg_key = new KatelloGpgKey(this.gpg_key, this.org, "/tmp/RPM-GPG-KEY-dummy-packages-generator");
 		gpg_key.create();
