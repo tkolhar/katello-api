@@ -39,6 +39,8 @@ public class KatelloOrg {
 	public static final String REG_ORG_LIST = ".*Id:\\s+\\d+.*Name:\\s+%s.*Description:\\s+%s.*";
 	public static final String REG_ORG_INFO = ".*Id:\\s+\\d+.*Name:\\s+%s.*Description:.*%s.*";
 	
+	public static final String OUT_ORG_SUBSCR = "Subscription:   %s";
+	
 	// ** ** ** ** ** ** ** Class members
 	public String name;
 	public String description;
