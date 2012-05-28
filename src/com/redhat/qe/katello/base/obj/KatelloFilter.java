@@ -13,7 +13,7 @@ public class KatelloFilter {
 	public static final String CLI_CMD_LIST = "filter list";
 	public static final String CMD_DELETE = "filter delete";
 	public static final String CLI_CMD_ADD_PACKAGE = "filter add_package";
-	
+	public static final String CLI_CMD_REMOVE_PACKAGE = "filter remove_package";
 
 	public static final String OUT_CREATE = 
 			"Successfully created filter [ %s ]";
@@ -23,6 +23,8 @@ public class KatelloFilter {
 	
 	public static final String OUT_PACKAGE_ADD = 
 			"Successfully added package [ %s ] to filter [ %s ]";
+	public static final String OUT_PACKAGE_REMOVE = 
+			"Successfully removed package [ %s ] from filter [ %s ]";
 	
 	public static final String REG_FILTER_INFO = ".*Name:\\s+%s.*Description:\\s+%s.*Package List:\\s+%s.*";
 	public static final String REG_FILTER_LIST = ".*%s\\s+%s.*";
@@ -84,6 +86,15 @@ public class KatelloFilter {
 		return cli.run();
 	}
 
+	public SSHCommandResult cli_removePackage(String packageName){
+		opts.clear();
+		opts.add(new Attribute("name", this.name));
+		opts.add(new Attribute("org", this.org));
+		opts.add(new Attribute("package", packageName));
+		cli = new KatelloCli(CLI_CMD_REMOVE_PACKAGE, opts);
+		return cli.run();
+	}
+	
 	// ** ** ** ** ** ** **
 	// ASSERTS
 	// ** ** ** ** ** ** **	
