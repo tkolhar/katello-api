@@ -118,12 +118,12 @@ public class KatelloCliDataProvider {
 				{ "ak-"+uid, null, new Integer(0), "Successfully created activation key [ ak-"+uid+" ]"},
 				{ "ak "+uid, "Provider with space in name", new Integer(0), "Successfully created activation key [ ak "+uid+" ]"},
 
-				{ null, null, new Integer(2), "headpin: error: Option --name is required; please see --help"},
+				{ null, null, new Integer(2), System.getProperty("katello.engine", "katello")+": error: Option --name is required; please see --help"},
 				
 				
-				{ null, null, new Integer(2), System.getProperty("katello.engine", "headpin")+": error: Option --name is required; please see --help"},
+				{ null, null, new Integer(2), System.getProperty("katello.engine", "katello")+": error: Option --name is required; please see --help"},
 
-				{ null, null, new Integer(2), System.getProperty("katello.engine", "headpin")+": error: Option --name is required; please see --help"},
+				{ null, null, new Integer(2), System.getProperty("katello.engine", "katello")+": error: Option --name is required; please see --help"},
 
 				{ " ", null, new Integer(144), "Name can't be blank"},
 				{ " a", null, new Integer(144), "Validation failed: Name must not contain leading or trailing white spaces."},
