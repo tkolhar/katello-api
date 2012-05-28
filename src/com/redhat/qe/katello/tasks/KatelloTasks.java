@@ -128,28 +128,6 @@ public class KatelloTasks {
 		return _return;		
 	}
 	
-	public String createEnvironment(String orgName, String envName, String envDesc){
-		return createEnvironment(orgName, envName, envDesc,KatelloEnvironment.LIBRARY);
-	}
-	
-	public String createEnvironment(String orgName, String envName, String envDesc, 
-			String priorEnvName){
-		JSONObject json_envPrior = getEnvFromOrgList(orgName, priorEnvName);
-		String priorID = ((Long)json_envPrior.get("id")).toString();
-		String _return = null;
-		String call = "'environment':{'name':'%s','description':'%s','prior':%s}";
-		call = String.format(call, envName, envDesc, priorID);
-		
-		try{
-			_return = apiKatello_POST(call, String.format("/organizations/%s/environments",orgName));
-			log.info(String.format("Created an environment for org: [%s] with: " +
-					"name=[%s]; description=[%s]",orgName,envName,envDesc));
-		}catch (Exception e) {
-			log.log(Level.SEVERE, e.getMessage(), e);
-		}
-		return _return;		
-	}
-	
 	public String deleteEnvironment(String orgName, String envName){
 		String _return = null;
 		try{
@@ -500,24 +478,6 @@ public class KatelloTasks {
 		execute_remote("python -c \"from katello.utils import waitfor_katello; waitfor_katello()\"");
 	}
 
-	public String createUser(String username, String password, boolean disabled){
-		String _return = null;
-		Object[] json_args ={
-				username, password, String.valueOf(disabled)};
-		
-		String mCall = String.format(
-				KatelloConstants.JSON_CREATE_USER, json_args);
-		try{
-			_return = apiKatello_POST(mCall, "/users");
-			log.info(String.format("Created a user with: " +
-					"username=[%s]; password=[%s]; disabled=[%s]", 
-					username, password, String.valueOf(disabled)));
-		}catch (Exception e) {
-			log.log(Level.SEVERE, e.getMessage(), e);
-		}
-		return _return;
-	}
-	
 	public static String grepCLIOutput(String property, String output){
 		return grepCLIOutput(property, output, 1);
 	}

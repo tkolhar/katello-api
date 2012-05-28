@@ -77,7 +77,7 @@ public class BPMTests extends KatelloCliTestScript{
 		Assert.assertEquals(getOutput(exec_result).trim(), "Successfully created org [ "+org_name+" ]");
 		// Create user:
 		KatelloUser user = new KatelloUser(user_name, "root@localhost", KatelloUser.DEFAULT_USER_PASS, false);
-		exec_result = user.create();
+		exec_result = user.cli_create();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertEquals(getOutput(exec_result).trim(), "Successfully created user [ "+user_name+" ]");
 	}

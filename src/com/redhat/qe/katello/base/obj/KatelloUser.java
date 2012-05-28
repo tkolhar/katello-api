@@ -6,6 +6,7 @@ import com.redhat.qe.auto.testng.Assert;
 import com.redhat.qe.katello.base.KatelloApi;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloPostParam;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class KatelloUser {
@@ -14,6 +15,7 @@ public class KatelloUser {
 	public static final String DEFAULT_ADMIN_USER = "admin";
 	public static final String DEFAULT_ADMIN_PASS = "admin";
 	public static final String DEFAULT_USER_PASS = "testing";
+	public static final String DEFAULT_USER_EMAIL = "root@localhost";
 	
 	public static final String CMD_CREATE = "user create";
 	public static final String CLI_CMD_INFO = "user info";
@@ -41,6 +43,7 @@ public class KatelloUser {
 	
 	public static final String API_CMD_INFO = "/users/%s";
 	public static final String API_CMD_LIST = "/users";
+	public static final String API_CMD_CREATE = "/users";
 	
 	// ** ** ** ** ** ** ** Class members
 	public String username;
@@ -85,7 +88,7 @@ public class KatelloUser {
 		    
 	}
 	
-	public SSHCommandResult create(){
+	public SSHCommandResult cli_create(){
 		opts.clear();
 		opts.add(new Attribute("username", username));
 		opts.add(new Attribute("password", password));
@@ -151,6 +154,16 @@ public class KatelloUser {
 		return new KatelloApi().get(API_CMD_LIST);
 	}
 
+	public SSHCommandResult api_create(){
+		KatelloApi api = new KatelloApi();
+		opts.clear();
+		opts.add(new Attribute("username", username));
+		opts.add(new Attribute("password", password));
+		opts.add(new Attribute("disabled", String.valueOf(disabled)));
+		opts.add(new Attribute("email", email));
+		KatelloPostParam[] params = {new KatelloPostParam(null, opts)};
+		return api.post(params, API_CMD_CREATE);
+	}
 	
 	// ** ** ** ** ** ** **
 	// ASSERTS
