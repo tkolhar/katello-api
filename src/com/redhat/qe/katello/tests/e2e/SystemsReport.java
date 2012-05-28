@@ -73,7 +73,7 @@ public class SystemsReport extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(res).contains("enabled."),"Message - (repo enable)");
 		
 		KatelloEnvironment env = new KatelloEnvironment(this.env_dev, null, this.org, KatelloEnvironment.LIBRARY);
-		env.create();
+		env.cli_create();
 		KatelloChangeset cs = new KatelloChangeset("csDev_"+KatelloTestScript.getUniqueID(), this.org, this.env_dev);
 		cs.create();
 		cs.update_addProduct(KatelloProduct.RHEL_SERVER);
@@ -82,7 +82,7 @@ public class SystemsReport extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(res).endsWith("promoted"),"Message - (changeset promote)");
 		
 		env = new KatelloEnvironment(this.env_test, null, this.org, this.env_dev);
-		env.create();
+		env.cli_create();
 		cs = new KatelloChangeset("csTest_"+KatelloTestScript.getUniqueID(), this.org, this.env_test);
 		cs.create();
 		cs.update_addProduct(KatelloProduct.RHEL_SERVER);

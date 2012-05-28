@@ -119,12 +119,12 @@ public class BPMTests extends KatelloCliTestScript{
 	public void test_createEnvPromoteContent(){
 		// Environment create: Dev
 		KatelloEnvironment env = new KatelloEnvironment(env_name_Dev, null, org_name, KatelloEnvironment.LIBRARY);
-		exec_result = env.create();
+		exec_result = env.cli_create();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertEquals(getOutput(exec_result).trim(), "Successfully created environment [ "+env_name_Dev+" ]");				
 		// Environment create: Prod
 		env = new KatelloEnvironment(env_name_Prod, null, org_name, env_name_Dev);
-		exec_result = env.create();
+		exec_result = env.cli_create();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertEquals(getOutput(exec_result).trim(), "Successfully created environment [ "+env_name_Prod+" ]");
 		// Changeset create: for Dev

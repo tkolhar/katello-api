@@ -26,7 +26,7 @@ public class FilterTests extends KatelloCliTestScript{
 		res = org.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (org create)");
 		KatelloEnvironment env = new KatelloEnvironment(this.environment, null, this.org, KatelloEnvironment.LIBRARY);
-		res = env.create();
+		res = env.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (env create)");
 	}
 

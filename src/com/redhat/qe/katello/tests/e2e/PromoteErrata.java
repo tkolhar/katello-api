@@ -65,7 +65,7 @@ public class PromoteErrata extends KatelloCliTestScript{
 	public void test_prepareEnv(){
 		log.info("E2E - Create environment");
 		KatelloEnvironment env = new KatelloEnvironment(this.env, null, this.org, KatelloEnvironment.LIBRARY);
-		env.create();
+		env.cli_create();
 	}
 	
 	@Test(description="Promote empty product/repo structure to Dev", dependsOnMethods={"test_prepareRepo","test_prepareEnv"}, enabled=true)

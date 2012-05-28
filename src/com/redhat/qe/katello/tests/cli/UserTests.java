@@ -33,7 +33,7 @@ public class UserTests extends KatelloCliTestScript{
 		res = org.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		KatelloEnvironment env = new KatelloEnvironment(this.env, null, this.organization, KatelloEnvironment.LIBRARY);
-		res = env.create();
+		res = env.cli_create();
 	}
 		
 
