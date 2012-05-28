@@ -65,7 +65,7 @@ public class RhsmOnlyPermissions extends KatelloCliTestScript{
 		
 		log.info("Preparing: user, user_role");
 		KatelloUser user = new KatelloUser(this.user, "root@localhost", KatelloUser.DEFAULT_USER_PASS, false);
-		user.create();
+		user.cli_create();
 		user.asserts_create();
 		KatelloUserRole role = new KatelloUserRole(this.user_role, "Full RHSM access for an env. scope");
 		SSHCommandResult res = role.create();

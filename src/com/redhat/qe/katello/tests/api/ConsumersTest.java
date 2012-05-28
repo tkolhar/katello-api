@@ -34,7 +34,8 @@ public class ConsumersTest extends KatelloTestScript {
 		uid = KatelloTestScript.getUniqueID();
 		env_name = "auto-env-"+uid; 
 		String env_descr = "Test Environment "+uid;
-		servertasks.createEnvironment(org_name, env_name, env_descr,KatelloEnvironment.LIBRARY);
+		KatelloEnvironment env = new KatelloEnvironment(env_name, env_descr, org_name, KatelloEnvironment.LIBRARY);
+		env.api_create();
 	}
 
 	@Test(groups = { "testConsumers" }, description = "Create consumer")

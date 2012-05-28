@@ -61,7 +61,8 @@ public class EnvironmentsTest extends KatelloTestScript{
 		String uid = KatelloTestScript.getUniqueID();
 		this.env_name = "auto-env-"+uid; 
 		String env_descr = "Test Environment "+uid;
-		servertasks.createEnvironment(this.org_name, this.env_name, env_descr,KatelloEnvironment.LIBRARY);
+		KatelloEnvironment env = new KatelloEnvironment(env_name, env_descr, org_name, KatelloEnvironment.LIBRARY);
+		env.api_create();
 		JSONObject json_env = servertasks.getEnvFromOrgList(this.org_name, this.env_name);
 		Assert.assertNotNull(json_env,"Should be in envs. list of the organization");
 	}
@@ -90,8 +91,8 @@ public class EnvironmentsTest extends KatelloTestScript{
 			// Create an env. that would be prior of our ones
 			String uid = KatelloTestScript.getUniqueID();
 			String env_prior = "dev-"+uid;
-			servertasks.createEnvironment(this.org_name, env_prior, "Prior: "+env_prior);
-			
+			KatelloEnvironment env = new KatelloEnvironment(env_prior, "Prior: "+env_prior, org_name, KatelloEnvironment.LIBRARY);
+			env.api_create();
 			JSONObject json_prior = servertasks.getEnvironment(org_name, env_prior);
 			dupBefore = dupAfter;
 			String updEnv = String.format("'environment':{'prior':'%s'}",((Long)json_prior.get("id")).toString());
@@ -116,11 +117,12 @@ public class EnvironmentsTest extends KatelloTestScript{
 		String uid = KatelloTestScript.getUniqueID();
 		String env_name = "remove-env-"+uid; 
 		String env_descr = "To Be Removed - "+uid;
-		servertasks.createEnvironment(this.org_name, env_name, env_descr);
+		KatelloEnvironment env = new KatelloEnvironment(env_name, env_descr, org_name, KatelloEnvironment.LIBRARY);
+		env.api_create();
 		String env_id = ((Long)servertasks.getEnvironment(org_name, env_name).get("id")).toString();
 		String res = servertasks.deleteEnvironment(this.org_name, env_name);
 		Assert.assertEquals(res, "Deleted environment '"+env_id+"'","Check the text returned");
-		KatelloEnvironment env = new KatelloEnvironment(null, null, org_name, null);
+		env = new KatelloEnvironment(null, null, org_name, null);
 		String nil = env.api_list().getStdout();
 		Assert.assertEquals(nil.indexOf(env_name), -1,
 				String.format("Returned environment list does not contain: [%s]",env_name));

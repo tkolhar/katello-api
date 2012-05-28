@@ -25,6 +25,7 @@ public class KatelloEnvironment {
 			"Successfully created environment [ %s ]";
 
 	public static final String API_CMD_LIST = "/organizations/%s/environments";
+	public static final String API_CMD_CREATE = "/organizations/%s/environments";
 	
 	// ** ** ** ** ** ** ** Class members
 	String name;
@@ -75,7 +76,7 @@ public class KatelloEnvironment {
 		opts.add(new Attribute("description", description));
 		opts.add(new Attribute("prior", get_prior_id()));
 		KatelloPostParam[] params = {new KatelloPostParam("environment", opts)};
-		return api.post(params, String.format("/organizations/%s/environments",org));
+		return api.post(params, String.format(API_CMD_CREATE,org));
 	}
 	
 	public String get_prior_id(){

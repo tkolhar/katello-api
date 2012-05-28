@@ -114,6 +114,10 @@ public class KatelloTestScript
 		return _return;
 	}
 	
+	protected String getOutput(SSHCommandResult res){
+		return KatelloCliTestScript.sgetOutput(res);
+	}
+	
 	private void setup_defaultOrg(){
 		KatelloOrg _org = new KatelloOrg(null, null);
 		SSHCommandResult res = _org.api_list();

@@ -15,12 +15,12 @@ import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloTemplate;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups={"cfse-cli"})
+//@Test(groups={"cfse-cli","headpin-cli"})
 public class ActivationKeyTests extends KatelloCliTestScript{
 	private String organization;
 	private String env;
 	
-	@BeforeClass(description="init: create org stuff", groups = {"cli-activationkey"})
+	@BeforeClass(description="init: create org stuff", groups = {"cli-activationkey","headpin-cli"})
 	public void setUp(){
 		SSHCommandResult res;
 		String uid = KatelloTestScript.getUniqueID();
@@ -34,7 +34,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 	}
 	
-	@Test(description="create AK", groups = {"cli-activationkey"}, 
+	@Test(description="create AK", groups = {"cli-activationkey","headpin-cli"}, 
 			dataProvider="activationkey_create", dataProviderClass = KatelloCliDataProvider.class, enabled=true)
 	public void test_create(String name, String descr, Integer exitCode, String output){
 		SSHCommandResult res;
@@ -65,6 +65,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 				"Check - returned error string (activation_key create --template)");
 	}
 	
+	
 	@Test(description="create AK - template not exported to the env.", groups = {"cli-activationkey"}, enabled=true)
 	public void test_create_TemplateNotForEnv(){
 		SSHCommandResult res;
@@ -85,7 +86,9 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 				"Check - returned error string (activation_key create --template)");
 	}
 	
-	@Test(description="create AK - same name, diff. orgs", groups = {"cli-activationkey"}, enabled=true)
+	
+	
+	@Test(description="create AK - same name, diff. orgs", groups = {"cli-activationkey","headpin-cli"}, enabled=true)
 	public void test_create_diffOrgsSameName(){
 		SSHCommandResult res;
 		String uid = KatelloTestScript.getUniqueID();
@@ -114,7 +117,9 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 		ak.asserts_create();
 	}
 	
-	@Test(description="create AK - with template", enabled=true)
+	
+	
+	@Test(description="create AK - with template",groups = {"cli-activationkey"}, enabled=true)
 	public void test_create_withTemplate(){
 		SSHCommandResult res;
 		String uid = KatelloTestScript.getUniqueID();
@@ -150,7 +155,8 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 		ak.asserts_create();
 	}
 	
-    @Test(description="add subscription to ak", enabled=true)
+	
+    @Test(description="add subscription to ak", groups = {"cli-activationkey"},enabled=true)
     public void test_update_addSubscription1(){
             String uid = KatelloTestScript.getUniqueID();
             String akName="ak-subscription-zoo3-"+uid;
