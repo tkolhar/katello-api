@@ -11,6 +11,8 @@ import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
+import com.redhat.qe.katello.base.obj.KatelloProduct;
+import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups={"cfse-cli","headpin-cli"})
@@ -42,9 +44,13 @@ public class OrgTests extends KatelloCliTestScript{
 	@Test(description = "List orgs - created", 
 			dependsOnMethods={"test_createOrg"})
 	public void test_infoListOrg(){
+		String uniqueID = KatelloTestScript.getUniqueID();
+		KatelloOrg list_org = new KatelloOrg("orgUpd"+uniqueID, "Simple description");		
+		list_org.cli_create();
 		
-
-		KatelloOrg list_org = new KatelloOrg(null,null);
+		orgs.add(list_org);
+		
+		list_org = new KatelloOrg(null,null);
 		SSHCommandResult res = list_org.cli_list();
 		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code (org list)");
 		
@@ -103,13 +109,32 @@ public class OrgTests extends KatelloCliTestScript{
 	
 	@Test(description="List org subscriptions.")
 	public void test_orgSubscriptions(){
-		String orgname = "subscriptions-"+KatelloTestScript.getUniqueID();
-		KatelloOrg org = new KatelloOrg(orgname, null); // or you can provide null -> "some simple description here"
+		String uniqueID = KatelloTestScript.getUniqueID();
+		String orgName = "subscriptions-" + uniqueID;
+		KatelloOrg org = new KatelloOrg(orgName, null); // or you can provide null -> "some simple description here"
 		SSHCommandResult res = org.cli_create();
 		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code (org create)");
 		
+		String  providerName = "provider" + uniqueID;
+		KatelloProvider prov = new KatelloProvider(providerName, orgName, "Fedora provider", null);
+		res = prov.create();
+		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
+		
+		String productName = "product" + uniqueID;
+		KatelloProduct prod = new KatelloProduct(productName, orgName, providerName, null, null, null, null, null);
+		res = prod.create();
+		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
+		
+		String productName1 = "product1" + uniqueID;
+		prod = new KatelloProduct(productName1, orgName, providerName, null, null, null, null, null);
+		res = prod.create();
+		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
+		
 		res = org.subscriptions();
 		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code (org subscriptions)"); // check: ($? is 0)
+		
+		Assert.assertTrue(getOutput(res).trim().contains(String.format(KatelloOrg.OUT_ORG_SUBSCR, productName)), "Check - Subscriptions contains " + productName);
+		Assert.assertTrue(getOutput(res).trim().contains(String.format(KatelloOrg.OUT_ORG_SUBSCR, productName1)), "Check - Subscriptions contains " + productName1);
 	}
 	
 	@Test(description = "Create org - existing")
