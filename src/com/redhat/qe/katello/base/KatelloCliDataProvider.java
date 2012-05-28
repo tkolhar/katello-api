@@ -41,7 +41,7 @@ public class KatelloCliDataProvider {
 				{ strRepeat("0123456789", 12)+"abcdefgh", null, null, new Integer(0), "Successfully created provider [ "+strRepeat("0123456789", 12)+"abcdefgh"+" ]"},
 				{ "prov-"+uid, null, null, new Integer(0), "Successfully created provider [ prov-"+uid+" ]"},
 				{ "prov "+uid, "Provider with space in name", null, new Integer(0), "Successfully created provider [ prov "+uid+" ]"},
-				{ null, null, null, new Integer(2), System.getProperty("katello.product", "katello")+": error: Option --name is required; please see --help"},
+				{ null, null, null, new Integer(2), System.getProperty("katello.engine", "katello")+": error: Option --name is required; please see --help"},
 				{ " ", null, null, new Integer(144), "Name can't be blank"},
 				{ " a", null, null, new Integer(144), "Validation failed: Name must not contain leading or trailing white spaces."},
 				{ "a ", null, null, new Integer(144), "Validation failed: Name must not contain leading or trailing white spaces."},
@@ -53,8 +53,8 @@ public class KatelloCliDataProvider {
 				{ "desc-255Chars"+uid, strRepeat("0123456789", 25)+"abcde", null, new Integer(0), "Successfully created provider [ desc-255Chars"+uid+" ]"},
 				{ "desc-256Chars"+uid, strRepeat("0123456789", 25)+"abcdef", null, new Integer(144), "Validation failed: Description cannot contain more than 255 characters"},
 				// url
-				{ "url-httpOnly"+uid, null, "http://", new Integer(2), System.getProperty("katello.product", "katello")+": error: Option --url is not in a valid format"},
-				{ "url-httpsOnly"+uid, null, "https://", new Integer(2), System.getProperty("katello.product", "katello")+": error: Option --url is not in a valid format"},
+				{ "url-httpOnly"+uid, null, "http://", new Integer(2), System.getProperty("katello.engine", "katello")+": error: Option --url is not in a valid format"},
+				{ "url-httpsOnly"+uid, null, "https://", new Integer(2), System.getProperty("katello.engine", "katello")+": error: Option --url is not in a valid format"},
 				{ "url-redhatcom"+uid, null, "http://redhat.com/", new Integer(0), "Successfully created provider [ url-redhatcom"+uid+" ]"},
 				{ "url-with_space"+uid, null, "http://url with space/", new Integer(0), "Successfully created provider [ url-with_space"+uid+" ]"},
 				// misc
@@ -65,7 +65,7 @@ public class KatelloCliDataProvider {
 	
 	@DataProvider(name="provider_create_diffType")
 	public static Object[][] provider_create_diffType(){
-		String KTL_PROD = System.getProperty("katello.product", "katello");
+		String KTL_PROD = System.getProperty("katello.engine", "katello");
 		return new Object[][] {
 				{ "C", new Integer(2), KTL_PROD+": error: option --type: invalid choice: 'C' (choose from 'redhat', 'custom')"},
 				{ "Custom", new Integer(2), KTL_PROD+": error: option --type: invalid choice: 'Custom' (choose from 'redhat', 'custom')"},
@@ -116,7 +116,7 @@ public class KatelloCliDataProvider {
 				{ strRepeat("0123456789", 12)+"abcdefgh", null, new Integer(0), "Successfully created activation key [ "+strRepeat("0123456789", 12)+"abcdefgh"+" ]"},
 				{ "ak-"+uid, null, new Integer(0), "Successfully created activation key [ ak-"+uid+" ]"},
 				{ "ak "+uid, "Provider with space in name", new Integer(0), "Successfully created activation key [ ak "+uid+" ]"},
-				{ null, null, new Integer(2), System.getProperty("katello.product", "katello")+": error: Option --name is required; please see --help"},
+				{ null, null, new Integer(2), System.getProperty("katello.engine", "katello")+": error: Option --name is required; please see --help"},
 				{ " ", null, new Integer(144), "Name can't be blank"},
 				{ " a", null, new Integer(144), "Validation failed: Name must not contain leading or trailing white spaces."},
 				{ "a ", null, new Integer(144), "Validation failed: Name must not contain leading or trailing white spaces."},
