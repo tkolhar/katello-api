@@ -99,6 +99,30 @@ public class FilterTests extends KatelloCliTestScript{
 				String.format(KatelloFilter.ERR_FILTER_NOTFOUND,filter.name));
 	}
 	
+	@Test(description="Delete a Filter not exist", groups = {"cli-filter"})
+	public void test_deleteFilterNotFound(){
+		String uid = KatelloTestScript.getUniqueID();
+		String filterName = "filter1" + uid;
+		KatelloFilter filter = new KatelloFilter(filterName, this.org, null, null);
+		
+		SSHCommandResult res = filter.delete();
+		Assert.assertEquals(res.getExitCode(), new Integer(148),"Check - return code [148]");
+		Assert.assertEquals(getOutput(res).trim(), 
+				String.format(KatelloFilter.ERR_FILTER_NOTFOUND,filter.name));
+	}
+	
+	@Test(description="Info Filter not exist", groups = {"cli-filter"})
+	public void test_infoFilterNotFound(){
+		String uid = KatelloTestScript.getUniqueID();
+		String filterName = "filter1" + uid;
+		KatelloFilter filter = new KatelloFilter(filterName, this.org, null, null);
+		
+		SSHCommandResult res = filter.cli_info();
+		Assert.assertEquals(res.getExitCode(), new Integer(148),"Check - return code [148]");
+		Assert.assertEquals(getOutput(res).trim(), 
+				String.format(KatelloFilter.ERR_FILTER_NOTFOUND,filter.name));
+	}
+	
 	@Test(description="Add package to filter", groups = {"cli-filter"})
 	public void test_addPackage(){
 		String filterName = "filter"+KatelloTestScript.getUniqueID();
@@ -108,9 +132,49 @@ public class FilterTests extends KatelloCliTestScript{
 		
 		res = filter.cli_addPackage("package2");
 		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
+		Assert.assertTrue(getOutput(res).equals(String.format(KatelloFilter.OUT_PACKAGE_ADD, "package2", filterName)),
+				"Check - output string (filter added package)");
 		filter.packages = "package1, package2";
 		
 		assert_filterInfo(filter);
+	}
+	
+	@Test(description="Add package to filter which does not exist", groups = {"cli-filter"})
+	public void test_addPackageNotFound(){
+		String filterName = "filter"+KatelloTestScript.getUniqueID();
+		KatelloFilter filter = new KatelloFilter(filterName, this.org, null, "package1");
+		
+		SSHCommandResult res = filter.cli_addPackage("package2");
+		Assert.assertEquals(res.getExitCode(), new Integer(148),"Check - return code [148]");
+		Assert.assertEquals(getOutput(res).trim(), 
+				String.format(KatelloFilter.ERR_FILTER_NOTFOUND,filter.name));
+	}
+	
+	@Test(description="Remove package from filter", groups = {"cli-filter"})
+	public void test_removePackage(){
+		String filterName = "filter"+KatelloTestScript.getUniqueID();
+		KatelloFilter filter = new KatelloFilter(filterName, this.org, null, "package1, package2");
+		SSHCommandResult res = filter.create();
+		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
+		
+		res = filter.cli_removePackage("package2");
+		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
+		Assert.assertTrue(getOutput(res).equals(String.format(KatelloFilter.OUT_PACKAGE_REMOVE, "package2", filterName)),
+				"Check - output string (filter removed package)");
+		filter.packages = "package1";
+		
+		assert_filterInfo(filter);
+	}
+	
+	@Test(description="Remove package from filter which does not exist", groups = {"cli-filter"})
+	public void test_removePackageNotFound(){
+		String filterName = "filter"+KatelloTestScript.getUniqueID();
+		KatelloFilter filter = new KatelloFilter(filterName, this.org, null, "package1");
+		
+		SSHCommandResult res = filter.cli_removePackage("package1");
+		Assert.assertEquals(res.getExitCode(), new Integer(148),"Check - return code [148]");
+		Assert.assertEquals(getOutput(res).trim(), 
+				String.format(KatelloFilter.ERR_FILTER_NOTFOUND,filter.name));
 	}
 	
 	private void assert_filterInfo(KatelloFilter filter){
