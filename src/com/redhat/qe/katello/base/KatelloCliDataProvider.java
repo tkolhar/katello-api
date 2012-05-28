@@ -65,7 +65,7 @@ public class KatelloCliDataProvider {
 	
 	@DataProvider(name="provider_create_diffType")
 	public static Object[][] provider_create_diffType(){
-		String KTL_PROD = System.getProperty("katello.product", "katello")+;
+		String KTL_PROD = System.getProperty("katello.product", "katello");
 		return new Object[][] {
 				{ "C", new Integer(2), KTL_PROD+": error: option --type: invalid choice: 'C' (choose from 'redhat', 'custom')"},
 				{ "Custom", new Integer(2), KTL_PROD+": error: option --type: invalid choice: 'Custom' (choose from 'redhat', 'custom')"},
