@@ -33,8 +33,8 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 		res = env.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 	}
-	/*
-	@Test(description="create AK", groups = {"cli-activationkey"}, 
+	
+	@Test(description="create AK", groups = {"cli-activationkey","headpin-cli"}, 
 			dataProvider="activationkey_create", dataProviderClass = KatelloCliDataProvider.class, enabled=true)
 	public void test_create(String name, String descr, Integer exitCode, String output){
 		SSHCommandResult res;
@@ -49,7 +49,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 			Assert.assertTrue(getOutput(res).contains(output),"Check - returned error string");
 		}
 	}
-	*/
+	
 	@Test(description="create AK - template does not exist", groups = {"cli-activationkey"}, enabled=true)
 	public void test_create_noTemplate(){
 		SSHCommandResult res;
@@ -64,7 +64,8 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 				String.format(KatelloActivationKey.ERR_TEMPLATE_NOTFOUND,template_name)), 
 				"Check - returned error string (activation_key create --template)");
 	}
-	/*
+	
+	
 	@Test(description="create AK - template not exported to the env.", groups = {"cli-activationkey"}, enabled=true)
 	public void test_create_TemplateNotForEnv(){
 		SSHCommandResult res;
@@ -84,6 +85,8 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 				String.format(KatelloActivationKey.ERR_TEMPLATE_NOTFOUND,template)), 
 				"Check - returned error string (activation_key create --template)");
 	}
+	
+	
 	
 	@Test(description="create AK - same name, diff. orgs", groups = {"cli-activationkey","headpin-cli"}, enabled=true)
 	public void test_create_diffOrgsSameName(){
@@ -113,6 +116,8 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 		
 		ak.asserts_create();
 	}
+	
+	
 	
 	@Test(description="create AK - with template", enabled=true)
 	public void test_create_withTemplate(){
@@ -150,6 +155,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 		ak.asserts_create();
 	}
 	
+	
     @Test(description="add subscription to ak", enabled=true)
     public void test_update_addSubscription1(){
             String uid = KatelloTestScript.getUniqueID();
@@ -168,5 +174,5 @@ public class ActivationKeyTests extends KatelloCliTestScript{
             Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
             KatelloOrg org = new KatelloOrg(this.organization, null);
             res = org.subscriptions();
-    } */
+    }
 }
