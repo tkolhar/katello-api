@@ -15,7 +15,7 @@ import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloTemplate;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups={"cfse-cli"})
+@Test(groups={"cfse-cli","headpin-cli"})
 public class ActivationKeyTests extends KatelloCliTestScript{
 	private String organization;
 	private String env;
@@ -49,7 +49,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 			Assert.assertTrue(getOutput(res).contains(output),"Check - returned error string");
 		}
 	}
-	
+	/*
 	@Test(description="create AK - template does not exist", groups = {"cli-activationkey"}, enabled=true)
 	public void test_create_noTemplate(){
 		SSHCommandResult res;
@@ -85,7 +85,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 				"Check - returned error string (activation_key create --template)");
 	}
 	
-	@Test(description="create AK - same name, diff. orgs", groups = {"cli-activationkey"}, enabled=true)
+	@Test(description="create AK - same name, diff. orgs", groups = {"cli-activationkey","headpin-cli"}, enabled=true)
 	public void test_create_diffOrgsSameName(){
 		SSHCommandResult res;
 		String uid = KatelloTestScript.getUniqueID();
@@ -168,5 +168,5 @@ public class ActivationKeyTests extends KatelloCliTestScript{
             Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
             KatelloOrg org = new KatelloOrg(this.organization, null);
             res = org.subscriptions();
-    }
+    } */
 }
