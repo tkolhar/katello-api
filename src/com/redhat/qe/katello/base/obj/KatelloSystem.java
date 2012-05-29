@@ -1,12 +1,10 @@
 package com.redhat.qe.katello.base.obj;
 
 import java.util.ArrayList;
-
 import javax.management.Attribute;
-
 import com.redhat.qe.katello.base.KatelloApi;
 import com.redhat.qe.katello.base.KatelloCli;
-import com.redhat.qe.katello.tasks.KatelloTasks;
+import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class KatelloSystem {
@@ -43,12 +41,10 @@ public class KatelloSystem {
 	String org;
 	String environment;
 	
-	private KatelloTasks cliRhsm;	
 	private KatelloCli cli;
 	private ArrayList<Attribute> opts;
 	
-	public KatelloSystem(KatelloTasks pCliRhsm, String pName, String pOrg, String pEnv){
-		this.cliRhsm = pCliRhsm;
+	public KatelloSystem(String pName, String pOrg, String pEnv){
 		this.name = pName;
 		this.org = pOrg;
 		this.environment = pEnv;
@@ -69,7 +65,7 @@ public class KatelloSystem {
 		if(this.environment != null)
 			cmd += " --environment \""+this.environment+"\"";
 		
-		return cliRhsm.execute_remote(cmd);		
+		return KatelloUtils.sshOnClient(cmd);		
 	}
 	
 	public SSHCommandResult rhsm_registerForce(){
@@ -83,7 +79,7 @@ public class KatelloSystem {
 			cmd += " --environment \""+this.environment+"\"";
 		cmd += " --force";
 		
-		return cliRhsm.execute_remote(cmd);		
+		return KatelloUtils.sshOnClient(cmd);		
 	}
 	
 	public SSHCommandResult list(){

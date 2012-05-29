@@ -14,9 +14,8 @@ import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.common.KatelloConstants;
+import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.ExecCommands;
-import com.redhat.qe.tools.SSHCommandResult;
-import com.redhat.qe.tools.SSHCommandRunner;
 
 /**
  * Various utility tasks regarding Katello (+components) functionality.
@@ -27,19 +26,14 @@ import com.redhat.qe.tools.SSHCommandRunner;
 public class KatelloTasks {
 	protected static Logger log = 
 		Logger.getLogger(KatelloTasks.class.getName());
-	private SSHCommandRunner sshCommandRunner = null;
 	private ExecCommands localCommandRunner = null;
 // # ************************************************************************* #
 // # PUBLIC section                                                            #
 // # ************************************************************************* #	
-	public KatelloTasks(SSHCommandRunner sshRunner, ExecCommands localRunner) {
-		setSSHCommandRunner(sshRunner);
+	public KatelloTasks(ExecCommands localRunner) {
 		setLocalCommandRunner(localRunner);
 	}
 
-	public void setSSHCommandRunner(SSHCommandRunner runner) {
-		sshCommandRunner = runner;
-	}
 	public void setLocalCommandRunner(ExecCommands runner) {
 		localCommandRunner = runner;
 	}
@@ -425,15 +419,6 @@ public class KatelloTasks {
 		return out;
 	}
 	
-	public SSHCommandResult execute_remote(String command){
-		try{
-			SSHCommandResult cmd_res = this.sshCommandRunner.runCommandAndWait(command);
-			return cmd_res;
-		}catch(Throwable t){
-			log.finest(String.format("Error running the command: [%s]",command));
-		}return null;
-	}
-
 	public static String run_local(boolean showLogResults, String command){
 		String out = null; String tmp_cmdFile = "/tmp/katello-"+KatelloTestScript.getUniqueID()+".sh";
 		ExecCommands localRunner = new ExecCommands();
@@ -468,14 +453,14 @@ public class KatelloTasks {
 	
 	public long getDiskFreeForPulpRepos(){
 		long dfPulpRepos=Long.MAX_VALUE;
-		String res = execute_remote("df `grep \"Alias /pulp/repos\" /etc/httpd/conf.d/pulp.conf | awk '{print $3}'` | tail -1 | awk '{print $3}'").getStdout().trim();
+		String res = KatelloUtils.sshOnServer("df `grep \"Alias /pulp/repos\" /etc/httpd/conf.d/pulp.conf | awk '{print $3}'` | tail -1 | awk '{print $3}'").getStdout().trim();
 		log.fine("Free disk space for Pulp repositories: ["+res+"]");
 		dfPulpRepos = new Long(res).longValue();
 		return dfPulpRepos;
 	}
 	
 	public void waitfor_katello(){
-		execute_remote("python -c \"from katello.utils import waitfor_katello; waitfor_katello()\"");
+		KatelloUtils.sshOnServer("python -c \"from katello.utils import waitfor_katello; waitfor_katello()\"");
 	}
 
 	public static String grepCLIOutput(String property, String output){
