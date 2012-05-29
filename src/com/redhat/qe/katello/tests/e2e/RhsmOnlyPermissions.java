@@ -16,6 +16,7 @@ import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.base.obj.KatelloUser;
 import com.redhat.qe.katello.base.obj.KatelloUserRole;
+import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.tasks.KatelloTasks;
 import com.redhat.qe.tools.SSHCommandResult;
 
@@ -95,7 +96,7 @@ public class RhsmOnlyPermissions extends KatelloCliTestScript{
 		String cmd = String.format(
 				"subscription-manager register --username %s --password %s --org \"%s\" --environment \"%s\" --name \"%s\"",
 				this.user,KatelloUser.DEFAULT_USER_PASS,org,this.env_dev,this.system);
-		SSHCommandResult res = clienttasks.execute_remote(cmd);
+		SSHCommandResult res = KatelloUtils.sshOnClient(cmd);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (rhsm register)");
 		Assert.assertTrue(getOutput(res).contains("The system has been registered"), "Check - message (registered)");
 	}
@@ -126,14 +127,14 @@ public class RhsmOnlyPermissions extends KatelloCliTestScript{
 	public void test_subscribeSystemToZoo3(){
 		
 		log.info("Subscribing system to the pool of: Zoo3");
-		KatelloSystem sys = new KatelloSystem(clienttasks, this.system, this.org, null);
+		KatelloSystem sys = new KatelloSystem(this.system, this.org, null);
 		SSHCommandResult res = sys.subscriptions_available();
 		String pool = KatelloTasks.grepCLIOutput("PoolId", getOutput(res).trim(),1);
 		if(pool==null)
 			pool = KatelloTasks.grepCLIOutput("Pool Id", getOutput(res).trim(),1); // new version of RHSM
 		
 		String cmd = "subscription-manager subscribe --pool "+pool;
-		res = clienttasks.execute_remote(cmd);
+		res = KatelloUtils.sshOnClient(cmd);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (rhsm subscribe)");
 		String MATCH_SUBSCRIBED = "Successfully.*"+pool+".*";
 		Assert.assertTrue(getOutput(res).matches(MATCH_SUBSCRIBED), "Check - message (subscribed)");
@@ -143,7 +144,7 @@ public class RhsmOnlyPermissions extends KatelloCliTestScript{
 	public void test_yumOperations(){
 		
 		log.info("Checks on: yum repolist, packages count");
-		SSHCommandResult res = clienttasks.execute_remote("yum repolist | grep \""+this.repo+"\"");
+		SSHCommandResult res = KatelloUtils.sshOnClient("yum repolist | grep \""+this.repo+"\"");
 		Assert.assertFalse(getOutput(res).equals(""), "Yum repolist contains the repo just subscribed");
 		
 		String sRev = new StringBuffer(getOutput(res).trim()).reverse().toString();

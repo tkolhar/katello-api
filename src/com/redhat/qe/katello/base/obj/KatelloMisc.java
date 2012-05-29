@@ -1,10 +1,7 @@
 package com.redhat.qe.katello.base.obj;
 
-import java.util.logging.Level;
-
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-
 import com.redhat.qe.katello.base.KatelloApi;
 import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.tools.SSHCommandResult;

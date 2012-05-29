@@ -4,14 +4,12 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.logging.Logger;
 import org.testng.Assert;
-
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.common.KatelloConstants;
+import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.tasks.KatelloTasks;
-import com.redhat.qe.tools.ExecCommands;
 import com.redhat.qe.tools.SSHCommandResult;
-import com.redhat.qe.tools.SSHCommandRunner;
 
 public class KatelloCliTestScript 
 extends com.redhat.qe.auto.testng.TestScript 
@@ -19,45 +17,9 @@ implements KatelloConstants {
 
 	protected static Logger log = Logger.getLogger(KatelloCliTestScript.class.getName());
 
-	protected KatelloTasks servertasks	= null;
-	protected KatelloTasks clienttasks = null;
-	
 	private int platform_id = -1; // made a class property - in case in the tests there would be a need to check platform.
 	public KatelloCliTestScript() {
 		super();
-		try {
-			SSHCommandRunner server_sshRunner = null;
-			SSHCommandRunner client_sshRunner = null;
-			try{
-				server_sshRunner = new SSHCommandRunner(
-						System.getProperty("katello.server.hostname", "localhost"), 
-						System.getProperty("katello.ssh.user", "root"), 
-						System.getProperty("katello.ssh.passphrase", "secret"), 
-						System.getProperty("katello.sshkey.private", ".ssh/id_hudson_dsa"), 
-						System.getProperty("katello.sshkey.passphrase", "secret"), null);				
-			}catch(Throwable t){
-				log.warning("Warning: Could not initialize server's SSHCommandRunner.");
-				t.printStackTrace();
-			}
-			try{
-				client_sshRunner = new SSHCommandRunner(
-						System.getProperty("katello.client.hostname", "localhost"), 
-						System.getProperty("katello.client.ssh.user", "root"), 
-						System.getProperty("katello.client.ssh.passphrase", "secret"), 
-						System.getProperty("katello.client.sshkey.private", ".ssh/id_hudson_dsa"), 
-						System.getProperty("katello.client.sshkey.passphrase", "secret"), null);				
-			}catch(Throwable t){
-				log.warning("Warning: Could not initialize client's SSHCommandRunner.");
-				t.printStackTrace();
-			}
-
-			ExecCommands localRunner = new ExecCommands();
-			servertasks = new KatelloTasks(server_sshRunner, localRunner);
-			clienttasks = new KatelloTasks(client_sshRunner, localRunner);
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-		}		
 	}
 	
 	public int getClientPlatformID(){
@@ -153,11 +115,13 @@ implements KatelloConstants {
 		return getOutput(res).equals("1");
 	}
 	
+	// TODO - DUPE?
 	protected SSHCommandResult rhsm_clean(){
 		log.info("RHSM clean");
-		return clienttasks.execute_remote("subscription-manager clean");
+		return KatelloUtils.sshOnClient("subscription-manager clean");
 	}
 	
+	// TODO - DUPE?
 	protected SSHCommandResult rhsm_register(String org, String environment, String name, boolean autosubscribe){
 		log.info("Registering client with: --org \""+org+"\" --environment \""+environment+"\" " +
 				"--name \""+name+"\" --autosubscribe "+Boolean.toString(autosubscribe));
@@ -166,7 +130,7 @@ implements KatelloConstants {
 				org,environment,name);
 		if(autosubscribe)
 			cmd += " --autosubscribe";
-		return clienttasks.execute_remote(cmd);
+		return KatelloUtils.sshOnClient(cmd);
 	}
 	
 	protected String getOutput(SSHCommandResult res){

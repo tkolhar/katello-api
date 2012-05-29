@@ -2,8 +2,8 @@ package com.redhat.qe.katello.base;
 
 import java.util.ArrayList;
 import javax.management.Attribute;
+import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
-import com.redhat.qe.tools.SSHCommandRunner;
 
 public class KatelloCli{
 	static{new com.redhat.qe.auto.testng.TestScript();}// to make properties be initialized (if they don't still)
@@ -41,17 +41,10 @@ public class KatelloCli{
 		}
 		
 		try {
-			SSHCommandRunner client_sshRunner = null;
-			client_sshRunner = new SSHCommandRunner(
-					System.getProperty("katello.client.hostname", "localhost"), 
-					"root","no_passphrase_here", 
-					System.getProperty("katello.client.sshkey.private", ".ssh/id_hudson_dsa"), 
-					"no_passphrase_here", null);
-			return client_sshRunner.runCommandAndWait(cmd);
+			return KatelloUtils.sshOnClient(cmd);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-		}
-		return null;
+		}return null;
 	}
 }
