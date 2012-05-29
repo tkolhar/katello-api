@@ -182,8 +182,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
     @Test(description="delete a subscription to ak", groups = {"headpin-cli"},enabled=true)
     public void test_delete_activation_key(){
             String uid = KatelloTestScript.getUniqueID();
-            String akName="ak-delete_act_key-"+ uid;
-           // String orgname = "org-del"+uid; 
+            String akName="ak-delete_act_key-"+ uid; 
             SSHCommandResult res;
             KatelloActivationKey ak = new KatelloActivationKey(this.organization, this.env, akName, "Activation key created to test deletion", null);
             res = ak.create();
