@@ -33,7 +33,7 @@ public class UserTests extends KatelloCliTestScript{
 		res = org.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		KatelloEnvironment env = new KatelloEnvironment(this.env, null, this.organization, KatelloEnvironment.LIBRARY);
-		res = env.create();
+		res = env.cli_create();
 	}
 		
 
@@ -46,7 +46,7 @@ public class UserTests extends KatelloCliTestScript{
 		String usermail = username+"@localhost";
 		
 		KatelloUser usr = new KatelloUser(username, usermail, userpass, false);
-		res = usr.create();
+		res = usr.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+KatelloUser.CMD_CREATE+")");
 		Assert.assertTrue(getOutput(res).contains(
 				String.format(KatelloUser.OUT_CREATE,username)), 
@@ -70,7 +70,7 @@ public class UserTests extends KatelloCliTestScript{
 		String usermail = username+"@localhost";
 		
 		KatelloUser usr = new KatelloUser(username, usermail, userpass, true);
-		res = usr.create();
+		res = usr.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+KatelloUser.CMD_CREATE+")");
 		Assert.assertTrue(getOutput(res).contains(
 				String.format(KatelloUser.OUT_CREATE,username)), 
@@ -113,7 +113,7 @@ public class UserTests extends KatelloCliTestScript{
 		String usermail = username + "@localhost";
 		KatelloUser usr = new KatelloUser(username, usermail, userpass, false,
 				this.organization, this.env);
-		res = usr.create();
+		res = usr.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue() == 0,
 				"Check - return code (" + KatelloUser.CMD_CREATE + ")");
 		Assert.assertTrue(
@@ -144,7 +144,7 @@ public class UserTests extends KatelloCliTestScript{
 		String usermail = username+"@localhost";
 		
 		KatelloUser usr = new KatelloUser(username, usermail, userpass, false);
-		res = usr.create();
+		res = usr.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+KatelloUser.CMD_CREATE+")");
 		Assert.assertTrue(getOutput(res).contains(
 				String.format(KatelloUser.OUT_CREATE,username)), 
@@ -214,7 +214,7 @@ public class UserTests extends KatelloCliTestScript{
 		String user_role_name = "user-role"+unique_role_ID;
 		String role_desc = "Assigned " + user_role_name + " to user " + username; 
 		KatelloUser usr = new KatelloUser(username, usermail, userpass, false);
-		res = usr.create();
+		res = usr.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+KatelloUser.CMD_CREATE+")");
 		Assert.assertTrue(getOutput(res).contains(
 				String.format(KatelloUser.OUT_CREATE,username)), 
@@ -307,7 +307,7 @@ public class UserTests extends KatelloCliTestScript{
 		Assert.assertTrue(out.matches(match_list), "Check - user role matches ["+role3.name+"]");
 	}
 	
-	@Test(description="Delete a user", enabled=false)
+	@Test(description="Delete a user", enabled=true)
 	public void test_deleteUser(){
 		KatelloUser user = createUser();
 		
@@ -338,7 +338,7 @@ public class UserTests extends KatelloCliTestScript{
 		String usermail = username+"@localhost";
 		
 		KatelloUser user = new KatelloUser(username, usermail, userpass, false);
-		user.create();
+		user.cli_create();
 		
 		return user;
 	}

@@ -10,13 +10,10 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.common.KatelloConstants;
 import com.redhat.qe.katello.tasks.KatelloTasks;
-import com.redhat.qe.tools.ExecCommands;
 import com.redhat.qe.tools.SSHCommandResult;
-import com.redhat.qe.tools.SSHCommandRunner;
 
 public class KatelloTestScript 
 	extends com.redhat.qe.auto.testng.TestScript 
@@ -32,18 +29,6 @@ public class KatelloTestScript
 	public KatelloTestScript() {
 		super();
 		try {
-			SSHCommandRunner sshRunner = null;
-			try{
-				sshRunner = new SSHCommandRunner(
-						System.getProperty("katello.server.hostname", "localhost"), "root", 
-						"null", System.getProperty("katello.server.sshkey.private", ".ssh/id_hudson_dsa"), 
-						"null", null);
-			}catch(Throwable t){
-				log.warning("Warning: Could not initialize SSHCommandRunner.");
-			}
-			ExecCommands localRunner = new ExecCommands();
-			servertasks = new KatelloTasks(sshRunner, localRunner);
-			
 			dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 			if(default_org ==null)
 				setup_defaultOrg();
@@ -112,6 +97,10 @@ public class KatelloTestScript
 			log.log(Level.SEVERE, e.getMessage(), e);
 		}
 		return _return;
+	}
+	
+	protected String getOutput(SSHCommandResult res){
+		return KatelloCliTestScript.sgetOutput(res);
 	}
 	
 	private void setup_defaultOrg(){

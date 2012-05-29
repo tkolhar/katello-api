@@ -111,9 +111,7 @@ public interface KatelloConstants {
 	public static final String JSON_CREATE_REPO_WITH_URL =
 		"{'name':'%s', " +
 		"'product_id':'%s', " +
-		"'url':'%s'}";
-	
-	public static final String JSON_CREATE_USER = 
-		"{'username':'%s', 'password':'%s', 'disabled':'%s', 'email':'root@localhost'}";
+		"'url':'%s'}";	
 
+	public static final String TNG_CFSE_CLI = "cfse-cli";
 }

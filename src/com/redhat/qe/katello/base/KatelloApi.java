@@ -1,7 +1,7 @@
 package com.redhat.qe.katello.base;
 
+import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
-import com.redhat.qe.tools.SSHCommandRunner;
 
 public class KatelloApi{
 	static{new com.redhat.qe.auto.testng.TestScript();}// to make properties be initialized (if they don't still)
@@ -13,11 +13,6 @@ public class KatelloApi{
 	
 	public SSHCommandResult get(String call){
 		try{
-			SSHCommandRunner client_sshRunner = new SSHCommandRunner(
-					System.getProperty("katello.client.hostname", "localhost"), 
-					"root","no_passphrase_here", 
-					System.getProperty("katello.client.sshkey.private", ".ssh/id_hudson_dsa"), 
-					"no_passphrase_here", null);
 			String cmd = "curl -sk -u %s:%s https://%s/%s/api%s";
 			cmd = String.format(cmd, 
 					System.getProperty("katello.admin.user", "admin"),
@@ -25,7 +20,7 @@ public class KatelloApi{
 					System.getProperty("katello.server.hostname", "localhost"),
 					System.getProperty("katello.product", "katello"),
 					call);
-			return client_sshRunner.runCommandAndWait(cmd);
+			return KatelloUtils.sshOnClient(cmd);
 		}catch(Exception ex){
 			ex.printStackTrace();
 		}
@@ -34,11 +29,6 @@ public class KatelloApi{
 	
 	public SSHCommandResult post(KatelloPostParam[] params, String call){
 		try{
-			SSHCommandRunner client_sshRunner = new SSHCommandRunner(
-					System.getProperty("katello.client.hostname", "localhost"), 
-					"root","no_passphrase_here", 
-					System.getProperty("katello.client.sshkey.private", ".ssh/id_hudson_dsa"), 
-					"no_passphrase_here", null);
 			String cmd = "curl -sk -u%s:%s " +
 					"-H \"Accept: application/json\" " +
 					"-H \"content-type: application/json\" -d \"%s\" " +
@@ -59,12 +49,11 @@ public class KatelloApi{
 					System.getProperty("katello.server.hostname", "localhost"),
 					System.getProperty("katello.product", "katello"),
 					call);
-			return client_sshRunner.runCommandAndWait(cmd);
+			return KatelloUtils.sshOnClient(cmd);
 		}catch(Exception ex){
 			ex.printStackTrace();
 		}
 		return null;
 	}
-
 	
 }

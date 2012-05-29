@@ -25,7 +25,8 @@ public class UsersTest extends KatelloTestScript {
 		try{Thread.sleep(1000L);}catch(InterruptedException iex){} // to get new unique id.
 		String pid = KatelloTestScript.getUniqueID();
 		this.username_disabled = "user_"+pid;
-		String s = servertasks.createUser(this.username_disabled, "redhat", true);
+		KatelloUser user = new KatelloUser(this.username_disabled, KatelloUser.DEFAULT_USER_EMAIL, KatelloUser.DEFAULT_USER_PASS, true);
+		String s= user.api_create().getStdout();
 		JSONObject juser = KatelloTestScript.toJSONObj(s);
 		Assert.assertNotNull(juser.get("id"), "Check: not null returned: id");
 		Boolean disabled = (Boolean)juser.get("disabled");
@@ -40,7 +41,9 @@ public class UsersTest extends KatelloTestScript {
 		try{Thread.sleep(1000L);}catch(InterruptedException iex){} // to get new unique id.
 		String pid = KatelloTestScript.getUniqueID();
 		this.username_enabled = "user_"+pid;
-		String s = servertasks.createUser(this.username_enabled, "redhat", false);
+		KatelloUser user = new KatelloUser(username_enabled, KatelloUser.DEFAULT_USER_EMAIL, 
+				KatelloUser.DEFAULT_USER_PASS, false);
+		String s = getOutput(user.api_create());
 		JSONObject juser = KatelloTestScript.toJSONObj(s);
 		Assert.assertNotNull(juser.get("id"), "Check: not null returned: id");
 		Boolean disabled = (Boolean)juser.get("disabled");
@@ -83,7 +86,9 @@ public class UsersTest extends KatelloTestScript {
 	public void test_updateUser(){
 		String pid = KatelloTestScript.getUniqueID();
 		String updUser = "updUser_"+pid;
-		String s = servertasks.createUser(updUser, "redhat", false);
+		KatelloUser user = new KatelloUser(updUser, KatelloUser.DEFAULT_USER_EMAIL, 
+				KatelloUser.DEFAULT_USER_PASS, false);
+		String s = getOutput(user.api_create());
 		JSONObject juser = KatelloTestScript.toJSONObj(s);
 		Long userId = (Long)juser.get("id");
 		String pwdHash = (String)juser.get("password");
@@ -103,7 +108,9 @@ public class UsersTest extends KatelloTestScript {
 	public void test_deleteUser(){
 		String pid = KatelloTestScript.getUniqueID();
 		String updUser = "delUser_"+pid;
-		String s = servertasks.createUser(updUser, "redhat", false);
+		KatelloUser user = new KatelloUser(updUser, KatelloUser.DEFAULT_USER_EMAIL, 
+				KatelloUser.DEFAULT_USER_PASS, false);
+		String s = getOutput(user.api_create());
 		JSONObject juser = KatelloTestScript.toJSONObj(s);
 		Long userId = (Long)juser.get("id");
 		try{

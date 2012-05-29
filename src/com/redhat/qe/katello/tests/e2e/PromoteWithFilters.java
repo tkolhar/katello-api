@@ -64,7 +64,7 @@ public class PromoteWithFilters extends KatelloCliTestScript{
 		KatelloOrg org = new KatelloOrg(this.org, null);
 		org.cli_create();
 		KatelloEnvironment env = new KatelloEnvironment(this.env, null, this.org, KatelloEnvironment.LIBRARY);
-		env.create();
+		env.cli_create();
 	}
 	
 	@Test(description="Create org, provider, product and repo", enabled=true)

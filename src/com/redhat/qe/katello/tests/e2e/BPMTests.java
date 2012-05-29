@@ -15,6 +15,7 @@ import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.base.obj.KatelloUser;
+import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
 /**
@@ -65,7 +66,7 @@ public class BPMTests extends KatelloCliTestScript{
 		consumer_name = uid+"-`hostname`";
 		rhsm_pool_id = null; // going to be set after listing avail. subscriptions.
 		log.info("Clean RHSM registration");
-		clienttasks.execute_remote("subscription-manager unregister || true");
+		KatelloUtils.sshOnClient("subscription-manager unregister || true");
 	}
 	
 	@Test(description="Create a new Org and create a user who can manage providers, systems and environments.")
@@ -77,7 +78,7 @@ public class BPMTests extends KatelloCliTestScript{
 		Assert.assertEquals(getOutput(exec_result).trim(), "Successfully created org [ "+org_name+" ]");
 		// Create user:
 		KatelloUser user = new KatelloUser(user_name, "root@localhost", KatelloUser.DEFAULT_USER_PASS, false);
-		exec_result = user.create();
+		exec_result = user.cli_create();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertEquals(getOutput(exec_result).trim(), "Successfully created user [ "+user_name+" ]");
 	}
@@ -119,12 +120,12 @@ public class BPMTests extends KatelloCliTestScript{
 	public void test_createEnvPromoteContent(){
 		// Environment create: Dev
 		KatelloEnvironment env = new KatelloEnvironment(env_name_Dev, null, org_name, KatelloEnvironment.LIBRARY);
-		exec_result = env.create();
+		exec_result = env.cli_create();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertEquals(getOutput(exec_result).trim(), "Successfully created environment [ "+env_name_Dev+" ]");				
 		// Environment create: Prod
 		env = new KatelloEnvironment(env_name_Prod, null, org_name, env_name_Dev);
-		exec_result = env.create();
+		exec_result = env.cli_create();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertEquals(getOutput(exec_result).trim(), "Successfully created environment [ "+env_name_Prod+" ]");
 		// Changeset create: for Dev
@@ -146,25 +147,27 @@ public class BPMTests extends KatelloCliTestScript{
 	@Test(description="From both a RH and Fedora machine, register the machine using subscription manager.",
 			dependsOnMethods={"test_createEnvPromoteContent"})
 	public void test_rhsm_register(){
-		exec_result = clienttasks.execute_remote(String.format("subscription-manager register " +
+		exec_result = KatelloUtils.sshOnClient(String.format("subscription-manager register " +
 				"--username admin --password admin --org %s --environment %s --name %s",org_name, env_name_Dev, consumer_name));
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains("The system has been registered with id:"),"Check - returned message");
+		log.finest("Sleeping 3 sec. giving chance system to recognize the registration.");
+		try{Thread.sleep(3000);}catch(InterruptedException iex){}
 	}
 	
 	@Test(description="List available subscriptions", dependsOnMethods={"test_rhsm_register"})
 	public void test_rhsm_listAvailableSubscriptions(){
 		// ProductName
-		exec_result = clienttasks.execute_remote("subscription-manager list --available | grep -E \"ProductName:|Product Name:\"");
+		exec_result = KatelloUtils.sshOnClient("subscription-manager list --available | grep -E \"ProductName:|Product Name:\"");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(product_name), "Check - subscription.ProductName");
 		// Quantity
-		exec_result = clienttasks.execute_remote("subscription-manager list --available | grep Quantity:");
+		exec_result = KatelloUtils.sshOnClient("subscription-manager list --available | grep Quantity:");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains("unlimited"), "Check - subscription.Quantity");
 		
 		// Store poolid
-		exec_result = clienttasks.execute_remote("subscription-manager list --available | grep -E \"PoolId:|Pool Id:\"");
+		exec_result = KatelloUtils.sshOnClient("subscription-manager list --available | grep -E \"PoolId:|Pool Id:\"");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		rhsm_pool_id = getOutput(exec_result).trim().split(":")[1].trim();
 		log.fine(String.format("Subscription is available for product: [%s] with poolid: [%s]",
@@ -174,7 +177,7 @@ public class BPMTests extends KatelloCliTestScript{
 	@Test(description="Subscribe to pool", dependsOnMethods={"test_rhsm_listAvailableSubscriptions"})
 	public void test_rhsm_subscribeToPool(){
 		Assert.assertNotNull(rhsm_pool_id, "Check - pool id is set");
-		exec_result = clienttasks.execute_remote("subscription-manager subscribe --pool "+rhsm_pool_id);
+		exec_result = KatelloUtils.sshOnClient("subscription-manager subscribe --pool "+rhsm_pool_id);
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).trim().startsWith("Successfully"), 
 				"Check - returned message (Successfully)");
@@ -186,7 +189,7 @@ public class BPMTests extends KatelloCliTestScript{
 			dependsOnMethods={"test_rhsm_subscribeToPool"})
 	public void test_yuminfo(){
 		String pkg_pulp_consumer = "pulp-consumer";
-		exec_result = clienttasks.execute_remote("yum info "+pkg_pulp_consumer+" --disablerepo=* --enablerepo=*"+repo_name_pulpRHEL6+"*");
+		exec_result = KatelloUtils.sshOnClient("yum info "+pkg_pulp_consumer+" --disablerepo=* --enablerepo=*"+repo_name_pulpRHEL6+"*");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		String YUM_INFO_PULP_CONSUMER = 
 				".*Available Packages"+
@@ -198,6 +201,6 @@ public class BPMTests extends KatelloCliTestScript{
 	
 	@AfterTest(description="erase registration made; cleanup",alwaysRun=true)
 	public void tearDown(){
-		clienttasks.execute_remote("subscription-manager clean");
+		KatelloUtils.sshOnClient("subscription-manager clean");
 	}
 }
