@@ -150,6 +150,8 @@ public class BPMTests extends KatelloCliTestScript{
 				"--username admin --password admin --org %s --environment %s --name %s",org_name, env_name_Dev, consumer_name));
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains("The system has been registered with id:"),"Check - returned message");
+		log.finest("Sleeping 3 sec. giving chance system to recognize the registration.");
+		try{Thread.sleep(3000);}catch(InterruptedException iex){}
 	}
 	
 	@Test(description="List available subscriptions", dependsOnMethods={"test_rhsm_register"})
