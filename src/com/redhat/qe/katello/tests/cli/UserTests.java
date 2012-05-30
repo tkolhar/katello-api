@@ -316,7 +316,7 @@ public class UserTests extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(res).contains(String.format(KatelloUser.OUT_DELETE,user.username)),"Check - return string");
 		
 		res = user.cli_info();
-		Assert.assertEquals(res.getExitCode(), new Integer(65),"Check - return code [65]");
+		Assert.assertTrue(res.getExitCode()==65, "Check - return code [65]");
 		Assert.assertEquals(getOutput(res).trim(), 
 				String.format(KatelloUser.OUT_FIND_USER_ERROR,user.username));
 	}
