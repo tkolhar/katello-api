@@ -24,20 +24,12 @@ import com.redhat.qe.tools.ExecCommands;
  *
  */
 public class KatelloTasks {
-	protected static Logger log = 
-		Logger.getLogger(KatelloTasks.class.getName());
-	private ExecCommands localCommandRunner = null;
+	protected static Logger log = Logger.getLogger(KatelloTasks.class.getName());
+//	private ExecCommands localCommandRunner = null;
 // # ************************************************************************* #
 // # PUBLIC section                                                            #
 // # ************************************************************************* #	
-	public KatelloTasks(ExecCommands localRunner) {
-		setLocalCommandRunner(localRunner);
-	}
 
-	public void setLocalCommandRunner(ExecCommands runner) {
-		localCommandRunner = runner;
-	}
-	
 	/** curl -s -u ${username}:${password} -H \"Accept: application/json\" 
 	 * -H \"content-type: application/json\" -d \"${content}\" 
 	 * -X POST http://${servername}:${port}/api${call}<br>
@@ -56,7 +48,7 @@ public class KatelloTasks {
 				call};
 		String url = KatelloConstants.KATELLO_HTTP_POST;
 		String mCall = MessageFormat.format(url, call_args);
-		return this.execute_local(true, mCall);
+		return KatelloUtils.sshOnClient(mCall).getStdout();
 	}
 	
 	public String apiKatello_POST_manifest(
@@ -69,7 +61,7 @@ public class KatelloTasks {
 				call};
 		String url = KatelloConstants.KATELLO_HTTP_POST_MANIFEST;
 		String mCall = MessageFormat.format(url, call_args);
-		return this.execute_local(true, mCall);
+		return KatelloUtils.sshOnClient(mCall).getStdout();
 	}
 	
 	/** curl -s -u ${username}:${password} -H \"Accept: application/json\" 
@@ -90,7 +82,7 @@ public class KatelloTasks {
 				call};
 		String url = KatelloConstants.KATELLO_HTTP_PUT;
 		String mCall = MessageFormat.format(url, call_args);
-		return this.execute_local(true, mCall);
+		return KatelloUtils.sshOnClient(mCall).getStdout();
 	}
 
 	public String apiKatello_DELETE(String call) throws IOException{
@@ -101,7 +93,7 @@ public class KatelloTasks {
 				call};
 		String url = KatelloConstants.KATELLO_HTTP_DELETE;
 		String mCall = MessageFormat.format(url, call_args);
-		return this.execute_local(true, mCall);
+		return KatelloUtils.sshOnClient(mCall).getStdout();
 	}
 	
 	public JSONObject getEnvironment(String orgName, String envName){
@@ -378,47 +370,48 @@ public class KatelloTasks {
 // # ************************************************************************* #
 // # PRIVATE section                                                           #
 // # ************************************************************************* #	
-	/**
-	 * In order to make the ExecCommands instance available to run 
-	 * JSON format line commands,
-	 * here is made a workaround: put command on file and "sh &lt;file&gt;" it.
-	 * @param showLogResults True/False to log/output the result returned
-	 * @param command The command line to be executed locally
-	 * @return Output of the command run
-	 * @author gkhachik
-	 * @since 15.Feb.2011
-	 */
-	private String execute_local(boolean showLogResults, String command){
-		String out = null; String tmp_cmdFile = "/tmp/katello-json.sh";
-		try{
-			// cleanup the running buffer file.
-			this.localCommandRunner.submitCommandToLocalWithReturn(false, 
-					"rm -f "+tmp_cmdFile,"");
 
-			FileOutputStream fout = 
-				new FileOutputStream(tmp_cmdFile);
-			fout.write((command+"\n").getBytes());fout.flush();fout.close();
-			log.finest(String.format("Executing local: [%s]",command));
-			out = this.localCommandRunner.submitCommandToLocalWithReturn(
-					false, "sh "+tmp_cmdFile, ""); // HERE is the run
-			
-			if(showLogResults){ // log output if specified so.
-				// split the lines and out each line.
-				String[] split = out.split("\\n");
-				for(int i=0;i<split.length;i++){
-					log.info("Output: "+split[i]);
-				}
-			}
-			
-			// cleanup the running buffer file.
-			this.localCommandRunner.submitCommandToLocalWithReturn(false, 
-					"rm -f "+tmp_cmdFile,"");
-		}catch(IOException iex){
-			log.log(Level.SEVERE, iex.getMessage(), iex);
-		}
-		return out;
-	}
-	
+//	/**
+//	 * In order to make the ExecCommands instance available to run 
+//	 * JSON format line commands,
+//	 * here is made a workaround: put command on file and "sh &lt;file&gt;" it.
+//	 * @param showLogResults True/False to log/output the result returned
+//	 * @param command The command line to be executed locally
+//	 * @return Output of the command run
+//	 * @author gkhachik
+//	 * @since 15.Feb.2011
+//	 */
+//	private String execute_local(boolean showLogResults, String command){
+//		String out = null; String tmp_cmdFile = "/tmp/katello-json.sh";
+//		try{
+//			// cleanup the running buffer file.
+//			this.localCommandRunner.submitCommandToLocalWithReturn(false, 
+//					"rm -f "+tmp_cmdFile,"");
+//
+//			FileOutputStream fout = 
+//				new FileOutputStream(tmp_cmdFile);
+//			fout.write((command+"\n").getBytes());fout.flush();fout.close();
+//			log.finest(String.format("Executing local: [%s]",command));
+//			out = this.localCommandRunner.submitCommandToLocalWithReturn(
+//					false, "sh "+tmp_cmdFile, ""); // HERE is the run
+//			
+//			if(showLogResults){ // log output if specified so.
+//				// split the lines and out each line.
+//				String[] split = out.split("\\n");
+//				for(int i=0;i<split.length;i++){
+//					log.info("Output: "+split[i]);
+//				}
+//			}
+//			
+//			// cleanup the running buffer file.
+//			this.localCommandRunner.submitCommandToLocalWithReturn(false, 
+//					"rm -f "+tmp_cmdFile,"");
+//		}catch(IOException iex){
+//			log.log(Level.SEVERE, iex.getMessage(), iex);
+//		}
+//		return out;
+//	}
+//	
 	public static String run_local(boolean showLogResults, String command){
 		String out = null; String tmp_cmdFile = "/tmp/katello-"+KatelloTestScript.getUniqueID()+".sh";
 		ExecCommands localRunner = new ExecCommands();

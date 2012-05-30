@@ -114,7 +114,7 @@ public class UsersTest extends KatelloTestScript {
 		JSONObject juser = KatelloTestScript.toJSONObj(s);
 		Long userId = (Long)juser.get("id");
 		try{
-			String _ret = servertasks.apiKatello_DELETE("/users/"+userId.toString());
+			String _ret = servertasks.apiKatello_DELETE("/users/"+userId.toString()).trim();
 			Assert.assertEquals(_ret, String.format("Deleted user '%s'",userId.toString()),
 					"Check: returned message of delete command");
 			_ret = new KatelloUser(null,null,null,false).api_info(userId.toString()).getStdout();;

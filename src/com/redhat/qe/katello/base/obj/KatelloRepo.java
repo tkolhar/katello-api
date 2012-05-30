@@ -173,7 +173,7 @@ public class KatelloRepo {
 		Assert.assertTrue(this.gpgkey.equals(gpg_key), 
 				String.format("Check - GPG key [%s] should be found in the repo info",this.gpgkey));
 		KatelloGpgKey gpg = new KatelloGpgKey(this.gpgkey, this.org, null);
-		res = gpg.info();
+		res = gpg.cli_info();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (gpg_key info)");
 		String reposWithGpg = KatelloTasks.grepCLIOutput("Repositories", res.getStdout());
 		Assert.assertTrue(reposWithGpg.contains(this.name), 

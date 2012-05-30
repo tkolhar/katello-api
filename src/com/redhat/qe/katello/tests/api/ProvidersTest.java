@@ -153,7 +153,7 @@ public class ProvidersTest extends KatelloTestScript {
 		JSONObject json_prov = KatelloTestScript.toJSONObj(str_json);
 		Assert.assertNotNull(json_prov, "Returned string in katello is JSON-formatted");
 		
-		String sout = servertasks.deleteProvider(org_name, providerName);
+		String sout = servertasks.deleteProvider(org_name, providerName).trim();
 		Assert.assertEquals(sout, "Deleted provider [ "+providerName+" ]","Check: message returned by the API call");
 		JSONObject obj_del = servertasks.getProvider(org_name, providerName);
 		Assert.assertNull(obj_del, "Check: returned getProvider() is null");
