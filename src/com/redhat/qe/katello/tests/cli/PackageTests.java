@@ -4,7 +4,7 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.auto.testng.Assert;
@@ -28,7 +28,7 @@ public class PackageTests extends KatelloCliTestScript {
 	private SSHCommandResult exec_result;
 	
 	private String org_name;
-	private String user_name; // not used still: `roles` needs to be in place in ordre to give user access to exec commands.
+	private String user_name;
 	private String provider_name;
 	private String product_name;
 	private String repo_name;
@@ -36,7 +36,7 @@ public class PackageTests extends KatelloCliTestScript {
 	private String changeset_name;
 
 	
-	@BeforeTest(description="Generate unique names")
+	@BeforeClass(description="Generate unique objects")
 	public void setUp(){
 		String uid = KatelloTestScript.getUniqueID();
 		org_name = "org"+uid;
@@ -45,41 +45,39 @@ public class PackageTests extends KatelloCliTestScript {
 		product_name = "product"+uid;
 		repo_name = "repo"+uid;
 		env_name = "env"+uid;
-		changeset_name = "changeset"+uid;
-		
-		
+		changeset_name = "changeset"+uid;		
 		
 		// Create org:
 		KatelloOrg org = new KatelloOrg(this.org_name,"Package tests");
 		exec_result = org.cli_create();
-		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		// Create user:
 		KatelloUser user = new KatelloUser(user_name, "root@localhost", KatelloUser.DEFAULT_USER_PASS, false);
 		exec_result = user.cli_create();
-		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		// Create provider:
 		KatelloProvider prov = new KatelloProvider(provider_name, org_name, "Package provider", PULP_F15_x86_64_REPO);
 		exec_result = prov.create();
-		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		// Create product:
 		KatelloProduct prod = new KatelloProduct(product_name, org_name, provider_name, null, null, null, null, null);
 		exec_result = prod.create();
-		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	
 		KatelloRepo repo = new KatelloRepo(repo_name, org_name, product_name, PULP_F15_x86_64_REPO, null, null);
 		exec_result = repo.create();
-		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		KatelloEnvironment env = new KatelloEnvironment(env_name, null, org_name, KatelloEnvironment.LIBRARY);
 		exec_result = env.cli_create();
-		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		KatelloChangeset cs = new KatelloChangeset(changeset_name, org_name, env_name);
 		exec_result = cs.create();
-		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		prov.synchronize();
 		prod.synchronize();
@@ -94,7 +92,7 @@ public class PackageTests extends KatelloCliTestScript {
 		KatelloPackage pack = new KatelloPackage(null, null, org_name, product_name, repo_name, null);
 		
 		exec_result = pack.cli_list();
-		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		Assert.assertTrue(getOutput(exec_result).contains("pulp-admin"));
 		Assert.assertTrue(getOutput(exec_result).contains("pulp"));
@@ -111,7 +109,7 @@ public class PackageTests extends KatelloCliTestScript {
 		KatelloPackage pack = new KatelloPackage(null, null, org_name, product_name, repo_name, null);
 		
 		exec_result = pack.cli_search("pulp-common*");
-		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		Assert.assertTrue(getOutput(exec_result).contains("pulp-common"), "Check - package name should exist in list result");
 		
@@ -131,7 +129,7 @@ public class PackageTests extends KatelloCliTestScript {
 	private void assert_packageInfo(KatelloPackage pack){
 		SSHCommandResult res;
 		res = pack.cli_info();
-		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		Assert.assertTrue(getOutput(res).contains(pack.id), "Check - package Id should exist in list result");		
 		Assert.assertTrue(getOutput(res).contains(pack.name), "Check - package name should exist in list result");

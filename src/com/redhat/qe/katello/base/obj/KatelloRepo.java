@@ -27,7 +27,9 @@ public class KatelloRepo {
 	public static final String CMD_LIST = "repo list -v";
 	
 	public static final String OUT_CREATE = 
-			"Successfully created repository [ %s ]"; 
+			"Successfully created repository [ %s ]";
+	
+	public static final String REG_REPO_INFO = ".*Name:\\s+%s.*Description:\\s+%s.*Package List:\\s+%s.*";
 
 	// ** ** ** ** ** ** ** Class members
 	public String name;
