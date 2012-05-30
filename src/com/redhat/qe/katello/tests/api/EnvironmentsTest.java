@@ -120,7 +120,7 @@ public class EnvironmentsTest extends KatelloTestScript{
 		KatelloEnvironment env = new KatelloEnvironment(env_name, env_descr, org_name, KatelloEnvironment.LIBRARY);
 		env.api_create();
 		String env_id = ((Long)servertasks.getEnvironment(org_name, env_name).get("id")).toString();
-		String res = servertasks.deleteEnvironment(this.org_name, env_name);
+		String res = servertasks.deleteEnvironment(this.org_name, env_name).trim();
 		Assert.assertEquals(res, "Deleted environment '"+env_id+"'","Check the text returned");
 		env = new KatelloEnvironment(null, null, org_name, null);
 		String nil = env.api_list().getStdout();

@@ -8,6 +8,8 @@ import com.redhat.qe.tools.SSHCommandResult;
 public class KatelloCli{
 	static{new com.redhat.qe.auto.testng.TestScript();}// to make properties be initialized (if they don't still)
 	
+	public static final String OUT_EMPTY_LIST = "[  ]";
+	
 	private String command;
 	private ArrayList<Attribute> args;
 	private ArrayList<Attribute> opts;
