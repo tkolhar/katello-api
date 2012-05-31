@@ -26,6 +26,8 @@ public class KatelloRepo {
 	public static final String CMD_DISABLE = "repo disable";
 	public static final String CMD_DISCOVER = "repo discover";
 	public static final String CMD_ADD_FILTER = "repo add_filter";
+	public static final String CMD_REMOVE_FILTER = "repo remove_filter";
+	public static final String CMD_FILTER_LIST = "repo list_filters";
 	public static final String CMD_STATUS = "repo status";
 	public static final String CMD_LIST = "repo list -v";
 	
@@ -38,10 +40,14 @@ public class KatelloRepo {
 	public static final String ERR_REPO_EXISTS = "There is already a repo with the name [ %s ] for product [ %s ]";
 	public static final String OUT_FILTER_ADDED = 
 			"Added filter [ %s ] to repository [ %s ]";
+	public static final String OUT_REPO_SYNCHED = "Repo [ %s ] synced";
 	
 	public static final String REG_REPO_INFO = ".*Id:\\s+\\d+.*Name:\\s+%s.*Url:\\s+%s.*Last Sync:\\s+%s.*Progress:\\s+%s.*GPG key:\\s*+%s.*";
 	public static final String REG_REPO_STATUS = ".*Package Count:\\s+\\d+.*Last Sync:\\s+%s.*Sync State:\\s+%s.*";
+	public static final String REG_FILTER_LIST = ".*\\s+%s.*\\s+%s";
 	public static final String REG_REPO_LIST = ".*Id:\\s+\\d+.*Name:\\s+%s.*Package Count:\\s+\\d+.*Last Sync:\\s+%s.*";
+	
+	public static final String REG_REPO_LASTSYNC = "\\d{4}/\\d{2}/\\d{2}\\s\\d{2}:\\d{2}:\\d{2}";
 
 	// ** ** ** ** ** ** ** Class members
 	public String name;
@@ -89,6 +95,15 @@ public class KatelloRepo {
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("product", product));
 		cli = new KatelloCli(CMD_DELETE, opts);
+		return cli.run();
+	}
+	
+	public SSHCommandResult list_filters(){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("product", product));
+		cli = new KatelloCli(CMD_FILTER_LIST, opts);
 		return cli.run();
 	}
 	
@@ -155,6 +170,16 @@ public class KatelloRepo {
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("product", product));
 		cli = new KatelloCli(CMD_ADD_FILTER, opts);
+		return cli.run();
+	}
+	
+	public SSHCommandResult remove_filter(String filter){
+		opts.clear();
+		opts.add(new Attribute("filter", filter));
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("product", product));
+		cli = new KatelloCli(CMD_REMOVE_FILTER, opts);
 		return cli.run();
 	}
 	
