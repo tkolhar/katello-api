@@ -20,14 +20,28 @@ public class KatelloRepo {
 	public static final String CMD_CREATE = "repo create";
 	public static final String CMD_SYNCHRONIZE = "repo synchronize";
 	public static final String CMD_UPDATE = "repo update";
+	public static final String CMD_DELETE = "repo delete";
 	public static final String CMD_INFO = "repo info";
 	public static final String CMD_ENABLE = "repo enable";
+	public static final String CMD_DISABLE = "repo disable";
+	public static final String CMD_DISCOVER = "repo discover";
 	public static final String CMD_ADD_FILTER = "repo add_filter";
 	public static final String CMD_STATUS = "repo status";
 	public static final String CMD_LIST = "repo list -v";
 	
 	public static final String OUT_CREATE = 
-			"Successfully created repository [ %s ]"; 
+			"Successfully created repository [ %s ]";
+	public static final String OUT_DISCOVER = 
+			"Successfully created repository [ %s ]";
+	public static final String ERR_REPO_NOTFOUND = 
+			"Could not find repository [ %s ] within organization [ %s ], product [ %s ] and environment [ %s ]";	
+	public static final String ERR_REPO_EXISTS = "There is already a repo with the name [ %s ] for product [ %s ]";
+	public static final String OUT_FILTER_ADDED = 
+			"Added filter [ %s ] to repository [ %s ]";
+	
+	public static final String REG_REPO_INFO = ".*Id:\\s+\\d+.*Name:\\s+%s.*Url:\\s+%s.*Last Sync:\\s+%s.*Progress:\\s+%s.*GPG key:\\s*+%s.*";
+	public static final String REG_REPO_STATUS = ".*Package Count:\\s+\\d+.*Last Sync:\\s+%s.*Sync State:\\s+%s.*";
+	public static final String REG_REPO_LIST = ".*Id:\\s+\\d+.*Name:\\s+%s.*Package Count:\\s+\\d+.*Last Sync:\\s+%s.*";
 
 	// ** ** ** ** ** ** ** Class members
 	public String name;
@@ -35,6 +49,8 @@ public class KatelloRepo {
 	public String product;
 	public String url;
 	public String gpgkey;
+	public String progress;
+	public String lastSync;
 	public boolean nogpgkey = false;
 	
 	private KatelloCli cli;
@@ -63,6 +79,16 @@ public class KatelloRepo {
 		if(nogpgkey)
 			opts.add(new Attribute("nogpgkey", ""));
 		cli = new KatelloCli(CMD_CREATE, opts);
+		return cli.run();
+	}
+	
+
+	public SSHCommandResult delete(){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("product", product));
+		cli = new KatelloCli(CMD_DELETE, opts);
 		return cli.run();
 	}
 	
@@ -113,6 +139,15 @@ public class KatelloRepo {
 		return cli.run();
 	}
 	
+	public SSHCommandResult disable(){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("product", product));
+		cli = new KatelloCli(CMD_DISABLE, opts);
+		return cli.run();
+	}
+	
 	public SSHCommandResult add_filter(String filter){
 		opts.clear();
 		opts.add(new Attribute("filter", filter));
@@ -142,6 +177,17 @@ public class KatelloRepo {
 		return cli.run();
 	}
 
+	
+	public SSHCommandResult discover(){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("product", product));
+		opts.add(new Attribute("url", url));
+		opts.add(new Attribute("assumeyes", "y"));
+		cli = new KatelloCli(CMD_DISCOVER, opts);
+		return cli.run();
+	}
 	public SSHCommandResult list(){
 		opts.clear();
 		opts.add(new Attribute("org", org));
