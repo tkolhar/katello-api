@@ -26,5 +26,8 @@ or
   Eclipse project of katello-api needs this framework as a dependency.  
   CLI run is not needed (it loads from .m2 repository)
 
+## EXAMPLES
+Some usage samples could be found under: [examples/](https://github.com/gkhachik/katello-api/tree/master/src/examples)
+
 ## NOTES
 
