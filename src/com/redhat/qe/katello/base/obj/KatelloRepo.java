@@ -36,6 +36,8 @@ public class KatelloRepo {
 	public static final String ERR_REPO_NOTFOUND = 
 			"Could not find repository [ %s ] within organization [ %s ], product [ %s ] and environment [ %s ]";	
 	public static final String ERR_REPO_EXISTS = "There is already a repo with the name [ %s ] for product [ %s ]";
+	public static final String OUT_FILTER_ADDED = 
+			"Added filter [ %s ] to repository [ %s ]";
 	
 	public static final String REG_REPO_INFO = ".*Id:\\s+\\d+.*Name:\\s+%s.*Url:\\s+%s.*Last Sync:\\s+%s.*Progress:\\s+%s.*GPG key:\\s*+%s.*";
 	public static final String REG_REPO_STATUS = ".*Package Count:\\s+\\d+.*Last Sync:\\s+%s.*Sync State:\\s+%s.*";

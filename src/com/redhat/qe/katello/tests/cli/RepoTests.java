@@ -8,6 +8,7 @@ import org.testng.annotations.Test;
 import com.redhat.qe.auto.testng.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.KatelloTestScript;
+import com.redhat.qe.katello.base.obj.KatelloFilter;
 import com.redhat.qe.katello.base.obj.KatelloGpgKey;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
@@ -33,6 +34,7 @@ public class RepoTests extends KatelloCliTestScript {
 	private String changeset_name;
 	private String gpg_key;
 	private String file_name;
+	private String filter_name;
 
 	@BeforeTest(description = "Generate unique objects")
 	public void setUp() {
@@ -73,6 +75,11 @@ public class RepoTests extends KatelloCliTestScript {
 		KatelloGpgKey gpg = new KatelloGpgKey(gpg_key, org_name, file_name);
 		exec_result = gpg.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		filter_name = "filter"+uid;
+		KatelloFilter filter = new KatelloFilter(filter_name, org_name, null, null);
+		exec_result = filter.create();
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code (filter create)");
 		
 		/**
 		 * KatelloEnvironment env = new KatelloEnvironment(env_name, null,
@@ -183,6 +190,16 @@ public class RepoTests extends KatelloCliTestScript {
 		exec_result = repo.info();
 		Assert.assertTrue(exec_result.getExitCode() == 65, "Check - return code");
 		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloRepo.ERR_REPO_NOTFOUND, repo.name, repo.org, repo.product, "Library"));
+	}
+	
+	@Test(description = "Add filter to repo", groups = { "cli-repo" })
+	public void test_addFilter() {
+
+		KatelloRepo repo = createRepo();
+		
+		exec_result = repo.add_filter(filter_name);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloRepo.OUT_FILTER_ADDED, filter_name, repo.name));
 	}
 
 	private void assert_repoInfo(KatelloRepo repo) {
