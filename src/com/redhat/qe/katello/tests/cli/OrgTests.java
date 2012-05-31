@@ -23,7 +23,7 @@ public class OrgTests extends KatelloCliTestScript{
 	public void test_listOrgs_ACME_Corp(){
 		KatelloOrg list_org = new KatelloOrg(null,null);
 		SSHCommandResult res = list_org.cli_list();
-		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
+		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(res).contains(KatelloOrg.DEFAULT_ORG), "Check - contains: ["+KatelloOrg.DEFAULT_ORG+"]");
 	}
 	
@@ -34,7 +34,7 @@ public class OrgTests extends KatelloCliTestScript{
 		KatelloOrg org = new KatelloOrg(name, descr);
 		SSHCommandResult res = org.cli_create();
 		
-		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
+		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 		if(this.orgs ==null){
 			this.orgs = Collections.synchronizedList(new ArrayList<KatelloOrg>());
 		}
@@ -52,7 +52,7 @@ public class OrgTests extends KatelloCliTestScript{
 		
 		list_org = new KatelloOrg(null,null);
 		SSHCommandResult res = list_org.cli_list();
-		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code (org list)");
+		Assert.assertTrue(res.getExitCode() == 0, "Check - return code (org list)");
 		
 		for(KatelloOrg org : orgs){
 			if(org.description ==null) org.description = "None";
@@ -69,10 +69,10 @@ public class OrgTests extends KatelloCliTestScript{
 		KatelloOrg org = new KatelloOrg("orgUpd"+uniqueID, "Simple description");		
 		
 		res = org.cli_create();
-		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
+		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 		String new_desc = String.format("Updated %s",org.description);
 		res = org.update(new_desc);
-		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
+		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 		Assert.assertEquals(getOutput(res).trim(), String.format("Successfully updated org [ %s ]",org.name));
 		
 		// TODO - Enter special characters - check it works. 您好
@@ -87,11 +87,11 @@ public class OrgTests extends KatelloCliTestScript{
 		
 		org.cli_create();
 		SSHCommandResult res = org.delete();
-		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
+		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(res).contains(String.format("Successfully deleted org [ %s ]",org.name)),"Check - return string");
 		
 		res = org.cli_info();
-		Assert.assertEquals(res.getExitCode(), new Integer(148),"Check - return code [148]");
+		Assert.assertTrue(res.getExitCode() == 148, "Check - return code [148]");
 		Assert.assertEquals(getOutput(res).trim(), 
 				String.format(KatelloOrg.ERR_ORG_NOTFOUND,org.name));
 	}
@@ -102,7 +102,7 @@ public class OrgTests extends KatelloCliTestScript{
 		KatelloOrg org = new KatelloOrg("orgDel"+uniqueID, null);
 		
 		SSHCommandResult res = org.delete();
-		Assert.assertEquals(res.getExitCode(), new Integer(148),"Check - return code [148]");
+		Assert.assertTrue(res.getExitCode() == 148, "Check - return code [148]");
 		Assert.assertEquals(getOutput(res).trim(), 
 				String.format(KatelloOrg.ERR_ORG_NOTFOUND,org.name));
 	}
@@ -113,25 +113,25 @@ public class OrgTests extends KatelloCliTestScript{
 		String orgName = "subscriptions-" + uniqueID;
 		KatelloOrg org = new KatelloOrg(orgName, null); // or you can provide null -> "some simple description here"
 		SSHCommandResult res = org.cli_create();
-		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code (org create)");
+		Assert.assertTrue(res.getExitCode() == 0, "Check - return code (org create)");
 		
 		String  providerName = "provider" + uniqueID;
 		KatelloProvider prov = new KatelloProvider(providerName, orgName, "Fedora provider", null);
 		res = prov.create();
-		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
+		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 		
 		String productName = "product" + uniqueID;
 		KatelloProduct prod = new KatelloProduct(productName, orgName, providerName, null, null, null, null, null);
 		res = prod.create();
-		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
+		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 		
 		String productName1 = "product1" + uniqueID;
 		prod = new KatelloProduct(productName1, orgName, providerName, null, null, null, null, null);
 		res = prod.create();
-		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
+		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 		
 		res = org.subscriptions();
-		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code (org subscriptions)"); // check: ($? is 0)
+		Assert.assertTrue(res.getExitCode() == 0, "Check - return code (org subscriptions)"); // check: ($? is 0)
 		
 		Assert.assertTrue(getOutput(res).trim().contains(String.format(KatelloOrg.OUT_ORG_SUBSCR, productName)), "Check - Subscriptions contains " + productName);
 		Assert.assertTrue(getOutput(res).trim().contains(String.format(KatelloOrg.OUT_ORG_SUBSCR, productName1)), "Check - Subscriptions contains " + productName1);
@@ -146,7 +146,7 @@ public class OrgTests extends KatelloCliTestScript{
 		KatelloOrg org2 = new KatelloOrg("orgCrt"+uniqueID, "Simple description");	
 		SSHCommandResult res = org2.cli_create();
 		
-		Assert.assertEquals(res.getExitCode(), new Integer(144),"Check - return code [144]");
+		Assert.assertTrue(res.getExitCode() == 144, "Check - return code [144]");
 		Assert.assertEquals(getOutput(res).trim(), 
 				KatelloOrg.ERR_ORG_EXISTS);
 	}
@@ -157,7 +157,7 @@ public class OrgTests extends KatelloCliTestScript{
 		KatelloOrg org = new KatelloOrg("orgCrt"+uniqueID + " very ++== invalid name", "Simple description");	
 		SSHCommandResult res = org.cli_create();
 		
-		Assert.assertEquals(res.getExitCode(), new Integer(144),"Check - return code [144]");
+		Assert.assertTrue(res.getExitCode() == 144, "Check - return code [144]");
 		Assert.assertEquals(getOutput(res).trim(), 
 				KatelloOrg.ERR_NAME_INVALID);
 	}
@@ -167,7 +167,7 @@ public class OrgTests extends KatelloCliTestScript{
 		SSHCommandResult res;
 		res = org.cli_info();
 		String match_info = String.format(KatelloOrg.REG_ORG_INFO,org.name,org.description).replaceAll("\"", "");
-		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
+		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 		log.finest(String.format("Org (info) match regex: [%s]",match_info));
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info), 
 				String.format("Org [%s] should be found in the result info",org.name));		
