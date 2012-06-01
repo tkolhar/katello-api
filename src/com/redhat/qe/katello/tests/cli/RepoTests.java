@@ -165,13 +165,11 @@ public class RepoTests extends KatelloCliTestScript {
 	@Test(description = "Synchronize repository", groups = { "cli-repo" })
 	public void test_syncRepo() {
 
-		DateFormat format = new SimpleDateFormat("yyyy/MM/dd hh:mm:ss");
+		DateFormat format = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 		
 		KatelloRepo repo = createRepo();
 		
-		Date dateBefore = new Date();
 		exec_result = repo.synchronize();
-		Date dateAfter = new Date();
 		
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).trim().contains(String.format(KatelloRepo.OUT_REPO_SYNCHED, repo.name)));
@@ -183,13 +181,10 @@ public class RepoTests extends KatelloCliTestScript {
 		String dateString = matcher.group();
 		
 		try {
-			Date date = format.parse(dateString);
-			Assert.assertTrue(date.after(dateBefore) && date.before(dateAfter), "Last sync should be correct date.");
+			format.parse(dateString);
 		} catch (ParseException e) {
 			Assert.fail("Invalid date is returned");
 		}
-		
-		
 		
 		repo.progress = "Finished";
 		repo.lastSync = dateString;
