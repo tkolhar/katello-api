@@ -5,7 +5,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -24,6 +23,7 @@ import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.base.obj.KatelloUser;
+import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups = { "cfse-cli" })
@@ -80,6 +80,12 @@ public class RepoTests extends KatelloCliTestScript {
 				provider_name, null, null, null, null, null);
 		exec_result = prod.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+
+		// wget the gpg file (before creating the key)
+		String cmd = "rm -f "+this.file_name+"; " +
+				"curl -sk "+KatelloGpgKey.REPO_GPG_FILE_ZOO+" -o "+this.file_name;
+		exec_result = KatelloUtils.sshOnClient(cmd);
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (get gpg file)");
 
 		KatelloGpgKey gpg = new KatelloGpgKey(gpg_key, org_name, file_name);
 		exec_result = gpg.cli_create();
