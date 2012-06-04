@@ -20,16 +20,12 @@
 		<packages>
 			<package name="com.redhat.qe.katello.tests.e2e"/>
 		</packages>
-		<classes>
-			<exclude name="com.redhat.qe.katello.tests.e2e.TdlExportFedora"/>
-			<exclude name="com.redhat.qe.katello.tests.e2e.TdlExportRhel"/>
-		</classes>
 	</test>
 	
 	<test name="Longrun_Tests" preserve-order="true">
 		<classes>
-			<class name="com.redhat.qe.katello.tests.e2e.TdlExportFedora"/>
-			<class name="com.redhat.qe.katello.tests.e2e.TdlExportRhel"/>
+			<class name="com.redhat.qe.katello.tests.longrun.TdlExportFedora"/>
+			<class name="com.redhat.qe.katello.tests.longrun.TdlExportRhel"/>
 		</classes>
 	</test>
 	
