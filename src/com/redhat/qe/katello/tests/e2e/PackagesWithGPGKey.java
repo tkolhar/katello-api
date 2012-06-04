@@ -3,9 +3,8 @@ package com.redhat.qe.katello.tests.e2e;
 import java.util.logging.Logger;
 
 import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import com.redhat.qe.auto.testng.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.KatelloTestScript;
@@ -38,7 +37,7 @@ public class PackagesWithGPGKey extends KatelloCliTestScript{
 	private String gpg_key;
 	private String system;
 	
-	@BeforeTest(description="Init unique names", alwaysRun=true)
+	@BeforeClass(description="Init unique names", alwaysRun=true)
 	public void setUp(){
 		String uniqueID = KatelloTestScript.getUniqueID();
 		this.org = "GPGOrg"+uniqueID;

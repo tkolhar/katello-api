@@ -9,10 +9,8 @@ import java.util.List;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import com.redhat.qe.auto.testng.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.KatelloTestScript;
@@ -46,7 +44,7 @@ public class RepoTests extends KatelloCliTestScript {
 	private KatelloFilter filter1;
 	private KatelloFilter filter2;
 
-	@BeforeTest(description = "Generate unique objects")
+	@BeforeClass(description = "Generate unique objects")
 	public void setUp() {
 		String uid = KatelloTestScript.getUniqueID();
 		org_name = "org" + uid;
