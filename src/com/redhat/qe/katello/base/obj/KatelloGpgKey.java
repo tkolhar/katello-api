@@ -20,7 +20,7 @@ public class KatelloGpgKey {
 	public static final String OUT_CREATE = 
 			"Successfully created GPG key [ %s ]"; 
 	public static final String ERR_KEY_NOT_FOUND = 
-			"Could not find gpg key [ %s ]"; 
+			"Could not find GPG key [ %s ]"; 
 
 	// ** ** ** ** ** ** ** Class members
 	String name;
