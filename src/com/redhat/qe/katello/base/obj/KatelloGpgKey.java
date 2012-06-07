@@ -18,7 +18,7 @@ public class KatelloGpgKey {
 	public static final String CLI_CMD_DELETE = "gpg_key delete";
 	
 	public static final String OUT_CREATE = 
-			"Successfully created gpg key [ %s ]"; 
+			"Successfully created GPG key [ %s ]"; 
 	public static final String ERR_KEY_NOT_FOUND = 
 			"Could not find gpg key [ %s ]"; 
 

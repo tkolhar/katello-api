@@ -2,15 +2,12 @@ package examples;
 
 import java.util.ArrayList;
 import javax.management.Attribute;
-
-import org.testng.Assert;
 import org.testng.annotations.Test;
 import com.redhat.qe.katello.base.KatelloApi;
 import com.redhat.qe.katello.base.KatelloPostParam;
 import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
-import com.redhat.qe.tools.SSHCommandResult;
 
 public class DemoKatelloApi {
 
