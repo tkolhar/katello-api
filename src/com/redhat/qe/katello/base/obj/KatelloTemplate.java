@@ -23,6 +23,8 @@ public class KatelloTemplate {
 			"Could not find template [ %s ] within environment [ %s ]";
 	
 	public static final String REG_TEMPL_INFO = ".*Id:\\s+\\d+.*Name:\\s+%s.*Revision:\\s+%s.*Description:\\s+%s.*Parent Id:\\s+%s.*";
+	public static final String REG_TEMPL_PARAMS = ".*Parameters:\\s+.*%s:\\s+%s.*";
+	public static final String REG_TEMPL_PACKAGES = ".*Packages:\\s+.*%s.*";
 	public static final String REG_TEMPL_LIST = ".*\\s+\\d+.*\\s+%s.*\\s+%s.*\\s+%s.*";
 	public static final String REG_TEMPL_ID = "Id:\\s+\\d+.*Name:";
 	
@@ -106,6 +108,16 @@ public class KatelloTemplate {
 	public SSHCommandResult update_add_package(String pkg){
 		opts.clear();
 		opts.add(new Attribute("add_package", pkg));
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		cli = new KatelloCli(CMD_UPDATE, opts);
+		return cli.run();
+	}
+	
+	public SSHCommandResult update_add_param(String param, String value){
+		opts.clear();
+		opts.add(new Attribute("add_param", param));
+		opts.add(new Attribute("value", value));
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		cli = new KatelloCli(CMD_UPDATE, opts);
