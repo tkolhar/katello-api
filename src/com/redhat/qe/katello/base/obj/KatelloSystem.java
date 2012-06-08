@@ -21,6 +21,7 @@ public class KatelloSystem {
 	public static final String RHSM_CREATE = 
 			String.format("subscription-manager register --username %s --password %s",
 					RHSM_DEFAULT_USER,RHSM_DEFAULT_PASS);
+	public static final String RHSM_CLEAN = "subscription-manager clean";
 	
 	public static final String OUT_CREATE = 
 			"The system has been registered with id:";
@@ -81,7 +82,12 @@ public class KatelloSystem {
 		
 		return KatelloUtils.sshOnClient(cmd);		
 	}
-	
+
+	public SSHCommandResult rhsm_clean(){
+		String cmd = RHSM_CLEAN;		
+		return KatelloUtils.sshOnClient(cmd);		
+	}
+
 	public SSHCommandResult list(){
 		opts.clear();
 		opts.add(new Attribute("org", org));
