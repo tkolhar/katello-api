@@ -3,10 +3,13 @@ package com.redhat.qe.katello.base;
 import java.util.ArrayList;
 import javax.management.Attribute;
 import com.redhat.qe.katello.common.KatelloUtils;
+import com.redhat.qe.katello.tasks.KatelloTasks;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class KatelloCli{
 	static{new com.redhat.qe.auto.testng.TestScript();}// to make properties be initialized (if they don't still)
+	
+	public static final String OUT_EMPTY_LIST = "[  ]";
 	
 	private String command;
 	private ArrayList<Attribute> args;
@@ -47,4 +50,29 @@ public class KatelloCli{
 			e.printStackTrace();
 		}return null;
 	}
+	
+	/**
+	 * Returns katello cli output block (usually: [command] list -v options) that has: <BR>
+	 * [Property]:  [Value] in its block.<br>
+	 * As an example would be getting a pool information for:<BR> 
+	 * ("ProductName","High-Availability (8 sockets)",org.subscriptions())
+	 * @param property
+	 * @param value
+	 * @param output
+	 * @return
+	 */
+	public static String grepOutBlock(String property, String value, String output){
+		String _return = null;
+		String[] lines = output.split("\\n\\n");
+		
+		for(String line:lines ){
+			if(line.startsWith("---") || line.trim().equals("")) continue; // skip it.
+			if(KatelloTasks.grepCLIOutput(property, line).equals(value)){
+				_return = line.trim();
+				break;
+			}
+		}
+		return _return;
+	}
+	
 }

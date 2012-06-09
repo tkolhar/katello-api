@@ -1,13 +1,11 @@
 	package com.redhat.qe.katello.tests.cli;
 
 import java.util.logging.Logger;
-
 import org.testng.SkipException;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import com.redhat.qe.auto.testng.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
@@ -27,7 +25,7 @@ public class SystemTests extends KatelloCliTestScript{
 	private String envName_Dev;
 	private String envName_Test;
 	
-	@BeforeTest(description="Generate unique names")
+	@BeforeClass(description="Generate unique names")
 	public void setUp(){
 		String uid = KatelloTestScript.getUniqueID();
 		this.orgName = "org-rhsm-"+uid;

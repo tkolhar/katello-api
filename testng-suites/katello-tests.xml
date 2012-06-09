@@ -1,13 +1,6 @@
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
-<suite name="Katello API Test Suite">
-
-	<!-- the hudson.groovy script already includes these listeners
-	<listeners>
-  		<listener class-name="com.redhat.qe.auto.testng.TestNGListener" />
-  		<listener class-name="com.redhat.qe.auto.bugzilla.BugzillaTestNGListener" />
-	</listeners>
-	-->
+<suite name="CFSE Test Suite">
 	
 	<test name="Smoke_Tests" preserve-order="true">
 		<classes>
@@ -18,32 +11,21 @@
 	</test>
 	
 	<test name="CLI_Tests" preserve-order="true">
-		<classes>
-			<class name="com.redhat.qe.katello.tests.cli.SystemTests"/>
-			<class name="com.redhat.qe.katello.tests.cli.OrgTests"/>
-			<class name="com.redhat.qe.katello.tests.cli.ProviderTests"/>
-			<class name="com.redhat.qe.katello.tests.cli.ProductTests"/>
-			<class name="com.redhat.qe.katello.tests.cli.ActivationKeyTests"/>
-			<class name="com.redhat.qe.katello.tests.cli.UserTests"/>
-			<class name="com.redhat.qe.katello.tests.cli.FilterTests"/>
-		</classes>
+		<packages>
+			<package name="com.redhat.qe.katello.tests.cli"/>
+		</packages>
 	</test>
 	
 	<test name="E2E_Tests" preserve-order="true">
-		<classes>
-			<class name="com.redhat.qe.katello.tests.e2e.BPMTests"/>
-			<class name="com.redhat.qe.katello.tests.e2e.PackagesWithGPGKey"/>
-			<class name="com.redhat.qe.katello.tests.e2e.PromoteErrata"/>
-			<class name="com.redhat.qe.katello.tests.e2e.SystemsReport"/>
-			<class name="com.redhat.qe.katello.tests.e2e.RhsmOnlyPermissions"/>
-			<class name="com.redhat.qe.katello.tests.e2e.PromoteWithFilters"/>
-		</classes>
+		<packages>
+			<package name="com.redhat.qe.katello.tests.e2e"/>
+		</packages>
 	</test>
 	
 	<test name="Longrun_Tests" preserve-order="true">
 		<classes>
-			<class name="com.redhat.qe.katello.tests.e2e.TdlExportFedora"/>
-			<class name="com.redhat.qe.katello.tests.e2e.TdlExportRhel"/>
+			<class name="com.redhat.qe.katello.tests.longrun.TdlExportFedora"/>
+			<class name="com.redhat.qe.katello.tests.longrun.TdlExportRhel"/>
 		</classes>
 	</test>
 	

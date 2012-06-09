@@ -1,7 +1,7 @@
 package com.redhat.qe.katello.tests.e2e;
 
 import java.util.logging.Logger;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.auto.testng.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
@@ -43,7 +43,7 @@ public class RhsmOnlyPermissions extends KatelloCliTestScript{
 	private String prod;
 	private String repo;
 
-	@BeforeTest(description="Init org/env", alwaysRun=true)
+	@BeforeClass(description="Init org/env", alwaysRun=true)
 	public void setUp(){
 		String uid = KatelloTestScript.getUniqueID();
 		this.env_dev = "Dev-"+uid;

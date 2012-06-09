@@ -72,7 +72,7 @@ public class FilterTests extends KatelloCliTestScript{
 		filters.add(filter2);
 		
 		SSHCommandResult res = filter.cli_list();
-		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code (filter list)");
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (filter list)");
 		
 		for(KatelloFilter flt : filters){
 			if(flt.description ==null) flt.description = "None";
@@ -90,11 +90,11 @@ public class FilterTests extends KatelloCliTestScript{
 		filter.create();
 		
 		SSHCommandResult res = filter.delete();
-		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		Assert.assertTrue(getOutput(res).contains(String.format("Successfully deleted filter [ %s ]",filter.name)),"Check - return string");
 		
 		res = filter.cli_info();
-		Assert.assertEquals(res.getExitCode(), new Integer(148),"Check - return code [148]");
+		Assert.assertTrue(res.getExitCode().intValue()==148, "Check - return code [148]");
 		Assert.assertEquals(getOutput(res).trim(), 
 				String.format(KatelloFilter.ERR_FILTER_NOTFOUND,filter.name));
 	}
@@ -106,7 +106,7 @@ public class FilterTests extends KatelloCliTestScript{
 		KatelloFilter filter = new KatelloFilter(filterName, this.org, null, null);
 		
 		SSHCommandResult res = filter.delete();
-		Assert.assertEquals(res.getExitCode(), new Integer(148),"Check - return code [148]");
+		Assert.assertTrue(res.getExitCode().intValue()==148, "Check - return code [148]");
 		Assert.assertEquals(getOutput(res).trim(), 
 				String.format(KatelloFilter.ERR_FILTER_NOTFOUND,filter.name));
 	}
@@ -118,7 +118,7 @@ public class FilterTests extends KatelloCliTestScript{
 		KatelloFilter filter = new KatelloFilter(filterName, this.org, null, null);
 		
 		SSHCommandResult res = filter.cli_info();
-		Assert.assertEquals(res.getExitCode(), new Integer(148),"Check - return code [148]");
+		Assert.assertTrue(res.getExitCode().intValue()==148, "Check - return code [148]");
 		Assert.assertEquals(getOutput(res).trim(), 
 				String.format(KatelloFilter.ERR_FILTER_NOTFOUND,filter.name));
 	}
@@ -128,10 +128,10 @@ public class FilterTests extends KatelloCliTestScript{
 		String filterName = "filter"+KatelloTestScript.getUniqueID();
 		KatelloFilter filter = new KatelloFilter(filterName, this.org, null, "package1");
 		SSHCommandResult res = filter.create();
-		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		
 		res = filter.cli_addPackage("package2");
-		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		Assert.assertTrue(getOutput(res).equals(String.format(KatelloFilter.OUT_PACKAGE_ADD, "package2", filterName)),
 				"Check - output string (filter added package)");
 		filter.packages = "package1, package2";
@@ -145,7 +145,7 @@ public class FilterTests extends KatelloCliTestScript{
 		KatelloFilter filter = new KatelloFilter(filterName, this.org, null, "package1");
 		
 		SSHCommandResult res = filter.cli_addPackage("package2");
-		Assert.assertEquals(res.getExitCode(), new Integer(148),"Check - return code [148]");
+		Assert.assertTrue(res.getExitCode().intValue()==148, "Check - return code [148]");
 		Assert.assertEquals(getOutput(res).trim(), 
 				String.format(KatelloFilter.ERR_FILTER_NOTFOUND,filter.name));
 	}
@@ -155,10 +155,10 @@ public class FilterTests extends KatelloCliTestScript{
 		String filterName = "filter"+KatelloTestScript.getUniqueID();
 		KatelloFilter filter = new KatelloFilter(filterName, this.org, null, "package1, package2");
 		SSHCommandResult res = filter.create();
-		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		
 		res = filter.cli_removePackage("package2");
-		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		Assert.assertTrue(getOutput(res).equals(String.format(KatelloFilter.OUT_PACKAGE_REMOVE, "package2", filterName)),
 				"Check - output string (filter removed package)");
 		filter.packages = "package1";
@@ -172,7 +172,7 @@ public class FilterTests extends KatelloCliTestScript{
 		KatelloFilter filter = new KatelloFilter(filterName, this.org, null, "package1");
 		
 		SSHCommandResult res = filter.cli_removePackage("package1");
-		Assert.assertEquals(res.getExitCode(), new Integer(148),"Check - return code [148]");
+		Assert.assertTrue(res.getExitCode().intValue()==148, "Check - return code [148]");
 		Assert.assertEquals(getOutput(res).trim(), 
 				String.format(KatelloFilter.ERR_FILTER_NOTFOUND,filter.name));
 	}
@@ -184,7 +184,7 @@ public class FilterTests extends KatelloCliTestScript{
 		SSHCommandResult res;
 		res = filter.cli_info();
 		String match_info = String.format(KatelloFilter.REG_FILTER_INFO, filter.name, filter.description, filter.packages).replaceAll("\"", "");
-		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		log.finest(String.format("Filter (info) match regex: [%s]",match_info));
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info), 
 				String.format("Filter [%s] should be found in the result info",filter.name));		
