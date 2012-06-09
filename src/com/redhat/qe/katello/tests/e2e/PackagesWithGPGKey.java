@@ -3,9 +3,8 @@ package com.redhat.qe.katello.tests.e2e;
 import java.util.logging.Logger;
 
 import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import com.redhat.qe.auto.testng.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.KatelloTestScript;
@@ -30,9 +29,6 @@ import com.redhat.qe.tools.SSHCommandResult;
 public class PackagesWithGPGKey extends KatelloCliTestScript{
 	protected static Logger log = Logger.getLogger(PackagesWithGPGKey.class.getName());
 
-	public static final String GPG_PUBKEY_RPM = "gpg-pubkey-f78fb195-4f0d5ba1";
-	public static final String REPO_GPG_FILE = "http://inecas.fedorapeople.org/fakerepos/zoo/RPM-GPG-KEY-dummy-packages-generator";
-	
 	private String org;
 	private String env = "Dev";
 	private String provider;
@@ -41,7 +37,7 @@ public class PackagesWithGPGKey extends KatelloCliTestScript{
 	private String gpg_key;
 	private String system;
 	
-	@BeforeTest(description="Init unique names", alwaysRun=true)
+	@BeforeClass(description="Init unique names", alwaysRun=true)
 	public void setUp(){
 		String uniqueID = KatelloTestScript.getUniqueID();
 		this.org = "GPGOrg"+uniqueID;
@@ -53,7 +49,7 @@ public class PackagesWithGPGKey extends KatelloCliTestScript{
 		log.info("E2E - Cleanup GPG stuff");
 		KatelloUtils.sshOnClient("yum -y erase wolf lion || true");
 		KatelloUtils.sshOnClient("subscription-manager unregister || true");
-		KatelloUtils.sshOnClient("rpm -e "+GPG_PUBKEY_RPM+" || true");
+		KatelloUtils.sshOnClient("rpm -e "+KatelloGpgKey.GPG_PUBKEY_RPM_ZOO+" || true");
 		
 		log.info("E2E - Create org");
 		KatelloOrg org = new KatelloOrg(this.org, null);
@@ -65,9 +61,9 @@ public class PackagesWithGPGKey extends KatelloCliTestScript{
 		log.info("E2E - Create environment/gpg key");
 		KatelloEnvironment env = new KatelloEnvironment(this.env, null, this.org, KatelloEnvironment.LIBRARY);
 		env.cli_create();
-		KatelloUtils.sshOnClient("wget "+REPO_GPG_FILE+" -O /tmp/RPM-GPG-KEY-dummy-packages-generator");
+		KatelloUtils.sshOnClient("wget "+KatelloGpgKey.REPO_GPG_FILE_ZOO+" -O /tmp/RPM-GPG-KEY-dummy-packages-generator");
 		KatelloGpgKey gpg_key = new KatelloGpgKey(this.gpg_key, this.org, "/tmp/RPM-GPG-KEY-dummy-packages-generator");
-		gpg_key.create();
+		gpg_key.cli_create();
 	}
 	
 	@Test(description="Create org, provider, product and repo", dependsOnMethods={"test_prepareEnvGpgKey"}, enabled=true)
@@ -137,7 +133,7 @@ public class PackagesWithGPGKey extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(REPO_STRUCT), "Check - redhat.repo content");
 		res = KatelloUtils.sshOnClient("yum -y install wolf --disablerepo \\* --enablerepo *"+this.repo+"*");
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (yum install wolf)");
-		res = KatelloUtils.sshOnClient("rpm -qi "+GPG_PUBKEY_RPM);
+		res = KatelloUtils.sshOnClient("rpm -qi "+KatelloGpgKey.GPG_PUBKEY_RPM_ZOO);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (rpm info of gpg-key)");
 	}
 	

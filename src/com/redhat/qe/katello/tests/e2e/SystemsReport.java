@@ -3,9 +3,8 @@ package com.redhat.qe.katello.tests.e2e;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.logging.Logger;
-
 import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.auto.testng.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
@@ -35,7 +34,7 @@ public class SystemsReport extends KatelloCliTestScript{
 	private String env_dev;
 	private String env_test;
 
-	@BeforeTest(description="Init unique names", alwaysRun=true)
+	@BeforeClass(description="Init unique names", alwaysRun=true)
 	public void setUp(){
 		String uid = KatelloTestScript.getUniqueID();
 		this.env_dev = "Dev-"+uid;

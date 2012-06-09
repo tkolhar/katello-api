@@ -19,7 +19,7 @@ public class KatelloEnvironment {
 	
 	public static final String CMD_CREATE = "environment create";
 	public static final String CMD_INFO = "environment info -v";
-	public static final String CLI_CMD_LIST = "environment list";
+	public static final String CLI_CMD_LIST = "environment list -v";
 	
 	public static final String OUT_CREATE = 
 			"Successfully created environment [ %s ]";
@@ -64,6 +64,13 @@ public class KatelloEnvironment {
 		return cli.run();
 	}
 	
+	public SSHCommandResult cli_list(){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		cli = new KatelloCli(CLI_CMD_LIST, opts);
+		return cli.run();
+	}
+
 	public SSHCommandResult api_list(){
 		KatelloApi api = new KatelloApi();
 		return api.get(String.format(API_CMD_LIST, this.org));

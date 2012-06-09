@@ -28,6 +28,7 @@ public class KatelloTestScript
 	
 	public KatelloTestScript() {
 		super();
+		servertasks = new KatelloTasks();
 		try {
 			dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 			if(default_org ==null)

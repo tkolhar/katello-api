@@ -41,12 +41,12 @@ public class KatelloUtils {
 	 */
 	public static SSHCommandResult sshOnServer(String _cmd){
 		try{
-			SSHCommandRunner ssh_client = new SSHCommandRunner(
+			SSHCommandRunner ssh_server = new SSHCommandRunner(
 					System.getProperty("katello.server.hostname", "localhost"), "root", 
 					System.getProperty("katello.server.ssh.passphrase", "secret"), 
 					System.getProperty("katello.server.sshkey.private", ".ssh/id_dsa"), 
 					System.getProperty("katello.server.sshkey.passphrase", "secret"), null);
-			return ssh_client.runCommandAndWait(_cmd);
+			return ssh_server.runCommandAndWait(_cmd);
 		}catch(Throwable t){
 			log.warning("Warning: Could not initialize server's SSHCommandRunner.");
 			t.printStackTrace();

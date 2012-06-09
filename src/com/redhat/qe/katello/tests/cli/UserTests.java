@@ -84,7 +84,7 @@ public class UserTests extends KatelloCliTestScript{
 	public void test_listUsers_admin(){
 		KatelloUser list_user = new KatelloUser(null,null, null, false);
 		SSHCommandResult res = list_user.cli_list();
-		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(res).contains(KatelloUser.DEFAULT_ADMIN_USER), "Check - contains: ["+KatelloUser.DEFAULT_ADMIN_USER+"]");
 	}
 	
@@ -95,7 +95,7 @@ public class UserTests extends KatelloCliTestScript{
 		users.add(list_user);
 		
 		SSHCommandResult res = list_user.cli_list();
-		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code (user list)");
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code (user list)");
 		
 		for(KatelloUser user : this.users){
 			String match_list = String.format(KatelloUser.REG_USER_LIST, user.username, user.email).replaceAll("\"", ""); // output not have '"' signs
@@ -243,7 +243,7 @@ public class UserTests extends KatelloCliTestScript{
 		KatelloUserRole role = createRole();
 		
 		SSHCommandResult res = user.assign_role(role.name);
-		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code (user assign_role)");
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code (user assign_role)");
 		Assert.assertEquals(getOutput(res).trim(), 
 				String.format(KatelloUser.OUT_ASSIGN_ROLE, user.username, role.name));
 	}
@@ -261,7 +261,7 @@ public class UserTests extends KatelloCliTestScript{
 		
 		SSHCommandResult res = user.unassign_role(role.name);
 		
-		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code (user unassign_role)");
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code (user unassign_role)");
 		Assert.assertEquals(getOutput(res).trim(), 
 				String.format(KatelloUser.OUT_UNASSIGN_ROLE, user.username, role.name));
 		
@@ -291,7 +291,7 @@ public class UserTests extends KatelloCliTestScript{
 		
 		SSHCommandResult res = user.list_roles();
 		
-		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code (user list_roles)");
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code (user list_roles)");
 		String out = getOutput(res).replaceAll("\n", "");
 		
 		String match_list = String.format(KatelloUser.REG_USER_ROLE_LIST, role.name).replaceAll("\"", ""); // output not have '"' signs
@@ -316,7 +316,7 @@ public class UserTests extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(res).contains(String.format(KatelloUser.OUT_DELETE,user.username)),"Check - return string");
 		
 		res = user.cli_info();
-		Assert.assertEquals(res.getExitCode(), new Integer(65),"Check - return code [65]");
+		Assert.assertTrue(res.getExitCode()==65, "Check - return code [65]");
 		Assert.assertEquals(getOutput(res).trim(), 
 				String.format(KatelloUser.OUT_FIND_USER_ERROR,user.username));
 	}
@@ -325,7 +325,7 @@ public class UserTests extends KatelloCliTestScript{
 		SSHCommandResult res;
 		res = user.cli_info();
 		String match_info = String.format(KatelloUser.REG_USER_LIST,user.username,user.email).replaceAll("\"", "");
-		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 		log.finest(String.format("User (info) match regex: [%s]",match_info));
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info), 
 				String.format("User [%s] should be found in the result info",user.username));		
