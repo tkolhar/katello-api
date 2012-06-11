@@ -34,8 +34,6 @@ public class TemplateTests extends KatelloCliTestScript {
 	private String provider_name;
 	private String product_name;
 	private String repo_name;
-	private String env_name;
-	private String changeset_name;
 
 	@BeforeClass(description = "Generate unique objects")
 	public void setUp() {
@@ -45,8 +43,6 @@ public class TemplateTests extends KatelloCliTestScript {
 		provider_name = "provider"+uid;
 		product_name = "product"+uid;
 		repo_name = "repo"+uid;
-		env_name = "env"+uid;
-		changeset_name = "changeset"+uid;
 		
 		// Create org:
 		KatelloOrg org = new KatelloOrg(this.org_name, "Package tests");
@@ -59,7 +55,7 @@ public class TemplateTests extends KatelloCliTestScript {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		// Create provider:
-		KatelloProvider prov = new KatelloProvider(provider_name, org_name, "Package provider", PULP_F15_x86_64_REPO);
+		KatelloProvider prov = new KatelloProvider(provider_name, org_name, "Package provider", REPO_INECAS_ZOO3);
 		exec_result = prov.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
@@ -68,7 +64,7 @@ public class TemplateTests extends KatelloCliTestScript {
 		exec_result = prod.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	
-		KatelloRepo repo = new KatelloRepo(repo_name, org_name, product_name, PULP_F15_x86_64_REPO, null, null);
+		KatelloRepo repo = new KatelloRepo(repo_name, org_name, product_name, REPO_INECAS_ZOO3, null, null);
 		exec_result = repo.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
@@ -179,12 +175,13 @@ public class TemplateTests extends KatelloCliTestScript {
 	public void test_updateTemplateAddParam() {
 		KatelloTemplate templ = createTemplate();
 		
-		final String paramName = "testparam" + KatelloTestScript.getUniqueID();
+		String paramName = "testparam" + KatelloTestScript.getUniqueID();
 		final String paramValue = "testparamval";
 		
 		exec_result = templ.update_add_param(paramName, paramValue);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloTemplate.OUT_UPDATE, templ_name)), "Check - output string (template update)");
+		
 		exec_result = templ.info(null);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		String match_info = String.format(KatelloTemplate.REG_TEMPL_PARAMS, paramName, paramValue).replaceAll("\"", "");
@@ -192,16 +189,48 @@ public class TemplateTests extends KatelloCliTestScript {
 		Matcher matcher = pattern.matcher(getOutput(exec_result).replaceAll("\n", " "));
 		Assert.assertTrue(matcher.find(), "Check - Parameter should exist in template info");
 	}
+
+	@Test(description = "Create template, than add parameter to template and then remove it",  groups = { "cli-template" })
+	public void test_updateTemplateRemoveParam() {
+		
+		KatelloTemplate templ = createTemplate();
+		
+		String paramName = "testparam" + KatelloTestScript.getUniqueID();
+		final String paramValue = "testparamval";
+		
+		exec_result = templ.update_add_param(paramName, paramValue);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloTemplate.OUT_UPDATE, templ_name)), "Check - output string (template update)");
+		
+		final String paramName2 = "testparam2" + KatelloTestScript.getUniqueID();
+		final String paramValue2 = "testparamval2";
+
+		exec_result = templ.update_add_param(paramName2, paramValue2);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloTemplate.OUT_UPDATE, templ_name)), "Check - output string (template update)");
+		
+		exec_result = templ.update_remove_param(paramName2);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloTemplate.OUT_UPDATE, templ_name)), "Check - output string (template update)");
+		
+		exec_result = templ.info(null);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		String match_info = String.format(KatelloTemplate.REG_TEMPL_PARAMS, paramName2, paramValue2).replaceAll("\"", "");
+		Pattern pattern = Pattern.compile(match_info);
+		Matcher matcher = pattern.matcher(getOutput(exec_result).replaceAll("\n", " "));
+		Assert.assertFalse(matcher.find(), "Check - Parameter should not exist in template info");
+	}
 	
 	@Test(description = "Create template, than add package to template", groups = { "cli-template" })
 	public void test_updateTemplateAddPackage() {
 		KatelloTemplate templ = createTemplate();
 		
-		final String packageName = "pulp-admin";
+		String packageName = "lion";
 		
 		exec_result = templ.update_add_package(packageName);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloTemplate.OUT_UPDATE, templ_name)), "Check - output string (template update)");
+		
 		exec_result = templ.info(null);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		String match_info = String.format(KatelloTemplate.REG_TEMPL_PACKAGES, packageName).replaceAll("\"", "");
@@ -209,7 +238,133 @@ public class TemplateTests extends KatelloCliTestScript {
 		Matcher matcher = pattern.matcher(getOutput(exec_result).replaceAll("\n", " "));
 		Assert.assertTrue(matcher.find(), "Check - Package should exist in template info");
 	}
+
+	@Test(description = "Create template, than add package to template and then remove it", groups = { "cli-template" })
+	public void test_updateTemplateRemovePackage() {
+		KatelloTemplate templ = createTemplate();
+
+		String packageName = "lion";
+
+		exec_result = templ.update_add_package(packageName);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloTemplate.OUT_UPDATE, templ_name)), "Check - output string (template update)");
+		
+		String packageName2 = "zebra";
+		
+		exec_result = templ.update_add_package(packageName2);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloTemplate.OUT_UPDATE, templ_name)), "Check - output string (template update)");
+		
+		exec_result = templ.update_remove_package(packageName);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloTemplate.OUT_UPDATE, templ_name)), "Check - output string (template update)");
+		
+		exec_result = templ.info(null);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		String match_info = String.format(KatelloTemplate.REG_TEMPL_PACKAGES, packageName).replaceAll("\"", "");
+		Pattern pattern = Pattern.compile(match_info);
+		Matcher matcher = pattern.matcher(getOutput(exec_result).replaceAll("\n", " "));
+		Assert.assertFalse(matcher.find(), "Check - Package should not exist in template info");
+		
+		match_info = String.format(KatelloTemplate.REG_TEMPL_PACKAGES, packageName2).replaceAll("\"", "");
+		pattern = Pattern.compile(match_info);
+		matcher = pattern.matcher(getOutput(exec_result).replaceAll("\n", " "));
+		Assert.assertTrue(matcher.find(), "Check - Package should exist in template info");
+	}
 	
+	@Test(description = "Create template, than add package group to template", groups = { "cli-template" })
+	public void test_updateTemplateAddPackageGroup() {
+		KatelloTemplate templ = createTemplate();
+		
+		String packageGroupName = "birds";
+		
+		exec_result = templ.update_add_package_group(packageGroupName);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloTemplate.OUT_UPDATE, templ_name)), "Check - output string (template update)");
+		
+		exec_result = templ.info(null);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		String match_info = String.format(KatelloTemplate.REG_TEMPL_PACKAGEGROUPS, packageGroupName).replaceAll("\"", "");
+		Pattern pattern = Pattern.compile(match_info);
+		Matcher matcher = pattern.matcher(getOutput(exec_result).replaceAll("\n", " "));
+		Assert.assertTrue(matcher.find(), "Check - Package shoul Groupd exist in template info");
+	}
+
+	@Test(description = "Create template, than add package group to template and then remove it", groups = { "cli-template" })
+	public void test_updateTemplateRemovePackageGroup() {
+		KatelloTemplate templ = createTemplate();
+		
+		String packageGroupName = "birds";
+		
+		exec_result = templ.update_add_package_group(packageGroupName);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloTemplate.OUT_UPDATE, templ_name)), "Check - output string (template update)");
+		
+		String packageGroupName2 = "mammals";
+
+		exec_result = templ.update_add_package_group(packageGroupName2);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloTemplate.OUT_UPDATE, templ_name)), "Check - output string (template update)");
+		
+		exec_result = templ.update_remove_package_group(packageGroupName);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloTemplate.OUT_UPDATE, templ_name)), "Check - output string (template update)");
+		
+		exec_result = templ.info(null);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		String match_info = String.format(KatelloTemplate.REG_TEMPL_PACKAGEGROUPS, packageGroupName).replaceAll("\"", "");
+		Pattern pattern = Pattern.compile(match_info);
+		Matcher matcher = pattern.matcher(getOutput(exec_result).replaceAll("\n", " "));
+		Assert.assertFalse(matcher.find(), "Check - Package Group should not exist in template info");
+		
+		match_info = String.format(KatelloTemplate.REG_TEMPL_PACKAGEGROUPS, packageGroupName2).replaceAll("\"", "");
+		pattern = Pattern.compile(match_info);
+		matcher = pattern.matcher(getOutput(exec_result).replaceAll("\n", " "));
+		Assert.assertTrue(matcher.find(), "Check - Package Group should exist in template info");
+	}
+
+	@Test(description = "Create template, than add repository to template", groups = { "cli-template" })
+	public void test_updateTemplateAddRepo() {
+		KatelloTemplate templ = createTemplate();
+			
+		exec_result = templ.update_add_repo(product_name, repo_name);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloTemplate.OUT_UPDATE, templ_name)), "Check - output string (template update)");
+		
+		exec_result = templ.info(null);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		String match_info = String.format(KatelloTemplate.REG_TEMPL_REPOS, repo_name).replaceAll("\"", "");
+		Pattern pattern = Pattern.compile(match_info);
+		Matcher matcher = pattern.matcher(getOutput(exec_result).replaceAll("\n", " "));
+		Assert.assertTrue(matcher.find(), "Check - Repository should exist in template info");
+	}
+
+	@Test(description = "Create template, than add repository to template and then remove it",  groups = { "cli-template" })
+	public void test_updateTemplateRemoveRepo() {
+		
+		KatelloTemplate templ = createTemplate();
+		
+		exec_result = templ.update_add_repo(product_name, repo_name);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloTemplate.OUT_UPDATE, templ_name)), "Check - output string (template update)");
+		
+		exec_result = templ.update_remove_repo(product_name, repo_name);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloTemplate.OUT_UPDATE, templ_name)), "Check - output string (template update)");
+		
+		exec_result = templ.info(null);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		String match_info = String.format(KatelloTemplate.REG_TEMPL_REPOS, repo_name).replaceAll("\"", "");
+		Pattern pattern = Pattern.compile(match_info);
+		Matcher matcher = pattern.matcher(getOutput(exec_result).replaceAll("\n", " "));
+		Assert.assertFalse(matcher.find(), "Check - Repository should not exist in template info");
+	}
+	
+	/**
+	 * @TODO write test case to update template and add package group category.
+	 * 
+	 */
+
 	private String assert_templInfo(KatelloTemplate templ) {
 		if (templ.description == null) templ.description = "None";
 		if (templ.parentId == null) templ.parentId = "None";
