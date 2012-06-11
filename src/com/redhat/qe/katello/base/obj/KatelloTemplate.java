@@ -25,11 +25,16 @@ public class KatelloTemplate {
 	public static final String REG_TEMPL_INFO = ".*Id:\\s+\\d+.*Name:\\s+%s.*Revision:\\s+%s.*Description:\\s+%s.*Parent Id:\\s+%s.*";
 	public static final String REG_TEMPL_PARAMS = ".*Parameters:\\s+.*%s:\\s+%s.*";
 	public static final String REG_TEMPL_PACKAGES = ".*Packages:\\s+.*%s.*";
+	public static final String REG_TEMPL_PACKAGEGROUPS = ".*Package Groups:\\s+.*%s.*";
+	public static final String REG_TEMPL_REPOS = ".*Repositories:\\s+.*%s.*";
 	public static final String REG_TEMPL_LIST = ".*\\s+\\d+.*\\s+%s.*\\s+%s.*\\s+%s.*";
 	public static final String REG_TEMPL_ID = "Id:\\s+\\d+.*Name:";
 	
 	public static final String OUT_CREATE = 
 			"Successfully created template [ %s ]";
+	
+	public static final String OUT_UPDATE = 
+			"Successfully updated template [ %s ]";
 	
 	// ** ** ** ** ** ** ** Class members
 	public String name;
@@ -98,16 +103,35 @@ public class KatelloTemplate {
 	public SSHCommandResult update_add_repo(String product, String repo){
 		opts.clear();
 		opts.add(new Attribute("from_product", product));
-		opts.add(new Attribute("add_repo", repo));
+		opts.add(new Attribute("add_repository", repo));
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		cli = new KatelloCli(CMD_UPDATE, opts);
 		return cli.run();
 	}
 
+	public SSHCommandResult update_remove_repo(String product, String repo){
+		opts.clear();
+		opts.add(new Attribute("from_product", product));
+		opts.add(new Attribute("remove_repository", repo));
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		cli = new KatelloCli(CMD_UPDATE, opts);
+		return cli.run();
+	}
+	
 	public SSHCommandResult update_add_package(String pkg){
 		opts.clear();
 		opts.add(new Attribute("add_package", pkg));
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		cli = new KatelloCli(CMD_UPDATE, opts);
+		return cli.run();
+	}
+
+	public SSHCommandResult update_remove_package(String pkg){
+		opts.clear();
+		opts.add(new Attribute("remove_package", pkg));
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		cli = new KatelloCli(CMD_UPDATE, opts);
@@ -118,6 +142,15 @@ public class KatelloTemplate {
 		opts.clear();
 		opts.add(new Attribute("add_param", param));
 		opts.add(new Attribute("value", value));
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		cli = new KatelloCli(CMD_UPDATE, opts);
+		return cli.run();
+	}
+	
+	public SSHCommandResult update_remove_param(String param){
+		opts.clear();
+		opts.add(new Attribute("remove_param", param));
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		cli = new KatelloCli(CMD_UPDATE, opts);
@@ -136,6 +169,15 @@ public class KatelloTemplate {
 	public SSHCommandResult update_add_package_group(String pkgGrp){
 		opts.clear();
 		opts.add(new Attribute("add_package_group", pkgGrp));
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		cli = new KatelloCli(CMD_UPDATE, opts);
+		return cli.run();
+	}
+
+	public SSHCommandResult update_remove_package_group(String pkgGrp){
+		opts.clear();
+		opts.add(new Attribute("remove_package_group", pkgGrp));
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		cli = new KatelloCli(CMD_UPDATE, opts);
