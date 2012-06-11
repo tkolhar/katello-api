@@ -14,13 +14,13 @@ import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.tasks.KatelloTasks;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups={"cfse-cli","headpin-cli"})
+
 public class ProductTests  extends KatelloCliTestScript{
 
 	private String org_name;
 	private String prov_name;
 	
-	@BeforeClass(description="Prepare an org to work with", groups = {"cli-product"})
+	@BeforeClass(description="Prepare an org to work with", groups = {"cli-product"}, alwaysRun=false)
 	public void setup_org(){
 		SSHCommandResult res;
 		String uid = KatelloTestScript.getUniqueID();
@@ -35,11 +35,11 @@ public class ProductTests  extends KatelloCliTestScript{
 	}
 	
 
-     @Test(description = "List all product for orgs")
-	 public void test_listProductDefaultOrg(){
+    @Test(description = "List all product for orgs", groups = {"headpin-cli"})
+	public void test_listProductDefaultOrg(){
       
     	  String providername = "Red Hat";
-	 	  KatelloProduct list_product = new KatelloProduct(null,KatelloTestScript.default_org,providername,null,null,null,null,null);
+	 	  KatelloProduct list_product = new KatelloProduct(null,KatelloProduct.Default_Org,providername,null,null,null,null,null);
 	 	  SSHCommandResult res = list_product.cli_list();
 	 	  Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
  	}

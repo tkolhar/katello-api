@@ -12,6 +12,17 @@ public class KatelloUserRole {
 	// ** ** ** ** ** ** ** Public constants
 	public static final String CMD_CREATE = "user_role create";
 	public static final String OUT_CREATE = "Successfully created user role [ %s ]";
+	public static final String CMD_INFO = "user_role info -v";
+	public static final String CLI_CMD_LIST = "user_role list -v";
+	public static final String CMD_UPDATE = "user_role update";
+	public static final String CMD_DELETE = "user_role delete";
+	
+	public static final String ERROR_INFO =
+			"Cannot find user role [ %s ]";
+	public static final String OUT_UPDATE =  
+			"Successfully updated user role [ %s ]";
+	public static final String OUT_DELETE = 
+			"Successfully deleted user role [ %s ]";
 	
 	// ** ** ** ** ** ** ** Class members
 	public String name;
@@ -34,4 +45,36 @@ public class KatelloUserRole {
 		return cli.run();
 	}
 	
+	
+	public SSHCommandResult cli_info(){
+		opts.clear();
+		opts.add(new Attribute("name", name));
+		cli = new KatelloCli(CMD_INFO, opts);
+		return cli.run();
+	}
+	
+
+	public SSHCommandResult cli_list(){
+		opts.clear();
+		cli = new KatelloCli(CLI_CMD_LIST, opts);
+		return cli.run();
+	}
+	
+	
+	public SSHCommandResult cli_update(String new_name){
+		opts.clear();
+		opts.add(new Attribute("new_name", new_name));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("description", description));
+		cli = new KatelloCli(CMD_UPDATE, opts);
+		return cli.run();
+	}
+	
+	
+	public SSHCommandResult cli_delete(){
+		opts.clear();
+		opts.add(new Attribute("name", name));
+		cli = new KatelloCli(CMD_DELETE, opts);
+		return cli.run();
+	}
 }
