@@ -28,12 +28,15 @@ public class KatelloActivationKey {
 	public static final String CMD_CREATE = "activation_key create";
 	public static final String CMD_INFO = "activation_key info";
 	public static final String CMD_LIST = "activation_key list";
-	
+	public static final String CMD_DELETE = "activation_key delete";
 	public static final String ERR_TEMPLATE_NOTFOUND = 
 			"Could not find template [ %s ]";	
 	public static final String OUT_CREATE = 
 			"Successfully created activation key [ %s ]";
-
+	public static final String OUT_DELETE =
+			"Successfully deleted activation key [ %s ]";
+	public static final String ERROR_INFO =
+			"Could not find activation key [ %s ]";
 	public KatelloActivationKey(String pOrg, String pEnv, String pName, String pDesc, String pTemplate){
 		this.org = pOrg;
 		this.environment = pEnv;
@@ -77,6 +80,14 @@ public class KatelloActivationKey {
 		return cli.run();
 	}
 	
+	public SSHCommandResult delete(){
+		   opts.clear();
+		   opts.add(new Attribute("name",name));
+		   opts.add(new Attribute("org",org));
+		   cli = new KatelloCli(CMD_DELETE+" -v",opts);
+		   return cli.run();
+		    
+	}
 	
 	// ** ** ** ** ** ** **
 	// ASSERTS
