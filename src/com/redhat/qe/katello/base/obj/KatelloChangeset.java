@@ -16,12 +16,16 @@ public class KatelloChangeset {
 	public static final String CMD_INFO = "changeset info";
 	
 	public static final String OUT_CREATE = 
-			"Successfully created changeset [ %s ]"; 
+			"Successfully created changeset [ %s ] for environment [ %s ]"; 
+	
+	public static final String REG_CHST_INFO = ".*Id:\\s+\\d+.*Name:\\s+%s.*Description:\\s+%s.*Environment Name:\\s+%s.*";
+	public static final String REG_CHST_ID = "Id:\\s+\\d+.*Name:";
 
 	// ** ** ** ** ** ** ** Class members
-	String name;
-	String org;
-	String environment;
+	public String name;
+	public String org;
+	public String description;
+	public String environment;
 	
 	private KatelloCli cli;
 	private ArrayList<Attribute> opts;
