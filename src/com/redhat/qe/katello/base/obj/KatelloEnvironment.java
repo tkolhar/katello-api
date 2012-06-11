@@ -20,10 +20,18 @@ public class KatelloEnvironment {
 	public static final String CMD_CREATE = "environment create";
 	public static final String CMD_INFO = "environment info -v";
 	public static final String CLI_CMD_LIST = "environment list -v";
+	public static final String CMD_DELETE = "environment delete";
+	public static final String CMD_UPDATE = "environment update";
+	
 	
 	public static final String OUT_CREATE = 
 			"Successfully created environment [ %s ]";
-
+	public static final String OUT_DELETE = 
+			"Successfully deleted environment [ %s ]";
+	public static final String ERROR_INFO =
+			"Could not find environment [ %s ] within organization [ %s ]";
+	public static final String OUT_UPDATE =  
+			"Successfully updated environment [ %s ]";
 	public static final String API_CMD_LIST = "/organizations/%s/environments";
 	public static final String API_CMD_CREATE = "/organizations/%s/environments";
 	
@@ -64,6 +72,7 @@ public class KatelloEnvironment {
 		return cli.run();
 	}
 	
+
 	public SSHCommandResult cli_list(){
 		opts.clear();
 		opts.add(new Attribute("org", org));
@@ -71,6 +80,25 @@ public class KatelloEnvironment {
 		return cli.run();
 	}
 
+	
+	public SSHCommandResult cli_delete(){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		cli = new KatelloCli(CMD_DELETE, opts);
+		return cli.run();
+	}
+	
+	public SSHCommandResult cli_update(String descr){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("description", descr));
+		opts.add(new Attribute("prior", prior));
+		cli = new KatelloCli(CMD_UPDATE, opts);
+		return cli.run();
+	}
+	 
 	public SSHCommandResult api_list(){
 		KatelloApi api = new KatelloApi();
 		return api.get(String.format(API_CMD_LIST, this.org));
