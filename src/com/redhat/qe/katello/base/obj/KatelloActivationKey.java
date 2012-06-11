@@ -33,7 +33,10 @@ public class KatelloActivationKey {
 			"Could not find template [ %s ]";	
 	public static final String OUT_CREATE = 
 			"Successfully created activation key [ %s ]";
-
+	public static final String OUT_DELETE =
+			"Successfully deleted activation key [ %s ]";
+	public static final String ERROR_INFO =
+			"Could not find activation key [ %s ]";
 	public KatelloActivationKey(String pOrg, String pEnv, String pName, String pDesc, String pTemplate){
 		this.org = pOrg;
 		this.environment = pEnv;

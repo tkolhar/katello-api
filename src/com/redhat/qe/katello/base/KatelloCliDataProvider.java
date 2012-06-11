@@ -97,6 +97,63 @@ public class KatelloCliDataProvider {
 		return res;
 	}
 	
+	
+	
+	@DataProvider(name="user_role_create")
+	public static Object[][] user_role_create(){
+		String uid = KatelloTestScript.getUniqueID();
+		return new Object[][] {
+				// name
+				{ "user_role-aa", null, new Integer(0), "Successfully created user role [ user_role-aa ]"},
+				{ "user_role-11", null, new Integer(0), "Successfully created user role [ user_role-11 ]"},
+				{ "user_role-1a", null, new Integer(0), "Successfully created user role [ user_role-1a ]"},
+				{ "user_role-a1", null, new Integer(0), "Successfully created user role [ user_role-a1 ]"},
+				{ strRepeat("0123456789", 12)+"abcdefgh", null, new Integer(0), "Successfully created user role [ "+strRepeat("0123456789", 12)+"abcdefgh"+" ]"},
+				{ "user_role-"+uid, null, new Integer(0), "Successfully created user role [ user_role-"+uid+" ]"},
+				{ "user_role "+uid, "Provider with space in name", new Integer(0), "Successfully created user role [ user_role "+uid+" ]"},
+				{ " ", null, new Integer(144), "Name can't be blank"},
+				{ " a", null, new Integer(144), "Validation failed: Name must not contain leading or trailing white spaces."},
+				{ "a ", null, new Integer(144), "Validation failed: Name must not contain leading or trailing white spaces."},
+				{ "a", null, new Integer(144), "Validation failed: Name must contain at least 2 characters"},
+				{ "?1", null, new Integer(144), "Validation failed: Name cannot contain characters other than alpha numerals, space,'_', '-'."},
+			    { strRepeat("0123456789", 12)+"abcdefghi", null, new Integer(144), "Validation failed: Name cannot contain more than 128 characters"},
+//				// description
+				{ "desc-specChars"+uid, "\\!@%^&*(<_-~+=//\\||,.>)", new Integer(0), "Successfully created user role [ desc-specChars"+uid+" ]"},
+				
+				{ "desc-256Chars"+uid, strRepeat("0123456789", 25)+"abcdef", new Integer(144), "Validation failed: Description cannot contain more than 255 characters"},
+				// misc
+				{ "duplicate"+uid, null, new Integer(0), "Successfully created user role [ duplicate"+uid+" ]"},
+ 				
+		};
+	}
+	@DataProvider(name="environment_create")
+	public static Object[][] environment_create(){
+		String uid = KatelloTestScript.getUniqueID();
+		return new Object[][] {
+				// name
+				{ "env-aa", null, new Integer(0), "Successfully created environment [ env-aa ]"},
+				{ "env-11", null, new Integer(0), "Successfully created environment [ env-11 ]"},
+				{ "env-1a", null, new Integer(0), "Successfully created environment [ env-1a ]"},
+				{ "env-a1", null, new Integer(0), "Successfully created environment [ env-a1 ]"},
+				{ strRepeat("0123456789", 12)+"abcdefgh", null, new Integer(0), "Successfully created environment [ "+strRepeat("0123456789", 12)+"abcdefgh"+" ]"},
+				{ "env-"+uid, null, new Integer(0), "Successfully created environment [ env-"+uid+" ]"},
+				{ "env "+uid, "Provider with space in name", new Integer(0), "Successfully created environment [ env "+uid+" ]"},
+				{ " ", null, new Integer(144), "Name can't be blank"},
+				{ " a", null, new Integer(144), "Validation failed: Name must not contain leading or trailing white spaces."},
+				{ "a ", null, new Integer(144), "Validation failed: Name must not contain leading or trailing white spaces."},
+				{ "a", null, new Integer(144), "Validation failed: Name must contain at least 2 characters"},
+				{ "?1", null, new Integer(144), "Validation failed: Name cannot contain characters other than alpha numerals, space,'_', '-'."},
+			    { strRepeat("0123456789", 12)+"abcdefghi", null, new Integer(144), "Validation failed: Name cannot contain more than 128 characters"},
+//				// description
+				{ "desc-specChars"+uid, "\\!@%^&*(<_-~+=//\\||,.>)", new Integer(0), "Successfully created environment [ desc-specChars"+uid+" ]"},
+				{ "desc-255Chars"+uid, strRepeat("0123456789", 25)+"abcde", new Integer(0), "Successfully created environment [ desc-255Chars"+uid+" ]"},
+				{ "desc-256Chars"+uid, strRepeat("0123456789", 25)+"abcdef", new Integer(144), "Validation failed: Description cannot contain more than 255 characters"},
+				// misc
+				{ "duplicate"+uid, null, new Integer(0), "Successfully created environment [ duplicate"+uid+" ]"},
+ 				
+		};
+	}
+	
 	/**
 	 * Object[] contains of:<BR>
 	 * activation key:<BR>
