@@ -1,6 +1,9 @@
 package com.redhat.qe.katello.tests.e2e;
 
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.auto.testng.Assert;
@@ -93,9 +96,15 @@ public class PromoteErrata extends KatelloCliTestScript{
 		cs.create();
 		res = cs.update_fromProduct_addErrata(this.product, ERRATA_ZOO_SEA);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset --add_erratum)");
+		res = cs.info();
+		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
+		String match_info = String.format(KatelloChangeset.REG_CHST_ERRATA, ERRATA_ZOO_SEA).replaceAll("\"", "");
+		Pattern pattern = Pattern.compile(match_info);
+		Matcher matcher = pattern.matcher(getOutput(res).replaceAll("\n", " "));
+		Assert.assertTrue(matcher.find(), "Check - Errata should exist in changeset info");
+		
 		res = cs.promote();
-		// TODO - uncomment me after BZ fix: https://bugzilla.redhat.com/show_bug.cgi?id=790408
-		//Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset promote)");
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset promote)");
 		KatelloErrata ert = new KatelloErrata(ERRATA_ZOO_SEA, this.org, this.product, this.repo, this.env);
 		res = ert.info();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (errata info --environment Dev)");
