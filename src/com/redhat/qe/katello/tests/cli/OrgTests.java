@@ -15,11 +15,11 @@ import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups={"cfse-cli","headpin-cli"})
+//@Test(groups={"cfse-cli","headpin-cli"})
 public class OrgTests extends KatelloCliTestScript{
 	List<KatelloOrg> orgs;
 	
-	@Test(description = "List all orgs - ACME_Corporation should be there")
+	@Test(description = "List all orgs - ACME_Corporation should be there",groups={"cfse-cli","headpin-cli"})
 	public void test_listOrgs_ACME_Corp(){
 		KatelloOrg list_org = new KatelloOrg(null,null);
 		SSHCommandResult res = list_org.cli_list();
@@ -29,7 +29,7 @@ public class OrgTests extends KatelloCliTestScript{
 	
 	@Test(description = "Create org - different variations",
 			dataProviderClass = KatelloCliDataProvider.class,
-			dataProvider = "org_create")
+			dataProvider = "org_create",groups={"cfse-cli","headpin-cli"})
 	public void test_createOrg(String name, String descr){		
 		KatelloOrg org = new KatelloOrg(name, descr);
 		SSHCommandResult res = org.cli_create();
@@ -42,7 +42,7 @@ public class OrgTests extends KatelloCliTestScript{
 	}
 	
 	@Test(description = "List orgs - created", 
-			dependsOnMethods={"test_createOrg"})
+			dependsOnMethods={"test_createOrg"},groups={"cfse-cli","headpin-cli"})
 	public void test_infoListOrg(){
 		String uniqueID = KatelloTestScript.getUniqueID();
 		KatelloOrg list_org = new KatelloOrg("orgUpd"+uniqueID, "Simple description");		
@@ -62,7 +62,7 @@ public class OrgTests extends KatelloCliTestScript{
 		}
 	}
 	
-	@Test(description="Update org's description")
+	@Test(description="Update org's description",groups={"cfse-cli","headpin-cli"})
 	public void test_updateOrg(){
 		SSHCommandResult res;
 		String uniqueID = KatelloTestScript.getUniqueID();
@@ -80,7 +80,7 @@ public class OrgTests extends KatelloCliTestScript{
 		assert_orgInfo(org);
 	}
 	
-	@Test(description="Delete an organization")
+	@Test(description="Delete an organization",groups={"cfse-cli","headpin-cli"})
 	public void test_deleteOrg(){
 		String uniqueID = KatelloTestScript.getUniqueID();
 		KatelloOrg org = new KatelloOrg("orgDel"+uniqueID, null);
@@ -96,7 +96,7 @@ public class OrgTests extends KatelloCliTestScript{
 				String.format(KatelloOrg.ERR_ORG_NOTFOUND,org.name));
 	}
 	
-	@Test(description="Delete an organization which does not exist")
+	@Test(description="Delete an organization which does not exist",groups={"cfse-cli","headpin-cli"})
 	public void test_deleteOrgNotExist(){
 		String uniqueID = KatelloTestScript.getUniqueID();
 		KatelloOrg org = new KatelloOrg("orgDel"+uniqueID, null);
@@ -107,7 +107,7 @@ public class OrgTests extends KatelloCliTestScript{
 				String.format(KatelloOrg.ERR_ORG_NOTFOUND,org.name));
 	}
 	
-	@Test(description="List org subscriptions.")
+	@Test(description="List org subscriptions.",groups={"cfse-cli"})
 	public void test_orgSubscriptions(){
 		String uniqueID = KatelloTestScript.getUniqueID();
 		String orgName = "subscriptions-" + uniqueID;
@@ -137,7 +137,7 @@ public class OrgTests extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(res).trim().contains(String.format(KatelloOrg.OUT_ORG_SUBSCR, productName1)), "Check - Subscriptions contains " + productName1);
 	}
 	
-	@Test(description = "Create org - existing")
+	@Test(description = "Create org - existing",groups={"cfse-cli","headpin-cli"})
 	public void test_createOrgExists(){
 		String uniqueID = KatelloTestScript.getUniqueID();
 		KatelloOrg org = new KatelloOrg("orgCrt"+uniqueID, "Simple description");	
@@ -151,7 +151,7 @@ public class OrgTests extends KatelloCliTestScript{
 				KatelloOrg.ERR_ORG_EXISTS);
 	}
 	
-	@Test(description = "Create org - name is invalid")
+	@Test(description = "Create org - name is invalid",groups={"cfse-cli","headpin-cli"})
 	public void test_createOrgInvalidName(){
 		String uniqueID = KatelloTestScript.getUniqueID();
 		KatelloOrg org = new KatelloOrg("orgCrt"+uniqueID + " very ++== invalid name", "Simple description");	

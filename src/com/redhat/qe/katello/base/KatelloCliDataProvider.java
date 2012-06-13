@@ -101,6 +101,22 @@ public class KatelloCliDataProvider {
 		return res;
 	}
 	
+	@DataProvider(name="client_remember")
+	public static Object[][] client_remember(){
+		   String uid = KatelloTestScript.getUniqueID();
+		   return new Object[][] {
+				
+				
+				{ "organizations", "org-value",new Integer(0),"Successfully remembered option [ organizations ]"},
+				{ "providers", "prov-value",new Integer(0),"Successfully remembered option [ providers ]"},
+				{ "environments", "env-value",new Integer(0),"Successfully remembered option [ environments ]"},
+				{ strRepeat("0123456789", 12)+"abcdefgh", "long-value", new Integer(0), "Successfully remembered option [ "+strRepeat("0123456789", 12)+"abcdefgh"+" ]"},
+				{ "opt-"+uid, "val-"+uid, new Integer(0), "Successfully remembered option [ opt-"+uid+" ]"},
+				{ "opt "+uid, "Option with space in name", new Integer(0), "Successfully remembered option [ opt "+uid+" ]"},
+				
+				
+		};		
+	}
 	
 	@DataProvider(name="permission_available_verbs")
 	public static Object[][] permission_available_verbs(){
