@@ -13,19 +13,35 @@ public class KatelloChangeset {
 	public static final String CMD_CREATE = "changeset create";
 	public static final String CMD_PROMOTE = "changeset promote";
 	public static final String CMD_UPDATE = "changeset update";
+	public static final String CMD_DELETE = "changeset delete";
 	public static final String CMD_INFO = "changeset info";
+	public static final String CMD_LIST = "changeset list";
 	
 	public static final String OUT_CREATE = 
-			"Successfully created changeset [ %s ] for environment [ %s ]"; 
+			"Successfully created changeset [ %s ] for environment [ %s ]";
+	public static final String OUT_DELETE = 
+			"Deleted changeset '%s'"; 
+	public static final String ERR_NOT_FOUND = 
+			"Could not find changeset [ %s ] within environment [ %s ]";
+	public static final String OUT_UPDATE =
+			"Successfully updated changeset [ %s ]";
 	
-	public static final String REG_CHST_INFO = ".*Id:\\s+\\d+.*Name:\\s+%s.*Description:\\s+%s.*Environment Name:\\s+%s.*";
-	public static final String REG_CHST_ID = "Id:\\s+\\d+.*Name:";
+	public static final String REG_CHST_INFO = ".*Id:\\s+\\d+.*Name:\\s+%s.*Description:\\s+%s.*State:\\s+%s.*Environment Name:\\s+%s.*";
+	public static final String REG_CHST_ID = "Id:\\s+\\d+\\s+Name:";
+	public static final String REG_CHST_LIST = ".*\\s+\\d+.*\\s+%s.*\\s+%s.*";
+	
+	public static final String REG_CHST_PACKAGES = ".*Packages:\\s+.*%s.*";
+	public static final String REG_CHST_PRODUCTS = ".*Products:\\s+.*%s.*";
+	public static final String REG_CHST_REPOS = ".*Repositories:\\s+.*%s.*";
+	public static final String REG_CHST_TEMPLS = ".*System Templates:\\s+.*%s.*";
+	public static final String REG_CHST_ERRATA = ".*Errata:\\s+.*%s.*";
 
 	// ** ** ** ** ** ** ** Class members
 	public String name;
 	public String org;
 	public String description;
 	public String environment;
+	public String state;
 	
 	private KatelloCli cli;
 	private ArrayList<Attribute> opts;
@@ -43,6 +59,23 @@ public class KatelloChangeset {
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("environment", environment));
 		cli = new KatelloCli(CMD_CREATE, opts);
+		return cli.run();
+	}
+
+	public SSHCommandResult delete(){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("environment", environment));
+		cli = new KatelloCli(CMD_DELETE, opts);
+		return cli.run();
+	}
+	
+	public SSHCommandResult list(){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("environment", environment));
+		cli = new KatelloCli(CMD_LIST, opts);
 		return cli.run();
 	}
 	
@@ -65,12 +98,32 @@ public class KatelloChangeset {
 		return cli.run();
 	}
 	
+	public SSHCommandResult update_name(String newname){
+		opts.clear();
+		opts.add(new Attribute("new_name", newname));
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("environment", environment));
+		cli = new KatelloCli(CMD_UPDATE, opts);
+		return cli.run();
+	}
+	
 	public SSHCommandResult update_addProduct(String productName){
 		opts.clear();
 		opts.add(new Attribute("add_product", productName));
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("environment", environment));
+		cli = new KatelloCli(CMD_UPDATE, opts);
+		return cli.run();
+	}
+	
+	public SSHCommandResult update_add_package(String productName, String pkg) {
+		opts.clear();
+		opts.add(new Attribute("from_product", productName));
+		opts.add(new Attribute("add_package", pkg));
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
 		cli = new KatelloCli(CMD_UPDATE, opts);
 		return cli.run();
 	}
