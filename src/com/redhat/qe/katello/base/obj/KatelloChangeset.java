@@ -117,6 +117,16 @@ public class KatelloChangeset {
 		cli = new KatelloCli(CMD_UPDATE, opts);
 		return cli.run();
 	}
+
+	public SSHCommandResult update_removeProduct(String productName){
+		opts.clear();
+		opts.add(new Attribute("remove_product", productName));
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("environment", environment));
+		cli = new KatelloCli(CMD_UPDATE, opts);
+		return cli.run();
+	}
 	
 	public SSHCommandResult update_add_package(String productName, String pkg) {
 		opts.clear();
@@ -139,6 +149,17 @@ public class KatelloChangeset {
 		return cli.run();
 	}
 
+	public SSHCommandResult update_fromProduct_removeRepo(String productName, String repoName){
+		opts.clear();
+		opts.add(new Attribute("from_product", productName));
+		opts.add(new Attribute("remove_repo", repoName));
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("environment", environment));
+		cli = new KatelloCli(CMD_UPDATE, opts);
+		return cli.run();
+	}
+
 	public SSHCommandResult update_fromProduct_addErrata(String productName, String errataName){
 		opts.clear();
 		opts.add(new Attribute("from_product", productName));
@@ -150,6 +171,17 @@ public class KatelloChangeset {
 		return cli.run();
 	}
 
+	public SSHCommandResult update_fromProduct_removeErrata(String productName, String errataName){
+		opts.clear();
+		opts.add(new Attribute("from_product", productName));
+		opts.add(new Attribute("remove_erratum", errataName));
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("environment", environment));
+		cli = new KatelloCli(CMD_UPDATE, opts);
+		return cli.run();
+	}
+	
 	public SSHCommandResult update_addTemplate(String templateName){
 		opts.clear();
 		opts.add(new Attribute("add_template", templateName));
@@ -160,6 +192,16 @@ public class KatelloChangeset {
 		return cli.run();
 	}
 
+	public SSHCommandResult update_removeTemplate(String templateName){
+		opts.clear();
+		opts.add(new Attribute("remove_template", templateName));
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("environment", environment));
+		cli = new KatelloCli(CMD_UPDATE, opts);
+		return cli.run();
+	}
+	
 	// ** ** ** ** ** ** **
 	// ASSERTS
 	// ** ** ** ** ** ** **	
