@@ -107,10 +107,10 @@ public class KatelloCliDataProvider {
 		   return new Object[][] {
 				
 				
-				{ "organizations", "org-value",new Integer(0),"Successfully remembered option [ organizations ]"},
-				{ "providers", "prov-value",new Integer(0),"Successfully remembered option [ providers ]"},
-				{ "environments", "env-value",new Integer(0),"Successfully remembered option [ environments ]"},
-				{ strRepeat("0123456789", 12)+"abcdefgh", "long-value", new Integer(0), "Successfully remembered option [ "+strRepeat("0123456789", 12)+"abcdefgh"+" ]"},
+				{ "organizations-"+uid, "org-value",new Integer(0),"Successfully remembered option [ organizations-"+uid+" ]"},
+				{ "providers-"+uid, "prov-value",new Integer(0),"Successfully remembered option [ providers-"+ uid +" ]"},
+				{ "environments-"+uid, "env-value",new Integer(0),"Successfully remembered option [ environments-"+ uid +" ]"},
+				{ strRepeat("0123456789", 12)+"abcdefgh-"+uid, "long-value", new Integer(0), "Successfully remembered option [ "+strRepeat("0123456789", 12)+"abcdefgh-"+ uid +" ]"},
 				{ "opt-"+uid, "val-"+uid, new Integer(0), "Successfully remembered option [ opt-"+uid+" ]"},
 				{ "opt "+uid, "Option with space in name", new Integer(0), "Successfully remembered option [ opt "+uid+" ]"},
 				
