@@ -16,6 +16,8 @@ public class KatelloUserRole {
 	public static final String CLI_CMD_LIST = "user_role list -v";
 	public static final String CMD_UPDATE = "user_role update";
 	public static final String CMD_DELETE = "user_role delete";
+	public static final String CMD_LDAP_GRP_ADD = "user_role add_ldap_group";
+	public static final String CMD_LDAP_GRP_REMOVE = "user_role remove_ldap_group";
 	
 	public static final String ERROR_INFO =
 			"Cannot find user role [ %s ]";
@@ -23,6 +25,10 @@ public class KatelloUserRole {
 			"Successfully updated user role [ %s ]";
 	public static final String OUT_DELETE = 
 			"Successfully deleted user role [ %s ]";
+	public static final String OUT_LDAP_ADD =
+			"Successfully added LDAP group [ %s ] to the user role [ %s ]";
+	public static final String  OUT_LDAP_REMOVE =
+			"Successfully removed LDAP group [ %s ] from the user role [ %s ]"; 
 	
 	// ** ** ** ** ** ** ** Class members
 	public String name;
@@ -75,6 +81,24 @@ public class KatelloUserRole {
 		opts.clear();
 		opts.add(new Attribute("name", name));
 		cli = new KatelloCli(CMD_DELETE, opts);
+		return cli.run();
+	}
+	
+	
+	public SSHCommandResult cli_add_ldap_group(String group_name){
+		opts.clear();
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("group_name",group_name));
+		cli = new KatelloCli(CMD_LDAP_GRP_ADD, opts);
+		return cli.run();
+	}
+	
+	
+	public SSHCommandResult cli_remove_ldap_group(String group_name){
+		opts.clear();
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("group_name",group_name));
+		cli = new KatelloCli(CMD_LDAP_GRP_REMOVE, opts);
 		return cli.run();
 	}
 }
