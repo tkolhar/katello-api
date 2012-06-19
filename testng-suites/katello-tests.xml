@@ -31,14 +31,27 @@
 	
 	<!-- Test group that could be run on SAM server(s) as well -->
 	<test name="SAM_Tests" preserve-order="true">
+		<groups>
+			<run>
+				<include name="headpin-cli"/>
+			</run>
+		</groups>
 		<classes>
-			<class name="com.redhat.qe.katello.tests.cli.UserTests"/>
-		<!--	<class name="com.redhat.qe.katello.tests.cli.OrgTests"/>
-			<class name="com.redhat.qe.katello.tests.cli.SystemTests"/>
+				
+			<class name="com.redhat.qe.katello.tests.cli.ProductTests"/>  
+			<class name="com.redhat.qe.katello.tests.cli.EnvironmentTests"/> 
+			<class name="com.redhat.qe.katello.tests.cli.UserRoleTests"/> 
+			<class name="com.redhat.qe.katello.tests.cli.PingTest"/> 
+			<class name="com.redhat.qe.katello.tests.cli.VersionTest"/>
+			<class name="com.redhat.qe.katello.tests.cli.PermissionTests"/>
+			<class name="com.redhat.qe.katello.tests.cli.UserTests"/> 
+			<class name="com.redhat.qe.katello.tests.cli.OrgTests"/>
+			<class name="com.redhat.qe.katello.tests.cli.ClientTests"/> 	
 			<class name="com.redhat.qe.katello.tests.cli.ActivationKeyTests"/>
-			<class name="com.redhat.qe.katello.tests.api.ConsumersTest"/>
+		<!--	<class name="com.redhat.qe.katello.tests.api.ConsumersTest"/>
 			<class name="com.redhat.qe.katello.tests.api.EnvironmentsTest"/>
-			<class name="com.redhat.qe.katello.tests.api.UsersTest"/> -->
+			<class name="com.redhat.qe.katello.tests.api.UsersTest"/> 
+ 			<class name="com.redhat.qe.katello.tests.cli.SystemTests"/> --> 
 		
 		</classes>		
 	</test>
