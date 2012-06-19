@@ -19,7 +19,7 @@ TESTNG = ['org.testng:testng:jar:6.0','com.beust:jcommander:jar:1.13','com.mycil
 SELENIUM = ['org.seleniumhq.selenium.client-drivers:selenium-java-client-driver:jar:1.0.2']
 SSH2 = ['com.trilead:trilead-ssh2:jar:build213-svnkit-1.3-patch']
 
-TESTNG_XML = 'testng-suites/katello-tests.xml'
+TESTNG_XML = 'testng-suites/sam-test.xml'
 JAVAC_SRC = 'src' # location of java source files
 JAVAC_CLASSES = 'classes' # compiled class files location
 CP_ALL = [ WEBUI_FRAMEWORK, TESTNG, SIMPLE_JSON, SELENIUM, SSH2 ]
