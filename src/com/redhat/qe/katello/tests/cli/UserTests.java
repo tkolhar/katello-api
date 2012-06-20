@@ -307,19 +307,19 @@ public class UserTests extends KatelloCliTestScript{
 		Assert.assertTrue(out.matches(match_list), "Check - user role matches ["+role3.name+"]");
 	}
 	
-	@Test(description="Delete a user", enabled=true)
-	public void test_deleteUser(){
-		KatelloUser user = createUser();
+	//@Test(description="Delete a user", enabled=true)
+	//public void test_deleteUser(){
+		//KatelloUser user = createUser();
 		
-		SSHCommandResult res = user.delete();
-		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
-		Assert.assertTrue(getOutput(res).contains(String.format(KatelloUser.OUT_DELETE,user.username)),"Check - return string");
+		//SSHCommandResult res = user.delete();
+		//Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
+		//Assert.assertTrue(getOutput(res).contains(String.format(KatelloUser.OUT_DELETE,user.username)),"Check - return string");
 		
-		res = user.cli_info();
-		Assert.assertTrue(res.getExitCode()==65, "Check - return code [65]");
-		Assert.assertEquals(getOutput(res).trim(), 
-				String.format(KatelloUser.OUT_FIND_USER_ERROR,user.username));
-	}
+		//res = user.cli_info();
+		//Assert.assertTrue(res.getExitCode()==65, "Check - return code [65]");
+		//Assert.assertEquals(getOutput(res).trim(), 
+				//String.format(KatelloUser.OUT_FIND_USER_ERROR,user.username));
+	//}
 	
 	private void assert_userInfo(KatelloUser user){
 		SSHCommandResult res;
