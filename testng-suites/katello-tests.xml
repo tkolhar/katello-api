@@ -53,7 +53,7 @@
 		</classes>
 		<groups>
 			<run>
-				<include name="headpin-api">
+				<include name="headpin-api"/>
 			</run>
        		</groups>	
 		<classes>
