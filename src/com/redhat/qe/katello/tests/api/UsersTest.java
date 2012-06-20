@@ -11,7 +11,7 @@ import com.redhat.qe.auto.testng.Assert;
 import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.obj.KatelloUser;
 
-@Test(groups={"cfse-api"})
+@Test(groups={"cfse-api","headpin-api"})
 public class UsersTest extends KatelloTestScript {
 	protected static Logger log = Logger.getLogger(UsersTest.class.getName());
 

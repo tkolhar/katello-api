@@ -14,7 +14,7 @@ import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 
-@Test(groups={"cfse-api"})
+@Test(groups={"cfse-api","headpin-api"})
 public class ConsumersTest extends KatelloTestScript {
 	protected static Logger log = Logger.getLogger(ConsumersTest.class.getName());
 

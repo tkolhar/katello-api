@@ -38,8 +38,8 @@
 		</groups>
 		<classes>
 				
-		<!--	<class name="com.redhat.qe.katello.tests.cli.ProductTests"/>  
-			<class name="com.redhat.qe.katello.tests.cli.EnvironmentTests"/> 
+			<class name="com.redhat.qe.katello.tests.cli.ProductTests"/>  
+		<!--	<class name="com.redhat.qe.katello.tests.cli.EnvironmentTests"/> 
 			<class name="com.redhat.qe.katello.tests.cli.UserRoleTests"/> 
 			<class name="com.redhat.qe.katello.tests.cli.PingTest"/> 
 			<class name="com.redhat.qe.katello.tests.cli.VersionTest"/> 
@@ -48,12 +48,20 @@
 			<class name="com.redhat.qe.katello.tests.cli.OrgTests"/>
 			<class name="com.redhat.qe.katello.tests.cli.ClientTests"/> 	
 			<class name="com.redhat.qe.katello.tests.cli.ActivationKeyTests"/> -->
+			
+ 		<!--	<class name="com.redhat.qe.katello.tests.cli.SystemTests"/> --> 		
+		</classes>
+		<groups>
+			<run>
+				<include name="headpin-api">
+			</run>
+       		</groups>	
+		<classes>
 			<class name="com.redhat.qe.katello.tests.api.ConsumersTest"/>
 			<class name="com.redhat.qe.katello.tests.api.EnvironmentsTest"/>
 			<class name="com.redhat.qe.katello.tests.api.UsersTest"/> 
- 		<!--	<class name="com.redhat.qe.katello.tests.cli.SystemTests"/> --> 
-		
-		</classes>		
+		</classes>
+	
 	</test>
 
 	<!-- ** ** ** CFSE ** ** ** -->
