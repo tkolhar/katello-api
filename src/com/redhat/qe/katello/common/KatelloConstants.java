@@ -114,4 +114,7 @@ public interface KatelloConstants {
 		"'url':'%s'}";	
 
 	public static final String TNG_CFSE_CLI = "cfse-cli";
+	public static final String TNG_PRE_UPGRADE = "pre-upgrade";
+	public static final String TNG_UPGRADE = "upgrade";
+	public static final String TNG_POST_UPGRADE = "post-upgrade";
 }
