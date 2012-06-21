@@ -42,32 +42,7 @@ define "katello-api" do
      :classpath => [ CP_ALL, JAVAC_CLASSES ]
   end
   task :test => :testng
-
-  task :update_katello => :compile do
-     cmd_args = []
-     Java::Commands.java "com.redhat.qe.katello.common.KatelloUpdater", cmd_args,
-     :classpath => [ CP_ALL, JAVAC_CLASSES ]
-  end
-
-  task :install_katello => :compile do
-     cmd_args = [ENV['BUILDR_KATELLO_SERVER'],ENV['BUILDR_KATELLO_SSHPASS'],'scripts/katello-install/',ENV['BUILDR_KATELLO_DB'],ENV['RAILS_ENV']]
-     Java::Commands.java "com.redhat.qe.katello.common.KatelloInstaller", cmd_args,
-     :classpath => [ CP_ALL, JAVAC_CLASSES ]
-  end
  
-  task :db_cleanup_katello => :compile do
-     cmd_args = []
-     Java::Commands.java "com.redhat.qe.katello.common.KatelloDBCleaner", cmd_args,
-     :classpath => [ CP_ALL, JAVAC_CLASSES ]
-  end
-  
-  task :beaker_reservesys_new => :compile do
-     cmd_args = []
-     Java::Commands.java "com.redhat.qe.katello.common.KatelloInBeaker", cmd_args,
-     :classpath => [ CP_ALL, JAVAC_CLASSES ]
-  end
-
-  
   compile.using(:javac)
   compile.from(JAVAC_SRC)
   compile.into(JAVAC_CLASSES)
