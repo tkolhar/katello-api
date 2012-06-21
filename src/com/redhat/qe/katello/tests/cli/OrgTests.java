@@ -130,6 +130,7 @@ public class OrgTests extends KatelloCliTestScript{
 		res = prod.create();
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 		
+		waitfor_orgsubscriptions(org, 1);
 		res = org.subscriptions();
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code (org subscriptions)"); // check: ($? is 0)
 		
