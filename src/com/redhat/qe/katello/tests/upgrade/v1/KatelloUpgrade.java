@@ -14,7 +14,7 @@ public class KatelloUpgrade extends KatelloCliTestScript{
 	@Test(description="prepare the upgrade yum repo", 
 			dependsOnGroups={TNG_PRE_UPGRADE}, 
 			groups={TNG_UPGRADE})
-	public void test_prepareRepo(){
+	public void installYumRepo(){
 		String upgradeRepo = System.getProperty("katello.upgrade.repo", UPGRADE_REPO_LATEST);
 		String _yumrepo = 
 				"[cfse-upgrade]\\\\n" +
@@ -27,34 +27,34 @@ public class KatelloUpgrade extends KatelloCliTestScript{
 	}
 	
 	@Test(description="stop services", 
-			dependsOnMethods={"test_prepareRepo"},
+			dependsOnMethods={"installYumRepo"},
 			dependsOnGroups={TNG_PRE_UPGRADE}, 
 			groups={TNG_UPGRADE})
-	public void test_stopServices(){
+	public void stopServices(){
 		KatelloUtils.stopKatello();
 	}
 
 	@Test(description="update rpms", 
-			dependsOnMethods={"test_stopServices"},
+			dependsOnMethods={"stopServices"},
 			dependsOnGroups={TNG_PRE_UPGRADE}, 
 			groups={TNG_UPGRADE})
-	public void test_doUpdateRpms(){
+	public void updateRpms(){
 		KatelloUtils.sshOnServer("yum -y update pulp* candlepin* katello*"); // TODO maybe blind update everything?
 	}
 	
 	@Test(description="run schema upgrade", 
-			dependsOnMethods={"test_doUpdateRpms"},
+			dependsOnMethods={"updateRpms"},
 			dependsOnGroups={TNG_PRE_UPGRADE}, 
 			groups={TNG_UPGRADE})
-	public void test_doUpgrade(){
+	public void runUpgrade(){
 		KatelloUtils.sshOnServer("katello-upgrade -y"); // TODO using --log=LOG_FILE option.
 	}
 
 	@Test(description="start services", 
-			dependsOnMethods={"test_doUpgrade"},
+			dependsOnMethods={"runUpgrade"},
 			dependsOnGroups={TNG_PRE_UPGRADE}, 
 			groups={TNG_UPGRADE})
-	public void test_startServices(){
+	public void startServices(){
 		KatelloUtils.startKatello();
 	}
 }

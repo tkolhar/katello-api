@@ -22,7 +22,7 @@ public class ScenCustomRepo implements KatelloConstants{
 	
 	@Test(description="init object unique names", 
 			groups={TNG_PRE_UPGRADE})
-	public void initNames(){
+	public void init(){
 		_org = "upgV1-"+_uid;
 		_provider = "Zoo "+_uid;
 		_product = "Zoo "+_uid;
@@ -30,7 +30,7 @@ public class ScenCustomRepo implements KatelloConstants{
 	}
 	
 	@Test(description="prepare and sync the repo", 
-			dependsOnMethods={"initNames"}, 
+			dependsOnMethods={"init"}, 
 			groups={TNG_PRE_UPGRADE})
 	public void createAndSyncRepo(){
 		KatelloOrg org = new KatelloOrg(_org, null);
