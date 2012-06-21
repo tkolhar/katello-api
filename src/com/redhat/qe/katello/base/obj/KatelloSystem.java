@@ -22,6 +22,7 @@ public class KatelloSystem {
 			String.format("subscription-manager register --username %s --password %s",
 					RHSM_DEFAULT_USER,RHSM_DEFAULT_PASS);
 	public static final String RHSM_CLEAN = "subscription-manager clean";
+	public static final String RHSM_SUBSCRIBE = "subscription-manager subscribe";
 	
 	public static final String OUT_CREATE = 
 			"The system has been registered with id:";
@@ -32,6 +33,8 @@ public class KatelloSystem {
 	public static final String ERR_RHSM_REG_MULTI_ENV = 
 			"Organization %s has more than one environment. Please specify target environment for system registration.";
 	public static final String OUT_REMOTE_ACTION_DONE = "Remote action finished:";
+	public static final String OUT_RHSM_SUBSCRIBED_OK = 
+			"Successfully subscribed the system"; // not a full string, .contains() needed. 
 
 	public static final String API_CMD_INFO = "/consumers/%s";
 	public static final String API_CMD_GET_SERIALS = "/consumers/%s/certificates/serials";
@@ -113,6 +116,15 @@ public class KatelloSystem {
 		return cli.run();
 	}
 	
+	public SSHCommandResult rhsm_subscribe(String poolid){
+		String cmd = RHSM_SUBSCRIBE;
+		
+		if(poolid != null)
+			cmd += " --pool "+poolid;
+		
+		return KatelloUtils.sshOnClient(cmd);		
+	}
+
 	public SSHCommandResult api_info(String byId){
 		return new KatelloApi().get(String.format(API_CMD_INFO, byId));
 	}

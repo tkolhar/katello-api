@@ -23,10 +23,9 @@
 	</test>
 	
 	<test name="Longrun_Tests" preserve-order="true">
-		<classes>
-			<class name="com.redhat.qe.katello.tests.longrun.TdlExportFedora"/>
-			<class name="com.redhat.qe.katello.tests.longrun.TdlExportRhel"/>
-		</classes>
+		<packages>
+			<package name="com.redhat.qe.katello.tests.longrun"/>
+		</packages>
 	</test>
 	
 	<!-- Test group that could be run on SAM server(s) as well -->
@@ -84,6 +83,19 @@
 		<groups>
 			<run>
 				<include name="headpin-cli"/>
+			</run>
+		</groups>
+	</test>
+
+	<test name="Upgrade_Tests">
+		<packages>
+			<package name="com.redhat.qe.katello.tests.upgrade.v1"/>
+		</packages>
+		<groups preserve-order="true">
+			<run>
+				<include name="pre-upgrade"/>
+				<include name="upgrade"/>
+				<include name="post-upgrade"/>
 			</run>
 		</groups>
 	</test>
