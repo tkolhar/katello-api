@@ -113,12 +113,13 @@ public class PackagesWithGPGKey extends KatelloCliTestScript{
 		
 		KatelloOrg org = new KatelloOrg(this.org, null);
 		String poolID = KatelloTasks.grepCLIOutput("Id",org.subscriptions().getStdout());
+		String poolName = KatelloTasks.grepCLIOutput("Subscription",org.subscriptions().getStdout());
 		res = KatelloUtils.sshOnClient(String.format("subscription-manager subscribe --pool=%s",poolID));
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (rhsm subscribe)");
 		Assert.assertTrue(getOutput(res).startsWith("Successfully"), 
 				"Check - return message starts with word \"Successfully\" (rhsm subscribe)");
-		Assert.assertTrue(getOutput(res).contains(poolID), 
-				"Check - return message contains word \"Successfully\" (rhsm subscribe)");
+		Assert.assertTrue(getOutput(res).contains(poolName), 
+				"Check - return message contains pool name "+ poolName);
 	}
 	
 	@Test(description="Consume package installation, check gpgcheck flag", dependsOnMethods={"test_subscribeClient"}, enabled=true)
