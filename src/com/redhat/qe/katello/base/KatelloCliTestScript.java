@@ -106,6 +106,27 @@ implements KatelloConstants {
 		else
 			log.warning("Org subscriptions did not finished after: ["+String.valueOf(maxWaitSec - start)+"] sec");
 	}
+
+	protected void waitfor_reposync(KatelloRepo repo, String lastsynced, int timeoutMinutes) {
+		SSHCommandResult res;
+		long now = Calendar.getInstance().getTimeInMillis() / 1000;
+		long start = now;
+		long maxWaitSec = start + (timeoutMinutes * 60);
+		log.fine("Waiting repo sync finish for: minutes=["+timeoutMinutes+"]; " +
+				"org=["+repo.org+"]; product=["+repo.product+"]; repo=["+repo.name+"]");
+		while(now<maxWaitSec){
+			res = repo.info();
+			now = Calendar.getInstance().getTimeInMillis() / 1000;
+			String newsync = KatelloTasks.grepCLIOutput("Last Sync", getOutput(res).trim(),1);
+			if(!lastsynced.equals(newsync))
+				break;
+			try{Thread.sleep(60000);}catch (Exception e){}
+		}
+		if(now<=maxWaitSec)
+			log.fine("Repo sync done in: ["+String.valueOf((Calendar.getInstance().getTimeInMillis() / 1000) - start)+"] sec");
+		else
+			log.warning("Repo sync did not finished after: ["+String.valueOf(maxWaitSec - start)+"] sec");
+	}
 	
 	/**
 	 * Returns list of org names that have imported a manifest that has subscriptions for:<BR>
