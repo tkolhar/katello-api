@@ -26,6 +26,7 @@ public class KatelloSyncPlan {
 	
 	public KatelloSyncPlan(String name, String org, String description, String date, String time, SyncPlanInterval interval){
 		this.name = name;
+		this.org = org;
 		this.description = description;
 		this.date = date;
 		this.time = time;

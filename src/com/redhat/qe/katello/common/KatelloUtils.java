@@ -53,4 +53,23 @@ public class KatelloUtils {
 		}return null;
 	}
 	
+	public static SSHCommandResult stopKatello(){
+		String _cmd = 
+				"service katello-jobs stop; " +
+				"service katello stop; " +
+				"service pulp-server stop; " +
+				"service tomcat6 stop; " +
+				"service elasticsearch stop;";
+		return sshOnServer(_cmd);
+	}
+	
+	public static SSHCommandResult startKatello(){
+		String _cmd = 
+				"service elasticsearch start; " +
+				"service tomcat6 start; " +
+				"service pulp-server start; " +
+				"service katello start; " +
+				"service katello-jobs start;";
+		return sshOnServer(_cmd);
+	}
 }
