@@ -23,6 +23,7 @@ public class KatelloProduct {
 	public static final String CMD_SYNC = "product synchronize";
 	public static final String CMD_PROMOTE = "product promote";
 	public static final String CMD_DELETE = "product delete";
+	public static final String CMD_SET_PLAN = "product set_plan";
 	
 	/** Parameters:<BR>1: product_name<BR>2: org_name */
 	public static final String ERR_COULD_NOT_FIND_PRODUCT = 
@@ -115,6 +116,16 @@ public class KatelloProduct {
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		cli = new KatelloCli(CMD_STATUS, opts);
+		return cli.run();
+	}
+
+	
+	public SSHCommandResult cli_set_plan(String plan) {
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("plan", plan));
+		cli = new KatelloCli(CMD_SET_PLAN, opts);
 		return cli.run();
 	}
 	

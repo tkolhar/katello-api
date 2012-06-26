@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.logging.Logger;
 import org.testng.Assert;
+
+import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.common.KatelloConstants;
@@ -75,6 +77,48 @@ implements KatelloConstants {
 			res = repo.status();
 			now = Calendar.getInstance().getTimeInMillis() / 1000;
 			if(getOutput(res).replaceAll("\n", "").matches(REGEXP_STATUS_FINISHED))
+				break;
+			try{Thread.sleep(60000);}catch (Exception e){}
+		}
+		if(now<=maxWaitSec)
+			log.fine("Repo sync done in: ["+String.valueOf((Calendar.getInstance().getTimeInMillis() / 1000) - start)+"] sec");
+		else
+			log.warning("Repo sync did not finished after: ["+String.valueOf(maxWaitSec - start)+"] sec");
+	}
+	
+	protected void waitfor_orgsubscriptions(KatelloOrg org, int timeoutMinutes) {
+		SSHCommandResult res;
+		long now = Calendar.getInstance().getTimeInMillis() / 1000;
+		long start = now;
+		long maxWaitSec = start + (timeoutMinutes * 60);
+		String REGEXP_SUBSCR = ".*Subscription:\\s+.*";
+		log.fine("Waiting org subscriptions available for: minutes=["+timeoutMinutes+"]; " +
+				"org=["+org.name+"]");
+		while(now<maxWaitSec){
+			res = org.subscriptions();
+			now = Calendar.getInstance().getTimeInMillis() / 1000;
+			if(getOutput(res).replaceAll("\n", "").matches(REGEXP_SUBSCR))
+				break;
+			try{Thread.sleep(60000);}catch (Exception e){}
+		}
+		if(now<=maxWaitSec)
+			log.fine("Org subscriptions done in: ["+String.valueOf((Calendar.getInstance().getTimeInMillis() / 1000) - start)+"] sec");
+		else
+			log.warning("Org subscriptions did not finished after: ["+String.valueOf(maxWaitSec - start)+"] sec");
+	}
+
+	protected void waitfor_reposync(KatelloRepo repo, String lastsynced, int timeoutMinutes) {
+		SSHCommandResult res;
+		long now = Calendar.getInstance().getTimeInMillis() / 1000;
+		long start = now;
+		long maxWaitSec = start + (timeoutMinutes * 60);
+		log.fine("Waiting repo sync finish for: minutes=["+timeoutMinutes+"]; " +
+				"org=["+repo.org+"]; product=["+repo.product+"]; repo=["+repo.name+"]");
+		while(now<maxWaitSec){
+			res = repo.info();
+			now = Calendar.getInstance().getTimeInMillis() / 1000;
+			String newsync = KatelloTasks.grepCLIOutput("Last Sync", getOutput(res).trim(),1);
+			if(!lastsynced.equals(newsync))
 				break;
 			try{Thread.sleep(60000);}catch (Exception e){}
 		}
