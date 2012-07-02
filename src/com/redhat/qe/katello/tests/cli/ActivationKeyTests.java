@@ -160,53 +160,51 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 	
     @Test(description="add subscription to ak", groups = {"cli-activationkey"},enabled=true)
     public void test_update_addSubscription1(){
-            String uid = KatelloTestScript.getUniqueID();
-            String akName="ak-subscription-zoo3-"+uid;
-            String providerName = "Zoo3-"+uid;
-            String productName = "Zoo3 "+uid;
-            SSHCommandResult res;
+    	String uid = KatelloTestScript.getUniqueID();
+    	String akName="ak-subscription-zoo3-"+uid;
+    	String providerName = "Zoo3-"+uid;
+    	String productName = "Zoo3 "+uid;
+    	SSHCommandResult res;
 
-            KatelloActivationKey ak = new KatelloActivationKey(this.organization, this.env, akName, "Activation key with Zoo3 subscription", null);
-            res = ak.create();
-            Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key create)");
-            KatelloProvider prov = new KatelloProvider(providerName, this.organization, null, null);
-            prov.create();
-            KatelloProduct prod = new KatelloProduct(productName, this.organization, providerName, null, null, null, null, null);
-            res = prod.create();
-            Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
-            KatelloOrg org = new KatelloOrg(this.organization, null);
-            res = org.subscriptions();
+    	KatelloActivationKey ak = new KatelloActivationKey(this.organization, this.env, akName, "Activation key with Zoo3 subscription", null);
+    	res = ak.create();
+    	Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key create)");
+    	KatelloProvider prov = new KatelloProvider(providerName, this.organization, null, null);
+    	prov.create();
+    	KatelloProduct prod = new KatelloProduct(productName, this.organization, providerName, null, null, null, null, null);
+    	res = prod.create();
+    	Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
+    	KatelloOrg org = new KatelloOrg(this.organization, null);
+    	res = org.subscriptions();
     }
     
 	
     @Test(description="delete a activationkey", groups = {"headpin-cli"},enabled=true)
     public void test_delete_activation_key(){
-            String uid = KatelloTestScript.getUniqueID();
-            String akName="ak-delete_act_key-"+ uid; 
-            SSHCommandResult res;
-            KatelloActivationKey ak = new KatelloActivationKey(this.organization, this.env, akName, "Activation key created to test deletion", null);
-            res = ak.create();
-            Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key create)");
-            Assert.assertTrue(getOutput(res).contains(
-    				String.format(KatelloActivationKey.OUT_CREATE,akName)), 
-    				"Check - returned output string ("+KatelloActivationKey.CMD_CREATE+")");
-            res = ak.delete();
-            Assert.assertTrue(res.getExitCode().intValue() == 0,"Check - return code (activation_key delete)");
-            Assert.assertTrue(getOutput(res).contains(
-    				String.format(KatelloActivationKey.OUT_DELETE,akName)), 
-    				"Check - returned output string ("+KatelloActivationKey.CMD_DELETE+")");
-            res = ak.info();
-            Assert.assertTrue(res.getExitCode().intValue() == 65,"Check - return code (activation_key delete)");
-            Assert.assertTrue(getOutput(res).contains(
-    				String.format(KatelloActivationKey.ERROR_INFO,akName)), 
-    				"Check - returned output string ("+KatelloActivationKey.CMD_INFO+")");	
-            res = ak.list();
-            Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key list)");
-            
-    }    
+    	String uid = KatelloTestScript.getUniqueID();
+    	String akName="ak-delete_act_key-"+ uid; 
+    	SSHCommandResult res;
+    	KatelloActivationKey ak = new KatelloActivationKey(this.organization, this.env, akName, "Activation key created to test deletion", null);
+    	res = ak.create();
+    	Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key create)");
+    	Assert.assertTrue(getOutput(res).contains(
+    			String.format(KatelloActivationKey.OUT_CREATE,akName)), 
+    			"Check - returned output string ("+KatelloActivationKey.CMD_CREATE+")");
+    	res = ak.delete();
+    	Assert.assertTrue(res.getExitCode().intValue() == 0,"Check - return code (activation_key delete)");
+    	Assert.assertTrue(getOutput(res).contains(
+    			String.format(KatelloActivationKey.OUT_DELETE,akName)), 
+    			"Check - returned output string ("+KatelloActivationKey.CMD_DELETE+")");
+    	res = ak.info();
+    	Assert.assertTrue(res.getExitCode().intValue() == 65,"Check - return code (activation_key delete)");
+    	Assert.assertTrue(getOutput(res).contains(
+    			String.format(KatelloActivationKey.ERROR_INFO,akName)), 
+    			"Check - returned output string ("+KatelloActivationKey.CMD_INFO+")");	
+    	res = ak.list();
+    	Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key list)");
+    }
       
-    
-    
-    
-    
+    public void test_createWithLimit(){
+    	
+    }
 }

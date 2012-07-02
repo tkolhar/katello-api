@@ -17,6 +17,7 @@ public class KatelloActivationKey {
 	String name;
 	String description;
 	String template;
+	String limit;
 	
 	private KatelloCli cli;
 	private ArrayList<Attribute> opts;
@@ -38,14 +39,20 @@ public class KatelloActivationKey {
 	public static final String ERROR_INFO =
 			"Could not find activation key [ %s ]";
 	public KatelloActivationKey(String pOrg, String pEnv, String pName, String pDesc, String pTemplate){
+		this(pOrg,pEnv,pName,pDesc,pTemplate,null);
+		
+	}
+	
+	public KatelloActivationKey(String pOrg, String pEnv, String pName, String pDesc, String pTemplate, String pLimit){
 		this.org = pOrg;
 		this.environment = pEnv;
 		this.name = pName;
 		this.description = pDesc;
 		this.template = pTemplate;
+		this.limit = pLimit;
 		this.opts = new ArrayList<Attribute>();
 	}
-	
+		
 	public SSHCommandResult create(){
 		opts.clear();
 		opts.add(new Attribute("org", org));
@@ -53,6 +60,7 @@ public class KatelloActivationKey {
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("description", description));
 		opts.add(new Attribute("template", template));
+		opts.add(new Attribute("limit", limit));
 		cli = new KatelloCli(CMD_CREATE, opts);
 		return cli.run();
 	}
