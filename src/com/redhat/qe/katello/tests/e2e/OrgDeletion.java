@@ -118,13 +118,6 @@ public class OrgDeletion extends KatelloCliTestScript{
 		
 		exec_result = prov.synchronize();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		exec_result = prod.synchronize();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		exec_result = repo.synchronize();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		exec_result = KatelloUtils.sshOnClient(ls_cmd);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		return org;
 	}

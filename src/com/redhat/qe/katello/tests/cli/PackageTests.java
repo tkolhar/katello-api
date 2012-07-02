@@ -80,8 +80,6 @@ public class PackageTests extends KatelloCliTestScript {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		prov.synchronize();
-		prod.synchronize();
-		repo.synchronize();
 
 		cs.promote();
 	}
