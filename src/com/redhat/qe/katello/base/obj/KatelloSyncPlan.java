@@ -11,8 +11,16 @@ public class KatelloSyncPlan {
 	
 	// ** ** ** ** ** ** ** Public constants
 	public static final String CMD_CREATE = "sync_plan create";
+	public static final String CMD_INFO = "sync_plan info";
+	public static final String CMD_LIST = "sync_plan list";
+	public static final String CMD_UPDATE = "sync_plan update";
+	public static final String CMD_DELETE = "sync_plan delete";
 	
-
+	public static final String REG_SYNCPLAN_INFO = ".*Id:\\s+\\d+.*Name:\\s+%s.*Description:\\s+%s.*Start date:\\s+%s.*Interval:\\s+%s.*";
+	public static final String REG_SYNCPLAN_LIST = ".*\\s+\\d+.*\\s+%s.*\\s+%s.*\\s+%s.*\\s+%s.*";
+	public static final String ERR_NOT_FOUND = "Cannot find sync plan [ %s ]";
+	public static final String OUT_DELETE = "Successfully deleted sync plan [ %s ]";
+	
 	// ** ** ** ** ** ** ** Class members
 	public String name;
 	public String org;
@@ -46,7 +54,59 @@ public class KatelloSyncPlan {
 		cli = new KatelloCli(CMD_CREATE, opts);
 		return cli.run();
 	}
+	
+	public SSHCommandResult update_name(String newname){
+		opts.clear();
+		opts.add(new Attribute("new_name", newname));
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		cli = new KatelloCli(CMD_UPDATE, opts);
+		return cli.run();
+	}
 
+	public SSHCommandResult update_date(String newdate, String newtime){
+		opts.clear();
+		opts.add(new Attribute("date", newdate));
+		opts.add(new Attribute("time", newtime));
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		cli = new KatelloCli(CMD_UPDATE, opts);
+		return cli.run();
+	}
+	
+	
+	public SSHCommandResult update_interval(SyncPlanInterval newinterval){
+		opts.clear();
+		opts.add(new Attribute("interval", newinterval.toString()));
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		cli = new KatelloCli(CMD_UPDATE, opts);
+		return cli.run();
+	}
+	
+	public SSHCommandResult info(){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		cli = new KatelloCli(CMD_INFO, opts);
+		return cli.run();
+	}
+
+	public SSHCommandResult list(){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		cli = new KatelloCli(CMD_LIST, opts);
+		return cli.run();
+	}
+	
+	public SSHCommandResult delete(){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		cli = new KatelloCli(CMD_DELETE, opts);
+		return cli.run();
+	}
+	
 	// ** ** ** ** ** ** **
 	// ASSERTS
 	// ** ** ** ** ** ** **
