@@ -80,8 +80,6 @@ public class PackageGroupTests extends KatelloCliTestScript {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		prov.synchronize();
-		prod.synchronize();
-		repo.synchronize();
 
 		cs.promote();
 	}
@@ -100,6 +98,22 @@ public class PackageGroupTests extends KatelloCliTestScript {
 		Assert.assertTrue(getOutput(exec_result).contains("mammals"));
 		Assert.assertTrue(getOutput(exec_result).contains("birds"));
 		
+		packGr.id = "birds";
+		packGr.name = "birds";
+		assert_packageGroupInfo(packGr, repo_id);
+		
+		packGr.id = "mammals";
+		packGr.name = "mammals";
+		assert_packageGroupInfo(packGr, repo_id);
+	}
+	
+	private void assert_packageGroupInfo(KatelloPackageGroup pack, String repoId){
+		SSHCommandResult res;
+		res = pack.cli_info(repoId);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		Assert.assertTrue(getOutput(res).contains(pack.id), "Check - package group Id should exist in list result");		
+		Assert.assertTrue(getOutput(res).contains(pack.name), "Check - package group name should exist in list result");
 	}
 
 }
