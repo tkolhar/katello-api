@@ -19,6 +19,8 @@ public class ProductTests  extends KatelloCliTestScript{
 
 	private String org_name;
 	private String prov_name;
+	private String org_name2;
+	private String prov_name2;
 	
 	@BeforeClass(description="Prepare an org to work with", groups = {"cli-product"}, alwaysRun=false)
 	public void setup_org(){
@@ -30,6 +32,16 @@ public class ProductTests  extends KatelloCliTestScript{
 		res = org.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (org create)");
 		KatelloProvider prov = new KatelloProvider(this.prov_name, this.org_name, null, null);
+		res = prov.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (provider create)");
+		
+		uid = KatelloTestScript.getUniqueID();
+		this.org_name2 = "org"+uid;
+		this.prov_name2 = "prov"+uid;
+		org = new KatelloOrg(this.org_name2, null);
+		res = org.cli_create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (org create)");
+		prov = new KatelloProvider(this.prov_name2, this.org_name2, null, null);
 		res = prov.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (provider create)");
 	}
@@ -135,8 +147,44 @@ public class ProductTests  extends KatelloCliTestScript{
 		}
 	}
 	
-
-	// TODO - product creation failflows + the cases with "Description" variations. + duplicate names and so
+	@Test(description="create product by existing name", groups = {"cli-products"}, enabled=true)
+	public void test_createProduct_exists(){
+		String uid = KatelloTestScript.getUniqueID();
+		String prodName = "existing-"+uid;
+		SSHCommandResult res;
+		
+		// create product
+		KatelloProduct prod = new KatelloProduct(prodName, this.org_name, this.prov_name, null, null, PULP_F15_REPO, null, true);
+		res = prod.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
+		
+		// try to create product second time by the same name
+		res = prod.create();
+		Assert.assertTrue(res.getExitCode().intValue() == 144, "Check - return code (product create)");
+		Assert.assertEquals(getOutput(res).trim(), "Validation failed: Products within an organization must have unique name.");
+		
+	}
+	
+	@Test(description="create product by the same name which is in other org", groups = {"cli-products"}, enabled=true)
+	public void test_createProduct_sameName(){
+		String uid = KatelloTestScript.getUniqueID();
+		String prodName = "existing-"+uid;
+		SSHCommandResult res;
+		
+		// create product
+		KatelloProduct prod = new KatelloProduct(prodName, this.org_name, this.prov_name, null, null, PULP_F15_REPO, null, true);
+		res = prod.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
+		
+		// try to create product second time by the same name but for different org, it should work
+		prod = new KatelloProduct(prodName, this.org_name2, this.prov_name2, null, null, PULP_F15_REPO, null, true);
+		res = prod.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
+		Assert.assertTrue(getOutput(res).contains(String.format(KatelloProduct.OUT_CREATED,prodName)), "Check - returned output string (product create)");		
+		prod.assert_productExists(null,false);
+	}
+	
+	// TODO - product creation failflows + the cases with "Description" variations.
 	
 	// TODO - `product list --provider`
 	
@@ -336,9 +384,6 @@ public class ProductTests  extends KatelloCliTestScript{
 			}
 		}
 	}
-	
-	// TODO - implement: https://bugzilla.redhat.com/show_bug.cgi?id=749517
-	// Duplicate product names - creating same product name for different orgs (even provider could have the same name)
 	
 	@Test(description="delete product - included in some changeset", groups = {"cli-products"}, enabled=true)
 	public void test_deleteProduct_InChangeset(){
