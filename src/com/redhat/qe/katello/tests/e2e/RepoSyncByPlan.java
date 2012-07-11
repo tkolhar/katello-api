@@ -54,7 +54,7 @@ public class RepoSyncByPlan extends KatelloCliTestScript{
 		
 		prod.cli_set_plan(sp.name);
 		
-		DateFormat tformat = new SimpleDateFormat("hh:mm:ss");		
+		DateFormat tformat = new SimpleDateFormat("HH:mm:ss");		
 		Calendar cal = Calendar.getInstance();
 		cal.add(Calendar.MINUTE, 59);
 		
@@ -91,7 +91,7 @@ public class RepoSyncByPlan extends KatelloCliTestScript{
 		
 		prod.cli_set_plan(sp.name);
 		
-		DateFormat tformat = new SimpleDateFormat("hh:mm:ss");		
+		DateFormat tformat = new SimpleDateFormat("HH:mm:ss");		
 		Calendar cal = Calendar.getInstance();
 		cal.add(Calendar.MINUTE, 59);
 		
@@ -136,7 +136,7 @@ public class RepoSyncByPlan extends KatelloCliTestScript{
 		String spName = "splan" + uid;
 		
 		DateFormat dformat = new SimpleDateFormat("yyyy-MM-dd");
-		DateFormat tformat = new SimpleDateFormat("hh:mm:ss");
+		DateFormat tformat = new SimpleDateFormat("HH:mm:ss");
 
 		KatelloSyncPlan sp = new KatelloSyncPlan(spName, org_name, null, dformat.format(date), tformat.format(date), interval);
 		exec_result = sp.create();
