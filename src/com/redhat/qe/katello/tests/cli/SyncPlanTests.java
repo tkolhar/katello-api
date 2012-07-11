@@ -69,7 +69,7 @@ public class SyncPlanTests extends KatelloCliTestScript {
 		String uid = KatelloTestScript.getUniqueID();
 		syncplan_name = "splan" + uid;
 		
-		DateFormat tformat = new SimpleDateFormat("hh:mm:ss");
+		DateFormat tformat = new SimpleDateFormat("HH:mm:ss");
 
 		KatelloSyncPlan sp = new KatelloSyncPlan(syncplan_name, org_name, null, "2012-11", tformat.format(new Date()), SyncPlanInterval.hourly);
 		exec_result = sp.create();
@@ -117,7 +117,7 @@ public class SyncPlanTests extends KatelloCliTestScript {
 		KatelloSyncPlan sp = createSyncPlan(new Date(), SyncPlanInterval.hourly);
 		
 		DateFormat dformat = new SimpleDateFormat("yyyy-MM-dd");
-		DateFormat tformat = new SimpleDateFormat("hh:mm:ss");
+		DateFormat tformat = new SimpleDateFormat("HH:mm:ss");
 		
 		Calendar cal = Calendar.getInstance();
 		cal.add(Calendar.MONTH, 1);
@@ -153,7 +153,7 @@ public class SyncPlanTests extends KatelloCliTestScript {
 		syncplan_name = "splan" + uid;
 		
 		DateFormat dformat = new SimpleDateFormat("yyyy-MM-dd");
-		DateFormat tformat = new SimpleDateFormat("hh:mm:ss");
+		DateFormat tformat = new SimpleDateFormat("HH:mm:ss");
 
 		KatelloSyncPlan sp = new KatelloSyncPlan(syncplan_name, org_name, null, dformat.format(date), tformat.format(date), interval);
 		exec_result = sp.create();
