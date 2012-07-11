@@ -164,11 +164,11 @@ public class KatelloCliDataProvider {
 		String uid = KatelloTestScript.getUniqueID();
 		return new Object[][] {
 				// name
-				{ "user_role-aa", null, new Integer(0), "Successfully created user role [ user_role-aa ]"},
-				{ "user_role-11", null, new Integer(0), "Successfully created user role [ user_role-11 ]"},
-				{ "user_role-1a", null, new Integer(0), "Successfully created user role [ user_role-1a ]"},
-				{ "user_role-a1", null, new Integer(0), "Successfully created user role [ user_role-a1 ]"},
-				{ strRepeat("0123456789", 12)+"abcdefgh", null, new Integer(0), "Successfully created user role [ "+strRepeat("0123456789", 12)+"abcdefgh"+" ]"},
+				{ uid+"-aa", null, new Integer(0), "Successfully created user role [ "+uid+"-aa ]"},
+				{ uid+"-11", null, new Integer(0), "Successfully created user role [ "+uid+"-11 ]"},
+				{ uid+"-1a", null, new Integer(0), "Successfully created user role [ "+uid+"-1a ]"},
+				{ uid+"-a1", null, new Integer(0), "Successfully created user role [ "+uid+"-a1 ]"},
+				{ uid+strRepeat("0123456789", 11)+"abcdefgh", null, new Integer(0), "Successfully created user role [ "+uid+strRepeat("0123456789", 11)+"abcdefgh"+" ]"},
 				{ "user_role-"+uid, null, new Integer(0), "Successfully created user role [ user_role-"+uid+" ]"},
 				{ "user_role "+uid, "Provider with space in name", new Integer(0), "Successfully created user role [ user_role "+uid+" ]"},
 				{ " ", null, new Integer(144), "Name can't be blank"},
