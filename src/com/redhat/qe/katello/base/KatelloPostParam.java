@@ -1,15 +1,15 @@
 package com.redhat.qe.katello.base;
 
-import java.util.ArrayList;
+import java.util.List;
 
-import javax.management.Attribute;
+import org.apache.http.NameValuePair;
 
 public class KatelloPostParam {
 
 	public String name;
-	public ArrayList<Attribute> properties;
+	public List<NameValuePair> properties;
 	
-	public KatelloPostParam(String name, ArrayList<Attribute> properties){
+	public KatelloPostParam(String name, List<NameValuePair> properties){
 		this.name = name;
 		this.properties = properties;
 	}
@@ -22,7 +22,7 @@ public class KatelloPostParam {
 		else
 			_ret = "%s";
 		String content="";
-		for(Attribute option: properties){
+		for(NameValuePair option: properties){
 			if(option.getValue() != null)
 				content = String.format("%s'%s':'%s',", content,option.getName(),option.getValue());
 		}

@@ -13,16 +13,16 @@ repositories.remote << "http://mvnrepository.com/artifact/"
 repositories.remote << "http://download.java.net/maven/2/"
 # repositories.remote << "http://repository.jboss.org/maven2/" # for testng-5.9-jdk15.jar
 
-WEBUI_FRAMEWORK = ['webui-framework:webui-framework:jar:1.0.2-SNAPSHOT'] # <--- (v1.0.2) works with (testng v6.0)
+REDHATQE = ['com.redhat.qe:assertions:jar:1.0.2']
 SIMPLE_JSON = ['com.googlecode.json-simple:json-simple:jar:1.1']
-TESTNG = ['org.testng:testng:jar:6.0','com.beust:jcommander:jar:1.13','com.mycila.com.google.inject:guice:jar:3.0-20100907','javax.inject:javax.inject:jar:1','bsh:bsh:jar:1.3.0','org.uncommons:reportng:jar:1.1.2','velocity:velocity:jar:1.4','commons-collections:commons-collections:jar:3.2','logkit:logkit:jar:1.0.1']
+TESTNG = ['com.redhat.qe:logging-testscript:jar:1.0.2','org.testng:testng:jar:6.0','com.beust:jcommander:jar:1.13','com.mycila.com.google.inject:guice:jar:3.0-20100907','javax.inject:javax.inject:jar:1','bsh:bsh:jar:1.3.0','org.uncommons:reportng:jar:1.1.2','velocity:velocity:jar:1.4','commons-collections:commons-collections:jar:3.2','logkit:logkit:jar:1.0.1']
 SELENIUM = ['org.seleniumhq.selenium.client-drivers:selenium-java-client-driver:jar:1.0.2']
-SSH2 = ['com.trilead:trilead-ssh2:jar:build213-svnkit-1.3-patch']
+SSH2 = ['com.redhat.qe:ssh-tools:jar:1.0.0','com.trilead:trilead-ssh2:jar:build213-svnkit-1.3-patch']
 
 TESTNG_XML = 'testng-suites/katello-tests.xml'
 JAVAC_SRC = 'src' # location of java source files
 JAVAC_CLASSES = 'classes' # compiled class files location
-CP_ALL = [ WEBUI_FRAMEWORK, TESTNG, SIMPLE_JSON, SELENIUM, SSH2 ]
+CP_ALL = [ REDHATQE, TESTNG, SIMPLE_JSON, SELENIUM, SSH2 ]
 TESTNG_RUN_LIST = ENV['KATELLO_API_TESTNAMES']
 
 Project.local_task :update_katello

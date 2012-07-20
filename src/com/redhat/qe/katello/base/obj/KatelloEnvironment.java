@@ -1,10 +1,16 @@
 package com.redhat.qe.katello.base.obj;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
+
 import javax.management.Attribute;
+
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+
 import com.redhat.qe.katello.base.KatelloApi;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloPostParam;
@@ -99,19 +105,17 @@ public class KatelloEnvironment {
 		return cli.run();
 	}
 	 
-	public SSHCommandResult api_list(){
-		KatelloApi api = new KatelloApi();
-		return api.get(String.format(API_CMD_LIST, this.org));
+	public String api_list(){
+		return KatelloApi.get(String.format(API_CMD_LIST, this.org));
 	}
 	
-	public SSHCommandResult api_create(){
-		KatelloApi api = new KatelloApi();
-		opts.clear();
-		opts.add(new Attribute("name", name));
-		opts.add(new Attribute("description", description));
-		opts.add(new Attribute("prior", get_prior_id()));
+	public String api_create(){
+	    List<NameValuePair> opts = new ArrayList<NameValuePair>();
+	    opts.add(new BasicNameValuePair("name", name));
+		opts.add(new BasicNameValuePair("description", description));
+		opts.add(new BasicNameValuePair("prior", get_prior_id()));
 		KatelloPostParam[] params = {new KatelloPostParam("environment", opts)};
-		return api.post(params, String.format(API_CMD_CREATE,org));
+		return KatelloApi.post(params, String.format(API_CMD_CREATE,org));
 	}
 	
 	public String get_prior_id(){
@@ -128,7 +132,7 @@ public class KatelloEnvironment {
 	 */
 	private void store_id(){
 		if(prior_id==null){
-			String str_envs = api_list().getStdout();
+			String str_envs = api_list();
 			JSONArray json_envs = KatelloTestScript.toJSONArr(str_envs);
 			for(int i=0;i<json_envs.size();i++){
 				JSONObject json_env = (JSONObject)json_envs.get(i);

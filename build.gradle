@@ -12,11 +12,11 @@ allprojects {
    
    sourceSets {
        main {
-           groovy {
+           java {
                srcDirs "src"
            }
-           resources {
-               srcDirs "src", "scripts"
+           groovy {
+               srcDirs "src"
            }
        }
        test {
@@ -40,10 +40,10 @@ configurations {
 
 eclipse {
     classpath {
-        defaultOutputDir = file('build')
+        ext.defaultOutputDir = file('build')
     }
     project {
-        defaultOutputDir = file('build')
+        ext.defaultOutputDir = file('build')
     }
     project {
         file {
@@ -84,6 +84,14 @@ dependencies {
     testCompile 'org.testng:testng:6.7','xmlunit:xmlunit:1.0'
     testRuntime 'org.slf4j:slf4j-jdk14:1.6.4'
     compile group: 'com.google.inject', name: 'guice', version: '3.0'
+
+    testCompile('org.uncommons:reportng:1.1.2') {
+        exclude group: 'org.testng', module: 'testng'
+    }
+    testRuntime 'org.slf4j:slf4j-jdk14:1.6.4',
+                'com.redhat.qe:tcms-testng:1.0.1',
+                'com.redhat.qe:jul.test.records:1.0.1',
+                'com.redhat.qe:testng-listeners:1.0.0'
     compile 'org.testng:testng:6.7',
             'com.redhat.qe:assertions:1.0.2',
             'com.redhat.qe:logging-testscript:1.0.2',
@@ -91,7 +99,12 @@ dependencies {
             'com.redhat.qe:testng-listeners:1.0.0',
             'reportng:reportng:1.1.3',
             'velocity-dep:velocity-dep:1.4',
-            'json_simple:json_simple:1.1'
+            'com.trilead:trilead-ssh2:build213-svnkit-1.3-patch',
+            'com.googlecode.json-simple:json-simple:1.1',
+            'org.apache.httpcomponents:fluent-hc:4.2.1'
+//    compile("org.codehaus.groovy.modules.http-builder:http-builder:${httpBuilderVersion}") {
+//        exclude group: 'org.codehaus.groovy', module: 'groovy'
+//    }
     groovy 'org.codehaus.groovy:groovy:1.8.6'
     testng 'org.testng:testng:6.7'
 }
@@ -107,6 +120,47 @@ task printProps << {
 def TESTNG_KATELLO_DEFAULT_TESTS = "Smoke_Tests,CLI_Tests,E2E_Tests"
 def TESTNG_KATELLO_SUITE = "testng-suites/katello-tests.xml"
 def TESTNG_KATELLO_EXCLUDE_GROUPS = "openldap"
+task runTestng(dependsOn: 'testClasses') << {
+    // Defaults to $WORKSPACE, or if that's null, cwd
+    def workspace = System.getProperty("workspace.dir", System.getenv("WORKSPACE") ?: System.properties["user.dir"])
+    def testngProjectDir = System.getProperty("testng.project.dir", "automatjon/jon")
+    def automationDir = "${workspace}/${testngProjectDir}"
+    System.properties["automation.dir"] = automationDir.toString()
+    def outputDir = System.getProperty("testng.outputdir", "${automationDir}/test-output")
+    def xmlSuite = System.properties["testng.suites"]
+    ant.taskdef( resource: 'testngtasks', classpath: configurations.testng.asPath )
+    ant.testng( classpath: sourceSets.test.runtimeClasspath.asPath, outputdir: outputDir) {
+        xmlfileset(dir: 'testng-suites', includes: "**/${xmlSuite}")
+    }
+}
+
+tasks.addRule("Pattern: suite<SuiteName>: Runs a test suite via xml in classpath") { String taskName ->
+    final String prefix = "suite"
+    if ( taskName.startsWith(prefix) && taskName.length() > prefix.length() ) {
+        logger.info("SuiteExecution: $taskName matches pattern")
+
+        // create a dummy task for the task name specified on the command line
+        Task dummyTask = task(taskName)
+
+        // remove prefix from the specified task name
+        def suiteName = taskName - prefix
+        // define an include that supports the specified naming pattern, inc. camel-case notation
+        def camelCaseTaskName = suiteName[0] + suiteName.substring(1).collect() { it == it.toUpperCase() ? "*$it" : it }.joi
+        def suiteIncludes = WrapUtil.toSet(String.format("**/%s.xml", camelCaseTaskName))
+        def suiteFiles = fileTree(dir: 'src', includes: suiteIncludes )
+        suiteFiles.each { File file ->
+                logger.info("SuiteExecution: suiteFile: ${file}")
+        }
+
+        // make all Test tasks a dependency of the dummy task and reset the includes
+        tasks.withType(Test) { Task suiteTask ->
+            logger.info("SuiteExecution: apply include pattern to Suite task <$suiteTask.name>")
+            suiteTask.useTestNG()
+            suiteTask.options.suites(suiteFiles.asType(File[]))
+            dummyTask.dependsOn suiteTask
+        }
+    }
+}
 
 task run_katello(dependsOn: 'testClasses') << {
   javaexec {

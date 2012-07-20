@@ -53,7 +53,7 @@ public class ProvidersTest extends KatelloTestScript {
 		Assert.assertEquals(json_prov.get("provider_type"), 
 				"Custom",
 				"Katello - Check provider: provider_type");
-		JSONObject json_org = KatelloTestScript.toJSONObj(new KatelloOrg(org_name, null).api_info().getStdout());
+		JSONObject json_org = KatelloTestScript.toJSONObj(new KatelloOrg(org_name, null).api_info());
 		Assert.assertEquals(json_prov.get("organization_id"), 
 				json_org.get("id"),
 				"Katello - Check provider: organization_id");
@@ -127,7 +127,7 @@ public class ProvidersTest extends KatelloTestScript {
 	@Test (groups={"testProviders"}, description="List all providers", dependsOnMethods="test_updateProvider")
 	public void test_listProviders(){
 		// Get providers json string
-		String s_json_provs = new KatelloProvider(null, org_name, null, null).api_list(org_name).getStdout();
+		String s_json_provs = new KatelloProvider(null, org_name, null, null).api_list(org_name);
 		JSONArray arr_provs = KatelloTestScript.toJSONArr(s_json_provs) ;
 		Assert.assertMore(arr_provs.size(), 0, "Check: providers count >0");
 		JSONObject json_prov;

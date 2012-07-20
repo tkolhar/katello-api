@@ -52,8 +52,8 @@ public class ConsumerAccess extends KatelloCliTestScript{
 
 		KatelloUser user = new KatelloUser(user_name, KatelloUser.DEFAULT_USER_EMAIL, 
 				KatelloUser.DEFAULT_USER_PASS, false);
-		exec_result = user.api_create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		String api_result = user.api_create();
+		Assert.assertTrue(api_result != null, "Check - return string not null");
 	}
 	
 	/**
