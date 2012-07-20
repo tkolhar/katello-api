@@ -1,0 +1,215 @@
+apply plugin: 'eclipse'
+apply plugin: 'java'
+apply plugin: 'groovy'
+apply plugin: 'maven'
+
+group = 'com.redhat.qe'
+version = '2.0.0'
+
+allprojects {
+   sourceCompatibility = 1.6
+   targetCompatibility = 1.6
+   
+   sourceSets {
+       main {
+           groovy {
+               srcDirs "src"
+           }
+           resources {
+               srcDirs "src", "scripts"
+           }
+       }
+       test {
+           java {
+               srcDirs "src"
+           }
+           groovy {
+               srcDirs "src"
+           }
+       }
+   }
+        
+   compileGroovy.groovyOptions.fork = false
+   compileTestGroovy.groovyOptions.fork = false
+}
+
+
+configurations {
+    testng
+}
+
+eclipse {
+    classpath {
+        defaultOutputDir = file('build')
+    }
+    project {
+        defaultOutputDir = file('build')
+    }
+    project {
+        file {
+            whenMerged { project ->
+                if ( !project.buildCommands[0].name.contains('PyDev') ) {
+                    project.buildCommands = project.buildCommands.reverse()
+                }
+            }
+        }
+
+        natures 'org.python.pydev.pythonNature'
+        buildCommand 'org.python.pydev.PyDevBuilder'
+    }
+}
+
+repositories {
+    mavenCentral()
+    [ 'https://repository.jboss.org/nexus/content/repositories/thirdparty-uploads',
+      'http://clojars.org/repo',
+      'http://www.ibilio.org/maven2/',
+      'http://mvnrepository.com/artifact/',
+      'http://download.java.net/maven/2/',
+      'http://repository.codehaus.org',
+      'http://snapshots.repository.codehaus.org' ].each { repo ->
+        maven {
+            url repo
+        }
+    }
+}
+
+dependencies {
+    def httpBuilderVersion = '0.5.2'
+    if ( System.properties['httpbuilder.version'] ) {
+        httpBuilderVersion = System.properties['httpbuilder.version']
+    }
+
+    testCompile 'org.testng:testng:6.0.1',
+                'org.uncommons:reportng:1.1.2',
+                'xmlunit:xmlunit:1.0'
+    //testRuntime 'org.slf4j:slf4j-log4j12:1.6.4'
+    testRuntime 'org.slf4j:slf4j-jdk14:1.6.4'
+    compile 'org.testng:testng:6.0.1',
+            'com.redhat.qe:assertions:1.0.2',
+            'com.redhat.qe:logging-testscript:1.0.2',
+            'com.redhat.qe:ssh-tools:1.0.0',
+            'com.trilead:trilead-ssh2:build213-svnkit-1.3-patch',
+            'com.googlecode.json-simple:json-simple:1.1'
+//            'org.seleniumhq.selenium.client-drivers:selenium-java-client-driver:1.0.2',
+//            'com.beust:jcommander:1.13',
+//            'com.mycila.com.google.inject:guice:3.0-20100907',
+//            'javax.inject:javax.inject:1',
+//            'bsh:bsh:1.3.0',
+//            'velocity:velocity:1.4',
+//            'commons-collections:commons-collections:3.2',
+//            'logkit:logkit:1.0.1'
+//    compile("org.codehaus.groovy.modules.http-builder:http-builder:${httpBuilderVersion}") {
+//        exclude group: 'org.codehaus.groovy', module: 'groovy'
+//    }
+    groovy 'org.codehaus.groovy:groovy:1.8.6'
+    testng 'org.testng:testng:6.0.1'
+}
+
+task printClasspath << {
+    println configurations.runtime.asPath
+}
+
+test {
+    useTestNG()
+    systemProperties = System.properties
+    if ( systemProperties['testng.suites'] ) {
+        options.suites(systemProperties['testng.suites'])
+    }
+    options {
+        // listeners << 'com.redhat.qe.auto.bugzilla.BugzillaTestNGListener'
+        listeners << 'org.uncommons.reportng.HTMLReporter'
+        listeners << 'org.uncommons.reportng.JUnitXMLReporter'
+        listeners << 'com.redhat.qe.auto.testng.TestNGListener'
+    }
+    scanForTestClasses = false
+    if ( systemProperties['ignore.failures'] ) {
+        ignoreFailures = systemProperties['ignore.failures']
+    }
+    testLogging.showStandardStreams = true
+}
+
+task printProps << {
+    println System.properties
+}
+
+task runTestng(dependsOn: 'testClasses') << {
+    // Defaults to $WORKSPACE, or if that's null, cwd
+    def workspace = System.getProperty("workspace.dir", System.getenv("WORKSPACE") ?: System.properties["user.dir"])
+    def testngProjectDir = System.getProperty("testng.project.dir", "automatjon/jon")
+    def automationDir = "${workspace}/${testngProjectDir}"
+    System.properties["automation.dir"] = automationDir.toString()
+    def outputDir = System.getProperty("testng.outputdir", "${automationDir}/test-output")
+    def xmlSuite = System.properties["testng.suites"]
+    ant.taskdef( resource: 'testngtasks', classpath: configurations.testng.asPath )
+    ant.testng( classpath: sourceSets.test.runtimeClasspath.asPath, outputdir: outputDir) {
+        xmlfileset(dir: 'src', includes: "**/${xmlSuite}")
+    }
+}
+
+tasks.addRule("Pattern: suite<SuiteName>: Runs a test suite via xml in classpath") { String taskName ->
+    final String prefix = "suite"
+    if ( taskName.startsWith(prefix) && taskName.length() > prefix.length() ) {
+        logger.info("SuiteExecution: $taskName matches pattern")
+
+        // create a dummy task for the task name specified on the command line
+        Task dummyTask = task(taskName)
+
+        // remove prefix from the specified task name
+        def suiteName = taskName - prefix
+        // define an include that supports the specified naming pattern, inc. camel-case notation
+        def camelCaseTaskName = suiteName[0] + suiteName.substring(1).collect() { it == it.toUpperCase() ? "*$it" : it }.joi
+        def suiteIncludes = WrapUtil.toSet(String.format("**/%s.xml", camelCaseTaskName))
+        def suiteFiles = fileTree(dir: 'src', includes: suiteIncludes )
+        suiteFiles.each { File file ->
+                logger.info("SuiteExecution: suiteFile: ${file}")
+        }
+
+        // make all Test tasks a dependency of the dummy task and reset the includes
+        tasks.withType(Test) { Task suiteTask ->
+            logger.info("SuiteExecution: apply include pattern to Suite task <$suiteTask.name>")
+            suiteTask.useTestNG()
+            suiteTask.options.suites(suiteFiles.asType(File[]))
+            dummyTask.dependsOn suiteTask
+        }
+    }
+}
+
+jar {
+}
+
+task writeNewPom << {
+    pom.writeTo("$buildDir/newpom.xml")
+}
+
+//TESTNG_XML = 'testng-suites/katello-tests.xml'
+//JAVAC_SRC = 'src' # location of java source files
+//JAVAC_CLASSES = 'classes' # compiled class files location
+//CP_ALL = [ REDHATQE, TESTNG, SIMPLE_JSON, SELENIUM, SSH2 ]
+//TESTNG_RUN_LIST = ENV['KATELLO_API_TESTNAMES']
+//
+//Project.local_task :update_katello
+//Project.local_task :install_katello
+//Project.local_task :db_cleanup_katello
+//Project.local_task :beaker_reservesys_new
+//
+//desc "The Katello-api project"
+//define "katello-api" do
+//  project.version = VERSION_NUMBER
+//  project.group = GROUP
+//  manifest["Implementation-Vendor"] = COPYRIGHT
+//  
+//  task(:testng) do
+//     cmd_args = ['-testnames',TESTNG_RUN_LIST,'-listener','com.redhat.qe.auto.testng.TestNGListener,org.uncommons.reportng.HTMLReporter,org.uncommons.reportng.JUnitXMLReporter,org.testng.reporters.XMLReporter','-configfailurepolicy','continue','-parallel','classes','-threadcount','2']
+//     Java::Commands.java "org.testng.TestNG", TESTNG_XML, cmd_args,
+//     :classpath => [ CP_ALL, JAVAC_CLASSES ]
+//  end
+//  task :test => :testng
+// 
+//  compile.using(:javac)
+//  compile.from(JAVAC_SRC)
+//  compile.into(JAVAC_CLASSES)
+//#  compile.with transitive(SIMPLE_JSON, WEBUI_FRAMEWORK, SELENIUM, SSH2) # <--- transitive resolves the deps in the m2 jars themselves
+//  compile.with(CP_ALL)
+//end
+

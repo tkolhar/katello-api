@@ -10,3 +10,8 @@ scripts/*.pyc
 .pydevproject
 *private.sh
 githash
+.classpath
+.project
+.settings
+.gradle
+build
