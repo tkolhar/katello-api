@@ -132,11 +132,11 @@ public class KatelloSystem {
 		return KatelloUtils.sshOnClient(cmd);		
 	}
 	
-	public SSHCommandResult api_info(String byId){
-		return new KatelloApi().get(String.format(API_CMD_INFO, byId));
+	public String api_info(String byId){
+		return KatelloApi.get(String.format(API_CMD_INFO, byId));
 	}
 	
-	public SSHCommandResult api_getSerials(String customerid){
-		return new KatelloApi().get(String.format(API_CMD_GET_SERIALS, customerid));
+	public String api_getSerials(String customerid){
+		return KatelloApi.get(String.format(API_CMD_GET_SERIALS, customerid));
 	}
 }

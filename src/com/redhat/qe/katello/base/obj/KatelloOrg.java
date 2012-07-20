@@ -1,7 +1,13 @@
 package com.redhat.qe.katello.base.obj;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Logger;
+
 import javax.management.Attribute;
+
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 
 import com.redhat.qe.katello.base.KatelloApi;
 import com.redhat.qe.katello.base.KatelloCli;
@@ -9,7 +15,8 @@ import com.redhat.qe.katello.base.KatelloPostParam;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class KatelloOrg {
-	
+    protected static Logger log = Logger.getLogger(KatelloOrg.class.getName());
+
 	// ** ** ** ** ** ** ** Public constants
 	public static final String DEFAULT_ORG = "ACME_Corporation";
 	
@@ -61,13 +68,11 @@ public class KatelloOrg {
 		cli = new KatelloCli(CLI_CMD_CREATE, opts);
 		return cli.run();
 	}
-	public SSHCommandResult api_create(){		
-		opts.clear();
-		opts.add(new Attribute("name", this.name));
-		opts.add(new Attribute("description", this.description));
-		KatelloApi api = new KatelloApi();
-		KatelloPostParam[] params = {new KatelloPostParam(null, opts)};
-		return api.post(params,API_CMD_CREATE);
+	public String api_create(){		
+	    List<NameValuePair> params = new ArrayList<NameValuePair>();
+	    params.add(new BasicNameValuePair("name", this.name));
+		params.add(new BasicNameValuePair("description", this.description));
+		return KatelloApi.post(params,API_CMD_CREATE);
 	}
 	
 	public SSHCommandResult cli_info(){
@@ -76,8 +81,8 @@ public class KatelloOrg {
 		cli = new KatelloCli(CLI_CMD_INFO, opts);
 		return cli.run();
 	}
-	public SSHCommandResult api_info(){
-		return new KatelloApi().get(String.format(API_CMD_INFO,this.name));
+	public String api_info(){
+		return KatelloApi.get(String.format(API_CMD_INFO,this.name));
 	}
 	
 	public SSHCommandResult cli_list(){
@@ -86,8 +91,8 @@ public class KatelloOrg {
 		return cli.run();
 	}
 		
-	public SSHCommandResult api_list(){
-		return new KatelloApi().get(API_CMD_LIST);
+	public String api_list(){
+		return KatelloApi.get(API_CMD_LIST);
 	}
 
 	public SSHCommandResult subscriptions(){

@@ -32,9 +32,9 @@ public class EnvironmentsTest extends KatelloTestScript{
 	public void test_existsDefaultRoot(){
 		JSONObject tmpEnv;
 		KatelloEnvironment env = new KatelloEnvironment(null, null, org_name, null);
-		JSONArray json = toJSONArr(env.api_list().getStdout());
+		JSONArray json = toJSONArr(env.api_list());
 		log.finer("Returned JSON for getEnvironments(): "+json.toJSONString());
-		JSONObject json_org = KatelloTestScript.toJSONObj(new KatelloOrg(org_name, null).api_info().getStdout());
+		JSONObject json_org = KatelloTestScript.toJSONObj(new KatelloOrg(org_name, null).api_info());
 		log.finer("Returned JSON for getOrganization(): "+json_org.toJSONString());
 		JSONObject json_root = null;
 		for(int i=0;i<json.size();i++){
@@ -51,7 +51,7 @@ public class EnvironmentsTest extends KatelloTestScript{
 	
 	@Test (groups={"testEnvs"}, description="List environments should be greater than 0")
 	public void test_showEnvironments(){
-		JSONArray json_envs = toJSONArr(new KatelloEnvironment(null, null, org_name, null).api_list().getStdout());
+		JSONArray json_envs = toJSONArr(new KatelloEnvironment(null, null, org_name, null).api_list());
 		log.finer(String.format("Returned environments count is: [%s]",json_envs.size()));
 		Assert.assertMore(json_envs.size(), 0, "Should return environments >0");
 	}
@@ -71,7 +71,7 @@ public class EnvironmentsTest extends KatelloTestScript{
 	public void test_listEnvironment(){
         JSONObject json_env = servertasks.getEnvironment(this.org_name, this.env_name);
         Assert.assertEquals(this.env_name, json_env.get("name"),"Check: name");
-        JSONObject json_org = KatelloTestScript.toJSONObj(new KatelloOrg(org_name, null).api_info().getStdout());
+        JSONObject json_org = KatelloTestScript.toJSONObj(new KatelloOrg(org_name, null).api_info());
         Assert.assertEquals(json_org.get("id"), json_env.get("organization_id"),"Check: organization_id");		
 	}
 	
@@ -123,7 +123,7 @@ public class EnvironmentsTest extends KatelloTestScript{
 		String res = servertasks.deleteEnvironment(this.org_name, env_name).trim();
 		Assert.assertEquals(res, "Deleted environment '"+env_id+"'","Check the text returned");
 		env = new KatelloEnvironment(null, null, org_name, null);
-		String nil = env.api_list().getStdout();
+		String nil = env.api_list();
 		Assert.assertEquals(nil.indexOf(env_name), -1,
 				String.format("Returned environment list does not contain: [%s]",env_name));
 	}

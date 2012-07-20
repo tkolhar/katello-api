@@ -78,8 +78,8 @@ public class KatelloProvider {
 		cli = new KatelloCli(CLI_CMD_LIST, opts);
 		return cli.run();
 	}
-	public SSHCommandResult api_list(String byOrg){
-		return new KatelloApi().get(String.format(API_CMD_LIST, this.org));
+	public String api_list(String byOrg){
+		return KatelloApi.get(String.format(API_CMD_LIST, this.org));
 	}
 	
 	public SSHCommandResult info(){
