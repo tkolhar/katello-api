@@ -1,6 +1,6 @@
 package com.redhat.qe.katello.tests.cli;
 import org.testng.annotations.Test;
-import com.redhat.qe.auto.testng.Assert;
+import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.KatelloVersion;
 

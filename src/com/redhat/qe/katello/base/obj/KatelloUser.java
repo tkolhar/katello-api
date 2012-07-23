@@ -2,7 +2,7 @@ package com.redhat.qe.katello.base.obj;
 
 import java.util.ArrayList;
 import javax.management.Attribute;
-import com.redhat.qe.auto.testng.Assert;
+import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloApi;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;

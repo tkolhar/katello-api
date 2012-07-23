@@ -4,7 +4,7 @@ import java.util.Random;
 
 import org.testng.annotations.DataProvider;
 
-import com.redhat.qe.auto.testng.Assert;
+import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.obj.KatelloUserRole;
 import com.redhat.qe.tools.SSHCommandResult;
 
