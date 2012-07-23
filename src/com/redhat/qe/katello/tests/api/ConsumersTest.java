@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.logging.Logger;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import com.redhat.qe.auto.testng.Assert;
+import com.redhat.qe.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.katello.base.KatelloTestScript;
