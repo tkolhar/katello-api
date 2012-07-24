@@ -90,7 +90,7 @@ public class UserRoleTests extends KatelloCliTestScript{
 	
 	//todo : add ldapgroup/removeldap group
 	
-	@Test(description="Add ldap group to a UserRole", groups = {"headpin-cli"},enabled=true)
+	@Test(description="Add ldap group to a UserRole", groups = {"headpin-cli","openldap"},enabled=true)
 	public void test_add_ldap_group() {
 	            String uid = KatelloTestScript.getUniqueID();
 	            String user_role_name="user_role-ldap_grp-"+ uid;
@@ -123,7 +123,7 @@ public class UserRoleTests extends KatelloCliTestScript{
 	}  
 	
 	
-	@Test(description="Remove ldap group to a UserRole", groups = {"headpin-cli"},enabled=true)
+	@Test(description="Remove ldap group to a UserRole", groups = {"headpin-cli","openldap"},enabled=true)
 	public void test_remove_ldap_group(){
 	            String uid = KatelloTestScript.getUniqueID();
 	            String user_role_name="user_role-ldap_grp-"+ uid;

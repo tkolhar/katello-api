@@ -106,10 +106,12 @@ task printProps << {
 
 def TESTNG_KATELLO_DEFAULT_TESTS = "Smoke_Tests,CLI_Tests,E2E_Tests"
 def TESTNG_KATELLO_SUITE = "testng-suites/katello-tests.xml"
+def TESTNG_KATELLO_EXCLUDE_GROUPS = "openldap"
 
 task run_katello(dependsOn: 'testClasses') << {
   javaexec {
     def testnames = System.getProperty("testng.testnames", "${TESTNG_KATELLO_DEFAULT_TESTS}")
+    def excludegroups = System.getProperty("testng.excludegroups", "${TESTNG_KATELLO_EXCLUDE_GROUPS}")
     def workspace = System.getProperty("workspace.dir", System.getenv("WORKSPACE") ?: System.properties["user.dir"])
     def outputDir = "${workspace}/test-output"
     
@@ -122,6 +124,7 @@ task run_katello(dependsOn: 'testClasses') << {
     args '-listener','com.redhat.qe.auto.testng.TestNGListener,org.uncommons.reportng.HTMLReporter,org.uncommons.reportng.JUnitXMLReporter,org.testng.reporters.XMLReporter'
     args '-configfailurepolicy','continue'
     args '-testnames',"${testnames}"
+    args '-excludegroups',"${excludegroups}"
   }
 }
 
