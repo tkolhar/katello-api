@@ -31,7 +31,7 @@ or
 `JAVA_OPTS="-Dtestng.project.dir=$WORKSPACE/katello-api"`  
 `JAVA_OPTS="$JAVA_OPTS -Dworkspace.dir=$WORKSPACE/katello-api`  
 `JAVA_OPTS="$JAVA_OPTS -Dorg.uncommons.reportng.escape-output=false"`  
-`JAVA_OPTS="$JAVA_OPTS -Dkatello.product=katello
+`JAVA_OPTS="$JAVA_OPTS -Dkatello.product=katello`
 `JAVA_OPTS="$JAVA_OPTS -Dkatello.engine=katello"`  
 `JAVA_OPTS="$JAVA_OPTS -Dkatello.server.hostname=$KATELLO_SERVER_HOSTNAME`  
 `JAVA_OPTS="$JAVA_OPTS -Dkatello.client.hostname=$KATELLO_CLIENT_HOSTNAME`  
