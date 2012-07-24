@@ -105,18 +105,24 @@ task printProps << {
 }
 
 def TESTNG_KATELLO_DEFAULT_TESTS = "Smoke_Tests,CLI_Tests,E2E_Tests"
-def TESTNG_KATELLO_SUITE = "katello-tests.xml"
+def TESTNG_KATELLO_SUITE = "testng-suites/katello-tests.xml"
 
 task run_katello(dependsOn: 'testClasses') << {
+  javaexec {
     def testnames = System.getProperty("testng.testnames", "${TESTNG_KATELLO_DEFAULT_TESTS}")
     def workspace = System.getProperty("workspace.dir", System.getenv("WORKSPACE") ?: System.properties["user.dir"])
-    def outputDir = System.getProperty("testng.outputdir", "${workspace}/test-output")
-
-    ant.taskdef( resource: 'testngtasks', classpath: configurations.testng.asPath )
-    ant.testng( classpath: sourceSets.test.runtimeClasspath.asPath, outputdir: outputDir, testnames: "${testnames}", 
-      listener: 'org.uncommons.reportng.HTMLReporter,org.uncommons.reportng.JUnitXMLReporter', configfailurepolicy: 'continue') {
-        xmlfileset(dir: 'testng-suites', includes: "**/${TESTNG_KATELLO_SUITE}")
-    }
+    def outputDir = "${workspace}/test-output"
+    
+    systemProperties = System.properties
+    workingDir = "${workspace}"
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'org.testng.TestNG'
+    args '-d',"${outputDir}"
+    args "${TESTNG_KATELLO_SUITE}"
+    args '-listener','com.redhat.qe.auto.testng.TestNGListener,org.uncommons.reportng.HTMLReporter,org.uncommons.reportng.JUnitXMLReporter,org.testng.reporters.XMLReporter'
+    args '-configfailurepolicy','continue'
+    args '-testnames',"${testnames}"
+  }
 }
 
 
