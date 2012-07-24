@@ -6,6 +6,7 @@ Java framework of Katello API/CLI Tests.
 * Run 'gradle eclipse' to generate the Eclipse files '.classpath' and '.project'
 * Because gradle provides dependencies, .classpath and .project SHOULD NOT be checked in.
 * If you install the gradle plugin in Eclipse, then you can use 'Convert to Gradle Project', and it will fully manage deps.
+* `gradle eclipse` is your friend if you wish to import the project into your favorite IDE  
 
 ## CONFIGURATION
 * `cp katello-automation.properties automation.properties`  
