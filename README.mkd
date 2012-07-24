@@ -1,12 +1,11 @@
 ## ABOUT
 Java framework of Katello API/CLI Tests.
 
-## Gradle Usage
+## GRADLE USAGE
 * Install gradle from http://gradle.org
 * Run 'gradle eclipse' to generate the Eclipse files '.classpath' and '.project'
 * Because gradle provides dependencies, .classpath and .project SHOULD NOT be checked in.
 * If you install the gradle plugin in Eclipse, then you can use 'Convert to Gradle Project', and it will fully manage deps.
-* `gradle eclipse` is your friend if you wish to import the project into your favorite IDE  
 
 ## CONFIGURATION
 * `cp katello-automation.properties automation.properties`  
@@ -28,10 +27,27 @@ or
   `-Dkatello.product=<headpin|katello> -Dkatello.engine=<headpin|katello>"`  
   in java
 
+## JENKINS USAGE
+`JAVA_OPTS="-Dtestng.project.dir=$WORKSPACE/katello-api"`  
+`JAVA_OPTS="$JAVA_OPTS -Dworkspace.dir=$WORKSPACE/katello-api`  
+`JAVA_OPTS="$JAVA_OPTS -Dorg.uncommons.reportng.escape-output=false"`  
+`JAVA_OPTS="$JAVA_OPTS -Dkatello.product=katello
+`JAVA_OPTS="$JAVA_OPTS -Dkatello.engine=katello"`  
+`JAVA_OPTS="$JAVA_OPTS -Dkatello.server.hostname=$KATELLO_SERVER_HOSTNAME`  
+`JAVA_OPTS="$JAVA_OPTS -Dkatello.client.hostname=$KATELLO_CLIENT_HOSTNAME`  
+`JAVA_OPTS="$JAVA_OPTS -Dkatello.sshkey.private=.ssh/id_hudson_dsa`  
+`JAVA_OPTS="$JAVA_OPTS -Dkatello.client.sshkey.private=.ssh/id_hudson_dsa`  
+`JAVA_OPTS="$JAVA_OPTS -Dtestng.testnames=Smoke_Tests,CLI_Tests,E2E_Tests`  
+`JAVA_OPTS="$JAVA_OPTS -Dtestng.excludegroups=openldap`  
+
+and then run gradle:  
+`export JAVA_OPTS && /home/jenkins/gradle-1.0/bin/gradle run_katello`  
+
 ## REFERENCES
-* `https://github.com/weissjeffm/webui-framework`  
-  Eclipse project of katello-api needs this framework as a dependency.  
-  CLI run is not needed (it loads from .m2 repository)
+* _`https://github.com/weissjeffm/webui-framework`_ (**OBSOLETED**)  
+* Maven libraries of [RedHatQE](https://github.com/RedHatQE) github repos  
+* `lib/reportng-1.1.3.jar:lib/velocity-dep-1.4.jar` are still using statically   
+  (there was problem with v1.1.2 finding correct TestNG@jdk15.jar or so; v1.1.3 was not found in .m2-s)  
 
 ## EXAMPLES
 Some usage samples could be found under: [examples/](https://github.com/gkhachik/katello-api/tree/master/src/examples)
