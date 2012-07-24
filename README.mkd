@@ -29,16 +29,16 @@ or
 
 ## JENKINS USAGE
 `JAVA_OPTS="-Dtestng.project.dir=$WORKSPACE/katello-api"`  
-`JAVA_OPTS="$JAVA_OPTS -Dworkspace.dir=$WORKSPACE/katello-api`  
+`JAVA_OPTS="$JAVA_OPTS -Dworkspace.dir=$WORKSPACE/katello-api"`  
 `JAVA_OPTS="$JAVA_OPTS -Dorg.uncommons.reportng.escape-output=false"`  
-`JAVA_OPTS="$JAVA_OPTS -Dkatello.product=katello`
+`JAVA_OPTS="$JAVA_OPTS -Dkatello.product=katello"`
 `JAVA_OPTS="$JAVA_OPTS -Dkatello.engine=katello"`  
-`JAVA_OPTS="$JAVA_OPTS -Dkatello.server.hostname=$KATELLO_SERVER_HOSTNAME`  
-`JAVA_OPTS="$JAVA_OPTS -Dkatello.client.hostname=$KATELLO_CLIENT_HOSTNAME`  
-`JAVA_OPTS="$JAVA_OPTS -Dkatello.sshkey.private=.ssh/id_hudson_dsa`  
-`JAVA_OPTS="$JAVA_OPTS -Dkatello.client.sshkey.private=.ssh/id_hudson_dsa`  
-`JAVA_OPTS="$JAVA_OPTS -Dtestng.testnames=Smoke_Tests,CLI_Tests,E2E_Tests`  
-`JAVA_OPTS="$JAVA_OPTS -Dtestng.excludegroups=openldap`  
+`JAVA_OPTS="$JAVA_OPTS -Dkatello.server.hostname=$KATELLO_SERVER_HOSTNAME"`  
+`JAVA_OPTS="$JAVA_OPTS -Dkatello.client.hostname=$KATELLO_CLIENT_HOSTNAME"`  
+`JAVA_OPTS="$JAVA_OPTS -Dkatello.sshkey.private=.ssh/id_hudson_dsa"`  
+`JAVA_OPTS="$JAVA_OPTS -Dkatello.client.sshkey.private=.ssh/id_hudson_dsa"`  
+`JAVA_OPTS="$JAVA_OPTS -Dtestng.testnames=Smoke_Tests,CLI_Tests,E2E_Tests"`  
+`JAVA_OPTS="$JAVA_OPTS -Dtestng.excludegroups=openldap"`  
 
 and then run gradle:  
 `export JAVA_OPTS && /home/jenkins/gradle-1.0/bin/gradle run_katello`  
