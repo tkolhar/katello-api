@@ -1,6 +1,7 @@
 package com.redhat.qe.katello.base;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.SecureRandom;
@@ -15,12 +16,10 @@ import javax.net.ssl.X509TrustManager;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
-import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.fluent.Executor;
 import org.apache.http.client.fluent.Request;
-import org.apache.http.client.fluent.Response;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.conn.scheme.Scheme;
@@ -79,11 +78,10 @@ public class KatelloApi{
         String responseString = null;
         try {
             responseString = executor.execute(request.connectTimeout(1000).socketTimeout(1000)).returnContent().asString();
-        } catch (Exception ex) {
+        } catch (HttpResponseException hre) {
+            responseString = hre.getMessage();
+        } catch (IOException ex) {
             ex.printStackTrace();
-            if ( ex instanceof HttpResponseException ) {
-                responseString = ex.getMessage();
-            }
         }
         return responseString;
     }
@@ -92,7 +90,7 @@ public class KatelloApi{
 		try{
 		    URI uri = buildURI(call);
 		    return _doRequest(Request.Get(uri));
-		} catch(Exception ex) {
+		} catch(URISyntaxException ex) {
 			ex.printStackTrace();
 		}
 		return null;
@@ -102,7 +100,7 @@ public class KatelloApi{
 		try{
 			URI uri = buildURI(call);
 			return _doRequest(Request.Post(uri).body(postEntity));
-		} catch(Exception ex) {
+		} catch(URISyntaxException ex) {
 			ex.printStackTrace();
 		}
 		return null;
