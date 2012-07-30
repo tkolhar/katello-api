@@ -15,6 +15,7 @@ import javax.net.ssl.X509TrustManager;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
+import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.fluent.Executor;
@@ -77,12 +78,7 @@ public class KatelloApi{
     private static String _doRequest(Request request) {
         String responseString = null;
         try {
-            Response response = executor.execute(request.connectTimeout(1000).socketTimeout(1000));
-            if ( response.returnResponse().getStatusLine().getStatusCode() >= 300 ) {
-                throw new HttpResponseException( response.returnResponse().getStatusLine().getStatusCode(),
-                        response.returnResponse().getStatusLine().getReasonPhrase());
-            }
-            responseString = response.returnContent().asString();
+            responseString = executor.execute(request.connectTimeout(1000).socketTimeout(1000)).returnContent().asString();
         } catch (Exception ex) {
             ex.printStackTrace();
             if ( ex instanceof HttpResponseException ) {
