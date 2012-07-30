@@ -6,8 +6,6 @@ import java.net.URISyntaxException;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -18,8 +16,10 @@ import javax.net.ssl.X509TrustManager;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.fluent.Executor;
 import org.apache.http.client.fluent.Request;
+import org.apache.http.client.fluent.Response;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.conn.scheme.Scheme;
@@ -27,9 +27,6 @@ import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.FileEntity;
 import org.apache.http.entity.StringEntity;
-
-import com.redhat.qe.katello.common.KatelloConstants;
-import com.redhat.qe.katello.common.KatelloUtils;
 
 public class KatelloApi{
     private static Executor executor;
@@ -77,13 +74,28 @@ public class KatelloApi{
 	    return builder.build();
 	}
 
+    private static String _doRequest(Request request) {
+        String responseString = null;
+        try {
+            Response response = executor.execute(request.connectTimeout(1000).socketTimeout(1000));
+            if ( response.returnResponse().getStatusLine().getStatusCode() >= 300 ) {
+                throw new HttpResponseException( response.returnResponse().getStatusLine().getStatusCode(),
+                        response.returnResponse().getStatusLine().getReasonPhrase());
+            }
+            responseString = response.returnContent().asString();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            if ( ex instanceof HttpResponseException ) {
+                responseString = ex.getMessage();
+            }
+        }
+        return responseString;
+    }
+    
 	public static String get(String call){
 		try{
 		    URI uri = buildURI(call);
-            return executor.execute(Request.Get(uri)
-                    .connectTimeout(1000)
-                    .socketTimeout(1000))
-                    .returnContent().asString();
+		    return _doRequest(Request.Get(uri));
 		} catch(Exception ex) {
 			ex.printStackTrace();
 		}
@@ -93,11 +105,7 @@ public class KatelloApi{
 	private static String _post(HttpEntity postEntity, String call){
 		try{
 			URI uri = buildURI(call);
-			return executor.execute(Request.Post(uri)
-			        .body(postEntity)
-			        .connectTimeout(1000)
-			        .socketTimeout(1000))
-			        .returnContent().asString();
+			return _doRequest(Request.Post(uri).body(postEntity));
 		} catch(Exception ex) {
 			ex.printStackTrace();
 		}
@@ -107,12 +115,8 @@ public class KatelloApi{
 	private static String _put(HttpEntity putEntity, String call) {
 	    try {
 	        URI uri = buildURI(call);
-	        return executor.execute(Request.Put( uri )
-	                .body( putEntity )
-	                .connectTimeout( 1000 )
-	                .socketTimeout( 1000 ))
-	                .returnContent().asString();
-	    } catch (Exception ex) {
+	        return _doRequest(Request.Put(uri).body(putEntity));
+	    } catch (URISyntaxException ex) {
 	        ex.printStackTrace();
 	    }
 	    return null;
@@ -121,11 +125,8 @@ public class KatelloApi{
 	private static String _delete(String call) {
 	    try {
 	        URI uri = buildURI(call);
-	        return executor.execute( Request.Delete( uri ) 
-	                .connectTimeout( 1000 )
-	                .socketTimeout( 1000 ))
-	                .returnContent().asString();
-	    } catch (Exception ex) {
+	        return _doRequest(Request.Delete(uri));
+	    } catch (URISyntaxException ex) {
 	        ex.printStackTrace();
 	    }
 	    return null;
