@@ -41,11 +41,11 @@ public class KatelloTasks {
 	 * @return The output string of the call 
 	 */
 	public String apiKatello_POST(String content, String call) throws IOException{
-		return KatelloApi.postJson(content, call);
+		return KatelloApi.postJson(content, call).getContent();
 	}
 	
 	public String apiKatello_POST_manifest(String manifest, String call) throws IOException {
-		return KatelloApi.postFile( manifest, call );
+		return KatelloApi.postFile( manifest, call ).getContent();
 	}
 	
 	/** curl -s -u ${username}:${password} -H \"Accept: application/json\" 
@@ -57,11 +57,11 @@ public class KatelloTasks {
 	 * @return The output string of the call 
 	 */
 	public String apiKatello_PUT(String content, String call) throws IOException{
-	    return KatelloApi.putJson(content, call);
+	    return KatelloApi.putJson(content, call).getContent();
 	}
 
 	public String apiKatello_DELETE(String call) throws IOException{
-		return KatelloApi.delete(call);
+		return KatelloApi.delete(call).getContent();
 	}
 	
 	public JSONObject getEnvironment(String orgName, String envName){

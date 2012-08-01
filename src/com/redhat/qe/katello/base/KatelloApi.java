@@ -1,7 +1,9 @@
 package com.redhat.qe.katello.base;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.SecureRandom;
@@ -16,8 +18,8 @@ import javax.net.ssl.X509TrustManager;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
+import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.fluent.Executor;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.client.utils.URIBuilder;
@@ -74,19 +76,27 @@ public class KatelloApi{
 	    return builder.build();
 	}
 
-    private static String _doRequest(Request request) {
-        String responseString = null;
+    private static KatelloApiResponse _doRequest(Request request) {
+        KatelloApiResponse response = null;
         try {
-            responseString = executor.execute(request.connectTimeout(1000).socketTimeout(1000)).returnContent().asString();
-        } catch (HttpResponseException hre) {
-            responseString = hre.getMessage();
+            HttpResponse returnResponse = executor.execute(request.connectTimeout(1000).socketTimeout(1000)).returnResponse();
+            HttpEntity entity = returnResponse.getEntity();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(entity.getContent(), "UTF-8"));
+            StringBuffer buffer = new StringBuffer();
+            String line = null;
+            while ((line = reader.readLine()) != null ) {
+                buffer.append(line);
+            }
+            reader.close();
+            response = new KatelloApiResponse(buffer.toString(), returnResponse.getStatusLine().getStatusCode(), returnResponse.getStatusLine().getReasonPhrase());
         } catch (IOException ex) {
+            response = new KatelloApiResponse(ex.getLocalizedMessage());
             ex.printStackTrace();
-        }
-        return responseString;
+        } 
+        return response;
     }
     
-	public static String get(String call){
+	public static KatelloApiResponse get(String call){
 		try{
 		    URI uri = buildURI(call);
 		    return _doRequest(Request.Get(uri));
@@ -96,7 +106,7 @@ public class KatelloApi{
 		return null;
 	}
 	
-	private static String _post(HttpEntity postEntity, String call){
+	private static KatelloApiResponse _post(HttpEntity postEntity, String call){
 		try{
 			URI uri = buildURI(call);
 			return _doRequest(Request.Post(uri).body(postEntity));
@@ -106,7 +116,7 @@ public class KatelloApi{
 		return null;
 	}
 	
-	private static String _put(HttpEntity putEntity, String call) {
+	private static KatelloApiResponse _put(HttpEntity putEntity, String call) {
 	    try {
 	        URI uri = buildURI(call);
 	        return _doRequest(Request.Put(uri).body(putEntity));
@@ -116,7 +126,7 @@ public class KatelloApi{
 	    return null;
 	}
 	
-	private static String _delete(String call) {
+	private static KatelloApiResponse _delete(String call) {
 	    try {
 	        URI uri = buildURI(call);
 	        return _doRequest(Request.Delete(uri));
@@ -126,22 +136,22 @@ public class KatelloApi{
 	    return null;
 	}
 	
-	public static String postJson(String content, String call) {
+	public static KatelloApiResponse postJson(String content, String call) {
 	    return post(content, call, ContentType.APPLICATION_JSON);
 	}
 	
-	public static String post(String content, String call, ContentType contentType) {
+	public static KatelloApiResponse post(String content, String call, ContentType contentType) {
 	    StringEntity postEntity = new StringEntity(content, contentType);
 	    return _post(postEntity, call);
 	}
 	
-	public static String post(List<NameValuePair> nvp, String call) {
+	public static KatelloApiResponse post(List<NameValuePair> nvp, String call) {
 	    StringEntity postEntity = new StringEntity(URLEncodedUtils.format(nvp, "UTF-8"), ContentType.APPLICATION_FORM_URLENCODED);
         log.info(URLEncodedUtils.format(nvp,"UTF-8"));
 	    return _post(postEntity, call);
 	}
 
-	public static String post(KatelloPostParam[] params, String call) {
+	public static KatelloApiResponse post(KatelloPostParam[] params, String call) {
         String content = "";
         for(KatelloPostParam param: params){
             content = String.format("%s%s,", content, param);
@@ -153,17 +163,17 @@ public class KatelloApi{
 	    return _post(postEntity, call);
 	}
 	
-	public static String postFile(String manifest, String call) {
+	public static KatelloApiResponse postFile(String manifest, String call) {
 	    FileEntity postEntity = new FileEntity(new File(manifest));
 	    return _post(postEntity, call);
 	}
 
-	public static String putJson(String content, String call) {
+	public static KatelloApiResponse putJson(String content, String call) {
 	    StringEntity putEntity = new StringEntity(content, ContentType.APPLICATION_JSON);
 	    return _put(putEntity,call);
 	}
 	
-	public static String delete(String call) {
+	public static KatelloApiResponse delete(String call) {
 	    return _delete(call);
 	}
 }

@@ -153,11 +153,11 @@ public class KatelloUser {
 	}
 
 	public String api_info(String userid){
-		return KatelloApi.get(String.format(API_CMD_INFO,userid));
+		return KatelloApi.get(String.format(API_CMD_INFO,userid)).getContent();
 	}
 
 	public String api_list(){
-		return KatelloApi.get(API_CMD_LIST);
+		return KatelloApi.get(API_CMD_LIST).getContent();
 	}
 
 	public String api_create(){
@@ -167,7 +167,7 @@ public class KatelloUser {
 		opts.add(new BasicNameValuePair("disabled", String.valueOf(disabled)));
 		opts.add(new BasicNameValuePair("email", email));
 		KatelloPostParam[] params = {new KatelloPostParam(null, opts)};
-		return KatelloApi.post(params, API_CMD_CREATE);
+		return KatelloApi.post(params, API_CMD_CREATE).getContent();
 	}
 	
 	// ** ** ** ** ** ** **

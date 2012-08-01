@@ -72,7 +72,7 @@ public class KatelloOrg {
 	    List<NameValuePair> params = new ArrayList<NameValuePair>();
 	    params.add(new BasicNameValuePair("name", this.name));
 		params.add(new BasicNameValuePair("description", this.description));
-		return KatelloApi.post(params,API_CMD_CREATE);
+		return KatelloApi.post(params,API_CMD_CREATE).getContent();
 	}
 	
 	public SSHCommandResult cli_info(){
@@ -82,7 +82,7 @@ public class KatelloOrg {
 		return cli.run();
 	}
 	public String api_info(){
-		return KatelloApi.get(String.format(API_CMD_INFO,this.name));
+		return KatelloApi.get(String.format(API_CMD_INFO,this.name)).getContent();
 	}
 	
 	public SSHCommandResult cli_list(){
@@ -92,7 +92,7 @@ public class KatelloOrg {
 	}
 		
 	public String api_list(){
-		return KatelloApi.get(API_CMD_LIST);
+		return KatelloApi.get(API_CMD_LIST).getContent();
 	}
 
 	public SSHCommandResult subscriptions(){
