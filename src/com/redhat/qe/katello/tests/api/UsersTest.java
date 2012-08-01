@@ -119,7 +119,7 @@ public class UsersTest extends KatelloTestScript {
 					"Check: returned message of delete command");
 			_ret = new KatelloUser(null,null,null,false).api_info(userId.toString());
 			Assert.assertTrue(_ret.contains(
-					String.format("\"errors\":[\"Couldn't find User with ID=%s\"]", userId.toString())), 
+					String.format("Couldn't find User with ID=%s", userId.toString())), 
 					"Check: returned error message - getUsers()");
 		}catch(IOException ie){
 			log.severe(ie.getMessage());
