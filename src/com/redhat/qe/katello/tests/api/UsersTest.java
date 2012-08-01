@@ -118,16 +118,9 @@ public class UsersTest extends KatelloTestScript {
 			Assert.assertEquals(_ret, String.format("Deleted user '%s'",userId.toString()),
 					"Check: returned message of delete command");
 			_ret = new KatelloUser(null,null,null,false).api_info(userId.toString());
-			// Not ideal, but that's what the API returns currently.
-			// The HTTP handling code in KatelloApi needs work
-			Assert.assertContainsMatch(_ret, "Internal Server Error");
-//			Assert.assertTrue(_ret.contains(
-//					String.format("\"errors\":[\"Couldn't find User with ID=%s\"]", userId.toString())), 
-//					"Check: returned error message - getUsers()");
-//			_ret = new KatelloUser(null,null,null,false).api_info(userId.toString());
-//			Assert.assertTrue(_ret.contains(
-//					String.format("\"errors\":[\"Couldn't find User with ID=%s\"]", userId.toString())), 
-//					"Check: returned error message - getUser(id)");
+			Assert.assertTrue(_ret.contains(
+					String.format("\"errors\":[\"Couldn't find User with ID=%s\"]", userId.toString())), 
+					"Check: returned error message - getUsers()");
 		}catch(IOException ie){
 			log.severe(ie.getMessage());
 		}
