@@ -12,7 +12,7 @@ public class KatelloMisc {
 	
 	
 	public String api_getPools(){
-		return KatelloApi.get(API_CMD_GET_POOLS);
+		return KatelloApi.get(API_CMD_GET_POOLS).getContent();
 	}
 	
 	public JSONObject api_getPoolByProduct(String productName){

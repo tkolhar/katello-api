@@ -106,7 +106,7 @@ public class KatelloEnvironment {
 	}
 	 
 	public String api_list(){
-		return KatelloApi.get(String.format(API_CMD_LIST, this.org));
+		return KatelloApi.get(String.format(API_CMD_LIST, this.org)).getContent();
 	}
 	
 	public String api_create(){
@@ -115,7 +115,7 @@ public class KatelloEnvironment {
 		opts.add(new BasicNameValuePair("description", description));
 		opts.add(new BasicNameValuePair("prior", get_prior_id()));
 		KatelloPostParam[] params = {new KatelloPostParam("environment", opts)};
-		return KatelloApi.post(params, String.format(API_CMD_CREATE,org));
+		return KatelloApi.post(params, String.format(API_CMD_CREATE,org)).getContent();
 	}
 	
 	public String get_prior_id(){

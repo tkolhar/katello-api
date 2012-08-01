@@ -133,10 +133,10 @@ public class KatelloSystem {
 	}
 	
 	public String api_info(String byId){
-		return KatelloApi.get(String.format(API_CMD_INFO, byId));
+		return KatelloApi.get(String.format(API_CMD_INFO, byId)).getContent();
 	}
 	
 	public String api_getSerials(String customerid){
-		return KatelloApi.get(String.format(API_CMD_GET_SERIALS, customerid));
+		return KatelloApi.get(String.format(API_CMD_GET_SERIALS, customerid)).getContent();
 	}
 }

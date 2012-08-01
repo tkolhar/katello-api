@@ -155,7 +155,7 @@ public class KatelloProduct {
 	}
 	
 	public String api_list(){
-		return KatelloApi.get(String.format(API_CMD_LIST, this.org));
+		return KatelloApi.get(String.format(API_CMD_LIST, this.org)).getContent();
 	}
 
 	
