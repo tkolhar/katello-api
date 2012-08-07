@@ -12,6 +12,7 @@ import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
+import com.redhat.qe.katello.base.obj.KatelloSystemGroup;
 import com.redhat.qe.katello.base.obj.KatelloTemplate;
 import com.redhat.qe.tools.SSHCommandResult;
 
@@ -19,6 +20,7 @@ import com.redhat.qe.tools.SSHCommandResult;
 public class ActivationKeyTests extends KatelloCliTestScript{
 	private String organization;
 	private String env;
+	private String systemgroup;
 	
 	@BeforeClass(description="init: create org stuff", groups = {"cli-activationkey","headpin-cli"})
 	public void setUp(){
@@ -26,11 +28,15 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 		String uid = KatelloTestScript.getUniqueID();
 		this.organization = "ak-"+uid;
 		this.env = "ak-"+uid;
+		this.systemgroup = "systemgroup"+uid;
 		KatelloOrg org = new KatelloOrg(this.organization, null);
 		res = org.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		KatelloEnvironment env = new KatelloEnvironment(this.env, null, this.organization, KatelloEnvironment.LIBRARY);
 		res = env.cli_create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		KatelloSystemGroup systemGroup = new KatelloSystemGroup(this.systemgroup, this.organization);
+		res = systemGroup.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 	}
 	
@@ -205,6 +211,46 @@ public class ActivationKeyTests extends KatelloCliTestScript{
     }
       
     public void test_createWithLimit(){
+    	
+    }
+    
+    @Test(description="add system group to activationkey", groups = {"headpin-cli"}, enabled=true)
+    public void test_addSystemGroup() {
+    	String uid = KatelloTestScript.getUniqueID();
+    	String akName="ak-subscription-zoo3-"+uid;
+    	SSHCommandResult res;
+
+    	KatelloActivationKey ak = new KatelloActivationKey(this.organization, this.env, akName, "Activation key to add system group", null);
+    	res = ak.create();
+    	Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key create)");
+    	
+    	res = ak.add_system_group(this.systemgroup);
+    	Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key add_system_group)");
+    	Assert.assertTrue(getOutput(res).contains(
+				String.format(KatelloActivationKey.OUT_ADD_SYSTEMGROUP, akName)), 
+				"Check - returned output string (activation_key add_system_group)");
+    	
+    }
+    
+    @Test(description="remove system group from activationkey", groups = {"headpin-cli"}, enabled=true)
+    public void test_removeSystemGroup() {
+    	String uid = KatelloTestScript.getUniqueID();
+    	String akName="ak-subscription-zoo3-"+uid;
+    	SSHCommandResult res;
+
+    	KatelloActivationKey ak = new KatelloActivationKey(this.organization, this.env, akName, "Activation key to add and remove system group", null);
+    	res = ak.create();
+    	Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key create)");
+    	
+    	res = ak.add_system_group(this.systemgroup);
+    	Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key add_system_group)");
+    	
+    	res = ak.remove_system_group(this.systemgroup);
+    	Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key remove_system_group)");
+    	Assert.assertTrue(getOutput(res).contains(
+				String.format(KatelloActivationKey.OUT_REMOVE_SYSTEMGROUP, akName)), 
+				"Check - returned output string (activation_key remove_system_group)");
+    	
     	
     }
 }
