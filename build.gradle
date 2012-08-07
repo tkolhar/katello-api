@@ -97,8 +97,7 @@ dependencies {
             'com.redhat.qe:logging-testscript:1.0.2',
             'com.redhat.qe:ssh-tools:1.0.0',
             'com.redhat.qe:testng-listeners:1.0.0',
-            'reportng:reportng:1.1.3',
-            'velocity-dep:velocity-dep:1.4',
+            'velocity:velocity-dep:1.4',
             'com.trilead:trilead-ssh2:build213-svnkit-1.3-patch',
             'com.googlecode.json-simple:json-simple:1.1',
             'org.apache.httpcomponents:fluent-hc:4.2.1'
