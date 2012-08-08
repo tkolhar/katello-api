@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -351,11 +349,7 @@ public class SystemGroupTests extends KatelloCliTestScript{
 		log.finest(String.format("System Group (info) match regex: [%s]", match_info));
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", " ").matches(match_info), String.format("System Group [%s] should be found in the result info", systemGroup.name));
 
-		Pattern pattern = Pattern.compile(KatelloSystemGroup.REG_SYSTEMGROUP_ID);
-		Matcher matcher = pattern.matcher(getOutput(exec_result).replaceAll("\n", " "));
-		Assert.assertTrue(matcher.find(), "Check - Id should exist in System Group info");
-		String id = matcher.group();
-		id = id.replace("Id:", "").replace("Name:", "").trim();
+		String id = KatelloTasks.grepCLIOutput("Id", exec_result.getStdout());
 		
 		return id;
 	}

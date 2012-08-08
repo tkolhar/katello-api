@@ -44,7 +44,6 @@ public class KatelloSystemGroup {
 			"Validation failed: You cannot have more than %s system(s) associated with system group '%s'.";
 	
 	public static final String REG_SYSTEMGROUP_INFO = ".*Id:\\s+\\d+.*Name:\\s+%s.*Description:\\s+%s.*Total Systems:\\s+%s.*";
-	public static final String REG_SYSTEMGROUP_ID = "Id:\\s+\\d+.*Name:";
 	public static final String REG_SYSTEMGROUP_LIST = ".*\\s+\\d+.*\\s+%s.*";
 	public static final String REG_SYSTEM_LIST = ".*\\s+%s.*\\s+%s.*";
 	
