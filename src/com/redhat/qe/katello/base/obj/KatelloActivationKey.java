@@ -30,14 +30,24 @@ public class KatelloActivationKey {
 	public static final String CMD_INFO = "activation_key info";
 	public static final String CMD_LIST = "activation_key list";
 	public static final String CMD_DELETE = "activation_key delete";
+	public static final String CMD_UPDATE = "activation_key update";
+	public static final String CMD_ADD_SYSTEMGROUP = "activation_key add_system_group";
+	public static final String CMD_REMOVE_SYSTEMGROUP = "activation_key remove_system_group";
 	public static final String ERR_TEMPLATE_NOTFOUND = 
 			"Could not find template [ %s ]";	
 	public static final String OUT_CREATE = 
 			"Successfully created activation key [ %s ]";
 	public static final String OUT_DELETE =
 			"Successfully deleted activation key [ %s ]";
+	public static final String OUT_ADD_SYSTEMGROUP = 
+			"Successfully added system group to activation key [ %s ]";
+	public static final String OUT_REMOVE_SYSTEMGROUP = 
+			"Successfully removed system group from activation key [ %s ]";
 	public static final String ERROR_INFO =
 			"Could not find activation key [ %s ]";
+	public static final String ERROR_EXCEED =
+			"Usage limit (%s) exhausted for activation key '%s'";	
+	
 	public KatelloActivationKey(String pOrg, String pEnv, String pName, String pDesc, String pTemplate){
 		this(pOrg,pEnv,pName,pDesc,pTemplate,null);
 		
@@ -87,6 +97,33 @@ public class KatelloActivationKey {
 		cli = new KatelloCli(CMD_LIST+" -v", opts);
 		return cli.run();
 	}
+
+	public SSHCommandResult extend_limit(String newlimit){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("limit", newlimit));
+		cli = new KatelloCli(CMD_UPDATE, opts);
+		return cli.run();
+	}
+	
+	public SSHCommandResult add_system_group(String pSystemGroup){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("system_group", pSystemGroup));
+		cli = new KatelloCli(CMD_ADD_SYSTEMGROUP, opts);
+		return cli.run();
+	}
+	
+	public SSHCommandResult remove_system_group(String pSystemGroup){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("system_group", pSystemGroup));
+		cli = new KatelloCli(CMD_REMOVE_SYSTEMGROUP, opts);
+		return cli.run();
+	}
 	
 	public SSHCommandResult delete(){
 		   opts.clear();
@@ -122,12 +159,12 @@ public class KatelloActivationKey {
 		// asserts: activation_key info
 		res = info();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key info)");
-		String REGEXP_AK_INFO = ".*Id:\\s+\\d+.*Name:\\s+%s.*Environment Id:\\s+%s.*System Template Id:\\s+%s.*Pools:.*";
+		String REGEXP_AK_INFO = ".*Id:\\s+\\d+.*Name:\\s+%s.*Usage Limit:\\s+%s.*Environment Id:\\s+%s.*System Template Id:\\s+%s.*Pools:.*";
 		match_info = String.format(REGEXP_AK_INFO,
-				this.name,this.environment_id,this.template_id).replaceAll("\"", "");
+				this.name, (this.limit != null ? this.limit : "unlimited"), this.environment_id,this.template_id).replaceAll("\"", "");
 		if(this.template_id==null){
 			match_info = String.format(REGEXP_AK_INFO,
-					this.name,this.environment_id,"None").replaceAll("\"", "");				
+					this.name,(this.limit != null ? this.limit : "unlimited"), this.environment_id,"None").replaceAll("\"", "");				
 		}
 		Assert.assertTrue(KatelloCliTestScript.sgetOutput(res).replaceAll("\n", "").matches(match_info), 
 				String.format("Activation key [%s] should contain correct info",this.name));			
