@@ -22,20 +22,29 @@ public class KatelloSystemGroup {
 	public static final String CMD_CREATE = "system_group create";
 	public static final String CMD_INFO = "system_group info";	
 	public static final String CMD_LIST = "system_group list";
+	public static final String CMD_LIST_SYSTEMS = "system_group systems";
 	public static final String CMD_DELETE = "system_group delete";
 	public static final String CMD_UPDATE = "system_group update";
 	public static final String CMD_COPY = "system_group copy";
+	public static final String CMD_ADD_SYSTEMS = "system_group add_systems";
+	public static final String CMD_REMOVE_SYSTEMS = "system_group remove_systems";
 	
 	public static final String OUT_CREATE = 
 			"Successfully created system group [ %s ]";
 	public static final String OUT_COPY = 
 			"Successfully copied system group [ %s ] to [ %s ]";
+	public static final String OUT_ADD_SYSTEMS = 
+			"Successfully added systems to system group [ %s ]";
+	public static final String OUT_REMOVE_SYSTEMS = 
+			"Successfully removed systems from system group [ %s ]";
+	
 	public static final String ERR_SYSTEMGROUP_NOTFOUND = 
 			"Could not find system group [ %s ] within organization [ %s ]";
 	
 	public static final String REG_SYSTEMGROUP_INFO = ".*Id:\\s+\\d+.*Name:\\s+%s.*Description:\\s+%s.*Total Systems:\\s+%s.*";
 	public static final String REG_SYSTEMGROUP_ID = "Id:\\s+\\d+.*Name:";
 	public static final String REG_SYSTEMGROUP_LIST = ".*\\s+\\d+.*\\s+%s.*";
+	public static final String REG_SYSTEM_LIST = ".*\\s+%s.*\\s+%s.*";
 	
 	public KatelloSystemGroup(String pName, String pOrg) {
 		this(pName, pOrg, null, null);
@@ -89,10 +98,36 @@ public class KatelloSystemGroup {
 		return cli.run();
 	}
 	
+	public SSHCommandResult add_systems(String system_uuids){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("system_uuids", system_uuids));
+		cli = new KatelloCli(CMD_ADD_SYSTEMS, opts);
+		return cli.run();
+	}	
+	
+	public SSHCommandResult remove_systems(String system_uuids){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("system_uuids", system_uuids));
+		cli = new KatelloCli(CMD_REMOVE_SYSTEMS, opts);
+		return cli.run();
+	}	
+	
 	public SSHCommandResult list(){
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		cli = new KatelloCli(CMD_LIST, opts);
+		return cli.run();
+	}
+
+	public SSHCommandResult list_systems(){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		cli = new KatelloCli(CMD_LIST_SYSTEMS, opts);
 		return cli.run();
 	}
 	
