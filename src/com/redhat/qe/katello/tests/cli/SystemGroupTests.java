@@ -15,8 +15,10 @@ import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
+import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.base.obj.KatelloSystemGroup;
-import com.redhat.qe.katello.base.obj.KatelloTemplate;
+import com.redhat.qe.katello.common.KatelloUtils;
+import com.redhat.qe.katello.tasks.KatelloTasks;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups={"cfse-cli","headpin-cli"})
@@ -27,6 +29,8 @@ public class SystemGroupTests extends KatelloCliTestScript{
 	private String orgName;
 	private String systemGroupName;
 	private String envName;
+	private String systemName;
+	private String system_uuid;
 
 	@BeforeClass(description="Generate unique names")
 	public void setUp(){
@@ -44,6 +48,8 @@ public class SystemGroupTests extends KatelloCliTestScript{
 		KatelloEnvironment env = new KatelloEnvironment(this.envName, null, this.orgName, KatelloEnvironment.LIBRARY);
 		exec_result = env.cli_create();	
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code (env create)");
+		
+		KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);
 	}
 	
 	@Test(description = "Create system group", groups = { "cli-systemgroup" })
@@ -59,7 +65,7 @@ public class SystemGroupTests extends KatelloCliTestScript{
 		
 		exec_result = systemGroup.create();
 		Assert.assertTrue(exec_result.getExitCode() == 144, "Check - return code");
-		//@TODO fix message remove Name when bug #846251 ir fixed.
+		//@TODO fix message remove Name when bug #846251 is fixed.
 		Assert.assertEquals(getOutput(exec_result).trim(), "Validation failed: Name Name must be unique within one organization");
 	}
 	
@@ -99,6 +105,53 @@ public class SystemGroupTests extends KatelloCliTestScript{
 		assert_SystemGroupInfo(systemGroup2);
 		
 		assert_systemGroupList(Arrays.asList(systemGroup, systemGroup2), new ArrayList<KatelloSystemGroup>());		
+	}
+	
+	@Test(description = "Create system group, add system to it", groups = { "cli-systemgroup" })
+	public void test_addSystemToSystemGroup() {
+		
+		KatelloSystem sys = addSystemToSystemGroup();
+
+		KatelloSystemGroup systemGroup = new KatelloSystemGroup(systemGroupName, orgName);
+		systemGroup.totalSystems = 1;
+		assert_SystemGroupInfo(systemGroup);
+		
+		assert_systemList(Arrays.asList(sys), new ArrayList<KatelloSystem>());
+	}
+
+	@Test(description = "Remove system group", groups = { "cli-systemgroup" })
+	public void test_removeSystemFromSystemGroup() {
+		KatelloSystem sys = addSystemToSystemGroup();
+		
+		KatelloSystemGroup systemGroup = new KatelloSystemGroup(systemGroupName, orgName);
+		
+		exec_result = systemGroup.remove_systems(system_uuid);
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloSystemGroup.OUT_REMOVE_SYSTEMS, systemGroupName));
+
+		systemGroup.totalSystems = 0;
+		assert_SystemGroupInfo(systemGroup);
+		
+		assert_systemList(new ArrayList<KatelloSystem>(), Arrays.asList(sys));
+	}
+
+	@Test(description = "Copy system group with system", groups = { "cli-systemgroup" })
+	public void test_copySystemGroupWithSystem() {
+		KatelloSystem sys = addSystemToSystemGroup();
+		
+		KatelloSystemGroup systemGroup = new KatelloSystemGroup(systemGroupName, orgName);
+		
+		systemGroupName = systemGroup.name + "copy";
+		String newdescr = "new description";
+		
+		exec_result = systemGroup.copy(systemGroupName, newdescr, 1);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		KatelloSystemGroup systemGroup2 = new KatelloSystemGroup(systemGroupName, this.orgName, newdescr, 1);
+		systemGroup2.totalSystems = 1;
+		assert_SystemGroupInfo(systemGroup2);
+		
+		assert_systemList(Arrays.asList(sys), new ArrayList<KatelloSystem>());
 	}
 	
 	@Test(description = "List system groups", groups = { "cli-systemgroup" })
@@ -147,8 +200,28 @@ public class SystemGroupTests extends KatelloCliTestScript{
 		return systemGroup;
 	}
 	
+	private KatelloSystem addSystemToSystemGroup() {
+		KatelloSystemGroup systemGroup = createSystemGroup();
+		
+		this.systemName = "localhost-"+KatelloTestScript.getUniqueID();
+		KatelloSystem sys = new KatelloSystem(systemName, this.orgName, null);
+		exec_result = sys.rhsm_registerForce(); 
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		Assert.assertTrue(exec_result.getStdout().trim().contains(KatelloSystem.OUT_CREATE),
+				"Check - output (success)");
+		
+		exec_result = sys.rhsm_identity();
+		system_uuid = KatelloTasks.grepCLIOutput("Current identity is", exec_result.getStdout());
+		sys.uuid = system_uuid;
+		
+		exec_result = systemGroup.add_systems(system_uuid);
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloSystemGroup.OUT_ADD_SYSTEMS, systemGroupName));
+		
+		return sys;
+	}
+	
 	private void assert_systemGroupList(List<KatelloSystemGroup> systemGroups, List<KatelloSystemGroup> excludeSystemGroups) {
-
 		exec_result = new KatelloSystemGroup(null, orgName).list();
 
 		//system groups that exist in list
@@ -165,8 +238,23 @@ public class SystemGroupTests extends KatelloCliTestScript{
 			
 			String match_info = String.format(KatelloSystemGroup.REG_SYSTEMGROUP_LIST, sgroup.name).replaceAll("\"", "");
 			Assert.assertFalse(getOutput(exec_result).replaceAll("\n", " ").matches(match_info), String.format("System Group [%s] should not be found in the result list", sgroup.name));
+		}		
+	}
+
+	private void assert_systemList(List<KatelloSystem> systems, List<KatelloSystem> excludeSystems) {
+		exec_result = new KatelloSystemGroup(systemGroupName, orgName).list_systems();
+
+		//systems that exist in list
+		for(KatelloSystem system : systems) {			
+			String match_info = String.format(KatelloSystemGroup.REG_SYSTEM_LIST, system.uuid, system.name).replaceAll("\"", "");
+			Assert.assertTrue(getOutput(exec_result).replaceAll("\n", " ").matches(match_info), String.format("System [%s] should be found in the system group [%s] list", system.name, systemGroupName));
 		}
 		
+		//systems that should not exist in list
+		for(KatelloSystem system : excludeSystems) {
+			String match_info = String.format(KatelloSystemGroup.REG_SYSTEM_LIST, system.uuid, system.name).replaceAll("\"", "");
+			Assert.assertFalse(getOutput(exec_result).replaceAll("\n", " ").matches(match_info), String.format("System [%s] should not be found in the system group [%s] list", system.name, systemGroupName));
+		}		
 	}
 	
 	private String assert_SystemGroupInfo(KatelloSystemGroup systemGroup) {
