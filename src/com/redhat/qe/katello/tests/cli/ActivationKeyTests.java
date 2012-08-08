@@ -2,6 +2,7 @@ package com.redhat.qe.katello.tests.cli;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
@@ -12,8 +13,10 @@ import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
+import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.base.obj.KatelloSystemGroup;
 import com.redhat.qe.katello.base.obj.KatelloTemplate;
+import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
 //@Test(groups={"cfse-cli","headpin-cli"})
@@ -209,9 +212,65 @@ public class ActivationKeyTests extends KatelloCliTestScript{
     	res = ak.list();
     	Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key list)");
     }
-      
-    public void test_createWithLimit(){
+    
+    @Test(description="create activationkey with usage limit 1, register one system, and try to register second one, it will fail", groups = {"headpin-cli"}, enabled=true)
+    public void test_createWithLimit() {
+    	String uid = KatelloTestScript.getUniqueID();
+    	String akName="act_key-"+ uid; 
+    	SSHCommandResult res;
+    	KatelloActivationKey ak = new KatelloActivationKey(this.organization, this.env, akName, "Activation key created to ", null, "1");
+    	res = ak.create();
+    	Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key create)");
+    	ak.asserts_create();
     	
+    	KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);
+    	
+    	String systemName = "localhost-"+KatelloTestScript.getUniqueID();
+		KatelloSystem sys = new KatelloSystem(systemName, this.organization, null);
+		res = sys.rhsm_registerForce(akName); 
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
+		
+		KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);
+		
+		systemName = "localhost-"+KatelloTestScript.getUniqueID();
+		sys = new KatelloSystem(systemName, this.organization, null);
+		res = sys.rhsm_registerForce(akName); 
+		Assert.assertTrue(res.getExitCode().intValue() == 255, "Check - return code");
+		Assert.assertTrue(getOutput(res).contains(
+    			String.format(KatelloActivationKey.ERROR_EXCEED, "1", akName)), 
+    			"Check - returned output string for registering by activation key");	
+    }
+
+    @Test(description="create activationkey with usage limit 1, register one system, and try to register second one, it will fail, increase the limit, it will allow", groups = {"headpin-cli"}, enabled=true)
+    public void test_updateTheLimit() {
+    	String uid = KatelloTestScript.getUniqueID();
+    	String akName="act_key-"+ uid; 
+    	SSHCommandResult res;
+    	KatelloActivationKey ak = new KatelloActivationKey(this.organization, this.env, akName, "Activation key created to ", null, "1");
+    	res = ak.create();
+    	Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key create)");
+    	ak.asserts_create();
+    	
+    	KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);
+    	
+    	String systemName = "localhost-"+KatelloTestScript.getUniqueID();
+		KatelloSystem sys = new KatelloSystem(systemName, this.organization, null);
+		res = sys.rhsm_registerForce(akName); 
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
+		
+		KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);
+		
+		systemName = "localhost-"+KatelloTestScript.getUniqueID();
+		sys = new KatelloSystem(systemName, this.organization, null);
+		res = sys.rhsm_registerForce(akName); 
+		Assert.assertTrue(res.getExitCode().intValue() == 255, "Check - return code");
+		Assert.assertTrue(getOutput(res).contains(
+    			String.format(KatelloActivationKey.ERROR_EXCEED, "1", akName)), 
+    			"Check - returned output string for registering by activation key");
+		
+		ak.extend_limit("2");
+		res = sys.rhsm_registerForce(akName); 
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
     }
     
     @Test(description="add system group to activationkey", groups = {"headpin-cli"}, enabled=true)
