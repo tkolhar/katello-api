@@ -79,7 +79,7 @@ public class KatelloApi{
     private static KatelloApiResponse _doRequest(Request request) {
         KatelloApiResponse response = null;
         try {
-            HttpResponse returnResponse = executor.execute(request.connectTimeout(1000).socketTimeout(1000)).returnResponse();
+            HttpResponse returnResponse = executor.execute(request.connectTimeout(20000).socketTimeout(20000)).returnResponse();
             HttpEntity entity = returnResponse.getEntity();
             BufferedReader reader = new BufferedReader(new InputStreamReader(entity.getContent(), "UTF-8"));
             StringBuffer buffer = new StringBuffer();
@@ -117,7 +117,7 @@ public class KatelloApi{
 	private static KatelloApiResponse _post(HttpEntity postEntity, String call, String query){
 		try{
 			URI uri = buildURI(call, query);
-			return _doRequest(Request.Post(uri).body(postEntity));
+            return _doRequest(Request.Post(uri).body(postEntity));
 		} catch(URISyntaxException ex) {
 			ex.printStackTrace();
 		}
