@@ -4,7 +4,7 @@ apply plugin: 'groovy'
 apply plugin: 'maven'
 
 group = 'com.redhat.qe'
-version = '2.0.0'
+version = '2.0.1'
 
 allprojects {
    sourceCompatibility = 1.6
