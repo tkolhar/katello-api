@@ -69,10 +69,10 @@ public class KatelloApi{
                 .authPreemptive(new HttpHost(System.getProperty("katello.server.hostname", "localhost"),443,"https"));
 	}
 	
-	private static URI buildURI(String apiCall) throws URISyntaxException {
+	private static URI buildURI(String apiCall, String apiQuery) throws URISyntaxException {
 	    URIBuilder builder = new URIBuilder();
 	    builder.setScheme("https").setHost(System.getProperty("katello.server.hostname", "localhost"))
-        .setPath("/"+System.getProperty("katello.product", "katello")+"/api"+apiCall);
+        .setPath("/"+System.getProperty("katello.product", "katello")+"/api"+apiCall).setQuery(apiQuery);
 	    return builder.build();
 	}
 
@@ -96,9 +96,17 @@ public class KatelloApi{
         return response;
     }
     
-	public static KatelloApiResponse get(String call){
+//    public static KatelloApiResponse get(String call) {
+//        return get(call, "");
+//    }
+    
+    public static KatelloApiResponse get(String call) {
+        return get(call, null);
+    }
+    
+	public static KatelloApiResponse get(String call, String query){
 		try{
-		    URI uri = buildURI(call);
+		    URI uri = buildURI(call, query);
 		    return _doRequest(Request.Get(uri));
 		} catch(URISyntaxException ex) {
 			ex.printStackTrace();
@@ -106,9 +114,9 @@ public class KatelloApi{
 		return null;
 	}
 	
-	private static KatelloApiResponse _post(HttpEntity postEntity, String call){
+	private static KatelloApiResponse _post(HttpEntity postEntity, String call, String query){
 		try{
-			URI uri = buildURI(call);
+			URI uri = buildURI(call, query);
 			return _doRequest(Request.Post(uri).body(postEntity));
 		} catch(URISyntaxException ex) {
 			ex.printStackTrace();
@@ -116,9 +124,9 @@ public class KatelloApi{
 		return null;
 	}
 	
-	private static KatelloApiResponse _put(HttpEntity putEntity, String call) {
+	private static KatelloApiResponse _put(HttpEntity putEntity, String call, String query) {
 	    try {
-	        URI uri = buildURI(call);
+	        URI uri = buildURI(call, query);
 	        return _doRequest(Request.Put(uri).body(putEntity));
 	    } catch (URISyntaxException ex) {
 	        ex.printStackTrace();
@@ -128,7 +136,7 @@ public class KatelloApi{
 	
 	private static KatelloApiResponse _delete(String call) {
 	    try {
-	        URI uri = buildURI(call);
+	        URI uri = buildURI(call, "");
 	        return _doRequest(Request.Delete(uri));
 	    } catch (URISyntaxException ex) {
 	        ex.printStackTrace();
@@ -136,22 +144,30 @@ public class KatelloApi{
 	    return null;
 	}
 	
-	public static KatelloApiResponse postJson(String content, String call) {
-	    return post(content, call, ContentType.APPLICATION_JSON);
+	public static KatelloApiResponse postJson(String content, String call, String query) {
+	    return post(content, call, query, ContentType.APPLICATION_JSON);
 	}
 	
-	public static KatelloApiResponse post(String content, String call, ContentType contentType) {
+	public static KatelloApiResponse post(String content, String call, String query, ContentType contentType) {
 	    StringEntity postEntity = new StringEntity(content, contentType);
-	    return _post(postEntity, call);
+	    return _post(postEntity, call, query);
 	}
 	
 	public static KatelloApiResponse post(List<NameValuePair> nvp, String call) {
+	    return post(nvp, call, null);
+	}
+	
+	public static KatelloApiResponse post(List<NameValuePair> nvp, String call, String query) {
 	    StringEntity postEntity = new StringEntity(URLEncodedUtils.format(nvp, "UTF-8"), ContentType.APPLICATION_FORM_URLENCODED);
         log.info(URLEncodedUtils.format(nvp,"UTF-8"));
-	    return _post(postEntity, call);
+	    return _post(postEntity, call, query);
 	}
 
 	public static KatelloApiResponse post(KatelloPostParam[] params, String call) {
+	    return post(params, call, null);
+	}
+	
+	public static KatelloApiResponse post(KatelloPostParam[] params, String call, String query) {
         String content = "";
         for(KatelloPostParam param: params){
             content = String.format("%s%s,", content, param);
@@ -160,17 +176,21 @@ public class KatelloApi{
             content = content.substring(0,content.length()-1); // cut last symbol - ","
         content = String.format("{%s}", content);
         StringEntity postEntity = new StringEntity(content, ContentType.APPLICATION_JSON);
-	    return _post(postEntity, call);
+	    return _post(postEntity, call, query);
 	}
 	
 	public static KatelloApiResponse postFile(String manifest, String call) {
 	    FileEntity postEntity = new FileEntity(new File(manifest));
-	    return _post(postEntity, call);
+	    return _post(postEntity, call, null);
 	}
 
 	public static KatelloApiResponse putJson(String content, String call) {
+	    return putJson(content, call, null);
+	}
+	
+	public static KatelloApiResponse putJson(String content, String call, String query) {
 	    StringEntity putEntity = new StringEntity(content, ContentType.APPLICATION_JSON);
-	    return _put(putEntity,call);
+	    return _put(putEntity,call, query);
 	}
 	
 	public static KatelloApiResponse delete(String call) {

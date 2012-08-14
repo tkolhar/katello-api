@@ -4,9 +4,9 @@ import java.io.BufferedReader;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
@@ -41,7 +41,11 @@ public class KatelloTasks {
 	 * @return The output string of the call 
 	 */
 	public String apiKatello_POST(String content, String call) throws IOException{
-		return KatelloApi.postJson(content, call).getContent();
+		return apiKatello_POST(content, call, null);
+	}
+	
+	public String apiKatello_POST(String content, String call, String query) throws IOException {
+	    return KatelloApi.postJson(content, call, query).getContent();
 	}
 	
 	public String apiKatello_POST_manifest(String manifest, String call) throws IOException {
@@ -232,7 +236,7 @@ public class KatelloTasks {
 		String _return=null;
 		try{
 			_return = apiKatello_POST("", 
-					"/consumers/"+consumerID+"/entitlements?pool="+poolID);
+					"/consumers/"+consumerID+"/entitlements", "pool="+poolID);
 			log.info(String.format("Subscribing consumer: [%s] to the pool: [%s]", 
 					consumerID,poolID));
 		}catch (Exception e) {
@@ -282,7 +286,7 @@ public class KatelloTasks {
 			sFacts = sFacts.replaceAll("\\$\\{HOSTNAME\\}", hostname);
 			sFacts = sFacts.replaceAll("\\$\\{UUID\\}", uuid);
 			sFacts = sFacts.replaceAll("\\$\\{ORG_NAME\\}", orgName);
-			_return = apiKatello_POST(sFacts, "/consumers?owner="+orgName);
+			_return = apiKatello_POST(sFacts, "/consumers", "owner="+orgName);
 //			_return = apiKatello_POST_candlepinOwner(sFacts, 
 //					"/consumers?owner="+orgName);
 			log.info(String.format("Creating consumer from [%s] template with: uuid=[%s]; hostname=[%s]; org_name=[%s]", 
