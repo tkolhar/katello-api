@@ -181,4 +181,8 @@ task run_katello(dependsOn: 'testClasses') << {
   }
 }
 
-
+task writeNewPom << {
+    pom {
+    }.writeTo("$buildDir/libs/pom.xml")
+}
+    
