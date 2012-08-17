@@ -1,9 +1,16 @@
 package com.redhat.qe.katello.base.obj;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+
+import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloApi;
 import com.redhat.qe.katello.base.KatelloTestScript;
+import com.redhat.qe.katello.common.KatelloConstants;
+import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class KatelloMisc {
@@ -27,5 +34,31 @@ public class KatelloMisc {
 			}
 		}catch (Exception e) {}
 		return null;
+	}
+	
+	public String cli_getPoolBySubscription(String subscriptionName, int quantity) {
+		
+		SSHCommandResult exec_result = KatelloUtils.sshOnClient("subscription-manager list --available --all | sed  -e 's/^ \\{1,\\}//'");
+		
+		String match_info = null;
+		
+		if (KatelloConstants.KATELLO_PRODUCT == "katello") {
+			match_info = String.format(KatelloSystem.REG_SUBSCRIPTION, subscriptionName, String.valueOf(quantity)).replaceAll("\"", "");
+		} else {
+			match_info = String.format(KatelloSystem.REG_SUBSCRIPTION_CFSE, subscriptionName, String.valueOf(quantity)).replaceAll("\"", "");
+		}
+		
+		Pattern pattern = Pattern.compile(match_info);
+		Matcher matcher = pattern.matcher(exec_result.getStdout().replaceAll("\n", " "));
+		Assert.assertTrue(matcher.find(), "Check - Subscription should exist in subscription manager list");
+		String subscription = matcher.group();
+		
+		match_info = KatelloSystem.REG_POOL_ID;
+		pattern = Pattern.compile(match_info);
+		matcher = pattern.matcher(subscription);
+		Assert.assertTrue(matcher.find(), "Check - Pool Id should exist in subscription manager list");
+		String id = matcher.group().trim();
+		
+		return id;
 	}
 }
