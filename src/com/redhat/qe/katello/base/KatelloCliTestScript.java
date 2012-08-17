@@ -162,6 +162,8 @@ implements KatelloConstants {
 	// TODO - DUPE?
 	protected SSHCommandResult rhsm_clean(){
 		log.info("RHSM clean");
+		KatelloUtils.sshOnClient("subscription-manager unsubscribe --all");
+		KatelloUtils.sshOnClient("subscription-manager unregister");
 		return KatelloUtils.sshOnClient("subscription-manager clean");
 	}
 	
