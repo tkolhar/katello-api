@@ -54,7 +54,7 @@ public class ConsumersTest extends KatelloTestScript {
 	@Test( groups = {"testConsumers"}, description = "Retrieve consumer" , dependsOnMethods = {"test_createConsumer"})
 	public void test_getConsumer(){
 		JSONObject jcons = KatelloTestScript.toJSONObj(
-				new KatelloSystem(null, null, null).api_info(consumer_id).getStdout());
+				new KatelloSystem(null, null, null).api_info(consumer_id));
 		Assert.assertEquals(consumer_id, (String)jcons.get("uuid"),"Check returned: uuid");
 		
 		JSONObject json_env = servertasks.getEnvironment(org_name, env_name);
@@ -74,7 +74,7 @@ public class ConsumersTest extends KatelloTestScript {
 		upd_component = "uname.release";upd_value = "2.6.32-130.el6.i386";
 		updateFacts(upd_component, upd_value);
 		JSONObject jcons = KatelloTestScript.toJSONObj(
-				new KatelloSystem(null, null, null).api_info(consumer_id).getStdout());
+				new KatelloSystem(null, null, null).api_info(consumer_id));
 		Assert.assertEquals(upd_value, (String)((JSONObject)jcons.get("facts")).get(upd_component),
 				"Check updated: facts."+upd_component);
 		// TODO - check the update_at <> created_at 
@@ -86,7 +86,7 @@ public class ConsumersTest extends KatelloTestScript {
 		JSONObject _return = null; String retStr;
 		// Get facts object to modify it and update again :)
 		JSONObject jfacts = (JSONObject)KatelloTestScript.toJSONObj(
-				new KatelloSystem(null, null, null).api_info(consumer_id).getStdout()).get("facts");
+				new KatelloSystem(null, null, null).api_info(consumer_id)).get("facts");
 		jfacts.put(component, updValue); // <--- suppress warnings are for me
 		String updConsumer = jfacts.toJSONString().replaceAll("\"", "'");
 		updConsumer = "{'facts':"+updConsumer+"}";
@@ -114,7 +114,7 @@ public class ConsumersTest extends KatelloTestScript {
 		String ret = servertasks.deleteConsumer(cid);
 		Assert.assertEquals("", ret,"Check returned string (empty)");
 		
-		String sCons = new KatelloSystem(null, null, null).api_info(cid).getStdout(); // try to request the removed consumer
+		String sCons = new KatelloSystem(null, null, null).api_info(cid); // try to request the removed consumer
 		Assert.assertTrue(sCons.contains("Consumer "+cid+" has been deleted"),
 				"Check API request to get consumer: ["+cid+"]");
 	}
@@ -134,9 +134,9 @@ public class ConsumersTest extends KatelloTestScript {
 			try{
 				String provider_id = ((Long)servertasks.getProvider(org_name, prov_MF).get("id")).toString();
 				KatelloProduct prod = new KatelloProduct(null, org_name, null, null, null, null, null, null);
-				int prods_before = ((JSONArray)KatelloTestScript.toJSONArr(prod.api_list().getStdout())).size();
+				int prods_before = ((JSONArray)KatelloTestScript.toJSONArr(prod.api_list())).size();
 				String ret = servertasks.apiKatello_POST_manifest(EXPORT_ZIP_PATH, "/providers/"+provider_id+"/import_manifest");
-				int prods_after = ((JSONArray)KatelloTestScript.toJSONArr(prod.api_list().getStdout())).size();
+				int prods_after = ((JSONArray)KatelloTestScript.toJSONArr(prod.api_list())).size();
 				Assert.assertEquals(ret, "Manifest imported","Output should be: \"Manifest imported\"");
 				Assert.assertTrue((prods_after-prods_before)>=PRODUCTS_IN_EXPORT_ZIP, "Check imported products: >=["+PRODUCTS_IN_EXPORT_ZIP+"]");
 			}catch(IOException ie){
@@ -184,13 +184,13 @@ public class ConsumersTest extends KatelloTestScript {
 		String pool_id = (String)jpool.get("id");
 		servertasks.subscribeConsumer(cid, pool_id); // Hope the 100 subscriptions did not get all consumed :P
 		JSONArray jserials = KatelloTestScript.toJSONArr(
-				new KatelloSystem(null, null, null).api_getSerials(cid).getStdout());
+				new KatelloSystem(null, null, null).api_getSerials(cid));
 		Assert.assertMore(jserials.size(), 0, "Serials count: >0");
 		
 		Long serial_id1 = (Long)((JSONObject)jserials.get(0)).get("serial");
 		servertasks.unsubscribeConsumer(cid, serial_id1.toString()); // returns nothing
 		jserials = KatelloTestScript.toJSONArr(
-				new KatelloSystem(null, null, null).api_getSerials(cid).getStdout());
+				new KatelloSystem(null, null, null).api_getSerials(cid));
 		Assert.assertEquals(jserials.size(), 0,"Check no serials available: no subscriptions");
 	}
 	
@@ -201,7 +201,7 @@ public class ConsumersTest extends KatelloTestScript {
 		String cname = "auto-"+KatelloTestScript.getUniqueID()+".unsubscribe.all";
 		String s = servertasks.createConsumer(org_name, cname, KatelloTestScript.getUUID(), "data/facts-virt.json");
 		String consumer_id = (String)KatelloTestScript.toJSONObj(s).get("uuid");
-		JSONArray pools = KatelloTestScript.toJSONArr(new KatelloMisc().api_getPools().getStdout());
+		JSONArray pools = KatelloTestScript.toJSONArr(new KatelloMisc().api_getPools());
 		for(int i=0;i<pools.size();i++){
 			pool = (JSONObject)pools.get(i);
 			if(((String)((JSONObject)pool.get("owner")).get("displayName")).equals(org_name)){
@@ -213,13 +213,13 @@ public class ConsumersTest extends KatelloTestScript {
 		/* at this step we should have the consumer applied to all of the subscriptions 
 		 available for org = org_name (i.e.: ACME_Corporation) */
 		JSONArray jserials = KatelloTestScript.toJSONArr(
-				new KatelloSystem(null, null, null).api_getSerials(consumer_id).getStdout());
+				new KatelloSystem(null, null, null).api_getSerials(consumer_id));
 		Assert.assertMore(jserials.size(), 1, "Check: subscriptions should be >1");
 		
 		// unsubscribe all
 		servertasks.unsubscribeConsumer(consumer_id);
 		jserials = KatelloTestScript.toJSONArr(
-				new KatelloSystem(null, null, null).api_getSerials(consumer_id).getStdout());
+				new KatelloSystem(null, null, null).api_getSerials(consumer_id));
 		Assert.assertEquals(jserials.size(), 0, "Check: subscriptions should be ==0");
 	}
 	

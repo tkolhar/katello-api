@@ -4,11 +4,13 @@ import java.io.BufferedReader;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+
+import com.redhat.qe.katello.base.KatelloApi;
 import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
@@ -38,30 +40,16 @@ public class KatelloTasks {
 	 * e.g. "/organizations/&lt;orgid&gt;/environments"
 	 * @return The output string of the call 
 	 */
-	public String apiKatello_POST(
-			String content, String call) throws IOException{
-		Object[] call_args ={
-				System.getProperty("katello.admin.user", "admin"),
-				System.getProperty("katello.admin.password", "admin"),
-				content,
-				System.getProperty("katello.server.hostname", "localhost"),
-				call};
-		String url = KatelloConstants.KATELLO_HTTP_POST;
-		String mCall = MessageFormat.format(url, call_args);
-		return KatelloUtils.sshOnClient(mCall).getStdout();
+	public String apiKatello_POST(String content, String call) throws IOException{
+		return apiKatello_POST(content, call, null);
 	}
 	
-	public String apiKatello_POST_manifest(
-			String manifest, String call) throws IOException{
-		Object[] call_args ={
-				System.getProperty("katello.admin.user", "admin"),
-				System.getProperty("katello.admin.password", "admin"),
-				manifest,
-				System.getProperty("katello.server.hostname", "localhost"),
-				call};
-		String url = KatelloConstants.KATELLO_HTTP_POST_MANIFEST;
-		String mCall = MessageFormat.format(url, call_args);
-		return KatelloUtils.sshOnClient(mCall).getStdout();
+	public String apiKatello_POST(String content, String call, String query) throws IOException {
+	    return KatelloApi.postJson(content, call, query).getContent();
+	}
+	
+	public String apiKatello_POST_manifest(String manifest, String call) throws IOException {
+		return KatelloApi.postFile( manifest, call ).getContent();
 	}
 	
 	/** curl -s -u ${username}:${password} -H \"Accept: application/json\" 
@@ -72,28 +60,12 @@ public class KatelloTasks {
 	 * e.g. "/organizations/&lt;orgid&gt;/environments"
 	 * @return The output string of the call 
 	 */
-	public String apiKatello_PUT(
-			String content, String call) throws IOException{
-		Object[] call_args ={
-				System.getProperty("katello.admin.user", "admin"),
-				System.getProperty("katello.admin.password", "admin"),
-				content,
-				System.getProperty("katello.server.hostname", "localhost"),
-				call};
-		String url = KatelloConstants.KATELLO_HTTP_PUT;
-		String mCall = MessageFormat.format(url, call_args);
-		return KatelloUtils.sshOnClient(mCall).getStdout();
+	public String apiKatello_PUT(String content, String call) throws IOException{
+	    return KatelloApi.putJson(content, call).getContent();
 	}
 
 	public String apiKatello_DELETE(String call) throws IOException{
-		Object[] call_args ={
-				System.getProperty("katello.admin.user", "admin"),
-				System.getProperty("katello.admin.password", "admin"),
-				System.getProperty("katello.server.hostname", "localhost"),
-				call};
-		String url = KatelloConstants.KATELLO_HTTP_DELETE;
-		String mCall = MessageFormat.format(url, call_args);
-		return KatelloUtils.sshOnClient(mCall).getStdout();
+		return KatelloApi.delete(call).getContent();
 	}
 	
 	public JSONObject getEnvironment(String orgName, String envName){
@@ -101,7 +73,7 @@ public class KatelloTasks {
 		try{
 			log.info(String.format("Retrieve environment: [%s] of Org: [%s]", envName, orgName));
 			KatelloEnvironment _env = new KatelloEnvironment(null, null, orgName, null);
-			JSONArray envs = KatelloTestScript.toJSONArr(_env.api_list().getStdout());
+			JSONArray envs = KatelloTestScript.toJSONArr(_env.api_list());
 			JSONObject env;
 			for(int i=0;i<envs.size();i++){
 				env = (JSONObject)envs.get(i);
@@ -136,7 +108,7 @@ public class KatelloTasks {
 	 */
 	public JSONObject getEnvFromOrgList(String orgName, String envName){
 		
-		String str_envs = new KatelloEnvironment(null, null, orgName, null).api_list().getStdout();
+		String str_envs = new KatelloEnvironment(null, null, orgName, null).api_list();
 		JSONArray json_envs = KatelloTestScript.toJSONArr(str_envs);
 		for(int i=0;i<json_envs.size();i++){
 			JSONObject json_env = (JSONObject)json_envs.get(i);
@@ -246,7 +218,7 @@ public class KatelloTasks {
 		JSONObject prod =null;
 		try{
 			KatelloProduct _prod = new KatelloProduct(null, orgName, null, null, null, null, null, null);
-			JSONArray jprods = KatelloTestScript.toJSONArr(_prod.api_list().getStdout()); 
+			JSONArray jprods = KatelloTestScript.toJSONArr(_prod.api_list()); 
 			if(jprods ==null) return null;
 			log.info(String.format("Get product: name=[%s]",productName));
 			for(int i=0;i<jprods.size();i++){
@@ -264,7 +236,7 @@ public class KatelloTasks {
 		String _return=null;
 		try{
 			_return = apiKatello_POST("", 
-					"/consumers/"+consumerID+"/entitlements?pool="+poolID);
+					"/consumers/"+consumerID+"/entitlements", "pool="+poolID);
 			log.info(String.format("Subscribing consumer: [%s] to the pool: [%s]", 
 					consumerID,poolID));
 		}catch (Exception e) {
@@ -275,7 +247,7 @@ public class KatelloTasks {
 	
 	public JSONObject getProvider(String org_name, String byName){
 		JSONArray providers = KatelloTestScript.toJSONArr(
-				new KatelloProvider(null, org_name, null, null).api_list(org_name).getStdout());
+				new KatelloProvider(null, org_name, null, null).api_list(org_name));
 		JSONObject tmpProv;
 		for(int i=0;i<providers.size();i++){
 			tmpProv = (JSONObject)providers.get(i);
@@ -314,7 +286,7 @@ public class KatelloTasks {
 			sFacts = sFacts.replaceAll("\\$\\{HOSTNAME\\}", hostname);
 			sFacts = sFacts.replaceAll("\\$\\{UUID\\}", uuid);
 			sFacts = sFacts.replaceAll("\\$\\{ORG_NAME\\}", orgName);
-			_return = apiKatello_POST(sFacts, "/consumers?owner="+orgName);
+			_return = apiKatello_POST(sFacts, "/consumers", "owner="+orgName);
 //			_return = apiKatello_POST_candlepinOwner(sFacts, 
 //					"/consumers?owner="+orgName);
 			log.info(String.format("Creating consumer from [%s] template with: uuid=[%s]; hostname=[%s]; org_name=[%s]", 

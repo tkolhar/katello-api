@@ -1,7 +1,13 @@
 package com.redhat.qe.katello.base.obj;
 
 import java.util.ArrayList;
+import java.util.List;
+
 import javax.management.Attribute;
+
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloApi;
 import com.redhat.qe.katello.base.KatelloCli;
@@ -54,7 +60,7 @@ public class KatelloUser {
 	public String envname = "";
 
 	private KatelloCli cli;
-	private ArrayList<Attribute> opts;
+	private List<Attribute> opts;
 	
 	public KatelloUser(String pName, String pEmail, String pPassword, boolean pDisabled){
 		this.username = pName;
@@ -146,23 +152,22 @@ public class KatelloUser {
 		return cli.run();
 	}
 
-	public SSHCommandResult api_info(String userid){
-		return new KatelloApi().get(String.format(API_CMD_INFO,userid));
+	public String api_info(String userid){
+		return KatelloApi.get(String.format(API_CMD_INFO,userid)).getContent();
 	}
 
-	public SSHCommandResult api_list(){
-		return new KatelloApi().get(API_CMD_LIST);
+	public String api_list(){
+		return KatelloApi.get(API_CMD_LIST).getContent();
 	}
 
-	public SSHCommandResult api_create(){
-		KatelloApi api = new KatelloApi();
-		opts.clear();
-		opts.add(new Attribute("username", username));
-		opts.add(new Attribute("password", password));
-		opts.add(new Attribute("disabled", String.valueOf(disabled)));
-		opts.add(new Attribute("email", email));
+	public String api_create(){
+		List<NameValuePair> opts = new ArrayList<NameValuePair>();
+		opts.add(new BasicNameValuePair("username", username));
+		opts.add(new BasicNameValuePair("password", password));
+		opts.add(new BasicNameValuePair("disabled", String.valueOf(disabled)));
+		opts.add(new BasicNameValuePair("email", email));
 		KatelloPostParam[] params = {new KatelloPostParam(null, opts)};
-		return api.post(params, API_CMD_CREATE);
+		return KatelloApi.post(params, API_CMD_CREATE).getContent();
 	}
 	
 	// ** ** ** ** ** ** **
