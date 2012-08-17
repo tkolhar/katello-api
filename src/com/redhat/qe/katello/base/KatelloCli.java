@@ -1,7 +1,10 @@
 package com.redhat.qe.katello.base;
 
 import java.util.ArrayList;
+import java.util.List;
+
 import javax.management.Attribute;
+
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.tasks.KatelloTasks;
 import com.redhat.qe.tools.SSHCommandResult;
@@ -12,10 +15,10 @@ public class KatelloCli{
 	public static final String OUT_EMPTY_LIST = "[  ]";
 	
 	private String command;
-	private ArrayList<Attribute> args;
-	private ArrayList<Attribute> opts;
+	private List<Attribute> args;
+	private List<Attribute> opts;
 	
-	public KatelloCli(String command,ArrayList<Attribute> args,ArrayList<Attribute> options){
+	public KatelloCli(String command,List<Attribute> args,List<Attribute> options){
 		this.command = command;
 		this.args = args;
 		this.opts = options;
@@ -23,7 +26,7 @@ public class KatelloCli{
 		if(this.opts==null) this.opts = new ArrayList<Attribute>();
 	}
 	
-	public KatelloCli(String command,ArrayList<Attribute> options){
+	public KatelloCli(String command,List<Attribute> options){
 		this.command = command;
 		this.args = new ArrayList<Attribute>();
 		this.args.add(new Attribute("username", System.getProperty("katello.admin.user", "admin")));

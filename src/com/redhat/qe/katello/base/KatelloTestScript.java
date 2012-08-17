@@ -106,8 +106,8 @@ public class KatelloTestScript
 	
 	private void setup_defaultOrg(){
 		KatelloOrg _org = new KatelloOrg(null, null);
-		SSHCommandResult res = _org.api_list();
-		JSONArray orgs = KatelloTestScript.toJSONArr(res.getStdout());
+		String res = _org.api_list();
+		JSONArray orgs = KatelloTestScript.toJSONArr(res);
 		JSONObject org;
 		for(int i=0;i<orgs.size();i++){
 			org = (JSONObject)orgs.get(i);
