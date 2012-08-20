@@ -53,14 +53,23 @@ public class KatelloProvider {
 	}
 	
 	public SSHCommandResult create(){
+		return create(null);
+	}
+	
+	public SSHCommandResult create(KatelloUser user){
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("description", description));
 		opts.add(new Attribute("url", url));
-		cli = new KatelloCli(CMD_CREATE, opts);
+		if (user == null) { 
+			cli = new KatelloCli(CMD_CREATE, opts);
+		} else {
+			cli = new KatelloCli(CMD_CREATE, opts, user);
+		}
 		return cli.run();
 	}
+	
 
 	public SSHCommandResult import_manifest(String file, Boolean force){
 		opts.clear();

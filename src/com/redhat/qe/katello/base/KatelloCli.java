@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.management.Attribute;
 
+import com.redhat.qe.katello.base.obj.KatelloUser;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.tasks.KatelloTasks;
 import com.redhat.qe.tools.SSHCommandResult;
@@ -31,6 +32,15 @@ public class KatelloCli{
 		this.args = new ArrayList<Attribute>();
 		this.args.add(new Attribute("username", System.getProperty("katello.admin.user", "admin")));
 		this.args.add(new Attribute("password", System.getProperty("katello.admin.password", "admin")));
+		this.opts = options;
+		if(this.opts==null) this.opts = new ArrayList<Attribute>();
+	}
+	
+	public KatelloCli(String command,ArrayList<Attribute> options, KatelloUser user){
+		this.command = command;
+		this.args = new ArrayList<Attribute>();
+		this.args.add(new Attribute("username", user.username));
+		this.args.add(new Attribute("password", user.password));
 		this.opts = options;
 		if(this.opts==null) this.opts = new ArrayList<Attribute>();
 	}
