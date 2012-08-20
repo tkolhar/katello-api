@@ -79,6 +79,10 @@ public class KatelloProduct {
 	}
 	
 	public SSHCommandResult create(){
+		return create(null);
+	}
+	
+	public SSHCommandResult create(KatelloUser user){
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
@@ -90,7 +94,11 @@ public class KatelloProduct {
 			opts.add(new Attribute("nodisc", ""));
 		if(assumeyes)
 			opts.add(new Attribute("assumeyes", ""));
-		cli = new KatelloCli(CMD_CREATE, opts);
+		if (user == null) {
+			cli = new KatelloCli(CMD_CREATE, opts);
+		} else {
+			cli = new KatelloCli(CMD_CREATE, opts, user);
+		}
 		return cli.run();
 	}
 	

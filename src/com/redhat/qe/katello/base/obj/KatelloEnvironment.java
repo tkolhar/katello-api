@@ -61,12 +61,20 @@ public class KatelloEnvironment {
 	}
 	
 	public SSHCommandResult cli_create(){
+		return cli_create(null);
+	}
+
+	public SSHCommandResult cli_create(KatelloUser user){
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("description", description));
 		opts.add(new Attribute("prior", prior));
-		cli = new KatelloCli(CMD_CREATE, opts);
+		if (user == null) {
+			cli = new KatelloCli(CMD_CREATE, opts);
+		} else {
+			cli = new KatelloCli(CMD_CREATE, opts, user);
+		}
 		return cli.run();
 	}
 	
