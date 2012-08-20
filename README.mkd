@@ -22,7 +22,7 @@ or
 
 * specify  
   `JAVAARGS="${JAVAARGS} -Dkatello.server.hostname=<your_katello_server_fqdn>`  
-  `-Dkatello.client.hostname=<your_katello_client_fqdn> -Dkatello.sshkey.private=<.ssh\/your_private_key>`  
+  `-Dkatello.client.hostname=<your_katello_client_fqdn> -Dkatello.server.sshkey.private=<.ssh\/your_private_key>`  
   `-Dkatello.client.sshkey.private=<.ssh\/your_private_key>`
   `-Dkatello.product=<headpin|katello> -Dkatello.engine=<headpin|katello>"`  
   in java
