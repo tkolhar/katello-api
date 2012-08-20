@@ -76,6 +76,10 @@ public class KatelloRepo {
 	}
 	
 	public SSHCommandResult create(){
+		return create(null);
+	}
+
+	public SSHCommandResult create(KatelloUser user){
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
@@ -84,10 +88,13 @@ public class KatelloRepo {
 		opts.add(new Attribute("gpgkey", gpgkey));
 		if(nogpgkey)
 			opts.add(new Attribute("nogpgkey", ""));
-		cli = new KatelloCli(CMD_CREATE, opts);
+		if (user == null) {
+			cli = new KatelloCli(CMD_CREATE, opts);
+		} else {
+			cli = new KatelloCli(CMD_CREATE, opts, user);
+		}
 		return cli.run();
-	}
-	
+	}	
 
 	public SSHCommandResult delete(){
 		opts.clear();
