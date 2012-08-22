@@ -46,8 +46,7 @@ and then run gradle:
 ## REFERENCES
 * _`https://github.com/weissjeffm/webui-framework`_ (**OBSOLETED**)  
 * Maven libraries of [RedHatQE](https://github.com/RedHatQE) github repos  
-* `lib/reportng-1.1.3.jar:lib/velocity-dep-1.4.jar` are still using statically   
-  (there was problem with v1.1.2 finding correct TestNG@jdk15.jar or so; v1.1.3 was not found in .m2-s)  
+* clojars.org group is: https://clojars.org/groups/com.redhat.qe
 
 ## EXAMPLES
 Some usage samples could be found under: [examples/](https://github.com/gkhachik/katello-api/tree/master/src/examples)
