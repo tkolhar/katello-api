@@ -412,7 +412,7 @@ public class ProductTests  extends KatelloCliTestScript{
 		res = cs.update_addProduct(prodName);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset update --add_product)");
 		// promote changeset (dev)
-		res = cs.promote();
+		res = cs.apply();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset promote)");
 		
 		// Assertions - repo list by env

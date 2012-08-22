@@ -152,8 +152,8 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 		res = cs.update_addTemplate(template);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset update --add_template)");
 		
-		// promote changeset to the env.
-		res = cs.promote();
+		// apply changeset to the env.
+		res = cs.apply();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset promote)");
 		
 		KatelloActivationKey ak = new KatelloActivationKey(this.organization, this.env, ak_name, null, template);

@@ -119,7 +119,7 @@ public class RhsmOnlyPermissions extends KatelloCliTestScript{
 		KatelloChangeset cs1 = new KatelloChangeset("cs"+uid, this.org, this.env_dev);
 		cs1.create();
 		cs1.update_addProduct(this.prod);
-		SSHCommandResult res = cs1.promote();
+		SSHCommandResult res = cs1.apply();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset promote)");
 	}
 	

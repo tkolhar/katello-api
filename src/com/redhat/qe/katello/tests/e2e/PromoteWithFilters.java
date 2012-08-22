@@ -84,7 +84,7 @@ public class PromoteWithFilters extends KatelloCliTestScript{
 		KatelloChangeset cs = new KatelloChangeset(this.cs1, this.org, this.env);
 		cs.create();
 		cs.update_addProduct(this.product);
-		cs.promote();
+		cs.apply();
 	}
 
 	@Test(description="Synchronize repository", dependsOnMethods={"test_promoteToDevNoSync"}, enabled=true)
@@ -112,7 +112,7 @@ public class PromoteWithFilters extends KatelloCliTestScript{
 		KatelloChangeset cs = new KatelloChangeset(this.cs2, this.org, this.env);
 		cs.create();
 		cs.update_fromProduct_addRepo(this.product, this.repo);
-		SSHCommandResult res = cs.promote();
+		SSHCommandResult res = cs.apply();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset promote - with filter & synced)");
 	}
 	

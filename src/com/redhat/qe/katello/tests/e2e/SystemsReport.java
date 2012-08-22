@@ -76,7 +76,7 @@ public class SystemsReport extends KatelloCliTestScript{
 		KatelloChangeset cs = new KatelloChangeset("csDev_"+KatelloTestScript.getUniqueID(), this.org, this.env_dev);
 		cs.create();
 		cs.update_addProduct(KatelloProduct.RHEL_SERVER);
-		res = cs.promote();
+		res = cs.apply();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset promote)");
 		Assert.assertTrue(getOutput(res).endsWith("promoted"),"Message - (changeset promote)");
 		
@@ -85,7 +85,7 @@ public class SystemsReport extends KatelloCliTestScript{
 		cs = new KatelloChangeset("csTest_"+KatelloTestScript.getUniqueID(), this.org, this.env_test);
 		cs.create();
 		cs.update_addProduct(KatelloProduct.RHEL_SERVER);
-		res = cs.promote();
+		res = cs.apply();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset promote)");
 		Assert.assertTrue(getOutput(res).endsWith("promoted"),"Message - (changeset promote)");		
 	}
