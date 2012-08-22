@@ -132,7 +132,7 @@ public class ChangesetTests extends KatelloCliTestScript{
 		
 		assert_changesetInfo(chst);
 		
-		exec_result = chst.promote();
+		exec_result = chst.apply();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset create)");
 		chst.state = "promoted";
 		assert_changesetInfo(chst);
