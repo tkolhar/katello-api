@@ -255,7 +255,7 @@ public class RepoSyncByPlan extends KatelloCliTestScript{
 		exec_result = repo.synchronize();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		cs.update_addProduct(product_name); // add product
-		exec_result = cs.promote();
+		exec_result = cs.apply();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
 	

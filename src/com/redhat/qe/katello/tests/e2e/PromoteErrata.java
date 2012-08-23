@@ -77,7 +77,7 @@ public class PromoteErrata extends KatelloCliTestScript{
 		KatelloChangeset cs = new KatelloChangeset(this.cs1, this.org, this.env);
 		cs.create();
 		cs.update_addProduct(this.product);
-		cs.promote();
+		cs.apply();
 	}
 		
 	@Test(description="Synchronize repository", dependsOnMethods={"test_promoteToDevNoSync"}, enabled=true)
@@ -103,7 +103,7 @@ public class PromoteErrata extends KatelloCliTestScript{
 		Matcher matcher = pattern.matcher(getOutput(res).replaceAll("\n", " "));
 		Assert.assertTrue(matcher.find(), "Check - Errata should exist in changeset info");
 		
-		res = cs.promote();
+		res = cs.apply();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset promote)");
 		KatelloErrata ert = new KatelloErrata(ERRATA_ZOO_SEA, this.org, this.product, this.repo, this.env);
 		res = ert.info();
