@@ -81,7 +81,7 @@ public class PackageGroupTests extends KatelloCliTestScript {
 		
 		prov.synchronize();
 
-		cs.promote();
+		cs.apply();
 	}
 	
 	@Test(description="packagegroup list", groups = {"cli-packagegroup"}, enabled=true)

@@ -11,6 +11,7 @@ public class KatelloChangeset {
 	
 	// ** ** ** ** ** ** ** Public constants
 	public static final String CMD_CREATE = "changeset create";
+	public static final String CMD_APPLY = "changeset apply";
 	public static final String CMD_PROMOTE = "changeset promote";
 	public static final String CMD_UPDATE = "changeset update";
 	public static final String CMD_DELETE = "changeset delete";
@@ -95,7 +96,15 @@ public class KatelloChangeset {
 		cli = new KatelloCli(CMD_PROMOTE, opts);
 		return cli.run();
 	}
-	
+
+	public SSHCommandResult apply(){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("environment", environment));
+		cli = new KatelloCli(CMD_APPLY, opts);
+		return cli.run();
+	}
 	
 	public SSHCommandResult info(){
 		opts.clear();

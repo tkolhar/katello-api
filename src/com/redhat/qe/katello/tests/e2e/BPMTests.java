@@ -137,7 +137,7 @@ public class BPMTests extends KatelloCliTestScript{
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertEquals(getOutput(exec_result).trim(), "Successfully updated changeset [ "+changeset_name+" ]");
 		// Changeset promote:
-		exec_result = cs.promote();
+		exec_result = cs.apply();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		String res[] = getOutput(exec_result).trim().split("\\[40\\D");
 		Assert.assertEquals(res[res.length-1], "Changeset [ "+changeset_name+" ] promoted");

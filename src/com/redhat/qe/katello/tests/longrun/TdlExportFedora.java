@@ -108,7 +108,7 @@ public class TdlExportFedora extends KatelloCliTestScript{
 		KatelloChangeset cs = new KatelloChangeset(this.cs_prod, this.org, this.env_prod);
 		SSHCommandResult res = cs.update_addTemplate(this.template_prod);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset add_template)");
-		res = cs.promote();
+		res = cs.apply();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset promote)");
 	}
 	

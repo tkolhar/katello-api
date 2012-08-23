@@ -94,7 +94,7 @@ public class PackagesWithGPGKey extends KatelloCliTestScript{
 		KatelloChangeset cs_dev = new KatelloChangeset(changeset_dev, this.org, this.env);
 		cs_dev.create(); // create changeset
 		cs_dev.update_addProduct(this.product); // add product
-		res = cs_dev.promote(); // promote
+		res = cs_dev.apply(); // promote
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset promote)");
 	}
 	
@@ -120,6 +120,8 @@ public class PackagesWithGPGKey extends KatelloCliTestScript{
 				"Check - return message starts with word \"Successfully\" (rhsm subscribe)");
 		Assert.assertTrue(getOutput(res).contains(poolName), 
 				"Check - return message contains pool name "+ poolName);
+		
+		KatelloUtils.sshOnClient("service iptables stop; service ip6tables stop; service goferd restart;");
 	}
 	
 	@Test(description="Consume package installation, check gpgcheck flag", dependsOnMethods={"test_subscribeClient"}, enabled=true)
