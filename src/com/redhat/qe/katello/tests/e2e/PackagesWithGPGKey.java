@@ -121,14 +121,15 @@ public class PackagesWithGPGKey extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(res).contains(poolName), 
 				"Check - return message contains pool name "+ poolName);
 		
-		KatelloUtils.sshOnClient("service iptables stop; service ip6tables stop; service goferd restart;");
+		KatelloUtils.sshOnClient("service goferd restart;");
 	}
 	
 	@Test(description="Consume package installation, check gpgcheck flag", dependsOnMethods={"test_subscribeClient"}, enabled=true)
 	public void test_installPackage(){
 		SSHCommandResult res;
-		
+
 		log.info("E2E - check repo, install package");
+		KatelloUtils.sshOnClient("yum -y erase wolf lion || true");
 		KatelloUtils.sshOnClient("yum repolist"); // refresh repos
 		res = KatelloUtils.sshOnClient("cat /etc/yum.repos.d/redhat.repo");// out redhat.repo
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (out redhat.repo)");
@@ -145,6 +146,8 @@ public class PackagesWithGPGKey extends KatelloCliTestScript{
 		SSHCommandResult res;
 		
 		log.info("E2E - try remote package installation");
+		KatelloUtils.sshOnClient("yum -y erase wolf lion || true");
+		KatelloUtils.sshOnClient("rpm --import /tmp/RPM-GPG-KEY-dummy-packages-generator");
 		KatelloSystem system = new KatelloSystem(this.system, this.org, null);
 		res = system.packages_install("lion");
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (remote install lion)");
