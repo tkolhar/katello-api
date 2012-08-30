@@ -1,15 +1,25 @@
 package com.redhat.qe.katello.base.obj;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
+
 import javax.management.Attribute;
+
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.testng.Assert;
 
 import com.redhat.qe.katello.base.KatelloApi;
+import com.redhat.qe.katello.base.KatelloApiException;
+import com.redhat.qe.katello.base.KatelloApiResponse;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.tools.SSHCommandResult;
 
+//@JsonIgnoreProperties(ignoreUnknown=true)
 public class KatelloProduct {
 	protected static Logger log = Logger.getLogger(KatelloProduct.class.getName());
 	
@@ -61,6 +71,8 @@ public class KatelloProduct {
 	private KatelloCli cli;
 	private ArrayList<Attribute> opts;
 
+	public KatelloProduct() {} // No-arg ctor for resteasy
+	
 	public KatelloProduct(
 			String pName, String pOrg, String pProv, 
 			String pDesc, String pGpgkey, String pUrl,
@@ -77,7 +89,23 @@ public class KatelloProduct {
 			this.assumeyes = bAssumeyes.booleanValue();
 		this.opts = new ArrayList<Attribute>();
 	}
-	
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+    
+    public String getDescription() {
+        return description;
+    }
+    
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
 	public SSHCommandResult create(){
 		return create(null);
 	}
@@ -162,9 +190,22 @@ public class KatelloProduct {
 		return cli.run();
 	}
 	
-	public String api_list(){
-		return KatelloApi.get(String.format(API_CMD_LIST, this.org)).getContent();
-	}
+//	public static List<KatelloProduct> api_list(String org) throws KatelloApiException {
+//	    List<KatelloProduct> products = new ArrayList<KatelloProduct>();
+//		KatelloApiResponse response = KatelloApi.get(String.format(API_CMD_LIST, org));
+//		if ( response.getReturnCode() < 300 ) {
+//		    String json = response.getContent();
+//		    JSONArray jproducts = KatelloTestScript.toJSONArr(json);
+//		    for ( int i = 0; i < jproducts.size(); ++i ) {
+//		        JSONObject product = (JSONObject)jproducts.get(i);
+//		        products.add(new KatelloProduct( (String)product.get("name"), org, (String)product.get("provider_name"), 
+//            (String)product.get("description"), (String)product.get("gpg_key_id"), /*(String)product.get("url")*/"",
+//            Boolean.TRUE, Boolean.FALSE));
+//		    }
+//		    return products;
+//		}
+//		throw new KatelloApiException(response);
+//	}
 
 	
 	// ** ** ** ** ** ** **
@@ -199,5 +240,5 @@ public class KatelloProduct {
 			// TODO - needs an implementation - when product is synchronized.
 		}
 	}
-	
+
 }
