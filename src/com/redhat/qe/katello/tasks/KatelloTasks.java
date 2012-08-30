@@ -478,6 +478,14 @@ public class KatelloTasks {
         return _return.getEntity();
     }
 
+    public KatelloSystem updatePackages(KatelloSystem consumer) throws KatelloApiException {
+        ClientResponse<KatelloSystem> _return = null;
+        List<Map<String,Object>> packages = createPackages();
+        _return = consumerResource.updatePackages(consumer.getUuid(), packages);
+        if ( _return.getStatus() > 299) throw new KatelloApiException(_return);
+        return _return.getEntity();
+    }
+    
     public String deleteUser(Long userId) throws KatelloApiException {
         ClientResponse<String> _return = null;
         _return = userResource.delete(userId);
@@ -656,6 +664,31 @@ public class KatelloTasks {
 	        if(theEnv.getPriorId()==null)
 	            log.warning("Unable to retrieve environment.id for: ["+theEnv.getName()+"]");
 	    }
+	}
+	
+	private List<Map<String,Object>> createPackages() {
+	    Object[][] packages = {{"Red Hat, Inc.","parted", Long.valueOf(0), "2.1", "17.el6", "x86_64"},
+	                           {"Red Hat, Inc.", "gstreamer-tools", Long.valueOf(0), "0.10.29", "1.el6", "x86_64"},
+	                           {"Red Hat, Inc.", "pm-utils", Long.valueOf(0), "1.2.5", "9.el6", "x86_64"},
+	                           {"Red Hat, Inc.", "iw", Long.valueOf(0), "0.9.17", "4.el6", "x86_64"},
+	                           {"Red Hat, Inc.", "crda", Long.valueOf(0), "1.1.1_2010.11.22", "1.el6", "x86_64"},
+	                           {"Red Hat, Inc.", "keyutils", Long.valueOf(0), "1.4", "3.el6", "x86_64"},
+	                           {"Red Hat, Inc.", "ntp", Long.valueOf(0), "4.2.4p8", "2.el6", "x86_64"},
+	                           {"Red Hat, Inc.", "libutempter", Long.valueOf(0), "1.1.5", "4.1.el6", "x86_64"},
+	                           {"Red Hat, Inc.", "cronie", Long.valueOf(0), "1.4.4", "7.el6", "x86_64"},
+	                           {"Red Hat, Inc.", "boost-iostreams", Long.valueOf(0), "1.41.0", "11.el6_1.2", "x86_64"},
+	                           {"Red Hat, Inc.", "certmonger", Long.valueOf(0), "0.50", "3.el6", "x86_64"},
+	                           {"Red Hat, Inc.", "upstart", Long.valueOf(0), "0.6.5", "10.el6", "x86_64"}};
+	    String[] keys = { "vendor", "name", "epoch", "version", "release", "arch" };
+	    List<Map<String,Object>> pkgsList = new ArrayList<Map<String,Object>>();
+	    for ( Object[] pkg : packages ) {
+	        Map<String,Object> pkgMap = new HashMap<String,Object>();
+	        for ( int i = 0; i < keys.length; ++i ) {
+                pkgMap.put(keys[i], pkg[i]);	            
+	        }
+	        pkgsList.add(pkgMap);
+	    }
+	    return pkgsList;
 	}
 	
     private Map<String,Object> createFacts(String hostname, String uuid, String orgName) {
