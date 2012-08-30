@@ -1,12 +1,26 @@
 package com.redhat.qe.katello.base.obj;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import javax.management.Attribute;
+
+import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.codehaus.jackson.annotate.JsonProperty;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+
 import com.redhat.qe.katello.base.KatelloApi;
+import com.redhat.qe.katello.base.KatelloApiException;
+import com.redhat.qe.katello.base.KatelloApiResponse;
 import com.redhat.qe.katello.base.KatelloCli;
+import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class KatelloSystem {
 	
 	// ** ** ** ** ** ** ** Public constants	
@@ -49,25 +63,131 @@ public class KatelloSystem {
 	
 	// ** ** ** ** ** ** ** Class members
 	public String name;
-	String org;
-	String environment;
+	private String org;
+	private String env;
 	public String uuid;
+	private String href;
+	private Long environmentId;
+	private KatelloOwner owner;
+	private Map<String, String> facts;
+	private Map<String, Object> idCert;
+	private Map<String,Object> environment;
 	
 	private KatelloCli cli;
 	private ArrayList<Attribute> opts;
 	
+	public KatelloSystem() {} // For resteasy
+	
 	public KatelloSystem(String pName, String pOrg, String pEnv){
 		this.name = pName;
 		this.org = pOrg;
-		this.environment = pEnv;
+		this.env = pEnv;
 		this.opts = new ArrayList<Attribute>();
 	}
 	
+	public KatelloSystem(String name, String org, String env, String uuid, Long environmentId, String href, KatelloOwner owner, Map<String, String> facts, Map<String, Object> idCert) {
+	    this(name, org, env);
+        this.uuid = uuid;
+        this.environmentId = environmentId;
+	    this.owner = owner;
+	    this.href = href;
+	    this.facts = facts;
+	    this.idCert = idCert;
+	}
+	
+	// Accessors
+	public String getName() {
+	    return name;
+	}
+	
+    public void setName(String name) {
+        this.name = name;
+    }
+
+	@JsonProperty("organization")
+	public String getOrganization() {
+	    return org;
+	}
+	
+	@JsonProperty("organization")
+    public void setOrganization(String org) {
+        this.org = org;
+    }
+
+	public Map<String,Object> getEnvironment() {
+	    return environment;
+	}
+	
+	public void setEnvironment(Map<String,Object> environment) {
+	    this.environment = environment;
+	}
+	
+//	@JsonProperty("envrionment")
+//	public Map<String,Object> getEnvironmentMap() {
+//	    return environmentMap;
+//	}
+//	
+//	@JsonProperty("environment")
+//	public void setEnvironmentMap(Map<String,Object> environmentMap) {
+//	    this.environmentMap = environmentMap;
+//	}
+	
+	public Long getEnvironmentId() {
+	    if ( environment != null ) {
+	        environmentId = Long.valueOf(environment.get("id").toString());
+	    }
+	    return environmentId;
+	}
+	
+    public void setEnvironmentId(Long environmentId) {
+        this.environmentId = environmentId;
+    }
+
+	public String getUuid() {
+	    return uuid;
+	}
+	
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
+
+	public KatelloOwner getOwner() {
+	    return owner;
+	}
+	
+    public void setOwner(KatelloOwner owner) {
+        this.owner = owner;
+    }
+
+	public String getHref() {
+	    return href;
+	}
+	
+    public void setHref(String href) {
+        this.href = href;
+    }
+
+	public Map<String, String> getFacts() {
+	    return facts;
+	}
+	
+    public void setFacts(Map<String, String> facts) {
+        this.facts = facts;
+    }
+
+	public Map<String, Object> getIdCert() {
+	    return idCert;
+	}
+	
+    public void setIdCert(Map<String, Object> idCert) {
+        this.idCert = idCert;
+    }
+
 	// ** ** ** ** ** ** **
 	// ASSERTS
 	// ** ** ** ** ** ** **
 	
-	public SSHCommandResult rhsm_register(){
+    public SSHCommandResult rhsm_register(){
 		String cmd = RHSM_CREATE;
 		
 		if(this.name != null)
@@ -209,11 +329,30 @@ public class KatelloSystem {
 		return KatelloUtils.sshOnClient(cmd);		
 	}
 	
-	public String api_info(String byId){
-		return KatelloApi.get(String.format(API_CMD_INFO, byId)).getContent();
-	}
-	
-	public String api_getSerials(String customerid){
-		return KatelloApi.get(String.format(API_CMD_GET_SERIALS, customerid)).getContent();
-	}
+//	@SuppressWarnings("unchecked")
+//    public static KatelloSystem api_info(String byId) throws KatelloApiException {
+//		KatelloApiResponse response = KatelloApi.get(String.format(API_CMD_INFO, byId));
+//		if ( response.getReturnCode() == 200 ) {
+//		    String json = response.getContent();
+//		    JSONObject jobj = KatelloTestScript.toJSONObj(json);
+//		    JSONObject jenv = (JSONObject)jobj.get("environment");
+//		    JSONObject jown = (JSONObject)jobj.get("owner");
+//		    KatelloOwner owner = new KatelloOwner((Long)jown.get("id"), (String)jown.get("key"), (String)jown.get("displayName"), (String)jown.get("href"));
+//		    return new KatelloSystem((String)jobj.get("name"), (String)jenv.get("organization"), (String)jenv.get("name"), (String)jobj.get("uuid"), (Long)jenv.get("id"), (String)jobj.get("href"), owner, (Map<String,String>)jobj.get("facts"), (Map<String,Object>)jobj.get("idCert"));          
+//        }
+//		throw new KatelloApiException(response);
+//	}
+//	
+//	public static List<Long> api_getSerials(String customerId) throws KatelloApiException {
+//	    KatelloApiResponse response = KatelloApi.get(String.format(API_CMD_GET_SERIALS, customerId));
+//	    if ( response.getReturnCode() == 200 ) {
+//	        List<Long> _return = new ArrayList<Long>();
+//	        JSONArray serials = KatelloTestScript.toJSONArr(response.getContent());
+//	        for ( Object serial : serials ) {
+//	            _return.add((Long)((JSONObject)serial).get("serial"));
+//	        }
+//	        return _return;
+//	    }
+//	    throw new KatelloApiException(response);
+//	}
 }

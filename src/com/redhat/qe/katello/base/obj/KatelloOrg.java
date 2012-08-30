@@ -8,12 +8,18 @@ import javax.management.Attribute;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.codehaus.jackson.annotate.JsonProperty;
+import org.json.simple.JSONObject;
 
 import com.redhat.qe.katello.base.KatelloApi;
+import com.redhat.qe.katello.base.KatelloApiException;
+import com.redhat.qe.katello.base.KatelloApiResponse;
 import com.redhat.qe.katello.base.KatelloCli;
-import com.redhat.qe.katello.base.KatelloPostParam;
+import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.tools.SSHCommandResult;
 
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class KatelloOrg {
     protected static Logger log = Logger.getLogger(KatelloOrg.class.getName());
 
@@ -28,8 +34,8 @@ public class KatelloOrg {
 	public static final String CMD_DELETE = "org delete";
 	public static final String CMD_UPDATE = "org update";
 	
-	public static final String API_CMD_CREATE = "/organizations";
-	public static final String API_CMD_LIST = "/organizations";
+//	public static final String API_CMD_CREATE = "/organizations";
+//	public static final String API_CMD_LIST = "/organizations";
 	public static final String API_CMD_INFO = "/organizations/%s";
 	
 	public static final String ERR_TEMPLATE_NOTFOUND = 
@@ -51,14 +57,50 @@ public class KatelloOrg {
 	// ** ** ** ** ** ** ** Class members
 	public String name;
 	public String description;
+	private Long id;
+	private String cpKey;
 	
 	private KatelloCli cli;
 	private ArrayList<Attribute> opts;
+	
+	public KatelloOrg() {	    
+	}
 	
 	public KatelloOrg(String pName, String pDesc){
 		this.name = pName;
 		this.description = pDesc;
 		this.opts = new ArrayList<Attribute>();
+	}
+	
+	protected KatelloOrg(Long id, String name, String description) {
+	    this(name, description);
+	    this.id = id;
+	}
+	
+	public Long getId() {
+	    return id;
+	}
+	
+	public void setId(Long id) {
+	    this.id = id;
+	}
+	
+	public String getName() {
+	    return name;
+	}
+	
+	public void setName(String name) {
+	    this.name = name;
+	}
+	
+	@JsonProperty("cp_key")
+	public String getCpKey() {
+	    return cpKey;
+	}
+
+	@JsonProperty("cp_key")
+	public void setCpKey(String cpKey) {
+	    this.cpKey = cpKey;
 	}
 	
 	public SSHCommandResult cli_create(){		
@@ -76,21 +118,12 @@ public class KatelloOrg {
 		}	
 		return cli.run();
 	}
-	public String api_create(){		
-	    List<NameValuePair> params = new ArrayList<NameValuePair>();
-	    params.add(new BasicNameValuePair("name", this.name));
-		params.add(new BasicNameValuePair("description", this.description));
-		return KatelloApi.post(params,API_CMD_CREATE).getContent();
-	}
 	
 	public SSHCommandResult cli_info(){
 		opts.clear();
 		opts.add(new Attribute("name", this.name));
 		cli = new KatelloCli(CLI_CMD_INFO, opts);
 		return cli.run();
-	}
-	public String api_info(){
-		return KatelloApi.get(String.format(API_CMD_INFO,this.name)).getContent();
 	}
 	
 	public SSHCommandResult cli_list(){
@@ -99,10 +132,6 @@ public class KatelloOrg {
 		return cli.run();
 	}
 		
-	public String api_list(){
-		return KatelloApi.get(API_CMD_LIST).getContent();
-	}
-
 	public SSHCommandResult subscriptions(){
 		opts.clear();
 		opts.add(new Attribute("name", this.name));

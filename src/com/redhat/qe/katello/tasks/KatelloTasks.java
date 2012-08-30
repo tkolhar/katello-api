@@ -1,22 +1,44 @@
 package com.redhat.qe.katello.tasks;
 
-import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
+import javax.activation.DataSource;
+import javax.activation.FileDataSource;
+
+import org.jboss.resteasy.client.ClientExecutor;
+import org.jboss.resteasy.client.ClientResponse;
+import org.jboss.resteasy.client.ProxyFactory;
+import org.jboss.resteasy.plugins.providers.RegisterBuiltin;
+import org.jboss.resteasy.spi.ResteasyProviderFactory;
 
 import com.redhat.qe.katello.base.KatelloApi;
+import com.redhat.qe.katello.base.KatelloApiException;
 import com.redhat.qe.katello.base.KatelloTestScript;
+import com.redhat.qe.katello.base.obj.KatelloEntitlement;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
+import com.redhat.qe.katello.base.obj.KatelloOrg;
+import com.redhat.qe.katello.base.obj.KatelloPool;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
-import com.redhat.qe.katello.common.KatelloConstants;
+import com.redhat.qe.katello.base.obj.KatelloRepo;
+import com.redhat.qe.katello.base.obj.KatelloSerial;
+import com.redhat.qe.katello.base.obj.KatelloSystem;
+import com.redhat.qe.katello.base.obj.KatelloUser;
 import com.redhat.qe.katello.common.KatelloUtils;
+import com.redhat.qe.katello.resource.ConsumerResource;
+import com.redhat.qe.katello.resource.OrganizationResource;
+import com.redhat.qe.katello.resource.PoolResource;
+import com.redhat.qe.katello.resource.ProviderResource;
+import com.redhat.qe.katello.resource.RepositoryResource;
+import com.redhat.qe.katello.resource.UserResource;
 import com.redhat.qe.tools.ExecCommands;
 
 /**
@@ -27,58 +49,56 @@ import com.redhat.qe.tools.ExecCommands;
  */
 public class KatelloTasks {
 	protected static Logger log = Logger.getLogger(KatelloTasks.class.getName());
+	private ClientExecutor executor;
+	private OrganizationResource orgResource;
+	private ProviderResource providerResource;
+	private RepositoryResource repositoryResource;
+	private ConsumerResource consumerResource;
+	private UserResource userResource;
+	private PoolResource poolResource;
+	
+	static {
+        // this initialization only needs to be done once per VM
+        RegisterBuiltin.register(ResteasyProviderFactory.getInstance());	            
+	}
+	
+	public KatelloTasks() {
+        executor = KatelloApi.createExecutor();
+        String protocol = System.getProperty("katello.server.protocol", "https");
+        String hostname = System.getProperty("katello.server.hostname", "localhost");
+        int port = Integer.valueOf(System.getProperty("katello.server.port", "443"));
+        String product = System.getProperty("katello.product", "katello");        
+        String url = String.format("%s://%s:%d/%s/api", protocol, hostname, port, product);
+        orgResource = ProxyFactory.create(OrganizationResource.class, url, executor);
+        providerResource = ProxyFactory.create(ProviderResource.class, url, executor);
+        repositoryResource = ProxyFactory.create(RepositoryResource.class, url, executor);
+        consumerResource = ProxyFactory.create(ConsumerResource.class, url, executor);
+        userResource = ProxyFactory.create(UserResource.class, url, executor);
+        poolResource = ProxyFactory.create(PoolResource.class, url, executor);
+	}
 //	private ExecCommands localCommandRunner = null;
 // # ************************************************************************* #
 // # PUBLIC section                                                            #
 // # ************************************************************************* #	
 
-	/** curl -s -u ${username}:${password} -H \"Accept: application/json\" 
-	 * -H \"content-type: application/json\" -d \"${content}\" 
-	 * -X POST http://${servername}:${port}/api${call}<br>
-	 * @param content Call content in JSON format
-	 * @param call Relative path of the call, 
-	 * e.g. "/organizations/&lt;orgid&gt;/environments"
-	 * @return The output string of the call 
-	 */
-	public String apiKatello_POST(String content, String call) throws IOException{
-		return apiKatello_POST(content, call, null);
-	}
-	
-	public String apiKatello_POST(String content, String call, String query) throws IOException {
-	    return KatelloApi.postJson(content, call, query).getContent();
-	}
-	
-	public String apiKatello_POST_manifest(String manifest, String call) throws IOException {
-		return KatelloApi.postFile( manifest, call ).getContent();
-	}
-	
-	/** curl -s -u ${username}:${password} -H \"Accept: application/json\" 
-	 * -H \"content-type: application/json\" -d \"${content}\" 
-	 * -X PUT http://${servername}:${port}/api${call}<br>
-	 * @param content Call content in JSON format
-	 * @param call Relative path of the call, 
-	 * e.g. "/organizations/&lt;orgid&gt;/environments"
-	 * @return The output string of the call 
-	 */
-	public String apiKatello_PUT(String content, String call) throws IOException{
-	    return KatelloApi.putJson(content, call).getContent();
-	}
 
-	public String apiKatello_DELETE(String call) throws IOException{
-		return KatelloApi.delete(call).getContent();
-	}
+    public String uploadManifest(Long providerId, String exportZipPath) {
+        Map<String, DataSource>  parts = new HashMap<String, DataSource>();
+        parts.put("file", new FileDataSource(new File(exportZipPath)));
+        Object response = providerResource.import_manifest(providerId, parts);
+        return response.toString();
+    }
 	
-	public JSONObject getEnvironment(String orgName, String envName){
-		JSONObject _return = null;
+	public KatelloEnvironment getEnvironment(String orgName, String envName){
+		KatelloEnvironment _return = null;
 		try{
 			log.info(String.format("Retrieve environment: [%s] of Org: [%s]", envName, orgName));
-			KatelloEnvironment _env = new KatelloEnvironment(null, null, orgName, null);
-			JSONArray envs = KatelloTestScript.toJSONArr(_env.api_list());
-			JSONObject env;
-			for(int i=0;i<envs.size();i++){
-				env = (JSONObject)envs.get(i);
-				if(((String)env.get("name")).equals(envName))
-					return env;
+	        ClientResponse<List<KatelloEnvironment>> envResponse = orgResource.listEnvironments(orgName);
+			List<KatelloEnvironment> envs = envResponse.getEntity();
+			for ( KatelloEnvironment env : envs ) {
+			    if ( env.getName().equals(envName)) {
+			        return env;
+			    }
 			}
 		}catch (Exception e) {
 			log.log(Level.SEVERE, e.getMessage(), e);
@@ -86,16 +106,13 @@ public class KatelloTasks {
 		return _return;		
 	}
 	
-	public String deleteEnvironment(String orgName, String envName){
-		String _return = null;
-		try{
-			String env_id = ((Long)getEnvironment(orgName, envName).get("id")).toString();
-			_return = apiKatello_DELETE(String.format("/organizations/%s/environments/%s",orgName,env_id));
-			log.info(String.format("Deleted the environment [%s] of org: [%s]",envName,orgName));
-		}catch (Exception e) {
-			log.log(Level.SEVERE, e.getMessage(), e);
-		}
-		return _return;		
+	public String deleteEnvironment(String orgName, String envName) throws KatelloApiException {
+		ClientResponse<String> _return = null;
+		Long envId = getEnvironment(orgName, envName).getId();
+		_return = orgResource.deleteEnvironment(orgName, envId);
+		if ( _return.getStatus() > 299 ) throw new KatelloApiException(_return);
+		log.info(String.format("Deleted the environment [%s] of org: [%s]",envName,orgName));
+		return _return.getEntity();		
 	}
 	
 	/**
@@ -106,90 +123,190 @@ public class KatelloTasks {
 	 * @author gkhachik
 	 * @since 16.Feb.2011 
 	 */
-	public JSONObject getEnvFromOrgList(String orgName, String envName){
-		
-		String str_envs = new KatelloEnvironment(null, null, orgName, null).api_list();
-		JSONArray json_envs = KatelloTestScript.toJSONArr(str_envs);
-		for(int i=0;i<json_envs.size();i++){
-			JSONObject json_env = (JSONObject)json_envs.get(i);
-			if(json_env.get("name").equals(envName)){
-				return json_env;
-			}
+	public KatelloEnvironment getEnvFromOrgList(String orgName, String envName){
+		List<KatelloEnvironment> envs = orgResource.listEnvironments(orgName).getEntity();
+		for ( KatelloEnvironment env : envs ) {
+		    if ( env.getName().equals(envName)) {
+		        return env;
+		    }
 		}
 		return null;
-	}
+	}	
 	
-	public String createProvider(String org_name, String provider_name, 
-			String descr, String type){
-		String _return = null;
-		Object[] json_args ={
-				org_name,provider_name,descr,type};
-		
-		String mCall = String.format(
-				KatelloConstants.JSON_CREATE_PROVIDER, json_args);
-		try{
-			_return = apiKatello_POST(mCall, "/providers");
-			log.info(String.format("Created a provider with: " +
-					"name=[%s]; description=[%s]; " +
-					"provider_type=[%s]", 
-					provider_name,descr,type));
-		}catch (Exception e) {
-			log.log(Level.SEVERE, e.getMessage(), e);
-		}
-		return _return;
-	}
+    public List<KatelloOrg> getOrganizations() throws KatelloApiException {
+        ClientResponse<List<KatelloOrg>> _return = null;
+        _return = orgResource.list();
+        if ( _return.getStatus() > 299 ) throw new KatelloApiException(_return);
+        log.info(String.format("Org list returned with %d entries", _return.getEntity().size()));
+        return _return.getEntity();
+    }
 
-	public String createProvider(String org_name, String provider_name, 
-			String descr, String type, String url){
-		String _return = null;
-		Object[] json_args ={
-				org_name,provider_name,descr,type, url};
-		
-		String mCall = String.format(
-				KatelloConstants.JSON_CREATE_PROVIDER_WITH_URL, json_args);
-		try{
-			_return = apiKatello_POST(mCall, "/providers");
+    public KatelloOrg getOrganization(String organizationKey) throws KatelloApiException {
+        ClientResponse<KatelloOrg> _return = null;
+        _return = orgResource.getOrganization(organizationKey);
+        if ( _return.getStatus() > 299 ) throw new KatelloApiException(_return);
+        return _return.getEntity();
+    }
+
+    public KatelloSystem getConsumer(String consumer_id) throws KatelloApiException {
+        ClientResponse<KatelloSystem> _return = null;
+        _return = consumerResource.get(consumer_id);
+        if ( _return.getStatus() > 299 ) throw new KatelloApiException(_return);        
+        return _return.getEntity();
+    }
+
+    public List<KatelloProduct> getProductsByOrg(String org_name) throws KatelloApiException {
+        ClientResponse<List<KatelloProduct>> _return = null;
+        _return = orgResource.listProducts(org_name);
+        if ( _return.getStatus() > 299 ) throw new KatelloApiException(_return);
+        return _return.getEntity();
+    }
+
+    public List<Long> getSerials(String consumerId) throws KatelloApiException {
+        List<Long> _return = new ArrayList<Long>();
+        ClientResponse<List<KatelloSerial>> serialsResponse = consumerResource.listSerials(consumerId);
+        if ( serialsResponse.getStatus() > 299 ) throw new KatelloApiException(serialsResponse);        
+        for ( KatelloSerial serial : serialsResponse.getEntity() ) {
+            _return.add(serial.getId());
+        }
+        return _return;
+    }
+
+    public List<KatelloEnvironment> getEnvironments(String org_name) throws KatelloApiException {
+        ClientResponse<List<KatelloEnvironment>> _return = null;
+        _return = orgResource.listEnvironments(org_name);
+        if ( _return.getStatus() > 299 ) throw new KatelloApiException(_return);
+        return _return.getEntity();
+    }
+
+    public List<KatelloProvider> listProviders(String org_name) throws KatelloApiException {
+        ClientResponse<List<KatelloProvider>> _return = null;
+        _return = orgResource.listProviders(org_name);
+        if ( _return.getStatus() > 299 ) throw new KatelloApiException(_return);
+        return _return.getEntity();
+    }
+
+    public KatelloUser createUser(String username, String email, String password, boolean disabled) throws KatelloApiException {
+        ClientResponse<KatelloUser> _return = null;
+        Map<String,Object> user = new HashMap<String,Object>();
+        user.put("username", username);
+        user.put("password", password);
+        user.put("email", email);
+        user.put("disabled", Boolean.valueOf(disabled));
+
+        _return = userResource.create(user);
+        if ( _return.getStatus() > 299 ) throw new KatelloApiException(_return);
+        return _return.getEntity();
+    }
+
+    public List<KatelloUser> listUsers() throws KatelloApiException {
+        ClientResponse<List<KatelloUser>> _return = null;
+        _return = userResource.list();
+        if ( _return.getStatus() > 299 ) throw new KatelloApiException(_return);
+        return _return.getEntity();
+    }
+
+    public KatelloUser getUser(Long userId) throws KatelloApiException {
+        ClientResponse<KatelloUser> _return = null;
+        _return = userResource.get(userId);
+        if ( _return.getStatus() > 299 ) throw new KatelloApiException(_return);
+        return _return.getEntity();
+    }
+
+    
+    public KatelloOrg createOrganization(String org_name, String org_description) throws KatelloApiException {
+        ClientResponse<KatelloOrg> _return = null;
+        Map<String,Object> orgPost = new HashMap<String,Object>();
+        orgPost.put("name", org_name);
+        orgPost.put("description", org_description);
+        _return = orgResource.create(orgPost);
+        if ( _return.getStatus() > 299 ) throw new KatelloApiException(_return);
+        log.info(String.format("Create an org with: name=[%s]; description=[%s]", org_name, org_description));
+        return _return.getEntity();
+    }
+
+    public KatelloEnvironment createEnvironment(String orgKey, String env_name,
+            String env_descr, String prior) throws KatelloApiException {
+        ClientResponse<KatelloEnvironment> _return = null;
+        Map<String,Object> envPost = new HashMap<String,Object>();
+        envPost.put("name", env_name);
+        envPost.put("description", env_descr);
+        Long priorId = null;
+        List<KatelloEnvironment> envs = orgResource.listEnvironments(orgKey).getEntity();
+        for (KatelloEnvironment env : envs ) {
+            if(env.getName().equals(prior)){
+                priorId = env.getId();
+                break;
+            }
+        }
+        envPost.put("prior", priorId);
+        Map<String,Object> env = new HashMap<String,Object>();
+        env.put("environment", envPost);
+        _return = orgResource.createEnvironment(orgKey, env);
+        if ( _return.getStatus() > 299 ) throw new KatelloApiException(_return);
+        log.info(String.format("Create environment with: name=[%s]; description=[%s]; org=[%s]", env_name, env_descr, orgKey));
+        return null;
+    }
+
+	public KatelloProvider createProvider(String orgName, String providerName, 
+			String description, String type, String url) throws KatelloApiException {
+		ClientResponse<KatelloProvider> _return = null;
+		try {
+		    Map<String,Object> katelloProviderPost = new HashMap<String,Object>();
+		    katelloProviderPost.put("organization_id", orgName);
+		    Map<String,String> provider = new HashMap<String,String>();
+		    provider.put("name", providerName);
+		    provider.put("description", description);
+		    provider.put("provider_type", type);
+		    if ( url != null && !url.isEmpty() ) {
+		        provider.put("repository_url", url);
+		    }
+		    katelloProviderPost.put("provider", provider);
+		    _return = providerResource.create(katelloProviderPost);
+		    if ( _return.getStatus() > 299 ) throw new KatelloApiException(_return);
 			log.info(String.format("Created a provider with: " +
 					"name=[%s]; description=[%s]; " +
 					"provider_type=[%s], repository_url=[%s]", 
-					provider_name,descr,type,url));
+					providerName,description,type,url));
 		}catch (Exception e) {
 			log.log(Level.SEVERE, e.getMessage(), e);
 		}
-		return _return;
+		return _return.getEntity();
 	}
 	
-	public String createProduct(String org_name, String provider_name, 
-			String product_name, String product_descr, String product_url){
-		String _return = null;
-		Object[] json_args ={
-				product_name,product_descr,product_url};
-		
-		String mCall = String.format(
-				KatelloConstants.JSON_CREATE_PRODUCT_WITH_URL, json_args);
+	public KatelloProduct createProduct(String org_name, String provider_name, 
+			String productName, String productDescription, String productUrl) throws KatelloApiException {
+		ClientResponse<KatelloProduct> _return = null;
 		try{
-			String provider_id = ((Long)getProvider(org_name, provider_name).get("id")).toString();
-			_return = apiKatello_POST(mCall, "/providers/"+provider_id+"/product_create");
+		    Map<String,Object> katelloProduct = new HashMap<String,Object>();
+		    Map<String,String> product = new HashMap<String,String>();
+		    product.put("name", productName);
+		    product.put("description", productDescription);
+		    product.put("url", productUrl);
+		    katelloProduct.put("product", product);
+			Long providerId = getProvider(org_name, provider_name).getId();
+			_return = providerResource.create(providerId, katelloProduct);
+			if ( _return.getStatus() > 299 ) throw new KatelloApiException(_return);
 			log.info(String.format("Created a product for provider: [%s] with: " +
 					"name=[%s]; description=[%s]; " +
 					"url=[%s]", 
-					provider_name,product_name,product_descr,product_url));
+					provider_name,productName,productDescription,productUrl));
 		}catch (Exception e) {
 			log.log(Level.SEVERE, e.getMessage(), e);
 		}
-		return _return;
+		return _return.getEntity();
 	}
 
-	public String createRepository(String providerName, String candlepin_id, 
-			String repo_name, String repo_url){
-		String _return = null;
-		Object[] json_args ={
-				repo_name,candlepin_id, repo_url};
-		
-		String mCall = String.format(
-				KatelloConstants.JSON_CREATE_REPO_WITH_URL, json_args);
+	public KatelloRepo createRepository(String providerName, String candlepin_id, 
+	        String repo_name, String repo_url) throws KatelloApiException {
+		ClientResponse<KatelloRepo> _return = null;
 		try{
-			_return = apiKatello_POST(mCall, "/repositories");
+		    Map<String,String> repository = new HashMap<String,String>();
+		    repository.put("name", repo_name);
+		    repository.put("product_id", candlepin_id);
+		    repository.put("url", repo_url);
+		    _return = repositoryResource.create(repository);
+			if ( _return.getStatus() > 299 ) throw new KatelloApiException(_return);
 			log.info(String.format("Created a repo for provider: [%s] with: " +
 					"name=[%s]; " +
 					"product_id=[%s]; "+
@@ -198,33 +315,39 @@ public class KatelloTasks {
 		}catch (Exception e) {
 			log.log(Level.SEVERE, e.getMessage(), e);
 		}
-		return _return;
+		return _return.getEntity();
 	}
 		
-	public String import_products(String provider_id, String products_json){
-		String _return=null;
+	public List<KatelloProduct> import_products(String orgName, String providerName, Map<String,Object> products) throws KatelloApiException {
+		ClientResponse<List<KatelloProduct>> _return=null;
+		Long providerId = getProvider(orgName, providerName).getId();
 		try{
-			_return = apiKatello_POST(products_json, 
-					"/providers/"+provider_id+"/import_products");
+		    _return = providerResource.import_products(providerId, products);
+		    if ( _return.getStatus() > 299 ) throw new KatelloApiException(_return);
 			log.info(String.format("Importing product(s) for provider: id=[%s]", 
-					provider_id));
+					providerId));
 		}catch (Exception e) {
 			log.log(Level.SEVERE, e.getMessage(), e);
 		}
-		return _return;		
+		return _return.getEntity();
 	}
 	
-	public JSONObject getProductByOrg(String orgName, String productName){
-		JSONObject prod =null;
-		try{
-			KatelloProduct _prod = new KatelloProduct(null, orgName, null, null, null, null, null, null);
-			JSONArray jprods = KatelloTestScript.toJSONArr(_prod.api_list()); 
-			if(jprods ==null) return null;
+	public List<KatelloProduct> listProducts(String orgName) throws KatelloApiException {
+	    ClientResponse<List<KatelloProduct>> _return = null;
+	    _return = orgResource.listProducts(orgName);
+	    if ( _return.getStatus() > 299 ) throw new KatelloApiException(_return);
+	    return _return.getEntity();
+	}
+	
+	public KatelloProduct getProductByOrg(String orgName, String productName) throws KatelloApiException {
+		try{		   
+		    List<KatelloProduct> products = listProducts(orgName);
+		    if ( products.size() == 0 ) return null;
 			log.info(String.format("Get product: name=[%s]",productName));
-			for(int i=0;i<jprods.size();i++){
-				prod = (JSONObject)jprods.get(i);
-				if(((String)prod.get("name")).equals(productName))
-					return prod;
+			for ( KatelloProduct product : products ) {
+			    if ( product.getName().equals(productName)) {
+			        return product;
+			    }
 			}
 		}catch (Exception e) {
 			log.log(Level.SEVERE, e.getMessage(), e);
@@ -232,110 +355,170 @@ public class KatelloTasks {
 		return null;
 	}
 	
-	public String subscribeConsumer(String consumerID, String poolID){
-		String _return=null;
-		try{
-			_return = apiKatello_POST("", 
-					"/consumers/"+consumerID+"/entitlements", "pool="+poolID);
-			log.info(String.format("Subscribing consumer: [%s] to the pool: [%s]", 
-					consumerID,poolID));
-		}catch (Exception e) {
-			log.log(Level.SEVERE, e.getMessage(), e);
-		}
-		return _return;		
+	public List<KatelloEntitlement> subscribeConsumer(String consumerId, String poolId) throws KatelloApiException {
+		ClientResponse<List<KatelloEntitlement>> _return = null;
+		_return = consumerResource.subscribe(consumerId, poolId);
+		if ( _return.getStatus() > 299 ) throw new KatelloApiException(_return);		
+		log.info(String.format("Subscribing consumer: [%s] to the pool: [%s]", consumerId,poolId));
+		return _return.getEntity();
 	}
 	
-	public JSONObject getProvider(String org_name, String byName){
-		JSONArray providers = KatelloTestScript.toJSONArr(
-				new KatelloProvider(null, org_name, null, null).api_list(org_name));
-		JSONObject tmpProv;
-		for(int i=0;i<providers.size();i++){
-			tmpProv = (JSONObject)providers.get(i);
-			if(tmpProv.get("name").equals(byName))
-				return tmpProv;
+	public KatelloProvider getProvider(String org_name, String byName) throws KatelloApiException {
+		ClientResponse<List<KatelloProvider>> providers = orgResource.listProviders(org_name);
+		for ( KatelloProvider provider : providers.getEntity() ) {
+		    if ( provider.getName().equals(byName)) {
+		        return provider;
+		    }
 		}
 		return null;
 	}
-
-	public String deleteProvider(String orgName, String providerName){
-		String _return=null;
-		String provider_id = ((Long)getProvider(orgName, providerName).get("id")).toString();
-		try{
-			_return = apiKatello_DELETE("/providers/"+provider_id);
-			log.info("Delete provider: name=["+providerName+"]; id=["+provider_id+"]");
-		}catch (Exception e) {
-			log.log(Level.SEVERE, e.getMessage(), e);
-		}
-		return _return;
-	}
-
-	public String createConsumer(
-			String orgName, String hostname, String uuid, String json_filename){
-		String _return=null;
-		try{
-			String sFacts = "{}";
-			try{
-				BufferedReader br = new BufferedReader(new FileReader(json_filename));
-				sFacts=br.readLine();
-				br.close();
-			}catch(IOException iex){
-				log.severe(iex.getMessage());
-				throw new RuntimeException(iex);
-			}
-			// Replace the values in facts-virt.json
-			sFacts = sFacts.replaceAll("\\$\\{HOSTNAME\\}", hostname);
-			sFacts = sFacts.replaceAll("\\$\\{UUID\\}", uuid);
-			sFacts = sFacts.replaceAll("\\$\\{ORG_NAME\\}", orgName);
-			_return = apiKatello_POST(sFacts, "/consumers", "owner="+orgName);
-//			_return = apiKatello_POST_candlepinOwner(sFacts, 
-//					"/consumers?owner="+orgName);
-			log.info(String.format("Creating consumer from [%s] template with: uuid=[%s]; hostname=[%s]; org_name=[%s]", 
-					json_filename,uuid, hostname,orgName));
-		}catch (Exception e) {
-			log.log(Level.SEVERE, e.getMessage(), e);
-		}
-		return _return;		
+	
+	public String getPool(String poolName) throws KatelloApiException {
+	    List<KatelloPool> pools = getPools();
+	    for ( KatelloPool pool : pools ) {
+	        if(pool.getProductName().equals(poolName)) {
+	            return pool.getId();
+	        }
+	    }
+	    return null;
 	}
 	
-	public String deleteConsumer(String consumer_id){
-		String _return=null;
-		try{
-			_return = apiKatello_DELETE("/consumers/"+consumer_id);
-			log.info(String.format("Remove consumer: uuid=[%s]", 
-					consumer_id));
-		}catch (Exception e) {
-			log.log(Level.SEVERE, e.getMessage(), e);
-		}
-		return _return;		
+	public List<KatelloPool> getPools() throws KatelloApiException {
+	    ClientResponse<List<KatelloPool>> _return = null;	    
+	    _return = poolResource.list();
+	    if ( _return.getStatus() > 299 ) throw new KatelloApiException(_return);
+	    return _return.getEntity();
 	}
 
-	public String unsubscribeConsumer(String consumer_id, String serial){
-		String _return=null;
-		try{
-			_return = apiKatello_DELETE("/consumers/"+consumer_id+"/certificates/"+serial);
-			log.info(String.format("Unsubscribe consumer: uuid=[%s] from the product with: serial=[%s]", 
-					consumer_id,serial));
-		}catch (Exception e) {
-			log.log(Level.SEVERE, e.getMessage(), e);
-		}
-		return _return;		
+	private String deleteProvider(String orgName, KatelloProvider provider) throws KatelloApiException {
+		ClientResponse<String> _return=null;
+		Long providerId = getProvider(orgName, provider.getName()).getId();
+		_return = providerResource.delete(providerId);
+		log.info("Delete provider: name=["+provider.getName()+"]; id=["+providerId+"]");
+		return _return.getEntity();
+	}
+
+    public String deleteProvider(KatelloProvider provider) throws KatelloApiException {
+        // This is a workaround until provider api is fixed
+        List<KatelloOrg> orgs = orgResource.list().getEntity();
+        for ( KatelloOrg org : orgs ) {
+            if (org.getId().equals(provider.getOrganizationId())) {
+                return deleteProvider(org.getCpKey(), provider);            
+            }
+        }
+        return "Could not delete provider";
+    }	
+	
+    public KatelloSystem createConsumer(
+			String orgName, String hostname, String uuid) throws KatelloApiException {
+		ClientResponse<KatelloSystem> _return=null;
+		Map<String, Object> sFacts = new HashMap<String,Object>();
+
+		sFacts = createFacts(hostname, uuid, orgName);
+		log.info(String.format("Creating consumer with: uuid=[%s]; hostname=[%s]; org_name=[%s]", 
+		        uuid, hostname,orgName));
+		_return = consumerResource.create(orgName, sFacts);
+		if ( _return.getStatus() > 299 ) throw new KatelloApiException(_return);
+
+		return _return.getEntity();		
+	}
+	
+    public KatelloSystem updateFacts(String consumerId, String component, String updValue) throws KatelloApiException {
+        ClientResponse<KatelloSystem> _return = null;
+        // Get facts object to modify it and update again :)        
+        Map<String, String> facts = consumerResource.get(consumerId).getEntity().getFacts();
+        facts.put(component, updValue);
+        Map<String,Object> updFacts = new HashMap<String,Object>();
+        updFacts.put("facts", facts);
+        try { Thread.sleep(1000); } catch (Exception ex) {} // for the "update_at" checks
+        log.finest(String.format("Update consumer: [%s] facts with: [%s=%s]", consumerId, component, updValue));
+        _return = consumerResource.update(consumerId, updFacts);
+        if ( _return.getStatus() > 299 ) throw new KatelloApiException(_return);
+        return _return.getEntity();
+    }
+	
+    public KatelloEnvironment updateEnvProperty(String organizationName, String environmentName, String component, Object updValue) throws KatelloApiException {
+        ClientResponse<KatelloEnvironment> _return = null;
+        Map<String,Object> env = new HashMap<String,Object>();
+        env.put(component, updValue);
+        Map<String,Object> updEnv = new HashMap<String,Object>();
+        updEnv.put("environment", env);
+        
+        Long envId = getEnvironment(organizationName, environmentName).getId();
+        try{Thread.sleep(1000);}catch(Exception ex){} // for the "update_at" checks
+        _return = orgResource.updateEnvironment(organizationName, envId, updEnv);
+        if ( _return.getStatus() > 299 ) throw new KatelloApiException(_return);
+        return _return.getEntity();
+    }
+    
+    public KatelloProvider updateProviderProperty(String organizationName, String providerName, String component, Object updValue) throws KatelloApiException {
+        ClientResponse<KatelloProvider> _return = null;
+        Map<String,Object> prov = new HashMap<String,Object>();
+        prov.put(component, updValue);
+        Map<String,Object> updProv = new HashMap<String,Object>();
+        updProv.put("provider", prov);
+        
+        Long providerId = getProvider(organizationName, providerName).getId();
+        try{Thread.sleep(1000);}catch(Exception ex){} // for the "update_at" checks
+        _return = providerResource.update(providerId, updProv);
+        if ( _return.getStatus() > 299 ) throw new KatelloApiException(_return);
+        return _return.getEntity();
+    }
+    
+    public String updateUser(Long userId, String component, Object updValue ) throws KatelloApiException {
+        ClientResponse<String> _return = null;
+        Map<String,Object> userProp = new HashMap<String,Object>();
+        userProp.put(component, updValue);
+        Map<String,Object> updUser = new HashMap<String,Object>();
+        updUser.put("user", userProp);
+        
+        try{Thread.sleep(1000);}catch(Exception ex){} // for the update_at checks
+        _return = userResource.update(userId, updUser);
+        if ( _return.getStatus() > 299 ) throw new KatelloApiException(_return);
+        return _return.getEntity();
+    }
+
+    public String deleteUser(Long userId) throws KatelloApiException {
+        ClientResponse<String> _return = null;
+        _return = userResource.delete(userId);
+        if ( _return.getStatus() > 299 ) throw new KatelloApiException(_return);
+        log.info(String.format("Remove user: id=[%s]", userId.toString()));
+        return _return.getEntity();
+    }
+
+
+    
+	public String deleteConsumer(String consumerId) throws KatelloApiException {
+		ClientResponse<String> _return=null;
+		_return = consumerResource.delete(consumerId);
+		if ( _return.getStatus() > 299 ) throw new KatelloApiException(_return);
+		log.info(String.format("Remove consumer: uuid=[%s]", 
+					consumerId));
+		return _return.getEntity();		
+	}
+
+	public KatelloSystem unsubscribeConsumer(String consumerId, String serial) throws KatelloApiException {
+		ClientResponse<KatelloSystem> _return=null;
+		_return = consumerResource.unsubscribe(consumerId, serial);
+		if ( _return.getStatus() > 299 ) throw new KatelloApiException(_return);
+		log.info(String.format("Unsubscribe consumer: uuid=[%s] from the product with: serial=[%s]", 
+					consumerId,serial));
+		return _return.getEntity();		
 	}
 
 	/**
 	 * Unsubscribes from ALL (--all option in rhsm)
 	 * @param consumer_id
 	 * @return
+	 * @throws KatelloApiException  
 	 */
-	public String unsubscribeConsumer(String consumer_id){
-		String _return=null;
-		try{
-			_return = apiKatello_DELETE("/consumers/"+consumer_id+"/entitlements");
-			log.info(String.format("Unsubscribe consumer: uuid=[%s] from all entitlements", 
-					consumer_id));
-		}catch (Exception e) {
-			log.log(Level.SEVERE, e.getMessage(), e);
-		}
-		return _return;		
+	public KatelloSystem unsubscribeConsumer(String consumerId) throws KatelloApiException {
+		ClientResponse<KatelloSystem> _return=null;
+		_return = consumerResource.unsubscribe(consumerId);
+		if ( _return.getStatus() > 299 ) throw new KatelloApiException(_return);
+		log.info(String.format("Unsubscribe consumer: uuid=[%s] from all entitlements", 
+					consumerId));
+		return _return.getEntity();		
 	}
 	
 	
@@ -452,4 +635,126 @@ public class KatelloTasks {
 		return null;
 	}
 	
+	
+	public Long getEnvironmentPriorId(KatelloEnvironment env){
+	    if(env.getPriorId()==null) store_id(env);
+	    return env.getPriorId();
+	}
+
+	/**
+	 * Retrieves environment.prior.id from API call and stores in prior_id property, note: ID could not be updated. 
+	 */
+	private void store_id(KatelloEnvironment theEnv){
+	    if(theEnv.getPriorId()==null) {	        
+	        List<KatelloEnvironment> envs = orgResource.listEnvironments(theEnv.getOrganizationKey()).getEntity();
+	        for (KatelloEnvironment env : envs ) {
+	            if(env.getName().equals(theEnv.getPrior())){
+	                theEnv.setPriorId(env.getId());
+	                break;
+	            }
+	        }
+	        if(theEnv.getPriorId()==null)
+	            log.warning("Unable to retrieve environment.id for: ["+theEnv.getName()+"]");
+	    }
+	}
+	
+    private Map<String,Object> createFacts(String hostname, String uuid, String orgName) {
+        Map<String,Object> allFacts = new HashMap<String,Object>();
+        allFacts.put("org_name", orgName);
+        Map<String,Object> facts = new HashMap<String,Object>();
+        facts.put("dmi.bios.release_date", "01/01/2007");
+        facts.put("net.interface.lo.ipaddr", "127.0.0.1");
+        facts.put("network.hostname", hostname);
+        facts.put("cpu.hypervisor_vendor", "KVM");
+        facts.put("system.entitlements_valid", Boolean.TRUE);
+        facts.put("dmi.memory.type", "RAM");
+        facts.put("dmi.bios.address", "0xe8000");
+        facts.put("dmi.bios.runtime_size", "96 KB");
+        facts.put("distribution.id", "Santiago");
+        facts.put("dmi.memory.maximum_capacity", "1 GB");
+        facts.put("dmi.chassis.asset_tag", "Not Specified");
+        facts.put("dmi.memory.bank_locator", "Not Specified");
+        facts.put("cpu.virtualization_type", "full");
+        facts.put("net.interface.eth0.hwaddr", "54:52:00:69:55:b6");
+        facts.put("dmi.system.wake-up_type", "Power Switch");
+        facts.put("dmi.chassis.boot-up_state", "Safe");
+        facts.put("distribution.name", "Red Hat Enterprise Linux Server");
+        facts.put("cpu.thread(s)_per_core", "1");
+        facts.put("dmi.chassis.manufacturer", "RED HAT");
+        facts.put("dmi.bios.bios_revision", "1.0");
+        facts.put("dmi.chassis.version", "Not Specified");
+        facts.put("distribution.version", "6.1");
+        facts.put("uname.version", "#1 SMP Tue Apr 5 19:58:31 EDT 2011");
+        facts.put("net.interface.lo.hwaddr", "00:00:00:00:00:00");
+        facts.put("dmi.bios.vendor", "QEMU");
+        facts.put("dmi.memory.error_correction_type", "Multi-bit ECC");
+        facts.put("dmi.memory.locator", "DIMM 0");
+        facts.put("dmi.system.manufacturer", "Red Hat");
+        facts.put("dmi.chassis.serial_number", "Not Specified");
+        facts.put("dmi.bios.rom_size", "64 KB");
+        facts.put("cpu.stepping", "3");
+        facts.put("uname.release", "2.6.32-130.el6.x86_64");
+        facts.put("dmi.system.uuid", uuid);
+        facts.put("dmi.memory.array_handle", "0x1000");
+        facts.put("cpu.cpu_op-mode(s)", "32-bit, 64-bit");
+        facts.put("net.interface.eth0.netmask", "255.255.255.224");
+        facts.put("dmi.memory.data_width", "64 bit");
+        facts.put("memory.swaptotal", "1015800");
+        facts.put("net.interface.lo.broadcast", "0.0.0.0");
+        facts.put("dmi.chassis.lock", "Not Present");
+        facts.put("cpu.cpu_mhz", "2793.074");
+        facts.put("dmi.memory.speed", "  (ns)");
+        facts.put("uname.machine", "x86_64");
+        facts.put("dmi.memory.form_factor", "DIMM");
+        facts.put("dmi.memory.total_width", "64 bit");
+        facts.put("cpu.l1d_cache", "32K");
+        facts.put("virt.is_guest", Boolean.TRUE);
+        facts.put("cpu.cpu(s)", "1");
+        facts.put("net.interface.lo.netmask", "255.0.0.0");
+        facts.put("net.interface.eth0.broadcast", "10.34.56.31");
+        facts.put("dmi.memory.error_information_handle", "Not Provided");
+        facts.put("cpu.architecture", "x86_64");
+        facts.put("cpu.vendor_id", "GenuineIntel");
+        facts.put("dmi.processor.upgrade", "Other");
+        facts.put("dmi.system.sku_number", "Not Specified");
+        facts.put("cpu.bogomips", "5586.14");
+        facts.put("dmi.memory.location", "Other");
+        facts.put("dmi.chassis.thermal_state", "Safe");
+        facts.put("dmi.system.serial_number", "Not Specified");
+        facts.put("cpu.cpu_socket(s)", "1");
+        facts.put("dmi.processor.voltage", " ");
+        facts.put("uname.sysname", "Linux");
+        facts.put("dmi.system.family", "Red Hat Enterprise Linux");
+        facts.put("cpu.model", "6");
+        facts.put("dmi.processor.version", "Not Specified");
+        facts.put("uname.nodename", hostname);
+        facts.put("dmi.chassis.power_supply_state", "Safe");
+        facts.put("dmi.memory.use", "System Memory");
+        facts.put("dmi.system.version", "Not Specified");
+        facts.put("memory.memtotal", "1019852");
+        facts.put("cpu.on-line_cpu(s)_list", "0");
+        facts.put("dmi.system.status", "No errors detected");
+        facts.put("dmi.bios.version", "QEMU");
+        facts.put("cpu.numa_node(s)", "1");
+        facts.put("dmi.chassis.security_status", "Unknown");
+        facts.put("virt.host_type", "kvm");
+        facts.put("dmi.chassis.type", "Other");
+        facts.put("net.interface.eth0.ipaddr", "192.168.0.10");
+        facts.put("dmi.processor.type", "Central Processor");
+        facts.put("dmi.processor.socket_designation", "CPU 1");
+        facts.put("dmi.system.product_name", "KVM");
+        facts.put("cpu.byte_order", "Little Endian");
+        facts.put("dmi.processor.status", "Populated:Enabled");
+        facts.put("cpu.numa_node0_cpu(s)", "0");
+        facts.put("cpu.core(s)_per_socket", "1");
+        facts.put("dmi.memory.size", "1024 MB");
+        facts.put("network.ipaddr", "192.168.0.10");
+        facts.put("dmi.processor.family", "Other");
+        facts.put("cpu.cpu_family", "6");
+        allFacts.put("facts", facts);
+        allFacts.put("name", hostname);
+        allFacts.put("type", "system");
+        return allFacts;
+    }
+
 }

@@ -8,15 +8,20 @@ import javax.management.Attribute;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.codehaus.jackson.annotate.JsonProperty;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import com.redhat.qe.katello.base.KatelloApi;
+import com.redhat.qe.katello.base.KatelloApiException;
+import com.redhat.qe.katello.base.KatelloApiResponse;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloPostParam;
 import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.tools.SSHCommandResult;
 
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class KatelloEnvironment {
 	protected static Logger log = Logger.getLogger(KatelloEnvironment.class.getName());
 	
@@ -42,14 +47,22 @@ public class KatelloEnvironment {
 	public static final String API_CMD_CREATE = "/organizations/%s/environments";
 	
 	// ** ** ** ** ** ** ** Class members
-	String name;
+	private String name;
 	String description;
 	String org;
 	String prior;
 	private String prior_id = null;
+	private Long priorId;
+	private Long id;
+	private String updatedAt;
+	private Long organizationId;
+	private String organizationKey;
 	
 	private KatelloCli cli;
 	private ArrayList<Attribute> opts;
+	
+	// No-arg constructor for RestEasy
+	public KatelloEnvironment() {}
 	
 	public KatelloEnvironment(String pName, String pDesc,
 			String pOrg, String pPrior){
@@ -60,6 +73,85 @@ public class KatelloEnvironment {
 		this.opts = new ArrayList<Attribute>();
 	}
 	
+	protected KatelloEnvironment(String name, String desc, String org, String prior, Long id, String updatedAt, Long organizationId) {
+	    this(name, desc, org, prior);
+	    this.id = id;
+	    this.updatedAt = updatedAt;
+	    this.organizationId = organizationId;
+	}
+	
+	public Long getId() {
+	    return id;
+	}
+	
+	public void setId(Long id) {
+	    this.id = id;
+	}
+	
+	public String getName() {
+	    return name;
+	}
+
+	public void setName(String name) {
+	    this.name = name;
+	}
+
+	@JsonProperty("updated_at")
+    public String getUpdatedAt() {
+        return updatedAt;
+    }
+	
+	@JsonProperty("updated_at")
+	public void setUpdatedAt(String updatedAt) {
+	    this.updatedAt = updatedAt;
+	}
+
+    @JsonProperty("organization_id")
+    public Long getOrganizationId() {
+        return organizationId;
+    }
+
+    @JsonProperty("organization_id")
+    public void setOrganizationId(Long organizationId) {
+        this.organizationId = organizationId;
+    }
+
+    @JsonProperty("organization")
+    public String getOrganizationKey() {
+        return organizationKey;        
+    }
+    
+    @JsonProperty("organization")
+    public void setOrganizationKey(String organizationKey) {
+        this.organizationKey = organizationKey;
+    }
+    
+    @JsonProperty("prior_id")
+    public Long getPriorId() {
+        return priorId;
+    }
+    
+    @JsonProperty("prior_id")
+    public void setPriorId(Long priorId) {
+        this.priorId = priorId;
+    }
+
+    public String getPrior() {
+        return prior;
+    }
+    
+    public void setPrior(String prior) {
+        this.prior = prior;
+    }
+    
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+    
 	public SSHCommandResult cli_create(){
 		return cli_create(null);
 	}
@@ -113,44 +205,8 @@ public class KatelloEnvironment {
 		return cli.run();
 	}
 	 
-	public String api_list(){
-		return KatelloApi.get(String.format(API_CMD_LIST, this.org)).getContent();
-	}
-	
-	public String api_create(){
-	    List<NameValuePair> opts = new ArrayList<NameValuePair>();
-	    opts.add(new BasicNameValuePair("name", name));
-		opts.add(new BasicNameValuePair("description", description));
-		opts.add(new BasicNameValuePair("prior", get_prior_id()));
-		KatelloPostParam[] params = {new KatelloPostParam("environment", opts)};
-		return KatelloApi.post(params, String.format(API_CMD_CREATE,org)).getContent();
-	}
-	
-	public String get_prior_id(){
-		if(prior_id==null) store_id();
-		return prior_id;
-	}
-
 	// ** ** ** ** ** ** **
 	// ASSERTS
 	// ** ** ** ** ** ** **
 	
-	/**
-	 * Retrieves environment.prior.id from API call and stores in prior_id property, note: ID could not be updated. 
-	 */
-	private void store_id(){
-		if(prior_id==null){
-			String str_envs = api_list();
-			JSONArray json_envs = KatelloTestScript.toJSONArr(str_envs);
-			for(int i=0;i<json_envs.size();i++){
-				JSONObject json_env = (JSONObject)json_envs.get(i);
-				if(json_env.get("name").equals(prior)){
-					this.prior_id = ((Long)json_env.get("id")).toString();
-					break;
-				}
-			}
-		}
-		if(prior_id==null)
-			log.warning("Unable to retrieve environment.id for: ["+name+"]");
-	}
 }
