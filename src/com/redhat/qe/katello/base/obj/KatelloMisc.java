@@ -3,12 +3,7 @@ package com.redhat.qe.katello.base.obj;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloApi;
-import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.common.KatelloConstants;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;

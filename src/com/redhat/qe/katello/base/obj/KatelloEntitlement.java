@@ -3,9 +3,6 @@ package com.redhat.qe.katello.base.obj;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-
 public class KatelloEntitlement {
     private String id;
     private KatelloPool pool;

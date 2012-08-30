@@ -1,22 +1,14 @@
 package com.redhat.qe.katello.base.obj;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Logger;
 
 import javax.management.Attribute;
 
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 import org.testng.Assert;
 
-import com.redhat.qe.katello.base.KatelloApi;
-import com.redhat.qe.katello.base.KatelloApiException;
-import com.redhat.qe.katello.base.KatelloApiResponse;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
-import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.tools.SSHCommandResult;
 
 //@JsonIgnoreProperties(ignoreUnknown=true)

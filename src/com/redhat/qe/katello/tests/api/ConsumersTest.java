@@ -1,6 +1,5 @@
 package com.redhat.qe.katello.tests.api;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -15,7 +14,6 @@ import com.redhat.qe.katello.base.obj.KatelloEntitlement;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloPool;
-import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 
 @Test(groups={"cfse-api"})
@@ -26,7 +24,6 @@ public class ConsumersTest extends KatelloTestScript {
 	private String consumer_name = null;
 	private String env_name = null;
 	private String org_name = null;
-	private KatelloEnvironment testEnvironment;
 	
 	@BeforeClass(description="Prepare an organization to work with")
 	public void setUp_createOrg() throws KatelloApiException {
@@ -38,7 +35,7 @@ public class ConsumersTest extends KatelloTestScript {
 		uid = KatelloTestScript.getUniqueID();
 		env_name = "auto-env-"+uid; 
 		String env_descr = "Test Environment "+uid;
-		testEnvironment = servertasks.createEnvironment(org.getCpKey(), env_name, env_descr, KatelloEnvironment.LIBRARY);
+		servertasks.createEnvironment(org.getCpKey(), env_name, env_descr, KatelloEnvironment.LIBRARY);
 	}
 
 	@Test(groups = { "testConsumers" }, description = "Create consumer")
