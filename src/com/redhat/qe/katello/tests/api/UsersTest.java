@@ -1,13 +1,12 @@
 package com.redhat.qe.katello.tests.api;
 
-import java.io.IOException;
+import java.util.List;
 import java.util.logging.Logger;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
+import com.redhat.qe.katello.base.KatelloApiException;
 import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.obj.KatelloUser;
 
@@ -25,13 +24,16 @@ public class UsersTest extends KatelloTestScript {
 		try{Thread.sleep(1000L);}catch(InterruptedException iex){} // to get new unique id.
 		String pid = KatelloTestScript.getUniqueID();
 		this.username_disabled = "user_"+pid;
-		KatelloUser user = new KatelloUser(this.username_disabled, KatelloUser.DEFAULT_USER_EMAIL, KatelloUser.DEFAULT_USER_PASS, true);
-		String s= user.api_create();
-		JSONObject juser = KatelloTestScript.toJSONObj(s);
-		Assert.assertNotNull(juser.get("id"), "Check: not null returned: id");
-		Boolean disabled = (Boolean)juser.get("disabled");
-		Assert.assertTrue(disabled.booleanValue(), "Check: returned value: disabled=true");
-		this.userid_disabled = (Long)juser.get("id");
+		KatelloUser user = null;
+        try {
+            user = servertasks.createUser(this.username_disabled, KatelloUser.DEFAULT_USER_EMAIL, KatelloUser.DEFAULT_USER_PASS, true);
+        } catch (KatelloApiException e) {
+            Assert.fail("Could not create user", e);
+        }
+		Assert.assertNotNull(user.getId(), "Check: not null returned: id");
+		boolean disabled = user.isDisabled();
+		Assert.assertTrue(disabled, "Check: returned value: disabled=true");
+		this.userid_disabled = user.getId();
 		
 		log.info("Preparing disabled user: ["+this.username_disabled+"]");
 	}
@@ -41,13 +43,15 @@ public class UsersTest extends KatelloTestScript {
 		try{Thread.sleep(1000L);}catch(InterruptedException iex){} // to get new unique id.
 		String pid = KatelloTestScript.getUniqueID();
 		this.username_enabled = "user_"+pid;
-		KatelloUser user = new KatelloUser(username_enabled, KatelloUser.DEFAULT_USER_EMAIL, 
-				KatelloUser.DEFAULT_USER_PASS, false);
-		String s = user.api_create();
-		JSONObject juser = KatelloTestScript.toJSONObj(s);
-		Assert.assertNotNull(juser.get("id"), "Check: not null returned: id");
-		Boolean disabled = (Boolean)juser.get("disabled");
-		Assert.assertFalse(disabled.booleanValue(), "Check: returned value: disabled=false");
+		KatelloUser user = null;
+        try {
+            user = servertasks.createUser(this.username_enabled, KatelloUser.DEFAULT_USER_EMAIL, KatelloUser.DEFAULT_USER_PASS, false);
+        } catch (KatelloApiException e) {
+            Assert.fail("Could not create user", e);
+        }
+		Assert.assertNotNull(user.getId(), "Check: not null returned: id");
+		boolean disabled = user.isDisabled();
+		Assert.assertFalse(disabled, "Check: returned value: disabled=false");
 		
 		log.info("Preparing enabled user: ["+this.username_enabled+"]");
 	}
@@ -55,52 +59,65 @@ public class UsersTest extends KatelloTestScript {
 	@Test(dependsOnMethods={"test_createUserDisabled","test_createUserEnabled"},
 			groups = { "testUsers" }, description = "Get all users")
 	public void test_getUsers(){
-		String _ret = new KatelloUser(null,null,null,false).api_list();
-		Assert.assertTrue(_ret.contains("\"username\":\"admin\""), "Check: \"admin\" user exists");
-		JSONArray users = KatelloTestScript.toJSONArr(_ret);
-		JSONObject tmpUsr;
-		boolean userFound_D=false, userFound_E=false;
-		for(int i=0;i<users.size();i++){
-			tmpUsr = (JSONObject)users.get(i);
-			if(tmpUsr.get("username").equals(this.username_enabled)){
-				userFound_E = true;
-				Assert.assertFalse(((Boolean)tmpUsr.get("disabled")).booleanValue(), "Check: enabled user's disabled flag.");
-			}
-			if(tmpUsr.get("username").equals(this.username_disabled)){
-				userFound_D = true;
-				Assert.assertTrue(((Boolean)tmpUsr.get("disabled")).booleanValue(), "Check: disabled user's disabled flag.");
-			}				
+		List<KatelloUser> users = null;
+        try {
+            users = servertasks.listUsers();           
+        } catch (KatelloApiException e) {
+            Assert.fail("Could not get user list", e);
+        }
+		boolean containsAdmin = false;
+        boolean userFound_D=false, userFound_E=false;
+		for ( KatelloUser user : users ) {
+		    if ( user.getUsername().equals("admin")) {
+		        containsAdmin = true;
+		    }
+            if(user.getUsername().equals(this.username_enabled)) {
+                userFound_E = true;
+                Assert.assertFalse(user.isDisabled(), "Check: enabled user's disabled flag.");
+            }
+            if(user.getUsername().equals(this.username_disabled)) {
+                userFound_D = true;
+                Assert.assertTrue(user.isDisabled(), "Check: disabled user's disabled flag.");
+            }               
 		}
-		Assert.assertTrue((userFound_D && userFound_E), "Check: both users should be found in the list");
+		Assert.assertTrue((userFound_D && userFound_E && containsAdmin), "Check: all users (admin, " + this.username_disabled + ", " + this.username_enabled + ") should be found in the list");
 	}
 
+	// TODO - Make this data-driven?
 	@Test(dependsOnMethods={"test_createUserDisabled","test_createUserEnabled"},
 			groups = { "testUsers" }, description = "Get user")
 	public void test_getUser(){
-		String _ret =  new KatelloUser(null,null,null,false).api_info(this.userid_disabled.toString());
-		Assert.assertTrue(_ret.contains("\"username\":\""+this.username_disabled+"\""), "Check: returned username");
-		Assert.assertTrue(_ret.contains("\"disabled\":true"), "Check: returned username's disabled status");
+		KatelloUser user = null;
+        try {
+            user = servertasks.getUser(this.userid_disabled);
+        } catch (KatelloApiException e) {
+            Assert.fail("Could not get user", e);
+        }
+		Assert.assertTrue(user.getUsername().contains(this.username_disabled), "Check: returned username");
+		Assert.assertTrue(user.isDisabled(), "Check: returned username's disabled status");
 	}
 
 	@Test(groups = { "testUsers" }, description = "Update user properties")
 	public void test_updateUser(){
 		String pid = KatelloTestScript.getUniqueID();
 		String updUser = "updUser_"+pid;
-		KatelloUser user = new KatelloUser(updUser, KatelloUser.DEFAULT_USER_EMAIL, 
-				KatelloUser.DEFAULT_USER_PASS, false);
-		String s = user.api_create();
-		JSONObject juser = KatelloTestScript.toJSONObj(s);
-		Long userId = (Long)juser.get("id");
-		String pwdHash = (String)juser.get("password");
+		KatelloUser user = null;
+        try {
+            user = servertasks.createUser(updUser, KatelloUser.DEFAULT_USER_EMAIL, KatelloUser.DEFAULT_USER_PASS, false);
+        } catch (KatelloApiException e) {
+            Assert.fail("Could not create user", e);
+        }
+		Long userId = user.getId();
+		String pwdHash = user.getPassword();
 		try{
-			servertasks.apiKatello_PUT("{'user':{'disabled':true}}", "/users/"+userId.toString());
-			String _ret = new KatelloUser(null,null,null,false).api_info(userId.toString());
-			Assert.assertTrue(_ret.contains("\"disabled\":true"), "Check: updated disable status");
-			servertasks.apiKatello_PUT("{'user':{'password':'123456'}}", "/users/"+userId.toString());
-			_ret = new KatelloUser(null,null,null,false).api_info(userId.toString());
-			Assert.assertFalse(_ret.contains("\"password\":\""+pwdHash+"\""), "Check: updated password");
-		}catch(IOException ie){
-			log.severe(ie.getMessage());
+		    servertasks.updateUser(userId, "disabled", Boolean.TRUE);		   
+			KatelloUser updatedUser = servertasks.getUser(userId);
+			Assert.assertTrue(updatedUser.isDisabled(), "Check: updated disable status");
+			servertasks.updateUser(userId, "password", "123456");
+			updatedUser = servertasks.getUser(userId);
+			Assert.assertFalse(updatedUser.getPassword().contains(pwdHash), "Check: updated password");
+		} catch (KatelloApiException e) {
+		    Assert.fail("Error while updating user", e);
 		}
 	}
 	
@@ -108,22 +125,30 @@ public class UsersTest extends KatelloTestScript {
 	public void test_deleteUser(){
 		String pid = KatelloTestScript.getUniqueID();
 		String updUser = "delUser_"+pid;
-		KatelloUser user = new KatelloUser(updUser, KatelloUser.DEFAULT_USER_EMAIL, 
-				KatelloUser.DEFAULT_USER_PASS, false);
-		String s = user.api_create();
-		JSONObject juser = KatelloTestScript.toJSONObj(s);
-		Long userId = (Long)juser.get("id");
-		try{
-			String _ret = servertasks.apiKatello_DELETE("/users/"+userId.toString()).trim();
-			Assert.assertEquals(_ret, String.format("Deleted user '%s'",userId.toString()),
-					"Check: returned message of delete command");
-			_ret = new KatelloUser(null,null,null,false).api_info(userId.toString());
-			Assert.assertTrue(_ret.contains(
-					String.format("Couldn't find User with ID=%s", userId.toString())), 
-					"Check: returned error message - getUsers()");
-		}catch(IOException ie){
-			log.severe(ie.getMessage());
-		}
+		KatelloUser user = null;
+        try {
+            user = servertasks.createUser(updUser, KatelloUser.DEFAULT_USER_EMAIL, KatelloUser.DEFAULT_USER_PASS, false);
+        } catch (KatelloApiException e) {
+            Assert.fail("Could not create user", e);
+        }
+		Long userId = user.getId();
+        String _ret = null;
+        try {
+            _ret = servertasks.deleteUser(userId);
+        } catch (KatelloApiException e) {
+            Assert.fail("Could not delete user", e);
+        }
+        Assert.assertEquals(_ret, String.format("Deleted user '%s'", userId.toString()),
+                "Check: returned message of delete command");
+        KatelloUser throwAway = null;
+        try {
+            throwAway = servertasks.getUser(userId);
+        } catch (KatelloApiException e) {
+            Assert.assertNull(throwAway, // .contains(String.format("Couldn't find User with ID=%s",
+                                         // userId.toString())),
+                    "Check: returned error message - getUsers()");
+
+        }
 	}
 	
 }

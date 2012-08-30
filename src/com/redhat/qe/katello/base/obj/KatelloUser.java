@@ -5,16 +5,14 @@ import java.util.List;
 
 import javax.management.Attribute;
 
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloApi;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
-import com.redhat.qe.katello.base.KatelloPostParam;
 import com.redhat.qe.tools.SSHCommandResult;
 
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class KatelloUser {
 	
 	// ** ** ** ** ** ** ** Public constants
@@ -58,9 +56,12 @@ public class KatelloUser {
 	public boolean disabled;
 	public String orgname="";
 	public String envname = "";
-
+	private Long id;
+	
 	private KatelloCli cli;
 	private List<Attribute> opts;
+	
+	public KatelloUser() {} // FOr resteasy
 	
 	public KatelloUser(String pName, String pEmail, String pPassword, boolean pDisabled){
 		this.username = pName;
@@ -81,6 +82,31 @@ public class KatelloUser {
 			
 	}
 	
+    public KatelloUser(String pName,String pEmail,String pPassword,boolean pDisabled,String pOrgname,String pEnvname, Long id){
+        this(pName, pEmail, pPassword, pDisabled, pOrgname, pEnvname);
+        this.id = id;
+    }
+    
+    public Long getId() {
+        return id;
+    }
+    
+    public void setId(Long id) {
+        this.id = id;
+    }
+    
+    public boolean isDisabled() {
+        return disabled;
+    }
+    
+    public String getPassword() {
+        return password;
+    }
+    
+    public String getUsername() {
+        return username;
+    }
+    
 	public static final SSHCommandResult report(String format)
 	{
 		
@@ -152,23 +178,55 @@ public class KatelloUser {
 		return cli.run();
 	}
 
-	public String api_info(String userid){
-		return KatelloApi.get(String.format(API_CMD_INFO,userid)).getContent();
-	}
-
-	public String api_list(){
-		return KatelloApi.get(API_CMD_LIST).getContent();
-	}
-
-	public String api_create(){
-		List<NameValuePair> opts = new ArrayList<NameValuePair>();
-		opts.add(new BasicNameValuePair("username", username));
-		opts.add(new BasicNameValuePair("password", password));
-		opts.add(new BasicNameValuePair("disabled", String.valueOf(disabled)));
-		opts.add(new BasicNameValuePair("email", email));
-		KatelloPostParam[] params = {new KatelloPostParam(null, opts)};
-		return KatelloApi.post(params, API_CMD_CREATE).getContent();
-	}
+//	public static KatelloUser api_info(String userid) throws KatelloApiException {
+//		KatelloApiResponse response = KatelloApi.get(String.format(API_CMD_INFO,userid));
+//		if ( response.getReturnCode() < 300 ) {
+//		    String json = response.getContent();
+//		    JSONObject juser = KatelloTestScript.toJSONObj(json);
+//		    // String pName,String pEmail,String pPassword,boolean pDisabled,String pOrgname,String pEnvname
+//            String defOrg = juser.get("default_organization") == null ? null : (String)juser.get("default_organization");
+//            String defEnv = juser.get("default_environment") == null ? null : (String)juser.get("default_environment");
+//		    KatelloUser user = new KatelloUser((String)juser.get("username"), (String)juser.get("email"), (String)juser.get("password"), ((Boolean)juser.get("disabled")).booleanValue(), defOrg, defEnv, (Long)juser.get("id"));
+//		    return user;
+//		}
+//		throw new KatelloApiException(response);
+//	}
+//
+//	public static List<KatelloUser> api_list() throws KatelloApiException {
+//	    List<KatelloUser> users = new ArrayList<KatelloUser>();
+//		KatelloApiResponse response = KatelloApi.get(API_CMD_LIST);		
+//		if ( response.getReturnCode() < 300 ) {
+//		    String json = response.getContent();
+//		    JSONArray jusers = KatelloTestScript.toJSONArr(json);
+//		    for ( int i = 0; i < jusers.size(); ++i ) {
+//		        JSONObject juser = (JSONObject)jusers.get(i);
+//                String defOrg = juser.get("default_organization") == null ? null : (String)juser.get("default_organization");
+//                String defEnv = juser.get("default_environment") == null ? null : (String)juser.get("default_environment");
+//	            KatelloUser user = new KatelloUser((String)juser.get("username"), (String)juser.get("email"), (String)juser.get("password"), ((Boolean)juser.get("disabled")).booleanValue(), defOrg, defEnv, (Long)juser.get("id"));
+//	            users.add(user);
+//		    }
+//		    return users;
+//		}
+//		throw new KatelloApiException(response);
+//	}
+//
+//	public static KatelloUser api_create(String username, String email, String password, boolean disabled) throws KatelloApiException {
+//		List<NameValuePair> opts = new ArrayList<NameValuePair>();
+//		opts.add(new BasicNameValuePair("username", username));
+//		opts.add(new BasicNameValuePair("password", password));
+//		opts.add(new BasicNameValuePair("disabled", String.valueOf(disabled)));
+//		opts.add(new BasicNameValuePair("email", email));
+//		KatelloPostParam[] params = {new KatelloPostParam(null, opts)};
+//		KatelloApiResponse response = KatelloApi.post(params, API_CMD_CREATE);
+//		if ( response.getReturnCode() < 300 ) {
+//		    JSONObject juser = KatelloTestScript.toJSONObj(response.getContent());
+//            String defOrg = juser.get("default_organization") == null ? null : (String)juser.get("default_organization");
+//            String defEnv = juser.get("default_environment") == null ? null : (String)juser.get("default_environment");
+//            KatelloUser user = new KatelloUser((String)juser.get("username"), (String)juser.get("email"), (String)juser.get("password"), ((Boolean)juser.get("disabled")).booleanValue(), defOrg, defEnv, (Long)juser.get("id"));
+//            return user;
+//		}
+//		throw new KatelloApiException(response);
+//	}
 	
 	// ** ** ** ** ** ** **
 	// ASSERTS

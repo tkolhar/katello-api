@@ -1,13 +1,23 @@
 package com.redhat.qe.katello.base.obj;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.management.Attribute;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.codehaus.jackson.annotate.JsonProperty;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+
 import com.redhat.qe.katello.base.KatelloApi;
+import com.redhat.qe.katello.base.KatelloApiException;
+import com.redhat.qe.katello.base.KatelloApiResponse;
 import com.redhat.qe.katello.base.KatelloCli;
+import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.tools.SSHCommandResult;
 
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class KatelloProvider {
 	
 	// ** ** ** ** ** ** ** Public constants
@@ -39,10 +49,17 @@ public class KatelloProvider {
 	public String org;
 	public String description;
 	public String url;
+	private Long id;
+	private Long organizationId;
+	private String providerType;
+	private String updatedAt;
+	private String provider;
 	
 	private KatelloCli cli;
 	private ArrayList<Attribute> opts;
 
+	public KatelloProvider() {}
+	
 	public KatelloProvider(String pName, String pOrg, 
 			String pDesc, String pUrl){
 		this.name = pName;
@@ -52,6 +69,70 @@ public class KatelloProvider {
 		this.opts = new ArrayList<Attribute>();
 	}
 	
+	public KatelloProvider(Long id, String name, String org, String desc, String url, Long organizationId, String providerType, String updatedAt) {
+	    this(name, org, desc, url);
+	    this.id = id;
+	    this.organizationId = organizationId;
+	    this.providerType = providerType;
+	    this.updatedAt = updatedAt;
+	}
+
+    public String getName() {
+        return name;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+    
+    public String getDescription() {
+        return description;
+    }
+
+    @JsonProperty("organization_id")
+    public Long getOrganizationId() {
+        return organizationId;
+    }
+    
+    @JsonProperty("organization_id")
+    public void setOrganizationId(Long organizationId) {
+        this.organizationId = organizationId;
+    }
+    
+    @JsonProperty("provider_type")
+    public String getProviderType() {
+        return providerType;
+    }
+
+    @JsonProperty("provider_type")
+    public void setProviderType(String providerType) {
+        this.providerType = providerType;
+    }
+    
+    @JsonProperty("updated_at")
+    public String getUpdatedAt() {
+        return updatedAt;
+    }
+    
+    @JsonProperty("updated_at")
+    public void setUpdatedAt(String updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+    
+    @JsonProperty("repository_url")
+    public String getRepositoryUrl() {
+        return url;
+    }
+    
+    @JsonProperty("repository_url")
+    public void setRepositoryUrl(String url) {
+        this.url = url;
+    }
+    
 	public SSHCommandResult create(){
 		return create(null);
 	}
@@ -87,10 +168,7 @@ public class KatelloProvider {
 		cli = new KatelloCli(CLI_CMD_LIST, opts);
 		return cli.run();
 	}
-	public String api_list(String byOrg){
-		return KatelloApi.get(String.format(API_CMD_LIST, this.org)).getContent();
-	}
-	
+		
 	public SSHCommandResult info(){
 		opts.clear();
 		opts.add(new Attribute("org", org));
