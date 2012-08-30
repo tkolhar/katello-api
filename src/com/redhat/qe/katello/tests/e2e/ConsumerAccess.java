@@ -6,6 +6,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
+import com.redhat.qe.katello.base.KatelloApiException;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
@@ -50,10 +51,14 @@ public class ConsumerAccess extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 
-		KatelloUser user = new KatelloUser(user_name, KatelloUser.DEFAULT_USER_EMAIL, 
-				KatelloUser.DEFAULT_USER_PASS, false);
-		String api_result = user.api_create();
-		Assert.assertTrue(api_result != null, "Check - return string not null");
+		KatelloUser user = null;
+        try {
+            user = (new KatelloTasks()).createUser(user_name, KatelloUser.DEFAULT_USER_EMAIL, 
+            		KatelloUser.DEFAULT_USER_PASS, false);
+        } catch (KatelloApiException e) {
+            Assert.fail("Could not create user", e);
+        }
+		Assert.assertNotNull(user, "Check - return string not null");
 	}
 	
 	/**

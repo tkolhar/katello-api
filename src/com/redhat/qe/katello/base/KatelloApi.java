@@ -1,42 +1,46 @@
 package com.redhat.qe.katello.base;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.List;
 import java.util.logging.Logger;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.fluent.Executor;
-import org.apache.http.client.fluent.Request;
-import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.client.utils.URLEncodedUtils;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.AuthCache;
+import org.apache.http.client.protocol.ClientContext;
+import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.conn.ssl.SSLSocketFactory;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.FileEntity;
-import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.auth.BasicScheme;
+import org.apache.http.impl.client.BasicAuthCache;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.conn.PoolingClientConnectionManager;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpParams;
+import org.apache.http.protocol.BasicHttpContext;
+import org.jboss.resteasy.client.ClientExecutor;
+import org.jboss.resteasy.client.core.executors.ApacheHttpClient4Executor;
 
 public class KatelloApi{
-    private static Executor executor;
     protected static Logger log = Logger.getLogger(KatelloApi.class.getName());
     
 	static{new com.redhat.qe.auto.testng.TestScript();}// to make properties be initialized (if they don't still)
 	
-	static {
+    public static ClientExecutor createExecutor() {
+        String userId = System.getProperty("katello.admin.user", "admin");
+        String password = System.getProperty("katello.admin.password", "admin");
+        HttpParams params = new BasicHttpParams();
+
+        SchemeRegistry schemeRegistry = new SchemeRegistry();
+        schemeRegistry.register(new Scheme("http", 80, PlainSocketFactory.getSocketFactory()));
+
         try {
             SSLContext sslContext = SSLContext.getInstance("SSL");
 
@@ -59,141 +63,33 @@ public class KatelloApi{
             SSLSocketFactory sf = new SSLSocketFactory(sslContext);
             Scheme httpsScheme = new Scheme("https", 443, sf);
 
-            Executor.registerScheme(httpsScheme);
+            schemeRegistry.register(httpsScheme);            
         } catch (Exception e) {
             System.err.println("HttpClient: Scheme not initialized properly");
             e.printStackTrace();
         }
-        executor = Executor.newInstance()
-                .auth(new HttpHost(System.getProperty("katello.server.hostname", "localhost"),443,"https"), System.getProperty("katello.admin.username", "admin"), System.getProperty("katello.admin.password", "admin"))
-                .authPreemptive(new HttpHost(System.getProperty("katello.server.hostname", "localhost"),443,"https"));
-	}
-	
-	private static URI buildURI(String apiCall, String apiQuery) throws URISyntaxException {
-	    URIBuilder builder = new URIBuilder();
-	    builder.setScheme("https").setHost(System.getProperty("katello.server.hostname", "localhost"))
-        .setPath("/"+System.getProperty("katello.product", "katello")+"/api"+apiCall).setQuery(apiQuery);
-	    return builder.build();
-	}
 
-    private static KatelloApiResponse _doRequest(Request request) {
-        KatelloApiResponse response = null;
-        try {
-            HttpResponse returnResponse = executor.execute(request.connectTimeout(20000).socketTimeout(20000)).returnResponse();
-            HttpEntity entity = returnResponse.getEntity();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(entity.getContent(), "UTF-8"));
-            StringBuffer buffer = new StringBuffer();
-            String line = null;
-            while ((line = reader.readLine()) != null ) {
-                buffer.append(line);
-            }
-            reader.close();
-            response = new KatelloApiResponse(buffer.toString(), returnResponse.getStatusLine().getStatusCode(), returnResponse.getStatusLine().getReasonPhrase());
-        } catch (IOException ex) {
-            response = new KatelloApiResponse(ex.getLocalizedMessage());
-            ex.printStackTrace();
-        } 
-        return response;
+        PoolingClientConnectionManager cm = new PoolingClientConnectionManager(schemeRegistry);
+        cm.setDefaultMaxPerRoute(10);
+        String hostname = System.getProperty("katello.server.hostname", "localhost");
+        int port = Integer.valueOf(System.getProperty("katello.server.port", "443"));
+        HttpHost targetHost = new HttpHost(hostname, port, "https");
+        DefaultHttpClient httpClient = new DefaultHttpClient(cm, params);
+        httpClient.getCredentialsProvider().setCredentials(
+                new AuthScope(targetHost.getHostName(), targetHost.getPort()), 
+                new UsernamePasswordCredentials(userId, password));
+
+        // Create AuthCache instance
+        AuthCache authCache = new BasicAuthCache();
+        // Generate BASIC scheme object and add it to the local auth cache
+        BasicScheme basicAuth = new BasicScheme();
+        authCache.put(targetHost, basicAuth);
+
+        // Add AuthCache to the execution context
+        BasicHttpContext localcontext = new BasicHttpContext();
+        localcontext.setAttribute(ClientContext.AUTH_CACHE, authCache); 
+            
+        return new ApacheHttpClient4Executor(httpClient, localcontext);     
     }
-    
-//    public static KatelloApiResponse get(String call) {
-//        return get(call, "");
-//    }
-    
-    public static KatelloApiResponse get(String call) {
-        return get(call, null);
-    }
-    
-	public static KatelloApiResponse get(String call, String query){
-		try{
-		    URI uri = buildURI(call, query);
-		    return _doRequest(Request.Get(uri));
-		} catch(URISyntaxException ex) {
-			ex.printStackTrace();
-		}
-		return null;
-	}
 	
-	private static KatelloApiResponse _post(HttpEntity postEntity, String call, String query){
-		try{
-			URI uri = buildURI(call, query);
-            return _doRequest(Request.Post(uri).body(postEntity));
-		} catch(URISyntaxException ex) {
-			ex.printStackTrace();
-		}
-		return null;
-	}
-	
-	private static KatelloApiResponse _put(HttpEntity putEntity, String call, String query) {
-	    try {
-	        URI uri = buildURI(call, query);
-	        return _doRequest(Request.Put(uri).body(putEntity));
-	    } catch (URISyntaxException ex) {
-	        ex.printStackTrace();
-	    }
-	    return null;
-	}
-	
-	private static KatelloApiResponse _delete(String call) {
-	    try {
-	        URI uri = buildURI(call, "");
-	        return _doRequest(Request.Delete(uri));
-	    } catch (URISyntaxException ex) {
-	        ex.printStackTrace();
-	    }
-	    return null;
-	}
-	
-	public static KatelloApiResponse postJson(String content, String call, String query) {
-	    return post(content, call, query, ContentType.APPLICATION_JSON);
-	}
-	
-	public static KatelloApiResponse post(String content, String call, String query, ContentType contentType) {
-	    StringEntity postEntity = new StringEntity(content, contentType);
-	    return _post(postEntity, call, query);
-	}
-	
-	public static KatelloApiResponse post(List<NameValuePair> nvp, String call) {
-	    return post(nvp, call, null);
-	}
-	
-	public static KatelloApiResponse post(List<NameValuePair> nvp, String call, String query) {
-	    StringEntity postEntity = new StringEntity(URLEncodedUtils.format(nvp, "UTF-8"), ContentType.APPLICATION_FORM_URLENCODED);
-        log.info(URLEncodedUtils.format(nvp,"UTF-8"));
-	    return _post(postEntity, call, query);
-	}
-
-	public static KatelloApiResponse post(KatelloPostParam[] params, String call) {
-	    return post(params, call, null);
-	}
-	
-	public static KatelloApiResponse post(KatelloPostParam[] params, String call, String query) {
-        String content = "";
-        for(KatelloPostParam param: params){
-            content = String.format("%s%s,", content, param);
-        }
-        if(content.length()>1) 
-            content = content.substring(0,content.length()-1); // cut last symbol - ","
-        content = String.format("{%s}", content);
-        StringEntity postEntity = new StringEntity(content, ContentType.APPLICATION_JSON);
-	    return _post(postEntity, call, query);
-	}
-	
-	public static KatelloApiResponse postFile(String manifest, String call) {
-	    FileEntity postEntity = new FileEntity(new File(manifest));
-	    return _post(postEntity, call, null);
-	}
-
-	public static KatelloApiResponse putJson(String content, String call) {
-	    return putJson(content, call, null);
-	}
-	
-	public static KatelloApiResponse putJson(String content, String call, String query) {
-	    StringEntity putEntity = new StringEntity(content, ContentType.APPLICATION_JSON);
-	    return _put(putEntity,call, query);
-	}
-	
-	public static KatelloApiResponse delete(String call) {
-	    return _delete(call);
-	}
 }

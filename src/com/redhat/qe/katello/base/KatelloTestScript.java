@@ -3,13 +3,16 @@ package com.redhat.qe.katello.base;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.common.KatelloConstants;
 import com.redhat.qe.katello.tasks.KatelloTasks;
@@ -36,7 +39,9 @@ public class KatelloTestScript
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-		}
+		} catch (KatelloApiException e) {
+            e.printStackTrace();
+        }
 	}
 	
 	public Date parseKatelloDate(String strDate) throws java.text.ParseException{
@@ -104,17 +109,13 @@ public class KatelloTestScript
 		return KatelloCliTestScript.sgetOutput(res);
 	}
 	
-	private void setup_defaultOrg(){
-		KatelloOrg _org = new KatelloOrg(null, null);
-		String res = _org.api_list();
-		JSONArray orgs = KatelloTestScript.toJSONArr(res);
-		JSONObject org;
-		for(int i=0;i<orgs.size();i++){
-			org = (JSONObject)orgs.get(i);
-			if(((Long)org.get("id")).intValue()==1){
-				default_org = (String)org.get("name");
-				return;
-			}
-		}
+	private void setup_defaultOrg() throws KatelloApiException {
+	    List<KatelloOrg> orgs = servertasks.getOrganizations();
+	    for ( KatelloOrg org : orgs ) {
+	        if ( org.getId().longValue() == 1 ) {
+	            default_org = org.getName();
+	            break;
+	        }
+	    }
 	}
 }

@@ -7,17 +7,23 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
+import org.jboss.resteasy.client.ClientResponse;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
+import com.redhat.qe.katello.base.KatelloApiException;
 import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
+import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.common.KatelloConstants;
 
@@ -38,85 +44,144 @@ public class ProvidersTest extends KatelloTestScript {
 		
 		String uid = getUniqueID();
 		this.provider_name = "auto-provider-"+uid;
-		String str_json = servertasks.createProvider(
-				this.org_name,provider_name, "Provider in test - "+uid,"Custom");
-		JSONObject json_prov = KatelloTestScript.toJSONObj(str_json);
-		Assert.assertNotNull(json_prov, "Returned string in katello is JSON-formatted");
+		KatelloProvider prov = null;
+        try {
+            prov = servertasks.createProvider(this.org_name,provider_name, "Provider in test - "+uid,"Custom", null);
+        } catch (KatelloApiException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+//		Assert.assertNotNull(json_prov, "Returned string in katello is JSON-formatted");
 		
 		// ASSERTIONS - katello
-		Assert.assertEquals(json_prov.get("name"), 
+		Assert.assertEquals(prov.getName(), 
 				provider_name, 
 				"Katello - Check provider: name");
-		Assert.assertEquals(json_prov.get("description"), 
+		Assert.assertEquals(prov.getDescription(), 
 				"Provider in test - "+uid, 
 				"Katello - Check provider: description");
-		Assert.assertEquals(json_prov.get("provider_type"), 
+		Assert.assertEquals(prov.getProviderType(), 
 				"Custom",
 				"Katello - Check provider: provider_type");
-		JSONObject json_org = KatelloTestScript.toJSONObj(new KatelloOrg(org_name, null).api_info());
-		Assert.assertEquals(json_prov.get("organization_id"), 
-				json_org.get("id"),
+		KatelloOrg org = null;
+        try {
+            org = servertasks.getOrganization(org_name);
+        } catch (KatelloApiException e) {
+            // TODO Auto-generated catch block
+            Assert.fail("Could not get org info", e);
+        }
+		Assert.assertEquals(prov.getOrganizationId(), 
+				org.getId(),
 				"Katello - Check provider: organization_id");
 	}
 	
 	@Test (groups={"testProviders"}, description="Import Products", 
 			dependsOnMethods="test_createProvider", enabled = false) // Seems moved to another controller.
 	public void test_importProducts(){
-		// Read data/products.json file. Needs to get replaced by actual values. 
-		String sProducts="{}";
-		try{
-			BufferedReader br = new BufferedReader(new FileReader("data/product.json"));
-			sProducts=br.readLine();
-			br.close();
-		}catch(IOException iex){
-			log.severe(iex.getMessage());
-			throw new RuntimeException(iex);
-		}
-		// Replace the values in products.json
 		String pid = KatelloTestScript.getUniqueID();
 		try{Thread.sleep(1000);}catch(InterruptedException ex){}
 		String cid = KatelloTestScript.getUniqueID();
 		String repoUrl=KatelloConstants.KATELLO_SMALL_REPO;
 		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.000+0000'");
 		String sTS = df.format(Calendar.getInstance().getTime());
-		sProducts = sProducts.replaceAll("\\$\\{product_id\\}", pid);
-		sProducts = sProducts.replaceAll("\\$\\{content_id\\}", cid);
-		sProducts = sProducts.replaceAll("\\$\\{content_url\\}", repoUrl);
-		sProducts = sProducts.replaceAll("\\$\\{product_create_ts\\}", sTS);
-		log.finest("Replaced data/products.json: ["+sProducts+"]");
-		JSONObject json_prov=servertasks.getProvider(org_name, this.provider_name);
-		String prov_id = ((Long)json_prov.get("id")).toString();
-		String s = servertasks.import_products(prov_id, sProducts);
+
+		Map<String,Object> allProducts = new HashMap<String,Object>();
+		Set<Map<String,Object>> products = new HashSet<Map<String,Object>>();
+		allProducts.put("products", products);
+		Map<String,Object> product = new HashMap<String,Object>();
+		product.put("updated", sTS);
+		product.put("name", "Test Product - " + pid);
+		product.put("created", sTS);
+		product.put("href", "/products/" + pid);
+		Set<Map<String,Object>> productContentSet = new HashSet<Map<String,Object>>();
+		Map<String,Object> productContent = new HashMap<String,Object>();
+		Map<String,Object> content = new HashMap<String,Object>();
+		content.put("contentUrl", repoUrl);
+		content.put("updated", sTS);
+		content.put("vendor", "redhat");
+		content.put("name", "Test Content - " + cid);
+		content.put("created", sTS);
+		content.put("label", "test-label-" + cid);
+		content.put("gpgUrl", "/some/gpg/url/");
+		content.put("type", "yum");
+		content.put("id", cid);
+		productContent.put("content", content);
+		productContent.put("physicalEntitlement", Long.valueOf(0));
+		productContent.put("enabled", Boolean.TRUE);
+		productContent.put("flexEntitlement", Long.valueOf(0));
+		productContentSet.add(productContent);
+		product.put("productContent", productContent);
+		product.put("multiplier", Long.valueOf(1));
+		Set<Map<String,Object>> attributes = new HashSet<Map<String,Object>>();
+		String[] attrs = new String[] { "version:1.0", "variant:ALL", "sockets:2", "arch:ALL", "type:SVC" };
+		for ( String attr : attrs ) {
+		    String[] nameValue = attr.split(":");
+		    Map<String,Object> attrMap = new HashMap<String,Object>();
+		    attrMap.put("updated", sTS);
+		    attrMap.put("name", nameValue[0]);
+		    attrMap.put("value", nameValue[1]);
+		    attrMap.put("created", sTS);
+		    attributes.add(attrMap);
+		}
+		product.put("attributes", attributes);
+		product.put("id", pid);
+		List<KatelloProduct> s = null;
+        try {
+            s = servertasks.import_products(org_name, provider_name, allProducts);
+        } catch (KatelloApiException e) {
+            Assert.fail("Could not import products", e);
+        }
 //		Assert.assertEquals(s.startsWith("{\"name\":"), true,"Returned output should start with: {\"name\":");
-		Assert.assertEquals(s.equals("[true]"), true,"Returned output should be: [true]");
+//		Assert.assertEquals(s.equals("[true]"), true,"Returned output should be: [true]");
+        // TODO Need new asserts once this is enabled
 	}
 	
+	// TODO Turn this into a data driven test.
 	@Test (groups={"testProviders"}, description="Update Provider Properties", dependsOnMethods="test_createProvider")
 	public void test_updateProvider(){
 		Date dupBefore, dupAfter;
-		JSONObject json_updProv = servertasks.getProvider(org_name, provider_name);
+		KatelloProvider updProv = null;
+        try {
+            updProv = servertasks.getProvider(org_name, provider_name);
+        } catch (KatelloApiException e) {
+            Assert.fail("Could not get provider", e);
+        }
 		String upd_repo_url = "https://localhost";
 		try{
-			dupBefore = parseKatelloDate((String)json_updProv.get("updated_at"));
+			dupBefore = parseKatelloDate(updProv.getUpdatedAt());
 			// update - name
-			json_updProv = updateProviderProperty("name", "modified-"+provider_name);
-			dupAfter = parseKatelloDate((String)json_updProv.get("updated_at"));
-			Assert.assertEquals(json_updProv.get("name"), "modified-"+this.provider_name,"Check updated: name");
+			KatelloProvider updatedProvider = null;
+            try {
+                updatedProvider = servertasks.updateProviderProperty(org_name, provider_name, "name", "modified-"+provider_name);
+            } catch (KatelloApiException e) {
+                Assert.fail("Could not update Provider property", e);
+            }
+            log.info("Date string for updated_at: " + updatedProvider.getUpdatedAt());
+			dupAfter = parseKatelloDate(updatedProvider.getUpdatedAt());
+			Assert.assertEquals(updatedProvider.getName(), "modified-"+this.provider_name,"Check updated: name");
 			Assert.assertMore(dupAfter.getTime(), dupBefore.getTime(), "Check the timestamp updated");
 			this.provider_name = "modified-"+this.provider_name;
 			
 			//update - repository_url
 			dupBefore = dupAfter;
-			json_updProv = updateProviderProperty("repository_url", upd_repo_url);
-			dupAfter = parseKatelloDate((String)json_updProv.get("updated_at"));
-			Assert.assertEquals(json_updProv.get("repository_url"), upd_repo_url,"Check updated: repository_url");
+			try {
+                updatedProvider = servertasks.updateProviderProperty(org_name, provider_name, "repository_url", upd_repo_url);
+            } catch (KatelloApiException e) {
+                Assert.fail("Could not update Provider property", e);
+            }
+			dupAfter = parseKatelloDate(updatedProvider.getUpdatedAt());
+			Assert.assertEquals(updatedProvider.getRepositoryUrl(), upd_repo_url,"Check updated: repository_url");
 			Assert.assertMore(dupAfter.getTime(), dupBefore.getTime(), "Check the timestamp updated");
 
 			//update - description
 			dupBefore = dupAfter;
-			json_updProv = updateProviderProperty("description", "Updated: provider ["+provider_name+"]");
-			dupAfter = parseKatelloDate((String)json_updProv.get("updated_at"));
-			Assert.assertEquals(json_updProv.get("description"), "Updated: provider ["+provider_name+"]","Check updated: description");
+			try {
+                updatedProvider = servertasks.updateProviderProperty(org_name, provider_name, "description", "Updated: provider ["+provider_name+"]");
+            } catch (KatelloApiException e) {
+                Assert.fail("Could not update Provider property", e);
+            }
+			dupAfter = parseKatelloDate(updatedProvider.getUpdatedAt());
+			Assert.assertEquals(updatedProvider.getDescription(), "Updated: provider ["+provider_name+"]","Check updated: description");
 			Assert.assertMore(dupAfter.getTime(), dupBefore.getTime(), "Check the timestamp updated");
 			// TODO - needs to be applied with additional tests for provider type-RedHat, as only 1 provider of RedHat type could be in org.
 		}catch(ParseException pex){
@@ -127,16 +192,19 @@ public class ProvidersTest extends KatelloTestScript {
 	@Test (groups={"testProviders"}, description="List all providers", dependsOnMethods="test_updateProvider")
 	public void test_listProviders(){
 		// Get providers json string
-		String s_json_provs = new KatelloProvider(null, org_name, null, null).api_list(org_name);
-		JSONArray arr_provs = KatelloTestScript.toJSONArr(s_json_provs) ;
-		Assert.assertMore(arr_provs.size(), 0, "Check: providers count >0");
-		JSONObject json_prov;
+	    List<KatelloProvider> providers = null;
+        try {
+            providers = servertasks.listProviders(org_name);
+        } catch (KatelloApiException e) {
+            Assert.fail("Could not get provider list", e);
+        }
+		Assert.assertMore(providers.size(), 0, "Check: providers count >0");
 		// we need to find our provider modified (see the test dependency)
 		boolean findOurProvider = false;
-		for(int i=0;i<arr_provs.size();i++){
-			json_prov = (JSONObject)arr_provs.get(i);
-			if(json_prov.get("name").equals(this.provider_name))
-				findOurProvider = true;
+		for ( KatelloProvider provider : providers ) {
+		    if ( provider.getName().equals(this.provider_name)){
+		        findOurProvider = true;
+		    }
 		}
 		// We have to have the provider found, else: error.
 		Assert.assertTrue(findOurProvider, "Check: we found our provider");
@@ -148,44 +216,43 @@ public class ProvidersTest extends KatelloTestScript {
 		// Create separate provider to be removed 
 		String uid = getUniqueID();
 		String providerName = "auto-deleteMe-"+uid;
-		String str_json = servertasks.createProvider(
-				this.org_name,providerName, "Provider in test - "+uid,"Custom");		
-		JSONObject json_prov = KatelloTestScript.toJSONObj(str_json);
-		Assert.assertNotNull(json_prov, "Returned string in katello is JSON-formatted");
+		KatelloProvider provider = null;
+        try {
+            provider = servertasks.createProvider(
+            		this.org_name,providerName, "Provider in test - "+uid,"Custom", null);
+        } catch (KatelloApiException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }		
+		Assert.assertNotNull(provider, "Returned string in katello is JSON-formatted");
 		
-		String sout = servertasks.deleteProvider(org_name, providerName).trim();
+		String sout = null;
+        try {
+            sout = servertasks.deleteProvider(provider);
+        } catch (KatelloApiException e) {
+            // This is not the exception we were looking for. Not yet, anyway.
+        }
 		Assert.assertEquals(sout, "Deleted provider [ "+providerName+" ]","Check: message returned by the API call");
-		JSONObject obj_del = servertasks.getProvider(org_name, providerName);
-		Assert.assertNull(obj_del, "Check: returned getProvider() is null");
+		try {
+            provider = servertasks.getProvider(org_name, providerName);
+        } catch (KatelloApiException e) {
+            // We are looking for this one.
+            Assert.assertNull(provider, "Check: returned getProvider() is null");
+        }
 	}
 	
 	@Test(groups={"testOrgs","testProviders"}, description="Generate ",enabled= false)
 	public void test_postUeberCert(){ // TODO - seems Candlepin not have them still rpm-ed.
-		try{
-			String _return = servertasks.apiKatello_POST("", "/organizations/"+"org1"+"/uebercert");
-			log.info("Posting ueber cert for: ["+"org1"+"]");
-			System.out.println(_return);
-		}catch (Exception e) {
-			log.log(Level.SEVERE, e.getMessage(), e);
-		}
+//		try{
+//		    servertasks.postCert("org1");
+//			String _return = servertasks.apiKatello_POST("", "/organizations/"+"org1"+"/uebercert");
+//			log.info("Posting ueber cert for: ["+"org1"+"]");
+//			System.out.println(_return);
+//		}catch (Exception e) {
+//			log.log(Level.SEVERE, e.getMessage(), e);
+//		}
 		
 	}
 	
-	private JSONObject updateProviderProperty(String component, String updValue){
-		JSONObject _return = null; String retStr;
-		String updProv = String.format("'provider':{'%s':'%s'}",
-				component,updValue);
-		String provider_id = ((Long)servertasks.getProvider(org_name, this.provider_name).get("id")).toString();
-		try{Thread.sleep(1000);}catch(Exception ex){} // for the "update_at" checks
-		try{
-			retStr = servertasks.apiKatello_PUT(updProv,String.format(
-					"/providers/%s",provider_id));
-			_return = KatelloTestScript.toJSONObj(retStr);
-		}catch(IOException ie){
-			log.severe(ie.getMessage());
-		}
-		return _return;
-	}
-
 	
 }
