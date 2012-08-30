@@ -1,8 +1,5 @@
 package com.redhat.qe.katello.tests.api;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -12,10 +9,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.jboss.resteasy.client.ClientResponse;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -23,7 +18,6 @@ import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloApiException;
 import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
-import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.common.KatelloConstants;
 
@@ -125,9 +119,10 @@ public class ProvidersTest extends KatelloTestScript {
 		}
 		product.put("attributes", attributes);
 		product.put("id", pid);
-		List<KatelloProduct> s = null;
+		//List<KatelloProduct> s = null;
         try {
-            s = servertasks.import_products(org_name, provider_name, allProducts);
+            //s = servertasks.import_products(org_name, provider_name, allProducts);
+        	servertasks.import_products(org_name, provider_name, allProducts);
         } catch (KatelloApiException e) {
             Assert.fail("Could not import products", e);
         }

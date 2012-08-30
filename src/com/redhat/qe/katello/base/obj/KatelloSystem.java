@@ -1,22 +1,13 @@
 package com.redhat.qe.katello.base.obj;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import javax.management.Attribute;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-
-import com.redhat.qe.katello.base.KatelloApi;
-import com.redhat.qe.katello.base.KatelloApiException;
-import com.redhat.qe.katello.base.KatelloApiResponse;
 import com.redhat.qe.katello.base.KatelloCli;
-import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
@@ -64,6 +55,7 @@ public class KatelloSystem {
 	// ** ** ** ** ** ** ** Class members
 	public String name;
 	private String org;
+	@SuppressWarnings("unused")
 	private String env;
 	public String uuid;
 	private String href;

@@ -1,20 +1,11 @@
 package com.redhat.qe.katello.base.obj;
 
 import java.util.ArrayList;
-import java.util.List;
-
 import javax.management.Attribute;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-
-import com.redhat.qe.katello.base.KatelloApi;
-import com.redhat.qe.katello.base.KatelloApiException;
-import com.redhat.qe.katello.base.KatelloApiResponse;
 import com.redhat.qe.katello.base.KatelloCli;
-import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @JsonIgnoreProperties(ignoreUnknown=true)
@@ -53,7 +44,6 @@ public class KatelloProvider {
 	private Long organizationId;
 	private String providerType;
 	private String updatedAt;
-	private String provider;
 	
 	private KatelloCli cli;
 	private ArrayList<Attribute> opts;

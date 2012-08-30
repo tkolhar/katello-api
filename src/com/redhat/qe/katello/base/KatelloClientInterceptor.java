@@ -1,7 +1,5 @@
 package com.redhat.qe.katello.base;
 
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.Provider;
 
 import org.jboss.resteasy.annotations.interception.ClientInterceptor;
@@ -13,6 +11,7 @@ import org.jboss.resteasy.spi.interception.ClientExecutionInterceptor;
 @ClientInterceptor
 public class KatelloClientInterceptor implements ClientExecutionInterceptor {
 
+@SuppressWarnings("rawtypes")
 @Override
   public ClientResponse execute(ClientExecutionContext ctx) throws Exception {
       final ClientResponse response = ctx.proceed();

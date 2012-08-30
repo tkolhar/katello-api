@@ -1,15 +1,8 @@
 package examples;
 
-import java.text.ParseException;
-import java.util.Date;
-
 import org.testng.annotations.Test;
 
-import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloApiException;
 import com.redhat.qe.katello.base.KatelloTestScript;
-import com.redhat.qe.katello.base.obj.KatelloEnvironment;
-import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.tasks.KatelloTasks;
 
 public class DemoKatelloApi extends KatelloTestScript {
@@ -42,7 +35,7 @@ public class DemoKatelloApi extends KatelloTestScript {
 
     @Test(description="demo new RestEasy API")
 	public void test_resteasy_api() {
-	    KatelloTasks servertasks = new KatelloTasks();
+	    new KatelloTasks();
 //	    servertasks.getProvider(org_name, byName);
 //	    servertasks.uploadManifest(providerId, exportZipPath);
     }

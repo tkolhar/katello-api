@@ -1,7 +1,5 @@
 package com.redhat.qe.katello.base.obj;
 
-import org.json.simple.JSONObject;
-
 public class KatelloPool {
     private String id;
     private KatelloOwner owner;

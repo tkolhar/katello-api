@@ -65,7 +65,6 @@ public class GpgKeyExtTests extends KatelloCliTestScript{
 	@Test(description="create product specifying gpgkey")
 	public void test_createProduct_validGpg(){
 		String _prov = "gpgProv1-"+this.rand;
-		String _prod = "gpgProd1-"+this.rand;
 		KatelloProvider prov = new KatelloProvider(_prov, this.org, null, null);
 		prov.create();
 		
