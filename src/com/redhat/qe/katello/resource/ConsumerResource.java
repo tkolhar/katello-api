@@ -18,6 +18,7 @@ import org.jboss.resteasy.client.ClientResponse;
 
 import com.redhat.qe.katello.base.obj.KatelloEntitlement;
 import com.redhat.qe.katello.base.obj.KatelloEntitlementCertificate;
+import com.redhat.qe.katello.base.obj.KatelloPackage;
 import com.redhat.qe.katello.base.obj.KatelloSerial;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 
@@ -64,4 +65,11 @@ public interface ConsumerResource {
     @Path("/{id}/entitlements")
     @Produces(MediaType.APPLICATION_JSON)
     public ClientResponse<List<KatelloEntitlement>> subscribe(@PathParam("id") String consumerId, @QueryParam("pool") String poolId);
+    
+    @PUT
+    @Path("/{id}/packages")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    // TODO: Check on return from this call
+    public ClientResponse<KatelloSystem> updatePackages(@PathParam("id") String consumerId, List<Map<String,Object>> updPkgs);
 }
