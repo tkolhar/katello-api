@@ -38,6 +38,7 @@ import com.redhat.qe.katello.resource.OrganizationResource;
 import com.redhat.qe.katello.resource.PoolResource;
 import com.redhat.qe.katello.resource.ProviderResource;
 import com.redhat.qe.katello.resource.RepositoryResource;
+import com.redhat.qe.katello.resource.SystemResource;
 import com.redhat.qe.katello.resource.UserResource;
 import com.redhat.qe.tools.ExecCommands;
 
@@ -56,6 +57,7 @@ public class KatelloTasks {
 	private ConsumerResource consumerResource;
 	private UserResource userResource;
 	private PoolResource poolResource;
+	private SystemResource systemResource;
 	
 	static {
         // this initialization only needs to be done once per VM
@@ -75,6 +77,7 @@ public class KatelloTasks {
         consumerResource = ProxyFactory.create(ConsumerResource.class, url, executor);
         userResource = ProxyFactory.create(UserResource.class, url, executor);
         poolResource = ProxyFactory.create(PoolResource.class, url, executor);
+        systemResource = ProxyFactory.create(SystemResource.class, url, executor);
 	}
 //	private ExecCommands localCommandRunner = null;
 // # ************************************************************************* #
@@ -361,6 +364,17 @@ public class KatelloTasks {
 		if ( _return.getStatus() > 299 ) throw new KatelloApiException(_return);		
 		log.info(String.format("Subscribing consumer: [%s] to the pool: [%s]", consumerId,poolId));
 		return _return.getEntity();
+	}
+	
+	public KatelloSystem subscribeConsumerViaSystem(String consumerId, String poolId) throws KatelloApiException {
+	    ClientResponse<KatelloSystem> _return = null;
+	    Map<String,Object> pool = new HashMap<String,Object>();
+	    pool.put("pool", poolId);
+	    pool.put("quantity", Long.valueOf(1));
+	    _return = systemResource.subscribe(consumerId, pool);
+	    if (_return.getStatus() > 299) throw new KatelloApiException(_return);
+	    log.info(String.format("Subscribing consumer: [%s] to the pool: [%s]", consumerId, poolId));
+	    return _return.getEntity();
 	}
 	
 	public KatelloProvider getProvider(String org_name, String byName) throws KatelloApiException {
