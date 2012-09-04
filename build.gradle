@@ -4,7 +4,18 @@ apply plugin: 'groovy'
 apply plugin: 'maven'
 
 group = 'com.redhat.qe'
-version = '2.0.1'
+ext.API_VERSION = '2.0.2'
+
+task release(dependsOn: 'jar') << {
+}
+
+gradle.taskGraph.whenReady { taskGraph -> 
+   if (taskGraph.hasTask(release)) {
+      version = "${API_VERSION}"
+   } else {
+      version = "${API_VERSION}-SNAPSHOT"
+   }
+}
 
 allprojects {
    sourceCompatibility = 1.6
