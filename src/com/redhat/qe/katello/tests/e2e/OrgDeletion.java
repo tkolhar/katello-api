@@ -6,7 +6,6 @@ import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
-import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
@@ -79,7 +78,7 @@ public class OrgDeletion extends KatelloCliTestScript{
 	
 	private KatelloOrg createOrgStuff(String name) {
 		
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		
 		// if name is provided use it, otherwise generate it
 		if (name == null) { 

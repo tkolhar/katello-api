@@ -7,22 +7,21 @@ import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
-import com.redhat.qe.katello.tasks.KatelloTasks;
+import com.redhat.qe.katello.common.KatelloUtils;
 
 public class DemoKatelloApi extends KatelloTestScript {
     @Test(description="demo new RestEasy API")
 	public void test_resteasy_api() {
-        KatelloTasks tasks = new KatelloTasks();
-        String hostname = "host" + KatelloTestScript.getUniqueID() + ".example.com";
-        String organizationName = "org" + KatelloTestScript.getUniqueID();
-        String environmentName = "env" + KatelloTestScript.getUniqueID();
-        String uuid = KatelloTestScript.getUUID();
+        String hostname = "host" + KatelloUtils.getUniqueID() + ".example.com";
+        String organizationName = "org" + KatelloUtils.getUniqueID();
+        String environmentName = "env" + KatelloUtils.getUniqueID();
+        String uuid = KatelloUtils.getUUID();
         KatelloSystem consumer;
         try {            
-            KatelloOrg org = tasks.createOrganization(organizationName, "Org Description - " + organizationName);
-            tasks.createEnvironment(org.getCpKey(), environmentName, "Env Description - " + environmentName, KatelloEnvironment.LIBRARY);
-            consumer = tasks.createConsumer(org.getCpKey(), hostname, uuid);
-            KatelloSystem _return = tasks.updatePackages(consumer);
+            KatelloOrg org = servertasks.createOrganization(organizationName, "Org Description - " + organizationName);
+            servertasks.createEnvironment(org.getCpKey(), environmentName, "Env Description - " + environmentName, KatelloEnvironment.LIBRARY);
+            consumer = servertasks.createConsumer(org.getCpKey(), hostname, uuid);
+            KatelloSystem _return = servertasks.updatePackages(consumer);
             log.info("Return string is: " + _return);
         } catch (KatelloApiException e) {
             e.printStackTrace();

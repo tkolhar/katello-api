@@ -9,10 +9,11 @@ import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloApiException;
 import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.obj.KatelloUser;
+import com.redhat.qe.katello.common.KatelloUtils;
 
 @Test(groups={"cfse-api"})
 public class UsersTest extends KatelloTestScript {
-	protected static Logger log = Logger.getLogger(UsersTest.class.getName());
+    protected static Logger log = Logger.getLogger(UsersTest.class.getName());
 
 	private String username_disabled;
 	private String username_enabled;
@@ -22,7 +23,7 @@ public class UsersTest extends KatelloTestScript {
 	@Test(groups = { "testUsers" }, description = "Create user (disabled)")
 	public void test_createUserDisabled(){
 		try{Thread.sleep(1000L);}catch(InterruptedException iex){} // to get new unique id.
-		String pid = KatelloTestScript.getUniqueID();
+		String pid = KatelloUtils.getUniqueID();
 		this.username_disabled = "user_"+pid;
 		KatelloUser user = null;
         try {
@@ -41,7 +42,7 @@ public class UsersTest extends KatelloTestScript {
 	@Test(groups = { "testUsers" }, description = "Create user (enabled)")
 	public void test_createUserEnabled(){
 		try{Thread.sleep(1000L);}catch(InterruptedException iex){} // to get new unique id.
-		String pid = KatelloTestScript.getUniqueID();
+		String pid = KatelloUtils.getUniqueID();
 		this.username_enabled = "user_"+pid;
 		KatelloUser user = null;
         try {
@@ -99,7 +100,7 @@ public class UsersTest extends KatelloTestScript {
 
 	@Test(groups = { "testUsers" }, description = "Update user properties")
 	public void test_updateUser(){
-		String pid = KatelloTestScript.getUniqueID();
+		String pid = KatelloUtils.getUniqueID();
 		String updUser = "updUser_"+pid;
 		KatelloUser user = null;
         try {
@@ -123,7 +124,7 @@ public class UsersTest extends KatelloTestScript {
 	
 	@Test(groups = { "testUsers" }, description = "Delete user")
 	public void test_deleteUser(){
-		String pid = KatelloTestScript.getUniqueID();
+		String pid = KatelloUtils.getUniqueID();
 		String updUser = "delUser_"+pid;
 		KatelloUser user = null;
         try {

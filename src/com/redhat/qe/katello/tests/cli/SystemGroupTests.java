@@ -9,14 +9,13 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
+import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
-import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.base.obj.KatelloSystemGroup;
 import com.redhat.qe.katello.common.KatelloUtils;
-import com.redhat.qe.katello.tasks.KatelloTasks;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups={"cfse-cli","headpin-cli"})
@@ -32,7 +31,7 @@ public class SystemGroupTests extends KatelloCliTestScript{
 
 	@BeforeClass(description="Generate unique names")
 	public void setUp(){
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		this.orgName = "org-"+uid;
 		this.envName = "Dev-"+uid;
 		
@@ -135,7 +134,7 @@ public class SystemGroupTests extends KatelloCliTestScript{
 	
 	@Test(description = "Add 2 systems to system group which has max systems 1, verify the error", groups = { "cli-systemgroup" })
 	public void test_addSystemToLimitedSystemGroup() {
-		systemGroupName = "system_group"+KatelloTestScript.getUniqueID();
+		systemGroupName = "system_group"+KatelloUtils.getUniqueID();
 		
 		KatelloSystemGroup systemGroup = new KatelloSystemGroup(this.systemGroupName, this.orgName, null, 1);
 		exec_result = systemGroup.create();
@@ -143,13 +142,13 @@ public class SystemGroupTests extends KatelloCliTestScript{
 		
 		KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);
 		
-		this.systemName = "localhost-"+KatelloTestScript.getUniqueID();
+		this.systemName = "localhost-"+KatelloUtils.getUniqueID();
 		KatelloSystem sys = new KatelloSystem(systemName, this.orgName, null);
 		exec_result = sys.rhsm_registerForce(); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		
 		exec_result = sys.rhsm_identity();
-		system_uuid = KatelloTasks.grepCLIOutput("Current identity is", exec_result.getStdout());
+		system_uuid = KatelloCli.grepCLIOutput("Current identity is", exec_result.getStdout());
 		sys.uuid = system_uuid;
 		
 		exec_result = systemGroup.add_systems(system_uuid);
@@ -159,13 +158,13 @@ public class SystemGroupTests extends KatelloCliTestScript{
 		
 		KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);
 		
-		this.systemName = "localhost-"+KatelloTestScript.getUniqueID();
+		this.systemName = "localhost-"+KatelloUtils.getUniqueID();
 		sys = new KatelloSystem(systemName, this.orgName, null);
 		exec_result = sys.rhsm_registerForce(); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		
 		exec_result = sys.rhsm_identity();
-		system_uuid = KatelloTasks.grepCLIOutput("Current identity is", exec_result.getStdout());
+		system_uuid = KatelloCli.grepCLIOutput("Current identity is", exec_result.getStdout());
 		sys.uuid = system_uuid;
 		
 		exec_result = systemGroup.add_systems(system_uuid);
@@ -175,7 +174,7 @@ public class SystemGroupTests extends KatelloCliTestScript{
 
 	@Test(description = "Add 1 system to system group which has max systems 1, then remove it and add another one", groups = { "cli-systemgroup" })
 	public void test_addSystemToLimitedSystemGroupAfterRemoving() {
-		systemGroupName = "system_group"+KatelloTestScript.getUniqueID();
+		systemGroupName = "system_group"+KatelloUtils.getUniqueID();
 		
 		KatelloSystemGroup systemGroup = new KatelloSystemGroup(this.systemGroupName, this.orgName, null, 1);
 		exec_result = systemGroup.create();
@@ -183,13 +182,13 @@ public class SystemGroupTests extends KatelloCliTestScript{
 		
 		KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);
 		
-		this.systemName = "localhost-"+KatelloTestScript.getUniqueID();
+		this.systemName = "localhost-"+KatelloUtils.getUniqueID();
 		KatelloSystem sys = new KatelloSystem(systemName, this.orgName, null);
 		exec_result = sys.rhsm_registerForce(); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		
 		exec_result = sys.rhsm_identity();
-		system_uuid = KatelloTasks.grepCLIOutput("Current identity is", exec_result.getStdout());
+		system_uuid = KatelloCli.grepCLIOutput("Current identity is", exec_result.getStdout());
 		sys.uuid = system_uuid;
 		
 		exec_result = systemGroup.add_systems(system_uuid);
@@ -202,13 +201,13 @@ public class SystemGroupTests extends KatelloCliTestScript{
 		
 		KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);
 		
-		this.systemName = "localhost-"+KatelloTestScript.getUniqueID();
+		this.systemName = "localhost-"+KatelloUtils.getUniqueID();
 		sys = new KatelloSystem(systemName, this.orgName, null);
 		exec_result = sys.rhsm_registerForce(); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		
 		exec_result = sys.rhsm_identity();
-		system_uuid = KatelloTasks.grepCLIOutput("Current identity is", exec_result.getStdout());
+		system_uuid = KatelloCli.grepCLIOutput("Current identity is", exec_result.getStdout());
 		sys.uuid = system_uuid;
 		
 		exec_result = systemGroup.add_systems(system_uuid);
@@ -239,7 +238,7 @@ public class SystemGroupTests extends KatelloCliTestScript{
 	public void test_listSystemGroup() {
 		KatelloSystemGroup systemGroup = createSystemGroup();
 		
-		String sgroup_name2 = "system_group"+KatelloTestScript.getUniqueID();
+		String sgroup_name2 = "system_group"+KatelloUtils.getUniqueID();
 		KatelloSystemGroup systemGroup2 = new KatelloSystemGroup(sgroup_name2, this.orgName);
 		exec_result = systemGroup2.create();
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
@@ -251,7 +250,7 @@ public class SystemGroupTests extends KatelloCliTestScript{
 	public void test_deleteSystemGroup() {
 		KatelloSystemGroup systemGroup = createSystemGroup();
 		
-		String sgroup_name2 = "system_group"+KatelloTestScript.getUniqueID();
+		String sgroup_name2 = "system_group"+KatelloUtils.getUniqueID();
 		KatelloSystemGroup systemGroup2 = new KatelloSystemGroup(sgroup_name2, this.orgName);
 		exec_result = systemGroup2.create();
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
@@ -271,7 +270,7 @@ public class SystemGroupTests extends KatelloCliTestScript{
 	}
 	
 	private KatelloSystemGroup createSystemGroup() {
-		systemGroupName = "system_group"+KatelloTestScript.getUniqueID();
+		systemGroupName = "system_group"+KatelloUtils.getUniqueID();
 		
 		KatelloSystemGroup systemGroup = new KatelloSystemGroup(this.systemGroupName, this.orgName);
 		exec_result = systemGroup.create();
@@ -285,7 +284,7 @@ public class SystemGroupTests extends KatelloCliTestScript{
 		KatelloSystemGroup systemGroup = createSystemGroup();
 		KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);
 		
-		this.systemName = "localhost-"+KatelloTestScript.getUniqueID();
+		this.systemName = "localhost-"+KatelloUtils.getUniqueID();
 		KatelloSystem sys = new KatelloSystem(systemName, this.orgName, null);
 		exec_result = sys.rhsm_registerForce(); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
@@ -293,7 +292,7 @@ public class SystemGroupTests extends KatelloCliTestScript{
 				"Check - output (success)");
 		
 		exec_result = sys.rhsm_identity();
-		system_uuid = KatelloTasks.grepCLIOutput("Current identity is", exec_result.getStdout());
+		system_uuid = KatelloCli.grepCLIOutput("Current identity is", exec_result.getStdout());
 		sys.uuid = system_uuid;
 		
 		exec_result = systemGroup.add_systems(system_uuid);
@@ -349,7 +348,7 @@ public class SystemGroupTests extends KatelloCliTestScript{
 		log.finest(String.format("System Group (info) match regex: [%s]", match_info));
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", " ").matches(match_info), String.format("System Group [%s] should be found in the result info", systemGroup.name));
 
-		String id = KatelloTasks.grepCLIOutput("Id", exec_result.getStdout());
+		String id = KatelloCli.grepCLIOutput("Id", exec_result.getStdout());
 		
 		return id;
 	}

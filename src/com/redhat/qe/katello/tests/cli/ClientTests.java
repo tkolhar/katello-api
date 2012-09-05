@@ -1,11 +1,11 @@
 package com.redhat.qe.katello.tests.cli;
 import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
-import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.obj.KatelloClient;
-
+import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 @Test(groups={"headpin-cli"})
 public class ClientTests extends KatelloCliTestScript{
@@ -23,7 +23,7 @@ public class ClientTests extends KatelloCliTestScript{
 	@Test(description = "forget : remove an option from the client config")
 	public void test_Forget(){
 			
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		String option = "op-"+uid;
 	    String value = "val-"+uid;
 		KatelloClient client_obj= new KatelloClient(option,value);

@@ -1,11 +1,13 @@
 package com.redhat.qe.katello.tests.e2e;
 
 import java.util.logging.Logger;
+
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
+import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
-import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
@@ -17,7 +19,6 @@ import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.base.obj.KatelloUser;
 import com.redhat.qe.katello.base.obj.KatelloUserRole;
 import com.redhat.qe.katello.common.KatelloUtils;
-import com.redhat.qe.katello.tasks.KatelloTasks;
 import com.redhat.qe.tools.SSHCommandResult;
 
 /**
@@ -45,7 +46,7 @@ public class RhsmOnlyPermissions extends KatelloCliTestScript{
 
 	@BeforeClass(description="Init org/env", alwaysRun=true)
 	public void setUp(){
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		this.env_dev = "Dev-"+uid;
 		this.env_test = "Test-"+uid;
 		this.user = "usr"+uid;
@@ -103,7 +104,7 @@ public class RhsmOnlyPermissions extends KatelloCliTestScript{
 	
 	@Test(description="Sync Zoo3 repo", dependsOnMethods={"test_rhsmRegisterSystem"}, enabled=true)
 	public void test_syncZoo3(){
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		String providerName = "Zoo3_"+uid; 
 		this.prod = "Zoo 3 - "+uid;
 		this.repo = "Zoo3-"+uid;
@@ -129,12 +130,12 @@ public class RhsmOnlyPermissions extends KatelloCliTestScript{
 		log.info("Subscribing system to the pool of: Zoo3");
 		KatelloSystem sys = new KatelloSystem(this.system, this.org, null);
 		SSHCommandResult res = sys.subscriptions_available();
-		String pool = KatelloTasks.grepCLIOutput("PoolId", getOutput(res).trim(),1);
+		String pool = KatelloCli.grepCLIOutput("PoolId", getOutput(res).trim(),1);
 		if(pool==null)
-			pool = KatelloTasks.grepCLIOutput("Pool Id", getOutput(res).trim(),1); // new version of RHSM
-		String poolName = KatelloTasks.grepCLIOutput("PoolName", getOutput(res).trim(),1);
+			pool = KatelloCli.grepCLIOutput("Pool Id", getOutput(res).trim(),1); // new version of RHSM
+		String poolName = KatelloCli.grepCLIOutput("PoolName", getOutput(res).trim(),1);
 		if(poolName==null)
-			poolName = KatelloTasks.grepCLIOutput("PoolName", getOutput(res).trim(),1); // new version of RHSM
+			poolName = KatelloCli.grepCLIOutput("PoolName", getOutput(res).trim(),1); // new version of RHSM
 		
 		String cmd = "subscription-manager subscribe --pool "+pool;
 		res = KatelloUtils.sshOnClient(cmd);
@@ -156,7 +157,7 @@ public class RhsmOnlyPermissions extends KatelloCliTestScript{
 		
 		KatelloRepo repo = new KatelloRepo(this.repo, this.org, this.prod, null, null, null);
 		res = repo.info(this.env_dev);
-		int pkgFromKatello = Integer.parseInt(KatelloTasks.grepCLIOutput("Package Count", getOutput(res).trim()));
+		int pkgFromKatello = Integer.parseInt(KatelloCli.grepCLIOutput("Package Count", getOutput(res).trim()));
 		
 		Assert.assertTrue((pkgFromYum==pkgFromKatello), "Check: package counts for both yum and katello repo");
 	}

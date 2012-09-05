@@ -2,9 +2,9 @@ package com.redhat.qe.katello.tests.cli;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
-import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.obj.KatelloGpgKey;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
@@ -28,7 +28,7 @@ public class GpgKeyExtTests extends KatelloCliTestScript{
 	@BeforeClass(description="init: create org, prepare gpg file on disk")
 	public void setUp(){
 		SSHCommandResult res;
-		rand = KatelloTestScript.getUniqueID();
+		rand = KatelloUtils.getUniqueID();
 		this.org = "gpgExt-"+rand;
 		this.filename = "/tmp/RPM-GPG-KEY-dummy-packages-generator";
 		this.gpg = "key-"+rand;
@@ -52,7 +52,7 @@ public class GpgKeyExtTests extends KatelloCliTestScript{
 
 	@Test(description="creating product by giving non-existing gpgkey")
 	public void test_createProduct_wrongGpgkey(){
-		String rand = KatelloTestScript.getUniqueID();
+		String rand = KatelloUtils.getUniqueID();
 		KatelloProvider prov = new KatelloProvider("gpgext-"+rand, this.org, null, null);
 		prov.create();
 		String gpgNotExist = "gpg-"+rand;

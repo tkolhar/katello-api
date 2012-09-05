@@ -18,7 +18,6 @@ import org.jboss.resteasy.client.ClientResponse;
 
 import com.redhat.qe.katello.base.obj.KatelloEntitlement;
 import com.redhat.qe.katello.base.obj.KatelloEntitlementCertificate;
-import com.redhat.qe.katello.base.obj.KatelloPackage;
 import com.redhat.qe.katello.base.obj.KatelloSerial;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 
