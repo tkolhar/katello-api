@@ -58,7 +58,7 @@ public class GpgKeyExtTests extends KatelloCliTestScript{
 		String gpgNotExist = "gpg-"+rand;
 		KatelloProduct prod = new KatelloProduct("prod-"+rand, this.org, prov.name, null, gpgNotExist, null, null, null);
 		SSHCommandResult res = prod.create();
-		Assert.assertTrue(res.getExitCode()==244, "Check return code (product create with wrong gpgkey name)");
+		Assert.assertTrue(res.getExitCode()==148, "Check return code (product create with wrong gpgkey name)");
 		Assert.assertTrue(getOutput(res).equals(String.format(KatelloProduct.ERR_GPGKEY_NOTFOUND, gpgNotExist)), "Check - error string");
 	}
 	
