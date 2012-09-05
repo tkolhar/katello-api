@@ -13,12 +13,9 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
-
 import org.jboss.resteasy.client.ClientResponse;
-
 import com.redhat.qe.katello.base.obj.KatelloEntitlement;
 import com.redhat.qe.katello.base.obj.KatelloEntitlementCertificate;
-import com.redhat.qe.katello.base.obj.KatelloPackage;
 import com.redhat.qe.katello.base.obj.KatelloSerial;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 
