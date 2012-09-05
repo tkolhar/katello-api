@@ -64,7 +64,7 @@ public class SystemGroupTests extends KatelloCliTestScript{
 		exec_result = systemGroup.create();
 		Assert.assertTrue(exec_result.getExitCode() == 144, "Check - return code");
 		//@TODO fix message remove Name when bug #846251 is fixed.
-		Assert.assertEquals(getOutput(exec_result).trim(), "Validation failed: Name Name must be unique within one organization");
+		Assert.assertEquals(getOutput(exec_result).trim(), "Validation failed: Name must be unique within one organization");
 	}
 	
 	@Test(description = "Create system group, than update it's name, description and max systems", groups = { "cli-systemgroup" })
