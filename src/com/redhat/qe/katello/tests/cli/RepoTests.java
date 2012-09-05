@@ -9,11 +9,12 @@ import java.util.List;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
-import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.obj.KatelloFilter;
 import com.redhat.qe.katello.base.obj.KatelloGpgKey;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
@@ -46,7 +47,7 @@ public class RepoTests extends KatelloCliTestScript {
 
 	@BeforeClass(description = "Generate unique objects")
 	public void setUp() {
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		org_name = "org" + uid;
 		user_name = "user" + uid;
 		provider_name = "provider" + uid;
@@ -122,7 +123,7 @@ public class RepoTests extends KatelloCliTestScript {
 	@Test(description = "Discover repo", groups = { "cli-repo" })
 	public void test_discoverRepo() {
 
-		repo_name = "repo"+KatelloTestScript.getUniqueID();
+		repo_name = "repo"+KatelloUtils.getUniqueID();
 		String url_name = PULP_F15_x86_64_REPO.replace("http://repos.fedorapeople.org", "").replace("/", "_");
 		url_name = url_name.substring(0, url_name.length()-1);
 		KatelloRepo repo = new KatelloRepo(repo_name, org_name, product_name, PULP_F15_x86_64_REPO, null, null);
@@ -262,7 +263,7 @@ public class RepoTests extends KatelloCliTestScript {
 	@Test(description = "Call commands on non existing repo", groups = { "cli-repo" })
 	public void test_commandsInvalidRepo() {
 		
-		repo_name = "repo"+KatelloTestScript.getUniqueID();;
+		repo_name = "repo"+KatelloUtils.getUniqueID();;
 		
 		KatelloRepo repo = new KatelloRepo(repo_name, org_name, product_name, PULP_F15_x86_64_REPO, null, null);
 		
@@ -355,7 +356,7 @@ public class RepoTests extends KatelloCliTestScript {
 	}
 	
 	private KatelloRepo createRepo() {
-		repo_name = "repo"+KatelloTestScript.getUniqueID();;
+		repo_name = "repo"+KatelloUtils.getUniqueID();;
 		
 		KatelloRepo repo = new KatelloRepo(repo_name, org_name, product_name, PULP_F15_x86_64_REPO, null, null);
 		exec_result = repo.create();

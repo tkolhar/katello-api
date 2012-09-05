@@ -1,6 +1,13 @@
 package com.redhat.qe.katello.common;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Random;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.redhat.qe.tools.ExecCommands;
 import com.redhat.qe.tools.SSHCommandResult;
 import com.redhat.qe.tools.SSHCommandRunner;
 
@@ -11,6 +18,71 @@ import com.redhat.qe.tools.SSHCommandRunner;
 public class KatelloUtils {
 	private static Logger log = Logger.getLogger(KatelloUtils.class.getName());
 	
+    public static void waitfor_katello(){
+        sshOnServer("python -c \"from katello.utils import waitfor_katello; waitfor_katello()\"");
+    }    
+
+    public static String run_local(boolean showLogResults, String command){
+        String out = null; String tmp_cmdFile = "/tmp/katello-"+getUniqueID()+".sh";
+        ExecCommands localRunner = new ExecCommands();
+        try{
+            // cleanup the running buffer file - in case it would exist
+            localRunner.submitCommandToLocalWithReturn(false, 
+                    "rm -f "+tmp_cmdFile,"");
+            FileOutputStream fout = 
+                new FileOutputStream(tmp_cmdFile);
+            fout.write((command+"\n").getBytes());fout.flush();fout.close();
+            log.finest(String.format("Executing local: [%s]",command));
+            out = localRunner.submitCommandToLocalWithReturn(
+                    false, "sh "+tmp_cmdFile, ""); // HERE is the run
+            
+            if(showLogResults){ // log output if specified so.
+                // split the lines and out each line.
+                String[] split = out.split("\\n");
+                for(int i=0;i<split.length;i++){
+                    log.info("Output: "+split[i]);
+                }
+            }
+        }catch(IOException iex){
+            log.log(Level.SEVERE, iex.getMessage(), iex);
+        }finally{
+            // cleanup the running buffer file.
+            try{localRunner.submitCommandToLocalWithReturn(false, 
+                    "rm -f "+tmp_cmdFile,"");
+            }catch(IOException ie){log.log(Level.SEVERE, ie.getMessage(), ie);}
+        }
+        return out;
+    }
+    
+    /**
+     * Generates the unique string which is the current (timeInMillis / 1000).
+     * @return unique ID string.
+     * @author gkhachik
+     * @since 15.Feb.2011
+     */
+    public static String getUniqueID(){
+        try{Thread.sleep(1000+Math.abs(new Random().nextInt(200)));}catch(InterruptedException iex){};
+        String uid = String.valueOf(
+                Calendar.getInstance().getTimeInMillis() / 1000); 
+        log.fine(String.format("Generating unique ID: [%s]",uid));
+        return uid;
+    }
+    
+    public static String getUUID(){
+        return KatelloUtils.run_local(false, "python -c \"import uuid; print uuid.uuid1();\"");
+    }
+    
+    /* (non-Javadoc)
+     * @see com.redhat.qe.katello.tasks.IKatelloTasks#getDiskFreeForPulpRepos()
+     */
+    public static long getDiskFreeForPulpRepos(){
+        long dfPulpRepos=Long.MAX_VALUE;
+        String res = KatelloUtils.sshOnServer("df `grep \"Alias /pulp/repos\" /etc/httpd/conf.d/pulp.conf | awk '{print $3}'` | tail -1 | awk '{print $3}'").getStdout().trim();
+        log.fine("Free disk space for Pulp repositories: ["+res+"]");
+        dfPulpRepos = new Long(res).longValue();
+        return dfPulpRepos;
+    }
+    
 	/**
 	 * Executes ssh command on client-side.<br>
 	 * Credentials (passphrase) and other settings are all taken from System.properties.

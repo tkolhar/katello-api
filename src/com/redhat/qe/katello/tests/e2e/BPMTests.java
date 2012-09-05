@@ -1,12 +1,13 @@
 package com.redhat.qe.katello.tests.e2e;
 
 import java.util.logging.Logger;
+
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
-import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
@@ -53,7 +54,7 @@ public class BPMTests extends KatelloCliTestScript{
 	
 	@BeforeClass(description="Generate unique names")
 	public void setUp(){
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		org_name = "orgBPM_"+uid;
 		user_name = "userBPMAdmin_"+uid;
 		providerF_name = "providerBPM_F_"+uid;

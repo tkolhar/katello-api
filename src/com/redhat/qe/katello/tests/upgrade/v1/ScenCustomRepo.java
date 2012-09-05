@@ -1,9 +1,11 @@
 package com.redhat.qe.katello.tests.upgrade.v1;
 
 import java.util.logging.Logger;
+
 import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloTestScript;
+import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloGpgKey;
@@ -14,13 +16,12 @@ import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.common.KatelloConstants;
 import com.redhat.qe.katello.common.KatelloUtils;
-import com.redhat.qe.katello.tasks.KatelloTasks;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class ScenCustomRepo implements KatelloConstants{
 	protected static Logger log = Logger.getLogger(ScenCustomRepo.class.getName());
 
-	String _uid = KatelloTestScript.getUniqueID();
+	String _uid = KatelloUtils.getUniqueID();
 	String _org;
 	String _provider;
 	String _product;
@@ -80,7 +81,7 @@ public class ScenCustomRepo implements KatelloConstants{
 
 		KatelloSystem sys = new KatelloSystem(_system, _org, _env);
 		sys.rhsm_registerForce();
-		String pool = KatelloTasks.grepCLIOutput("PoolId", sys.subscriptions_available().getStdout().trim(),1);
+		String pool = KatelloCli.grepCLIOutput("PoolId", sys.subscriptions_available().getStdout().trim(),1);
 		sys.rhsm_subscribe(pool);
 		
 		KatelloUtils.sshOnClient("service goferd restart;");

@@ -13,16 +13,17 @@ import com.redhat.qe.katello.base.KatelloApiException;
 import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
+import com.redhat.qe.katello.common.KatelloUtils;
 
 @Test(groups={"cfse-api"})
 public class EnvironmentsTest extends KatelloTestScript{
-	private String org_name;
+    private String org_name;
 	private String env_name;
 	protected static Logger log = Logger.getLogger(EnvironmentsTest.class.getName());
-	
+
 	@BeforeClass(description="Prepare an organization to work with", alwaysRun=true)
 	public void setUp_createOrg(){
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		this.org_name = "auto-org-"+uid; 
 		String org_descr = "Test Organization "+uid;
 		try {
@@ -37,9 +38,9 @@ public class EnvironmentsTest extends KatelloTestScript{
 //	@Test (groups={"testEnvs"}, description="Existance of root env created by default", dependsOnMethods="test_createEnvironment_priorLocker")
 //	public void test_existsDefaultRoot(){
 //		org.json.simple.JSONObject tmpEnv;
-//		org.json.simple.JSONArray json = KatelloTestScript.toJSONArr(KatelloApi.get(String.format(KatelloEnvironment.API_CMD_LIST, org_name)).getContent());
+//		org.json.simple.JSONArray json = KatelloUtils.toJSONArr(KatelloApi.get(String.format(KatelloEnvironment.API_CMD_LIST, org_name)).getContent());
 //		log.finer("Returned JSON for getEnvironments(): "+json.toJSONString());
-//		org.json.simple.JSONObject json_org = KatelloTestScript.toJSONObj(KatelloApi.get(String.format(KatelloOrg.API_CMD_INFO, org_name)).getContent());
+//		org.json.simple.JSONObject json_org = KatelloUtils.toJSONObj(KatelloApi.get(String.format(KatelloOrg.API_CMD_INFO, org_name)).getContent());
 //		log.finer("Returned JSON for getOrganization(): "+json_org.toJSONString());
 //		org.json.simple.JSONObject json_root = null;
 //		for(int i=0;i<json.size();i++){
@@ -68,7 +69,7 @@ public class EnvironmentsTest extends KatelloTestScript{
 	
 	@Test (groups={"testEnvs"}, description="Create an environment")
 	public void test_createEnvironment_priorLocker(){
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		this.env_name = "auto-env-"+uid; 
 		String env_descr = "Test Environment "+uid;
 		try {
@@ -111,7 +112,7 @@ public class EnvironmentsTest extends KatelloTestScript{
 			Assert.assertMore(dupAfter.getTime(), dupBefore.getTime(), "Check the timestamp updated");
 
 			// Create an env. that would be prior of our ones
-			String uid = KatelloTestScript.getUniqueID();
+			String uid = KatelloUtils.getUniqueID();
 			String env_prior = "dev-"+uid;
 			try {
 			    env = servertasks.createEnvironment(this.org_name, env_prior, "Prior: "+env_prior, KatelloEnvironment.LIBRARY);
@@ -134,7 +135,7 @@ public class EnvironmentsTest extends KatelloTestScript{
 	
 	@Test (groups={"testEnvs"}, description="Remove an environment created")
 	public void test_deleteEnvironment(){
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		String env_name = "remove-env-"+uid; 
 		String env_descr = "To Be Removed - "+uid;
 		try {

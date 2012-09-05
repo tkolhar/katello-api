@@ -9,8 +9,8 @@ import java.util.logging.Logger;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
+import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
-import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
@@ -22,7 +22,6 @@ import com.redhat.qe.katello.base.obj.KatelloSyncPlan;
 import com.redhat.qe.katello.base.obj.KatelloSyncPlan.SyncPlanInterval;
 import com.redhat.qe.katello.base.obj.KatelloUser;
 import com.redhat.qe.katello.common.KatelloUtils;
-import com.redhat.qe.katello.tasks.KatelloTasks;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups={"cfse-e2e"})
@@ -59,7 +58,7 @@ public class RepoSyncByPlan extends KatelloCliTestScript{
 		cal.add(Calendar.MINUTE, 59);
 		
 		exec_result = repo.info();
-		String lastSync = KatelloTasks.grepCLIOutput("Last Sync", getOutput(exec_result).trim(),1);
+		String lastSync = KatelloCli.grepCLIOutput("Last Sync", getOutput(exec_result).trim(),1);
 		
 		Assert.assertEquals(lastSync, "never", "Repo is synced, but should not");
 		
@@ -96,7 +95,7 @@ public class RepoSyncByPlan extends KatelloCliTestScript{
 		cal.add(Calendar.MINUTE, 59);
 		
 		exec_result = repo.info();
-		String lastSync = KatelloTasks.grepCLIOutput("Last Sync", getOutput(exec_result).trim(),1);
+		String lastSync = KatelloCli.grepCLIOutput("Last Sync", getOutput(exec_result).trim(),1);
 		
 		exec_result = pack.cli_list();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
@@ -132,7 +131,7 @@ public class RepoSyncByPlan extends KatelloCliTestScript{
 	
 	private KatelloSyncPlan createSyncPlan(Date date, SyncPlanInterval interval) {
 
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		String spName = "splan" + uid;
 		
 		DateFormat dformat = new SimpleDateFormat("yyyy-MM-dd");
@@ -146,7 +145,7 @@ public class RepoSyncByPlan extends KatelloCliTestScript{
 	}
 	
 	private void createZooReport() {
-		uid = KatelloTestScript.getUniqueID();
+		uid = KatelloUtils.getUniqueID();
 		org_name = "org"+uid;
 		user_name = "user"+uid;
 		provider_name = "provider"+uid;
@@ -192,7 +191,7 @@ public class RepoSyncByPlan extends KatelloCliTestScript{
 	 * Creates local repo which packages are from REPO_INECAS_ZOO3.
 	 */
 	private void createLocalReport() {
-		uid = KatelloTestScript.getUniqueID();
+		uid = KatelloUtils.getUniqueID();
 		org_name = "org"+uid;
 		user_name = "user"+uid;
 		provider_name = "provider"+uid;

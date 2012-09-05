@@ -6,8 +6,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
+import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
-import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
@@ -16,7 +16,7 @@ import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.base.obj.KatelloUser;
-import com.redhat.qe.katello.tasks.KatelloTasks;
+import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups={"cfse-cli"})
@@ -38,7 +38,7 @@ public class PackageGroupTests extends KatelloCliTestScript {
 	
 	@BeforeClass(description="Generate unique objects")
 	public void setUp() {
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		org_name = "org"+uid;
 		user_name = "user"+uid;
 		provider_name = "provider"+uid;
@@ -88,7 +88,7 @@ public class PackageGroupTests extends KatelloCliTestScript {
 	public void test_packageGroupList() {
 		KatelloRepo repo = new KatelloRepo(repo_name, org_name, product_name, REPO_INECAS_ZOO3, null, null);
 		exec_result = repo.info();
-		repo_id = KatelloTasks.grepCLIOutput("Id", getOutput(exec_result).trim(),1);
+		repo_id = KatelloCli.grepCLIOutput("Id", getOutput(exec_result).trim(),1);
 		
 		KatelloPackageGroup packGr = new KatelloPackageGroup(null, null, null);
 		
