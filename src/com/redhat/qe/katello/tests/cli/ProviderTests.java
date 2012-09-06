@@ -2,15 +2,16 @@ package com.redhat.qe.katello.tests.cli;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
+import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
-import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
-import com.redhat.qe.katello.tasks.KatelloTasks;
+import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups={"cfse-cli"})
@@ -20,7 +21,7 @@ public class ProviderTests extends KatelloCliTestScript{
 	@BeforeClass(description="Prepare an org to work with", groups = {"cli-providers"})
 	public void setup_org(){
 		
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		this.org_name = "org"+uid;
 		KatelloOrg org = new KatelloOrg(this.org_name,null);
 		SSHCommandResult res = org.cli_create();
@@ -30,7 +31,7 @@ public class ProviderTests extends KatelloCliTestScript{
 	@Test(description="Fresh org - check default provider status/info", groups = {"cli-providers"}, enabled=true)
 	public void test_freshOrgDefaultRedHatProvider(){
 		KatelloProvider prov;
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		String tmpOrg = "tmpOrg"+uid;
 		KatelloOrg org = new KatelloOrg(tmpOrg,null);
 		SSHCommandResult res = org.cli_create();
@@ -58,7 +59,7 @@ public class ProviderTests extends KatelloCliTestScript{
 		// get info of "Red Hat" provider
 		res = new KatelloOrg(org_name, null).cli_info();
 		
-		String orgId = KatelloTasks.grepCLIOutput("Id", getOutput(res));
+		String orgId = KatelloCli.grepCLIOutput("Id", getOutput(res));
 		prov = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, org_name, null, null);
 		res = prov.info();
 		String REGEXP_REDHAT_INFO = ".*Id:\\s+\\d+.*Name:\\s+"+KatelloProvider.PROVIDER_REDHAT+".*Type:\\s+Red Hat.*Url:\\s+https://cdn.redhat.com.*Org Id:\\s+"+orgId+".*Description:.*";
@@ -91,7 +92,7 @@ public class ProviderTests extends KatelloCliTestScript{
 	@Test(description="Delete provider - Red Hat", groups = {"cli-providers"}, enabled=true)
 	public void test_deleteProvider_RedHat(){
 		SSHCommandResult res;
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		String orgName = "delRH"+uid;
 		
 		KatelloOrg org = new KatelloOrg(orgName, null);
@@ -113,7 +114,7 @@ public class ProviderTests extends KatelloCliTestScript{
 	
 	@Test(description="Delete provider Custom - missing parameters", groups={"cli-providers"}, enabled = false)
 	public void test_deleteProvider_missingReqParams(){
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		String provName = "delProv-"+uid;
 		KatelloProvider prov = new KatelloProvider(provName, this.org_name, null, null);
 		SSHCommandResult res = prov.create();
@@ -148,7 +149,7 @@ public class ProviderTests extends KatelloCliTestScript{
 	
 	@Test(description="Delete provider Custom - different org", groups = {"cli-providers"},enabled=true)
 	public void test_deleteProvider_diffOrg(){
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		String provName = "delProv-"+uid;
 		String org1 = "anotherOrg"+uid;
 		
@@ -168,7 +169,7 @@ public class ProviderTests extends KatelloCliTestScript{
 	@Test(description="Delete provider Custom - no products associated", groups = {"cli-providers"},enabled=true)
 	public void test_deleteProvider_noProducts(){
 		SSHCommandResult res;
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		
 		KatelloProvider prov = new KatelloProvider("noProd-"+uid, this.org_name, null, null);
 		res = prov.create();		
@@ -187,7 +188,7 @@ public class ProviderTests extends KatelloCliTestScript{
 	@Test(description="Delete provider Custom - with products associated", groups = {"cli-providers"},enabled=true)
 	public void test_deleteProvider_noRepos(){
 		SSHCommandResult res;
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		String provName = "noRepos-"+uid;
 		String provName_1 = "prov1-"+uid;
 		String prodName = "prod-"+uid;
@@ -237,7 +238,7 @@ public class ProviderTests extends KatelloCliTestScript{
 	@Test(description="List / Info providers - no description, no url", groups = {"cli-providers"},enabled=true)
 	public void test_listNinfoProviders_noDesc_noUrl(){
 		SSHCommandResult res;
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		String provName = "listProv1-"+uid;
 		
 		// Create provider
@@ -262,7 +263,7 @@ public class ProviderTests extends KatelloCliTestScript{
 	@Test(description="List / Info providers", groups = {"cli-providers"},enabled=true)
 	public void test_listNinfoProviders(){
 		SSHCommandResult res;
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		String provName = "listProv1-"+uid;
 		String provDesc = "Simple description";
 		
@@ -288,7 +289,7 @@ public class ProviderTests extends KatelloCliTestScript{
 	@Test(description="List / Info providers - no description", groups = {"cli-providers"},enabled=true)
 	public void test_listNinfoProviders_noDesc(){
 		SSHCommandResult res;
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		String provName = "listProvURL-"+uid;
 		
 		// Create provider
@@ -313,7 +314,7 @@ public class ProviderTests extends KatelloCliTestScript{
 	@Test(description="Synchronize provider - no products", groups = {"cli-providers"},enabled=true)
 	public void test_syncProvider_noProduct(){
 		SSHCommandResult res;
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		String provName = "syncNoProd-"+uid;
 		
 		// Create provider
@@ -329,7 +330,7 @@ public class ProviderTests extends KatelloCliTestScript{
 	@Test(description="Synchronize provider - single product", groups = {"cli-providers"},enabled=true)
 	public void test_syncProvider_singleProduct(){
 		SSHCommandResult res;
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		String provName = "syncNoProd-"+uid;
 		String prodName = "prod1Repo-"+uid;
 		String repoName = "pulpF15_64bit-"+uid;
@@ -357,7 +358,7 @@ public class ProviderTests extends KatelloCliTestScript{
 	@Test(description="Synchronize provider - multiple products", groups = {"cli-providers"},enabled=true)
 	public void test_syncProvider_multiProducts(){
 		SSHCommandResult res;
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		String provName = "syncNoProd-"+uid;
 		String prodName1 = "pulpF15_64bit"+uid;
 		String prodName2 = "pulpF15_32bit"+uid;

@@ -2,17 +2,18 @@ package com.redhat.qe.katello.base;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import javax.management.Attribute;
 
 import com.redhat.qe.katello.base.obj.KatelloUser;
 import com.redhat.qe.katello.common.KatelloUtils;
-import com.redhat.qe.katello.tasks.KatelloTasks;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class KatelloCli{
 	static{new com.redhat.qe.auto.testng.TestScript();}// to make properties be initialized (if they don't still)
 	
+	static protected Logger log = Logger.getLogger(KatelloCli.class.getName());
 	public static final String OUT_EMPTY_LIST = "[  ]";
 	
 	private String command;
@@ -80,7 +81,7 @@ public class KatelloCli{
 		
 		for(String line:lines ){
 			if(line.startsWith("---") || line.trim().equals("")) continue; // skip it.
-			if(KatelloTasks.grepCLIOutput(property, line).equals(value)){
+			if(grepCLIOutput(property, line).equals(value)){
 				_return = line.trim();
 				break;
 			}
@@ -88,4 +89,29 @@ public class KatelloCli{
 		return _return;
 	}
 	
+    public static String grepCLIOutput(String property, String output) {
+        return grepCLIOutput(property, output, 1);
+    }
+
+    public static String grepCLIOutput(String property, String output, int occurence) {
+        int meet_cnt = 0;
+        String[] lines = output.split("\\n");
+        for (int i = 0; i < lines.length; i++) {
+            if (lines[i].startsWith(property)) { // our line
+                meet_cnt++;
+                if (meet_cnt == occurence) {
+                    String[] split = lines[i].split(":\\s+");
+                    if (split.length < 2) {
+                        return lines[i + 1].trim();
+                    } else {
+                        return split[1].trim();
+                    }
+                }
+            }
+        }
+        log.severe("ERROR: Output can not be extracted for the property: [" + property
+                + "]");
+        return null;
+    }
+
 }

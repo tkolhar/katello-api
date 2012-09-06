@@ -1,11 +1,12 @@
 package com.redhat.qe.katello.tests.cli;
-import org.testng.annotations.Test;
 import org.testng.SkipException;
+import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
-import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.obj.KatelloUserRole;
+import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class UserRoleTests extends KatelloCliTestScript{
@@ -35,7 +36,7 @@ public class UserRoleTests extends KatelloCliTestScript{
 	public void testUserRole_update()
 	{
 		SSHCommandResult res;
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		String name = "role-"+uid;
 		String descr = "Test user role created";
 		String new_name = "role-newname" + uid;
@@ -61,7 +62,7 @@ public class UserRoleTests extends KatelloCliTestScript{
 	
 	@Test(description="delete a UserRole", groups = {"headpin-cli"},enabled=true)
 	public void test_delete_UserRole(){
-	            String uid = KatelloTestScript.getUniqueID();
+	            String uid = KatelloUtils.getUniqueID();
 	            String user_role_name="user_role-delete-"+ uid; 
 	            SSHCommandResult res;
 	            KatelloUserRole user_role = new KatelloUserRole(user_role_name, "User Role Created");
@@ -92,7 +93,7 @@ public class UserRoleTests extends KatelloCliTestScript{
 	
 	@Test(description="Add ldap group to a UserRole", groups = {"headpin-cli","openldap"},enabled=true)
 	public void test_add_ldap_group() {
-	            String uid = KatelloTestScript.getUniqueID();
+	            String uid = KatelloUtils.getUniqueID();
 	            String user_role_name="user_role-ldap_grp-"+ uid;
 	            String ldap_group = "group-"+uid;
 	            SSHCommandResult res;
@@ -125,7 +126,7 @@ public class UserRoleTests extends KatelloCliTestScript{
 	
 	@Test(description="Remove ldap group to a UserRole", groups = {"headpin-cli","openldap"},enabled=true)
 	public void test_remove_ldap_group(){
-	            String uid = KatelloTestScript.getUniqueID();
+	            String uid = KatelloUtils.getUniqueID();
 	            String user_role_name="user_role-ldap_grp-"+ uid;
 	            String ldap_group = "group-"+uid;
 	            SSHCommandResult res;

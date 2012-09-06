@@ -3,6 +3,7 @@ package com.redhat.qe.katello.base;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.logging.Logger;
+
 import org.testng.Assert;
 
 import com.redhat.qe.katello.base.obj.KatelloOrg;
@@ -10,7 +11,6 @@ import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.common.KatelloConstants;
 import com.redhat.qe.katello.common.KatelloUtils;
-import com.redhat.qe.katello.tasks.KatelloTasks;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class KatelloCliTestScript 
@@ -58,7 +58,7 @@ implements KatelloConstants {
 				"Repo should not contain progress == not synced");
 		
 		// package_count >0; url, progress, last_sync
-		String cnt = KatelloTasks.grepCLIOutput("Package Count", res.getStdout());
+		String cnt = KatelloCli.grepCLIOutput("Package Count", res.getStdout());
 		Assert.assertTrue(new Integer(cnt).intValue()>0, "Repo should contain packages count: >0");
 		REGEXP_REPO_INFO = ".*Name:\\s+"+repo.name+".*Progress:\\s+Finished.*";
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(REGEXP_REPO_INFO), 
@@ -117,7 +117,7 @@ implements KatelloConstants {
 		while(now<maxWaitSec){
 			res = repo.info();
 			now = Calendar.getInstance().getTimeInMillis() / 1000;
-			String newsync = KatelloTasks.grepCLIOutput("Last Sync", getOutput(res).trim(),1);
+			String newsync = KatelloCli.grepCLIOutput("Last Sync", getOutput(res).trim(),1);
 			if(!lastsynced.equals(newsync))
 				break;
 			try{Thread.sleep(60000);}catch (Exception e){}

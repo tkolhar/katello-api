@@ -6,9 +6,9 @@ import java.util.regex.Pattern;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
-import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloErrata;
@@ -16,6 +16,7 @@ import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
+import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
 /**
@@ -40,7 +41,7 @@ public class PromoteErrata extends KatelloCliTestScript{
 	
 	@BeforeClass(description="Init unique names", alwaysRun=true)
 	public void setUp(){
-		String uniqueID = KatelloTestScript.getUniqueID();
+		String uniqueID = KatelloUtils.getUniqueID();
 		this.org = "Zoo Corporation "+uniqueID;
 		this.provider = "ZooProv"+uniqueID;
 		this.product = "ZooProd"+uniqueID;

@@ -2,15 +2,14 @@ package com.redhat.qe.katello.tests.cli;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
-import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.obj.KatelloGpgKey;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.common.KatelloConstants;
 import com.redhat.qe.katello.common.KatelloUtils;
-import com.redhat.qe.katello.tasks.KatelloTasks;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups={KatelloConstants.TNG_CFSE_CLI})
@@ -23,7 +22,7 @@ public class GpgKeyTests extends KatelloCliTestScript{
 	@BeforeClass(description="init: create org, prepare gpg file on disk")
 	public void setUp(){
 		SSHCommandResult res;
-		rand = KatelloTestScript.getUniqueID();
+		rand = KatelloUtils.getUniqueID();
 		this.org = "gpg-"+rand;
 		this.filename = "/tmp/RPM-GPG-KEY-dummy-packages-generator";
 		this.gpg = "gpgkey-"+rand;
@@ -54,8 +53,8 @@ public class GpgKeyTests extends KatelloCliTestScript{
 		SSHCommandResult res;
 		KatelloGpgKey gpg = new KatelloGpgKey(this.gpg, this.org, null);
 		res = gpg.cli_info();
-		String prods = KatelloTasks.grepCLIOutput("Products", getOutput(res));
-		String repos = KatelloTasks.grepCLIOutput("Repositories", getOutput(res));
+		String prods = KatelloCli.grepCLIOutput("Products", getOutput(res));
+		String repos = KatelloCli.grepCLIOutput("Repositories", getOutput(res));
 		Assert.assertTrue(res.getExitCode().intValue()==0,"Check - return code (gpg_key info)");
 		Assert.assertTrue(prods.equals(KatelloCli.OUT_EMPTY_LIST), "Check - product list is empty");
 		Assert.assertTrue(repos.equals(KatelloCli.OUT_EMPTY_LIST), "Check - repositories list is empty");

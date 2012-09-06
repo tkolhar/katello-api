@@ -14,10 +14,10 @@ import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
-import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloSyncPlan;
 import com.redhat.qe.katello.base.obj.KatelloSyncPlan.SyncPlanInterval;
+import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups = { "cfse-cli" })
@@ -34,7 +34,7 @@ public class SyncPlanTests extends KatelloCliTestScript {
 	
 	@BeforeClass(description = "Generate unique objects")
 	public void setUp() {
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		org_name = "org" + uid;
 
 		// Create org:
@@ -66,7 +66,7 @@ public class SyncPlanTests extends KatelloCliTestScript {
 	@Test(description = "Create sync plan which date is wrong", groups = { "cli-sync_plan" })
 	public void test_createSyncPlanWrongDate() {
 
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		syncplan_name = "splan" + uid;
 		
 		DateFormat tformat = new SimpleDateFormat("HH:mm:ss");
@@ -80,7 +80,7 @@ public class SyncPlanTests extends KatelloCliTestScript {
 	@Test(description = "Create sync plan which time is wrong", groups = { "cli-sync_plan" })
 	public void test_createSyncPlanWrongTime() {
 
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		syncplan_name = "splan" + uid;
 		
 		DateFormat dformat = new SimpleDateFormat("yyyy-MM-dd");
@@ -149,7 +149,7 @@ public class SyncPlanTests extends KatelloCliTestScript {
 	
 	private KatelloSyncPlan createSyncPlan(Date date, SyncPlanInterval interval) {
 
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		syncplan_name = "splan" + uid;
 		
 		DateFormat dformat = new SimpleDateFormat("yyyy-MM-dd");

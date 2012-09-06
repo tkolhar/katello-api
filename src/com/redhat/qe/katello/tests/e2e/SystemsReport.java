@@ -3,20 +3,21 @@ package com.redhat.qe.katello.tests.e2e;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.logging.Logger;
+
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
-import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
-import com.redhat.qe.katello.tasks.KatelloTasks;
+import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SCPTools;
 import com.redhat.qe.tools.SSHCommandResult;
 
@@ -36,7 +37,7 @@ public class SystemsReport extends KatelloCliTestScript{
 
 	@BeforeClass(description="Init unique names", alwaysRun=true)
 	public void setUp(){
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		this.env_dev = "Dev-"+uid;
 		this.env_test = "Test-"+uid;
 
@@ -73,7 +74,7 @@ public class SystemsReport extends KatelloCliTestScript{
 		
 		KatelloEnvironment env = new KatelloEnvironment(this.env_dev, null, this.org, KatelloEnvironment.LIBRARY);
 		env.cli_create();
-		KatelloChangeset cs = new KatelloChangeset("csDev_"+KatelloTestScript.getUniqueID(), this.org, this.env_dev);
+		KatelloChangeset cs = new KatelloChangeset("csDev_"+KatelloUtils.getUniqueID(), this.org, this.env_dev);
 		cs.create();
 		cs.update_addProduct(KatelloProduct.RHEL_SERVER);
 		res = cs.apply();
@@ -82,7 +83,7 @@ public class SystemsReport extends KatelloCliTestScript{
 		
 		env = new KatelloEnvironment(this.env_test, null, this.org, this.env_dev);
 		env.cli_create();
-		cs = new KatelloChangeset("csTest_"+KatelloTestScript.getUniqueID(), this.org, this.env_test);
+		cs = new KatelloChangeset("csTest_"+KatelloUtils.getUniqueID(), this.org, this.env_test);
 		cs.create();
 		cs.update_addProduct(KatelloProduct.RHEL_SERVER);
 		res = cs.apply();
@@ -92,7 +93,7 @@ public class SystemsReport extends KatelloCliTestScript{
 	
 	@Test(description="Add 2 system to env: Dev and 1 systems to: Test", dependsOnMethods={"test_promoteToEnvs"}, enabled=true)
 	public void test_addSystemsToEnvs(){
-		String sys = "`hostname`"+KatelloTestScript.getUniqueID();
+		String sys = "`hostname`"+KatelloUtils.getUniqueID();
 		rhsm_clean();
 		rhsm_register(org, this.env_dev, "1-"+sys, true);
 		rhsm_clean();
@@ -100,7 +101,7 @@ public class SystemsReport extends KatelloCliTestScript{
 		rhsm_clean();
 		SSHCommandResult res = rhsm_register(org, this.env_dev, "3-"+sys, true);
 //		Assert.assertTrue(res.getExitCode().intValue()==1, "Check - return code (system register)");
-		String subscriptionStatus = KatelloTasks.grepCLIOutput("Status", getOutput(res).trim()); 
+		String subscriptionStatus = KatelloCli.grepCLIOutput("Status", getOutput(res).trim()); 
 		Assert.assertTrue(subscriptionStatus.trim().equals("Not Subscribed"),"Check - system should not be subscribed (3rd registration)");		
 	}
 	
