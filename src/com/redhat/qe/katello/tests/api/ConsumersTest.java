@@ -15,10 +15,11 @@ import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloPool;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
+import com.redhat.qe.katello.common.KatelloUtils;
 
 @Test(groups={"cfse-api"})
 public class ConsumersTest extends KatelloTestScript {
-	protected static Logger log = Logger.getLogger(ConsumersTest.class.getName());
+    protected static Logger log = Logger.getLogger(ConsumersTest.class.getName());
 
 	private String consumer_id = null;
 	private String consumer_name = null;
@@ -27,12 +28,12 @@ public class ConsumersTest extends KatelloTestScript {
 	
 	@BeforeClass(description="Prepare an organization to work with")
 	public void setUp_createOrg() throws KatelloApiException {
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		org_name = "auto-org-"+uid; 
 		String org_descr = "Test Organization "+uid;
 		KatelloOrg org = servertasks.createOrganization(org_name, org_descr);
 		// create an env.
-		uid = KatelloTestScript.getUniqueID();
+		uid = KatelloUtils.getUniqueID();
 		env_name = "auto-env-"+uid; 
 		String env_descr = "Test Environment "+uid;
 		servertasks.createEnvironment(org.getCpKey(), env_name, env_descr, KatelloEnvironment.LIBRARY);
@@ -40,9 +41,9 @@ public class ConsumersTest extends KatelloTestScript {
 
 	@Test(groups = { "testConsumers" }, description = "Create consumer")
 	public void test_createConsumer(){
-		String pid = KatelloTestScript.getUniqueID();
+		String pid = KatelloUtils.getUniqueID();
 		this.consumer_name = "auto-"+pid+".yourorg.com";
-		String uuid = KatelloTestScript.getUUID();		
+		String uuid = KatelloUtils.getUUID();		
 		KatelloSystem consumer = null;
         try {
             consumer = servertasks.createConsumer( org_name, consumer_name, uuid);
@@ -94,9 +95,9 @@ public class ConsumersTest extends KatelloTestScript {
 	
 	@Test( groups = {"testConsumers"}, description = "Delete consumer", enabled=true)
 	public void test_deleteConsumer(){
-		String pid = KatelloTestScript.getUniqueID();
+		String pid = KatelloUtils.getUniqueID();
 		String cname = "auto-"+pid+".delete.me";
-		String uuid = KatelloTestScript.getUUID();		
+		String uuid = KatelloUtils.getUUID();		
 		KatelloSystem consumer = null;
         try {
             consumer = servertasks.createConsumer(org_name, cname, uuid);
@@ -126,7 +127,7 @@ public class ConsumersTest extends KatelloTestScript {
 	// Don't forget the dependent test scenarios as well
 	@Test(groups = {"testConsumers","rhsm-related"}, description = "Import export.zip manifest",enabled=false) // BZ: https://bugzilla.redhat.com/show_bug.cgi?id=721000
 	public void test_importManifest(){
-		String pid = KatelloTestScript.getUniqueID();
+		String pid = KatelloUtils.getUniqueID();
 		String prov_MF = "ExpMan_"+pid;
 		// TODO More investigation of the below. Still needed? 
 //		try {
@@ -198,9 +199,9 @@ public class ConsumersTest extends KatelloTestScript {
 	
 	@Test(description="Unsubscribe consumer from the pool just subscribed", enabled=false)
 	public void test_unsubscribeConsumer(){
-		String pid = KatelloTestScript.getUniqueID();
+		String pid = KatelloUtils.getUniqueID();
 		String cname = "auto-"+pid+".unsubscribed";
-		String uuid = KatelloTestScript.getUUID();		
+		String uuid = KatelloUtils.getUUID();		
 		KatelloSystem consumer = null;
         try {
             consumer = servertasks.createConsumer(org_name, cname, uuid);
@@ -240,10 +241,10 @@ public class ConsumersTest extends KatelloTestScript {
 	
 	@Test(description="Unsubscribe consumer from the all pools being subscribed", enabled=false)
 	public void test_unsubscribeConsumerAll(){
-		String cname = "auto-"+KatelloTestScript.getUniqueID()+".unsubscribe.all";
+		String cname = "auto-"+KatelloUtils.getUniqueID()+".unsubscribe.all";
 		KatelloSystem consumer = null;
         try {
-            consumer = servertasks.createConsumer(org_name, cname, KatelloTestScript.getUUID());
+            consumer = servertasks.createConsumer(org_name, cname, KatelloUtils.getUUID());
         } catch (KatelloApiException e) {
             Assert.fail("Could not create consumer", e);
         }

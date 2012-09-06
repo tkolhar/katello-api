@@ -7,7 +7,6 @@ import javax.management.Attribute;
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
-import com.redhat.qe.katello.tasks.KatelloTasks;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class KatelloActivationKey {
@@ -184,19 +183,19 @@ public class KatelloActivationKey {
 			KatelloEnvironment env = new KatelloEnvironment(this.environment, null, this.org, KatelloEnvironment.LIBRARY);
 			res = env.cli_info();
 			Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (environment info)");
-			this.environment_id = KatelloTasks.grepCLIOutput("Id", res.getStdout());				
+			this.environment_id = KatelloCli.grepCLIOutput("Id", res.getStdout());				
 		}
 		//retrieve template_id for an environment
 		if(this.template !=null){
 			KatelloTemplate tmpl = new KatelloTemplate(template, null, this.org, null);
 			res = tmpl.info(this.environment);
 			Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (template info)");
-			this.template_id = KatelloTasks.grepCLIOutput("Id", res.getStdout());				
+			this.template_id = KatelloCli.grepCLIOutput("Id", res.getStdout());				
 		}
 		// retrieve id
 		if(this.name != null){
 			res = info();
-			this.id = KatelloTasks.grepCLIOutput("Id", res.getStdout());
+			this.id = KatelloCli.grepCLIOutput("Id", res.getStdout());
 //			this.subscriptions = KatelloTasks.grepCLIOutput("Pools", res.getStdout());
 		}
 	}

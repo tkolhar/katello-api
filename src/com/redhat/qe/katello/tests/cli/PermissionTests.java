@@ -1,13 +1,14 @@
 package com.redhat.qe.katello.tests.cli;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
-import com.redhat.qe.katello.base.KatelloTestScript;
-import com.redhat.qe.katello.base.obj.KatelloPermission;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
+import com.redhat.qe.katello.base.obj.KatelloPermission;
 import com.redhat.qe.katello.base.obj.KatelloUserRole;
+import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 public class PermissionTests extends KatelloCliTestScript{
 	         private String organization;
@@ -16,7 +17,7 @@ public class PermissionTests extends KatelloCliTestScript{
 	         public void setUp(){
 		                
 	        	         SSHCommandResult res;
-	        	         String uid = KatelloTestScript.getUniqueID();
+	        	         String uid = KatelloUtils.getUniqueID();
 	        	         this.organization = "permorg-"+uid;
 	        	         KatelloOrg org = new KatelloOrg(this.organization, null);
 	        	         res = org.cli_create();
@@ -59,7 +60,7 @@ public class PermissionTests extends KatelloCliTestScript{
 	        
 	        @Test(description="delete a permission", groups = {"headpin-cli"},enabled=true)
 			public void test_delete_permission(){
-			            String uid = KatelloTestScript.getUniqueID();
+			            String uid = KatelloUtils.getUniqueID();
 			            String permName="perm-delete-"+ uid; 
 			            String scope = "environments";
 			            String verbs = "update_systems,read_contents,read_systems,register_systems,delete_systems";

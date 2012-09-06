@@ -2,16 +2,17 @@ package com.redhat.qe.katello.tests.cli;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
+import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
-import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
-import com.redhat.qe.katello.tasks.KatelloTasks;
+import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
 
@@ -25,7 +26,7 @@ public class ProductTests  extends KatelloCliTestScript{
 	@BeforeClass(description="Prepare an org to work with", groups = {"cli-product"}, alwaysRun=false)
 	public void setup_org(){
 		SSHCommandResult res;
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		this.org_name = "org"+uid;
 		this.prov_name = "prov"+uid;
 		KatelloOrg org = new KatelloOrg(this.org_name, null);
@@ -35,7 +36,7 @@ public class ProductTests  extends KatelloCliTestScript{
 		res = prov.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (provider create)");
 		
-		uid = KatelloTestScript.getUniqueID();
+		uid = KatelloUtils.getUniqueID();
 		this.org_name2 = "org"+uid;
 		this.prov_name2 = "prov"+uid;
 		org = new KatelloOrg(this.org_name2, null);
@@ -59,7 +60,7 @@ public class ProductTests  extends KatelloCliTestScript{
 
 	@Test(description="create product - no url specified", groups = {"cli-products"}, enabled=true)
 	public void test_createProduct_noUrl(){
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		String prodName = "prodCreate-"+uid;
 		SSHCommandResult res;
 		
@@ -73,7 +74,7 @@ public class ProductTests  extends KatelloCliTestScript{
 	
 	@Test(description="create product - with single repo", groups = {"cli-products"}, enabled=true)
 	public void test_createProduct_urlSingleRepo(){
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		String prodName = "prod1Repo-"+uid;
 		SSHCommandResult res;
 		
@@ -95,7 +96,7 @@ public class ProductTests  extends KatelloCliTestScript{
 	
 	@Test(description="create product - with multiple repos", groups = {"cli-products"}, enabled=true)
 	public void test_createProduct_urlMultipleRepo(){
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		String prodName = "prod2Repos-"+uid;
 		SSHCommandResult res, resRepos; String repoName;
 		
@@ -123,7 +124,7 @@ public class ProductTests  extends KatelloCliTestScript{
 		String REGEXP_PACKAGE_CNT = ".*Package Count:\\s+0.*";		
 		String[] lines;String line;;
 		
-		repoName = KatelloTasks.grepCLIOutput("Name", getOutput(resRepos),1); // 1st repo
+		repoName = KatelloCli.grepCLIOutput("Name", getOutput(resRepos),1); // 1st repo
 		KatelloRepo repoWithName = new KatelloRepo(repoName, this.org_name, prodName, null, null, null);
 		res = repoWithName.info();
 		lines = getOutput(res).split("\n");
@@ -134,7 +135,7 @@ public class ProductTests  extends KatelloCliTestScript{
 				Assert.assertTrue(line.matches(REGEXP_PACKAGE_CNT),"Repo list of the product - should contain package count 0");
 			}
 		}
-		repoName = KatelloTasks.grepCLIOutput("Name", getOutput(resRepos),2); // 2nd repo
+		repoName = KatelloCli.grepCLIOutput("Name", getOutput(resRepos),2); // 2nd repo
 		repoWithName = new KatelloRepo(repoName, this.org_name, prodName, null, null, null);
 		res = repoWithName.info();
 		lines = getOutput(res).split("\n");
@@ -149,7 +150,7 @@ public class ProductTests  extends KatelloCliTestScript{
 	
 	@Test(description="create product by existing name", groups = {"cli-products"}, enabled=true)
 	public void test_createProduct_exists(){
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		String prodName = "existing-"+uid;
 		SSHCommandResult res;
 		
@@ -167,7 +168,7 @@ public class ProductTests  extends KatelloCliTestScript{
 	
 	@Test(description="create product by the same name which is in other org", groups = {"cli-products"}, enabled=true)
 	public void test_createProduct_sameName(){
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		String prodName = "existing-"+uid;
 		SSHCommandResult res;
 		
@@ -194,7 +195,7 @@ public class ProductTests  extends KatelloCliTestScript{
 	
 	@Test(description="promote product", groups = {"cli-products"}, enabled=true)
 	public void test_promoteProduct_NoRepos(){
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		String prodName = "promoNoRepo-"+uid;
 		SSHCommandResult res;
 		
@@ -223,7 +224,7 @@ public class ProductTests  extends KatelloCliTestScript{
 	
 	@Test(description="promote product", groups = {"cli-products"}, enabled=true)
 	public void test_promoteProduct_OneRepo(){
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		String prodName = "promo1Repo-"+uid;
 		String envName = "dev-"+uid;
 		SSHCommandResult res;
@@ -267,7 +268,7 @@ public class ProductTests  extends KatelloCliTestScript{
 	
 	@Test(description="promote product", groups = {"cli-products"}, enabled=true)
 	public void test_promoteProduct_MultipleRepos(){
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		String prodName = "promo1Repo-"+uid;
 		String envName = "dev-"+uid;
 		SSHCommandResult res;
@@ -313,7 +314,7 @@ public class ProductTests  extends KatelloCliTestScript{
 
 	@Test(description="sync product - single repo", groups = {"cli-products"}, enabled=true)
 	public void test_syncronizeProduct_SingleRepo(){
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		String prodName = "sync1Repo-"+uid;
 		SSHCommandResult res;
 
@@ -339,7 +340,7 @@ public class ProductTests  extends KatelloCliTestScript{
 
 	@Test(description="sync product - multiple repos", groups = {"cli-products"}, enabled=true)
 	public void test_syncronizeProduct_MultipleRepos(){
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		String prodName = "syncManyRepos-"+uid;
 		SSHCommandResult res, resRepos; String repoName;
 
@@ -361,7 +362,7 @@ public class ProductTests  extends KatelloCliTestScript{
 		String REGEXP_PACKAGE_CNT = ".*Package Count:\\s+0.*";		
 		String[] lines;String line;;
 		
-		repoName = KatelloTasks.grepCLIOutput("Name", resRepos.getStdout(),1); // 1st repo
+		repoName = KatelloCli.grepCLIOutput("Name", resRepos.getStdout(),1); // 1st repo
 		repo = new KatelloRepo(repoName,this.org_name,prodName,null,null,null);
 		res = repo.info();
 		lines = getOutput(res).split("\n");
@@ -372,7 +373,7 @@ public class ProductTests  extends KatelloCliTestScript{
 				Assert.assertFalse(line.matches(REGEXP_PACKAGE_CNT),"Repo list of the product - should not contain package count 0 (after product synchronize)");
 			}
 		}
-		repoName = KatelloTasks.grepCLIOutput("Name", resRepos.getStdout(),2); // 2nd repo
+		repoName = KatelloCli.grepCLIOutput("Name", resRepos.getStdout(),2); // 2nd repo
 		repo = new KatelloRepo(repoName,this.org_name,prodName,null,null,null);
 		res = repo.info();
 		lines = getOutput(res).split("\n");
@@ -387,7 +388,7 @@ public class ProductTests  extends KatelloCliTestScript{
 	
 	@Test(description="delete product - included in some changeset", groups = {"cli-products"}, enabled=true)
 	public void test_deleteProduct_InChangeset(){
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		String prodName = "delProd1-"+uid;
 		String envName_dev = "dev-"+uid;
 		String csName = "cs-"+uid;
@@ -432,7 +433,7 @@ public class ProductTests  extends KatelloCliTestScript{
 		// Final action - DELETE the product
 		// ... but get its id first. To check the output string.
 		res = prod.status();
-		String prodId = KatelloTasks.grepCLIOutput("Id", res.getStdout());
+		String prodId = KatelloCli.grepCLIOutput("Id", res.getStdout());
 		res = prod.delete();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
 		Assert.assertTrue(getOutput(res).contains(String.format(KatelloProduct.OUT_DELETED,prodId)), "Check - returned output string (product delete)");

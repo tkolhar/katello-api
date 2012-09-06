@@ -5,10 +5,11 @@ import java.util.logging.Logger;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import com.google.inject.Inject;
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloApiException;
+import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
-import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
@@ -22,6 +23,7 @@ public class ConsumerAccess extends KatelloCliTestScript{
 	protected static Logger log = Logger.getLogger(BPMTests.class.getName());
 	
 	private SSHCommandResult exec_result;
+    final private KatelloTasks katelloTasks;
 	
 	// Katello objects below
 	private String org_name;
@@ -29,9 +31,14 @@ public class ConsumerAccess extends KatelloCliTestScript{
 	private String user_name;
 	private String system_name;
 	
+	@Inject
+	public ConsumerAccess(KatelloTasks katelloTasks) {
+	    this.katelloTasks = katelloTasks;
+	}
+	
 	@BeforeClass(description="Generate unique names")
 	public void setUp(){
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		org_name = "org_"+uid;
 		env_name = "env_"+uid;
 		user_name = "user_"+uid;
@@ -53,7 +60,7 @@ public class ConsumerAccess extends KatelloCliTestScript{
 
 		KatelloUser user = null;
         try {
-            user = (new KatelloTasks()).createUser(user_name, KatelloUser.DEFAULT_USER_EMAIL, 
+            user = katelloTasks.createUser(user_name, KatelloUser.DEFAULT_USER_EMAIL, 
             		KatelloUser.DEFAULT_USER_PASS, false);
         } catch (KatelloApiException e) {
             Assert.fail("Could not create user", e);
@@ -74,7 +81,7 @@ public class ConsumerAccess extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		
 		exec_result = sys.rhsm_identity();
-		String id = KatelloTasks.grepCLIOutput("Current identity is", getOutput(exec_result).trim(),1);
+		String id = KatelloCli.grepCLIOutput("Current identity is", getOutput(exec_result).trim(),1);
 
 		
 		exec_result = KatelloUtils.sshOnClient("curl -H \"Content-Type: application/json\" -H \"Accept: application/json\" -#  -k -u " + user_name + ":" + KatelloUser.DEFAULT_USER_PASS + " https://localhost/"+ System.getProperty("katello.product", "katello") + "/api/consumers/" + id);

@@ -6,6 +6,7 @@ import org.testng.annotations.DataProvider;
 
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.obj.KatelloUserRole;
+import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class KatelloCliDataProvider {
@@ -13,9 +14,9 @@ public class KatelloCliDataProvider {
 	
 	@DataProvider(name = "org_create")
 	public static Object[][] org_create(){
-		String uniqueID1 = KatelloTestScript.getUniqueID();
+		String uniqueID1 = KatelloUtils.getUniqueID();
 		try{Thread.sleep(1000+Math.abs(new Random().nextInt(500)));}catch(InterruptedException iex){};
-		String uniqueID2 = KatelloTestScript.getUniqueID();
+		String uniqueID2 = KatelloUtils.getUniqueID();
 		return new Object[][] {
 				{ "orgNoDescr_"+uniqueID1, null },
 				{ "org "+uniqueID2+"", "Org with space"}
@@ -36,7 +37,7 @@ public class KatelloCliDataProvider {
 	public static Object[][] provider_create(){
 		// TODO - the cases with unicode characters still missing - there 
 		// is a bug: to display that characters.
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		return new Object[][] {
 				// name
 				{ "aa", null, null, new Integer(0), "Successfully created provider [ aa ]"},
@@ -103,7 +104,7 @@ public class KatelloCliDataProvider {
 	
 	@DataProvider(name="client_remember")
 	public static Object[][] client_remember(){
-		   String uid = KatelloTestScript.getUniqueID();
+		   String uid = KatelloUtils.getUniqueID();
 		   return new Object[][] {
 				
 				
@@ -131,7 +132,7 @@ public class KatelloCliDataProvider {
 	
 	@DataProvider(name="permission_create")
 	public static Object[][] permission_create(){
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		String user_role = "perm-user_role"+uid;
 		SSHCommandResult res;
 		KatelloUserRole usr_role = new KatelloUserRole(user_role,null); 
@@ -161,7 +162,7 @@ public class KatelloCliDataProvider {
 	
 	@DataProvider(name="user_role_create")
 	public static Object[][] user_role_create(){
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		return new Object[][] {
 				// name
 				{ uid+"-aa", null, new Integer(0), "Successfully created user role [ "+uid+"-aa ]"},
@@ -188,7 +189,7 @@ public class KatelloCliDataProvider {
 	}
 	@DataProvider(name="environment_create")
 	public static Object[][] environment_create(){
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		return new Object[][] {
 				// name
 				{ "env-aa", null, new Integer(0), "Successfully created environment [ env-aa ]"},
@@ -224,7 +225,7 @@ public class KatelloCliDataProvider {
 	 */
 	@DataProvider(name="activationkey_create")
 	public static Object[][] activationkey_create(){
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		return new Object[][] {
 				// name
 				{ "aa", null, new Integer(0), "Successfully created activation key [ aa ]"},

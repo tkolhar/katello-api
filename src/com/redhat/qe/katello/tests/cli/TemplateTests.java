@@ -12,13 +12,13 @@ import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
-import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.base.obj.KatelloTemplate;
 import com.redhat.qe.katello.base.obj.KatelloUser;
+import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups = { "cfse-cli" })
@@ -37,7 +37,7 @@ public class TemplateTests extends KatelloCliTestScript {
 
 	@BeforeClass(description = "Generate unique objects")
 	public void setUp() {
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		org_name = "org" + uid;
 		user_name = "user"+uid;
 		provider_name = "provider"+uid;
@@ -83,7 +83,7 @@ public class TemplateTests extends KatelloCliTestScript {
 	public void test_listTemplate() {
 		KatelloTemplate templ = createTemplate();
 		
-		String templ_name2= "template"+KatelloTestScript.getUniqueID();
+		String templ_name2= "template"+KatelloUtils.getUniqueID();
 		KatelloTemplate tpl = new KatelloTemplate(templ_name2, null, org_name, null);
 		exec_result = tpl.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
@@ -116,7 +116,7 @@ public class TemplateTests extends KatelloCliTestScript {
 		
 		String id = assert_templInfo(templ);
 		
-		String templ_name2= "template"+KatelloTestScript.getUniqueID();
+		String templ_name2= "template"+KatelloUtils.getUniqueID();
 		KatelloTemplate tpl = new KatelloTemplate(templ_name2, "child template", org_name, templ_name);
 		exec_result = tpl.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
@@ -131,7 +131,7 @@ public class TemplateTests extends KatelloCliTestScript {
 	public void test_deleteTemplate() {
 		KatelloTemplate templ = createTemplate();
 		
-		String templ_name2= "template"+KatelloTestScript.getUniqueID();
+		String templ_name2= "template"+KatelloUtils.getUniqueID();
 		KatelloTemplate tpl = new KatelloTemplate(templ_name2, null, org_name, null);
 		exec_result = tpl.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
@@ -150,7 +150,7 @@ public class TemplateTests extends KatelloCliTestScript {
 	public void test_deleteParentTemplate() {
 		KatelloTemplate templ = createTemplate();
 		
-		String templ_name2= "template"+KatelloTestScript.getUniqueID();
+		String templ_name2= "template"+KatelloUtils.getUniqueID();
 		KatelloTemplate tpl = new KatelloTemplate(templ_name2, "child template", org_name, templ_name);
 		exec_result = tpl.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
@@ -173,7 +173,7 @@ public class TemplateTests extends KatelloCliTestScript {
 	public void test_updateTemplateAddParam() {
 		KatelloTemplate templ = createTemplate();
 		
-		String paramName = "testparam" + KatelloTestScript.getUniqueID();
+		String paramName = "testparam" + KatelloUtils.getUniqueID();
 		final String paramValue = "testparamval";
 		
 		exec_result = templ.update_add_param(paramName, paramValue);
@@ -193,14 +193,14 @@ public class TemplateTests extends KatelloCliTestScript {
 		
 		KatelloTemplate templ = createTemplate();
 		
-		String paramName = "testparam" + KatelloTestScript.getUniqueID();
+		String paramName = "testparam" + KatelloUtils.getUniqueID();
 		final String paramValue = "testparamval";
 		
 		exec_result = templ.update_add_param(paramName, paramValue);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloTemplate.OUT_UPDATE, templ_name)), "Check - output string (template update)");
 		
-		final String paramName2 = "testparam2" + KatelloTestScript.getUniqueID();
+		final String paramName2 = "testparam2" + KatelloUtils.getUniqueID();
 		final String paramValue2 = "testparamval2";
 
 		exec_result = templ.update_add_param(paramName2, paramValue2);
@@ -409,7 +409,7 @@ public class TemplateTests extends KatelloCliTestScript {
 	}
 	
 	private KatelloTemplate createTemplate() {
-		templ_name = "template"+KatelloTestScript.getUniqueID();
+		templ_name = "template"+KatelloUtils.getUniqueID();
 		
 		KatelloTemplate tpl = new KatelloTemplate(templ_name, null, org_name, null);
 		exec_result = tpl.create();
