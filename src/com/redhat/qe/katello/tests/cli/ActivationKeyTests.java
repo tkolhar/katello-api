@@ -6,7 +6,6 @@ import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
-import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.obj.KatelloActivationKey;
 import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
@@ -28,7 +27,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 	@BeforeClass(description="init: create org stuff", groups = {"cli-activationkey","headpin-cli"})
 	public void setUp(){
 		SSHCommandResult res;
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		this.organization = "ak-"+uid;
 		this.env = "ak-"+uid;
 		this.systemgroup = "systemgroup"+uid;
@@ -64,7 +63,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 	@Test(description="create AK - template does not exist", groups = {"cli-activationkey"}, enabled=true)
 	public void test_create_noTemplate(){
 		SSHCommandResult res;
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		String ak_name = "ne-"+uid;
 		String template_name = "neTemplate-"+uid;
 		
@@ -80,7 +79,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 	@Test(description="create AK - template not exported to the env.", groups = {"cli-activationkey"}, enabled=true)
 	public void test_create_TemplateNotForEnv(){
 		SSHCommandResult res;
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		String template = "template-"+uid;
 		String ak_name = "nfe-"+uid;
 
@@ -102,7 +101,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 	@Test(description="create AK - same name, diff. orgs", groups = {"cli-activationkey","headpin-cli"}, enabled=true)
 	public void test_create_diffOrgsSameName(){
 		SSHCommandResult res;
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		String ak_name = "ak-"+uid;
 		String org2 = "org2-"+uid;
 
@@ -133,7 +132,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 	@Test(description="create AK - with template",groups = {"cli-activationkey"}, enabled=true)
 	public void test_create_withTemplate(){
 		SSHCommandResult res;
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		String template = "templateForEnv-"+uid;
 		String changeset = "csForEnv-"+uid;
 		String ak_name = "akTemplate-"+uid;
@@ -169,7 +168,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 	
     @Test(description="add subscription to ak", groups = {"cli-activationkey"},enabled=true)
     public void test_update_addSubscription1(){
-    	String uid = KatelloTestScript.getUniqueID();
+    	String uid = KatelloUtils.getUniqueID();
     	String akName="ak-subscription-zoo3-"+uid;
     	String providerName = "Zoo3-"+uid;
     	String productName = "Zoo3 "+uid;
@@ -190,7 +189,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 	
     @Test(description="delete a activationkey", groups = {"headpin-cli"},enabled=true)
     public void test_delete_activation_key(){
-    	String uid = KatelloTestScript.getUniqueID();
+    	String uid = KatelloUtils.getUniqueID();
     	String akName="ak-delete_act_key-"+ uid; 
     	SSHCommandResult res;
     	KatelloActivationKey ak = new KatelloActivationKey(this.organization, this.env, akName, "Activation key created to test deletion", null);
@@ -215,7 +214,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
     
     @Test(description="create activationkey with usage limit 1, register one system, and try to register second one, it will fail", groups = {"headpin-cli"}, enabled=true)
     public void test_createWithLimit() {
-    	String uid = KatelloTestScript.getUniqueID();
+    	String uid = KatelloUtils.getUniqueID();
     	String akName="act_key-"+ uid; 
     	SSHCommandResult res;
     	KatelloActivationKey ak = new KatelloActivationKey(this.organization, this.env, akName, "Activation key created to ", null, "1");
@@ -225,14 +224,14 @@ public class ActivationKeyTests extends KatelloCliTestScript{
     	
     	KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);
     	
-    	String systemName = "localhost-"+KatelloTestScript.getUniqueID();
+    	String systemName = "localhost-"+KatelloUtils.getUniqueID();
 		KatelloSystem sys = new KatelloSystem(systemName, this.organization, null);
 		res = sys.rhsm_registerForce(akName); 
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 		
 		KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);
 		
-		systemName = "localhost-"+KatelloTestScript.getUniqueID();
+		systemName = "localhost-"+KatelloUtils.getUniqueID();
 		sys = new KatelloSystem(systemName, this.organization, null);
 		res = sys.rhsm_registerForce(akName); 
 		Assert.assertTrue(res.getExitCode().intValue() == 255, "Check - return code");
@@ -243,7 +242,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 
     @Test(description="create activationkey with usage limit 1, register one system, and try to register second one, it will fail, increase the limit, it will allow", groups = {"headpin-cli"}, enabled=true)
     public void test_updateTheLimit() {
-    	String uid = KatelloTestScript.getUniqueID();
+    	String uid = KatelloUtils.getUniqueID();
     	String akName="act_key-"+ uid; 
     	SSHCommandResult res;
     	KatelloActivationKey ak = new KatelloActivationKey(this.organization, this.env, akName, "Activation key created to ", null, "1");
@@ -253,14 +252,14 @@ public class ActivationKeyTests extends KatelloCliTestScript{
     	
     	KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);
     	
-    	String systemName = "localhost-"+KatelloTestScript.getUniqueID();
+    	String systemName = "localhost-"+KatelloUtils.getUniqueID();
 		KatelloSystem sys = new KatelloSystem(systemName, this.organization, null);
 		res = sys.rhsm_registerForce(akName); 
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 		
 		KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);
 		
-		systemName = "localhost-"+KatelloTestScript.getUniqueID();
+		systemName = "localhost-"+KatelloUtils.getUniqueID();
 		sys = new KatelloSystem(systemName, this.organization, null);
 		res = sys.rhsm_registerForce(akName); 
 		Assert.assertTrue(res.getExitCode().intValue() == 255, "Check - return code");
@@ -275,7 +274,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
     
     @Test(description="add system group to activationkey", groups = {"headpin-cli"}, enabled=true)
     public void test_addSystemGroup() {
-    	String uid = KatelloTestScript.getUniqueID();
+    	String uid = KatelloUtils.getUniqueID();
     	String akName="ak-subscription-zoo3-"+uid;
     	SSHCommandResult res;
 
@@ -293,7 +292,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
     
     @Test(description="remove system group from activationkey", groups = {"headpin-cli"}, enabled=true)
     public void test_removeSystemGroup() {
-    	String uid = KatelloTestScript.getUniqueID();
+    	String uid = KatelloUtils.getUniqueID();
     	String akName="ak-subscription-zoo3-"+uid;
     	SSHCommandResult res;
 

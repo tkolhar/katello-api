@@ -9,10 +9,10 @@ import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
-import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
+import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
 //@Test(groups={"cfse-cli","headpin-cli"})
@@ -44,7 +44,7 @@ public class OrgTests extends KatelloCliTestScript{
 	@Test(description = "List orgs - created", 
 			dependsOnMethods={"test_createOrg"},groups={"cfse-cli","headpin-cli"})
 	public void test_infoListOrg(){
-		String uniqueID = KatelloTestScript.getUniqueID();
+		String uniqueID = KatelloUtils.getUniqueID();
 		KatelloOrg list_org = new KatelloOrg("orgUpd"+uniqueID, "Simple description");		
 		list_org.cli_create();
 		
@@ -65,7 +65,7 @@ public class OrgTests extends KatelloCliTestScript{
 	@Test(description="Update org's description",groups={"cfse-cli","headpin-cli"})
 	public void test_updateOrg(){
 		SSHCommandResult res;
-		String uniqueID = KatelloTestScript.getUniqueID();
+		String uniqueID = KatelloUtils.getUniqueID();
 		KatelloOrg org = new KatelloOrg("orgUpd"+uniqueID, "Simple description");		
 		
 		res = org.cli_create();
@@ -82,7 +82,7 @@ public class OrgTests extends KatelloCliTestScript{
 	
 	@Test(description="Delete an organization",groups={"cfse-cli","headpin-cli"})
 	public void test_deleteOrg(){
-		String uniqueID = KatelloTestScript.getUniqueID();
+		String uniqueID = KatelloUtils.getUniqueID();
 		KatelloOrg org = new KatelloOrg("orgDel"+uniqueID, null);
 		
 		org.cli_create();
@@ -98,7 +98,7 @@ public class OrgTests extends KatelloCliTestScript{
 	
 	@Test(description="Delete an organization which does not exist",groups={"cfse-cli","headpin-cli"})
 	public void test_deleteOrgNotExist(){
-		String uniqueID = KatelloTestScript.getUniqueID();
+		String uniqueID = KatelloUtils.getUniqueID();
 		KatelloOrg org = new KatelloOrg("orgDel"+uniqueID, null);
 		
 		SSHCommandResult res = org.delete();
@@ -109,7 +109,7 @@ public class OrgTests extends KatelloCliTestScript{
 	
 	@Test(description="List org subscriptions.",groups={"cfse-cli"})
 	public void test_orgSubscriptions(){
-		String uniqueID = KatelloTestScript.getUniqueID();
+		String uniqueID = KatelloUtils.getUniqueID();
 		String orgName = "subscriptions-" + uniqueID;
 		KatelloOrg org = new KatelloOrg(orgName, null); // or you can provide null -> "some simple description here"
 		SSHCommandResult res = org.cli_create();
@@ -140,7 +140,7 @@ public class OrgTests extends KatelloCliTestScript{
 	
 	@Test(description = "Create org - existing",groups={"cfse-cli","headpin-cli"})
 	public void test_createOrgExists(){
-		String uniqueID = KatelloTestScript.getUniqueID();
+		String uniqueID = KatelloUtils.getUniqueID();
 		KatelloOrg org = new KatelloOrg("orgCrt"+uniqueID, "Simple description");	
 		org.cli_create();
 
@@ -154,7 +154,7 @@ public class OrgTests extends KatelloCliTestScript{
 	
 	@Test(description = "Create org - name is invalid",groups={"cfse-cli","headpin-cli"})
 	public void test_createOrgInvalidName(){
-		String uniqueID = KatelloTestScript.getUniqueID();
+		String uniqueID = KatelloUtils.getUniqueID();
 		KatelloOrg org = new KatelloOrg("orgCrt"+uniqueID + " very ++== invalid name", "Simple description");	
 		SSHCommandResult res = org.cli_create();
 		

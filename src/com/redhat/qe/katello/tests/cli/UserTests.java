@@ -9,11 +9,11 @@ import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
-import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloUser;
 import com.redhat.qe.katello.base.obj.KatelloUserRole;
+import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups={"cfse-cli","headpin-cli"})
@@ -26,7 +26,7 @@ public class UserTests extends KatelloCliTestScript{
 	@BeforeClass(description="init: create org stuff")
 	public void setUp(){
 		SSHCommandResult res;
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		this.organization = "ak-"+uid;
 		this.env = "ak-"+uid;
 		KatelloOrg org = new KatelloOrg(this.organization, null);
@@ -40,7 +40,7 @@ public class UserTests extends KatelloCliTestScript{
 	@Test(description="create user - for default org", enabled=true)
 	public void test_create_DefaultOrg(){
 		SSHCommandResult res;
-		String uniqueID = KatelloTestScript.getUniqueID();
+		String uniqueID = KatelloUtils.getUniqueID();
 		String username = "usr-"+uniqueID;
 		String userpass = "password";
 		String usermail = username+"@localhost";
@@ -64,7 +64,7 @@ public class UserTests extends KatelloCliTestScript{
 	@Test(description="create user - for default org (disabled)", enabled=true)
 	public void test_createDisabled_DefaultOrg(){
 		SSHCommandResult res;
-		String uniqueID = KatelloTestScript.getUniqueID();
+		String uniqueID = KatelloUtils.getUniqueID();
 		String username = "disabled-"+uniqueID;
 		String userpass = "password";
 		String usermail = username+"@localhost";
@@ -107,7 +107,7 @@ public class UserTests extends KatelloCliTestScript{
 	@Test(description = "delete users - for some org provided", enabled = true)
 	public void test_DeleteUserOrg() {
 		SSHCommandResult res;
-		String uniqueID = KatelloTestScript.getUniqueID();
+		String uniqueID = KatelloUtils.getUniqueID();
 		String username = "user-" + uniqueID;
 		String userpass = "password";
 		String usermail = username + "@localhost";
@@ -138,7 +138,7 @@ public class UserTests extends KatelloCliTestScript{
 	@Test(description="delete users - for default org ", enabled=true)
 	public void test_DeleteUserDefaultOrg(){
 		SSHCommandResult res;
-		String uniqueID = KatelloTestScript.getUniqueID();
+		String uniqueID = KatelloUtils.getUniqueID();
 		String username = "user-"+uniqueID;
 		String userpass = "password";
 		String usermail = username+"@localhost";
@@ -206,11 +206,11 @@ public class UserTests extends KatelloCliTestScript{
 	public void test_AssignUserRoles(){
 		
 		SSHCommandResult res;
-		String uniqueID = KatelloTestScript.getUniqueID();
+		String uniqueID = KatelloUtils.getUniqueID();
 		String username = "user-"+uniqueID;
 		String userpass = "password";
 		String usermail = username+"@localhost";
-		String unique_role_ID = KatelloTestScript.getUniqueID();
+		String unique_role_ID = KatelloUtils.getUniqueID();
 		String user_role_name = "user-role"+unique_role_ID;
 		String role_desc = "Assigned " + user_role_name + " to user " + username; 
 		KatelloUser usr = new KatelloUser(username, usermail, userpass, false);
@@ -332,7 +332,7 @@ public class UserTests extends KatelloCliTestScript{
 	}
 	
 	private KatelloUser createUser() {
-		String uniqueID = KatelloTestScript.getUniqueID();
+		String uniqueID = KatelloUtils.getUniqueID();
 		String username = "usr-"+uniqueID;
 		String userpass = "password";
 		String usermail = username+"@localhost";
@@ -344,7 +344,7 @@ public class UserTests extends KatelloCliTestScript{
 	}
 	
 	private KatelloUserRole createRole() {
-		String uniqueID = KatelloTestScript.getUniqueID();
+		String uniqueID = KatelloUtils.getUniqueID();
 		String rolename = "role-"+uniqueID;
 		String descr = "role-desc";
 		KatelloUserRole role = new KatelloUserRole(rolename, descr);

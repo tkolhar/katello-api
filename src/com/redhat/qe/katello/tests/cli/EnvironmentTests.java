@@ -1,12 +1,13 @@
 package com.redhat.qe.katello.tests.cli;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
-import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
+import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 public class EnvironmentTests extends KatelloCliTestScript{
 	   
@@ -15,7 +16,7 @@ public class EnvironmentTests extends KatelloCliTestScript{
 		@BeforeClass(description="init: create org stuff", groups = {"headpin-cli"})
 		public void setUp(){
 			SSHCommandResult res;
-			String uid = KatelloTestScript.getUniqueID();
+			String uid = KatelloUtils.getUniqueID();
 			this.organization = "env-"+uid;
 			KatelloOrg org = new KatelloOrg(this.organization, null);
 			res = org.cli_create();
@@ -44,7 +45,7 @@ public class EnvironmentTests extends KatelloCliTestScript{
 		public void testEnv_info()
 		{
 			SSHCommandResult res;
-			String uid = KatelloTestScript.getUniqueID();
+			String uid = KatelloUtils.getUniqueID();
 			String name = "env-"+uid;
 			String descr = "Environment "+ name  + " Created";
 			KatelloEnvironment env = new KatelloEnvironment(name,descr,this.organization,KatelloEnvironment.LIBRARY);
@@ -62,7 +63,7 @@ public class EnvironmentTests extends KatelloCliTestScript{
 		
 		@Test(description="delete a environment", groups = {"headpin-cli"},enabled=true)
 		public void test_delete_environment(){
-		            String uid = KatelloTestScript.getUniqueID();
+		            String uid = KatelloUtils.getUniqueID();
 		            String envName="env-delete_act_key-"+ uid; 
 		            SSHCommandResult res;
 		            KatelloEnvironment env = new KatelloEnvironment(envName, "Environment created", this.organization, KatelloEnvironment.LIBRARY);
@@ -92,7 +93,7 @@ public class EnvironmentTests extends KatelloCliTestScript{
 		public void testEnv_update()
 		{
 			SSHCommandResult res;
-			String uid = KatelloTestScript.getUniqueID();
+			String uid = KatelloUtils.getUniqueID();
 			String name = "env-"+uid;
 			KatelloEnvironment env = new KatelloEnvironment(name,null,this.organization,KatelloEnvironment.LIBRARY);
 			res = env.cli_create();

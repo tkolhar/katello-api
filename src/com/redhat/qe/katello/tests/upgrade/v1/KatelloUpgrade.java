@@ -1,7 +1,9 @@
 package com.redhat.qe.katello.tests.upgrade.v1;
 
 import java.util.logging.Logger;
+
 import org.testng.annotations.Test;
+
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.common.KatelloUtils;
 

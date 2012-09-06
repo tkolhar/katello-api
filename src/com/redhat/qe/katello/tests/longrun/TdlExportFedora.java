@@ -1,11 +1,13 @@
 package com.redhat.qe.katello.tests.longrun;
 
 import java.util.logging.Logger;
+
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
+import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
-import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloDistribution;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
@@ -15,7 +17,6 @@ import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.base.obj.KatelloTemplate;
 import com.redhat.qe.katello.common.KatelloUtils;
-import com.redhat.qe.katello.tasks.KatelloTasks;
 import com.redhat.qe.tools.SCPTools;
 import com.redhat.qe.tools.SSHCommandResult;
 
@@ -43,7 +44,7 @@ public class TdlExportFedora extends KatelloCliTestScript{
 
 	@BeforeClass(description="Init unique names", alwaysRun=true)
 	public void setUp(){
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		this.provider = "Fedora_"+uid;
 		this.product = "Fedora_"+uid;
 		this.repo = "Fedora"+FEDORA_VER+"_"+uid;
@@ -71,8 +72,8 @@ public class TdlExportFedora extends KatelloCliTestScript{
 		SSHCommandResult res = repo.synchronize();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo synchronize)");
 		res = repo.info();
-		int pkgCount = Integer.parseInt(KatelloTasks.grepCLIOutput("Package Count", res.getStdout()));
-		String progress = KatelloTasks.grepCLIOutput("Progress", res.getStdout());
+		int pkgCount = Integer.parseInt(KatelloCli.grepCLIOutput("Package Count", res.getStdout()));
+		String progress = KatelloCli.grepCLIOutput("Progress", res.getStdout());
 		Assert.assertTrue(pkgCount>0, "Check - Packages >0");
 		Assert.assertTrue(progress.equals("Finished"), "Check: status of repo sync - Finished");
 	}
@@ -94,7 +95,7 @@ public class TdlExportFedora extends KatelloCliTestScript{
 		tpl.create();
 		KatelloDistribution dist = new KatelloDistribution(this.org, this.product,this.repo, null);
 		SSHCommandResult res = dist.list();
-		this.distribution = KatelloTasks.grepCLIOutput("Id", res.getStdout());
+		this.distribution = KatelloCli.grepCLIOutput("Id", res.getStdout());
 		Assert.assertTrue((this.distribution!=null), "Check - distribution exists in repo");
 		tpl.update_add_repo(this.product, this.repo);
 		res = tpl.update_add_distribution(this.product, this.distribution);
@@ -136,8 +137,8 @@ public class TdlExportFedora extends KatelloCliTestScript{
 		
 		Assert.assertTrue(scp.getFile("/tmp/"+this.templateName, "data/"),
 				"TDL export file get - sucessfully");
-		KatelloTasks.run_local(false, "rm -rf /tmp/template-rng.xml; wget "+TDL_AEOLUS_VALIDATOR+" -O /tmp/template-rng.xml");
-		String out = KatelloTasks.run_local(true, "xmllint --noout --relaxng /tmp/template-rng.xml data/"+this.templateName);
+		KatelloUtils.run_local(false, "rm -rf /tmp/template-rng.xml; wget "+TDL_AEOLUS_VALIDATOR+" -O /tmp/template-rng.xml");
+		String out = KatelloUtils.run_local(true, "xmllint --noout --relaxng /tmp/template-rng.xml data/"+this.templateName);
 		Assert.assertTrue(out.endsWith("validates"), "export file passes TDL validation");
 	}
 	
@@ -146,11 +147,11 @@ public class TdlExportFedora extends KatelloCliTestScript{
 	public void test_ueberCertAccess(){
 		String pemKey = System.getProperty("user.dir")+"/data/key-"+this.org+".pem";
 		String pemCert = System.getProperty("user.dir")+"/data/cert-"+this.org+".pem";
-		KatelloTasks.run_local(true, "scripts/katello-utils.py --method tdl_extract_certs --args " +
+		KatelloUtils.run_local(true, "scripts/katello-utils.py --method tdl_extract_certs --args " +
 				"\"filename=data/"+this.templateName+",reponame="+this.repo+",certname="+pemCert+",keyname="+pemKey+"\"");
-		String url = KatelloTasks.run_local(true, "scripts/katello-utils.py --method tdl_fromTag --args " +
+		String url = KatelloUtils.run_local(true, "scripts/katello-utils.py --method tdl_fromTag --args " +
 				"\"filename=data/"+this.templateName+",tag=os/install/url\"");
-		String res = KatelloTasks.run_local(true, "curl -sk --cert "+pemCert+" --key "+pemKey+" \""+url+"/repodata/repomd.xml\" | grep \"<location href=\\\"repodata/.*filelists.xml.gz\\\"/>\" | wc -l");
+		String res = KatelloUtils.run_local(true, "curl -sk --cert "+pemCert+" --key "+pemKey+" \""+url+"/repodata/repomd.xml\" | grep \"<location href=\\\"repodata/.*filelists.xml.gz\\\"/>\" | wc -l");
 		Assert.assertTrue(res.equals("1"), "Check - could be able to get repomd.xml content unlocked.");
 	}
 	

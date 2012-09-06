@@ -6,7 +6,6 @@ import javax.management.Attribute;
 
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
-import com.redhat.qe.katello.tasks.KatelloTasks;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class KatelloRepo {
@@ -245,13 +244,13 @@ public class KatelloRepo {
 		
 		res = info();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo info)");
-		String gpg_key = KatelloTasks.grepCLIOutput("GPG key", res.getStdout());
+		String gpg_key = KatelloCli.grepCLIOutput("GPG key", res.getStdout());
 		Assert.assertTrue(this.gpgkey.equals(gpg_key), 
 				String.format("Check - GPG key [%s] should be found in the repo info",this.gpgkey));
 		KatelloGpgKey gpg = new KatelloGpgKey(this.gpgkey, this.org, null);
 		res = gpg.cli_info();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (gpg_key info)");
-		String reposWithGpg = KatelloTasks.grepCLIOutput("Repositories", res.getStdout());
+		String reposWithGpg = KatelloCli.grepCLIOutput("Repositories", res.getStdout());
 		Assert.assertTrue(reposWithGpg.contains(this.name), 
 				"Check - Repo should be in repositories list of GPG key");
 	}
