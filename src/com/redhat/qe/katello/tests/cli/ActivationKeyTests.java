@@ -30,15 +30,12 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 		String uid = KatelloUtils.getUniqueID();
 		this.organization = "ak-"+uid;
 		this.env = "ak-"+uid;
-		this.systemgroup = "systemgroup"+uid;
+
 		KatelloOrg org = new KatelloOrg(this.organization, null);
 		res = org.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		KatelloEnvironment env = new KatelloEnvironment(this.env, null, this.organization, KatelloEnvironment.LIBRARY);
 		res = env.cli_create();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		KatelloSystemGroup systemGroup = new KatelloSystemGroup(this.systemgroup, this.organization);
-		res = systemGroup.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 	}
 	
@@ -272,9 +269,10 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
     }
     
-    @Test(description="add system group to activationkey", groups = {"headpin-cli"}, enabled=true)
+    @Test(description="add system group to activationkey", groups = {"cli-activationkey"}, enabled=true)
     public void test_addSystemGroup() {
     	String uid = KatelloUtils.getUniqueID();
+		this.systemgroup = "systemgroup"+uid;
     	String akName="ak-subscription-zoo3-"+uid;
     	SSHCommandResult res;
 
@@ -282,6 +280,10 @@ public class ActivationKeyTests extends KatelloCliTestScript{
     	res = ak.create();
     	Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key create)");
     	
+		KatelloSystemGroup systemGroup = new KatelloSystemGroup(this.systemgroup, this.organization);
+		res = systemGroup.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		
     	res = ak.add_system_group(this.systemgroup);
     	Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key add_system_group)");
     	Assert.assertTrue(getOutput(res).contains(
@@ -290,9 +292,10 @@ public class ActivationKeyTests extends KatelloCliTestScript{
     	
     }
     
-    @Test(description="remove system group from activationkey", groups = {"headpin-cli"}, enabled=true)
+    @Test(description="remove system group from activationkey", groups = {"cli-activationkey"}, enabled=true)
     public void test_removeSystemGroup() {
     	String uid = KatelloUtils.getUniqueID();
+		this.systemgroup = "systemgroup"+uid;
     	String akName="ak-subscription-zoo3-"+uid;
     	SSHCommandResult res;
 
@@ -300,6 +303,10 @@ public class ActivationKeyTests extends KatelloCliTestScript{
     	res = ak.create();
     	Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key create)");
     	
+		KatelloSystemGroup systemGroup = new KatelloSystemGroup(this.systemgroup, this.organization);
+		res = systemGroup.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		
     	res = ak.add_system_group(this.systemgroup);
     	Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key add_system_group)");
     	
