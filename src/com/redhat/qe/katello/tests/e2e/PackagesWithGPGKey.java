@@ -5,9 +5,10 @@ import java.util.logging.Logger;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
+import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
-import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloGpgKey;
@@ -17,7 +18,6 @@ import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.common.KatelloUtils;
-import com.redhat.qe.katello.tasks.KatelloTasks;
 import com.redhat.qe.tools.SSHCommandResult;
 
 /**
@@ -39,7 +39,7 @@ public class PackagesWithGPGKey extends KatelloCliTestScript{
 	
 	@BeforeClass(description="Init unique names", alwaysRun=true)
 	public void setUp(){
-		String uniqueID = KatelloTestScript.getUniqueID();
+		String uniqueID = KatelloUtils.getUniqueID();
 		this.org = "GPGOrg"+uniqueID;
 		this.provider = "GPGProv"+uniqueID;
 		this.product = "GPGProd"+uniqueID;
@@ -101,7 +101,7 @@ public class PackagesWithGPGKey extends KatelloCliTestScript{
 	@Test(description="Subscribe client system to the product", dependsOnMethods={"test_promoteRepoToEnv"}, enabled=true)
 	public void test_subscribeClient(){
 		SSHCommandResult res;
-		this.system = "system-PackagesWithGPGKey-"+KatelloTestScript.getUniqueID();
+		this.system = "system-PackagesWithGPGKey-"+KatelloUtils.getUniqueID();
 		
 		log.info("E2E - Subscribe client system");
 		KatelloUtils.sshOnClient("subscription-manager clean");
@@ -112,8 +112,8 @@ public class PackagesWithGPGKey extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (rhsm register)");
 		
 		KatelloOrg org = new KatelloOrg(this.org, null);
-		String poolID = KatelloTasks.grepCLIOutput("Id",org.subscriptions().getStdout());
-		String poolName = KatelloTasks.grepCLIOutput("Subscription",org.subscriptions().getStdout());
+		String poolID = KatelloCli.grepCLIOutput("Id",org.subscriptions().getStdout());
+		String poolName = KatelloCli.grepCLIOutput("Subscription",org.subscriptions().getStdout());
 		res = KatelloUtils.sshOnClient(String.format("subscription-manager subscribe --pool=%s",poolID));
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (rhsm subscribe)");
 		Assert.assertTrue(getOutput(res).startsWith("Successfully"), 

@@ -1,15 +1,16 @@
 	package com.redhat.qe.katello.tests.cli;
 
 import java.util.logging.Logger;
+
 import org.testng.SkipException;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
-import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
@@ -27,7 +28,7 @@ public class SystemTests extends KatelloCliTestScript{
 	
 	@BeforeClass(description="Generate unique names")
 	public void setUp(){
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		this.orgName = "org-rhsm-"+uid;
 		this.envName_Dev = "Dev-"+uid;
 		this.envName_Test = "Test-"+uid;
@@ -49,7 +50,7 @@ public class SystemTests extends KatelloCliTestScript{
 	
 	@Test(description = "RHSM register - org have no environment but Locker only", enabled=true)
 	public void test_rhsm_RegLockerOnly(){
-		KatelloSystem sys = new KatelloSystem("localhost"+KatelloTestScript.getUniqueID(), this.orgName, null);
+		KatelloSystem sys = new KatelloSystem("localhost"+KatelloUtils.getUniqueID(), this.orgName, null);
 		exec_result = sys.rhsm_register(); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 255, "Check - return code");
 		Assert.assertEquals(exec_result.getStderr().trim(), 
@@ -60,7 +61,7 @@ public class SystemTests extends KatelloCliTestScript{
 	@Test(description = "RHSM register - one environment only", 
 			dependsOnMethods = {"test_rhsm_RegLockerOnly"}, enabled=true)
 	public void test_rhsm_RegOneEnvOnly(){
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		String system = "rhsm-reg-"+uid;
 		
 		// Create the env.
@@ -76,7 +77,7 @@ public class SystemTests extends KatelloCliTestScript{
 	@Test(description = "RHSM register - already registered", 
 			dependsOnMethods = {"test_rhsm_RegOneEnvOnly"}, enabled=true)
 	public void test_rhsm_AlreadyReg(){
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		String system = "rhsm-reg1-"+uid;
 		
 		KatelloSystem sys = new KatelloSystem(system, this.orgName, null);
@@ -97,7 +98,7 @@ public class SystemTests extends KatelloCliTestScript{
 	@Test(description = "RHSM force register", 
 			dependsOnMethods = {"test_rhsm_AlreadyReg"}, enabled=true)
 	public void test_rhsm_ForceReg(){
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		String system = "rhsm-force-"+uid;
 		
 		KatelloSystem sys = new KatelloSystem(system, this.orgName, null);
@@ -118,7 +119,7 @@ public class SystemTests extends KatelloCliTestScript{
 	@Test(description = "RHSM register - more than one environment (no env. specified)", 
 			dependsOnMethods = {"test_rhsm_ForceReg"}, enabled=true)
 	public void test_rhsm_RegMultiEnv(){
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		String system = "rhsm-regMultiEnv-"+uid;
 		
 		// Create the 2nd env.
@@ -135,7 +136,7 @@ public class SystemTests extends KatelloCliTestScript{
 	@Test(description = "RHSM register - env specified", 
 			dependsOnMethods = {"test_rhsm_RegMultiEnv"}, enabled=true)
 	public void test_rhsm_RegWithEnv(){
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		String system = "rhsm-env-"+uid;
 		
 		KatelloSystem sys = new KatelloSystem(system, this.orgName, this.envName_Test);
@@ -148,7 +149,7 @@ public class SystemTests extends KatelloCliTestScript{
 	@Test(description = "RHSM register - same name for 2 environments", 
 			dependsOnMethods = {"test_rhsm_RegMultiEnv"}, enabled=true)
 	public void test_rhsm_RegSameNameTwoEnvs(){
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		String system = "localhost-"+uid;
 		
 		KatelloSystem sys = new KatelloSystem(system, this.orgName, this.envName_Dev);

@@ -4,10 +4,11 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import com.redhat.qe.katello.base.obj.KatelloOrg;
+
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
-import com.redhat.qe.katello.base.obj.KatelloProvider;
+import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
+import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.common.KatelloConstants;
 import com.redhat.qe.tools.SSHCommandResult;

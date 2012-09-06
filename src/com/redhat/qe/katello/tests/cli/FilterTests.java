@@ -8,10 +8,10 @@ import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
-import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloFilter;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
+import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups={"cfse-cli"})
@@ -22,7 +22,7 @@ public class FilterTests extends KatelloCliTestScript{
 	@BeforeClass(description="init: create org stuff", groups = {"cli-filter"})
 	public void setUp(){
 		SSHCommandResult res;
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		this.org = "filter-"+uid;
 		this.environment = "Dev-"+uid;
 		KatelloOrg org = new KatelloOrg(this.org, null);
@@ -35,7 +35,7 @@ public class FilterTests extends KatelloCliTestScript{
 
 	@Test(description="Create filter: no packages", groups = {"cli-filter"})
 	public void test_createWithoutPackages(){
-		String filterName = "filter"+KatelloTestScript.getUniqueID();
+		String filterName = "filter"+KatelloUtils.getUniqueID();
 		KatelloFilter filter = new KatelloFilter(filterName, this.org, null, null);
 		SSHCommandResult res = filter.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (filter create)");
@@ -45,7 +45,7 @@ public class FilterTests extends KatelloCliTestScript{
 	
 	@Test(description="Create filter: with packages", groups = {"cli-filter"})
 	public void test_createWithPackages(){
-		String filterName = "filter"+KatelloTestScript.getUniqueID();
+		String filterName = "filter"+KatelloUtils.getUniqueID();
 		KatelloFilter filter = new KatelloFilter(filterName, this.org, null, "package1, package2");
 		SSHCommandResult res = filter.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (filter create)");
@@ -60,7 +60,7 @@ public class FilterTests extends KatelloCliTestScript{
 		
 		List<KatelloFilter> filters = new ArrayList<KatelloFilter>();
 		
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		String filterName = "filter1" + uid;
 		KatelloFilter filter = new KatelloFilter(filterName, this.org, null, null);
 		filter.create();
@@ -84,7 +84,7 @@ public class FilterTests extends KatelloCliTestScript{
 	
 	@Test(description="Delete a Filter", groups = {"cli-filter"})
 	public void test_deleteFilter(){
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		String filterName = "filter1" + uid;
 		KatelloFilter filter = new KatelloFilter(filterName, this.org, null, null);
 		filter.create();
@@ -101,7 +101,7 @@ public class FilterTests extends KatelloCliTestScript{
 	
 	@Test(description="Delete a Filter not exist", groups = {"cli-filter"})
 	public void test_deleteFilterNotFound(){
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		String filterName = "filter1" + uid;
 		KatelloFilter filter = new KatelloFilter(filterName, this.org, null, null);
 		
@@ -113,7 +113,7 @@ public class FilterTests extends KatelloCliTestScript{
 	
 	@Test(description="Info Filter not exist", groups = {"cli-filter"})
 	public void test_infoFilterNotFound(){
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		String filterName = "filter1" + uid;
 		KatelloFilter filter = new KatelloFilter(filterName, this.org, null, null);
 		
@@ -125,7 +125,7 @@ public class FilterTests extends KatelloCliTestScript{
 	
 	@Test(description="Add package to filter", groups = {"cli-filter"})
 	public void test_addPackage(){
-		String filterName = "filter"+KatelloTestScript.getUniqueID();
+		String filterName = "filter"+KatelloUtils.getUniqueID();
 		KatelloFilter filter = new KatelloFilter(filterName, this.org, null, "package1");
 		SSHCommandResult res = filter.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
@@ -141,7 +141,7 @@ public class FilterTests extends KatelloCliTestScript{
 	
 	@Test(description="Add package to filter which does not exist", groups = {"cli-filter"})
 	public void test_addPackageNotFound(){
-		String filterName = "filter"+KatelloTestScript.getUniqueID();
+		String filterName = "filter"+KatelloUtils.getUniqueID();
 		KatelloFilter filter = new KatelloFilter(filterName, this.org, null, "package1");
 		
 		SSHCommandResult res = filter.cli_addPackage("package2");
@@ -152,7 +152,7 @@ public class FilterTests extends KatelloCliTestScript{
 	
 	@Test(description="Remove package from filter", groups = {"cli-filter"})
 	public void test_removePackage(){
-		String filterName = "filter"+KatelloTestScript.getUniqueID();
+		String filterName = "filter"+KatelloUtils.getUniqueID();
 		KatelloFilter filter = new KatelloFilter(filterName, this.org, null, "package1, package2");
 		SSHCommandResult res = filter.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
@@ -168,7 +168,7 @@ public class FilterTests extends KatelloCliTestScript{
 	
 	@Test(description="Remove package from filter which does not exist", groups = {"cli-filter"})
 	public void test_removePackageNotFound(){
-		String filterName = "filter"+KatelloTestScript.getUniqueID();
+		String filterName = "filter"+KatelloUtils.getUniqueID();
 		KatelloFilter filter = new KatelloFilter(filterName, this.org, null, "package1");
 		
 		SSHCommandResult res = filter.cli_removePackage("package1");

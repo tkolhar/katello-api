@@ -7,6 +7,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
+import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloMisc;
@@ -14,7 +15,6 @@ import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.common.KatelloUtils;
-import com.redhat.qe.katello.tasks.KatelloTasks;
 import com.redhat.qe.tools.SCPTools;
 import com.redhat.qe.tools.SSHCommandResult;
 
@@ -227,7 +227,7 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains("green"), "Check - compliance is green");
 		
 		exec_result = sys.subscriptions();
-		String serialId = KatelloTasks.grepCLIOutput("Serial Id", exec_result.getStdout());
+		String serialId = KatelloCli.grepCLIOutput("Serial Id", exec_result.getStdout());
 		
 		exec_result = sys.rhsm_unsubscribe(serialId);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");

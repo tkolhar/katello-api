@@ -20,10 +20,11 @@ import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.common.KatelloConstants;
+import com.redhat.qe.katello.common.KatelloUtils;
 
 @Test(groups={"cfse-api"})
 public class ProvidersTest extends KatelloTestScript {
-	protected static Logger log = Logger.getLogger(ProvidersTest.class.getName());
+    protected static Logger log = Logger.getLogger(ProvidersTest.class.getName());
 	
 	private String org_name;
 	private String provider_name;
@@ -36,7 +37,7 @@ public class ProvidersTest extends KatelloTestScript {
 	@Test(groups = { "testProviders" }, description = "Create provider")
 	public void test_createProvider() {
 		
-		String uid = getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		this.provider_name = "auto-provider-"+uid;
 		KatelloProvider prov = null;
         try {
@@ -72,9 +73,9 @@ public class ProvidersTest extends KatelloTestScript {
 	@Test (groups={"testProviders"}, description="Import Products", 
 			dependsOnMethods="test_createProvider", enabled = false) // Seems moved to another controller.
 	public void test_importProducts(){
-		String pid = KatelloTestScript.getUniqueID();
+		String pid = KatelloUtils.getUniqueID();
 		try{Thread.sleep(1000);}catch(InterruptedException ex){}
-		String cid = KatelloTestScript.getUniqueID();
+		String cid = KatelloUtils.getUniqueID();
 		String repoUrl=KatelloConstants.KATELLO_SMALL_REPO;
 		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.000+0000'");
 		String sTS = df.format(Calendar.getInstance().getTime());
@@ -209,7 +210,7 @@ public class ProvidersTest extends KatelloTestScript {
 			enabled=true) // BZ: https://bugzilla.redhat.com/show_bug.cgi?id=700423
 	public void test_deleteProvider(){
 		// Create separate provider to be removed 
-		String uid = getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		String providerName = "auto-deleteMe-"+uid;
 		KatelloProvider provider = null;
         try {

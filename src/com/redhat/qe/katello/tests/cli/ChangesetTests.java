@@ -12,7 +12,6 @@ import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
-import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
@@ -20,6 +19,7 @@ import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.base.obj.KatelloTemplate;
+import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups={"cfse-cli"})
@@ -40,13 +40,13 @@ public class ChangesetTests extends KatelloCliTestScript{
 	@BeforeClass(description="init: create org stuff", groups = {"cli-changeset"})
 	public void setUp() {
 		
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		org_name = "org" + uid;
 		env_name = "env"+uid;
 		provider_name = "provider"+uid;
 		product_name = "product"+uid;
 		repo_name = "repo"+uid;
-		templ_name = "template"+KatelloTestScript.getUniqueID();
+		templ_name = "template"+KatelloUtils.getUniqueID();
 		
 		// Create org:
 		KatelloOrg org = new KatelloOrg(this.org_name, "Package tests");
@@ -118,7 +118,7 @@ public class ChangesetTests extends KatelloCliTestScript{
 	public void test_listChangeset() {
 		KatelloChangeset chst = createChangeset();
 		
-		String chst_name2= "changeset"+KatelloTestScript.getUniqueID();
+		String chst_name2= "changeset"+KatelloUtils.getUniqueID();
 		KatelloChangeset cs = new KatelloChangeset(chst_name2, org_name, env_name);
 		exec_result = cs.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset create)");
@@ -268,7 +268,7 @@ public class ChangesetTests extends KatelloCliTestScript{
 	 */
 	
 	private KatelloChangeset createChangeset() {
-		chst_name = "changeset"+KatelloTestScript.getUniqueID();
+		chst_name = "changeset"+KatelloUtils.getUniqueID();
 		
 		// create Changeset
 		KatelloChangeset cs = new KatelloChangeset(chst_name, org_name, env_name);
