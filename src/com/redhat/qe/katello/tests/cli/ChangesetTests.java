@@ -262,11 +262,6 @@ public class ChangesetTests extends KatelloCliTestScript{
 		Assert.assertFalse(matcher.find(), "Check - Template should not exist in changeset info");
 	}
 	
-	/**
-	 * @TODO implement tests to add/remove products to changeset 
-	 * 
-	 */
-	
 	private KatelloChangeset createChangeset() {
 		chst_name = "changeset"+KatelloUtils.getUniqueID();
 		
