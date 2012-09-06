@@ -21,7 +21,9 @@ public class UserTests extends KatelloCliTestScript{
 	
 	List<KatelloUser> users;
 	private String organization;
+	private String organization2;
 	private String env;
+	private String env2;
 	
 	@BeforeClass(description="init: create org stuff")
 	public void setUp(){
@@ -29,10 +31,17 @@ public class UserTests extends KatelloCliTestScript{
 		String uid = KatelloUtils.getUniqueID();
 		this.organization = "ak-"+uid;
 		this.env = "ak-"+uid;
+		this.organization2 = "ak2-"+uid;
+		this.env2 = "ak2-"+uid;
 		KatelloOrg org = new KatelloOrg(this.organization, null);
 		res = org.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		KatelloEnvironment env = new KatelloEnvironment(this.env, null, this.organization, KatelloEnvironment.LIBRARY);
+		res = env.cli_create();
+		org = new KatelloOrg(this.organization2, null);
+		res = org.cli_create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		env = new KatelloEnvironment(this.env2, null, this.organization2, KatelloEnvironment.LIBRARY);
 		res = env.cli_create();
 	}
 		
@@ -319,6 +328,43 @@ public class UserTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode()==65, "Check - return code [65]");
 		Assert.assertEquals(getOutput(res).trim(), 
 				String.format(KatelloUser.OUT_FIND_USER_ERROR,user.username));
+	}
+	
+	@Test(description="Create a user with default org and environment", enabled=true)
+	public void test_createUserDefaultValues() {
+		SSHCommandResult res;
+		String uniqueID = KatelloTestScript.getUniqueID();
+		String username = "user-" + uniqueID;
+		String userpass = "password";
+		String usermail = username + "@localhost";
+		KatelloUser usr = new KatelloUser(username, usermail, userpass, false,
+				this.organization, this.env);
+		res = usr.cli_create();
+		Assert.assertTrue(res.getExitCode().intValue() == 0,
+				"Check - return code (" + KatelloUser.CMD_CREATE + ")");
+		Assert.assertTrue(
+				getOutput(res).contains(
+						String.format(KatelloUser.OUT_CREATE, username)),
+				"Check - returned output string (" + KatelloUser.CMD_CREATE
+						+ ")");
+
+		usr.asserts_create();
+	}
+
+	@Test(description="Create a user with default org and environment from other org, verify error", enabled=true)
+	public void test_createUserDefaultValuesWrong() {
+		SSHCommandResult res;
+		String uniqueID = KatelloTestScript.getUniqueID();
+		String username = "user-" + uniqueID;
+		String userpass = "password";
+		String usermail = username + "@localhost";
+		KatelloUser usr = new KatelloUser(username, usermail, userpass, false,
+				this.organization, this.env2);
+		res = usr.cli_create();
+		Assert.assertTrue(res.getExitCode().intValue() == 65,"Check - return code (environment delete)");
+        Assert.assertTrue(getOutput(res).contains(
+				String.format(KatelloEnvironment.ERROR_INFO,env2,this.organization)), 
+				"Check - returned output string ("+KatelloUser.CMD_CREATE+")");	
 	}
 	
 	private void assert_userInfo(KatelloUser user){
