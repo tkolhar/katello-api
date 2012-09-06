@@ -186,8 +186,8 @@ public class KatelloSystem {
 			cmd += " --name \""+this.name+"\"";
 		if(this.org != null)
 			cmd += " --org \""+this.org+"\"";
-		if(this.environment != null)
-			cmd += " --environment \""+this.environment+"\"";
+		if(this.env != null)
+			cmd += " --environment \""+this.env+"\"";
 		
 		return KatelloUtils.sshOnClient(cmd);		
 	}
@@ -199,8 +199,8 @@ public class KatelloSystem {
 			cmd += " --name \""+this.name+"\"";
 		if(this.org != null)
 			cmd += " --org \""+this.org+"\"";
-		if(this.environment != null)
-			cmd += " --environment \""+this.environment+"\"";
+		if(this.env != null)
+			cmd += " --environment \""+this.env+"\"";
 		cmd += " --force";
 		
 		return KatelloUtils.sshOnClient(cmd);		
@@ -228,7 +228,7 @@ public class KatelloSystem {
 	public SSHCommandResult list(){
 		opts.clear();
 		opts.add(new Attribute("org", org));
-		opts.add(new Attribute("environment", environment));
+		opts.add(new Attribute("environment", env));
 		cli = new KatelloCli(CMD_LIST+" -v", opts);
 		return cli.run();
 	}
@@ -236,7 +236,7 @@ public class KatelloSystem {
 	public SSHCommandResult report(){
 		opts.clear();
 		opts.add(new Attribute("org", org));
-		opts.add(new Attribute("environment", environment));
+		opts.add(new Attribute("environment", env));
 		cli = new KatelloCli(CMD_REPORT+" -v", opts);
 		return cli.run();
 	}
