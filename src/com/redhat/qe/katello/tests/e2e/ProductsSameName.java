@@ -1,13 +1,11 @@
 package com.redhat.qe.katello.tests.e2e;
 
 import java.util.logging.Logger;
-
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import com.redhat.qe.Assert;
+import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
-import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
@@ -17,7 +15,6 @@ import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.common.KatelloUtils;
-import com.redhat.qe.katello.tasks.KatelloTasks;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class ProductsSameName extends KatelloCliTestScript {
@@ -39,7 +36,7 @@ public class ProductsSameName extends KatelloCliTestScript {
 	
 	@BeforeClass(description="Generate unique objects")
 	public void setUp(){
-		String uid = KatelloTestScript.getUniqueID();
+		String uid = KatelloUtils.getUniqueID();
 		org_name = "org"+uid;
 		provider_name = "provider"+uid;
 		product_name = "product"+uid;
@@ -134,13 +131,13 @@ public class ProductsSameName extends KatelloCliTestScript {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		exec_result = sys.subscriptions_available();
-		String poolId1 = KatelloTasks.grepCLIOutput("Id", getOutput(exec_result).trim(),1);
+		String poolId1 = KatelloCli.grepCLIOutput("Id", getOutput(exec_result).trim(),1);
 		
 		exec_result = sys.rhsm_subscribe(poolId1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		exec_result = sys.subscriptions_available();
-		String poolId2 = KatelloTasks.grepCLIOutput("Id", getOutput(exec_result).trim(),1);
+		String poolId2 = KatelloCli.grepCLIOutput("Id", getOutput(exec_result).trim(),1);
 		
 		exec_result = sys.rhsm_subscribe(poolId2);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
