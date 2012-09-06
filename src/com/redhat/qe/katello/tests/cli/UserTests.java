@@ -333,7 +333,7 @@ public class UserTests extends KatelloCliTestScript{
 	@Test(description="Create a user with default org and environment", enabled=true)
 	public void test_createUserDefaultValues() {
 		SSHCommandResult res;
-		String uniqueID = KatelloTestScript.getUniqueID();
+		String uniqueID = KatelloUtils.getUniqueID();
 		String username = "user-" + uniqueID;
 		String userpass = "password";
 		String usermail = username + "@localhost";
@@ -354,7 +354,7 @@ public class UserTests extends KatelloCliTestScript{
 	@Test(description="Create a user with default org and environment from other org, verify error", enabled=true)
 	public void test_createUserDefaultValuesWrong() {
 		SSHCommandResult res;
-		String uniqueID = KatelloTestScript.getUniqueID();
+		String uniqueID = KatelloUtils.getUniqueID();
 		String username = "user-" + uniqueID;
 		String userpass = "password";
 		String usermail = username + "@localhost";

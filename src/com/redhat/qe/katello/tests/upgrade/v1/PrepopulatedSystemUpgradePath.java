@@ -4,8 +4,8 @@ import com.redhat.qe.katello.base.obj.*;
 import java.util.logging.Logger;
 import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.common.KatelloConstants;
+import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
 /**
@@ -21,7 +21,7 @@ import com.redhat.qe.tools.SSHCommandResult;
 public class PrepopulatedSystemUpgradePath implements KatelloConstants{
 	protected static Logger log = Logger.getLogger(PrepopulatedSystemUpgradePath.class.getName());
 
-	String _uid = KatelloTestScript.getUniqueID();
+	String _uid = KatelloUtils.getUniqueID();
 	String[] _orgs = {"Tokyo_"+_uid, "SaoPaulo_"+_uid, "Paris_"+_uid, "Dakar_"+_uid};
 	String[][] _envs = {
 			{"Dev","QA","Release"}, //org[0]
