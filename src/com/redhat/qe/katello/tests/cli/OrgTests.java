@@ -75,8 +75,14 @@ public class OrgTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 		Assert.assertEquals(getOutput(res).trim(), String.format("Successfully updated org [ %s ]",org.name));
 		
-		// TODO - Enter special characters - check it works. 您好
-		// BZ: https://bugzilla.redhat.com/show_bug.cgi?id=741274
+		org.description = "您好" + org.description;
+		res = org.update(org.description);
+		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
+		Assert.assertEquals(getOutput(res).trim(), String.format("Successfully updated org [ %s ]",org.name));
+		
+		res = org.cli_list();
+		Assert.assertTrue(res.getExitCode() == 0, "Check - return code (org list)");
+
 		assert_orgInfo(org);
 	}
 	

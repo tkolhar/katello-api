@@ -50,12 +50,17 @@ public class KatelloProduct {
 
 	public static final String API_CMD_LIST = "/organizations/%s/products"; // by org
 	
+	public static final String REG_PROD_LIST = ".*Id:\\s+\\d+.*Name:\\s+%s.*Provider Id:\\s+\\d+.*Provider Name:\\s+%s.*Sync Plan Name:\\s+%s.*Last Sync:\\s+%s.*GPG key:\\s*%s.*";
+	
 	// ** ** ** ** ** ** ** Class members
-	String name;
+	public String name;
 	String org;
-	String provider;
+	public String provider;
+	public String providerId;
+	public String syncPlanName;
+	public String lastSync;
 	String description;
-	String gpgkey;
+	public String gpgkey;
 	String url;
 	boolean nodisc = false;
 	boolean assumeyes = false;
@@ -133,8 +138,15 @@ public class KatelloProduct {
 	public SSHCommandResult cli_list(String environment){
 		opts.clear();
 		opts.add(new Attribute("org", org));
-		opts.add(new Attribute("provider", provider));
 		opts.add(new Attribute("environment", environment));
+		cli = new KatelloCli(CLI_CMD_LIST, opts);
+		return cli.run();
+	}
+
+	public SSHCommandResult cli_list_provider(String prov){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("provider", prov));
 		cli = new KatelloCli(CLI_CMD_LIST, opts);
 		return cli.run();
 	}

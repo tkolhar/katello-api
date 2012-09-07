@@ -1,5 +1,8 @@
 package com.redhat.qe.katello.tests.cli;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -22,6 +25,7 @@ public class ProductTests  extends KatelloCliTestScript{
 	private String prov_name;
 	private String org_name2;
 	private String prov_name2;
+	private String prov_name3;
 	
 	@BeforeClass(description="Prepare an org to work with", groups = {"cli-product"}, alwaysRun=false)
 	public void setup_org(){
@@ -29,10 +33,15 @@ public class ProductTests  extends KatelloCliTestScript{
 		String uid = KatelloUtils.getUniqueID();
 		this.org_name = "org"+uid;
 		this.prov_name = "prov"+uid;
+		this.prov_name3 = "prov"+KatelloUtils.getUniqueID();;
 		KatelloOrg org = new KatelloOrg(this.org_name, null);
 		res = org.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (org create)");
 		KatelloProvider prov = new KatelloProvider(this.prov_name, this.org_name, null, null);
+		res = prov.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (provider create)");
+		
+		prov = new KatelloProvider(this.prov_name3, this.org_name, null, null);
 		res = prov.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (provider create)");
 		
@@ -187,11 +196,107 @@ public class ProductTests  extends KatelloCliTestScript{
 	
 	// TODO - product creation failflows + the cases with "Description" variations.
 	
-	// TODO - `product list --provider`
-	
-	// TODO - `product list --environment`
-	
 	// TODO - `product status`
+	
+	@Test(description="list the products by provider", groups = {"cli-products"}, enabled=true)
+	public void test_listProduct_provider() {
+		String prodName1 = "prod1-"+KatelloUtils.getUniqueID();
+		String prodName2 = "prod2-"+KatelloUtils.getUniqueID();
+		String prodName3 = "prod3-"+KatelloUtils.getUniqueID();
+		SSHCommandResult res;
+		
+		// create product
+		KatelloProduct prod1 = new KatelloProduct(prodName1, this.org_name, this.prov_name, null, null, null, null, true);
+		res = prod1.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
+		
+		KatelloProduct prod2 = new KatelloProduct(prodName2, this.org_name, this.prov_name, null, null, null, null, true);
+		res = prod2.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
+		
+		KatelloProduct prod3 = new KatelloProduct(prodName3, this.org_name, this.prov_name3, null, null, null, null, true);
+		res = prod3.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
+		
+		SSHCommandResult exec_result = prod1.cli_list_provider(this.prov_name);
+		
+		assert_productList(exec_result, Arrays.asList(prod1, prod2), Arrays.asList(prod3));
+	}
+
+	@Test(description="list the products by environment", groups = {"cli-products"}, enabled=true)
+	public void test_listProduct_environment() {
+		String prodName1 = "prod1-"+KatelloUtils.getUniqueID();
+		String prodName2 = "prod2-"+KatelloUtils.getUniqueID();
+		String prodName3 = "prod3-"+KatelloUtils.getUniqueID();
+		String envName1 = "env1-" + KatelloUtils.getUniqueID();
+		String envName2 = "env2-" + KatelloUtils.getUniqueID();
+		
+		SSHCommandResult res;		
+
+		// create product
+		KatelloProduct prod1 = new KatelloProduct(prodName1, this.org_name, this.prov_name, null, null, PULP_F15_i386_REPO, null, true);
+		res = prod1.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
+		
+		// sync product
+		res = prod1.synchronize();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product synchronize)");
+
+		// create env.
+		KatelloEnvironment env1 = new KatelloEnvironment(envName1, null, this.org_name, KatelloEnvironment.LIBRARY);
+		res = env1.cli_create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (environment create)");
+		
+		// sync product (otherwise promote will fail)
+		res = prod1.synchronize();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product synchronize)");
+		
+		// promote product to the env.
+		res = prod1.promote(envName1);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product promote)");
+
+		// create product
+		KatelloProduct prod2 = new KatelloProduct(prodName2, this.org_name, this.prov_name, null, null, REPO_INECAS_ZOO3, null, true);
+		res = prod2.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
+		
+		// sync product
+		res = prod2.synchronize();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product synchronize)");
+
+		// create env.
+		KatelloEnvironment env2 = new KatelloEnvironment(envName2, null, this.org_name, KatelloEnvironment.LIBRARY);
+		res = env2.cli_create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (environment create)");
+		
+		// sync product (otherwise promote will fail)
+		res = prod2.synchronize();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product synchronize)");
+		
+		// promote product to the env.
+		res = prod2.promote(envName2);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product promote)");
+
+		KatelloProduct prod3 = new KatelloProduct(prodName3, this.org_name, this.prov_name3, null, null, null, null, true);
+		res = prod3.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
+		
+		res = prod1.status();
+		String lastSync1 = KatelloCli.grepCLIOutput("Last Sync", getOutput(res).trim(),1);
+		prod1.lastSync = lastSync1;
+		
+		res = prod2.status();
+		String lastSync2 = KatelloCli.grepCLIOutput("Last Sync", getOutput(res).trim(),1);
+		prod2.lastSync = lastSync2;
+		
+		res = prod1.cli_list(envName1);
+		
+		assert_productList(res, Arrays.asList(prod1), Arrays.asList(prod2, prod3));
+		
+		res = prod1.cli_list(envName2);
+		
+		assert_productList(res, Arrays.asList(prod2), Arrays.asList(prod1, prod3));
+	}
 	
 	@Test(description="promote product", groups = {"cli-products"}, enabled=true)
 	public void test_promoteProduct_NoRepos(){
@@ -465,4 +570,29 @@ public class ProductTests  extends KatelloCliTestScript{
 		Assert.assertFalse(getOutput(res).replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST), 
 				"Check - list should NOT contain info about product (deleted already)");		
 	}
+	
+	private void assert_productList(SSHCommandResult exec_result, List<KatelloProduct> products, List<KatelloProduct> excludeProducts) {
+
+		//products that exist in list
+		for(KatelloProduct prod : products) {
+			if (prod.syncPlanName == null) prod.syncPlanName = "None";
+			if (prod.lastSync == null) prod.lastSync = "never";
+			if (prod.gpgkey == null) prod.gpgkey = "";
+			
+			String match_info = String.format(KatelloProduct.REG_PROD_LIST, prod.getName(), prod.provider, prod.syncPlanName, prod.lastSync, prod.gpgkey).replaceAll("\"", "");
+			Assert.assertTrue(getOutput(exec_result).replaceAll("\n", " ").matches(match_info), String.format("Product [%s] should be found in the result list", prod.getName()));
+		}
+		
+		//products that should not exist in list
+		for(KatelloProduct prod : excludeProducts) {
+			if (prod.syncPlanName == null) prod.syncPlanName = "None";
+			if (prod.lastSync == null) prod.lastSync = "never";
+			if (prod.gpgkey == null) prod.gpgkey = "";
+			
+			String match_info = String.format(KatelloProduct.REG_PROD_LIST, prod.getName(), prod.provider, prod.syncPlanName, prod.lastSync, prod.gpgkey).replaceAll("\"", "");
+			Assert.assertFalse(getOutput(exec_result).replaceAll("\n", " ").matches(match_info), String.format("Product [%s] should be found in the result list", prod.getName()));
+		}
+		
+	}
+	
 }
