@@ -51,6 +51,8 @@ public class KatelloProduct {
 	public static final String API_CMD_LIST = "/organizations/%s/products"; // by org
 	
 	public static final String REG_PROD_LIST = ".*Id:\\s+\\d+.*Name:\\s+%s.*Provider Id:\\s+\\d+.*Provider Name:\\s+%s.*Sync Plan Name:\\s+%s.*Last Sync:\\s+%s.*GPG key:\\s*%s.*";
+	public static final String REG_PROD_STATUS = ".*Id:\\s+\\d+.*Name:\\s+%s.*Provider Id:\\s+\\d+.*Provider Name:\\s+%s.*Last Sync:\\s+.*Sync State:\\s+%s.*";
+	public static final String REG_PROD_LASTSYNC = "\\d{4}/\\d{2}/\\d{2}\\s\\d{2}:\\d{2}:\\d{2}";
 	
 	// ** ** ** ** ** ** ** Class members
 	public String name;
@@ -59,6 +61,7 @@ public class KatelloProduct {
 	public String providerId;
 	public String syncPlanName;
 	public String lastSync;
+	public String syncState;
 	String description;
 	public String gpgkey;
 	String url;
