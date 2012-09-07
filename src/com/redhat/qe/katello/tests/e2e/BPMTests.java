@@ -141,7 +141,7 @@ public class BPMTests extends KatelloCliTestScript{
 		exec_result = cs.apply();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		String res[] = getOutput(exec_result).trim().split("\\[40\\D");
-		Assert.assertEquals(res[res.length-1], "Changeset [ "+changeset_name+" ] promoted");
+		Assert.assertTrue(res[res.length-1].equals(String.format(KatelloChangeset.OUT_APPLIED,changeset_name)));
 	}
 	
 	@Test(description="From both a RH and Fedora machine, register the machine using subscription manager.",

@@ -79,7 +79,7 @@ public class SystemsReport extends KatelloCliTestScript{
 		cs.update_addProduct(KatelloProduct.RHEL_SERVER);
 		res = cs.apply();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset promote)");
-		Assert.assertTrue(getOutput(res).endsWith("promoted"),"Message - (changeset promote)");
+		Assert.assertTrue(getOutput(res).endsWith("applied"),"Message - (changeset promote)");
 		
 		env = new KatelloEnvironment(this.env_test, null, this.org, this.env_dev);
 		env.cli_create();
@@ -88,7 +88,7 @@ public class SystemsReport extends KatelloCliTestScript{
 		cs.update_addProduct(KatelloProduct.RHEL_SERVER);
 		res = cs.apply();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset promote)");
-		Assert.assertTrue(getOutput(res).endsWith("promoted"),"Message - (changeset promote)");		
+		Assert.assertTrue(getOutput(res).endsWith("applied"),"Message - (changeset promote)");		
 	}
 	
 	@Test(description="Add 2 system to env: Dev and 1 systems to: Test", dependsOnMethods={"test_promoteToEnvs"}, enabled=true)
