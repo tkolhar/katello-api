@@ -140,8 +140,7 @@ public class BPMTests extends KatelloCliTestScript{
 		// Changeset promote:
 		exec_result = cs.apply();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
-		String res[] = getOutput(exec_result).trim().split("\\[40\\D");
-		Assert.assertTrue(res[res.length-1].equals(String.format(KatelloChangeset.OUT_APPLIED,changeset_name)));
+		Assert.assertTrue(getOutput(exec_result).endsWith("applied"));
 	}
 	
 	@Test(description="From both a RH and Fedora machine, register the machine using subscription manager.",
@@ -158,7 +157,7 @@ public class BPMTests extends KatelloCliTestScript{
 	@Test(description="List available subscriptions", dependsOnMethods={"test_rhsm_register"})
 	public void test_rhsm_listAvailableSubscriptions(){
 		// ProductName
-		exec_result = KatelloUtils.sshOnClient("subscription-manager list --available | grep -E \"SubscriptionName:|Subscription Name:\"");
+		exec_result = KatelloUtils.sshOnClient("subscription-manager list --available | grep -E \"Product Name:\"");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(product_name), "Check - subscription.ProductName");
 		// Quantity
@@ -167,7 +166,7 @@ public class BPMTests extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(exec_result).contains("unlimited"), "Check - subscription.Quantity");
 		
 		// Store poolid
-		exec_result = KatelloUtils.sshOnClient("subscription-manager list --available | grep -E \"PoolId:|Pool Id:\"");
+		exec_result = KatelloUtils.sshOnClient("subscription-manager list --available | grep -E \"Pool Id:\"");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		rhsm_pool_id = getOutput(exec_result).trim().split(":")[1].trim();
 		log.fine(String.format("Subscription is available for product: [%s] with poolid: [%s]",
