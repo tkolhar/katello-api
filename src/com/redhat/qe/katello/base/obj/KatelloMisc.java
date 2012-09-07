@@ -36,8 +36,8 @@ public class KatelloMisc {
 		SSHCommandResult exec_result = KatelloUtils.sshOnClient("subscription-manager list --available --all | sed  -e 's/^ \\{1,\\}//'");
 		
 		String match_info = null;
-		
-		if (KatelloConstants.KATELLO_PRODUCT == "katello") {
+		//Here it is used regular expression to get exact subscription from the list of subscriptions. As there can be several of them by the same name, the difference is used the quantity attribute.
+		if (KatelloConstants.KATELLO_PRODUCT.equals("katello")) {
 			match_info = String.format(KatelloSystem.REG_SUBSCRIPTION, subscriptionName, String.valueOf(quantity)).replaceAll("\"", "");
 		} else {
 			match_info = String.format(KatelloSystem.REG_SUBSCRIPTION_CFSE, subscriptionName, String.valueOf(quantity)).replaceAll("\"", "");
@@ -48,6 +48,7 @@ public class KatelloMisc {
 		Assert.assertTrue(matcher.find(), "Check - Subscription should exist in subscription manager list");
 		String subscription = matcher.group();
 		
+		//From subscription info with all attributes, filter only the Pool Id.
 		match_info = KatelloSystem.REG_POOL_ID;
 		pattern = Pattern.compile(match_info);
 		matcher = pattern.matcher(subscription);
