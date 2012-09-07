@@ -7,6 +7,7 @@ import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
@@ -230,9 +231,67 @@ public class ProviderTests extends KatelloCliTestScript{
 				String.format("Provider [%s] should be found in the result of product info for: [%s]",provName_1,prodName));		
 	}
 	
-	//@Test
-	public void test_deleteProvider_withRepos(){
-		// TODO - to be implemented.
+	@Test(description="Delete provider which contains repos, one of them is promoted", groups = {"cli-providers"},enabled=true)
+	public void test_deleteProvider_withRepos() {
+		
+		String uid = KatelloUtils.getUniqueID();
+		String provName = "withRepos-"+uid;
+		String prodName1 = "prod1-"+KatelloUtils.getUniqueID();
+		String prodName2 = "prod2-"+KatelloUtils.getUniqueID();
+		String envName1 = "env1-" + KatelloUtils.getUniqueID();
+		String repoName1 = "repo1-"+ uid;
+		String repoName2 = "repo2-"+ uid;
+		
+		// Create provider, product
+		KatelloProvider prov = new KatelloProvider(provName, this.org_name, null, null);
+		SSHCommandResult res = prov.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+
+		// create product
+		KatelloProduct prod1 = new KatelloProduct(prodName1, this.org_name, provName, null, null, PULP_F15_i386_REPO, null, true);
+		res = prod1.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
+		
+		// Create repo - valid url to sync
+		KatelloRepo repo1 = new KatelloRepo(repoName1, this.org_name, prodName1, PULP_F15_x86_64_REPO, null, null);
+		repo1.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		
+		// sync product
+		res = prod1.synchronize();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product synchronize)");
+
+		// create env.
+		KatelloEnvironment env1 = new KatelloEnvironment(envName1, null, this.org_name, KatelloEnvironment.LIBRARY);
+		res = env1.cli_create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (environment create)");
+		
+		// sync product (otherwise promote will fail)
+		res = prod1.synchronize();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product synchronize)");
+		
+		// promote product to the env.
+		res = prod1.promote(envName1);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product promote)");
+		prod1.syncState = "Finished";
+
+		KatelloProduct prod2 = new KatelloProduct(prodName2, this.org_name, provName, REPO_INECAS_ZOO3, null, null, null, true);
+		res = prod2.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
+
+		// Create repo - valid url to sync
+		KatelloRepo repo2 = new KatelloRepo(repoName2, this.org_name, prodName2, REPO_INECAS_ZOO3, null, null);
+		res = repo2.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		
+		res = repo2.synchronize();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		
+		res = prov.delete();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		Assert.assertTrue(getOutput(res).contains("Deleted provider [ "+provName+" ]"),"Check - returned success string");
+		
+		this.assert_providerRemoved(prov);		
 	}
 	
 	@Test(description="List / Info providers - no description, no url", groups = {"cli-providers"},enabled=true)
@@ -423,7 +482,62 @@ public class ProviderTests extends KatelloCliTestScript{
 				String.format("Provider [%s] should be found in the info",KatelloProvider.PROVIDER_REDHAT));
 	}
 	
-	
-	// Update - TODO for custom provider.
-	
+	@Test(description="Try to update custom provider - url", groups = {"cli-providers"}, enabled=true)
+	public void test_updateProvider_url() {
+		SSHCommandResult res;
+		String uid = KatelloUtils.getUniqueID();
+		String provName = "prov-"+uid;
+		String match_info;
+		
+		// Create provider
+		KatelloProvider prov = new KatelloProvider(provName, this.org_name, null, null);
+		res = prov.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		
+		res = prov.update(null, REPO_INECAS_ZOO3, null);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (provider update)");
+		Assert.assertTrue(getOutput(res).contains(String.format(KatelloProvider.OUT_UPDATE, provName)), 
+				"Check - returned error string (provider update)");
+		// Info
+		res = prov.info();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		String REGEXP_PROVIDER_LIST = ".*Id:\\s+\\d+.*Name:\\s+%s.*Type:\\s+.*Url:\\s+%s.*";
+		match_info = String.format(REGEXP_PROVIDER_LIST, provName, REPO_INECAS_ZOO3).replaceAll("\"", "");
+		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info), 
+				String.format("Provider [%s] should be found in the info", provName));
+		
+		// Sync provider
+		res = prov.synchronize();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		Assert.assertTrue(getOutput(res).contains(String.format(KatelloProvider.OUT_SYNCHRONIZE, provName)), "Check - returned output string");
+	}
+
+	@Test(description="Try to update custom provider - name", groups = {"cli-providers"}, enabled=true)
+	public void test_updateProviderName() {
+		SSHCommandResult res;
+		String uid = KatelloUtils.getUniqueID();
+		String provName = "prov-"+uid;
+		String match_info;
+		
+		// Create provider
+		KatelloProvider prov = new KatelloProvider(provName, this.org_name, null, null);
+		res = prov.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		
+		String new_name = "newprov-" + uid;
+		
+		res = prov.update(new_name, null, null);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (provider update)");
+		Assert.assertTrue(getOutput(res).contains(String.format(KatelloProvider.OUT_UPDATE, new_name)), 
+				"Check - returned error string (provider update)");
+		
+		prov.name = new_name;
+		// Info
+		res = prov.info();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		String REGEXP_PROVIDER_LIST = ".*Id:\\s+\\d+.*Name:\\s+%s.*Type:\\s+.*Url:\\s+%s.*";
+		match_info = String.format(REGEXP_PROVIDER_LIST, new_name, "None").replaceAll("\"", "");
+		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info), 
+				String.format("Provider [%s] should be found in the info", new_name));
+	}
 }
