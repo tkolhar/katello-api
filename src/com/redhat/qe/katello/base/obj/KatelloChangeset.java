@@ -26,6 +26,8 @@ public class KatelloChangeset {
 			"Could not find changeset [ %s ] within environment [ %s ]";
 	public static final String OUT_UPDATE =
 			"Successfully updated changeset [ %s ]";
+	public static final String OUT_APPLIED = 
+			"Changeset [ %s ] applied";
 	
 	public static final String REG_CHST_INFO = ".*Id:\\s+\\d+.*Name:\\s+%s.*Description:\\s+%s.*State:\\s+%s.*Environment Name:\\s+%s.*";
 	public static final String REG_CHST_ID = "Id:\\s+\\d+\\s+Name:";
