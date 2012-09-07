@@ -105,10 +105,8 @@ public class PackagesWithGPGKey extends KatelloCliTestScript{
 		
 		log.info("E2E - Subscribe client system");
 		KatelloUtils.sshOnClient("subscription-manager clean");
-		res = KatelloUtils.sshOnClient(String.format(
-					"subscription-manager register --username admin --password admin" +
-					" --org \"%s\" --environment \"%s\" --name \"%s\"",
-					this.org, this.env, this.system));
+		KatelloSystem sys = new KatelloSystem(this.system, this.org, this.env);
+		res = sys.rhsm_register();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (rhsm register)");
 		
 		KatelloOrg org = new KatelloOrg(this.org, null);
