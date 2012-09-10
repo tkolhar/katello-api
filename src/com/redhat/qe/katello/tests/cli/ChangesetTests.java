@@ -71,11 +71,17 @@ public class ChangesetTests extends KatelloCliTestScript{
 		exec_result = env.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (env create)");
 		
+		// promote product to the env.
+		exec_result = prod.promote(env_name);
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (product promote)");
+				
 		KatelloTemplate tpl = new KatelloTemplate(templ_name, null, org_name, null);
 		exec_result = tpl.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloTemplate.OUT_CREATE, templ_name)), "Check - output string (template create)");
 
+		exec_result = repo.synchronize();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
 	
 	@Test(description = "Create changeset", groups = { "cli-changeset" })
@@ -242,7 +248,7 @@ public class ChangesetTests extends KatelloCliTestScript{
 		Matcher matcher = pattern.matcher(getOutput(exec_result).replaceAll("\n", " "));
 		Assert.assertTrue(matcher.find(), "Check - Template should exist in changeset info");
 	}
-
+	
 	@Test(description = "Create changeset, add template to changeset, then remove template", groups = { "cli-changeset" })
 	public void test_updateChangesetRemoveTemplate() {
 		KatelloChangeset chst = createChangeset();
@@ -260,6 +266,21 @@ public class ChangesetTests extends KatelloCliTestScript{
 		Pattern pattern = Pattern.compile(match_info);
 		Matcher matcher = pattern.matcher(getOutput(exec_result).replaceAll("\n", " "));
 		Assert.assertFalse(matcher.find(), "Check - Template should not exist in changeset info");
+	}
+	
+	@Test(description = "Create changeset, than add package to changeset", groups = { "cli-changeset" })
+	public void test_updateChangesetAddPackage() {
+		KatelloChangeset chst = createChangeset();
+		
+		exec_result = chst.update_add_package(product_name, "lion");
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloChangeset.OUT_UPDATE, chst_name)), "Check - output string (changeset update)");
+		
+		exec_result = chst.apply();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		chst.state = "promoted";
+		assert_changesetInfo(chst);
 	}
 	
 	private KatelloChangeset createChangeset() {
