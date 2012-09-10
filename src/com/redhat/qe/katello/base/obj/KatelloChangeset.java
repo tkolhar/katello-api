@@ -152,6 +152,7 @@ public class KatelloChangeset {
 		opts.add(new Attribute("from_product", productName));
 		opts.add(new Attribute("add_package", pkg));
 		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("environment", environment));
 		opts.add(new Attribute("name", name));
 		cli = new KatelloCli(CMD_UPDATE, opts);
 		return cli.run();
