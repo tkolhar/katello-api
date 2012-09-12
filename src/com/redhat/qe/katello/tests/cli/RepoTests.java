@@ -321,7 +321,7 @@ public class RepoTests extends KatelloCliTestScript {
 		res = repo.status();
 
 		String match_info = String.format(KatelloRepo.REG_REPO_STATUS, repo.lastSync, repo.progress).replaceAll("\"", "");
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 		log.finest(String.format("Repo (status) match regex: [%s]", match_info));
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info), String.format("Repo [%s] should be found in the result", repo.name));
 
