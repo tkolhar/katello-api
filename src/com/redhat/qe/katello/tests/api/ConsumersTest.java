@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import com.google.inject.Inject;
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloApiException;
 import com.redhat.qe.katello.base.KatelloTestScript;
@@ -19,7 +20,7 @@ import com.redhat.qe.katello.common.KatelloUtils;
 
 @Test(groups={"cfse-api"})
 public class ConsumersTest extends KatelloTestScript {
-    protected static Logger log = Logger.getLogger(ConsumersTest.class.getName());
+    @Inject Logger log;
 
 	private String consumer_id = null;
 	private String consumer_name = null;
@@ -73,7 +74,7 @@ public class ConsumersTest extends KatelloTestScript {
 		Assert.assertEquals("/consumers/"+consumer_id, consumer.getHref(),"Check returned: href");
 		Assert.assertEquals(consumer_name, consumer.getName(),"Check returned: name");
 		Assert.assertEquals(consumer_name, consumer.getFacts().get("network.hostname"),"Check returned: facts.network.hostname");
-		Assert.assertNotNull(consumer.getIdCert().get("id"), "Check returned: idCert.id");
+		Assert.assertNotNull(consumer.getIdCert().getId(), "Check returned: idCert.id");
 	}
 	
 	@Test( groups = {"testConsumers"}, description = "Update consumer details" , dependsOnMethods = {"test_createConsumer"})
@@ -111,7 +112,7 @@ public class ConsumersTest extends KatelloTestScript {
         } catch (KatelloApiException e) {
             Assert.fail("Could not delete consumer", e);
         }
-        Assert.assertTrue(ret.trim().isEmpty(), "Check returned string (empty)");
+        Assert.assertTrue(ret == null || ret.trim().isEmpty(), "Check returned string (empty)");
 		
 		try {
 		    servertasks.getConsumer(cid);
@@ -166,7 +167,7 @@ public class ConsumersTest extends KatelloTestScript {
         }
 		List<KatelloEntitlement> entitlements = null;
         try {
-            entitlements = servertasks.subscribeConsumer(consumer_id, pool_id);
+            entitlements = servertasks.subscribeConsumerWithPool(consumer_id, pool_id);
         } catch (KatelloApiException e) {
             Assert.fail("Could not subscribe consumer", e);
         }
@@ -189,7 +190,7 @@ public class ConsumersTest extends KatelloTestScript {
             e1.printStackTrace();
         }
         try {
-            servertasks.subscribeConsumer(consumer_id, pool_id);
+            servertasks.subscribeConsumerWithPool(consumer_id, pool_id);
         } catch (KatelloApiException e) {
             Assert.assertEquals(e.getMessage(), "{\"displayMessage\":\"" +
                     "This consumer is already subscribed to the product matching pool " +
@@ -218,7 +219,7 @@ public class ConsumersTest extends KatelloTestScript {
         }
 		List<Long> serials = null;
 		try {
-            servertasks.subscribeConsumer(cid, pool_id);
+            servertasks.subscribeConsumerWithPool(cid, pool_id);
             serials = servertasks.getSerials(cid);
         } catch (KatelloApiException e) {
             Assert.fail("API operation failed", e);
@@ -259,7 +260,7 @@ public class ConsumersTest extends KatelloTestScript {
 		for ( KatelloPool pool : pools ) {
 		    if ( pool.getOwner().getDisplayName().equals(org_name)) {
 		        try {
-		            servertasks.subscribeConsumer(consumer_id,  pool.getId());
+		            servertasks.subscribeConsumerWithPool(consumer_id,  pool.getId());
 		        } catch (KatelloApiException ex){} // we don't care if some subscriptions would fail
 		    }
 		}
