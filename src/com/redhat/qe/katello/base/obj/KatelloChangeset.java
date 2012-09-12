@@ -45,14 +45,20 @@ public class KatelloChangeset {
 	public String description;
 	public String environment;
 	public String state;
+	private boolean isDeletion;
 	
 	private KatelloCli cli;
 	private ArrayList<Attribute> opts;
 
 	public KatelloChangeset(String pName, String pOrg, String pEnv){
+		this(pName, pOrg, pEnv, false);
+	}
+
+	public KatelloChangeset(String pName, String pOrg, String pEnv, boolean pisDeletion){
 		this.name = pName;
 		this.org = pOrg;
 		this.environment = pEnv;
+		this.isDeletion = pisDeletion; 
 		this.opts = new ArrayList<Attribute>();
 	}
 	
@@ -65,6 +71,9 @@ public class KatelloChangeset {
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("environment", environment));
+		if (this.isDeletion) {
+			opts.add(new Attribute("deletion", "true"));
+		}
 		if (user == null) {
 			cli = new KatelloCli(CMD_CREATE, opts);
 		} else {
