@@ -29,9 +29,6 @@ public class ChangesetRepoDelete extends KatelloCliTestScript {
 	private String provider_name;
 	private String product_name;
 	private String repo_name;
-	private String provider_name2;
-	private String product_name2;
-	private String repo_name2;
 	private String chst_name;
 	private String delchst_name;
 	private String readdchst_name;
@@ -114,15 +111,11 @@ public class ChangesetRepoDelete extends KatelloCliTestScript {
 	private void setupRepos() {
 		
 		String uid = KatelloUtils.getUniqueID();
-		String uid2 = KatelloUtils.getUniqueID();
 		
 		env_name = "env"+uid;
 		provider_name = "provider"+uid;
 		product_name = "product"+uid;
 		repo_name = "repo"+uid;
-		provider_name2 = "provider"+uid2;
-		product_name2 = "product"+uid2;
-		repo_name2 = "repo"+uid2;
 		chst_name = "MötleyCrüechangeset"+uid;		
 		delchst_name = "我喜欢吃饺子deletion_chst" +uid;
 		system_name = "system" +uid;
@@ -142,21 +135,6 @@ public class ChangesetRepoDelete extends KatelloCliTestScript {
 		exec_result = repo.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		// Create second provider:
-		KatelloProvider prov2 = new KatelloProvider(provider_name2, org_name, "Package provider", null);
-		exec_result = prov2.create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		// Create second product:
-		KatelloProduct prod2 = new KatelloProduct(product_name2, org_name, provider_name2, null, null, null, null, null);
-		exec_result = prod2.create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-	
-		// Create second repo
-		KatelloRepo repo2 = new KatelloRepo(repo_name2, org_name, product_name2, PULP_F15_x86_64_REPO, null, null);
-		exec_result = repo2.create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
 		KatelloEnvironment env = new KatelloEnvironment(env_name, null, org_name, KatelloEnvironment.LIBRARY);
 		exec_result = env.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (env create)");
@@ -167,13 +145,6 @@ public class ChangesetRepoDelete extends KatelloCliTestScript {
 				
 		exec_result = repo.synchronize();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-
-		// promote second product to the env.
-		exec_result = prod2.promote(env_name);
-		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (product promote)");
-				
-		exec_result = repo2.synchronize();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		// create Changeset
 		KatelloChangeset cs = new KatelloChangeset(chst_name, org_name, env_name);
@@ -182,10 +153,7 @@ public class ChangesetRepoDelete extends KatelloCliTestScript {
 		
 		exec_result = cs.update_fromProduct_addRepo(product_name, repo_name);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset update)");
-		
-		exec_result = cs.update_fromProduct_addRepo(product_name2, repo_name2);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset update)");
-		
+
 		exec_result = cs.apply();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset apply)");
 		
@@ -199,12 +167,6 @@ public class ChangesetRepoDelete extends KatelloCliTestScript {
 		String poolId1 = KatelloCli.grepCLIOutput("Id", getOutput(exec_result).trim(),1);
 		
 		exec_result = sys.rhsm_subscribe(poolId1);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		exec_result = sys.subscriptions_available();
-		String poolId2 = KatelloCli.grepCLIOutput("Id", getOutput(exec_result).trim(),1);
-		
-		exec_result = sys.rhsm_subscribe(poolId2);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		yum_clean();
