@@ -25,20 +25,16 @@ public abstract class KatelloTestScript
 	
 	private SimpleDateFormat dateFormatter = null;
 	
-	public static String default_org = null;
+	private static String default_org = null;
 	
 	public KatelloTestScript() {
 		super();
 		try {
 			dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-			if(default_org ==null)
-				setup_defaultOrg();
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-		} catch (KatelloApiException e) {
-            e.printStackTrace();
-        }
+		}
 	}
 	
 	public Date parseKatelloDate(String strDate) throws java.text.ParseException{
@@ -87,14 +83,16 @@ public abstract class KatelloTestScript
 //	protected String getOutput(SSHCommandResult res){
 //		return KatelloCliTestScript.sgetOutput(res);
 //	}
-	
-	private void setup_defaultOrg() throws KatelloApiException {
-	    List<KatelloOrg> orgs = servertasks.getOrganizations();
-	    for ( KatelloOrg org : orgs ) {
-	        if ( org.getId().longValue() == 1 ) {
-	            default_org = org.getName();
-	            break;
-	        }
+
+	public String getDefaultOrg() throws KatelloApiException {
+	    if(default_org == null){ 
+			List<KatelloOrg> orgs = servertasks.getOrganizations();
+		    for ( KatelloOrg org : orgs ) {
+		        if ( org.getId().longValue() == 1 ) {
+		            default_org = org.getName();
+		        }
+		    }	
 	    }
+	    return default_org;
 	}
 }
