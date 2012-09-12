@@ -29,9 +29,17 @@ public class ProvidersTest extends KatelloTestScript {
 	private String org_name;
 	private String provider_name;
 
+	public ProvidersTest(){
+		super();
+	}
 	@BeforeClass(description="Prepare an organization to work with")
 	public void setUp_createOrg(){
-		this.org_name = default_org;
+		try {
+			this.org_name = getDefaultOrg();
+		} catch (KatelloApiException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Test(groups = { "testProviders" }, description = "Create provider")
