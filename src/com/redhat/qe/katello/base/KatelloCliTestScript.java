@@ -167,6 +167,11 @@ implements KatelloConstants {
 		return KatelloUtils.sshOnClient("subscription-manager clean");
 	}
 	
+	protected void yum_clean() {
+		KatelloUtils.sshOnClient("yum clean all");
+		KatelloUtils.sshOnClient("yum repolist");
+	}
+	
 	// TODO - DUPE?
 	protected SSHCommandResult rhsm_register(String org, String environment, String name, boolean autosubscribe){
 		log.info("Registering client with: --org \""+org+"\" --environment \""+environment+"\" " +
