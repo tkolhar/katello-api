@@ -11,13 +11,11 @@ import java.util.logging.Logger;
 import javax.activation.DataSource;
 import javax.activation.FileDataSource;
 
-import org.jboss.resteasy.client.ClientExecutor;
 import org.jboss.resteasy.client.ClientResponse;
-import org.jboss.resteasy.client.ProxyFactory;
 import org.jboss.resteasy.plugins.providers.RegisterBuiltin;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 
-import com.redhat.qe.katello.base.KatelloApi;
+import com.google.inject.Inject;
 import com.redhat.qe.katello.base.KatelloApiException;
 import com.redhat.qe.katello.base.obj.KatelloEntitlement;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
@@ -45,35 +43,36 @@ import com.redhat.qe.katello.tasks.KatelloTasks;
  *
  */
 public class KatelloApiTasks implements KatelloTasks {
-	protected static Logger log = Logger.getLogger(KatelloApiTasks.class.getName());
-	private ClientExecutor executor;
-	private OrganizationResource orgResource;
-	private ProviderResource providerResource;
-	private RepositoryResource repositoryResource;
-	private ConsumerResource consumerResource;
-	private UserResource userResource;
-	private PoolResource poolResource;
-	private SystemResource systemResource;
-	
+	@Inject protected Logger log;
+	final private OrganizationResource orgResource;
+	final private ProviderResource providerResource;
+	final private RepositoryResource repositoryResource;
+	final private ConsumerResource consumerResource;
+	final private UserResource userResource;
+	final private PoolResource poolResource;
+	final private SystemResource systemResource;
+	 
 	static {
         // this initialization only needs to be done once per VM
-        RegisterBuiltin.register(ResteasyProviderFactory.getInstance());	            
+	    ResteasyProviderFactory instance = ResteasyProviderFactory.getInstance();	    
+        RegisterBuiltin.register(instance);        
 	}
 	
-	public KatelloApiTasks() {
-        executor = KatelloApi.createExecutor();
-        String protocol = System.getProperty("katello.server.protocol", "https");
-        String hostname = System.getProperty("katello.server.hostname", "localhost");
-        int port = Integer.valueOf(System.getProperty("katello.server.port", "443"));
-        String product = System.getProperty("katello.product", "katello");        
-        String url = String.format("%s://%s:%d/%s/api", protocol, hostname, port, product);
-        orgResource = ProxyFactory.create(OrganizationResource.class, url, executor);
-        providerResource = ProxyFactory.create(ProviderResource.class, url, executor);
-        repositoryResource = ProxyFactory.create(RepositoryResource.class, url, executor);
-        consumerResource = ProxyFactory.create(ConsumerResource.class, url, executor);
-        userResource = ProxyFactory.create(UserResource.class, url, executor);
-        poolResource = ProxyFactory.create(PoolResource.class, url, executor);
-        systemResource = ProxyFactory.create(SystemResource.class, url, executor);
+	@Inject
+	KatelloApiTasks(OrganizationResource orgResource,
+	                       ProviderResource providerResource,
+	                       RepositoryResource repositoryResource,
+	                       ConsumerResource consumerResource,
+	                       UserResource userResource,
+	                       PoolResource poolResource,
+	                       SystemResource systemResource) {
+        this.orgResource = orgResource;
+        this.providerResource = providerResource;
+        this.repositoryResource = repositoryResource;
+        this.consumerResource = consumerResource;
+        this.userResource = userResource;
+        this.poolResource = poolResource;
+        this.systemResource = systemResource;
 	}
 //	private ExecCommands localCommandRunner = null;
 // # ************************************************************************* #
@@ -170,7 +169,7 @@ public class KatelloApiTasks implements KatelloTasks {
     public KatelloSystem getConsumer(String consumer_id) throws KatelloApiException {
         ClientResponse<KatelloSystem> _return = null;
         _return = consumerResource.get(consumer_id);
-        if ( _return.getStatus() > 299 ) throw new KatelloApiException(_return);        
+        if ( _return.getStatus() > 299 ) throw new KatelloApiException(_return);
         return _return.getEntity();
     }
 
@@ -300,7 +299,7 @@ public class KatelloApiTasks implements KatelloTasks {
         _return = orgResource.createEnvironment(orgKey, env);
         if ( _return.getStatus() > 299 ) throw new KatelloApiException(_return);
         log.info(String.format("Create environment with: name=[%s]; description=[%s]; org=[%s]", env_name, env_descr, orgKey));
-        return null;
+        return _return.getEntity();
     }
 
 	/* (non-Javadoc)
@@ -434,13 +433,22 @@ public class KatelloApiTasks implements KatelloTasks {
 		return null;
 	}
 	
+	@Override
+	public String subscribeConsumer(String consumerId) throws KatelloApiException {
+	    ClientResponse<String> _return = null;
+	    _return = consumerResource.subscribe(consumerId);
+	    if ( _return.getStatus() > 299 ) throw new KatelloApiException(_return);
+	    log.info(String.format("Subscribing consumer: [%s]", consumerId));
+	    return _return.getEntity();
+	}
+	
 	/* (non-Javadoc)
      * @see com.redhat.qe.katello.tasks.IKatelloTasks#subscribeConsumer(java.lang.String, java.lang.String)
      */
 	@Override
-    public List<KatelloEntitlement> subscribeConsumer(String consumerId, String poolId) throws KatelloApiException {
+    public List<KatelloEntitlement> subscribeConsumerWithPool(String consumerId, String poolId) throws KatelloApiException {
 		ClientResponse<List<KatelloEntitlement>> _return = null;
-		_return = consumerResource.subscribe(consumerId, poolId);
+		_return = consumerResource.subscribeWithPool(consumerId, poolId);
 		if ( _return.getStatus() > 299 ) throw new KatelloApiException(_return);		
 		log.info(String.format("Subscribing consumer: [%s] to the pool: [%s]", consumerId,poolId));
 		return _return.getEntity();

@@ -84,7 +84,9 @@ public interface KatelloTasks {
     public KatelloProduct getProductByOrg(String orgName, String productName)
             throws KatelloApiException;
 
-    public List<KatelloEntitlement> subscribeConsumer(String consumerId,
+    public String subscribeConsumer(String consumerId) throws KatelloApiException;
+    
+    public List<KatelloEntitlement> subscribeConsumerWithPool(String consumerId,
             String poolId) throws KatelloApiException;
 
     public KatelloSystem subscribeConsumerViaSystem(String consumerId,
