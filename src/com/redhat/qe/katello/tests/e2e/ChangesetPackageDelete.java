@@ -11,6 +11,7 @@ import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
+import com.redhat.qe.katello.base.obj.KatelloPackage;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
@@ -19,9 +20,9 @@ import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups={"cfse-e2e"})
-public class ChangesetRepoDelete extends KatelloCliTestScript {
+public class ChangesetPackageDelete extends KatelloCliTestScript {
 	
-	protected static Logger log = Logger.getLogger(ChangesetRepoDelete.class.getName());
+	protected static Logger log = Logger.getLogger(ChangesetPackageDelete.class.getName());
 	
 	private String org_name;
 	private String env_name;
@@ -32,6 +33,7 @@ public class ChangesetRepoDelete extends KatelloCliTestScript {
 	private String chst_name;
 	private String delchst_name;
 	private String readdchst_name;
+	private String package_name1 = "lion";
 	
 	SSHCommandResult exec_result;
 	
@@ -48,70 +50,72 @@ public class ChangesetRepoDelete extends KatelloCliTestScript {
 	}
 	
 	@Test(description = "Create changeset of deletion type," +
-			" then add already rpomoted repo to changeset and promote it," +
-			" verify that repo does not exist in environment anymore")
-	public void test_deletionChangesetRemoveRepo() {
+			" then add already promoted packages to changeset and promote it," +
+			" verify that packages does not exist in environment anymore")
+	public void test_deletionChangesetRemovePackages() {
 		setupRepos();
+		KatelloUtils.sshOnClient("yum -y erase " + package_name1);
 		
-		KatelloRepo repo = new KatelloRepo(null, org_name, null, null, null, null);
-		exec_result = repo.list(env_name);
+		KatelloPackage package1 = new KatelloPackage(null, null, org_name, product_name, repo_name, env_name);
+		exec_result = package1.cli_list();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).contains(repo_name));
+		Assert.assertTrue(getOutput(exec_result).contains(package_name1));
 		
 		KatelloChangeset chst = new KatelloChangeset(delchst_name, org_name, env_name, true);
 		exec_result = chst.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset create)");
 		
-		exec_result = chst.update_fromProduct_addRepo(product_name, repo_name);
+		exec_result = chst.update_add_package(product_name, package_name1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset update)");
 		
 		exec_result = chst.apply();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset apply)");		
-		
-		exec_result = repo.list(env_name);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertFalse(getOutput(exec_result).contains(repo_name));
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset apply)");			
 
+		exec_result = package1.cli_list();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertFalse(getOutput(exec_result).contains(package_name1));
+		
 		yum_clean();
 		
 		// verify that package is not available to install
-		exec_result = KatelloUtils.sshOnClient("yum -y install lion");
-		Assert.assertFalse(exec_result.getExitCode().intValue()==0, "Check - return code (install lion)");
+		exec_result = KatelloUtils.sshOnClient("yum -y install " + package_name1);
+		Assert.assertFalse(exec_result.getExitCode().intValue()==0, "Check - return code (install package)");
 	}
 
 	@Test(description = "Create changeset of promotion type," +
-			" then add already reomved repo to changeset and promote it," +
-			" verify that repo exist in environment", dependsOnMethods = {"test_deletionChangesetRemoveRepo"})
-	public void test_promoteChangesetReAddRepo() {
+			" then add already reomved packages to changeset and promote it," +
+			" verify that packages exist in environment", dependsOnMethods = {"test_deletionChangesetRemovePackages"})
+	public void test_promoteChangesetReAddPackages() {
 		
-		KatelloRepo repo = new KatelloRepo(null, org_name, null, null, null, null);		
+		KatelloPackage package1 = new KatelloPackage(null, null, org_name, product_name, repo_name, env_name);
 		
 		KatelloChangeset chst = new KatelloChangeset(readdchst_name, org_name, env_name);
 		exec_result = chst.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset create)");
 		
-		exec_result = chst.update_fromProduct_addRepo(product_name, repo_name);
+		exec_result = chst.update_add_package(product_name, package_name1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset update)");
 		
 		exec_result = chst.apply();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset apply)");		
-		
-		exec_result = repo.list(env_name);
+
+		exec_result = package1.cli_list();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).contains(repo_name));
+		Assert.assertTrue(getOutput(exec_result).contains(package_name1));
 
 		yum_clean();
-		KatelloUtils.sshOnClient("yum -y erase lion wolf");
 		
-		// verify that package is not available to install
-		exec_result = KatelloUtils.sshOnClient("yum -y install lion");
-		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (install lion)");
+		KatelloUtils.sshOnClient("yum -y erase " + package_name1);
+		
+		// verify that package is available to install
+		exec_result = KatelloUtils.sshOnClient("yum -y install " + package_name1);
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (install package)");
 	}
 	
 	private void setupRepos() {
 		
 		String uid = KatelloUtils.getUniqueID();
-		
+
 		env_name = "env"+uid;
 		provider_name = "provider"+uid;
 		product_name = "product"+uid;
@@ -145,18 +149,20 @@ public class ChangesetRepoDelete extends KatelloCliTestScript {
 				
 		exec_result = repo.synchronize();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+
+		waitfor_reposync(repo, 1);
 		
 		// create Changeset
 		KatelloChangeset cs = new KatelloChangeset(chst_name, org_name, env_name);
 		exec_result = cs.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset create)");
 		
-		exec_result = cs.update_fromProduct_addRepo(product_name, repo_name);
+		exec_result = cs.update_add_package(product_name, package_name1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset update)");
-
+		
 		exec_result = cs.apply();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset apply)");
-		
+
 		rhsm_clean();
 		
 		KatelloSystem sys = new KatelloSystem(this.system_name, this.org_name, this.env_name);
