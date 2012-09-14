@@ -17,6 +17,8 @@ import com.redhat.qe.tools.SSHCommandRunner;
  */
 public class KatelloUtils {
 	private static Logger log = Logger.getLogger(KatelloUtils.class.getName());
+	private static Boolean isClientLocalhost = null;
+	private static Boolean isServerLocalhost = null;
 	
     public static void waitfor_katello(){
         sshOnServer("python -c \"from katello.utils import waitfor_katello; waitfor_katello()\"");
@@ -96,8 +98,18 @@ public class KatelloUtils {
 	 */
 	public static SSHCommandResult sshOnClient(String _cmd){
 		try{
-			String hostname = run_local("hostname");
-			if(hostname.equals(System.getProperty("katello.client.hostname", hostname))){
+			if(isClientLocalhost==null){
+				String hostname = run_local("hostname").trim();
+				log.finest(String.format(
+						"check if: [%s] == [%s] to run commands locally (client).",
+						hostname,System.getProperty("katello.client.hostname")));
+				if(hostname.equals(System.getProperty("katello.client.hostname")))
+					isClientLocalhost = true;
+				else
+					isClientLocalhost = false;
+			}
+			
+			if(isClientLocalhost){
 				return new SSHCommandResult(0, run_local(_cmd), "");
 			}else{
 				SSHCommandRunner ssh_client = new SSHCommandRunner(
@@ -109,6 +121,7 @@ public class KatelloUtils {
 			}
 		}catch(Throwable t){
 			log.warning("Warning: Could not initialize client's SSHCommandRunner.");
+			log.warning(t.getMessage());
 			t.printStackTrace();
 		}return null;
 	}
@@ -122,19 +135,30 @@ public class KatelloUtils {
 	 */
 	public static SSHCommandResult sshOnServer(String _cmd){
 		try{
-			String hostname = run_local("hostname");
-			if(hostname.equals(System.getProperty("katello.server.hostname", hostname))){
+			if(isServerLocalhost==null){
+				String hostname = run_local("hostname").trim();
+				log.finest(String.format(
+						"check if: [%s] == [%s] to run commands locally (server).",
+						hostname,System.getProperty("katello.server.hostname")));
+				if(hostname.equals(System.getProperty("katello.server.hostname")))
+					isServerLocalhost = true;
+				else
+					isServerLocalhost = false;
+			}
+			
+			if(isServerLocalhost){
 				return new SSHCommandResult(0, run_local(_cmd), "");
 			}else{
-				SSHCommandRunner ssh_server = new SSHCommandRunner(
+				SSHCommandRunner ssh_client = new SSHCommandRunner(
 						System.getProperty("katello.server.hostname", "localhost"), "root", 
 						System.getProperty("katello.server.ssh.passphrase", "secret"), 
 						System.getProperty("katello.server.sshkey.private", ".ssh/id_dsa"), 
 						System.getProperty("katello.server.sshkey.passphrase", "secret"), null);
-				return ssh_server.runCommandAndWait(_cmd);
+				return ssh_client.runCommandAndWait(_cmd);
 			}
 		}catch(Throwable t){
 			log.warning("Warning: Could not initialize server's SSHCommandRunner.");
+			log.warning(t.getMessage());
 			t.printStackTrace();
 		}return null;
 	}
