@@ -181,7 +181,7 @@ public class KatelloCliDataProvider {
 //				// description
 				{ "desc-specChars"+uid, "\\!@%^&*(<_-~+=//\\||,.>)", new Integer(0), "Successfully created user role [ desc-specChars"+uid+" ]"},
 				
-				{ "desc-256Chars"+uid, strRepeat("0123456789", 25)+"abcdef", new Integer(144), "Validation failed: Description cannot contain more than 255 characters"},
+				{ "desc-256Chars"+uid, strRepeat("0123456789", 25)+"abcdef", new Integer(144), "Validation failed: Description is too long (maximum is 250 characters)"},
 				// misc
 				{ "duplicate"+uid, null, new Integer(0), "Successfully created user role [ duplicate"+uid+" ]"},
  				
