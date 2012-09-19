@@ -96,19 +96,15 @@ public class KatelloUtils {
 	 */
 	public static SSHCommandResult sshOnClient(String _cmd){
 		try{
-			String hostname = run_local("hostname");
-			if(hostname.equals(System.getProperty("katello.client.hostname", hostname))){
-				return new SSHCommandResult(0, run_local(_cmd), "");
-			}else{
-				SSHCommandRunner ssh_client = new SSHCommandRunner(
-						System.getProperty("katello.client.hostname", "localhost"), "root", 
-						System.getProperty("katello.client.ssh.passphrase", "secret"), 
-						System.getProperty("katello.client.sshkey.private", ".ssh/id_dsa"), 
-						System.getProperty("katello.client.sshkey.passphrase", "secret"), null);
-				return ssh_client.runCommandAndWait(_cmd);
-			}
+			SSHCommandRunner ssh_client = new SSHCommandRunner(
+					System.getProperty("katello.client.hostname", "localhost"), "root", 
+					System.getProperty("katello.client.ssh.passphrase", "secret"), 
+					System.getProperty("katello.client.sshkey.private", ".ssh/id_dsa"), 
+					System.getProperty("katello.client.sshkey.passphrase", "secret"), null);
+			return ssh_client.runCommandAndWait(_cmd);
 		}catch(Throwable t){
 			log.warning("Warning: Could not initialize client's SSHCommandRunner.");
+			log.warning("Warning: "+t.getMessage());
 			t.printStackTrace();
 		}return null;
 	}
@@ -122,19 +118,15 @@ public class KatelloUtils {
 	 */
 	public static SSHCommandResult sshOnServer(String _cmd){
 		try{
-			String hostname = run_local("hostname");
-			if(hostname.equals(System.getProperty("katello.server.hostname", hostname))){
-				return new SSHCommandResult(0, run_local(_cmd), "");
-			}else{
-				SSHCommandRunner ssh_server = new SSHCommandRunner(
-						System.getProperty("katello.server.hostname", "localhost"), "root", 
-						System.getProperty("katello.server.ssh.passphrase", "secret"), 
-						System.getProperty("katello.server.sshkey.private", ".ssh/id_dsa"), 
-						System.getProperty("katello.server.sshkey.passphrase", "secret"), null);
-				return ssh_server.runCommandAndWait(_cmd);
-			}
+			SSHCommandRunner ssh_server = new SSHCommandRunner(
+					System.getProperty("katello.server.hostname", "localhost"), "root", 
+					System.getProperty("katello.server.ssh.passphrase", "secret"), 
+					System.getProperty("katello.server.sshkey.private", ".ssh/id_dsa"), 
+					System.getProperty("katello.server.sshkey.passphrase", "secret"), null);
+			return ssh_server.runCommandAndWait(_cmd);
 		}catch(Throwable t){
 			log.warning("Warning: Could not initialize server's SSHCommandRunner.");
+			log.warning("Warning: "+t.getMessage());
 			t.printStackTrace();
 		}return null;
 	}
