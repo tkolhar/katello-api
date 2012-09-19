@@ -14,6 +14,7 @@ import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
+import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.base.obj.KatelloUser;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
@@ -146,8 +147,8 @@ public class BPMTests extends KatelloCliTestScript{
 	@Test(description="From both a RH and Fedora machine, register the machine using subscription manager.",
 			dependsOnMethods={"test_createEnvPromoteContent"})
 	public void test_rhsm_register(){
-		exec_result = KatelloUtils.sshOnClient(String.format("subscription-manager register " +
-				"--username admin --password admin --org %s --environment %s --name %s",org_name, env_name_Dev, consumer_name));
+		KatelloSystem sys = new KatelloSystem(this.consumer_name, this.org_name, this.env_name_Dev);
+		exec_result = sys.rhsm_register(); 
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains("The system has been registered with id:"),"Check - returned message");
 		log.finest("Sleeping 3 sec. giving chance system to recognize the registration.");
