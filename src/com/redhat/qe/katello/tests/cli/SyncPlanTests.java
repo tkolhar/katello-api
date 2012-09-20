@@ -102,8 +102,6 @@ public class SyncPlanTests extends KatelloCliTestScript {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		sp.name = newName;
-		// @ TODO remove this line when bug 837000 is fixed 
-		sp.interval = SyncPlanInterval.none.toString();
 		assert_syncplanInfo(sp);
 		
 		sp.name = oldName;
@@ -126,8 +124,6 @@ public class SyncPlanTests extends KatelloCliTestScript {
 
 		sp.date = dformat.format(cal.getTime());
 		sp.time = tformat.format(cal.getTime());
-		// @ TODO remove this line when bug 837000 is fixed
-		sp.interval = SyncPlanInterval.none.toString();
 		assert_syncplanInfo(sp);
 	}
 	
