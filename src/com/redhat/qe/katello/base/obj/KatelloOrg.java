@@ -34,9 +34,9 @@ public class KatelloOrg {
 	public static final String OUT_CREATE = 
 			"Successfully created org [ %s ]";
 	public static final String ERR_ORG_EXISTS = 
-			"Validation failed: Name has already been taken";
+			"Validation failed: Name has already been taken, Label has already been taken";
 	public static final String ERR_NAME_INVALID = 
-			"Validation failed: Cp key is invalid, Name cannot contain characters other than alpha numerals, space,'_', '-'.";
+			"Validation failed: Name cannot contain characters other than alpha numerals, space,'_', '-'.";
 	public static final String ERR_ORG_NOTFOUND = 
 			"Couldn't find organization '%s'";
 	
