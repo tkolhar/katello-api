@@ -46,7 +46,7 @@ public class RepoSyncByPlan extends KatelloCliTestScript{
 	
 	@Test(description="sync never synced repo by syncplan")
 	public void test_syncNotSyncedRepo() {
-		createZooReport();
+		createZooRepo();
 		
 		KatelloSyncPlan sp = createSyncPlan(new Date(), SyncPlanInterval.hourly);
 		KatelloPackage pack = new KatelloPackage(null, null, org_name, product_name, repo_name, null);
@@ -83,7 +83,7 @@ public class RepoSyncByPlan extends KatelloCliTestScript{
 	
 	@Test(description="sync local repo by sync plan when packages are added in repo")
 	public void test_syncLocalRepo() {
-		createLocalReport();
+		createLocalRepo();
 		
 		KatelloSyncPlan sp = createSyncPlan(new Date(), SyncPlanInterval.hourly);
 		KatelloPackage pack = new KatelloPackage(null, null, org_name, product_name, repo_name, null);
@@ -144,7 +144,7 @@ public class RepoSyncByPlan extends KatelloCliTestScript{
 		return sp;
 	}
 	
-	private void createZooReport() {
+	private void createZooRepo() {
 		uid = KatelloUtils.getUniqueID();
 		org_name = "org"+uid;
 		user_name = "user"+uid;
@@ -190,7 +190,7 @@ public class RepoSyncByPlan extends KatelloCliTestScript{
 	/**
 	 * Creates local repo which packages are from REPO_INECAS_ZOO3.
 	 */
-	private void createLocalReport() {
+	private void createLocalRepo() {
 		uid = KatelloUtils.getUniqueID();
 		org_name = "org"+uid;
 		user_name = "user"+uid;
@@ -202,7 +202,7 @@ public class RepoSyncByPlan extends KatelloCliTestScript{
 		repo_path = "/var/www/html/"+uid;
 		repo_url = "http://localhost/" + uid;
 		
-		KatelloUtils.sshOnServer("yum install createrepo");
+		KatelloUtils.sshOnServer("yum -y install createrepo");
 		KatelloUtils.sshOnServer("mkdir /tmp/"+uid);
 		KatelloUtils.sshOnServer("createrepo " + repo_path);
 		/**KatelloUtils.sshOnServer("touch /etc/yum.repos.d/" + uid + ".repo");
