@@ -517,7 +517,7 @@ public class KatelloApiTasks implements KatelloTasks {
         List<KatelloOrg> orgs = orgResource.list().getEntity();
         for ( KatelloOrg org : orgs ) {
             if (org.getId().equals(provider.getOrganizationId())) {
-                return deleteProvider(org.getCpKey(), provider);            
+            	return deleteProvider(org.name, provider);
             }
         }
         return "Could not delete provider";
