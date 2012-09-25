@@ -3,6 +3,7 @@ package com.redhat.qe.katello.tests.e2e;
 import java.io.File;
 import java.util.logging.Logger;
 
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -23,38 +24,43 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 	
 	protected static Logger log = Logger.getLogger(StackedSubscriptions.class.getName());
 	
-	private String org_name = "Org-to-import-stack-manifest";
-	private String env_name = "Env-for-stack-manifest";
-	private String system_name = "system-subscribe-localhost";
+	private String org_name;
+	private String env_name;
+	private String system_name;
 	SSHCommandResult exec_result;
 
 	@BeforeClass(description="Init unique names", alwaysRun=true)
 	public void setUp(){
-
-		KatelloOrg org = new KatelloOrg(this.org_name, null);
-		if (org.cli_info().getExitCode().intValue() != 0) {
-			log.info("Seems there is no org with imported stage manifest. Doing it now.");
-			SCPTools scp = new SCPTools(
-					System.getProperty("katello.client.hostname", "localhost"), 
-					System.getProperty("katello.client.ssh.user", "root"), 
-					System.getProperty("katello.client.sshkey.private", ".ssh/id_hudson_dsa"), 
-					System.getProperty("katello.client.sshkey.passphrase", "null"));
-			Assert.assertTrue(scp.sendFile("data"+File.separator+"stack-manifest.zip", "/tmp"),
-					"stack-manifest.zip sent successfully");			
-
-			
-			org.cli_create();
-			KatelloProvider prov = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, this.org_name, null, null);
-			exec_result = prov.import_manifest("/tmp"+File.separator+"stack-manifest.zip", new Boolean(true));
-			Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (provider import_manifest)");
-			Assert.assertTrue(getOutput(exec_result).contains("Manifest imported"),"Message - (provider import_manifest)");
-			KatelloEnvironment env = new KatelloEnvironment(env_name, null, org_name, KatelloEnvironment.LIBRARY);
-			exec_result = env.cli_create();
-			Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		} else {
-			log.info("There is an org having manifest. Using: ["+this.org_name+"]");
-		}		
 		
+		String uid = KatelloUtils.getUniqueID();
+		this.env_name = "Dev-"+uid;
+		this.system_name = "system-"+uid;
+		this.org_name = "org-manifest-"+uid;
+		
+		SCPTools scp = new SCPTools(
+				System.getProperty("katello.client.hostname", "localhost"), 
+				System.getProperty("katello.client.ssh.user", "root"), 
+				System.getProperty("katello.client.sshkey.private", ".ssh/id_hudson_dsa"), 
+				System.getProperty("katello.client.sshkey.passphrase", "null"));
+		Assert.assertTrue(scp.sendFile("data"+File.separator+"stack-manifest.zip", "/tmp"),
+				"stack-manifest.zip sent successfully");			
+		KatelloOrg org = new KatelloOrg(this.org_name, null);
+		org.cli_create();
+		KatelloProvider prov = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, this.org_name, null, null);
+		exec_result = prov.import_manifest("/tmp"+File.separator+"stack-manifest.zip", new Boolean(true));
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (provider import_manifest)");
+		Assert.assertTrue(getOutput(exec_result).contains("Manifest imported"),"Message - (provider import_manifest)");
+
+		KatelloEnvironment env = new KatelloEnvironment(this.env_name, null, this.org_name, KatelloEnvironment.LIBRARY);
+		env.cli_create();
+	}
+	
+	
+	@AfterClass(description="Cleanup the org - allow others to reuse the manifest", alwaysRun=true)
+	public void tearDown(){
+		KatelloOrg org = new KatelloOrg(this.org_name, null);
+		SSHCommandResult res = org.delete();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (org delete)");
 	}
 	
 	@Test(description="Change system to have 8 sockets. Auto subscribe current system. Verify that it's compliance is green.", enabled=true)
