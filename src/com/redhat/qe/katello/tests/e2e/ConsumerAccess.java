@@ -1,8 +1,11 @@
 package com.redhat.qe.katello.tests.e2e;
 
 import java.util.logging.Logger;
+
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
+
 import com.google.inject.Inject;
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloApiException;
@@ -13,11 +16,12 @@ import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.base.obj.KatelloUser;
 import com.redhat.qe.katello.common.KatelloUtils;
+import com.redhat.qe.katello.guice.KatelloApiModule;
 import com.redhat.qe.katello.tasks.KatelloTasks;
-import com.redhat.qe.katello.tasks.impl.KatelloApiTasks;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups={"cfse-e2e"})
+@Guice(modules={KatelloApiModule.class})
 public class ConsumerAccess extends KatelloCliTestScript{
 	protected static Logger log = Logger.getLogger(BPMTests.class.getName());
 	
@@ -35,10 +39,6 @@ public class ConsumerAccess extends KatelloCliTestScript{
 	    this.katelloTasks = katelloTasks;
 	}
 
-	public ConsumerAccess() {
-	    this.katelloTasks = new KatelloApiTasks();
-	}
-	
 	@BeforeClass(description="Generate unique names")
 	public void setUp(){
 		String uid = KatelloUtils.getUniqueID();
