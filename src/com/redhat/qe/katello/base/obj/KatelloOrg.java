@@ -36,7 +36,7 @@ public class KatelloOrg {
 	public static final String ERR_ORG_EXISTS = 
 			"Validation failed: Name has already been taken, Label has already been taken";
 	public static final String ERR_NAME_INVALID = 
-			"Validation failed: Name cannot contain characters other than alpha numerals, space,'_', '-'.";
+			"Validation failed: Label is invalid, Label cannot contain characters other than ascii alpha numerals, '_', '-'. , Name cannot contain characters other than alpha numerals, space,'_', '-'.";
 	public static final String ERR_ORG_NOTFOUND = 
 			"Couldn't find organization '%s'";
 	
