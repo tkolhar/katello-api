@@ -133,7 +133,7 @@ public class ChangesetMultyRepoDelete extends KatelloCliTestScript {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	
 		// Create second repo
-		KatelloRepo repo2 = new KatelloRepo(repo_name2, org_name, product_name2, PULP_F15_x86_64_REPO, null, null);
+		KatelloRepo repo2 = new KatelloRepo(repo_name2, org_name, product_name2, PULP_RHEL6_x86_64_REPO, null, null);
 		exec_result = repo2.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
