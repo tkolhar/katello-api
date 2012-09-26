@@ -15,6 +15,9 @@ import com.redhat.qe.tools.SSHCommandResult;
 public class KatelloSystem {
 	
 	// ** ** ** ** ** ** ** Public constants	
+	public static final String RHSM_DEFAULT_USER = "admin";
+	public static final String RHSM_DEFAULT_PASS = "admin";
+	
 	public static final String CMD_INFO = "system info";
 	public static final String CMD_LIST = "system list";
 	public static final String CMD_SUBSCRIPTIONS = "system subscriptions";
@@ -23,8 +26,7 @@ public class KatelloSystem {
 	
 	public static final String RHSM_CREATE = 
 			String.format("subscription-manager register --username %s --password %s",
-					System.getProperty("katello.admin.user", "admin"),
-					System.getProperty("katello.admin.password", "admin"));
+					RHSM_DEFAULT_USER,RHSM_DEFAULT_PASS);
 	public static final String RHSM_CLEAN = "subscription-manager clean";
 	public static final String RHSM_SUBSCRIBE = "subscription-manager subscribe";
 	public static final String RHSM_UNSUBSCRIBE = "subscription-manager unsubscribe";
@@ -54,15 +56,14 @@ public class KatelloSystem {
 	// ** ** ** ** ** ** ** Class members
 	public String name;
 	private String org;
-//	@SuppressWarnings("unused")
 	private String env;
 	public String uuid;
 	private String href;
 	private Long environmentId;
 	private KatelloOwner owner;
 	private Map<String, String> facts;
-	private Map<String, Object> idCert;
-	private Map<String,Object> environment;
+	private KatelloIdCert idCert;
+	private KatelloEnvironment environment;
 	
 	private KatelloCli cli;
 	private ArrayList<Attribute> opts;
@@ -76,7 +77,7 @@ public class KatelloSystem {
 		this.opts = new ArrayList<Attribute>();
 	}
 	
-	public KatelloSystem(String name, String org, String env, String uuid, Long environmentId, String href, KatelloOwner owner, Map<String, String> facts, Map<String, Object> idCert) {
+	public KatelloSystem(String name, String org, String env, String uuid, Long environmentId, String href, KatelloOwner owner, Map<String, String> facts, KatelloIdCert idCert) {
 	    this(name, org, env);
         this.uuid = uuid;
         this.environmentId = environmentId;
@@ -105,39 +106,35 @@ public class KatelloSystem {
         this.org = org;
     }
 
-	public Map<String,Object> getEnvironment() {
+	@JsonProperty("environment")
+	public KatelloEnvironment getEnvironment() {
 	    return environment;
 	}
 	
-	public void setEnvironment(Map<String,Object> environment) {
+	@JsonProperty("environment")
+	public void setEnvironment(KatelloEnvironment environment) {
 	    this.environment = environment;
 	}
-	
-//	@JsonProperty("envrionment")
-//	public Map<String,Object> getEnvironmentMap() {
-//	    return environmentMap;
-//	}
-//	
-//	@JsonProperty("environment")
-//	public void setEnvironmentMap(Map<String,Object> environmentMap) {
-//	    this.environmentMap = environmentMap;
-//	}
-	
+		
+	@JsonProperty("environment_id")
 	public Long getEnvironmentId() {
-	    if ( environment != null ) {
-	        environmentId = Long.valueOf(environment.get("id").toString());
+	    if ( environment != null && environmentId == null ) {
+	        environmentId = environment.getId();
 	    }
 	    return environmentId;
 	}
 	
+	@JsonProperty("environment_id")
     public void setEnvironmentId(Long environmentId) {
         this.environmentId = environmentId;
     }
 
+	@JsonProperty("uuid")
 	public String getUuid() {
 	    return uuid;
 	}
-	
+
+	@JsonProperty("uuid")
     public void setUuid(String uuid) {
         this.uuid = uuid;
     }
@@ -166,11 +163,13 @@ public class KatelloSystem {
         this.facts = facts;
     }
 
-	public Map<String, Object> getIdCert() {
+    @JsonProperty("idCert")
+	public KatelloIdCert getIdCert() {
 	    return idCert;
 	}
 	
-    public void setIdCert(Map<String, Object> idCert) {
+    @JsonProperty("idCert")
+    public void setIdCert(KatelloIdCert idCert) {
         this.idCert = idCert;
     }
 
