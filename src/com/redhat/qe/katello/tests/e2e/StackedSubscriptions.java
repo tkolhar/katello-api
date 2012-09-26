@@ -61,6 +61,8 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 		KatelloOrg org = new KatelloOrg(this.org_name, null);
 		SSHCommandResult res = org.delete();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (org delete)");
+		log.finest("Remove the prepared: /etc/rhsm/facts/sockets.facts");
+		KatelloUtils.sshOnClient("rm -f /etc/rhsm/facts/sockets.facts");
 	}
 	
 	@Test(description="Change system to have 8 sockets. Auto subscribe current system. Verify that it's compliance is green.", enabled=true)
