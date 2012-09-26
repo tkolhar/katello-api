@@ -17,6 +17,7 @@ import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.base.obj.KatelloUser;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.guice.KatelloApiModule;
+import com.redhat.qe.katello.guice.PlainSSLContext;
 import com.redhat.qe.katello.tasks.KatelloTasks;
 import com.redhat.qe.tools.SSHCommandResult;
 
@@ -35,7 +36,7 @@ public class ConsumerAccess extends KatelloCliTestScript{
 	private String system_name;
 	
 	@Inject
-	public ConsumerAccess(KatelloTasks katelloTasks) {
+	public ConsumerAccess(@PlainSSLContext KatelloTasks katelloTasks) {
 	    this.katelloTasks = katelloTasks;
 	}
 
