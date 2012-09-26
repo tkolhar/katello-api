@@ -104,7 +104,7 @@ public class BPMTests extends KatelloCliTestScript{
 			dependsOnMethods={"test_createProviderProduct"})
 	public void test_syncRepo(){
 		// Repo create:
-		KatelloRepo repo = new KatelloRepo(repo_name_pulpRHEL6, org_name, product_name, PULP_F15_x86_64_REPO, null, null);
+		KatelloRepo repo = new KatelloRepo(repo_name_pulpRHEL6, org_name, product_name, PULP_RHEL6_x86_64_REPO, null, null);
 		exec_result = repo.create();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertEquals(getOutput(exec_result).trim(), "Successfully created repository [ "+repo_name_pulpRHEL6+" ]");		
