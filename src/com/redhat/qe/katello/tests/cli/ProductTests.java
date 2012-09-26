@@ -88,7 +88,7 @@ public class ProductTests  extends KatelloCliTestScript{
 		SSHCommandResult res;
 		
 		// create product
-		KatelloProduct prod = new KatelloProduct(prodName, this.org_name, this.prov_name, null, null, PULP_F15_x86_64_REPO, null, true);
+		KatelloProduct prod = new KatelloProduct(prodName, this.org_name, this.prov_name, null, null, PULP_RHEL6_x86_64_REPO, null, true);
 		res = prod.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
 		Assert.assertTrue(getOutput(res).contains(String.format(KatelloProduct.OUT_CREATED,prodName)), "Check - returned output string (product create)");
@@ -110,7 +110,7 @@ public class ProductTests  extends KatelloCliTestScript{
 		SSHCommandResult res, resRepos; String repoName;
 		
 		// create product
-		KatelloProduct prod = new KatelloProduct(prodName, this.org_name, this.prov_name, null, null, PULP_F15_REPO, null, true);
+		KatelloProduct prod = new KatelloProduct(prodName, this.org_name, this.prov_name, null, null, PULP_RHEL6_REPO, null, true);
 		res = prod.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
 		Assert.assertTrue(getOutput(res).contains(String.format(KatelloProduct.OUT_CREATED,prodName)), "Check - returned output string (product create)");		
@@ -164,7 +164,7 @@ public class ProductTests  extends KatelloCliTestScript{
 		SSHCommandResult res;
 		
 		// create product
-		KatelloProduct prod = new KatelloProduct(prodName, this.org_name, this.prov_name, null, null, PULP_F15_REPO, null, true);
+		KatelloProduct prod = new KatelloProduct(prodName, this.org_name, this.prov_name, null, null, PULP_RHEL6_REPO, null, true);
 		res = prod.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
 		
@@ -182,12 +182,12 @@ public class ProductTests  extends KatelloCliTestScript{
 		SSHCommandResult res;
 		
 		// create product
-		KatelloProduct prod = new KatelloProduct(prodName, this.org_name, this.prov_name, null, null, PULP_F15_REPO, null, true);
+		KatelloProduct prod = new KatelloProduct(prodName, this.org_name, this.prov_name, null, null, PULP_RHEL6_REPO, null, true);
 		res = prod.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
 		
 		// try to create product second time by the same name but for different org, it should work
-		prod = new KatelloProduct(prodName, this.org_name2, this.prov_name2, null, null, PULP_F15_REPO, null, true);
+		prod = new KatelloProduct(prodName, this.org_name2, this.prov_name2, null, null, PULP_RHEL6_REPO, null, true);
 		res = prod.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
 		Assert.assertTrue(getOutput(res).contains(String.format(KatelloProduct.OUT_CREATED,prodName)), "Check - returned output string (product create)");		
@@ -206,7 +206,7 @@ public class ProductTests  extends KatelloCliTestScript{
 		SSHCommandResult res;		
 
 		// create product
-		KatelloProduct prod1 = new KatelloProduct(prodName1, this.org_name, this.prov_name, null, null, PULP_F15_i386_REPO, null, true);
+		KatelloProduct prod1 = new KatelloProduct(prodName1, this.org_name, this.prov_name, null, null, PULP_RHEL6_i386_REPO, null, true);
 		res = prod1.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
 		
@@ -275,7 +275,7 @@ public class ProductTests  extends KatelloCliTestScript{
 		SSHCommandResult res;		
 
 		// create product
-		KatelloProduct prod1 = new KatelloProduct(prodName1, this.org_name, this.prov_name, null, null, PULP_F15_i386_REPO, null, true);
+		KatelloProduct prod1 = new KatelloProduct(prodName1, this.org_name, this.prov_name, null, null, PULP_RHEL6_i386_REPO, null, true);
 		res = prod1.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
 		
@@ -376,7 +376,7 @@ public class ProductTests  extends KatelloCliTestScript{
 		SSHCommandResult res;
 		
 		// create product
-		KatelloProduct prod = new KatelloProduct(prodName, this.org_name, this.prov_name, null, null, PULP_F15_x86_64_REPO, null, true);
+		KatelloProduct prod = new KatelloProduct(prodName, this.org_name, this.prov_name, null, null, PULP_RHEL6_x86_64_REPO, null, true);
 		res = prod.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
 		Assert.assertTrue(getOutput(res).contains(String.format(KatelloProduct.OUT_CREATED,prodName)), "Check - returned output string (product create)");
@@ -420,7 +420,7 @@ public class ProductTests  extends KatelloCliTestScript{
 		SSHCommandResult res;
 		
 		// create product
-		KatelloProduct prod = new KatelloProduct(prodName, this.org_name, this.prov_name, null, null, PULP_F15_REPO, null, true);
+		KatelloProduct prod = new KatelloProduct(prodName, this.org_name, this.prov_name, null, null, PULP_RHEL6_REPO, null, true);
 		res = prod.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
 		Assert.assertTrue(getOutput(res).contains(String.format(KatelloProduct.OUT_CREATED,prodName)), "Check - returned output string (product create)");
@@ -465,7 +465,7 @@ public class ProductTests  extends KatelloCliTestScript{
 		SSHCommandResult res;
 
 		// create product
-		KatelloProduct prod = new KatelloProduct(prodName, this.org_name, this.prov_name, null, null, PULP_F15_i386_REPO, null, true);
+		KatelloProduct prod = new KatelloProduct(prodName, this.org_name, this.prov_name, null, null, PULP_RHEL6_i386_REPO, null, true);
 		res = prod.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
 		Assert.assertTrue(getOutput(res).contains(String.format(KatelloProduct.OUT_CREATED,prodName)), "Check - returned output string (product create)");
@@ -491,7 +491,7 @@ public class ProductTests  extends KatelloCliTestScript{
 		SSHCommandResult res, resRepos; String repoName;
 
 		// create product
-		KatelloProduct prod = new KatelloProduct(prodName, this.org_name, this.prov_name, null, null, PULP_F15_REPO, null, true);
+		KatelloProduct prod = new KatelloProduct(prodName, this.org_name, this.prov_name, null, null, PULP_RHEL6_REPO, null, true);
 		res = prod.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
 		Assert.assertTrue(getOutput(res).contains(String.format(KatelloProduct.OUT_CREATED,prodName)), "Check - returned output string (product create)");
@@ -541,7 +541,7 @@ public class ProductTests  extends KatelloCliTestScript{
 		SSHCommandResult res;
 		
 		// create product
-		KatelloProduct prod = new KatelloProduct(prodName, this.org_name, this.prov_name, null, null, PULP_F15_x86_64_REPO, null, true);
+		KatelloProduct prod = new KatelloProduct(prodName, this.org_name, this.prov_name, null, null, PULP_RHEL6_x86_64_REPO, null, true);
 		res = prod.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
 		// sync product

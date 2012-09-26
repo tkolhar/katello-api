@@ -248,12 +248,12 @@ public class ProviderTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 
 		// create product
-		KatelloProduct prod1 = new KatelloProduct(prodName1, this.org_name, provName, null, null, PULP_F15_i386_REPO, null, true);
+		KatelloProduct prod1 = new KatelloProduct(prodName1, this.org_name, provName, null, null, PULP_RHEL6_i386_REPO, null, true);
 		res = prod1.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
 		
 		// Create repo - valid url to sync
-		KatelloRepo repo1 = new KatelloRepo(repoName1, this.org_name, prodName1, PULP_F15_x86_64_REPO, null, null);
+		KatelloRepo repo1 = new KatelloRepo(repoName1, this.org_name, prodName1, PULP_RHEL6_x86_64_REPO, null, null);
 		repo1.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		
@@ -403,7 +403,7 @@ public class ProviderTests extends KatelloCliTestScript{
 		res = prod.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		// Create repo - valid url to sync
-		KatelloRepo repo = new KatelloRepo(repoName, this.org_name, prodName, PULP_F15_x86_64_REPO, null, null);
+		KatelloRepo repo = new KatelloRepo(repoName, this.org_name, prodName, PULP_RHEL6_x86_64_REPO, null, null);
 		repo.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		// Sync provider
@@ -436,10 +436,10 @@ public class ProviderTests extends KatelloCliTestScript{
 		res = prod2.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		// Create repos
-		KatelloRepo repo1 = new KatelloRepo(repoName1, this.org_name, prodName1, PULP_F15_x86_64_REPO, null, null);
+		KatelloRepo repo1 = new KatelloRepo(repoName1, this.org_name, prodName1, PULP_RHEL6_x86_64_REPO, null, null);
 		res = repo1.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		KatelloRepo repo2 = new KatelloRepo(repoName2, this.org_name, prodName2, PULP_F15_i386_REPO, null, null);
+		KatelloRepo repo2 = new KatelloRepo(repoName2, this.org_name, prodName2, PULP_RHEL6_i386_REPO, null, null);
 		res = repo2.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		// Sync provider
