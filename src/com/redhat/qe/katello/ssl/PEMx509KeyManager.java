@@ -151,8 +151,6 @@ public class PEMx509KeyManager extends X509ExtendedKeyManager {
 
     public String chooseEngineClientAlias(String[] keyType,
         Principal[] issuers, SSLEngine engine) {
-        log.fine("chooseEngineClientAlias");
-        log.info("Principal name in engine: " + engine.getHandshakeSession().getLocalPrincipal().getName());
         try {
             engine.beginHandshake();
         } catch (SSLException e) {
