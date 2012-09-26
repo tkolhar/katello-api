@@ -167,6 +167,14 @@ implements KatelloConstants {
 		return KatelloUtils.sshOnClient("subscription-manager clean");
 	}
 	
+	// TODO - tobe removed once getting in sync with Hayk H. how to deal with the method above.
+	// see commit: bced48a845871b457b3bb6bfb1724e8dbf97b771
+	protected SSHCommandResult rhsm_clean_only(){ 
+		log.info("RHSM clean ONLY");
+		return KatelloUtils.sshOnClient("subscription-manager clean");
+	}
+
+	
 	protected void yum_clean() {
 		KatelloUtils.sshOnClient("yum clean all");
 		KatelloUtils.sshOnClient("yum repolist");

@@ -93,7 +93,7 @@ public class RhsmOnlyPermissions extends KatelloCliTestScript{
 	public void test_rhsmRegisterSystem(){
 		
 		log.info("Register the system");
-		rhsm_clean();
+		rhsm_clean_only();
 		String cmd = String.format(
 				"subscription-manager register --username %s --password %s --org \"%s\" --environment \"%s\" --name \"%s\"",
 				this.user,KatelloUser.DEFAULT_USER_PASS,org,this.env_dev,this.system);
