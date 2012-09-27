@@ -129,7 +129,8 @@ public class RhsmOnlyPermissions extends KatelloCliTestScript{
 		
 		log.info("Subscribing system to the pool of: Zoo3");
 		KatelloSystem sys = new KatelloSystem(this.system, this.org, null);
-		SSHCommandResult res = sys.subscriptions_available();
+		KatelloUser user = new KatelloUser(this.user, null, KatelloUser.DEFAULT_USER_PASS, false);
+		SSHCommandResult res = sys.subscriptions_available(user);
 		String pool = KatelloCli.grepCLIOutput("Id", getOutput(res).trim(),1);
 //		String poolName = KatelloCli.grepCLIOutput("Name", getOutput(res).trim(),1);
 		
