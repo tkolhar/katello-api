@@ -104,7 +104,7 @@ public class BPMTests extends KatelloCliTestScript{
 			dependsOnMethods={"test_createProviderProduct"})
 	public void test_syncRepo(){
 		// Repo create:
-		KatelloRepo repo = new KatelloRepo(repo_name_pulpRHEL6, org_name, product_name, PULP_F15_x86_64_REPO, null, null);
+		KatelloRepo repo = new KatelloRepo(repo_name_pulpRHEL6, org_name, product_name, PULP_RHEL6_x86_64_REPO, null, null);
 		exec_result = repo.create();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertEquals(getOutput(exec_result).trim(), "Successfully created repository [ "+repo_name_pulpRHEL6+" ]");		
@@ -185,10 +185,10 @@ public class BPMTests extends KatelloCliTestScript{
 				"Check - returned message (pool ID)");
 	}
 	
-	@Test(description="Yum should work - yum info pulp-consumer", 
+	@Test(description="Yum should work - yum info pulp-admin", 
 			dependsOnMethods={"test_rhsm_subscribeToPool"})
 	public void test_yuminfo(){
-		String pkg_pulp_consumer = "pulp-consumer";
+		String pkg_pulp_consumer = "pulp-admin";
 		exec_result = KatelloUtils.sshOnClient("yum info "+pkg_pulp_consumer+" --disablerepo=* --enablerepo=*"+repo_name_pulpRHEL6+"*");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		String YUM_INFO_PULP_CONSUMER = 

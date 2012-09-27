@@ -1,14 +1,17 @@
 package com.redhat.qe.katello.guice;
 
+import java.util.logging.Logger;
+
 import com.google.inject.AbstractModule;
-import com.redhat.qe.katello.tasks.KatelloTasks;
-import com.redhat.qe.katello.tasks.impl.KatelloApiTasks;
+import com.google.inject.Inject;
 
 public class KatelloApiModule extends AbstractModule {
-
+    @Inject Logger log;
+    
     @Override
     protected void configure() {
-        bind(KatelloTasks.class).to(KatelloApiTasks.class);
+        install(new PlainModule(PlainSSLContext.class));
+        install(new CertModule(CertSSLContext.class));
     }
 
 }
