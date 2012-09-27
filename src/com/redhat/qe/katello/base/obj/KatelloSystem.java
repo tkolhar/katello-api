@@ -248,6 +248,14 @@ public class KatelloSystem {
 		return cli.run();
 	}
 	
+	public SSHCommandResult subscriptions_available(KatelloUser user){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		cli = new KatelloCli(CMD_SUBSCRIPTIONS+" --available -v", opts, user);
+		return cli.run();
+	}
+
 	public SSHCommandResult subscriptions() {
 		opts.clear();
 		opts.add(new Attribute("org", org));
