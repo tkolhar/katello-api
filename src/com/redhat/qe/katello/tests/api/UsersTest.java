@@ -2,7 +2,10 @@ package com.redhat.qe.katello.tests.api;
 
 import java.util.List;
 import java.util.logging.Logger;
+
 import org.testng.annotations.Test;
+
+import com.google.inject.Inject;
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloApiException;
 import com.redhat.qe.katello.base.KatelloTestScript;
@@ -11,7 +14,7 @@ import com.redhat.qe.katello.common.KatelloUtils;
 
 @Test(groups={"cfse-api"})
 public class UsersTest extends KatelloTestScript {
-	protected static Logger log = Logger.getLogger(UsersTest.class.getName());
+	@Inject Logger log;
 
 	private String username_disabled;
 	private String username_enabled;

@@ -4,8 +4,11 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
+
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import com.google.inject.Inject;
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloApiException;
 import com.redhat.qe.katello.base.KatelloTestScript;
@@ -17,7 +20,7 @@ import com.redhat.qe.katello.common.KatelloUtils;
 public class EnvironmentsTest extends KatelloTestScript{
     private String org_name;
 	private String env_name;
-    protected static Logger log = Logger.getLogger(EnvironmentsTest.class.getName());
+    @Inject Logger log;
 
 	@BeforeClass(description="Prepare an organization to work with", alwaysRun=true)
 	public void setUp_createOrg(){
