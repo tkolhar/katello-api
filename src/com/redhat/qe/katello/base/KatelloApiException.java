@@ -15,6 +15,7 @@ public class KatelloApiException extends Throwable {
     public KatelloApiException(ClientResponse<?> response) {
         this.returnCode = response.getResponseStatus().getStatusCode();
         this.message = response.getResponseStatus().getReasonPhrase();
+        response.releaseConnection();
     }
 
     public int getReturnCode() {
