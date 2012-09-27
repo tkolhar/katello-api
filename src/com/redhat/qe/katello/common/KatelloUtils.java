@@ -4,6 +4,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Random;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -75,7 +76,7 @@ public class KatelloUtils {
     }
     
     public static String getUUID(){
-        return KatelloUtils.run_local(false, "python -c \"import uuid; print uuid.uuid1();\"");
+        return UUID.randomUUID().toString();
     }
     
     /* (non-Javadoc)

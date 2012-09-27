@@ -70,7 +70,7 @@ public class RepoTests extends KatelloCliTestScript {
 
 		// Create provider:
 		KatelloProvider prov = new KatelloProvider(provider_name, org_name,
-				"Package provider", PULP_F15_x86_64_REPO);
+				"Package provider", PULP_RHEL6_x86_64_REPO);
 		exec_result = prov.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
@@ -124,9 +124,9 @@ public class RepoTests extends KatelloCliTestScript {
 	public void test_discoverRepo() {
 
 		repo_name = "repo"+KatelloUtils.getUniqueID();
-		String url_name = PULP_F15_x86_64_REPO.replace("http://repos.fedorapeople.org", "").replace("/", "_");
+		String url_name = PULP_RHEL6_x86_64_REPO.replace("http://repos.fedorapeople.org", "").replace("/", "_");
 		url_name = url_name.substring(0, url_name.length()-1);
-		KatelloRepo repo = new KatelloRepo(repo_name, org_name, product_name, PULP_F15_x86_64_REPO, null, null);
+		KatelloRepo repo = new KatelloRepo(repo_name, org_name, product_name, PULP_RHEL6_x86_64_REPO, null, null);
 		exec_result = repo.discover();
 		repo_name += url_name;
 		repo.name = repo_name;
@@ -144,7 +144,7 @@ public class RepoTests extends KatelloCliTestScript {
 		KatelloRepo repo = createRepo();
 		
 		String repoName1 = repo_name + "1";
-		KatelloRepo repo1 = new KatelloRepo(repoName1, org_name, product_name, PULP_F15_x86_64_REPO, null, null);
+		KatelloRepo repo1 = new KatelloRepo(repoName1, org_name, product_name, PULP_RHEL6_x86_64_REPO, null, null);
 		exec_result = repo1.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
@@ -265,7 +265,7 @@ public class RepoTests extends KatelloCliTestScript {
 		
 		repo_name = "repo"+KatelloUtils.getUniqueID();;
 		
-		KatelloRepo repo = new KatelloRepo(repo_name, org_name, product_name, PULP_F15_x86_64_REPO, null, null);
+		KatelloRepo repo = new KatelloRepo(repo_name, org_name, product_name, PULP_RHEL6_x86_64_REPO, null, null);
 		
 		exec_result = repo.add_filter(filter_name);
 		Assert.assertTrue(exec_result.getExitCode() == 65, "Check - return code");
@@ -358,7 +358,7 @@ public class RepoTests extends KatelloCliTestScript {
 	private KatelloRepo createRepo() {
 		repo_name = "repo"+KatelloUtils.getUniqueID();;
 		
-		KatelloRepo repo = new KatelloRepo(repo_name, org_name, product_name, PULP_F15_x86_64_REPO, null, null);
+		KatelloRepo repo = new KatelloRepo(repo_name, org_name, product_name, PULP_RHEL6_x86_64_REPO, null, null);
 		exec_result = repo.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloRepo.OUT_CREATE, repo_name)), "Check - output string (repo create)");
