@@ -95,7 +95,7 @@ public class RhsmOnlyPermissions extends KatelloCliTestScript{
 		log.info("Register the system");
 		rhsm_clean_only();
 		String cmd = String.format(
-				"subscription-manager register --username %s --password %s --org \"%s\" --environment \"%s\" --name \"%s\"",
+				"subscription-manager register --username %s --password %s --org \"%s\" --environment \"%s\" --name \"%s\" --force",
 				this.user,KatelloUser.DEFAULT_USER_PASS,org,this.env_dev,this.system);
 		SSHCommandResult res = KatelloUtils.sshOnClient(cmd);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (rhsm register)");
