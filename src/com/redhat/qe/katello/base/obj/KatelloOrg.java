@@ -40,8 +40,8 @@ public class KatelloOrg {
 	public static final String ERR_ORG_NOTFOUND = 
 			"Couldn't find organization '%s'";
 	
-	public static final String REG_ORG_LIST = ".*Id:\\s+\\d+.*Name:\\s+%s.*Description:\\s+%s.*";
-	public static final String REG_ORG_INFO = ".*Id:\\s+\\d+.*Name:\\s+%s.*Description:.*%s.*";
+	public static final String REG_ORG_LIST = ".*Id\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Description\\s*:\\s+%s.*";
+	public static final String REG_ORG_INFO = ".*Id\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Description\\s*:.*%s.*";
 	
 	public static final String OUT_ORG_SUBSCR = "Subscription:   %s";
 	
