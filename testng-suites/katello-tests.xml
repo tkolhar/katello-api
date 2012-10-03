@@ -10,19 +10,19 @@
 		</classes>
 	</test>
 	
-	<test name="CLI_Tests" preserve-order="true">
+	<test name="CLI_Tests">
 		<packages>
 			<package name="com.redhat.qe.katello.tests.cli"/>
 		</packages>
 	</test>
 	
-	<test name="E2E_Tests" preserve-order="true">
+	<test name="E2E_Tests">
 		<packages>
 			<package name="com.redhat.qe.katello.tests.e2e"/>
 		</packages>
 	</test>
 	
-	<test name="Longrun_Tests" preserve-order="true">
+	<test name="Longrun_Tests">
 		<packages>
 			<package name="com.redhat.qe.katello.tests.longrun"/>
 		</packages>
