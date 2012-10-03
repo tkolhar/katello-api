@@ -66,12 +66,12 @@ public class BPMTests extends KatelloCliTestScript{
 		changeset_name = "changesetBPM_"+uid;
 		consumer_name = uid+"-`hostname`";
 		rhsm_pool_id = null; // going to be set after listing avail. subscriptions.
-		log.info("Clean RHSM registration");
-		rhsm_clean();
 	}
 	
 	@Test(description="Create a new Org and create a user who can manage providers, systems and environments.")
 	public void test_createOrgUser(){
+		log.info("Clean RHSM registration");
+		rhsm_clean();
 		// Create org:
 		KatelloOrg org = new KatelloOrg(this.org_name,"BPM tests");
 		exec_result = org.cli_create();
