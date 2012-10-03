@@ -12,7 +12,7 @@ import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.obj.KatelloUser;
 import com.redhat.qe.katello.common.KatelloUtils;
 
-@Test(groups={"cfse-api"})
+@Test(groups={"cfse-api","headpin-api"})
 public class UsersTest extends KatelloTestScript {
 	@Inject Logger log;
 
