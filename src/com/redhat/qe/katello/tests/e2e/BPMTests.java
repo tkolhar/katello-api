@@ -67,7 +67,7 @@ public class BPMTests extends KatelloCliTestScript{
 		consumer_name = uid+"-`hostname`";
 		rhsm_pool_id = null; // going to be set after listing avail. subscriptions.
 		log.info("Clean RHSM registration");
-		KatelloUtils.sshOnClient("subscription-manager unregister || true");
+		rhsm_clean();
 	}
 	
 	@Test(description="Create a new Org and create a user who can manage providers, systems and environments.")
