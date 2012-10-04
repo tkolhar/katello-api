@@ -144,7 +144,7 @@ public class KatelloActivationKey {
 		// asserts: activation_key list
 		res = list(this.environment);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key list)");
-		String REGEXP_AK_LIST = ".*Id:\\s+\\d+.*Name:\\s+%s.*Environment Id:\\s+%s.*System Template Id:\\s+%s.*";
+		String REGEXP_AK_LIST = ".*Id\\s+:\\s\\d+.*Name\\s+:\\s%s.*Environment Id\\s+:\\s%s.*System Template Id\\s+:\\s%s.*";//".*Id:\\s+\\d+.*Name:\\s+%s.*Environment Id:\\s+%s.*System Template Id:\\s+%s.*";
 
 		String match_info = String.format(REGEXP_AK_LIST,
 				this.name,this.environment_id,this.template_id).replaceAll("\"", "");
@@ -158,7 +158,7 @@ public class KatelloActivationKey {
 		// asserts: activation_key info
 		res = info();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key info)");
-		String REGEXP_AK_INFO = ".*Id:\\s+\\d+.*Name:\\s+%s.*Usage Limit:\\s+%s.*Environment Id:\\s+%s.*System Template Id:\\s+%s.*Pools:.*";
+		String REGEXP_AK_INFO = ".*Id\\s+:\\s\\d+.*Name\\s+:\\s%s.*Usage Limit\\s+:\\s%s.*Environment Id\\s+:\\s%s.*System Template Id\\s+:\\s%s.*Pools:.*";//".*Id:\\s+\\d+.*Name:\\s+%s.*Usage Limit:\\s+%s.*Environment Id:\\s+%s.*System Template Id:\\s+%s.*Pools:.*";
 		match_info = String.format(REGEXP_AK_INFO,
 				this.name, (this.limit != null ? this.limit : "unlimited"), this.environment_id,this.template_id).replaceAll("\"", "");
 		if(this.template_id==null){
