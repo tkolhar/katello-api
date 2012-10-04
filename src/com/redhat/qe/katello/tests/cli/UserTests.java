@@ -69,7 +69,7 @@ public class UserTests extends KatelloCliTestScript{
 	}
 	
 	// TODO - with dataProvider provide more variations of user names in create action.
-	
+
 	@Test(description="create user - for default org (disabled)", enabled=true)
 	public void test_createDisabled_DefaultOrg(){
 		SSHCommandResult res;
