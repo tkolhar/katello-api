@@ -18,7 +18,7 @@ import com.redhat.qe.katello.base.obj.KatelloPool;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.common.KatelloUtils;
 
-@Test(groups={"cfse-api","headpin-api"})
+@Test(groups={"cfse-api"})
 public class ConsumersTest extends KatelloTestScript {
     @Inject Logger log;
 
@@ -33,6 +33,7 @@ public class ConsumersTest extends KatelloTestScript {
 		org_name = "auto-org-"+uid; 
 		String org_descr = "Test Organization "+uid;
 		KatelloOrg org = servertasks.createOrganization(org_name, org_descr);
+		System.out.println("\nName : "+org.name +"\n");
 		// create an env.
 		uid = KatelloUtils.getUniqueID();
 		env_name = "auto-env-"+uid; 
@@ -40,6 +41,7 @@ public class ConsumersTest extends KatelloTestScript {
 		servertasks.createEnvironment(org.getCpKey(), env_name, env_descr, KatelloEnvironment.LIBRARY);
 	}
 
+	
 	@Test(groups = { "testConsumers" }, description = "Create consumer")
 	public void test_createConsumer(){
 		String pid = KatelloUtils.getUniqueID();
@@ -288,4 +290,5 @@ public class ConsumersTest extends KatelloTestScript {
 		Assert.assertEquals(serials.size(), 0, "Check: subscriptions should be ==0");
 	}
 	
+  
 }
