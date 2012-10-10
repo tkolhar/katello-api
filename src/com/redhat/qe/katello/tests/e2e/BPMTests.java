@@ -148,6 +148,7 @@ public class BPMTests extends KatelloCliTestScript{
 			dependsOnMethods={"test_createEnvPromoteContent"})
 	public void test_rhsm_register(){
 		KatelloSystem sys = new KatelloSystem(this.consumer_name, this.org_name, this.env_name_Dev);
+		sys.rhsm_clean();
 		exec_result = sys.rhsm_register(); 
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains("The system has been registered with id:"),"Check - returned message");
