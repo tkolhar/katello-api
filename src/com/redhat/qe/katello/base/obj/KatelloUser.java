@@ -40,7 +40,7 @@ public class KatelloUser {
 	public static final String OUT_UNASSIGN_ROLE =
             "User \'%s\' unassigned from role \'%s\'";
 	public static final String OUT_FIND_USER_ERROR =
-			"Could not find user [ %s ]";
+			"Could not find user \'%s\'";
 	
 	public static final String REG_USER_LIST = ".*Id\\s+:\\s\\d+.*Username\\s+:\\s%s.*Email\\s+:\\s%s.*";//".*Id:\\s+\\d+.*Username:\\s+%s.*Email:\\s+%s.*";
 	public static final String REG_USER_ROLE_LIST = ".*\\d+\\s+%s.*";
