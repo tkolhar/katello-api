@@ -3,10 +3,7 @@ package com.redhat.qe.katello.base;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.logging.Logger;
-
 import org.testng.Assert;
-
-import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.common.KatelloConstants;
@@ -45,22 +42,22 @@ implements KatelloConstants {
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		
 		// pacakge_count != 0
-		REGEXP_REPO_INFO = ".*Name:\\s+"+repo.name+".*Package Count:\\s+0.*";
+		REGEXP_REPO_INFO = ".*Name\\s*:\\s+"+repo.name+".*Package Count\\s*:\\s+0.*";
 		Assert.assertFalse(getOutput(res).replaceAll("\n", "").matches(REGEXP_REPO_INFO), 
 				"Repo should not contain packages count: 0");
 		// last_sync != never
-		REGEXP_REPO_INFO = ".*Name:\\s+"+repo.name+".*Last Sync:\\s+never.*";
+		REGEXP_REPO_INFO = ".*Name\\s*:\\s+"+repo.name+".*Last Sync\\s*:\\s+never.*";
 		Assert.assertFalse(getOutput(res).replaceAll("\n", "").matches(REGEXP_REPO_INFO), 
 				"Repo should not contain last_sync == never");
 		// progress != Not synced
-		REGEXP_REPO_INFO = ".*Name:\\s+"+repo.name+".*Progress:\\s+Not synced.*";
+		REGEXP_REPO_INFO = ".*Name\\s*:\\s+"+repo.name+".*Progress\\s*:\\s+Not synced.*";
 		Assert.assertFalse(getOutput(res).replaceAll("\n", "").matches(REGEXP_REPO_INFO), 
 				"Repo should not contain progress == not synced");
 		
 		// package_count >0; url, progress, last_sync
 		String cnt = KatelloCli.grepCLIOutput("Package Count", res.getStdout());
 		Assert.assertTrue(new Integer(cnt).intValue()>0, "Repo should contain packages count: >0");
-		REGEXP_REPO_INFO = ".*Name:\\s+"+repo.name+".*Progress:\\s+Finished.*";
+		REGEXP_REPO_INFO = ".*Name\\s*:\\s+"+repo.name+".*Progress\\s*:\\s+Finished.*";
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(REGEXP_REPO_INFO), 
 				"Repo should contain progress == finished");
 	}
@@ -134,7 +131,7 @@ implements KatelloConstants {
 	protected boolean hasOrg_environment(String org, String environment){
 		log.info(String.format("Check if the org [%s] has an environment [%s]",org,environment));
 		SSHCommandResult res = new KatelloCli("environment list"+
-				"\" --org \""+org+"\" -v | grep \"^Name:\\s\\+"+environment+"\" | wc -l",null).run();
+				"\" --org \""+org+"\" -v | grep \"^Name\\s*:\\s\\+"+environment+"\" | wc -l",null).run();
 		return getOutput(res).equals("1");
 	}
 	
