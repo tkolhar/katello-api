@@ -16,7 +16,7 @@
 		</packages>
 	</test>
 	
-	<test name="E2E_Tests">
+	<test name="E2E_Tests" preserve-order="true">
 		<classes>
 			<class name="com.redhat.qe.katello.tests.e2e.BPMTests"/>
         	        <class name="com.redhat.qe.katello.tests.e2e.ChangesetMultyRepoDelete"/>
