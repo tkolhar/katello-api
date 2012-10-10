@@ -17,18 +17,20 @@
 	</test>
 	
 	<test name="E2E_Tests">
-		<class name="com.redhat.qe.katello.tests.e2e.BPMTests"/>
-                <class name="com.redhat.qe.katello.tests.e2e.ChangesetMultyRepoDelete"/>
-                <class name="com.redhat.qe.katello.tests.e2e.ChangesetRepoDelete"/>
-                <class name="com.redhat.qe.katello.tests.e2e.ConsumerAccess"/>
-                <class name="com.redhat.qe.katello.tests.e2e.OrgDeletion"/>
-                <class name="com.redhat.qe.katello.tests.e2e.PackagesWithGPGKey"/>
-                <class name="com.redhat.qe.katello.tests.e2e.ProductsSameName"/>
-                <class name="com.redhat.qe.katello.tests.e2e.PromoteErrata"/>
-                <class name="com.redhat.qe.katello.tests.e2e.PromoteWithFilters"/>
-                <class name="com.redhat.qe.katello.tests.e2e.RhsmOnlyPermissions"/>
-                <class name="com.redhat.qe.katello.tests.e2e.StackedSubscriptions"/>
-                <class name="com.redhat.qe.katello.tests.e2e.SystemsReport"/>
+		<classes>
+			<class name="com.redhat.qe.katello.tests.e2e.BPMTests"/>
+        	        <class name="com.redhat.qe.katello.tests.e2e.ChangesetMultyRepoDelete"/>
+                	<class name="com.redhat.qe.katello.tests.e2e.ChangesetRepoDelete"/>
+		        <class name="com.redhat.qe.katello.tests.e2e.ConsumerAccess"/>
+                	<class name="com.redhat.qe.katello.tests.e2e.OrgDeletion"/>
+	                <class name="com.redhat.qe.katello.tests.e2e.PackagesWithGPGKey"/>
+        	        <class name="com.redhat.qe.katello.tests.e2e.ProductsSameName"/>
+                	<class name="com.redhat.qe.katello.tests.e2e.PromoteErrata"/>
+	                <class name="com.redhat.qe.katello.tests.e2e.PromoteWithFilters"/>
+        	        <class name="com.redhat.qe.katello.tests.e2e.RhsmOnlyPermissions"/>
+                	<class name="com.redhat.qe.katello.tests.e2e.StackedSubscriptions"/>
+	                <class name="com.redhat.qe.katello.tests.e2e.SystemsReport"/>
+		</classes>
 	</test>
 	
 	<test name="Longrun_Tests">
