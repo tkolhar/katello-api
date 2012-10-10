@@ -161,7 +161,8 @@ public class TdlExportFedora extends KatelloCliTestScript{
 		String lab_controller = KatelloUtils.sshOnServer("echo ${LAB_CONTROLLER}").getStdout().trim();
 		if(lab_controller.equals("")) lab_controller = "lab.rhts.englab.brq.redhat.com";
 		
-		if(lab_controller.equals("lab2.rhts.eng.bos.redhat.com"))
+		if(lab_controller.equals("lab2.rhts.eng.bos.redhat.com") || 
+			lab_controller.equals("lab-02.rhts.eng.rdu.redhat.com"))
 			domain = "download.bos.redhat.com";
 		if(lab_controller.equals("lab.rhts.eng.nay.redhat.com"))
 			domain = "download.eng.nay.redhat.com";
