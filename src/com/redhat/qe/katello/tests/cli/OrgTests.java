@@ -15,7 +15,6 @@ import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
-//@Test(groups={"cfse-cli","headpin-cli"})
 public class OrgTests extends KatelloCliTestScript{
 	List<KatelloOrg> orgs;
 	
@@ -136,12 +135,11 @@ public class OrgTests extends KatelloCliTestScript{
 		res = prod.create();
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 		
-		waitfor_orgsubscriptions(org, 1);
 		res = org.subscriptions();
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code (org subscriptions)"); // check: ($? is 0)
 		
-		Assert.assertTrue(getOutput(res).trim().contains(String.format(KatelloOrg.OUT_ORG_SUBSCR, productName)), "Check - Subscriptions contains " + productName);
-		Assert.assertTrue(getOutput(res).trim().contains(String.format(KatelloOrg.OUT_ORG_SUBSCR, productName1)), "Check - Subscriptions contains " + productName1);
+		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(String.format(KatelloOrg.OUT_ORG_SUBSCR, productName)), "Check - Subscriptions contains " + productName);
+		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(String.format(KatelloOrg.OUT_ORG_SUBSCR, productName1)), "Check - Subscriptions contains " + productName1);
 	}
 	
 	@Test(description = "Create org - existing",groups={"cfse-cli","headpin-cli"})

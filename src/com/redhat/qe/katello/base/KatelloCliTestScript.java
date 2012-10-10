@@ -86,27 +86,6 @@ implements KatelloConstants {
 			log.warning("Repo sync did not finished after: ["+String.valueOf(maxWaitSec - start)+"] sec");
 	}
 	
-	protected void waitfor_orgsubscriptions(KatelloOrg org, int timeoutMinutes) {
-		SSHCommandResult res;
-		long now = Calendar.getInstance().getTimeInMillis() / 1000;
-		long start = now;
-		long maxWaitSec = start + (timeoutMinutes * 60);
-		String REGEXP_SUBSCR = ".*Subscription:\\s+.*";
-		log.fine("Waiting org subscriptions available for: minutes=["+timeoutMinutes+"]; " +
-				"org=["+org.name+"]");
-		while(now<maxWaitSec){
-			res = org.subscriptions();
-			now = Calendar.getInstance().getTimeInMillis() / 1000;
-			if(getOutput(res).replaceAll("\n", "").matches(REGEXP_SUBSCR))
-				break;
-			try{Thread.sleep(60000);}catch (Exception e){}
-		}
-		if(now<=maxWaitSec)
-			log.fine("Org subscriptions done in: ["+String.valueOf((Calendar.getInstance().getTimeInMillis() / 1000) - start)+"] sec");
-		else
-			log.warning("Org subscriptions did not finished after: ["+String.valueOf(maxWaitSec - start)+"] sec");
-	}
-
 	protected void waitfor_reposync(KatelloRepo repo, String lastsynced, int timeoutMinutes) {
 		SSHCommandResult res;
 		long now = Calendar.getInstance().getTimeInMillis() / 1000;

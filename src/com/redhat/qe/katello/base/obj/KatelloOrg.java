@@ -25,25 +25,21 @@ public class KatelloOrg {
 	public static final String CMD_DELETE = "org delete";
 	public static final String CMD_UPDATE = "org update";
 	
-//	public static final String API_CMD_CREATE = "/organizations";
-//	public static final String API_CMD_LIST = "/organizations";
 	public static final String API_CMD_INFO = "/organizations/%s";
 	
-	public static final String ERR_TEMPLATE_NOTFOUND = 
-			"Could not find template [ %s ]";	
 	public static final String OUT_CREATE = 
 			"Successfully created org [ %s ]";
 	public static final String ERR_ORG_EXISTS = 
 			"Validation failed: Name has already been taken, Label has already been taken";
 	public static final String ERR_NAME_INVALID = 
-			"Validation failed: Label is invalid, Label cannot contain characters other than ascii alpha numerals, '_', '-'. , Name cannot contain characters other than alpha numerals, space,'_', '-'.";
+			"Validation failed: Name cannot contain characters other than alpha numerals, space,'_', '-'.";
 	public static final String ERR_ORG_NOTFOUND = 
 			"Couldn't find organization '%s'";
 	
-	public static final String REG_ORG_LIST = ".*Id\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Description\\s*:\\s+%s.*";//".*Id\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Description\\s*:\\s+%s.*";
-	public static final String REG_ORG_INFO = ".*Id\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Description\\s*:\\s+%s.*";//".*Id\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Description\\s*:.*%s.*";
+	public static final String REG_ORG_LIST = ".*Id\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Description\\s*:\\s+%s.*";
+	public static final String REG_ORG_INFO = ".*Id\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Description\\s*:\\s+%s.*";
 	
-	public static final String OUT_ORG_SUBSCR = "Subscription:   %s";
+	public static final String OUT_ORG_SUBSCR = ".*Subscription\\s*:\\s*%s.*";
 	
 	// ** ** ** ** ** ** ** Class members
 	public String name;

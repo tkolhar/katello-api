@@ -29,8 +29,6 @@ public class KatelloUser {
 	public static final String CMD_UNASSIGN_ROLE = "user unassign_role";
 	public static final String CMD_LIST_ROLES = "user list_roles";
 	public static final String CMD_REPORT = "user report";
-	public static final String ERR_TEMPLATE_NOTFOUND = 
-			"Could not find template [ %s ]";	
 	public static final String OUT_CREATE = 
 			"Successfully created user [ %s ]";
 	public static final String OUT_DELETE =

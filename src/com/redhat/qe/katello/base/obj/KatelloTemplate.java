@@ -20,15 +20,15 @@ public class KatelloTemplate {
 	public static final String FORMAT_TDL = "tdl";
 	
 	public static final String ERR_TEMPL_NOTFOUND = 
-			"Could not find template [ %s ] within environment [ %s ]";
+			"Couldn't find template [ %s ] within environment [ %s ]";
 	
-	public static final String REG_TEMPL_INFO = ".*Id:\\s+\\d+.*Name:\\s+%s.*Revision:\\s+%s.*Description:\\s+%s.*Parent Id:\\s+%s.*";
-	public static final String REG_TEMPL_PARAMS = ".*Parameters:\\s+.*%s:\\s+%s.*";
-	public static final String REG_TEMPL_PACKAGES = ".*Packages:\\s+.*%s.*";
-	public static final String REG_TEMPL_PACKAGEGROUPS = ".*Package Groups:\\s+.*%s.*";
-	public static final String REG_TEMPL_REPOS = ".*Repositories:\\s+.*%s.*";
+	public static final String REG_TEMPL_INFO = ".*Id\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Revision\\s*:\\s+%s.*Description\\s*:\\s+%s.*Parent Id\\s*:\\s+%s.*";
+	public static final String REG_TEMPL_PARAMS = ".*Parameters\\s*:\\s+.*%s\\s*:\\s+%s.*";
+	public static final String REG_TEMPL_PACKAGES = ".*Packages\\s*:\\s+.*%s.*";
+	public static final String REG_TEMPL_PACKAGEGROUPS = ".*Package Groups\\s*:\\s+.*%s.*";
+	public static final String REG_TEMPL_REPOS = ".*Repositories\\s*:\\s+.*%s.*";
 	public static final String REG_TEMPL_LIST = ".*\\s+\\d+.*\\s+%s.*\\s+%s.*\\s+%s.*";
-	public static final String REG_TEMPL_ID = "Id:\\s+\\d+.*Name:";
+	public static final String REG_TEMPL_ID = "Id:\\s+\\d+.*Name\\s*:";
 	
 	public static final String OUT_CREATE = 
 			"Successfully created template [ %s ]";
