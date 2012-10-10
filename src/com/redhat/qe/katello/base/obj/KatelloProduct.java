@@ -197,24 +197,6 @@ public class KatelloProduct {
 		return cli.run();
 	}
 	
-//	public static List<KatelloProduct> api_list(String org) throws KatelloApiException {
-//	    List<KatelloProduct> products = new ArrayList<KatelloProduct>();
-//		KatelloApiResponse response = KatelloApi.get(String.format(API_CMD_LIST, org));
-//		if ( response.getReturnCode() < 300 ) {
-//		    String json = response.getContent();
-//		    JSONArray jproducts = KatelloTestScript.toJSONArr(json);
-//		    for ( int i = 0; i < jproducts.size(); ++i ) {
-//		        JSONObject product = (JSONObject)jproducts.get(i);
-//		        products.add(new KatelloProduct( (String)product.get("name"), org, (String)product.get("provider_name"), 
-//            (String)product.get("description"), (String)product.get("gpg_key_id"), /*(String)product.get("url")*/"",
-//            Boolean.TRUE, Boolean.FALSE));
-//		    }
-//		    return products;
-//		}
-//		throw new KatelloApiException(response);
-//	}
-
-	
 	// ** ** ** ** ** ** **
 	// ASSERTS
 	// ** ** ** ** ** ** **
@@ -223,7 +205,7 @@ public class KatelloProduct {
 		SSHCommandResult res;
 		String REGEXP_PRODUCT_LIST;
 		
-		REGEXP_PRODUCT_LIST = ".*Name:\\s+"+this.name+".*Provider Name:\\s+"+this.provider+".*";
+		REGEXP_PRODUCT_LIST = ".*Name\\s*:\\s+"+this.name+".*Provider Name\\s*:\\s+"+this.provider+".*";
 		log.info("Assertions: product exists");
 		res = cli_list();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
@@ -240,7 +222,7 @@ public class KatelloProduct {
 		if(!synced){
 			res = status();
 			Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-			String REGEXP_PRODUCT_STATUS = ".*Name:\\s+"+this.name+".*Provider Name:\\s+"+this.provider+".*Last Sync:\\s+never.*Sync State:\\s+Not synced.*";
+			String REGEXP_PRODUCT_STATUS = ".*Name\\s*:\\s+"+this.name+".*Provider Name\\s*:\\s+"+this.provider+".*Last Sync\\s*:\\s+never.*Sync State\\s*:\\s+Not synced.*";
 			Assert.assertTrue(KatelloCliTestScript.sgetOutput(res).replaceAll("\n", "").matches(REGEXP_PRODUCT_STATUS), 
 					"List should contain status of product (not synced)");
 		}else{
