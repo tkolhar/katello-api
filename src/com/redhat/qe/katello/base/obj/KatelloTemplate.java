@@ -20,7 +20,7 @@ public class KatelloTemplate {
 	public static final String FORMAT_TDL = "tdl";
 	
 	public static final String ERR_TEMPL_NOTFOUND = 
-			"Couldn't find template [ %s ] within environment [ %s ]";
+			"Could not find template [ %s ] within environment [ %s ]";
 	
 	public static final String REG_TEMPL_INFO = ".*Id\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Revision\\s*:\\s+%s.*Description\\s*:\\s+%s.*Parent Id\\s*:\\s+%s.*";
 	public static final String REG_TEMPL_PARAMS = ".*Parameters\\s*:\\s+.*%s\\s*:\\s+%s.*";
