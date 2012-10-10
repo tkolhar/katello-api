@@ -29,15 +29,15 @@ public class KatelloChangeset {
 	public static final String OUT_APPLIED = 
 			"Changeset [ %s ] applied";
 	
-	public static final String REG_CHST_INFO = ".*Id:\\s+\\d+.*Name:\\s+%s.*Description:\\s+%s.*State:\\s+%s.*Environment Name:\\s+%s.*";
-	public static final String REG_CHST_ID = "Id:\\s+\\d+\\s+Name:";
+	public static final String REG_CHST_INFO = ".*Id\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Description\\s*:\\s+%s.*State\\s*:\\s+%s.*Environment Name\\s*:\\s+%s.*";
+	public static final String REG_CHST_ID = "Id\\s*:\\s+\\d+\\s+Name\\s*:";
 	public static final String REG_CHST_LIST = ".*\\s+\\d+.*\\s+%s.*\\s+%s.*";
 	
-	public static final String REG_CHST_PACKAGES = ".*Packages:\\s+.*%s.*";
-	public static final String REG_CHST_PRODUCTS = ".*Products:\\s+.*%s.*";
-	public static final String REG_CHST_REPOS = ".*Repositories:\\s+.*%s.*";
-	public static final String REG_CHST_TEMPLS = ".*System Templates:\\s+.*%s.*";
-	public static final String REG_CHST_ERRATA = ".*Errata:\\s+.*%s.*";
+	public static final String REG_CHST_PACKAGES = ".*Packages\\s*:\\s+.*%s.*";
+	public static final String REG_CHST_PRODUCTS = ".*Products\\s*:\\s+.*%s.*";
+	public static final String REG_CHST_REPOS = ".*Repositories\\s*:\\s+.*%s.*";
+	public static final String REG_CHST_TEMPLS = ".*System Templates\\s*:\\s+.*%s.*";
+	public static final String REG_CHST_ERRATA = ".*Errata\\s*:\\s+.*%s.*";
 
 	// ** ** ** ** ** ** ** Class members
 	public String name;

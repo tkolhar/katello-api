@@ -49,8 +49,8 @@ public class KatelloSystem {
 	public static final String API_CMD_GET_SERIALS = "/consumers/%s/certificates/serials";
 	
 	//Very sensitive regexp is used here for matching exact subscription in list.
-	public static final String REG_SUBSCRIPTION = "Subscription Name:\\s+%s\\s+SKU:\\s+\\w{5,15}+\\s+Pool Id:\\s+\\w{32}+\\s+Quantity:\\s+%s";
-	public static final String REG_SUBSCRIPTION_CFSE = "ProductName:\\s+%s\\s+ProductId:\\s+\\w{5,15}\\s+PoolId:\\s+\\w{32}+\\s+Quantity:\\s+%s";
+	public static final String REG_SUBSCRIPTION = "Subscription Name\\s*:\\s+%s\\s+SKU\\s*:\\s+\\w{5,15}+\\s+Pool Id\\s*:\\s+\\w{32}+\\s+Quantity\\s*:\\s+%s";
+	public static final String REG_SUBSCRIPTION_CFSE = "ProductName\\s*:\\s+%s\\s+ProductId\\s*:\\s+\\w{5,15}\\s+PoolId\\s*:\\s+\\w{32}+\\s+Quantity\\s*:\\s+%s";
 	public static final String REG_POOL_ID = "\\s+\\w{32}+\\s+";
 	
 	// ** ** ** ** ** ** ** Class members

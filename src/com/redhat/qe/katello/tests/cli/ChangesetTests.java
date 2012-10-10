@@ -11,6 +11,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
+import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
@@ -306,13 +307,7 @@ public class ChangesetTests extends KatelloCliTestScript{
 		log.finest(String.format("Changeset (info) match regex: [%s]", match_info));
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", " ").matches(match_info), String.format("Changeset [%s] should be found in the result info", chst.name));
 
-		Pattern pattern = Pattern.compile(KatelloChangeset.REG_CHST_ID);
-		Matcher matcher = pattern.matcher(getOutput(exec_result).replaceAll("\n", " "));
-		Assert.assertTrue(matcher.find(), "Check - Id should exist in changeset info");
-		String id = matcher.group();
-		id = id.replace("Id:", "").replace("Name:", "").trim();
-		
-		return id;
+		return KatelloCli.grepCLIOutput("Id", getOutput(exec_result));
 	}
 		
 	private void assert_changesetList(List<KatelloChangeset> chsts, List<KatelloChangeset> excludeChsts) {

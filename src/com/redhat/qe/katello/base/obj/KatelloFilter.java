@@ -26,7 +26,7 @@ public class KatelloFilter {
 	public static final String OUT_PACKAGE_REMOVE = 
 			"Successfully removed package [ %s ] from filter [ %s ]";
 	
-	public static final String REG_FILTER_INFO = ".*Name:\\s+%s.*Description:\\s+%s.*Package List:\\s+%s.*";
+	public static final String REG_FILTER_INFO = ".*Name\\s*:\\s+%s.*Description\\s*:\\s+%s.*Package List\\s*:\\s+%s.*";
 	public static final String REG_FILTER_LIST = ".*%s\\s+%s.*";
 	
 	// ** ** ** ** ** ** ** Class members
