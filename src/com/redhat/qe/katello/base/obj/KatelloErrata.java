@@ -9,6 +9,7 @@ public class KatelloErrata {
 	
 	// ** ** ** ** ** ** ** Public constants
 	public static final String CMD_INFO = "errata info";
+	public static final String CMD_LIST = "errata list";
 	
 	// ** ** ** ** ** ** ** Class members
 	String id;
@@ -37,6 +38,16 @@ public class KatelloErrata {
 		opts.add(new Attribute("repo", repo));
 		opts.add(new Attribute("environment", environment));
 		cli = new KatelloCli(CMD_INFO, opts);
+		return cli.run();
+	}
+	
+	public SSHCommandResult cli_list(){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("product", product));
+		opts.add(new Attribute("repo", repo));
+		opts.add(new Attribute("environment", environment));
+		cli = new KatelloCli(CMD_LIST, opts);
 		return cli.run();
 	}
 	
