@@ -1,17 +1,11 @@
 package com.redhat.qe.katello.base.obj;
 
-import java.util.ArrayList;
 import java.util.logging.Logger;
-
 import javax.management.Attribute;
-
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
-import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@JsonIgnoreProperties(ignoreUnknown=true)
-public class KatelloOrg {
+public class KatelloOrg extends _KatelloObject{
     protected static Logger log = Logger.getLogger(KatelloOrg.class.getName());
 
 	// ** ** ** ** ** ** ** Public constants
@@ -44,19 +38,13 @@ public class KatelloOrg {
 	// ** ** ** ** ** ** ** Class members
 	public String name;
 	public String description;
+	public String label;
 	private Long id;
 	private String cpKey;
-	
-	private KatelloCli cli;
-	private ArrayList<Attribute> opts;
-	
-	public KatelloOrg() {	    
-	}
 	
 	public KatelloOrg(String pName, String pDesc){
 		this.name = pName;
 		this.description = pDesc;
-		this.opts = new ArrayList<Attribute>();
 	}
 	
 	protected KatelloOrg(Long id, String name, String description) {
@@ -64,6 +52,11 @@ public class KatelloOrg {
 	    this.id = id;
 	}
 	
+	public KatelloOrg(String name, String description, String label) {
+	    this(name, description);
+	    this.label = label;
+	}
+
 	public Long getId() {
 	    return id;
 	}
@@ -90,62 +83,56 @@ public class KatelloOrg {
 	    this.cpKey = cpKey;
 	}
 	
-	public SSHCommandResult cli_create(){		
-		return cli_create(null);
+	public String getLabel() {
+	    return label;
 	}
 	
-	public SSHCommandResult cli_create(KatelloUser user){		
+	public void setLabel(String label) {
+	    this.label = label;
+	}
+
+	public SSHCommandResult cli_create(){		
 		opts.clear();
 		opts.add(new Attribute("name", this.name));
 		opts.add(new Attribute("description", this.description));
-		if (user == null) { 
-			cli = new KatelloCli(CLI_CMD_CREATE, opts);
-		} else {
-			cli = new KatelloCli(CLI_CMD_CREATE, opts, user);
-		}	
-		return cli.run();
+		opts.add(new Attribute("label", this.label));
+		return run(CLI_CMD_CREATE);
 	}
 	
 	public SSHCommandResult cli_info(){
 		opts.clear();
 		opts.add(new Attribute("name", this.name));
-		cli = new KatelloCli(CLI_CMD_INFO, opts);
-		return cli.run();
+		return run(CLI_CMD_INFO);
 	}
 	
 	public SSHCommandResult cli_list(){
 		opts.clear();
-		KatelloCli cli = new KatelloCli(CLI_CMD_LIST+" -v", opts);
-		return cli.run();
+		return run(CLI_CMD_LIST+" -v");
 	}
 		
 	public SSHCommandResult subscriptions(){
 		opts.clear();
 		opts.add(new Attribute("name", this.name));
-		cli = new KatelloCli(CMD_SUBSCRIPTIONS, opts);
-		return cli.run();
+		return run(CMD_SUBSCRIPTIONS);
 	}
 
 	public SSHCommandResult uebercert(){
 		opts.clear();
 		opts.add(new Attribute("name", this.name));
-		cli = new KatelloCli(CMD_UEBERCERT, opts);
-		return cli.run();
+		return run(CMD_UEBERCERT);
 	}
 
 	public SSHCommandResult delete(){
 		opts.clear();
 		opts.add(new Attribute("name", this.name));
-		cli = new KatelloCli(CMD_DELETE, opts);
-		return cli.run();
+		return run(CMD_DELETE);
 	}
 	
 	public SSHCommandResult update(String new_description){
 		opts.clear();
 		opts.add(new Attribute("name", this.name));
 		opts.add(new Attribute("description", new_description));
-		cli = new KatelloCli(CMD_UPDATE, opts);
-		return cli.run();
+		return run(CMD_UPDATE);
 	}
 
 	// ** ** ** ** ** ** **

@@ -1,13 +1,10 @@
 package com.redhat.qe.katello.base.obj;
 
 import java.util.ArrayList;
-
 import javax.management.Attribute;
-
-import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.tools.SSHCommandResult;
 
-public class KatelloChangeset {
+public class KatelloChangeset extends _KatelloObject{
 	
 	// ** ** ** ** ** ** ** Public constants
 	public static final String CMD_CREATE = "changeset create";
@@ -47,9 +44,6 @@ public class KatelloChangeset {
 	public String state;
 	private boolean isDeletion;
 	
-	private KatelloCli cli;
-	private ArrayList<Attribute> opts;
-
 	public KatelloChangeset(String pName, String pOrg, String pEnv){
 		this(pName, pOrg, pEnv, false);
 	}
@@ -59,14 +53,9 @@ public class KatelloChangeset {
 		this.org = pOrg;
 		this.environment = pEnv;
 		this.isDeletion = pisDeletion; 
-		this.opts = new ArrayList<Attribute>();
 	}
 	
 	public SSHCommandResult create(){
-		return create(null);
-	}
-
-	public SSHCommandResult create(KatelloUser user){
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
@@ -74,12 +63,7 @@ public class KatelloChangeset {
 		if (this.isDeletion) {
 			opts.add(new Attribute("deletion", "true"));
 		}
-		if (user == null) {
-			cli = new KatelloCli(CMD_CREATE, opts);
-		} else {
-			cli = new KatelloCli(CMD_CREATE, opts, user);
-		}
-		return cli.run();
+		return run(CMD_CREATE);
 	}
 
 	public SSHCommandResult delete(){
@@ -87,16 +71,14 @@ public class KatelloChangeset {
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("environment", environment));
-		cli = new KatelloCli(CMD_DELETE, opts);
-		return cli.run();
+		return run(CMD_DELETE);
 	}
 	
 	public SSHCommandResult list(){
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("environment", environment));
-		cli = new KatelloCli(CMD_LIST, opts);
-		return cli.run();
+		return run(CMD_LIST);
 	}
 	
 	public SSHCommandResult promote(){
@@ -104,8 +86,7 @@ public class KatelloChangeset {
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("environment", environment));
-		cli = new KatelloCli(CMD_PROMOTE, opts);
-		return cli.run();
+		return run(CMD_PROMOTE);
 	}
 
 	public SSHCommandResult apply(){
@@ -113,8 +94,7 @@ public class KatelloChangeset {
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("environment", environment));
-		cli = new KatelloCli(CMD_APPLY, opts);
-		return cli.run();
+		return run(CMD_APPLY);
 	}
 	
 	public SSHCommandResult info(){
@@ -122,8 +102,7 @@ public class KatelloChangeset {
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("environment", environment));
-		cli = new KatelloCli(CMD_INFO, opts);
-		return cli.run();
+		return run(CMD_INFO);
 	}
 	
 	public SSHCommandResult update_name(String newname){
@@ -132,8 +111,7 @@ public class KatelloChangeset {
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("environment", environment));
-		cli = new KatelloCli(CMD_UPDATE, opts);
-		return cli.run();
+		return run(CMD_UPDATE);
 	}
 	
 	public SSHCommandResult update_addProduct(String productName){
@@ -142,8 +120,7 @@ public class KatelloChangeset {
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("environment", environment));
-		cli = new KatelloCli(CMD_UPDATE, opts);
-		return cli.run();
+		return run(CMD_UPDATE);
 	}
 
 	public SSHCommandResult update_removeProduct(String productName){
@@ -152,8 +129,7 @@ public class KatelloChangeset {
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("environment", environment));
-		cli = new KatelloCli(CMD_UPDATE, opts);
-		return cli.run();
+		return run(CMD_UPDATE);
 	}
 	
 	public SSHCommandResult update_add_package(String productName, String pkg) {
@@ -163,8 +139,7 @@ public class KatelloChangeset {
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("environment", environment));
 		opts.add(new Attribute("name", name));
-		cli = new KatelloCli(CMD_UPDATE, opts);
-		return cli.run();
+		return run(CMD_UPDATE);
 	}
 	
 	public SSHCommandResult update_fromProduct_addRepo(String productName, String repoName){
@@ -174,8 +149,7 @@ public class KatelloChangeset {
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("environment", environment));
-		cli = new KatelloCli(CMD_UPDATE, opts);
-		return cli.run();
+		return run(CMD_UPDATE);
 	}
 
 	public SSHCommandResult update_fromProduct_removeRepo(String productName, String repoName){
@@ -185,8 +159,7 @@ public class KatelloChangeset {
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("environment", environment));
-		cli = new KatelloCli(CMD_UPDATE, opts);
-		return cli.run();
+		return run(CMD_UPDATE);
 	}
 
 	public SSHCommandResult update_fromProduct_addErrata(String productName, String errataName){
@@ -196,8 +169,7 @@ public class KatelloChangeset {
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("environment", environment));
-		cli = new KatelloCli(CMD_UPDATE, opts);
-		return cli.run();
+		return run(CMD_UPDATE);
 	}
 
 	public SSHCommandResult update_fromProduct_removeErrata(String productName, String errataName){
@@ -207,8 +179,7 @@ public class KatelloChangeset {
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("environment", environment));
-		cli = new KatelloCli(CMD_UPDATE, opts);
-		return cli.run();
+		return run(CMD_UPDATE);
 	}
 	
 	public SSHCommandResult update_addTemplate(String templateName){
@@ -217,8 +188,7 @@ public class KatelloChangeset {
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("environment", environment));
-		cli = new KatelloCli(CMD_UPDATE, opts);
-		return cli.run();
+		return run(CMD_UPDATE);
 	}
 
 	public SSHCommandResult update_removeTemplate(String templateName){
@@ -227,8 +197,7 @@ public class KatelloChangeset {
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("environment", environment));
-		cli = new KatelloCli(CMD_UPDATE, opts);
-		return cli.run();
+		return run(CMD_UPDATE);
 	}
 	
 	// ** ** ** ** ** ** **
