@@ -1,13 +1,9 @@
 package com.redhat.qe.katello.base.obj;
 
-import java.util.ArrayList;
-
 import javax.management.Attribute;
-
-import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.tools.SSHCommandResult;
 
-public class KatelloUserRole {
+public class KatelloUserRole extends _KatelloObject{
 	
 	// ** ** ** ** ** ** ** Public constants
 	public static final String CMD_CREATE = "user_role create";
@@ -34,36 +30,29 @@ public class KatelloUserRole {
 	public String name;
 	public String description;
 	
-	private KatelloCli cli;
-	private ArrayList<Attribute> opts;
-
 	public KatelloUserRole(String pName, String pDesc){
 		this.name = pName;
 		this.description = pDesc;
-		this.opts = new ArrayList<Attribute>();
 	}
 	
 	public SSHCommandResult create(){
 		opts.clear();
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("description", description));
-		cli = new KatelloCli(CMD_CREATE, opts);
-		return cli.run();
+		return run(CMD_CREATE);
 	}
 	
 	
 	public SSHCommandResult cli_info(){
 		opts.clear();
 		opts.add(new Attribute("name", name));
-		cli = new KatelloCli(CMD_INFO, opts);
-		return cli.run();
+		return run(CMD_INFO);
 	}
 	
 
 	public SSHCommandResult cli_list(){
 		opts.clear();
-		cli = new KatelloCli(CLI_CMD_LIST, opts);
-		return cli.run();
+		return run(CLI_CMD_LIST);
 	}
 	
 	
@@ -72,16 +61,14 @@ public class KatelloUserRole {
 		opts.add(new Attribute("new_name", new_name));
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("description", description));
-		cli = new KatelloCli(CMD_UPDATE, opts);
-		return cli.run();
+		return run(CMD_UPDATE);
 	}
 	
 	
 	public SSHCommandResult cli_delete(){
 		opts.clear();
 		opts.add(new Attribute("name", name));
-		cli = new KatelloCli(CMD_DELETE, opts);
-		return cli.run();
+		return run(CMD_DELETE);
 	}
 	
 	
@@ -89,8 +76,7 @@ public class KatelloUserRole {
 		opts.clear();
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("group_name",group_name));
-		cli = new KatelloCli(CMD_LDAP_GRP_ADD, opts);
-		return cli.run();
+		return run(CMD_LDAP_GRP_ADD);
 	}
 	
 	
@@ -98,7 +84,6 @@ public class KatelloUserRole {
 		opts.clear();
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("group_name",group_name));
-		cli = new KatelloCli(CMD_LDAP_GRP_REMOVE, opts);
-		return cli.run();
+		return run(CMD_LDAP_GRP_REMOVE);
 	}
 }
