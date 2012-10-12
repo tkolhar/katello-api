@@ -1,6 +1,5 @@
 package com.redhat.qe.katello.base.obj;
 
-import java.util.ArrayList;
 import java.util.Map;
 
 import javax.management.Attribute;
@@ -12,7 +11,7 @@ import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class KatelloSystem {
+public class KatelloSystem extends _KatelloObject{
 	
 	// ** ** ** ** ** ** ** Public constants	
 	public static final String RHSM_DEFAULT_USER = "admin";
@@ -49,8 +48,8 @@ public class KatelloSystem {
 	public static final String API_CMD_GET_SERIALS = "/consumers/%s/certificates/serials";
 	
 	//Very sensitive regexp is used here for matching exact subscription in list.
-	public static final String REG_SUBSCRIPTION = "Subscription Name:\\s+%s\\s+SKU:\\s+\\w{5,15}+\\s+Pool Id:\\s+\\w{32}+\\s+Quantity:\\s+%s";
-	public static final String REG_SUBSCRIPTION_CFSE = "Product\\s?Name:\\s+%s\\s+Product\\s?Id:\\s+\\w{5,15}\\s+Pool\\s?Id:\\s+\\w{32}+\\s+Quantity:\\s+%s";
+	public static final String REG_SUBSCRIPTION = "Subscription Name\\s*:\\s+%s\\s+SKU\\s*:\\s+\\w{5,15}+\\s+Pool Id\\s*:\\s+\\w{32}+\\s+Quantity\\s*:\\s+%s";
+	public static final String REG_SUBSCRIPTION_CFSE = "ProductName\\s*:\\s+%s\\s+ProductId\\s*:\\s+\\w{5,15}\\s+PoolId\\s*:\\s+\\w{32}+\\s+Quantity\\s*:\\s+%s";
 	public static final String REG_POOL_ID = "\\s+\\w{32}+\\s+";
 	
 	// ** ** ** ** ** ** ** Class members
@@ -65,16 +64,10 @@ public class KatelloSystem {
 	private KatelloIdCert idCert;
 	private KatelloEnvironment environment;
 	
-	private KatelloCli cli;
-	private ArrayList<Attribute> opts;
-	
-	public KatelloSystem() {} // For resteasy
-	
 	public KatelloSystem(String pName, String pOrg, String pEnv){
 		this.name = pName;
 		this.org = pOrg;
 		this.env = pEnv;
-		this.opts = new ArrayList<Attribute>();
 	}
 	
 	public KatelloSystem(String name, String org, String env, String uuid, Long environmentId, String href, KatelloOwner owner, Map<String, String> facts, KatelloIdCert idCert) {
@@ -227,32 +220,28 @@ public class KatelloSystem {
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("environment", env));
-		cli = new KatelloCli(CMD_LIST+" -v", opts);
-		return cli.run();
+		return run(CMD_LIST+" -v");
 	}
 
 	public SSHCommandResult report(){
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("environment", env));
-		cli = new KatelloCli(CMD_REPORT+" -v", opts);
-		return cli.run();
+		return run(CMD_REPORT+" -v");
 	}
 	
 	public SSHCommandResult subscriptions_available(){
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
-		cli = new KatelloCli(CMD_SUBSCRIPTIONS+" --available -v", opts);
-		return cli.run();
+		return run(CMD_SUBSCRIPTIONS+" --available -v");
 	}
 	
 	public SSHCommandResult subscriptions() {
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
-		cli = new KatelloCli(CMD_SUBSCRIPTIONS, opts);
-		return cli.run();
+		return run(CMD_SUBSCRIPTIONS);
 	}
 
 	public SSHCommandResult subscriptions_count() {
@@ -265,7 +254,7 @@ public class KatelloSystem {
 
 		cmd += " | grep \"Serial Id\" | wc -l";
 		
-		cli = new KatelloCli(cmd, null);
+		KatelloCli cli = new KatelloCli(cmd, null);
 		return cli.run();	
 	}
 	
@@ -274,8 +263,7 @@ public class KatelloSystem {
 		opts.add(new Attribute("install", packageName));
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
-		cli = new KatelloCli(CMD_PACKAGES, opts);
-		return cli.run();
+		return run(CMD_PACKAGES);
 	}
 	
 	public SSHCommandResult rhsm_subscribe(String poolid){
