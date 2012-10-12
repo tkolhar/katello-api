@@ -12,7 +12,6 @@ import com.redhat.qe.tools.SSHCommandResult;
 class _KatelloObject {
 
 	protected KatelloUser user;
-	private KatelloCli cli;
 	protected ArrayList<Attribute> opts;
 	
 	public _KatelloObject(){
