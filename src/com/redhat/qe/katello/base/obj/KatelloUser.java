@@ -243,9 +243,9 @@ public class KatelloUser {
 		// asserts: user list
 		res = cli_list();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+CLI_CMD_LIST+")");
-		String REGEXP_LIST = ".*Id\\s+:\\s\\d+.*Username\\s+:\\s%s.*Email\\s+:\\s%s.*Disabled\\s+:\\sFalse.*Default Organization\\s+:\\s%s.*Default Environment\\s+:\\s%s.*";//".*Id:\\s+\\d+.*Username:\\s+%s.*Email:\\s+%s.*Disabled:\\s+False.*Default Organization:\\s+%s.*Default Environment:\\s+%s.*";
+		String REGEXP_LIST = ".*Id\\s*:\\s*\\d+.*Username\\s*:\\s*%s.*Email\\s*:\\s*%s.*Disabled\\s*:\\s*False.*Default Organization\\s*:\\s*%s.*Default Environment\\s*:\\s*%s.*";
 		if(this.disabled)
-			REGEXP_LIST = ".*Id\\s+:\\s\\d+.*Username\\s+:\\s%s.*Email\\s+:\\s%s.*Disabled\\s+:\\sTrue.*Default Organization\\s+:\\s%s.*Default Environment\\s+:\\s%s.*";//".*Id:\\s+\\d+.*Username:\\s+%s.*Email:\\s+%s.*Disabled:\\s+True.*Default Organization:\\s+%s.*Default Environment:\\s+%s.*";
+			REGEXP_LIST = ".*Id\\s*:\\s*\\d+.*Username\\s*:\\s*%s.*Email\\s*:\\s*%s.*Disabled\\s*:\\s*True.*Default Organization\\s*:\\s*%s.*Default Environment\\s*:\\s*%s.*";
         
 		String match_info = String.format(REGEXP_LIST,
 				this.username,this.email, this.orgname != null ? this.orgname : "None", this.envname != null ? this.envname : "None").replaceAll("\"", "");
@@ -257,9 +257,9 @@ public class KatelloUser {
 		// asserts: user info
 		res = cli_info();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+CLI_CMD_INFO+")");
-		String REGEXP_INFO = ".*Id\\s+:\\s\\d+.*Username\\s+:\\s%s.*Email\\s+:\\s%s.*Disabled\\s+:\\sFalse.*Default Organization\\s+:\\s%s.*Default Environment\\s+:\\s%s.*";//".*Id:\\s+\\d+.*Username:\\s+%s.*Email:\\s+%s.*Disabled:\\s+False.*Default Organization:\\s+%s.*Default Environment:\\s+%s.*Default Locale:\\s+%s.*";
+		String REGEXP_INFO = ".*Id\\s*:\\s*\\d+.*Username\\s*:\\s*%s.*Email\\s*:\\s*%s.*Disabled\\s*:\\s*False.*Default Organization\\s*:\\s*%s.*Default Environment\\s*:\\s*%s.*";
 		if(this.disabled)
-			REGEXP_INFO =  ".*Id\\s+:\\s\\d+.*Username\\s+:\\s%s.*Email\\s+:\\s%s.*Disabled\\s+:\\sTrue.*Default Organization\\s+:\\s%s.*Default Environment\\s+:\\s%s.*";//".*Id:\\s+\\d+.*Username:\\s+%s.*Email:\\s+%s.*Disabled:\\s+True.*Default Organization:\\s+%s.*Default Environment:\\s+%s.*Default Locale:\\s+%s.*";
+			REGEXP_INFO =  ".*Id\\s*:\\s*\\d+.*Username\\s*:\\s*%s.*Email\\s*:\\s*%s.*Disabled\\s*:\\s*True.*Default Organization\\s*:\\s*%s.*Default Environment\\s*:\\s*%s.*";
 		match_info = String.format(REGEXP_INFO,
 				this.username, this.email, this.orgname != null ? this.orgname : "None", this.envname != null ? this.envname : "None").replaceAll("\"", "");
 		Assert.assertTrue(KatelloCliTestScript.sgetOutput(res).replaceAll("\n", "").matches(match_info), 
