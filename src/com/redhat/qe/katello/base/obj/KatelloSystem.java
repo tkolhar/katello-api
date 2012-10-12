@@ -12,7 +12,7 @@ import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class KatelloSystem {
+public class KatelloSystem extends _KatelloObject{
 	
 	// ** ** ** ** ** ** ** Public constants	
 	public static final String RHSM_DEFAULT_USER = "admin";
@@ -65,16 +65,10 @@ public class KatelloSystem {
 	private KatelloIdCert idCert;
 	private KatelloEnvironment environment;
 	
-	private KatelloCli cli;
-	private ArrayList<Attribute> opts;
-	
-	public KatelloSystem() {} // For resteasy
-	
 	public KatelloSystem(String pName, String pOrg, String pEnv){
 		this.name = pName;
 		this.org = pOrg;
 		this.env = pEnv;
-		this.opts = new ArrayList<Attribute>();
 	}
 	
 	public KatelloSystem(String name, String org, String env, String uuid, Long environmentId, String href, KatelloOwner owner, Map<String, String> facts, KatelloIdCert idCert) {
@@ -227,32 +221,28 @@ public class KatelloSystem {
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("environment", env));
-		cli = new KatelloCli(CMD_LIST+" -v", opts);
-		return cli.run();
+		return run(CMD_LIST+" -v");
 	}
 
 	public SSHCommandResult report(){
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("environment", env));
-		cli = new KatelloCli(CMD_REPORT+" -v", opts);
-		return cli.run();
+		return run(CMD_REPORT+" -v");
 	}
 	
 	public SSHCommandResult subscriptions_available(){
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
-		cli = new KatelloCli(CMD_SUBSCRIPTIONS+" --available -v", opts);
-		return cli.run();
+		return run(CMD_SUBSCRIPTIONS+" --available -v");
 	}
 	
 	public SSHCommandResult subscriptions() {
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
-		cli = new KatelloCli(CMD_SUBSCRIPTIONS, opts);
-		return cli.run();
+		return run(CMD_SUBSCRIPTIONS);
 	}
 
 	public SSHCommandResult subscriptions_count() {
@@ -265,7 +255,7 @@ public class KatelloSystem {
 
 		cmd += " | grep \"Serial Id\" | wc -l";
 		
-		cli = new KatelloCli(cmd, null);
+		KatelloCli cli = new KatelloCli(cmd, null);
 		return cli.run();	
 	}
 	
@@ -274,8 +264,7 @@ public class KatelloSystem {
 		opts.add(new Attribute("install", packageName));
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
-		cli = new KatelloCli(CMD_PACKAGES, opts);
-		return cli.run();
+		return run(CMD_PACKAGES);
 	}
 	
 	public SSHCommandResult rhsm_subscribe(String poolid){

@@ -1,18 +1,12 @@
 package com.redhat.qe.katello.base.obj;
 
-import java.util.ArrayList;
 import java.util.logging.Logger;
-
 import javax.management.Attribute;
-
 import org.testng.Assert;
-
-import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.tools.SSHCommandResult;
 
-//@JsonIgnoreProperties(ignoreUnknown=true)
-public class KatelloProduct {
+public class KatelloProduct extends _KatelloObject{
 	protected static Logger log = Logger.getLogger(KatelloProduct.class.getName());
 	
 	public static final String RHEL_SERVER = "Red Hat Enterprise Linux Server";
@@ -68,11 +62,6 @@ public class KatelloProduct {
 	boolean nodisc = false;
 	boolean assumeyes = false;
 	
-	private KatelloCli cli;
-	private ArrayList<Attribute> opts;
-
-	public KatelloProduct() {} // No-arg ctor for resteasy
-	
 	public KatelloProduct(
 			String pName, String pOrg, String pProv, 
 			String pDesc, String pGpgkey, String pUrl,
@@ -87,7 +76,6 @@ public class KatelloProduct {
 			this.nodisc = bNodisc.booleanValue();
 		if(bAssumeyes != null)
 			this.assumeyes = bAssumeyes.booleanValue();
-		this.opts = new ArrayList<Attribute>();
 	}
 
     public String getName() {
@@ -107,10 +95,6 @@ public class KatelloProduct {
     }
 
 	public SSHCommandResult create(){
-		return create(null);
-	}
-	
-	public SSHCommandResult create(KatelloUser user){
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
@@ -122,44 +106,35 @@ public class KatelloProduct {
 			opts.add(new Attribute("nodisc", ""));
 		if(assumeyes)
 			opts.add(new Attribute("assumeyes", ""));
-		if (user == null) {
-			cli = new KatelloCli(CMD_CREATE, opts);
-		} else {
-			cli = new KatelloCli(CMD_CREATE, opts, user);
-		}
-		return cli.run();
+		return run(CMD_CREATE);
 	}
 	
 	public SSHCommandResult cli_list(){
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("provider", provider));
-		cli = new KatelloCli(CLI_CMD_LIST, opts);
-		return cli.run();
+		return run(CLI_CMD_LIST);
 	}
 
 	public SSHCommandResult cli_list(String environment){
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("environment", environment));
-		cli = new KatelloCli(CLI_CMD_LIST, opts);
-		return cli.run();
+		return run(CLI_CMD_LIST);
 	}
 
 	public SSHCommandResult cli_list_provider(String prov){
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("provider", prov));
-		cli = new KatelloCli(CLI_CMD_LIST, opts);
-		return cli.run();
+		return run(CLI_CMD_LIST);
 	}
 	
 	public SSHCommandResult status(){
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
-		cli = new KatelloCli(CMD_STATUS, opts);
-		return cli.run();
+		return run(CMD_STATUS);
 	}
 
 	
@@ -168,16 +143,14 @@ public class KatelloProduct {
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("plan", plan));
-		cli = new KatelloCli(CMD_SET_PLAN, opts);
-		return cli.run();
+		return run(CMD_SET_PLAN);
 	}
 	
 	public SSHCommandResult synchronize(){
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
-		cli = new KatelloCli(CMD_SYNC, opts);
-		return cli.run();
+		return run(CMD_SYNC);
 	}
 	
 	public SSHCommandResult promote(String environment){
@@ -185,16 +158,14 @@ public class KatelloProduct {
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("environment", environment));
-		cli = new KatelloCli(CMD_PROMOTE, opts);
-		return cli.run();
+		return run(CMD_PROMOTE);
 	}
 
 	public SSHCommandResult delete(){
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
-		cli = new KatelloCli(CMD_DELETE, opts);
-		return cli.run();
+		return run(CMD_DELETE);
 	}
 	
 	// ** ** ** ** ** ** **

@@ -1,11 +1,9 @@
 package com.redhat.qe.katello.base.obj;
 
 import javax.management.Attribute;
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@JsonIgnoreProperties(ignoreUnknown=true)
 public class KatelloProvider extends _KatelloObject{
 	
 	// ** ** ** ** ** ** ** Public constants
