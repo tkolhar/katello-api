@@ -3,6 +3,8 @@ package com.redhat.qe.katello.base;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.logging.Logger;
+
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.testng.Assert;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
@@ -10,6 +12,7 @@ import com.redhat.qe.katello.common.KatelloConstants;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class KatelloCliTestScript 
 extends com.redhat.qe.auto.testng.TestScript 
 implements KatelloConstants {
