@@ -1,11 +1,9 @@
 package com.redhat.qe.katello.base.obj;
 
-import java.util.ArrayList;
 import javax.management.Attribute;
-import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.tools.SSHCommandResult;
 
-public class KatelloGpgKey {
+public class KatelloGpgKey extends _KatelloObject{
 	public static final String GPG_PUBKEY_RPM_ZOO = 
 			"gpg-pubkey-f78fb195-4f0d5ba1";
 	public static final String REPO_GPG_FILE_ZOO = 
@@ -27,14 +25,10 @@ public class KatelloGpgKey {
 	String org;
 	String file;
 		
-	private KatelloCli cli;
-	private ArrayList<Attribute> opts;
-	
 	public KatelloGpgKey(String pName, String pOrg, String pFile){
 		this.name = pName;
 		this.org = pOrg;
 		this.file = pFile;
-		this.opts = new ArrayList<Attribute>();
 	}
 	
 	public SSHCommandResult cli_create(){
@@ -42,31 +36,27 @@ public class KatelloGpgKey {
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("file", file));
-		cli = new KatelloCli(CLI_CMD_CREATE, opts);
-		return cli.run();
+		return run(CLI_CMD_CREATE);
 	}
 
 	public SSHCommandResult cli_info(){
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
-		cli = new KatelloCli(CLI_CMD_INFO, opts);
-		return cli.run();
+		return run(CLI_CMD_INFO);
 	}
 	
 	public SSHCommandResult cli_list(){
 		opts.clear();
 		opts.add(new Attribute("org", org));
-		cli = new KatelloCli(CLI_CMD_LIST, opts);
-		return cli.run();
+		return run(CLI_CMD_LIST);
 	}
 
 	public SSHCommandResult cli_delete(){
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
-		cli = new KatelloCli(CLI_CMD_DELETE, opts);
-		return cli.run();
+		return run(CLI_CMD_DELETE);
 	}
 
 	// ** ** ** ** ** ** **

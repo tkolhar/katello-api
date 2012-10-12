@@ -187,7 +187,7 @@ public class SyncPlanTests extends KatelloCliTestScript {
 		 * Should be fixed on cfse 2.0. So adjusting to make it passed for cfse-1.1 
 		 * */		
 		// String match_info = String.format(KatelloSyncPlan.REG_SYNCPLAN_INFO, sp.name, sp.description, sp.date.replaceAll("-", "/") + " " + sp.time, sp.interval).replaceAll("\"", "");
-		String match_info = String.format(KatelloSyncPlan.REG_SYNCPLAN_INFO, sp.name, sp.description, sp.date.replaceAll("-", "/") + " [0-9]{2}:[0-9]{2}:[0-9]{2}", sp.interval).replaceAll("\"", "");
+		String match_info = String.format(KatelloSyncPlan.REG_SYNCPLAN_INFO, sp.name, sp.description, sp.date.replaceAll("-", "/") + "\\s+[0-9]{2}:[0-9]{2}:[0-9]{2}", sp.interval).replaceAll("\"", "");
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		log.finest(String.format("Sync Plan (info) match regex: [%s]", match_info));
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", " ").matches(match_info), String.format("Sync Plan [%s] should be found in the result info", sp.name));

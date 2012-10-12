@@ -72,7 +72,6 @@
 			</run>
         </groups>	
 		<classes>
-			<class name="com.redhat.qe.katello.tests.api.ConsumersTest"/>
 			<class name="com.redhat.qe.katello.tests.api.EnvironmentsTest"/>
 			<class name="com.redhat.qe.katello.tests.api.UsersTest"/>
 		</classes>

@@ -11,6 +11,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
+import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
@@ -375,13 +376,7 @@ public class TemplateTests extends KatelloCliTestScript {
 		log.finest(String.format("Template (info) match regex: [%s]", match_info));
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", " ").matches(match_info), String.format("Template [%s] should be found in the result info", templ.name));
 
-		Pattern pattern = Pattern.compile(KatelloTemplate.REG_TEMPL_ID);
-		Matcher matcher = pattern.matcher(getOutput(exec_result).replaceAll("\n", " "));
-		Assert.assertTrue(matcher.find(), "Check - Id should exist in template info");
-		String id = matcher.group();
-		id = id.replace("Id:", "").replace("Name:", "").trim();
-		
-		return id;
+		return KatelloCli.grepCLIOutput("Id", getOutput(exec_result));
 	}
 	
 	private void assert_templList(List<KatelloTemplate> templates, List<KatelloTemplate> excludeTemplates) {
