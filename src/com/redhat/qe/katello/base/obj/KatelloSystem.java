@@ -1,10 +1,7 @@
 package com.redhat.qe.katello.base.obj;
 
-import java.util.ArrayList;
 import java.util.Map;
-
 import javax.management.Attribute;
-
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
 import com.redhat.qe.katello.base.KatelloCli;
