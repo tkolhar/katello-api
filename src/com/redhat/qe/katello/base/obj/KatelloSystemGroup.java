@@ -1,13 +1,9 @@
 package com.redhat.qe.katello.base.obj;
 
-import java.util.ArrayList;
-
 import javax.management.Attribute;
-
-import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.tools.SSHCommandResult;
 
-public class KatelloSystemGroup {
+public class KatelloSystemGroup extends _KatelloObject{
 	
 	// ** ** ** ** ** ** ** Class members
 	public String name;
@@ -15,9 +11,6 @@ public class KatelloSystemGroup {
 	public String description;
 	public int totalSystems = 0;
 	public Integer maxSystems;
-	
-	private KatelloCli cli;
-	private ArrayList<Attribute> opts;
 	
 	public static final String CMD_CREATE = "system_group create";
 	public static final String CMD_INFO = "system_group info";	
@@ -56,7 +49,6 @@ public class KatelloSystemGroup {
 		this.org = pOrg;
 		this.description = pDescription;
 		this.maxSystems = pmaxSystems;
-		this.opts = new ArrayList<Attribute>();
 	}
 	
 	public SSHCommandResult create() {
@@ -65,16 +57,14 @@ public class KatelloSystemGroup {
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("description", description));
 		opts.add(new Attribute("max_systems", maxSystems));
-		cli = new KatelloCli(CMD_CREATE, opts);
-		return cli.run();
+		return run(CMD_CREATE);
 	}
 	
 	public SSHCommandResult info(){
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
-		cli = new KatelloCli(CMD_INFO, opts);
-		return cli.run();
+		return run(CMD_INFO);
 	}
 	
 	public SSHCommandResult update(String newname, String newdescr, Integer newmaxSystems){
@@ -84,8 +74,7 @@ public class KatelloSystemGroup {
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("description", newdescr));
 		opts.add(new Attribute("max_systems", newmaxSystems));
-		cli = new KatelloCli(CMD_UPDATE, opts);
-		return cli.run();
+		return run(CMD_UPDATE);
 	}
 
 	public SSHCommandResult copy(String newname, String newdescr, Integer newmaxSystems){
@@ -95,8 +84,7 @@ public class KatelloSystemGroup {
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("description", newdescr));
 		opts.add(new Attribute("max_systems", newmaxSystems));
-		cli = new KatelloCli(CMD_COPY, opts);
-		return cli.run();
+		return run(CMD_COPY);
 	}
 	
 	public SSHCommandResult add_systems(String system_uuids){
@@ -104,8 +92,7 @@ public class KatelloSystemGroup {
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("system_uuids", system_uuids));
-		cli = new KatelloCli(CMD_ADD_SYSTEMS, opts);
-		return cli.run();
+		return run(CMD_ADD_SYSTEMS);
 	}	
 	
 	public SSHCommandResult remove_systems(String system_uuids){
@@ -113,30 +100,26 @@ public class KatelloSystemGroup {
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("system_uuids", system_uuids));
-		cli = new KatelloCli(CMD_REMOVE_SYSTEMS, opts);
-		return cli.run();
+		return run(CMD_REMOVE_SYSTEMS);
 	}	
 	
 	public SSHCommandResult list(){
 		opts.clear();
 		opts.add(new Attribute("org", org));
-		cli = new KatelloCli(CMD_LIST, opts);
-		return cli.run();
+		return run(CMD_LIST);
 	}
 
 	public SSHCommandResult list_systems(){
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
-		cli = new KatelloCli(CMD_LIST_SYSTEMS, opts);
-		return cli.run();
+		return run(CMD_LIST_SYSTEMS);
 	}
 	
 	public SSHCommandResult delete(){
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
-		cli = new KatelloCli(CMD_DELETE, opts);
-		return cli.run();
+		return run(CMD_DELETE);
 	}
 }

@@ -42,6 +42,8 @@ public class KatelloOrg extends _KatelloObject{
 	private Long id;
 	private String cpKey;
 	
+	public KatelloOrg(){super();}
+	
 	public KatelloOrg(String pName, String pDesc){
 		this.name = pName;
 		this.description = pDesc;

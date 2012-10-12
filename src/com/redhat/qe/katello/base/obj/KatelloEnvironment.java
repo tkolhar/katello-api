@@ -41,6 +41,8 @@ public class KatelloEnvironment extends _KatelloObject{
 	private Long organizationId;
 	private String organizationKey;
 	
+	public KatelloEnvironment(){super();}
+	
 	public KatelloEnvironment(String pName, String pDesc,
 			String pOrg, String pPrior){
 		this.name = pName;
