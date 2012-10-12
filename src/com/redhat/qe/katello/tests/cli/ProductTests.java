@@ -98,8 +98,8 @@ public class ProductTests  extends KatelloCliTestScript{
 		KatelloRepo repo = new KatelloRepo(null, this.org_name, prodName, null, null, null);
 		res = repo.list();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo list by product)");		
-		String REGEXP_PRODUCT_LIST = ".*Id\\s*:\\s+\\d+.*Name\\s*:\\s+"+prodName+"_.*";
-		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST),
+		String match_info = String.format(KatelloRepo.REG_REPO_LIST_ARCH, prodName, "x86_64").replaceAll("\"", "");
+		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info),
 				"Repo list should contain info about just created repo (requested by: org, product)");
 	}
 	
@@ -120,41 +120,29 @@ public class ProductTests  extends KatelloCliTestScript{
 		KatelloRepo repo = new KatelloRepo(null, this.org_name, prodName, null, null, null);
 		res = repo.list();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo list by product)");
-		String REGEXP_PRODUCT_LIST_I386 = "..*Id\\s*:\\s+\\d+.*Name\\s*:\\s+"+prodName+"_.*_i386.*";
-		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST_I386),
+		String match_info = String.format(KatelloRepo.REG_REPO_LIST_ARCH, prodName, "i386").replaceAll("\"", "");
+		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info),
 				"Repo list should contain info about just created repo (requested by: org, product - i386)");
-		String REGEXP_PRODUCT_LIST_X86_64 = ".*Id\\s*:\\s+\\d+.*Name\\s*:\\s+"+prodName+"_.*_x86_64.*";
-		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST_X86_64),
+		match_info = String.format(KatelloRepo.REG_REPO_LIST_ARCH, prodName, "x86_64").replaceAll("\"", "");
+		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info),
 				"Repo list should contain info about just created repo (requested by: org, product - x86_64)");
 		
 		// get packages count for the repos - ==0
 		repo = new KatelloRepo(null, this.org_name, prodName, null, null, null);
 		resRepos = repo.list();
-		String REGEXP_PACKAGE_CNT = ".*Package Count:\\s+0.*";		
-		String[] lines;String line;;
-		
+		match_info = String.format(KatelloRepo.REG_PACKAGE_CNT, "0").replaceAll("\"", "");	
 		repoName = KatelloCli.grepCLIOutput("Name", getOutput(resRepos),1); // 1st repo
 		KatelloRepo repoWithName = new KatelloRepo(repoName, this.org_name, prodName, null, null, null);
 		res = repoWithName.info();
-		lines = getOutput(res).split("\n");
-		for(int i=0;i<lines.length;i++){
-			line = lines[i];
-			if(line.startsWith("Package Count:")){
-				// our line to analyze - should contain: 0
-				Assert.assertTrue(line.matches(REGEXP_PACKAGE_CNT),"Repo list of the product - should contain package count 0");
-			}
-		}
+		// output to analyze - should contain: 0
+		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info),"Repo list of the product - should contain package count 0");
+
 		repoName = KatelloCli.grepCLIOutput("Name", getOutput(resRepos),2); // 2nd repo
 		repoWithName = new KatelloRepo(repoName, this.org_name, prodName, null, null, null);
+		match_info = String.format(KatelloRepo.REG_PACKAGE_CNT, "0").replaceAll("\"", "");
 		res = repoWithName.info();
-		lines = getOutput(res).split("\n");
-		for(int i=0;i<lines.length;i++){
-			line = lines[i];
-			if(line.startsWith("Package Count:")){
-				// our line to analyze - should contain: 0
-				Assert.assertTrue(line.matches(REGEXP_PACKAGE_CNT),"Repo list of the product - should contain package count 0");
-			}
-		}
+		// output to analyze - should contain: 0
+		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info),"Repo list of the product - should contain package count 0");
 	}
 	
 	@Test(description="create product by existing name", groups = {"cli-products"}, enabled=true)
@@ -398,8 +386,12 @@ public class ProductTests  extends KatelloCliTestScript{
 		
 		// product list --environment (1 result - just the product promoted)
 		res = prod.cli_list(envName);
-		String REGEXP_PRODUCT_LIST = ".*Id\\s*:\\s+\\d+Name\\s*:\\s+"+prodName+".*Provider Name\\s*:\\s+"+prov_name+".*";
-		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST),
+		if (prod.syncPlanName == null) prod.syncPlanName = "None";
+		if (prod.lastSync == null) prod.lastSync = "";
+		if (prod.gpgkey == null) prod.gpgkey = "";
+		
+		String match_info = String.format(KatelloProduct.REG_PROD_LIST, prodName, prov_name, prod.syncPlanName, prod.lastSync, prod.gpgkey).replaceAll("\"", "");
+		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info),
 				"Product list by environment - just promoted product");
 		
 		// repo list --environment (1 result).
@@ -407,8 +399,8 @@ public class ProductTests  extends KatelloCliTestScript{
 		KatelloRepo repo = new KatelloRepo(null,this.org_name,prodName,null,null,null);
 		res = repo.list(envName);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo list by product)");		
-		String REGEXP_REPO_LIST = ".*Id\\s*:\\s+\\d+.*Name\\s*:\\s+"+prodName+"_.*";
-		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(REGEXP_REPO_LIST),
+		match_info = String.format(KatelloRepo.REG_REPO_LIST_ARCH, prodName, "x86_64").replaceAll("\"", "");
+		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info),
 				"Repo list should contain info about just created repo (requested by: org, environment)");
 	}
 	
@@ -442,19 +434,23 @@ public class ProductTests  extends KatelloCliTestScript{
 		
 		// product list --environment (1 result - just the product promoted)
 		res = prod.cli_list(envName);
-		String REGEXP_PRODUCT_LIST = ".*Id\\s*:\\s+\\d+Name\\s*:\\s+"+prodName+".*Provider Name\\s*:\\s+"+prov_name+".*";
-		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST),
+		if (prod.syncPlanName == null) prod.syncPlanName = "None";
+		if (prod.lastSync == null) prod.lastSync = "";
+		if (prod.gpgkey == null) prod.gpgkey = "";
+		
+		String match_info = String.format(KatelloProduct.REG_PROD_LIST, prodName, prov_name, prod.syncPlanName, prod.lastSync, prod.gpgkey).replaceAll("\"", "");
+		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info),
 				"Product list by environment - just promoted product");
 		
 		// repo list --environment (2 entries).
 		KatelloRepo repo = new KatelloRepo(null,this.org_name,prodName,null,null,null);
 		res = repo.list(envName);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo list by product)");
-		String REGEXP_PRODUCT_LIST_I386 = ".*Id\\s*:\\s+\\d+.*Name\\s*:\\s+"+prodName+"_.*_i386.*";
-		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST_I386),
+		match_info = String.format(KatelloRepo.REG_REPO_LIST_ARCH, prodName, "i386").replaceAll("\"", "");
+		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info),
 				"Repo list should contain info about just created repo (requested by: org, product - i386)");
-		String REGEXP_PRODUCT_LIST_X86_64 = ".*Id\\s*:\\s+\\d+.*Name\\s*:\\s+"+prodName+"_.*_x86_64.*";
-		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST_X86_64),
+		match_info = String.format(KatelloRepo.REG_REPO_LIST_ARCH, prodName, "x86_64").replaceAll("\"", "");
+		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info),
 				"Repo list should contain info about just created repo (requested by: org, product - x86_64)");
 	}
 
@@ -479,8 +475,8 @@ public class ProductTests  extends KatelloCliTestScript{
 		// get packages count for the repo - !=0
 		KatelloRepo repo = new KatelloRepo(null,this.org_name,prodName,null,null,null);
 		res = repo.list();
-		String REGEXP_REPO_LIST = ".*Package Count:\\s+0.*";
-		Assert.assertFalse(getOutput(res).replaceAll("\n", "").matches(REGEXP_REPO_LIST),
+		String match_info = String.format(KatelloRepo.REG_PACKAGE_CNT, "0").replaceAll("\"", "");
+		Assert.assertFalse(getOutput(res).replaceAll("\n", "").matches(match_info),
 				"Repo list of the product - should not contain package count 0 (after product synchronize)");
 	}
 
@@ -505,31 +501,19 @@ public class ProductTests  extends KatelloCliTestScript{
 		// get packages count for the repos - !=0
 		KatelloRepo repo = new KatelloRepo(null,this.org_name,prodName,null,null,null);
 		resRepos = repo.list();
-		String REGEXP_PACKAGE_CNT = ".*Package Count:\\s+0.*";		
-		String[] lines;String line;;
+		String match_info = String.format(KatelloRepo.REG_PACKAGE_CNT, "0").replaceAll("\"", "");	
 		
 		repoName = KatelloCli.grepCLIOutput("Name", resRepos.getStdout(),1); // 1st repo
 		repo = new KatelloRepo(repoName,this.org_name,prodName,null,null,null);
 		res = repo.info();
-		lines = getOutput(res).split("\n");
-		for(int i=0;i<lines.length;i++){
-			line = lines[i];
-			if(line.startsWith("Package Count:")){
-				// our line to analyze - should not contain: 0
-				Assert.assertFalse(line.matches(REGEXP_PACKAGE_CNT),"Repo list of the product - should not contain package count 0 (after product synchronize)");
-			}
-		}
+		// our line to analyze - should not contain: 0
+		Assert.assertFalse(getOutput(res).matches(match_info),"Repo list of the product - should not contain package count 0 (after product synchronize)");
+
 		repoName = KatelloCli.grepCLIOutput("Name", resRepos.getStdout(),2); // 2nd repo
 		repo = new KatelloRepo(repoName,this.org_name,prodName,null,null,null);
 		res = repo.info();
-		lines = getOutput(res).split("\n");
-		for(int i=0;i<lines.length;i++){
-			line = lines[i];
-			if(line.startsWith("Package Count:")){
-				// our line to analyze - should not contain: 0
-				Assert.assertFalse(line.matches(REGEXP_PACKAGE_CNT),"Repo list of the product - should not contain package count 0 (after product synchronize)");
-			}
-		}
+		// our line to analyze - should not contain: 0
+		Assert.assertFalse(getOutput(res).matches(match_info),"Repo list of the product - should not contain package count 0 (after product synchronize)");
 	}
 	
 	@Test(description="delete product - included in some changeset", groups = {"cli-products"}, enabled=true)
@@ -566,14 +550,18 @@ public class ProductTests  extends KatelloCliTestScript{
 		KatelloRepo repo = new KatelloRepo(null,this.org_name,prodName,null,null,null);
 		res = repo.list(envName_dev);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo list --environment)");
-		String REGEXP_PRODUCT_LIST_X86_64 = ".*Id\\s*:\\s+\\d+.*Name\\s*:\\s+"+prodName+"_.*_x86_64.*";
-		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST_X86_64),
+		String match_info = String.format(KatelloRepo.REG_REPO_LIST_ARCH, prodName, "x86_64").replaceAll("\"", "");
+		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info),
 				"Repo list by environment - should contain info");
 		// Assertions - product list by env
 		res = prod.cli_list(envName_dev);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product list --environment)");
-		String REGEXP_PRODUCT_LIST = ".*Name\\s*:\\s+"+prodName+".*Provider Name\\s*:\\s+"+this.prov_name+".*";
-		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST), 
+		if (prod.syncPlanName == null) prod.syncPlanName = "None";
+		if (prod.lastSync == null) prod.lastSync = "";
+		if (prod.gpgkey == null) prod.gpgkey = "";
+		
+		match_info = String.format(KatelloProduct.REG_PROD_LIST, prodName, prov_name, prod.syncPlanName, prod.lastSync, prod.gpgkey).replaceAll("\"", "");
+		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info), 
 				"List should contain info about product (requested by: environment)");
 		
 		// Final action - DELETE the product
@@ -587,8 +575,8 @@ public class ProductTests  extends KatelloCliTestScript{
 		// Assertions - product list of the org
 		res = prod.cli_list();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product list --provider)");
-		REGEXP_PRODUCT_LIST = ".*Name\\s*:\\s+"+prodName+".*Provider Name\\s*:\\s+"+this.prov_name+".*";
-		Assert.assertFalse(getOutput(res).replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST), 
+		match_info = String.format(KatelloProduct.REG_PROD_LIST, prodName, prov_name, prod.syncPlanName, prod.lastSync, prod.gpgkey).replaceAll("\"", "");
+		Assert.assertFalse(getOutput(res).replaceAll("\n", "").matches(match_info), 
 				"Check - list should NOT contain info about product (deleted already)");
 		
 		// Assertions - repo list by product
@@ -601,14 +589,14 @@ public class ProductTests  extends KatelloCliTestScript{
 		repo = new KatelloRepo(null,this.org_name,prodName,null,null,null);
 		res = repo.list(envName_dev);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo list --environment)");
-		String REGEXP_NOREPO = ".*Id\\s*:\\s+\\d+.*Name\\s*:\\s+.*";
-		Assert.assertFalse(getOutput(res).replaceAll("\n", "").matches(REGEXP_NOREPO), "Check - `repo list --environment` output string");
+		match_info = String.format(KatelloRepo.REG_REPO_LIST_ARCH, prodName, "x86_64").replaceAll("\"", "");
+		Assert.assertFalse(getOutput(res).replaceAll("\n", "").matches(match_info), "Check - `repo list --environment` output string");
 		
 		// Assertions - product list of env.
 		res = prod.cli_list(envName_dev);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product list --environment)");
-		REGEXP_PRODUCT_LIST = ".*Name\\s*:\\s+"+prodName+".*Provider Name\\s*:\\s+"+this.prov_name+".*";
-		Assert.assertFalse(getOutput(res).replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST), 
+		match_info = String.format(KatelloProduct.REG_PROD_LIST, prodName, prov_name, prod.syncPlanName, prod.lastSync, prod.gpgkey).replaceAll("\"", "");
+		Assert.assertFalse(getOutput(res).replaceAll("\n", "").matches(match_info), 
 				"Check - list should NOT contain info about product (deleted already)");		
 	}
 	
