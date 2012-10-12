@@ -20,6 +20,7 @@ public class KatelloGpgKey extends _KatelloObject{
 	public static final String ERR_KEY_NOT_FOUND = 
 			"Could not find GPG key [ %s ]"; 
 
+	public static final String REGEXP_GPG = ".*Name\\s*:\\s+%s.*";
 	// ** ** ** ** ** ** ** Class members
 	String name;
 	String org;
