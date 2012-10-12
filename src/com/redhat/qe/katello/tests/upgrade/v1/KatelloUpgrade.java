@@ -13,6 +13,8 @@ public class KatelloUpgrade extends KatelloCliTestScript{
 	public static final String UPGRADE_REPO_LATEST = 
 			"http://download.lab.bos.redhat.com/rel-eng/CloudForms/1.0.1/latest/el6-se/x86_64/";
 	
+	public static final String[] CONF_FILES = {"/etc/httpd/conf.d/katello.conf", "/etc/katello/katello.yml", "/etc/katello/thin.yml"};
+	
 	@Test(description="prepare the upgrade yum repo", 
 			dependsOnGroups={TNG_PRE_UPGRADE}, 
 			groups={TNG_UPGRADE})
@@ -41,7 +43,11 @@ public class KatelloUpgrade extends KatelloCliTestScript{
 			dependsOnGroups={TNG_PRE_UPGRADE}, 
 			groups={TNG_UPGRADE})
 	public void updateRpms(){
-		KatelloUtils.sshOnServer("yum -y update pulp* candlepin* katello*"); // TODO maybe blind update everything?
+		KatelloUtils.sshOnServer("yum clean all");
+		KatelloUtils.sshOnServer("yum upgrade -y --exclude libxslt"); // TODO --exclude libxslt is workaround which should be removed later
+		for (String confFile : CONF_FILES) {
+			KatelloUtils.sshOnServer("mv " + confFile + ".rpmnew " + confFile + " -f");
+		}
 	}
 	
 	@Test(description="run schema upgrade", 
@@ -50,6 +56,9 @@ public class KatelloUpgrade extends KatelloCliTestScript{
 			groups={TNG_UPGRADE})
 	public void runUpgrade(){
 		KatelloUtils.sshOnServer("katello-upgrade -y"); // TODO using --log=LOG_FILE option.
+		KatelloUtils.sshOnServer("katello-service stop");
+		KatelloUtils.sshOnServer("katello-configure --answer-file=/etc/katello/katello-configure.conf -b");
+		KatelloUtils.sshOnServer("sed -i 's/5674/5671/g' /etc/gofer/plugins/katelloplugin.conf");
 	}
 
 	@Test(description="start services", 
