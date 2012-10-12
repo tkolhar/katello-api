@@ -42,6 +42,8 @@ public class KatelloProvider extends _KatelloObject{
 	private String providerType;
 	private String updatedAt;
 	
+	public KatelloProvider(){super();}
+	
 	public KatelloProvider(String pName, String pOrg, 
 			String pDesc, String pUrl){
 		this.name = pName;
