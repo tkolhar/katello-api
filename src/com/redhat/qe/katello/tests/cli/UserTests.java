@@ -174,7 +174,8 @@ public class UserTests extends KatelloCliTestScript{
 	public void test_UserReport_pdf(){
 		SSHCommandResult res;
 		String format = "pdf";
-		res = KatelloUser.report(format);
+		KatelloUser usr = new KatelloUser();
+		res = usr.report(format);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+KatelloUser.CMD_REPORT+")");
 		
 	
@@ -184,7 +185,7 @@ public class UserTests extends KatelloCliTestScript{
 	public void test_UserReport_html(){
 		SSHCommandResult res;
 		String format = "html";
-		res = KatelloUser.report(format);
+		res = new KatelloUser().report(format);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+KatelloUser.CMD_REPORT+")");
 		
 	
@@ -194,7 +195,7 @@ public class UserTests extends KatelloCliTestScript{
 	public void test_UserReport(){
 		SSHCommandResult res;
 		String format = "";
-		res = KatelloUser.report(format);
+		res = new KatelloUser().report(format);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+KatelloUser.CMD_REPORT+")");
 		
 	
@@ -205,7 +206,7 @@ public class UserTests extends KatelloCliTestScript{
 	public void test_UserReport_csv(){
 		SSHCommandResult res;
 		String format = "csv";
-		res = KatelloUser.report(format);
+		res = new KatelloUser().report(format);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+KatelloUser.CMD_REPORT+")");
 		
 	
