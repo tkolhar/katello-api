@@ -64,7 +64,7 @@ public class GpgKeyTests extends KatelloCliTestScript{
 	public void list(){
 		SSHCommandResult res = new KatelloGpgKey(this.gpg, this.org, null).cli_list();
 		Assert.assertTrue(res.getExitCode().intValue()==0,"Check - return code (gpg_key list)");
-		String REGEXP_GPG = ".*Name:\\s+"+this.gpg+".*";
+		String REGEXP_GPG = ".*Name\\s*:\\s+"+this.gpg+".*";
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(REGEXP_GPG),
 				"Check - gpg key should be listed");
 	}
@@ -74,7 +74,7 @@ public class GpgKeyTests extends KatelloCliTestScript{
 		KatelloGpgKey gpg = new KatelloGpgKey(this.gpg, this.org, null);
 		SSHCommandResult res = gpg.cli_delete();
 		Assert.assertTrue(res.getExitCode().intValue()==0,"Check - return code (gpg_key delete)");
-		String REGEXP_GPG = ".*Name:\\s+"+this.gpg+".*";
+		String REGEXP_GPG = ".*Name\\s*:\\s+"+this.gpg+".*";
 		Assert.assertFalse(getOutput(res).replaceAll("\n", "").matches(REGEXP_GPG),
 				"Check - gpg key should not be listed");
 		res = gpg.cli_info();

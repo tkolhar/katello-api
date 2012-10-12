@@ -56,7 +56,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 		}
 	} 
 	
-
+    
 	@Test(description="create AK - template does not exist", groups = {"cli-activationkey"}, enabled=true)
 	public void test_create_noTemplate(){
 		SSHCommandResult res;

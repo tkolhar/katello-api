@@ -1,14 +1,11 @@
 package com.redhat.qe.katello.base.obj;
 
-import java.util.ArrayList;
-
 import javax.management.Attribute;
-
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.tools.SSHCommandResult;
 
-public class KatelloRepo {
+public class KatelloRepo extends _KatelloObject{
 	
 	// ** ** ** ** ** ** ** Public constants
 	// Red Hat Enterprise Linux 6 Server RPMs x86_64 6Server
@@ -41,10 +38,10 @@ public class KatelloRepo {
 			"Added filter [ %s ] to repository [ %s ]";
 	public static final String OUT_REPO_SYNCHED = "Repo [ %s ] synced";
 	
-	public static final String REG_REPO_INFO = ".*Id:\\s+\\d+.*Name:\\s+%s.*Url:\\s+%s.*Last Sync:\\s+%s.*Progress:\\s+%s.*GPG key:\\s*+%s.*";
-	public static final String REG_REPO_STATUS = ".*Package Count:\\s+\\d+.*Last Sync:\\s+%s.*Sync State:\\s+%s.*";
-	public static final String REG_FILTER_LIST = ".*\\s+%s.*\\s+%s";
-	public static final String REG_REPO_LIST = ".*Id:\\s+\\d+.*Name:\\s+%s.*Package Count:\\s+\\d+.*Last Sync:\\s+%s.*";
+	public static final String REG_REPO_INFO = ".*Id\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Url\\s*:\\s+%s.*Last Sync\\s*:\\s+%s.*Progress\\s*:\\s+%s.*GPG key\\s*:\\s*+%s.*";
+	public static final String REG_REPO_STATUS = ".*Package Count\\s*:\\s+\\d+.*Last Sync\\s*:\\s+%s.*Sync State\\s*:\\s+%s.*";
+	public static final String REG_FILTER_LIST = ".*\\s*%s.*\\s+%s.*";
+	public static final String REG_REPO_LIST = ".*Id\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Package Count\\s*:\\s+\\d+.*Last Sync\\s*:\\s+%s.*";
 	
 	public static final String REG_REPO_LASTSYNC = "\\d{4}/\\d{2}/\\d{2}\\s\\d{2}:\\d{2}:\\d{2}";
 
@@ -58,9 +55,6 @@ public class KatelloRepo {
 	public String lastSync;
 	public boolean nogpgkey = false;
 	
-	private KatelloCli cli;
-	private ArrayList<Attribute> opts;
-	
 	public KatelloRepo(String pName, String pOrg, 
 			String pProd, String pUrl, 
 			String pGpgkey, Boolean pNogpgkey){
@@ -71,28 +65,16 @@ public class KatelloRepo {
 		this.gpgkey = pGpgkey;
 		if(pNogpgkey != null)
 			this.nogpgkey = pNogpgkey.booleanValue();
-		this.opts = new ArrayList<Attribute>();
 	}
 	
 	public SSHCommandResult create(){
-		return create(null);
-	}
-
-	public SSHCommandResult create(KatelloUser user){
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("product", product));
 		opts.add(new Attribute("url", url));
 		opts.add(new Attribute("gpgkey", gpgkey));
-		if(nogpgkey)
-			opts.add(new Attribute("nogpgkey", ""));
-		if (user == null) {
-			cli = new KatelloCli(CMD_CREATE, opts);
-		} else {
-			cli = new KatelloCli(CMD_CREATE, opts, user);
-		}
-		return cli.run();
+		return run(CMD_CREATE);
 	}	
 
 	public SSHCommandResult delete(){
@@ -100,8 +82,7 @@ public class KatelloRepo {
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("product", product));
-		cli = new KatelloCli(CMD_DELETE, opts);
-		return cli.run();
+		return run(CMD_DELETE);
 	}
 	
 	public SSHCommandResult list_filters(){
@@ -109,8 +90,7 @@ public class KatelloRepo {
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("product", product));
-		cli = new KatelloCli(CMD_FILTER_LIST, opts);
-		return cli.run();
+		return run(CMD_FILTER_LIST);
 	}
 	
 	public SSHCommandResult synchronize(){
@@ -118,8 +98,7 @@ public class KatelloRepo {
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("product", product));
-		cli = new KatelloCli(CMD_SYNCHRONIZE, opts);
-		return cli.run();
+		return run(CMD_SYNCHRONIZE);
 	}
 	
 	public SSHCommandResult update_gpgkey(){
@@ -128,8 +107,7 @@ public class KatelloRepo {
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("product", product));
 		opts.add(new Attribute("gpgkey", gpgkey));
-		cli = new KatelloCli(CMD_UPDATE, opts);
-		return cli.run();
+		return run(CMD_UPDATE);
 	}
 	
 	public SSHCommandResult info(){
@@ -137,8 +115,7 @@ public class KatelloRepo {
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("product", product));
-		cli = new KatelloCli(CMD_INFO, opts);
-		return cli.run();
+		return run(CMD_INFO);
 	}
 	
 	public SSHCommandResult info(String environment){
@@ -147,8 +124,7 @@ public class KatelloRepo {
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("product", product));
 		opts.add(new Attribute("environment", environment));
-		cli = new KatelloCli(CMD_INFO, opts);
-		return cli.run();
+		return run(CMD_INFO);
 	}
 
 	public SSHCommandResult enable(){
@@ -156,8 +132,7 @@ public class KatelloRepo {
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("product", product));
-		cli = new KatelloCli(CMD_ENABLE, opts);
-		return cli.run();
+		return run(CMD_ENABLE);
 	}
 	
 	public SSHCommandResult disable(){
@@ -165,8 +140,7 @@ public class KatelloRepo {
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("product", product));
-		cli = new KatelloCli(CMD_DISABLE, opts);
-		return cli.run();
+		return run(CMD_DISABLE);
 	}
 	
 	public SSHCommandResult add_filter(String filter){
@@ -175,8 +149,7 @@ public class KatelloRepo {
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("product", product));
-		cli = new KatelloCli(CMD_ADD_FILTER, opts);
-		return cli.run();
+		return run(CMD_ADD_FILTER);
 	}
 	
 	public SSHCommandResult remove_filter(String filter){
@@ -185,8 +158,7 @@ public class KatelloRepo {
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("product", product));
-		cli = new KatelloCli(CMD_REMOVE_FILTER, opts);
-		return cli.run();
+		return run(CMD_REMOVE_FILTER);
 	}
 	
 	public SSHCommandResult status(){
@@ -194,8 +166,7 @@ public class KatelloRepo {
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("product", product));
-		cli = new KatelloCli(CMD_STATUS, opts);
-		return cli.run();
+		return run(CMD_STATUS);
 	}
 
 	public SSHCommandResult status(String environment){
@@ -204,8 +175,7 @@ public class KatelloRepo {
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("product", product));
 		opts.add(new Attribute("environment", environment));
-		cli = new KatelloCli(CMD_STATUS, opts);
-		return cli.run();
+		return run(CMD_STATUS);
 	}
 
 	
@@ -216,23 +186,20 @@ public class KatelloRepo {
 		opts.add(new Attribute("product", product));
 		opts.add(new Attribute("url", url));
 		opts.add(new Attribute("assumeyes", "y"));
-		cli = new KatelloCli(CMD_DISCOVER, opts);
-		return cli.run();
+		return run(CMD_DISCOVER);
 	}
 	public SSHCommandResult list(){
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("product", product));
-		cli = new KatelloCli(CMD_LIST, opts);
-		return cli.run();
+		return run(CMD_LIST);
 	}
 
 	public SSHCommandResult list(String environment){
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("environment", environment));
-		cli = new KatelloCli(CMD_LIST, opts);
-		return cli.run();
+		return run(CMD_LIST);
 	}
 
 	// ** ** ** ** ** ** **
