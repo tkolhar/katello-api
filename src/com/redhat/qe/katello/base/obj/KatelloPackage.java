@@ -1,13 +1,9 @@
 package com.redhat.qe.katello.base.obj;
 
-import java.util.ArrayList;
-
 import javax.management.Attribute;
-
-import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.tools.SSHCommandResult;
 
-public class KatelloPackage {
+public class KatelloPackage extends _KatelloObject{
 
 	// ** ** ** ** ** ** ** Public constants
 	public static final String CMD_INFO = "package info";
@@ -24,10 +20,6 @@ public class KatelloPackage {
 	public String environment;
 	public String name;
 	
-	private KatelloCli cli;
-	private ArrayList<Attribute> opts;
-	
-	
 	public KatelloPackage(String pId, String pName, String pOrg, String pProd, String pRepo, String pEnv){
 		this.id = pId;
 		this.name = pName;
@@ -35,7 +27,6 @@ public class KatelloPackage {
 		this.product = pProd;
 		this.repo = pRepo;
 		this.environment = pEnv;
-		this.opts = new ArrayList<Attribute>();
 	}
 	
 	public SSHCommandResult cli_info(){
@@ -45,8 +36,7 @@ public class KatelloPackage {
 		opts.add(new Attribute("product", product));
 		opts.add(new Attribute("repo", repo));
 		opts.add(new Attribute("environment", environment));
-		cli = new KatelloCli(CMD_INFO, opts);
-		return cli.run();
+		return run(CMD_INFO);
 	}
 	
 	public SSHCommandResult cli_list(){
@@ -55,8 +45,7 @@ public class KatelloPackage {
 		opts.add(new Attribute("product", product));
 		opts.add(new Attribute("repo", repo));
 		opts.add(new Attribute("environment", environment));
-		cli = new KatelloCli(CMD_LIST, opts);
-		return cli.run();
+		return run(CMD_LIST);
 	}
 	
 	public SSHCommandResult cli_search(String query){
@@ -66,8 +55,7 @@ public class KatelloPackage {
 		opts.add(new Attribute("repo", repo));
 		opts.add(new Attribute("environment", environment));
 		opts.add(new Attribute("query", query));
-		cli = new KatelloCli(CMD_SEARCH, opts);
-		return cli.run();
+		return run(CMD_SEARCH);
 	}
 	
 	// ** ** ** ** ** ** **
