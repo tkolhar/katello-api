@@ -18,8 +18,6 @@ import com.redhat.qe.tools.SSHCommandRunner;
  */
 public class KatelloUtils {
 	private static Logger log = Logger.getLogger(KatelloUtils.class.getName());
-	private static Boolean isClientLocalhost = null;
-	private static Boolean isServerLocalhost = null;
 	
     public static void waitfor_katello(){
         sshOnServer("python -c \"from katello.utils import waitfor_katello; waitfor_katello()\"");
