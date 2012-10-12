@@ -1,11 +1,9 @@
 package com.redhat.qe.katello.base.obj;
 
-import java.util.ArrayList;
 import javax.management.Attribute;
-import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.tools.SSHCommandResult;
 
-public class KatelloPermission {
+public class KatelloPermission extends _KatelloObject{
 	
 	// ** ** ** ** ** ** ** Public constants
 	public static final String CMD_CREATE = "permission create";
@@ -23,9 +21,6 @@ public class KatelloPermission {
 	String verbs;
 	String user_role;
 	
-	private KatelloCli cli;
-	private ArrayList<Attribute> opts;
-
 	public KatelloPermission(String pName, String pOrg,
 			String pScope, String pTags, String pVerbs, String pUserRole){
 		this.name = pName;
@@ -34,7 +29,6 @@ public class KatelloPermission {
 		this.tags = pTags;
 		this.verbs = pVerbs;
 		this.user_role = pUserRole;
-		this.opts = new ArrayList<Attribute>();
 	}
 	
 	public SSHCommandResult create(){
@@ -45,37 +39,28 @@ public class KatelloPermission {
 		opts.add(new Attribute("tags", tags));
 		opts.add(new Attribute("verbs", verbs));
 		opts.add(new Attribute("user_role", user_role));
-		cli = new KatelloCli(CMD_CREATE, opts);
-		return cli.run();
+		return run(CMD_CREATE);
 	}
 	
-	
-	public static SSHCommandResult available_verbs(String orgName,String scopeName){
-		
-		ArrayList<Attribute> optns=new ArrayList<Attribute>();
-		KatelloCli cli_cmd;
-		optns.clear();
-		optns.add(new Attribute("org", orgName));
-		optns.add(new Attribute("scope", scopeName));
-		cli_cmd = new KatelloCli(CMD_AVAIL_VERB, optns);
-		return cli_cmd.run();
+	public SSHCommandResult available_verbs(String orgName,String scopeName){
+		opts.clear();
+		opts.add(new Attribute("org", orgName));
+		opts.add(new Attribute("scope", scopeName));
+		return run(CMD_AVAIL_VERB);
 	}
-	
 	
 	public SSHCommandResult delete(){
 		opts.clear();
 		
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("user_role", user_role));
-		cli = new KatelloCli(CMD_DELETE, opts);
-		return cli.run();
+		return run(CMD_DELETE);
 	}
 	
 	public SSHCommandResult list(){
 		opts.clear();
 		opts.add(new Attribute("user_role", user_role));
-		cli = new KatelloCli(CMD_LIST, opts);
-		return cli.run();
+		return run(CMD_LIST);
 	}
 	
 }
