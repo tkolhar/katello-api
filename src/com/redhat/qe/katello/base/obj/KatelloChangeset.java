@@ -1,6 +1,5 @@
 package com.redhat.qe.katello.base.obj;
 
-import java.util.ArrayList;
 import javax.management.Attribute;
 import com.redhat.qe.tools.SSHCommandResult;
 
