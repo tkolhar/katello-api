@@ -144,7 +144,7 @@ public class KatelloUtils {
 	
 	public static SSHCommandResult startKatello(){
 		String _cmd = 
-				"katello-service restart";
+				"katello-service start";
 		return sshOnServer(_cmd);
 	}
 }

@@ -126,6 +126,7 @@ public class MultyOrgManifest implements KatelloConstants {
 	@Test(description="init object unique names", 
 			groups={TNG_PRE_UPGRADE})
 	public void init(){
+		// setup 4 different organizations with repos promoted to environments
 		String _uid = KatelloUtils.getUniqueID();
 		_org1 = "Tokyo_"+_uid;
 		_provider1 = "Prov_Tokyo_"+_uid;
@@ -434,6 +435,8 @@ public class MultyOrgManifest implements KatelloConstants {
         KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);
         sys3.rhsm_registerForce();
 		
+        //this org contains imported manifest with RHEL repo promoted to environments
+        // DO NOT DELETE THIS ORG IN TEAR_DOWN
 		org = new KatelloOrg(_org4, null);
 		env1 = new KatelloEnvironment(_env4_1, null, _org4, KatelloEnvironment.LIBRARY);
 		env2 = new KatelloEnvironment(_env4_2, null, _org4, _env4_1);
@@ -951,6 +954,7 @@ public class MultyOrgManifest implements KatelloConstants {
 		Assert.assertTrue(res.getStdout().trim().contains("RHBA-2012:1312")); //telnet errata
 	}
 	
+	//check that pulp packages are contained in output
 	private void checkPulpPackages(SSHCommandResult res) {
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 		
@@ -962,6 +966,7 @@ public class MultyOrgManifest implements KatelloConstants {
 		Assert.assertTrue(res.getStdout().trim().contains("pulp-consumer"));
 	}
 
+	//check that zoo packages are contained in output
 	private void checkZooPackages(SSHCommandResult res) {
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 		
