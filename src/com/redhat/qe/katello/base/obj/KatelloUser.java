@@ -57,6 +57,7 @@ public class KatelloUser {
 	public String orgname="";
 	public String envname = "";
 	private Long id;
+	public String locale = "";
 	
 	private KatelloCli cli;
 	private List<Attribute> opts;
@@ -68,6 +69,15 @@ public class KatelloUser {
 		this.email = pEmail;
 		this.password = pPassword;
 		this.disabled = pDisabled;
+		this.opts = new ArrayList<Attribute>();
+	}
+
+	public KatelloUser(String pName, String pEmail, String pPassword, boolean pDisabled, String pLocale){
+		this.username = pName;
+		this.email = pEmail;
+		this.password = pPassword;
+		this.disabled = pDisabled;
+		this.locale = pLocale;
 		this.opts = new ArrayList<Attribute>();
 	}
 	
@@ -131,6 +141,8 @@ public class KatelloUser {
 			opts.add(new Attribute("default_organization",orgname));
 		if(!(envname.isEmpty()))
 			opts.add(new Attribute("default_environment",envname));
+		if(!(locale.isEmpty()))
+			opts.add(new Attribute("default_locale",locale));
 		cli = new KatelloCli(CMD_CREATE, opts);
 		return cli.run();
 	}

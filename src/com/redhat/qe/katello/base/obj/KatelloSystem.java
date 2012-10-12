@@ -232,6 +232,14 @@ public class KatelloSystem {
 		return cli.run();
 	}
 
+	public SSHCommandResult info(){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		cli = new KatelloCli(CMD_INFO+" -v", opts);
+		return cli.run();
+	}
+	
 	public SSHCommandResult report(){
 		opts.clear();
 		opts.add(new Attribute("org", org));
