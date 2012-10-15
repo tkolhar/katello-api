@@ -27,7 +27,7 @@ public class KatelloActivationKey extends _KatelloObject{
 	public static final String CMD_ADD_SYSTEMGROUP = "activation_key add_system_group";
 	public static final String CMD_REMOVE_SYSTEMGROUP = "activation_key remove_system_group";
 	public static final String ERR_TEMPLATE_NOTFOUND = 
-			"Couldn't find template '%s'";	
+			"Could not find template [ %s ]";	
 	public static final String OUT_CREATE = 
 			"Successfully created activation key [ %s ]";
 	public static final String OUT_DELETE =
