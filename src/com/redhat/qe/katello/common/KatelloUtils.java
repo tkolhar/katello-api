@@ -104,6 +104,7 @@ public class KatelloUtils {
 					System.getProperty("katello.client.sshkey.passphrase", "secret"), null);
 			SSHCommandResult res = ssh_client.runCommandAndWait(_cmd);
 			ssh_client.reset(); // it will make connections be closed. Weird issue: java.net.SocketException: Too many open files
+			ssh_client.getConnection().close();
 			return res;
 		}catch(Throwable t){
 			log.warning("Warning: Could not initialize client's SSHCommandRunner.");
@@ -128,6 +129,7 @@ public class KatelloUtils {
 					System.getProperty("katello.server.sshkey.passphrase", "secret"), null);
 			SSHCommandResult res = ssh_server.runCommandAndWait(_cmd); 
 			ssh_server.reset();
+			ssh_server.getConnection().close();
 			return res;
 		}catch(Throwable t){
 			log.warning("Warning: Could not initialize server's SSHCommandRunner.");
