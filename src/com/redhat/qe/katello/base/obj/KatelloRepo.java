@@ -42,8 +42,9 @@ public class KatelloRepo extends _KatelloObject{
 	public static final String REG_REPO_STATUS = ".*Package Count\\s*:\\s+\\d+.*Last Sync\\s*:\\s+%s.*Sync State\\s*:\\s+%s.*";
 	public static final String REG_FILTER_LIST = ".*\\s*%s.*\\s+%s.*";
 	public static final String REG_REPO_LIST = ".*Id\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Package Count\\s*:\\s+\\d+.*Last Sync\\s*:\\s+%s.*";
-	
+	public static final String REG_REPO_LIST_ARCH = ".*Id\\s*:\\s+\\d+.*Name\\s*:\\s+%s_.*_%s.*";
 	public static final String REG_REPO_LASTSYNC = "\\d{4}/\\d{2}/\\d{2}\\s\\d{2}:\\d{2}:\\d{2}";
+	public static final String REG_PACKAGE_CNT = ".*Package Count\\s+:\\s+%s.*";
 
 	// ** ** ** ** ** ** ** Class members
 	public String name;
