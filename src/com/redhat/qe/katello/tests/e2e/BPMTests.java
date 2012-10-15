@@ -158,7 +158,7 @@ public class BPMTests extends KatelloCliTestScript{
 	@Test(description="List available subscriptions", dependsOnMethods={"test_rhsm_register"})
 	public void test_rhsm_listAvailableSubscriptions(){
 		// ProductName
-		exec_result = KatelloUtils.sshOnClient("subscription-manager list --available | grep -E \"Product Name:\"");
+		exec_result = KatelloUtils.sshOnClient("subscription-manager list --available | grep -E \"Name:\"");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(product_name), "Check - subscription.ProductName");
 		// Quantity
@@ -181,7 +181,7 @@ public class BPMTests extends KatelloCliTestScript{
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).trim().startsWith("Successfully"), 
 				"Check - returned message (Successfully)");
-		Assert.assertTrue(getOutput(exec_result).trim().contains(rhsm_pool_id), 
+		Assert.assertTrue(getOutput(exec_result).trim().contains(this.product_name), 
 				"Check - returned message (pool ID)");
 	}
 	
