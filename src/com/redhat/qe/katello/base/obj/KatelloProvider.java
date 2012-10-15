@@ -1,7 +1,9 @@
 package com.redhat.qe.katello.base.obj;
 
 import javax.management.Attribute;
+
 import org.codehaus.jackson.annotate.JsonProperty;
+
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class KatelloProvider extends _KatelloObject{
@@ -28,10 +30,23 @@ public class KatelloProvider extends _KatelloObject{
 	public static final String OUT_UPDATE = 
 			"Successfully updated provider [ %s ]";
 	
+	public static final String ERR_PROVIDER_DELETE = 
+			"Provider cannot be deleted since one of its products or repositories has already been promoted. Using a changeset, please delete the repository from existing environments before deleting it.";
+	
 	public static final String API_CMD_LIST = "/organizations/%s/providers";
 	
 	public static final String MANIFEST_12SUBSCRIPTIONS = "manifest-automation-CLI-12subscriptions.zip";
+	
+	public static final String CDN_URL = "https://cdn.redhat.com";
 
+	public static final String REG_REDHAT_LIST = ".*Id\\s*:\\s+\\d+.*Name\\s*:\\s+"+KatelloProvider.PROVIDER_REDHAT+".*Type\\s*:\\s+Red\\sHat.*Url\\s*:\\s+%s.*";
+	
+	public static final String REG_REDHAT_STATUS = ".*Id\\s*:\\s+\\d+.*Name\\s*:\\s+"+KatelloProvider.PROVIDER_REDHAT+".*Last\\sSync\\s*:\\s+%s.*Sync\\sState\\s*:\\s+%s.*";
+	
+	public static final String REG_REDHAT_INFO = ".*Id\\s*:\\s+\\d+.*Name\\s*:\\s+"+KatelloProvider.PROVIDER_REDHAT+".*Type\\s*:\\s+Red Hat.*Url\\s*:\\s+%s.*Org Id\\s*:\\s+%s.*Description\\s*:\\s+%s.*";
+	
+	public static final String REG_PROVIDER_LIST = ".*Id\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Type\\s*:\\s+Custom.*Url\\s*:\\s+%s.*Description\\s*:\\s+%s.*";
+	
 	// ** ** ** ** ** ** ** Class members
 	public String name;
 	public String org;
