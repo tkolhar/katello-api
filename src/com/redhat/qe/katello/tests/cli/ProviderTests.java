@@ -43,8 +43,7 @@ public class ProviderTests extends KatelloCliTestScript{
 		prov = new KatelloProvider(null, tmpOrg, null, null);
 		res = prov.cli_list();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		String REGEXP_PROVIDER_REDHAT = ".*Id\\s*:\\s+\\d+.*Name\\s*:\\s+"+KatelloProvider.PROVIDER_REDHAT+".*Type\\s*:\\s+Red\\sHat.*Url\\s*:\\s+https://cdn.redhat.com.*";
-		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(REGEXP_PROVIDER_REDHAT), 
+		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(String.format(KatelloProvider.REG_REDHAT_LIST, KatelloProvider.CDN_URL).replaceAll("\"", "")),
 				"Provider \""+KatelloProvider.PROVIDER_REDHAT+"\" should be found in the providers list");
 
 		// assertions - `provider status` 
@@ -52,8 +51,8 @@ public class ProviderTests extends KatelloCliTestScript{
 		prov = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, tmpOrg, null, null);
 		res = prov.status();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		String REGEXP_REDHAT_STATUS = ".*Id\\s*:\\s+\\d+.*Name\\s*:\\s+"+KatelloProvider.PROVIDER_REDHAT+".*Last\\sSync\\s*:\\s+never.*Sync\\sState\\s*:\\s+Not\\ssynced.*";
-		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(REGEXP_REDHAT_STATUS), 
+		String match_info = String.format(KatelloProvider.REG_REDHAT_STATUS, "never", "Not synced").replaceAll("\"", "");
+		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info), 
 				"Provider \""+KatelloProvider.PROVIDER_REDHAT+"\" should have sync status: never");
 		
 		// assertions - `provider info`
@@ -63,8 +62,8 @@ public class ProviderTests extends KatelloCliTestScript{
 		String orgId = KatelloCli.grepCLIOutput("Id", getOutput(res));
 		prov = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, org_name, null, null);
 		res = prov.info();
-		String REGEXP_REDHAT_INFO = ".*Id\\s*:\\s+\\d+.*Name\\s*:\\s+"+KatelloProvider.PROVIDER_REDHAT+".*Type\\s*:\\s+Red Hat.*Url\\s*:\\s+https://cdn.redhat.com.*Org Id\\s*:\\s+"+orgId+".*Description\\s*:.*";
-		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(REGEXP_REDHAT_INFO), 
+		match_info = String.format(KatelloProvider.REG_REDHAT_INFO, KatelloProvider.CDN_URL, orgId, "").replaceAll("\"", "");
+		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info), 
 				"Provider \""+KatelloProvider.PROVIDER_REDHAT+"\" info should be displayed together with org_id");
 	}
 	
@@ -223,15 +222,15 @@ public class ProviderTests extends KatelloCliTestScript{
 		res = prod1.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		// Check `product status` - should be shown with provName_1 info there
-		String REGEXP_PRODUCT = ".*Id\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Provider Id\\s*:\\s+\\d+.*Provider Name\\s*:\\s+%s.*";
 		res = prod.status();
+		if (prod.syncState == null) prod.syncState = "Not synced";
+		String match_info = String.format(KatelloProduct.REG_PROD_STATUS, prodName, provName_1, prod.syncState).replaceAll("\"", "");
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		String match_info = String.format(REGEXP_PRODUCT,prodName,provName_1).replaceAll("\"", "");
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info), 
 				String.format("Provider [%s] should be found in the result of product info for: [%s]",provName_1,prodName));		
 	}
 	
-	@Test(description="Delete provider which contains repos, one of them is promoted", groups = {"cli-providers"},enabled=true)
+	@Test(description="Delete provider which contains repos, one of them is promoted, verify that correct error is shown", groups = {"cli-providers"},enabled=true)
 	public void test_deleteProvider_withRepos() {
 		
 		String uid = KatelloUtils.getUniqueID();
@@ -288,10 +287,8 @@ public class ProviderTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		
 		res = prov.delete();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		Assert.assertTrue(getOutput(res).contains("Deleted provider [ "+provName+" ]"),"Check - returned success string");
-		
-		this.assert_providerRemoved(prov);		
+		Assert.assertTrue(res.getExitCode().intValue()==144, "Check - return error code");
+		Assert.assertTrue(getOutput(res).contains(KatelloProvider.ERR_PROVIDER_DELETE),"Check - returned error string");
 	}
 	
 	@Test(description="List / Info providers - no description, no url", groups = {"cli-providers"},enabled=true)
@@ -306,15 +303,16 @@ public class ProviderTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		// List
 		res = prov.cli_list();
+		if (prov.description == null) prov.description = "None";
+		if (prov.url == null) prov.url = "None";
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		String REGEXP_PROVIDER_LIST = ".*Id\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Type\\s*:\\s+Custom.*Url\\s*:\\s+None.*Description\\s*:\\s+None";
-		String match_info = String.format(REGEXP_PROVIDER_LIST,provName).replaceAll("\"", "");
+		String match_info = String.format(KatelloProvider.REG_PROVIDER_LIST,provName, prov.url, prov.description).replaceAll("\"", "");
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info), 
 				String.format("Provider [%s] should be found in the list with: no description, no url",provName));
 		// Info
 		res = prov.info();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		match_info = String.format(REGEXP_PROVIDER_LIST,provName).replaceAll("\"", "");
+		match_info = String.format(KatelloProvider.REG_PROVIDER_LIST,provName, prov.url, prov.description).replaceAll("\"", "");
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info), 
 				String.format("Provider [%s] should be found in the info with: no description, no url",provName));
 	}
@@ -333,14 +331,13 @@ public class ProviderTests extends KatelloCliTestScript{
 		//List
 		res = prov.cli_list();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		String REGEXP_PROVIDER_LIST = ".*Id\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Type\\s*:\\s+Custom.*Url\\s*:\\s+%s.*Description\\s*:\\s+%s.*";
-		String match_info = String.format(REGEXP_PROVIDER_LIST,provName,KATELLO_SMALL_REPO,provDesc).replaceAll("\"", "");
+		String match_info = String.format(KatelloProvider.REG_PROVIDER_LIST,provName,KATELLO_SMALL_REPO,provDesc).replaceAll("\"", "");
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info), 
 				String.format("Provider [%s] should be found in the list",provName));
 		// Info
 		res = prov.info();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		match_info = String.format(REGEXP_PROVIDER_LIST,provName,KATELLO_SMALL_REPO,provDesc).replaceAll("\"", "");
+		match_info = String.format(KatelloProvider.REG_PROVIDER_LIST,provName,KATELLO_SMALL_REPO,provDesc).replaceAll("\"", "");
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info), 
 				String.format("Provider [%s] should be found in the info",provName));
 	}
@@ -357,15 +354,15 @@ public class ProviderTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		// List
 		res = prov.cli_list();
+		if (prov.description == null) prov.description = "None";
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		String REGEXP_PROVIDER_LIST = ".*Id\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Type\\s*:\\s+Custom.*Url\\s*:\\s+%s.*Description\\s*:\\s+None";
-		String match_info = String.format(REGEXP_PROVIDER_LIST,provName,KATELLO_SMALL_REPO).replaceAll("\"", "");
+		String match_info = String.format(KatelloProvider.REG_PROVIDER_LIST,provName,KATELLO_SMALL_REPO, prov.description).replaceAll("\"", "");
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info), 
 				String.format("Provider [%s] should be found in the list with: no description",provName));
 		// Info
 		res = prov.info();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		match_info = String.format(REGEXP_PROVIDER_LIST,provName,KATELLO_SMALL_REPO).replaceAll("\"", "");
+		match_info = String.format(KatelloProvider.REG_PROVIDER_LIST,provName,KATELLO_SMALL_REPO, prov.description).replaceAll("\"", "");
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info), 
 				String.format("Provider [%s] should be found in the info with: no description",provName));
 	}
@@ -473,12 +470,14 @@ public class ProviderTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (provider update)");
 		Assert.assertTrue(getOutput(res).contains(String.format(KatelloProvider.OUT_UPDATE,KatelloProvider.PROVIDER_REDHAT)), 
 				"Check - returned error string (provider update)");
+		res = new KatelloOrg(org_name, null).cli_info();
+		String orgId = KatelloCli.grepCLIOutput("Id", getOutput(res));
 		// Info
 		res = prov.info();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		String REGEXP_PROVIDER_LIST = ".*Id\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Type\\s*:\\s+.*Url\\s*:\\s+%s.*";
-		match_info = String.format(REGEXP_PROVIDER_LIST,KatelloProvider.PROVIDER_REDHAT,update_url).replaceAll("\"", "");
-		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info), 
+		if (prov.description == null) prov.description = "None";
+		match_info = String.format(KatelloProvider.REG_REDHAT_INFO, update_url, orgId, prov.description).replaceAll("\"", "");
+		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info),
 				String.format("Provider [%s] should be found in the info",KatelloProvider.PROVIDER_REDHAT));
 	}
 	
@@ -500,9 +499,9 @@ public class ProviderTests extends KatelloCliTestScript{
 				"Check - returned error string (provider update)");
 		// Info
 		res = prov.info();
+		if (prov.description == null) prov.description = "None";
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		String REGEXP_PROVIDER_LIST = ".*Id\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Type\\s*:\\s+.*Url\\s*:\\s+%s.*";
-		match_info = String.format(REGEXP_PROVIDER_LIST, provName, REPO_INECAS_ZOO3).replaceAll("\"", "");
+		match_info = String.format(KatelloProvider.REG_PROVIDER_LIST,provName,REPO_INECAS_ZOO3, prov.description).replaceAll("\"", "");
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info), 
 				String.format("Provider [%s] should be found in the info", provName));
 		
@@ -534,9 +533,9 @@ public class ProviderTests extends KatelloCliTestScript{
 		prov.name = new_name;
 		// Info
 		res = prov.info();
+		if (prov.description == null) prov.description = "None";
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		String REGEXP_PROVIDER_LIST = ".*Id\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Type\\s*:\\s+.*Url\\s*:\\s+%s.*";
-		match_info = String.format(REGEXP_PROVIDER_LIST, new_name, "None").replaceAll("\"", "");
+		match_info = String.format(KatelloProvider.REG_PROVIDER_LIST,new_name, "", prov.description).replaceAll("\"", "");
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info), 
 				String.format("Provider [%s] should be found in the info", new_name));
 	}
