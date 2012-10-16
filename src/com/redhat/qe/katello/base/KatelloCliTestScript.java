@@ -2,8 +2,12 @@ package com.redhat.qe.katello.base;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.logging.Logger;
+
 import org.testng.Assert;
+
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.common.KatelloConstants;
@@ -15,6 +19,11 @@ extends com.redhat.qe.auto.testng.TestScript
 implements KatelloConstants {
 
 	protected static Logger log = Logger.getLogger(KatelloCliTestScript.class.getName());
+	
+	private static ResourceBundle messageBundle = null;
+	private static ResourceBundle inputBundle = null;
+	private static final String messageFileName = "messages";
+	private static final String inputFileName = "inputs";
 
 	private int platform_id = -1; // made a class property - in case in the tests there would be a need to check platform.
 	public KatelloCliTestScript() {
@@ -166,6 +175,34 @@ implements KatelloConstants {
 	
 	public static String sgetOutput(SSHCommandResult res){
 		return (res.getStdout()+"\n"+res.getStderr()).trim();
+	}
+	
+	/**
+	 * Returns the localized message value of provided key.
+	 * It requires to specify "locale" parameter while running tests, otherwise "en_US" default value should be used.
+	 * It lookups in two different message.properties files, first is inputs file, where are kept texts to send to katello as input parameter in CLI.
+	 * Second file is contains output messages of katello to verify them in different locale.
+	 * It is static method and initializes ResourceBoundles for both messages ".properties" files.
+	 * After initializing in clears the cache from previous run. 
+	 */
+	public static String getMessage(String key) {
+		if (messageBundle == null || inputBundle == null) {
+			String localeStr = System.getProperty("locale", "en_US");
+			String[] split = localeStr.split("_", 2);					
+			Locale locale = new Locale(split[0], split[1]);
+			
+			messageBundle = ResourceBundle.getBundle(messageFileName, locale);
+			inputBundle = ResourceBundle.getBundle(inputFileName, locale);
+			ResourceBundle.clearCache(); //this is mandatory
+		}
+		if (messageBundle.containsKey(key)) {
+			return messageBundle.getString(key);
+		} else if (inputBundle.containsKey(key)) {
+			return inputBundle.getString(key);
+		} else {
+			log.warning("Message by key: " + key + " not found in locale " + messageBundle.getLocale());
+			return null;
+		}
 	}
 	
 }
