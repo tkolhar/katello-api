@@ -194,7 +194,7 @@ implements KatelloConstants {
 	 * It is static method and initializes ResourceBoundles for both messages ".properties" files.
 	 * After initializing in clears the cache from previous run. "en_US"
 	 */
-	public static String getMessage(String key) {
+	public static String getText(String key) {
 		if (messageBundle == null || inputBundle == null) {
 			String localeStr = System.getProperty("katello.locale", KATELLO_DEFAULT_LOCALE);
 			String[] split = localeStr.split("_", 2);					
