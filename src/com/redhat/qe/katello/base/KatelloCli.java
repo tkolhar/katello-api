@@ -7,10 +7,12 @@ import java.util.logging.Logger;
 import javax.management.Attribute;
 
 import com.redhat.qe.katello.base.obj.KatelloUser;
+import com.redhat.qe.katello.common.KatelloConstants;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
-public class KatelloCli{
+public class KatelloCli implements KatelloConstants {
+
 	static{new com.redhat.qe.auto.testng.TestScript();}// to make properties be initialized (if they don't still)
 	
 	static protected Logger log = Logger.getLogger(KatelloCli.class.getName());
@@ -48,8 +50,9 @@ public class KatelloCli{
 		
 	public SSHCommandResult run(){
 		String cmd = System.getProperty("katello.engine", "katello");
+		String locale = System.getProperty("katello.locale", KATELLO_DEFAULT_LOCALE);
 		for(int i=0;i<this.args.size();i++){
-			cmd = cmd + " --" + args.get(i).getName()+" \""+args.get(i).getValue().toString()+"\"";
+			cmd = "export LANG=" + locale + " && " + cmd + " --" + args.get(i).getName()+" \""+args.get(i).getValue().toString()+"\"";
 		}
 		cmd = cmd + " " + this.command;
 		for(int i=0;i<this.opts.size();i++){
