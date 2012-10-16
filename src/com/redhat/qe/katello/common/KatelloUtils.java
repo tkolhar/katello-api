@@ -18,11 +18,9 @@ import com.redhat.qe.tools.SSHCommandRunner;
  */
 public class KatelloUtils {
 	private static Logger log = Logger.getLogger(KatelloUtils.class.getName());
+	private static SSHCommandRunner _sshClient;
+	private static SSHCommandRunner _sshServer;
 	
-    public static void waitfor_katello(){
-        sshOnServer("python -c \"from katello.utils import waitfor_katello; waitfor_katello()\"");
-    }    
-
     public static String run_local(String command){
     	return run_local(false, command);
     }
@@ -96,21 +94,7 @@ public class KatelloUtils {
 	 * @author Garik Khachikyan <gkhachik@redhat.com>
 	 */
 	public static SSHCommandResult sshOnClient(String _cmd){
-		try{
-			SSHCommandRunner ssh_client = new SSHCommandRunner(
-					System.getProperty("katello.client.hostname", "localhost"), "root", 
-					System.getProperty("katello.client.ssh.passphrase", "secret"), 
-					System.getProperty("katello.client.sshkey.private", ".ssh/id_dsa"), 
-					System.getProperty("katello.client.sshkey.passphrase", "secret"), null);
-			SSHCommandResult res = ssh_client.runCommandAndWait(_cmd);
-			ssh_client.reset(); // it will make connections be closed. Weird issue: java.net.SocketException: Too many open files
-			ssh_client.getConnection().close();
-			return res;
-		}catch(Throwable t){
-			log.warning("Warning: Could not initialize client's SSHCommandRunner.");
-			log.warning("Warning: "+t.getMessage());
-			t.printStackTrace();
-		}return null;
+		return getSSHClient().runCommandAndWait(_cmd);
 	}
 	
 	/**
@@ -121,21 +105,7 @@ public class KatelloUtils {
 	 * @author Garik Khachikyan <gkhachik@redhat.com>
 	 */
 	public static SSHCommandResult sshOnServer(String _cmd){
-		try{
-			SSHCommandRunner ssh_server = new SSHCommandRunner(
-					System.getProperty("katello.server.hostname", "localhost"), "root", 
-					System.getProperty("katello.server.ssh.passphrase", "secret"), 
-					System.getProperty("katello.server.sshkey.private", ".ssh/id_dsa"), 
-					System.getProperty("katello.server.sshkey.passphrase", "secret"), null);
-			SSHCommandResult res = ssh_server.runCommandAndWait(_cmd); 
-			ssh_server.reset();
-			ssh_server.getConnection().close();
-			return res;
-		}catch(Throwable t){
-			log.warning("Warning: Could not initialize server's SSHCommandRunner.");
-			log.warning("Warning: "+t.getMessage());
-			t.printStackTrace();
-		}return null;
+		return getSSHServer().runCommandAndWait(_cmd);
 	}
 	
 	public static SSHCommandResult stopKatello(){
@@ -157,4 +127,39 @@ public class KatelloUtils {
 				"service katello-jobs start;";
 		return sshOnServer(_cmd);
 	}
+
+	protected static SSHCommandRunner getSSHClient(){
+		if (_sshClient == null){
+			try{
+				_sshClient = new SSHCommandRunner(
+						System.getProperty("katello.client.hostname", "localhost"), "root", 
+						System.getProperty("katello.client.ssh.passphrase", "secret"), 
+						System.getProperty("katello.client.sshkey.private", ".ssh/id_dsa"), 
+						System.getProperty("katello.client.sshkey.passphrase", "secret"), null);
+			}catch(Throwable t){
+				log.warning("Warning: Could not initialize client's SSHCommandRunner.");
+				log.warning("Warning: "+t.getMessage());
+				t.printStackTrace();
+			}
+		}
+		return _sshClient;
+	}
+
+	protected static SSHCommandRunner getSSHServer(){
+		if (_sshServer == null){
+			try{
+				_sshServer = new SSHCommandRunner(
+						System.getProperty("katello.server.hostname", "localhost"), "root", 
+						System.getProperty("katello.server.ssh.passphrase", "secret"), 
+						System.getProperty("katello.server.sshkey.private", ".ssh/id_dsa"), 
+						System.getProperty("katello.server.sshkey.passphrase", "secret"), null);
+			}catch(Throwable t){
+				log.warning("Warning: Could not initialize server's SSHCommandRunner.");
+				log.warning("Warning: "+t.getMessage());
+				t.printStackTrace();
+			}
+		}
+		return _sshServer;
+	}
+
 }
