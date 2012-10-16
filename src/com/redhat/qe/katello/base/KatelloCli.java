@@ -52,9 +52,9 @@ public class KatelloCli implements KatelloConstants {
 		String cmd = System.getProperty("katello.engine", "katello");
 		String locale = System.getProperty("katello.locale", KATELLO_DEFAULT_LOCALE);
 		for(int i=0;i<this.args.size();i++){
-			cmd = "export LANG=" + locale + " && " + cmd + " --" + args.get(i).getName()+" \""+args.get(i).getValue().toString()+"\"";
+			cmd = cmd + " --" + args.get(i).getName()+" \""+args.get(i).getValue().toString()+"\"";
 		}
-		cmd = cmd + " " + this.command;
+		cmd = "export LANG=" + locale + " && " + cmd + " " + this.command;
 		for(int i=0;i<this.opts.size();i++){
 			if(this.opts.get(i).getValue()!=null)
 				cmd = cmd + " --" + opts.get(i).getName()+" \""+opts.get(i).getValue().toString()+"\"";
