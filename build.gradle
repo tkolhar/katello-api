@@ -30,7 +30,7 @@ allprojects {
                srcDirs "src"
            }
            resources {
-               srcDirs "src", "scripts"
+               srcDirs "src", "scripts", "resources"
            }
        }
        test {
@@ -39,6 +39,9 @@ allprojects {
            }
            groovy {
                srcDirs "src"
+           }
+           resources {
+               srcDirs "resources"
            }
        }
    }
