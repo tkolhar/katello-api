@@ -179,15 +179,15 @@ implements KatelloConstants {
 	
 	/**
 	 * Returns the localized message value of provided key.
-	 * It requires to specify "locale" parameter while running tests, otherwise "en_US" default value should be used.
+	 * It requires to specify "katello.locale" parameter while running tests, otherwise "KATELLO_DEFAULT_LOCALE" default value should be used.
 	 * It lookups in two different message.properties files, first is inputs file, where are kept texts to send to katello as input parameter in CLI.
 	 * Second file is contains output messages of katello to verify them in different locale.
 	 * It is static method and initializes ResourceBoundles for both messages ".properties" files.
-	 * After initializing in clears the cache from previous run. 
+	 * After initializing in clears the cache from previous run. "en_US"
 	 */
 	public static String getMessage(String key) {
 		if (messageBundle == null || inputBundle == null) {
-			String localeStr = System.getProperty("locale", "en_US");
+			String localeStr = System.getProperty("katello.locale", KATELLO_DEFAULT_LOCALE);
 			String[] split = localeStr.split("_", 2);					
 			Locale locale = new Locale(split[0], split[1]);
 			
