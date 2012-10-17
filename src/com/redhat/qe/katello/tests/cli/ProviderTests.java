@@ -288,10 +288,11 @@ public class ProviderTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		
 		res = prov.delete();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		Assert.assertTrue(getOutput(res).contains("Deleted provider [ "+provName+" ]"),"Check - returned success string");
-		
-		this.assert_providerRemoved(prov);		
+		Assert.assertTrue(res.getExitCode().intValue()==144, "Check - return code");
+		Assert.assertTrue(getOutput(res).contains("Provider cannot be deleted since " +
+				"one of its products or repositories has already been promoted. " +
+				"Using a changeset, please delete the repository " +
+				"from existing environments before deleting it."),"Check - returned error string");
 	}
 	
 	@Test(description="List / Info providers - no description, no url", groups = {"cli-providers"},enabled=true)
