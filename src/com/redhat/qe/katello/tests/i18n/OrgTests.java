@@ -17,14 +17,14 @@ public class OrgTests extends KatelloCliTestScript {
 	public void test_createOrg() {
 		String uid = KatelloUtils.getUniqueID();
 		orgName = getText("org.create.name") + uid;
-		orgDescr = getText("org.create.descr") + uid;
+		orgDescr = getText("org.create.description") + uid;
 		
 		KatelloOrg org = new KatelloOrg(orgName, orgDescr);
 		
 		SSHCommandResult res = org.cli_create();
 		
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
-		Assert.assertEquals(getOutput(res).trim(), getText("org.create.success", orgName));
+		Assert.assertEquals(getOutput(res).trim(), getText("org.create.stdout", orgName));
 	}
 
 }
