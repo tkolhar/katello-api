@@ -468,10 +468,7 @@ public class MultyOrgManifest implements KatelloConstants {
 		KatelloRepo repo = new KatelloRepo(KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, _org4, KatelloProduct.RHEL_SERVER, null, null, null);
 		res = repo.enable();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo enable)");
-		
-		KatelloUtils.sshOnServer("yum -y install *NFSMountPackages*");
-		KatelloUtils.sshOnServer("cd /mnt/tests/Katello/Configuration/NFSMountPackages && make run");
-		
+
 		res = repo.synchronize();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo sync)");
 
