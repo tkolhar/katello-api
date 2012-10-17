@@ -133,7 +133,7 @@ public class PrepopulatedSystemUpgradePath implements KatelloConstants{
 			res = cs.create();
 			Assert.assertTrue(res.getExitCode()==0, "Check - exit code (changeset create)");
 			cs.update_addProduct("Product "+_uid);
-			res = cs.apply();
+			res = cs.promote();
 			Assert.assertTrue(res.getExitCode()==0, "Check - exit code (changeset apply)");
 		}
 	}
