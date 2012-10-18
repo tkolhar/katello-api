@@ -12,6 +12,7 @@ public class OrgTests extends KatelloCliTestScript {
 	
 	private String orgName;
 	private String orgDescr;
+	private String orgNewDescr;
 	
 	@Test(description = "Create org - name in different locale", groups={"cfse-cli"})
 	public void test_createOrg() {
@@ -25,6 +26,18 @@ public class OrgTests extends KatelloCliTestScript {
 		
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 		Assert.assertEquals(getOutput(res).trim(), getText("org.create.stdout", orgName));
+	}
+	
+	@Test(description = "Update org description", dependsOnMethods = {"test_createOrg"}, groups={"cfse-cli"})
+	public void test_updateOrg() {
+		orgNewDescr = getText("org.update.description");
+		
+		KatelloOrg org = new KatelloOrg(orgName, null);
+		
+		SSHCommandResult res = org.update(orgNewDescr);
+		
+		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
+		Assert.assertEquals(getOutput(res).trim(), getText("org.update.stdupdate", orgName));
 	}
 
 }
