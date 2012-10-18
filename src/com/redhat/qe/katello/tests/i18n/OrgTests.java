@@ -25,7 +25,7 @@ public class OrgTests extends KatelloCliTestScript {
 		SSHCommandResult res = org.cli_create();
 		
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
-		Assert.assertEquals(getOutput(res).trim(), getText("org.create.stdout", orgName));
+		Assert.assertTrue(getOutput(res).trim().contains(getText("org.create.stdout", orgName)));
 	}
 	
 	@Test(description = "Update org description", dependsOnMethods = {"test_createOrg"}, groups={"cfse-cli"})
@@ -37,7 +37,45 @@ public class OrgTests extends KatelloCliTestScript {
 		SSHCommandResult res = org.update(orgNewDescr);
 		
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
-		Assert.assertEquals(getOutput(res).trim(), getText("org.update.stdupdate", orgName));
+		Assert.assertTrue(getOutput(res).trim().contains(getText("org.update.stdupdate", orgName)));
 	}
 
+	@Test(description = "Retrieves org", dependsOnMethods = {"test_updateOrg"}, groups={"cfse-cli"})
+	public void test_readOrg() {
+		
+		KatelloOrg org = new KatelloOrg(orgName, null);
+		
+		SSHCommandResult res = org.cli_info();
+		
+		String match_info = getText("org.info.stdout.regexp", orgName, orgNewDescr, "None").replaceAll("\"", "");
+		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
+		log.finest(String.format("Org (info) match regex: [%s]",match_info));
+		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info), 
+				String.format("Org [%s] should be found in the result info",org.name));		
+	}
+
+	@Test(description = "Lists orgs", dependsOnMethods = {"test_readOrg"}, groups={"cfse-cli"})
+	public void test_listOrg() {
+		
+		KatelloOrg org = new KatelloOrg(orgName, null);
+		
+		SSHCommandResult res = org.cli_list();
+		
+		String match_info = getText("org.list.stdout.regexp", orgName, orgNewDescr).replaceAll("\"", "");
+		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
+		log.finest(String.format("Org (list) match regex: [%s]",match_info));
+		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info), 
+				String.format("Org [%s] should be found in the result list",org.name));		
+	}
+	
+	@Test(description = "Deletes org", dependsOnMethods = {"test_listOrg"}, groups={"cfse-cli"})
+	public void test_deleteOrg() {
+		
+		KatelloOrg org = new KatelloOrg(orgName, null);
+		
+		SSHCommandResult res = org.delete();
+		
+		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(res).trim().contains(getText("org.delete.stdout", orgName)));
+	}
 }
