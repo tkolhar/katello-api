@@ -28,14 +28,16 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 	private String env_name;
 	private String system_name;
 	SSHCommandResult exec_result;
-
-	@BeforeClass(description="Init unique names", alwaysRun=true, enabled=false)
+	
+	@BeforeClass(description="Init unique names", alwaysRun=true, enabled=true)
 	public void setUp(){
 		
 		String uid = KatelloUtils.getUniqueID();
 		this.env_name = "Dev-"+uid;
 		this.system_name = "system-"+uid;
 		this.org_name = "org-manifest-"+uid;
+		
+		KatelloUtils.sshOnClient("echo '{\"cpu.cpu_socket(s)\":\"8\"}' > /etc/rhsm/facts/sockets.facts");
 		
 		SCPTools scp = new SCPTools(
 				System.getProperty("katello.client.hostname", "localhost"), 
@@ -56,8 +58,9 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 	}
 	
 	
-	@AfterClass(description="Cleanup the org - allow others to reuse the manifest", alwaysRun=true, enabled=false)
+	@AfterClass(description="Cleanup the org - allow others to reuse the manifest", alwaysRun=true, enabled=true)
 	public void tearDown(){
+		cleanSubscriptions();
 		KatelloOrg org = new KatelloOrg(this.org_name, null);
 		SSHCommandResult res = org.delete();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (org delete)");
@@ -65,11 +68,9 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 		KatelloUtils.sshOnClient("rm -f /etc/rhsm/facts/sockets.facts");
 	}
 	
-	@Test(description="Change system to have 8 sockets. Auto subscribe current system. Verify that it's compliance is green.", enabled=false)
-	public void test_autosubscribeCompliant() {
-		KatelloUtils.sshOnClient("echo '{\"cpu.cpu_socket(s)\":\"8\"}' > /etc/rhsm/facts/sockets.facts");
-		
-		rhsm_clean();
+	@Test(description="Change system to have 8 sockets. Auto subscribe current system. Verify that it's compliance is green.", enabled=true)
+	public void test_autosubscribeCompliant() {		
+		cleanSubscriptions();
 		
 		KatelloSystem sys = new KatelloSystem(this.system_name, this.org_name, this.env_name);
 		exec_result = sys.rhsm_registerForce(); 
@@ -81,11 +82,9 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains("green"), "Check - compliance is green");
 	}
 
-	@Test(description="Change system to have 8 sockets. Register current system but not auto suscibe. Verify that it's compliance is red.", enabled=false)
+	@Test(description="Change system to have 8 sockets. Register current system but not auto suscibe. Verify that it's compliance is red.", enabled=true)
 	public void test_notSubscribeNotCompliant() {
-		KatelloUtils.sshOnClient("echo '{\"cpu.cpu_socket(s)\":\"8\"}' > /etc/rhsm/facts/sockets.facts");
-		
-		rhsm_clean();
+		cleanSubscriptions();
 		
 		KatelloSystem sys = new KatelloSystem(this.system_name, this.org_name, this.env_name);
 		exec_result = sys.rhsm_registerForce(); 
@@ -95,11 +94,9 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains("red"), "Check - compliance is red");
 	}
 
-	@Test(description="Change system to have 8 sockets. Subscribe current system only to first 2 sockets. Verify that it's compliance is yellow.", enabled=false)
+	@Test(description="Change system to have 8 sockets. Subscribe current system only to first 2 sockets. Verify that it's compliance is yellow.", enabled=true)
 	public void test_subscribeNonCompliant() {
-		KatelloUtils.sshOnClient("echo '{\"cpu.cpu_socket(s)\":\"8\"}' > /etc/rhsm/facts/sockets.facts");
-		
-		rhsm_clean();
+		cleanSubscriptions();
 		
 		KatelloSystem sys = new KatelloSystem(this.system_name, this.org_name, this.env_name);
 		exec_result = sys.rhsm_registerForce(); 
@@ -114,11 +111,9 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 	}
 
 	@Test(description="Change system to have 8 sockets. Subscribe current system only to first 2 sockets. " +
-			"Verify that it's compliance is yellow. Subscribe 2 socept by loop untill it is compliant.", enabled=false)
+			"Verify that it's compliance is yellow. Subscribe 2 socept by loop untill it is compliant.", enabled=true)
 	public void test_loopsubscribeCompliant() {
-		KatelloUtils.sshOnClient("echo '{\"cpu.cpu_socket(s)\":\"8\"}' > /etc/rhsm/facts/sockets.facts");
-		
-		rhsm_clean();
+		cleanSubscriptions();
 		
 		KatelloSystem sys = new KatelloSystem(this.system_name, this.org_name, this.env_name);
 		exec_result = sys.rhsm_registerForce(); 
@@ -150,11 +145,9 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 	}
 
 	@Test(description="Change system to have 8 sockets. Subscribe current system only to first 2 sockets of one of pools. " +
-			"Verify that it's compliance is yellow. Subscribe 2 socket of second pool. Verify that it's compliance is yellow.", enabled=false)
+			"Verify that it's compliance is yellow. Subscribe 2 socket of second pool. Verify that it's compliance is yellow.", enabled=true)
 	public void test_subscribeNonCompliantBothPools() {
-		KatelloUtils.sshOnClient("echo '{\"cpu.cpu_socket(s)\":\"8\"}' > /etc/rhsm/facts/sockets.facts");
-		
-		rhsm_clean();
+		cleanSubscriptions();
 		
 		KatelloSystem sys = new KatelloSystem(this.system_name, this.org_name, this.env_name);
 		exec_result = sys.rhsm_registerForce(); 
@@ -177,11 +170,9 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 	}
 
 	@Test(description="Change system to have 8 sockets. Subscribe current system only to first 2 sockets of one of pools. Verify that it's compliance is yellow. " +
-			"Subscribe 8 socket of another product with 2 pools. Verify that it's compliance is yellow.", enabled=false)
+			"Subscribe 8 socket of another product with 2 pools. Verify that it's compliance is yellow.", enabled=true)
 	public void test_subscribeNonCompliantFirstProduct() {
-		KatelloUtils.sshOnClient("echo '{\"cpu.cpu_socket(s)\":\"8\"}' > /etc/rhsm/facts/sockets.facts");
-		
-		rhsm_clean();
+		cleanSubscriptions();
 		
 		KatelloSystem sys = new KatelloSystem(this.system_name, this.org_name, this.env_name);
 		exec_result = sys.rhsm_registerForce(); 
@@ -210,11 +201,9 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 	}
 	
 	@Test(description="Change system to have 8 sockets. Subscribe current system to 8 sockets by several attempts to have multiple subscriptions. " +
-			"Remove one of them. Verify that it's compliance is yellow.", enabled=false)
+			"Remove one of them. Verify that it's compliance is yellow.", enabled=true)
 	public void test_unsubscribeNonCompliant() {
-		KatelloUtils.sshOnClient("echo '{\"cpu.cpu_socket(s)\":\"8\"}' > /etc/rhsm/facts/sockets.facts");
-		
-		rhsm_clean();
+		cleanSubscriptions();
 		
 		KatelloSystem sys = new KatelloSystem(this.system_name, this.org_name, this.env_name);
 		exec_result = sys.rhsm_registerForce(); 
@@ -250,11 +239,9 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 	
 	
 	@Test(description="Change system to have 8 sockets. Subscribe current system to 8 sockets by several attempts to have multiple subscriptions for example 4. " +
-			"Verify that there are 4 separate subscriptions for system.", enabled=false)
+			"Verify that there are 4 separate subscriptions for system.", enabled=true)
 	public void test_differentSubscriptions() {
-		KatelloUtils.sshOnClient("echo '{\"cpu.cpu_socket(s)\":\"8\"}' > /etc/rhsm/facts/sockets.facts");
-		
-		rhsm_clean();
+		cleanSubscriptions();
 		
 		KatelloSystem sys = new KatelloSystem(this.system_name, this.org_name, this.env_name);
 		exec_result = sys.rhsm_registerForce(); 
@@ -281,5 +268,17 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 		exec_result = sys.subscriptions_count();
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").trim().equals("4"), "Check - subscriptions are 4");
 
+	}
+	
+	private void cleanSubscriptions() {
+		KatelloSystem sys = new KatelloSystem(null, org_name, null);
+		SSHCommandResult res = sys.system_uuids();
+		String[] lines = getOutput(res).split("\n");
+		for(int i=0;i<lines.length;i++){
+			sys = new KatelloSystem(null, org_name, null, lines[i], null, null, null, null, null);
+			sys.unsubscribe();
+			sys.unregister();
+		}
+		rhsm_clean();
 	}
 }
