@@ -47,8 +47,12 @@ public class KatelloSystem extends _KatelloObject{
 	
 	//Very sensitive regexp is used here for matching exact subscription in list.
 	public static final String REG_SUBSCRIPTION = "Subscription Name\\s*:\\s+%s\\s+SKU\\s*:\\s+\\w{5,15}+\\s+Pool Id\\s*:\\s+\\w{32}+\\s+Quantity\\s*:\\s+%s";
-	public static final String REG_SUBSCRIPTION_CFSE = "ProductName\\s*:\\s+%s\\s+ProductId\\s*:\\s+\\w{5,15}\\s+PoolId\\s*:\\s+\\w{32}+\\s+Quantity\\s*:\\s+%s";
+	public static final String REG_SUBSCRIPTION_CFSE = "Product\\s+Name\\s*:\\s*%s\\s+Product\\s+Id\\s*:\\s*\\w{5,15}\\s+Pool\\s+Id\\s*:\\s*\\w{32}+\\s+Quantity\\s*:\\s*%s";
 	public static final String REG_POOL_ID = "\\s+\\w{32}+\\s+";
+	
+	public static final String SYSTEM_UUIDS = "system list --org %s --noheading -v | grep \"^Uuid\\s*:\" | cut -f2 -d: | sed 's/ *$//g' | sed 's/^ *//g'";
+	public static final String SYSTEM_UNREGISTER = "system unregister --uuid %s --org %s";
+	public static final String SYSTEM_UNSUBSCRIBE = "system unsubscribe --all --uuid %s --org %s";
 	
 	// ** ** ** ** ** ** ** Class members
 	public String name;
@@ -317,6 +321,21 @@ public class KatelloSystem extends _KatelloObject{
 		String cmd = RHSM_IDENTITY;
 		
 		return KatelloUtils.sshOnClient(cmd);		
+	}
+	
+	public SSHCommandResult system_uuids(){
+		opts.clear();
+		return run(String.format(KatelloSystem.SYSTEM_UUIDS, org));
+	}
+	
+	public SSHCommandResult unsubscribe(){
+		opts.clear();
+		return run(String.format(KatelloSystem.SYSTEM_UNSUBSCRIBE, uuid, org));
+	}
+
+	public SSHCommandResult unregister(){
+		opts.clear();
+		return run(String.format(KatelloSystem.SYSTEM_UNREGISTER, uuid, org));
 	}
 	
 //	@SuppressWarnings("unchecked")
