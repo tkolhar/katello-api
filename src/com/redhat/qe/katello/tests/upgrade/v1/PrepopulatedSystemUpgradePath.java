@@ -31,7 +31,7 @@ public class PrepopulatedSystemUpgradePath implements KatelloConstants{
 			{"Dev","QA","GA"}}; // org[3]
 	
 	@Test(description="create organizations", 
-			groups={TNG_PRE_UPGRADE})
+			groups={TNG_PRE_UPGRADE}, enabled=false)
 	public void create_orgs(){
 		KatelloOrg tmpOrg; SSHCommandResult res;
 		log.info("initialize organizations ...");
@@ -45,7 +45,7 @@ public class PrepopulatedSystemUpgradePath implements KatelloConstants{
 	
 	@Test(description="create environments for each org", 
 			dependsOnMethods={"create_orgs"},
-			groups={TNG_PRE_UPGRADE})
+			groups={TNG_PRE_UPGRADE}, enabled=false)
 	public void create_envs(){
 		KatelloEnvironment tmpEnv; SSHCommandResult res;
 		log.info("initialize environments ...");
@@ -69,7 +69,7 @@ public class PrepopulatedSystemUpgradePath implements KatelloConstants{
 	
 	@Test(description="create users", 
 			dependsOnMethods={"create_orgs"},
-			groups={TNG_PRE_UPGRADE})
+			groups={TNG_PRE_UPGRADE}, enabled=false)
 	public void create_users(){
 		KatelloUser user; SSHCommandResult res;
 		log.info("initialize users ...");
@@ -88,7 +88,7 @@ public class PrepopulatedSystemUpgradePath implements KatelloConstants{
 
 	@Test(description="create custom repositories",
 			dependsOnMethods={"create_envs"},
-			groups={TNG_PRE_UPGRADE})
+			groups={TNG_PRE_UPGRADE}, enabled=false)
 	public void create_repos(){
 		SSHCommandResult res;
 		String[] repo_links ={
