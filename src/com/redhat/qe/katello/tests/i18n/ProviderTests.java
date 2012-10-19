@@ -15,7 +15,7 @@ public class ProviderTests extends KatelloCliTestScript {
 	private String provider_name;
 	private String uid;
 	
-	@Test(description="init - org")
+	@Test(description="init - org", groups={"i18n-init"})
 	public void init(){
 		uid = KatelloUtils.getUniqueID();
 		org_name = getText("org.create.name")+" "+uid;
@@ -24,6 +24,7 @@ public class ProviderTests extends KatelloCliTestScript {
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 	}
 	
+	@Test(description="create provider", dependsOnMethods={"init"})
 	public void createProvider(){
 		provider_name = getText("provider.create.name")+" "+uid;
 		String provider_description = getText("provider.create.description");
