@@ -11,7 +11,7 @@ public class KatelloUpgrade extends KatelloCliTestScript{
 	protected static Logger log = Logger.getLogger(KatelloUpgrade.class.getName());
 	
 	public static final String UPGRADE_REPO_LATEST = 
-			"http://download.lab.bos.redhat.com/rel-eng/CloudForms/1.0.1/latest/el6-se/x86_64/";
+			"http://download.lab.bos.redhat.com/rel-eng/CloudForms/1.1/latest/el6-se/x86_64/os/";
 	
 	public static final String[] CONF_FILES = {"/etc/httpd/conf.d/katello.conf", "/etc/katello/katello.yml", "/etc/katello/thin.yml"};
 	
