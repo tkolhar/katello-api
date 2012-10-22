@@ -67,7 +67,29 @@ public class KatelloCli implements KatelloConstants {
 			e.printStackTrace();
 		}return null;
 	}
-	
+
+	public void runNowait(){
+		String cmd = System.getProperty("katello.engine", "katello");
+		String locale = System.getProperty("katello.locale", KATELLO_DEFAULT_LOCALE);
+		for(int i=0;i<this.args.size();i++){
+			cmd = cmd + " --" + args.get(i).getName()+" \""+args.get(i).getValue().toString()+"\"";
+		}
+		cmd = "export LANG=" + locale + " && " + cmd + " " + this.command;
+		for(int i=0;i<this.opts.size();i++){
+			if(this.opts.get(i).getValue()!=null)
+				cmd = cmd + " --" + opts.get(i).getName()+" \""+opts.get(i).getValue().toString()+"\"";
+		}
+		
+		try {
+			KatelloUtils.sshOnClientNoWait(cmd);
+		}
+		catch (Exception e) {
+			log.warning(String.format("ERROR running the command (nowait): [%s]",cmd));
+			log.warning("ERROR: "+e.getMessage());
+			e.printStackTrace();
+		}
+	}
+
 	/**
 	 * Returns katello cli output block (usually: [command] list -v options) that has: <BR>
 	 * [Property]:  [Value] in its block.<br>
