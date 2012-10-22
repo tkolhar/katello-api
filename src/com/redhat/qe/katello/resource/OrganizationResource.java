@@ -19,6 +19,7 @@ import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
+import com.redhat.qe.katello.base.obj.KatelloTask;
 
 //{"href":"/api/organizations/","rel":"organizations"},
 @Path("/organizations")
@@ -67,4 +68,10 @@ public interface OrganizationResource {
     @Path("/{id}/providers/")
     @Produces(MediaType.APPLICATION_JSON)
     ClientResponse<List<KatelloProvider>> listProviders(@PathParam("id") String cpKey);
+
+    @GET
+    @Path("/{id}/tasks/")
+    @Produces(MediaType.APPLICATION_JSON)
+    ClientResponse<List<KatelloTask>> listTasks(@PathParam("id") String orgname);
+
 }

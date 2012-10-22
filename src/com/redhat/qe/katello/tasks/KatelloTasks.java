@@ -12,6 +12,7 @@ import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
+import com.redhat.qe.katello.base.obj.KatelloTask;
 import com.redhat.qe.katello.base.obj.KatelloUser;
 
 public interface KatelloTasks {
@@ -140,4 +141,9 @@ public interface KatelloTasks {
 
     public Long getEnvironmentPriorId(KatelloEnvironment env);
 
+    public List<KatelloTask> getTasks(String org_name)
+            throws KatelloApiException;
+    
+    public KatelloTask getTask(String uuid) 
+    		throws KatelloApiException;
 }

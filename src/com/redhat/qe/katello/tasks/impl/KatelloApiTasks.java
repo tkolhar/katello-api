@@ -26,6 +26,7 @@ import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.base.obj.KatelloSerial;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
+import com.redhat.qe.katello.base.obj.KatelloTask;
 import com.redhat.qe.katello.base.obj.KatelloUser;
 import com.redhat.qe.katello.resource.ConsumerResource;
 import com.redhat.qe.katello.resource.OrganizationResource;
@@ -33,6 +34,7 @@ import com.redhat.qe.katello.resource.PoolResource;
 import com.redhat.qe.katello.resource.ProviderResource;
 import com.redhat.qe.katello.resource.RepositoryResource;
 import com.redhat.qe.katello.resource.SystemResource;
+import com.redhat.qe.katello.resource.TaskResource;
 import com.redhat.qe.katello.resource.UserResource;
 import com.redhat.qe.katello.tasks.KatelloTasks;
 
@@ -51,6 +53,7 @@ public class KatelloApiTasks implements KatelloTasks {
 	final private UserResource userResource;
 	final private PoolResource poolResource;
 	final private SystemResource systemResource;
+	final private TaskResource taskResource;
 	 
 	static {
         // this initialization only needs to be done once per VM
@@ -65,7 +68,8 @@ public class KatelloApiTasks implements KatelloTasks {
 	                       ConsumerResource consumerResource,
 	                       UserResource userResource,
 	                       PoolResource poolResource,
-	                       SystemResource systemResource) {
+	                       SystemResource systemResource,
+	                       TaskResource taskResource) {
         this.orgResource = orgResource;
         this.providerResource = providerResource;
         this.repositoryResource = repositoryResource;
@@ -73,6 +77,7 @@ public class KatelloApiTasks implements KatelloTasks {
         this.userResource = userResource;
         this.poolResource = poolResource;
         this.systemResource = systemResource;
+        this.taskResource = taskResource;
 	}
 //	private ExecCommands localCommandRunner = null;
 // # ************************************************************************* #
@@ -879,6 +884,25 @@ public class KatelloApiTasks implements KatelloTasks {
         allFacts.put("name", hostname);
         allFacts.put("type", "system");
         return allFacts;
+    }
+
+
+	@Override
+	public List<KatelloTask> getTasks(String org_name)
+			throws KatelloApiException {
+		// TODO Auto-generated method stub
+        ClientResponse<List<KatelloTask>> _return = null;
+        _return = orgResource.listTasks(org_name);
+        if ( _return.getStatus() > 299 ) throw new KatelloApiException(_return);
+        return _return.getEntity();
+	}
+
+    @Override
+    public KatelloTask getTask(String uuid) throws KatelloApiException {
+        ClientResponse<KatelloTask> _return = null;
+        _return = taskResource.getTask(uuid);
+        if ( _return.getStatus() > 299 ) throw new KatelloApiException(_return);
+        return _return.getEntity();
     }
 
 }
