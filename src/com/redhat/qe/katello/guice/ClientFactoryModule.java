@@ -45,6 +45,7 @@ import com.redhat.qe.katello.resource.PoolResource;
 import com.redhat.qe.katello.resource.ProviderResource;
 import com.redhat.qe.katello.resource.RepositoryResource;
 import com.redhat.qe.katello.resource.SystemResource;
+import com.redhat.qe.katello.resource.TaskResource;
 import com.redhat.qe.katello.resource.UserResource;
 import com.redhat.qe.katello.resteasy.interceptors.KatelloClientExecutionInterceptor;
 import com.redhat.qe.katello.ssl.PEMx509KeyManager;
@@ -118,7 +119,12 @@ public abstract class ClientFactoryModule extends PrivateModule {
     @Provides
     ProviderResource provideProviderResource(ClientRequestFactory clientRequestFactory) {
         return clientRequestFactory.createProxy(ProviderResource.class);
-    }        
+    }
+    
+    @Provides
+    TaskResource provideTaskResource(ClientRequestFactory clientRequestFactory) {
+        return clientRequestFactory.createProxy(TaskResource.class);
+    }
     
     @Provides @Singleton
     PEMx509KeyManager[] provideKeyManagers() {
