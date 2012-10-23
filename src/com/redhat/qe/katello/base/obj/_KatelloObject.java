@@ -31,4 +31,13 @@ class _KatelloObject {
 			cli = new KatelloCli(cmd, opts, user); // as the user specified
 		return cli.run();
 	}
+
+	protected void runNowait(String cmd){
+		KatelloCli cli;
+		if(user == null) 
+			cli = new KatelloCli(cmd, opts); // as default admin
+		else 
+			cli = new KatelloCli(cmd, opts, user); // as the user specified
+		cli.runNowait();
+	}
 }
