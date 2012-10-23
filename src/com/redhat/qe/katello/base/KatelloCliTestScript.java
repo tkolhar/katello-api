@@ -188,13 +188,14 @@ implements KatelloConstants {
 	
 	/**
 	 * Returns the localized message value of provided key.
+	 * The second argument args are optional, which are used for missing values (%s) in message text.  
 	 * It requires to specify "katello.locale" parameter while running tests, otherwise "KATELLO_DEFAULT_LOCALE" default value should be used.
 	 * It lookups in two different message.properties files, first is inputs file, where are kept texts to send to katello as input parameter in CLI.
 	 * Second file is contains output messages of katello to verify them in different locale.
 	 * It is static method and initializes ResourceBoundles for both messages ".properties" files.
 	 * After initializing in clears the cache from previous run. "en_US"
 	 */
-	public static String getMessage(String key) {
+	public static String getText(String key, Object...args) {
 		if (messageBundle == null || inputBundle == null) {
 			String localeStr = System.getProperty("katello.locale", KATELLO_DEFAULT_LOCALE);
 			String[] split = localeStr.split("_", 2);					
@@ -205,9 +206,9 @@ implements KatelloConstants {
 			ResourceBundle.clearCache(); //this is mandatory
 		}
 		if (messageBundle.containsKey(key)) {
-			return messageBundle.getString(key);
+			return String.format(messageBundle.getLocale(), messageBundle.getString(key), args);
 		} else if (inputBundle.containsKey(key)) {
-			return inputBundle.getString(key);
+			return String.format(inputBundle.getLocale(), inputBundle.getString(key), args);
 		} else {
 			log.warning("Message by key: " + key + " not found in locale " + messageBundle.getLocale());
 			return null;
