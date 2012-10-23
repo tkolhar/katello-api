@@ -16,6 +16,8 @@ public class KatelloProvider extends _KatelloObject{
 	public static final String CMD_UPDATE = "provider update";
 	public static final String CMD_DELETE = "provider delete";
 	public static final String CMD_STATUS = "provider status";
+	public static final String CMD_REFRESH_PRODUCTS = "provider refresh_products";
+	public static final String CMD_CANCEL_SYNC = "provider cancel_sync";
 	
 	public static final String OUT_CREATE = 
 			"Successfully created provider [ %s ]";
@@ -155,6 +157,13 @@ public class KatelloProvider extends _KatelloObject{
 		return run(CMD_SYNCHRONIZE);
 	}
 
+	public void synchronize_nowait(){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		runNowait(CMD_SYNCHRONIZE);
+	}
+
 	public SSHCommandResult update(String new_name, String url, String description){
 		opts.clear();
 		opts.add(new Attribute("org", org));
@@ -177,6 +186,20 @@ public class KatelloProvider extends _KatelloObject{
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		return run(CMD_STATUS);
+	}
+
+	public SSHCommandResult refresh_products(){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		return run(CMD_REFRESH_PRODUCTS);
+	}
+
+	public SSHCommandResult cancel_sync(){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		return run(CMD_CANCEL_SYNC);
 	}
 
 	// ** ** ** ** ** ** **

@@ -35,7 +35,7 @@ public class Localization extends KatelloCliTestScript{
     @Test(description="Tests creating activation key by providing name got from i18n messages.properties.")
     public void test_createAKLocale() {
     	String uid = KatelloUtils.getUniqueID();
-    	String akName = KatelloCliTestScript.getMessage("ak.name")+uid;
+    	String akName = KatelloCliTestScript.getText("ak.name")+uid;
     	SSHCommandResult res;
 
     	KatelloActivationKey ak = new KatelloActivationKey(this.organization, this.env, akName, "Activation key to with localized name", null);

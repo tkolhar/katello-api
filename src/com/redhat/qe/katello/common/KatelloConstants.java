@@ -118,5 +118,5 @@ public interface KatelloConstants {
 	public static final String TNG_UPGRADE = "upgrade";
 	public static final String TNG_POST_UPGRADE = "post-upgrade";
 	
-	public static final String KATELLO_DEFAULT_LOCALE = "en_US";
+	public static final String KATELLO_DEFAULT_LOCALE = "de_DE";
 }
