@@ -2,7 +2,6 @@ package com.redhat.qe.katello.tests.i18n;
 
 import java.io.File;
 import java.util.logging.Logger;
-
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -190,7 +189,6 @@ public class ProviderTests extends KatelloCliTestScript {
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		Assert.assertTrue(getOutput(res).contains(getText("provider.status.sync_state.cancelled")),"Check - stdout (provider status)");		
 	}
-	
 	
 	@AfterClass(description="remove the org")
 	public void destroy(){
