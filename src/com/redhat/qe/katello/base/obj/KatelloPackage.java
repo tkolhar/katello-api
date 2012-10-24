@@ -16,6 +16,8 @@ public class KatelloPackage extends _KatelloObject{
 	public String id;
 	public String org;
 	public String product;
+	public String product_label;
+	public String product_id;
 	public String repo;
 	public String environment;
 	public String name;
@@ -36,6 +38,8 @@ public class KatelloPackage extends _KatelloObject{
 		opts.add(new Attribute("product", product));
 		opts.add(new Attribute("repo", repo));
 		opts.add(new Attribute("environment", environment));
+		opts.add(new Attribute("product_label", product_label));
+		opts.add(new Attribute("product_id", product_id));
 		return run(CMD_INFO);
 	}
 	
@@ -45,6 +49,8 @@ public class KatelloPackage extends _KatelloObject{
 		opts.add(new Attribute("product", product));
 		opts.add(new Attribute("repo", repo));
 		opts.add(new Attribute("environment", environment));
+		opts.add(new Attribute("product_label", product_label));
+		opts.add(new Attribute("product_id", product_id));
 		return run(CMD_LIST);
 	}
 	
@@ -55,6 +61,8 @@ public class KatelloPackage extends _KatelloObject{
 		opts.add(new Attribute("repo", repo));
 		opts.add(new Attribute("environment", environment));
 		opts.add(new Attribute("query", query));
+		opts.add(new Attribute("product_label", product_label));
+		opts.add(new Attribute("product_id", product_id));
 		return run(CMD_SEARCH);
 	}
 	
