@@ -60,12 +60,11 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 	
 	@AfterClass(description="Cleanup the org - allow others to reuse the manifest", alwaysRun=true, enabled=true)
 	public void tearDown(){
-		cleanSubscriptions();
+		log.finest("Remove the prepared: /etc/rhsm/facts/sockets.facts");
+		KatelloUtils.sshOnClient("rm -f /etc/rhsm/facts/sockets.facts");
 		KatelloOrg org = new KatelloOrg(this.org_name, null);
 		SSHCommandResult res = org.delete();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (org delete)");
-		log.finest("Remove the prepared: /etc/rhsm/facts/sockets.facts");
-		KatelloUtils.sshOnClient("rm -f /etc/rhsm/facts/sockets.facts");
 	}
 	
 	@Test(description="Change system to have 8 sockets. Auto subscribe current system. Verify that it's compliance is green.", enabled=true)
@@ -273,11 +272,13 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 	private void cleanSubscriptions() {
 		KatelloSystem sys = new KatelloSystem(null, org_name, null);
 		SSHCommandResult res = sys.system_uuids();
-		String[] lines = getOutput(res).split("\n");
-		for(int i=0;i<lines.length;i++){
-			sys = new KatelloSystem(null, org_name, null, lines[i], null, null, null, null, null);
-			sys.unsubscribe();
-			sys.unregister();
+		String[] uuids = getOutput(res).split("\n");
+		for(String uuid: uuids){
+			if(!uuid.trim().isEmpty()){
+				sys = new KatelloSystem(null, org_name, null, uuid, null, null, null, null, null);
+				sys.unsubscribe();
+				sys.unregister();
+			}
 		}
 		rhsm_clean();
 	}
