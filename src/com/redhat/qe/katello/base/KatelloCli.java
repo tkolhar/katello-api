@@ -127,9 +127,12 @@ public class KatelloCli implements KatelloConstants {
                 if (meet_cnt == occurence) {
                     String[] split = lines[i].split(":\\s+");
                     if (split.length < 2) {
-                        return lines[i + 1].trim();
+                        if(i==lines.length-1) 
+                        	return "";//last line and has empty value.
+                        else 
+                        	return lines[i + 1].trim(); // regular one (like Description:). return next line.
                     } else {
-                        return split[1].trim();
+                        return split[1].trim(); // the one with "property: Value" format.
                     }
                 }
             }
