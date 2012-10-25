@@ -6,6 +6,7 @@ import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.obj.KatelloPing;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
@@ -168,7 +169,9 @@ public class BackupRecovery extends KatelloCliTestScript {
 		KatelloUtils.startKatello();
 		
 		try{Thread.sleep(60000);}catch(Exception ex){} // waiting for services to start
-		SSHCommandResult res = KatelloUtils.sshOnServer("katello -u admin -p admin ping");
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (katello ping)");
+		
+		KatelloPing ping_obj= new KatelloPing();
+		SSHCommandResult res = ping_obj.cli_ping(); 
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 	}
 }

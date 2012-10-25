@@ -146,18 +146,16 @@ implements KatelloConstants {
 	}
 	
 	// TODO - DUPE?
-	protected SSHCommandResult rhsm_clean(){
-		log.info("RHSM clean");
+	protected void rhsm_clean(){
+		log.info("RHSM -> unsubscribe, unregister, clean");
 		KatelloUtils.sshOnClient("subscription-manager unsubscribe --all");
 		KatelloUtils.sshOnClient("subscription-manager unregister");
-		return KatelloUtils.sshOnClient("subscription-manager clean");
+		KatelloUtils.sshOnClient("subscription-manager clean");
 	}
 	
-	// TODO - tobe removed once getting in sync with Hayk H. how to deal with the method above.
-	// see commit: bced48a845871b457b3bb6bfb1724e8dbf97b771
-	protected SSHCommandResult rhsm_clean_only(){ 
-		log.info("RHSM clean ONLY");
-		return KatelloUtils.sshOnClient("subscription-manager clean");
+	protected void rhsm_clean_only(){ 
+		log.info("RHSM -> clean");
+		KatelloUtils.sshOnClient("subscription-manager clean");
 	}
 
 	

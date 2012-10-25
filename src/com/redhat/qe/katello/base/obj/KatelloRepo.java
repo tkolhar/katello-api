@@ -49,6 +49,8 @@ public class KatelloRepo extends _KatelloObject{
 	public String name;
 	public String org;
 	public String product;
+	public String product_label;
+	public String product_id;
 	public String url;
 	public String gpgkey;
 	public String progress;
@@ -67,6 +69,14 @@ public class KatelloRepo extends _KatelloObject{
 			this.nogpgkey = pNogpgkey.booleanValue();
 	}
 	
+	public KatelloRepo(String pName, String pOrg, 
+			String pProd, String pUrl, 
+			String pGpgkey, Boolean pNogpgkey, String product_label, String product_id){
+		this(pName, pOrg, pProd,pUrl, pGpgkey, pNogpgkey);
+		this.product_label = product_label;
+		this.product_id = product_id;
+	}
+
 	public SSHCommandResult create(){
 		opts.clear();
 		opts.add(new Attribute("org", org));
@@ -74,6 +84,10 @@ public class KatelloRepo extends _KatelloObject{
 		opts.add(new Attribute("product", product));
 		opts.add(new Attribute("url", url));
 		opts.add(new Attribute("gpgkey", gpgkey));
+		opts.add(new Attribute("product_label", product_label));
+		opts.add(new Attribute("product_id", product_id));
+		if(nogpgkey)
+			opts.add(new Attribute("nogpgkey", ""));		
 		return run(CMD_CREATE);
 	}	
 
@@ -82,6 +96,8 @@ public class KatelloRepo extends _KatelloObject{
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("product", product));
+		opts.add(new Attribute("product_label", product_label));
+		opts.add(new Attribute("product_id", product_id));
 		return run(CMD_DELETE);
 	}
 	
@@ -90,6 +106,8 @@ public class KatelloRepo extends _KatelloObject{
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("product", product));
+		opts.add(new Attribute("product_label", product_label));
+		opts.add(new Attribute("product_id", product_id));
 		return run(CMD_FILTER_LIST);
 	}
 	
@@ -98,6 +116,8 @@ public class KatelloRepo extends _KatelloObject{
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("product", product));
+		opts.add(new Attribute("product_label", product_label));
+		opts.add(new Attribute("product_id", product_id));
 		return run(CMD_SYNCHRONIZE);
 	}
 	
@@ -107,6 +127,8 @@ public class KatelloRepo extends _KatelloObject{
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("product", product));
 		opts.add(new Attribute("gpgkey", gpgkey));
+		opts.add(new Attribute("product_label", product_label));
+		opts.add(new Attribute("product_id", product_id));
 		return run(CMD_UPDATE);
 	}
 	
@@ -115,6 +137,8 @@ public class KatelloRepo extends _KatelloObject{
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("product", product));
+		opts.add(new Attribute("product_label", product_label));
+		opts.add(new Attribute("product_id", product_id));
 		return run(CMD_INFO);
 	}
 	
@@ -124,6 +148,8 @@ public class KatelloRepo extends _KatelloObject{
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("product", product));
 		opts.add(new Attribute("environment", environment));
+		opts.add(new Attribute("product_label", product_label));
+		opts.add(new Attribute("product_id", product_id));
 		return run(CMD_INFO);
 	}
 
@@ -149,6 +175,8 @@ public class KatelloRepo extends _KatelloObject{
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("product", product));
+		opts.add(new Attribute("product_label", product_label));
+		opts.add(new Attribute("product_id", product_id));
 		return run(CMD_ADD_FILTER);
 	}
 	
@@ -158,6 +186,8 @@ public class KatelloRepo extends _KatelloObject{
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("product", product));
+		opts.add(new Attribute("product_label", product_label));
+		opts.add(new Attribute("product_id", product_id));
 		return run(CMD_REMOVE_FILTER);
 	}
 	
@@ -166,6 +196,8 @@ public class KatelloRepo extends _KatelloObject{
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("product", product));
+		opts.add(new Attribute("product_label", product_label));
+		opts.add(new Attribute("product_id", product_id));
 		return run(CMD_STATUS);
 	}
 
@@ -175,6 +207,8 @@ public class KatelloRepo extends _KatelloObject{
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("product", product));
 		opts.add(new Attribute("environment", environment));
+		opts.add(new Attribute("product_label", product_label));
+		opts.add(new Attribute("product_id", product_id));
 		return run(CMD_STATUS);
 	}
 
@@ -186,12 +220,16 @@ public class KatelloRepo extends _KatelloObject{
 		opts.add(new Attribute("product", product));
 		opts.add(new Attribute("url", url));
 		opts.add(new Attribute("assumeyes", "y"));
+		opts.add(new Attribute("product_label", product_label));
+		opts.add(new Attribute("product_id", product_id));
 		return run(CMD_DISCOVER);
 	}
 	public SSHCommandResult list(){
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("product", product));
+		opts.add(new Attribute("product_label", product_label));
+		opts.add(new Attribute("product_id", product_id));
 		return run(CMD_LIST);
 	}
 
@@ -199,6 +237,8 @@ public class KatelloRepo extends _KatelloObject{
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("environment", environment));
+		opts.add(new Attribute("product_label", product_label));
+		opts.add(new Attribute("product_id", product_id));
 		return run(CMD_LIST);
 	}
 
