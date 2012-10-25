@@ -86,6 +86,8 @@ public class KatelloRepo extends _KatelloObject{
 		opts.add(new Attribute("gpgkey", gpgkey));
 		opts.add(new Attribute("product_label", product_label));
 		opts.add(new Attribute("product_id", product_id));
+		if(nogpgkey)
+			opts.add(new Attribute("nogpgkey", ""));		
 		return run(CMD_CREATE);
 	}	
 
