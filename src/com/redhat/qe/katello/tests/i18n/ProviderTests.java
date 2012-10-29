@@ -49,7 +49,9 @@ public class ProviderTests extends KatelloCliTestScript {
 		String provider_name = getText("provider.create.name")+" "+uid;
 		KatelloProvider prov = new KatelloProvider(provider_name, org_name, null, null);
 		SSHCommandResult res = prov.info();
-		String grepName = KatelloCli.grepCLIOutput("Name", getOutput(res));
+		String grepName = KatelloCli.grepCLIOutput(
+				getText("provider.list.stdout.property.name"), 
+				getOutput(res));
 		String grepDescription = KatelloCli.grepCLIOutput("Description", getOutput(res));
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(provider_name.equals(grepName), 
