@@ -5,7 +5,6 @@ import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
-import com.redhat.qe.katello.base.obj.KatelloActivationKey;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.common.KatelloUtils;
@@ -45,7 +44,8 @@ public class EnvironmentTests extends KatelloCliTestScript {
 		KatelloEnvironment env = new KatelloEnvironment(env_name, null, org_name, null);
 		SSHCommandResult res = env.cli_info();
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code (environment info)");
-		Assert.assertTrue(KatelloCli.grepCLIOutput("Name", getOutput(res)).equals(env_name),"Check - name in info");
+		Assert.assertTrue(KatelloCli.grepCLIOutput(getText("environment.list.stdout.property.name"), 
+				getOutput(res)).equals(env_name),"Check - name in info");
 		Assert.assertTrue(KatelloCli.grepCLIOutput("Description", getOutput(res)).equals(getText("environment.create.description")),"Check - description in info");
 	}
 	

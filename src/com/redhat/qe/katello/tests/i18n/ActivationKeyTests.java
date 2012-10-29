@@ -54,7 +54,8 @@ public class ActivationKeyTests extends KatelloCliTestScript {
 		KatelloActivationKey key = new KatelloActivationKey(org_name, env_name, null, null, null);
 		SSHCommandResult res = key.list();
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code (activation_key list)");
-		Assert.assertTrue(KatelloCli.grepCLIOutput("Name", getOutput(res)).equals(ak_name),"Check - name in list");
+		Assert.assertTrue(KatelloCli.grepCLIOutput(getText("activation_key.list.stdout.property.name"), 
+				getOutput(res)).equals(ak_name),"Check - name in list");
 		Assert.assertTrue(KatelloCli.grepCLIOutput("Description", getOutput(res)).equals(ak_descr),"Check - description in list");
 	}
 	
@@ -75,7 +76,8 @@ public class ActivationKeyTests extends KatelloCliTestScript {
 		KatelloActivationKey key = new KatelloActivationKey(org_name, env_name, ak_name, null, null);
 		SSHCommandResult res = key.info();
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code (activation_key info)");
-		Assert.assertTrue(KatelloCli.grepCLIOutput("Name", getOutput(res)).equals(ak_name),"Check - name in info");
+		Assert.assertTrue(KatelloCli.grepCLIOutput(getText("activation_key.list.stdout.property.name"), 
+				getOutput(res)).equals(ak_name),"Check - name in info");
 		Assert.assertTrue(KatelloCli.grepCLIOutput("Description", getOutput(res)).equals(ak_descr),"Check - description in info");
 	}
 	
