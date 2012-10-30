@@ -49,7 +49,9 @@ public class ProviderTests extends KatelloCliTestScript {
 		String provider_name = getText("provider.create.name")+" "+uid;
 		KatelloProvider prov = new KatelloProvider(provider_name, org_name, null, null);
 		SSHCommandResult res = prov.info();
-		String grepName = KatelloCli.grepCLIOutput("Name", getOutput(res));
+		String grepName = KatelloCli.grepCLIOutput(
+				getText("provider.list.stdout.property.name"), 
+				getOutput(res));
 		String grepDescription = KatelloCli.grepCLIOutput("Description", getOutput(res));
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(provider_name.equals(grepName), 
@@ -188,6 +190,17 @@ public class ProviderTests extends KatelloCliTestScript {
 		res = prov.status();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		Assert.assertTrue(getOutput(res).contains(getText("provider.status.sync_state.cancelled")),"Check - stdout (provider status)");		
+	}
+	
+	@Test(description="provider delete")
+	public void delete(){
+		String provider_name = "DEL "+getText("provider.create.name")+" "+uid;
+		KatelloProvider prov = new KatelloProvider(provider_name, org_name, null, null);
+		SSHCommandResult res = prov.create();
+		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
+		res = prov.delete();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		Assert.assertTrue(getOutput(res).equals(getText("provider.delete.stdout",provider_name)),"Check - stdout (provider delete)");
 	}
 	
 	@AfterClass(description="remove the org")
