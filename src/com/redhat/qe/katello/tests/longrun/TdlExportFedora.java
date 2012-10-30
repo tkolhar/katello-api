@@ -161,18 +161,17 @@ public class TdlExportFedora extends KatelloCliTestScript{
 		String lab_controller = KatelloUtils.sshOnServer("echo ${LAB_CONTROLLER}").getStdout().trim();
 		if(lab_controller.equals("")) lab_controller = "lab.rhts.englab.brq.redhat.com";
 		
-		if(lab_controller.equals("lab2.rhts.eng.bos.redhat.com") || 
-			lab_controller.equals("lab-02.rhts.eng.rdu.redhat.com"))
+		if(lab_controller.contains("eng.bos.redhat.com"))
 			domain = "download.bos.redhat.com";
-		if(lab_controller.equals("lab.rhts.eng.nay.redhat.com"))
+		else if(lab_controller.equals("eng.nay.redhat.com"))
 			domain = "download.eng.nay.redhat.com";
-		if(lab_controller.equals("lab.rhts.eng.pnq.redhat.com"))
+		else if(lab_controller.equals("eng.pnq.redhat.com"))
 			domain = "download.eng.pnq.redhat.com";
-		if(lab_controller.equals("lab-01.eng.tlv.redhat.com"))
+		else if(lab_controller.equals("eng.tlv.redhat.com"))
 			domain = "download.eng.tlv.redhat.com";
-		if(lab_controller.equals("lab.rhts.englab.brq.redhat.com"))
+		else 
 			domain = "download.eng.brq.redhat.com";
-
+			
 		String _url = "http://"+domain+"/pub/fedora/linux/releases/"+FEDORA_VER+"/Fedora/x86_64/os/";
 		return _url;
 	}

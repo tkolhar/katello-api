@@ -8,7 +8,7 @@ public class KatelloTemplate extends _KatelloObject{
 	// ** ** ** ** ** ** ** Public constants
 	public static final String CMD_CREATE = "template create";
 	public static final String CMD_DELETE = "template delete";
-	public static final String CMD_LIST = "template list";
+	public static final String CMD_LIST = "template list -v";
 	public static final String CMD_INFO = "template info -v";
 	public static final String CMD_UPDATE = "template update";
 	public static final String CMD_EXPORT = "template export";
@@ -31,6 +31,11 @@ public class KatelloTemplate extends _KatelloObject{
 	
 	public static final String OUT_UPDATE = 
 			"Successfully updated template [ %s ]";
+	
+	public static final String ERR_TDL_EXPORT_IMPOSSIBLE = 
+			"Template cannot be exported: " +
+			"At least repository must be present to export a TDL, " +
+			"Exactly one distribution must be present to export a TDL";
 	
 	// ** ** ** ** ** ** ** Class members
 	public String name;
