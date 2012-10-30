@@ -32,6 +32,11 @@ public class KatelloTemplate extends _KatelloObject{
 	public static final String OUT_UPDATE = 
 			"Successfully updated template [ %s ]";
 	
+	public static final String ERR_TDL_EXPORT_IMPOSSIBLE = 
+			"Template cannot be exported: " +
+			"At least repository must be present to export a TDL, " +
+			"Exactly one distribution must be present to export a TDL";
+	
 	// ** ** ** ** ** ** ** Class members
 	public String name;
 	public String org;
