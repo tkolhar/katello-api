@@ -13,6 +13,8 @@ import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.obj.KatelloChangeset;
+import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
@@ -364,6 +366,49 @@ public class TemplateTests extends KatelloCliTestScript {
 	 * 
 	 */
 
+	private String templateExport_name = "template-export-"+KatelloUtils.getUniqueID();
+	private String templateExport_env_name = "testing";
+	@Test(description="export template - init all")
+	public void test_exportTemplatePreparation(){
+		KatelloTemplate template = new KatelloTemplate(templateExport_name, null, org_name, null);
+		exec_result = template.create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (template create)");
+		KatelloEnvironment env = new KatelloEnvironment(templateExport_env_name, null, org_name, KatelloEnvironment.LIBRARY);
+		exec_result = env.cli_create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (environment create)");
+		KatelloChangeset cs = new KatelloChangeset("cs-"+templateExport_name, org_name, env.getName());
+		exec_result = cs.create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset create)");
+		exec_result = template.update_add_param("hostname", "localhost");
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (template update --add_param)");
+		exec_result = cs.update_addTemplate(templateExport_name);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset update --add_template)");
+		exec_result = cs.promote();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset promote)");
+		exec_result = template.export(env.getName(), "/tmp/"+templateExport_name+".json", "json");
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (template export)");
+		exec_result = KatelloUtils.sshOnClient("ls \""+"/tmp/"+templateExport_name+".json\"");
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - file exists");
+	}
+	
+	@Test(description="template export --format json", dependsOnMethods={"test_exportTemplatePreparation"})
+	public void test_exportTemplateJson(){
+		KatelloTemplate template = new KatelloTemplate(templateExport_name, null, org_name, null);
+		exec_result = template.export(templateExport_env_name, "/tmp/"+templateExport_name+".json", "json");
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (template export --format json)");
+		exec_result = KatelloUtils.sshOnClient("ls \""+"/tmp/"+templateExport_name+".json\"");
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - file exists");
+	}
+	
+	@Test(description="template export --format tdl", dependsOnMethods={"test_exportTemplatePreparation"})
+	public void test_exportTemplateTdlErr(){
+		KatelloTemplate template = new KatelloTemplate(templateExport_name, null, org_name, null);
+		exec_result = template.export(templateExport_env_name, "/tmp/"+templateExport_name+".tdl", "tdl");
+		Assert.assertTrue(exec_result.getExitCode() == 244, "Check - return code (template export --format tdl)");
+		Assert.assertTrue(getOutput(exec_result).equals(KatelloTemplate.ERR_TDL_EXPORT_IMPOSSIBLE), 
+				"Check - stderr (export not possible)");
+	}
+
 	private String assert_templInfo(KatelloTemplate templ) {
 		if (templ.description == null) templ.description = "None";
 		if (templ.parentId == null) templ.parentId = "None";
@@ -400,7 +445,6 @@ public class TemplateTests extends KatelloCliTestScript {
 			String match_info = String.format(KatelloTemplate.REG_TEMPL_LIST, templ.name, templ.description, templ.parentId).replaceAll("\"", "");
 			Assert.assertFalse(getOutput(exec_result).replaceAll("\n", " ").matches(match_info), String.format("Template [%s] should be found in the result list", templ.name));
 		}
-		
 	}
 	
 	private KatelloTemplate createTemplate() {
