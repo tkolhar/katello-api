@@ -368,6 +368,19 @@ public class UserTests extends KatelloCliTestScript{
 				"Check - returned output string ("+KatelloUser.CMD_CREATE+")");	
 	}
 	
+	@Test(description="access to cli calls by providing an empty password")
+	public void test_getAccessWithEmptyPassword(){
+		KatelloUser userAdmin = new KatelloUser(System.getProperty("katello.admin.user"), 
+				null,"", false);
+		KatelloOrg org = new KatelloOrg(null, null);
+		org.runAs(userAdmin);
+		SSHCommandResult res = org.cli_list();
+		Assert.assertTrue(res.getExitCode().intValue()==145, 
+				"Check - return code (invalid credentials)");
+		Assert.assertTrue(getOutput(res).equals(KatelloUser.ERR_INVALID_CREDENTIALS), 
+				"Check - error string (invalid credentials)");
+	}
+	
 	private void assert_userInfo(KatelloUser user){
 		SSHCommandResult res;
 		res = user.cli_info();
