@@ -31,8 +31,8 @@ public class KatelloCli{
 	public KatelloCli(String command,List<Attribute> options){
 		this.command = command;
 		this.args = new ArrayList<Attribute>();
-		this.args.add(new Attribute("username", System.getProperty("katello.admin.user", "admin")));
-		this.args.add(new Attribute("password", System.getProperty("katello.admin.password", "admin")));
+		this.args.add(new Attribute("username", System.getProperty("katello.admin.user", KatelloUser.DEFAULT_ADMIN_USER)));
+		this.args.add(new Attribute("password", System.getProperty("katello.admin.password", KatelloUser.DEFAULT_ADMIN_PASS)));
 		this.opts = options;
 		if(this.opts==null) this.opts = new ArrayList<Attribute>();
 	}
