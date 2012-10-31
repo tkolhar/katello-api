@@ -3,9 +3,7 @@ package com.redhat.qe.katello.tests.cli;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import org.testng.annotations.Test;
-
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
@@ -18,12 +16,12 @@ import com.redhat.qe.tools.SSHCommandResult;
 public class OrgTests extends KatelloCliTestScript{
 	List<KatelloOrg> orgs;
 	
-	@Test(description = "List all orgs - ACME_Corporation should be there",groups={"cfse-cli","headpin-cli"})
-	public void test_listOrgs_ACME_Corp(){
+	@Test(description = "List all orgs - default org should be there",groups={"cfse-cli","headpin-cli"})
+	public void test_listOrgs_DefaultOrg(){
 		KatelloOrg list_org = new KatelloOrg(null,null);
 		SSHCommandResult res = list_org.cli_list();
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
-		Assert.assertTrue(getOutput(res).contains(KatelloOrg.DEFAULT_ORG), "Check - contains: ["+KatelloOrg.DEFAULT_ORG+"]");
+		Assert.assertTrue(getOutput(res).contains(KatelloOrg.getDefaultOrg()), "Check - contains default org");
 	}
 	
 	@Test(description = "Create org - different variations",
