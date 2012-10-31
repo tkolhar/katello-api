@@ -165,7 +165,7 @@ public class MultyOrgManifest implements KatelloConstants {
 		_perm2_3 = "Perm3_" + _uid;
 		_templ2 = "Templ2_" + _uid;
 		_filter2 = "Filter2_" + _uid;
-		_system2 = "SãoPaulo_" + _uid;
+		_system2 = "SanPaulo"+ _uid;
 		
 		_uid = KatelloUtils.getUniqueID();
 		_org3 = "Paris_"+_uid;
@@ -224,20 +224,18 @@ public class MultyOrgManifest implements KatelloConstants {
 			dependsOnMethods={"init"}, 
 			groups={TNG_PRE_UPGRADE})
 	public void createOrgsAndSyncRepo(){
-		KatelloUtils.sshOnClient("subscription-manager unsubscribe --all");
-		KatelloUtils.sshOnClient("subscription-manager unregister");
 		KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);
 		KatelloUtils.sshOnClient("rpm -e "+KatelloGpgKey.GPG_PUBKEY_RPM_ZOO+" || true");
 		
 		SSHCommandResult res;
 
-		KatelloUser user1 = new KatelloUser(_user1, _user1+"@redhat.com", "redhat", false, "ja");
+		KatelloUser user1 = new KatelloUser(_user1, _user1+"@redhat.com", "redhat", false);
 		user1.cli_create();
 		
-		KatelloUser user2 = new KatelloUser(_user2, _user2+"@redhat.com", "redhat", false, "pt-BR");
+		KatelloUser user2 = new KatelloUser(_user2, _user2+"@redhat.com", "redhat", false);
 		user2.cli_create();
 		
-		KatelloUser user3 = new KatelloUser(_user3, _user3+"@redhat.com", "redhat", false, "fr");
+		KatelloUser user3 = new KatelloUser(_user3, _user3+"@redhat.com", "redhat", false);
 		user3.cli_create();
 		
 		KatelloUserRole role1 = new KatelloUserRole(_role1, null);
@@ -650,10 +648,9 @@ public class MultyOrgManifest implements KatelloConstants {
 			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE}, 
 			groups={TNG_POST_UPGRADE})
 	public void checkUsersSurvived() {
-		KatelloUser user = new KatelloUser(_user1, null, null, false, null);
+		KatelloUser user = new KatelloUser(_user1, null, null, false);
 		SSHCommandResult res = user.cli_info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (user info)");
-		Assert.assertTrue(res.getStdout().trim().contains("ja"), "Check - locale");
 		
 		res = user.list_roles();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (user role list)");
@@ -661,10 +658,9 @@ public class MultyOrgManifest implements KatelloConstants {
 		Assert.assertTrue(res.getStdout().trim().contains(_role2), "Check - locale");
 		Assert.assertFalse(res.getStdout().trim().contains(_role3), "Check - locale");
 		
-		user = new KatelloUser(_user2, null, null, false, null);
+		user = new KatelloUser(_user2, null, null, false);
 		res = user.cli_info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (user info)");
-		Assert.assertTrue(res.getStdout().trim().contains("pt-BR"), "Check - locale");
 		
 		res = user.list_roles();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (user role list)");
@@ -672,10 +668,9 @@ public class MultyOrgManifest implements KatelloConstants {
 		Assert.assertTrue(res.getStdout().trim().contains(_role2), "Check - locale");
 		Assert.assertFalse(res.getStdout().trim().contains(_role3), "Check - locale");
 		
-		user = new KatelloUser(_user3, null, null, false, null);
+		user = new KatelloUser(_user3, null, null, false);
 		res = user.cli_info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (user info)");
-		Assert.assertTrue(res.getStdout().trim().contains("fr"), "Check - locale");
 		
 		res = user.list_roles();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (user role list)");
@@ -930,6 +925,12 @@ public class MultyOrgManifest implements KatelloConstants {
 		KatelloRepo repo = new KatelloRepo("newrepo"+uid, org.name, product.name, REPO_INECAS_ZOO3, null, null);	
 		res = repo.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo create)");
+		
+		KatelloSystem newsystem = new KatelloSystem("SãoPaulonew" + uid, _org3, _env3_3);
+		KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);
+		newsystem.rhsm_registerForce();
+		res = newsystem.info();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
 	}
 
 	@Test(description="verify after upgrade it is possible to edit existing content", 

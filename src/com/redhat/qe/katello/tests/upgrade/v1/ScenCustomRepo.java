@@ -2,6 +2,9 @@ package com.redhat.qe.katello.tests.upgrade.v1;
 
 import java.util.logging.Logger;
 
+import org.testng.SkipException;
+import org.testng.annotations.BeforeGroups;
+import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
@@ -30,6 +33,16 @@ public class ScenCustomRepo implements KatelloConstants{
 	String _changeset;
 	String _system;
 	String _gpg_key;
+	String[] clients = null;
+	
+	@BeforeSuite(description="check that at there is at least one separate katello client provided to install remotelly on it")
+	public void checkUpgradeClients() {
+		String clientsStr = System.getProperty("katello.upgrade.clients", "");
+		clients = clientsStr.split(",");
+		if(clientsStr.isEmpty() || clients[0].isEmpty()) {
+			Assert.fail("Please specify \"katello.upgrade.clients\" with at least 1 client");
+		}
+	}
 	
 	@Test(description="init object unique names", 
 			groups={TNG_PRE_UPGRADE})
@@ -49,8 +62,6 @@ public class ScenCustomRepo implements KatelloConstants{
 			groups={TNG_PRE_UPGRADE})
 	public void createAndSyncRepo(){
 		KatelloUtils.sshOnClient("yum -y erase wolf lion || true");
-		KatelloUtils.sshOnClient("subscription-manager unsubscribe --all");
-		KatelloUtils.sshOnClient("subscription-manager unregister");
 		KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);
 		KatelloUtils.sshOnClient("rpm -e "+KatelloGpgKey.GPG_PUBKEY_RPM_ZOO+" || true");
 		
@@ -80,6 +91,7 @@ public class ScenCustomRepo implements KatelloConstants{
 		
 
 		KatelloSystem sys = new KatelloSystem(_system, _org, _env);
+		sys.setHostName(clients[0]);
 		sys.rhsm_registerForce();
 		String pool = KatelloCli.grepCLIOutput("PoolId", sys.subscriptions_available().getStdout().trim(),1);
 		sys.rhsm_subscribe(pool);
@@ -91,7 +103,6 @@ public class ScenCustomRepo implements KatelloConstants{
 			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE}, 
 			groups={TNG_POST_UPGRADE})
 	public void checkOrgSurvived(){
-		// TODO - more checks to be go here.
 		KatelloOrg org = new KatelloOrg(_org, null);
 		SSHCommandResult res = org.cli_info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (org info)");
@@ -116,6 +127,7 @@ public class ScenCustomRepo implements KatelloConstants{
 		KatelloUtils.sshOnClient("rpm --import /tmp/RPM-GPG-KEY-dummy-packages-generator");
 		
 		KatelloSystem sys = new KatelloSystem(_system, _org, null);
+		sys.setHostName(clients[0]);
 		SSHCommandResult res = sys.packages_install("lion");
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (remote install lion)");
 		Assert.assertTrue(res.getStdout().trim().contains(KatelloSystem.OUT_REMOTE_ACTION_DONE),
