@@ -3,10 +3,14 @@ package com.redhat.qe.katello.base.obj;
 import java.util.logging.Logger;
 import javax.management.Attribute;
 import org.codehaus.jackson.annotate.JsonProperty;
+
+import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class KatelloOrg extends _KatelloObject{
     protected static Logger log = Logger.getLogger(KatelloOrg.class.getName());
+    private static String defaultOrg = null;
 
 	// ** ** ** ** ** ** ** Public constants
 	public static final String DEFAULT_ORG = "ACME_Corporation";
@@ -135,6 +139,16 @@ public class KatelloOrg extends _KatelloObject{
 		opts.add(new Attribute("name", this.name));
 		opts.add(new Attribute("description", new_description));
 		return run(CMD_UPDATE);
+	}
+
+	public static String getDefaultOrg(){
+		if(defaultOrg!=null) 
+			return defaultOrg;
+		SSHCommandResult res = KatelloUtils.sshOnServer("cat /etc/katello/katello-configure.conf | grep -E \"org_name\\s*=\" | cut -f2 -d\"=\" | sed 's/ *$//g' | sed 's/^ *//g'");
+		defaultOrg = KatelloCliTestScript.sgetOutput(res);
+		if(defaultOrg.isEmpty())
+			defaultOrg = DEFAULT_ORG;
+		return defaultOrg;
 	}
 
 	// ** ** ** ** ** ** **

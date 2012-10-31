@@ -60,8 +60,8 @@ public class ProductTests  extends KatelloCliTestScript{
     @Test(description = "List all product for orgs", groups = {"headpin-cli"})
 	public void test_listProductDefaultOrg(){
       
-    	  String providername = "Red Hat";
-	 	  KatelloProduct list_product = new KatelloProduct(null,KatelloProduct.Default_Org,providername,null,null,null,null,null);
+    	  String providername = KatelloProvider.PROVIDER_REDHAT;
+	 	  KatelloProduct list_product = new KatelloProduct(null,KatelloOrg.getDefaultOrg(),providername,null,null,null,null,null);
 	 	  SSHCommandResult res = list_product.cli_list();
 	 	  Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
  	}
@@ -364,8 +364,9 @@ public class ProductTests  extends KatelloCliTestScript{
 		
 		// promote product to the env.
 		res = prod.promote(envName);
-		Assert.assertTrue(res.getExitCode().intValue()==148, "Check - return code (product promote)");
-		Assert.assertTrue(getOutput(res).contains(String.format(KatelloProduct.ERR_PROMOTE_NOREPOS,prodName)), "Check - returned output string (product promote)");
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product promote)");
+		Assert.assertTrue(getOutput(res).contains(String.format(KatelloProduct.OUT_PROMOTED,prodName,envName)), 
+				"Check - returned output string (product promote)");
 	}
 	
 	@Test(description="promote product", groups = {"cli-products"}, enabled=true)
