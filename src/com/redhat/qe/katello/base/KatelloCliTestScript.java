@@ -5,11 +5,16 @@ import java.util.Calendar;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
+
+import javax.management.Attribute;
+
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.testng.Assert;
 
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
+import com.redhat.qe.katello.base.obj.KatelloSystem;
+import com.redhat.qe.katello.base.obj.KatelloUser;
 import com.redhat.qe.katello.common.KatelloConstants;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
@@ -164,13 +169,23 @@ implements KatelloConstants {
 		KatelloUtils.sshOnClient("yum repolist");
 	}
 	
-	// TODO - DUPE?
+	/**
+	 * Seems good one. Reworked recently to read rhsm username/password from the java properties
+	 * @param org Organization name
+	 * @param environment The environment
+	 * @param name system name. take care to have it unique
+	 * @param autosubscribe if true, then will add --autosubscribe option. Take care about your /etc/pki/product/*.pem files.
+	 * @return res
+	 * @author Garik Khachikyan &lt;gkhachik@redhat.com&gt;
+	 */
 	protected SSHCommandResult rhsm_register(String org, String environment, String name, boolean autosubscribe){
+		String rhsmUser = System.getProperty("katello.admin.user", KatelloUser.DEFAULT_ADMIN_USER);
+		String rhsmPass = System.getProperty("katello.admin.password", KatelloUser.DEFAULT_ADMIN_PASS);
 		log.info("Registering client with: --org \""+org+"\" --environment \""+environment+"\" " +
 				"--name \""+name+"\" --autosubscribe "+Boolean.toString(autosubscribe));
 		String cmd = String.format(
-				"subscription-manager register --username admin --password admin --org \"%s\" --environment \"%s\" --name \"%s\"",
-				org,environment,name);
+				"subscription-manager register --username \"%s\" --password \"%s\" --org \"%s\" --environment \"%s\" --name \"%s\"",
+				rhsmUser, rhsmPass,org,environment,name);
 		if(autosubscribe)
 			cmd += " --autosubscribe";
 		return KatelloUtils.sshOnClient(cmd);
