@@ -12,18 +12,15 @@ import com.redhat.qe.tools.SSHCommandResult;
 public class KatelloSystem extends _KatelloObject{
 	
 	// ** ** ** ** ** ** ** Public constants	
-	public static final String RHSM_DEFAULT_USER = "admin";
-	public static final String RHSM_DEFAULT_PASS = "admin";
-	
 	public static final String CMD_INFO = "system info";
 	public static final String CMD_LIST = "system list";
 	public static final String CMD_SUBSCRIPTIONS = "system subscriptions";
 	public static final String CMD_PACKAGES = "system packages";
 	public static final String CMD_REPORT = "system report";
 	
-	public static final String RHSM_CREATE = 
-			String.format("subscription-manager register --username %s --password %s",
-					RHSM_DEFAULT_USER,RHSM_DEFAULT_PASS);
+	public static final String RHSM_CREATE =String.format("subscription-manager register --username %s --password %s",
+					System.getProperty("katello.admin.user", KatelloUser.DEFAULT_ADMIN_USER),
+					System.getProperty("katello.admin.password", KatelloUser.DEFAULT_ADMIN_PASS));
 	public static final String RHSM_CLEAN = "subscription-manager clean";
 	public static final String RHSM_SUBSCRIBE = "subscription-manager subscribe";
 	public static final String RHSM_UNSUBSCRIBE = "subscription-manager unsubscribe";
