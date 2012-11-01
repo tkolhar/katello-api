@@ -2,7 +2,7 @@ package com.redhat.qe.katello.tests.upgrade.v1;
 
 import java.util.logging.Logger;
 
-import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
@@ -33,7 +33,7 @@ public class ScenCustomRepo implements KatelloConstants{
 	String _gpg_key;
 	String[] clients = null;
 	
-	@BeforeSuite(description="check that at there is at least one separate katello client provided to install remotelly on it")
+	@BeforeGroups(description="check that at there is at least one separate katello client provided to install remotelly on it", groups={TNG_PRE_UPGRADE, TNG_UPGRADE, TNG_POST_UPGRADE})
 	public void checkUpgradeClients() {
 		String clientsStr = System.getProperty("katello.upgrade.clients", "");
 		clients = clientsStr.split(",");
