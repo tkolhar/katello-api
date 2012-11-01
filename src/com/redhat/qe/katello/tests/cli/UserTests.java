@@ -381,19 +381,6 @@ public class UserTests extends KatelloCliTestScript{
 				"Check - error string (invalid credentials)");
 	}
 	
-	@Test(description="access to cli calls by providing no password")
-	public void test_getAccessWithNoPassword(){
-		KatelloUser userAdmin = new KatelloUser(System.getProperty("katello.admin.user"), 
-				null,null, false);
-		KatelloOrg org = new KatelloOrg(null, null);
-		org.runAs(userAdmin);
-		SSHCommandResult res = org.cli_list();
-		Assert.assertTrue(res.getExitCode().intValue()==145, 
-				"Check - return code (invalid credentials)");
-		Assert.assertTrue(getOutput(res).equals(KatelloUser.ERR_INVALID_CREDENTIALS), 
-				"Check - error string (invalid credentials)");
-	}
-
 	private void assert_userInfo(KatelloUser user){
 		SSHCommandResult res;
 		res = user.cli_info();
