@@ -5,6 +5,8 @@ import com.redhat.qe.tools.SSHCommandResult;
 
 public class KatelloUserRole extends _KatelloObject{
 	
+	public static final String ROLE_READ_EVERYTHING = "Read Everything";
+	
 	// ** ** ** ** ** ** ** Public constants
 	public static final String CMD_CREATE = "user_role create";
 	public static final String OUT_CREATE = "Successfully created user role [ %s ]";
