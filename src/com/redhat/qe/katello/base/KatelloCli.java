@@ -21,6 +21,7 @@ public class KatelloCli implements KatelloConstants {
 	private String command;
 	private List<Attribute> args;
 	private List<Attribute> opts;
+	private String hostName;
 	
 	public KatelloCli(String command,List<Attribute> args,List<Attribute> options){
 		this.command = command;
@@ -39,15 +40,22 @@ public class KatelloCli implements KatelloConstants {
 		if(this.opts==null) this.opts = new ArrayList<Attribute>();
 	}
 	
-	public KatelloCli(String command,ArrayList<Attribute> options, KatelloUser user){
+	public KatelloCli(String command,ArrayList<Attribute> options, KatelloUser user, String hostName){
 		this.command = command;
 		this.args = new ArrayList<Attribute>();
-		this.args.add(new Attribute("username", user.username));
-		this.args.add(new Attribute("password", user.password));
+		
+		if (user != null) {
+			this.args.add(new Attribute("username", user.username));
+			this.args.add(new Attribute("password", user.password));
+		} else {		
+			this.args.add(new Attribute("username", System.getProperty("katello.admin.user", KatelloUser.DEFAULT_ADMIN_USER)));
+			this.args.add(new Attribute("password", System.getProperty("katello.admin.password", KatelloUser.DEFAULT_ADMIN_PASS)));
+		}
+		this.hostName = hostName;
 		this.opts = options;
 		if(this.opts==null) this.opts = new ArrayList<Attribute>();
 	}
-		
+	
 	public SSHCommandResult run(){
 		String cmd = System.getProperty("katello.engine", "katello");
 		String locale = System.getProperty("katello.locale", KATELLO_DEFAULT_LOCALE);
@@ -61,7 +69,7 @@ public class KatelloCli implements KatelloConstants {
 		}
 		
 		try {
-			return KatelloUtils.sshOnClient(cmd);
+			return KatelloUtils.sshOnClient(hostName, cmd);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -81,7 +89,7 @@ public class KatelloCli implements KatelloConstants {
 		}
 		
 		try {
-			KatelloUtils.sshOnClientNoWait(cmd);
+			KatelloUtils.sshOnClientNoWait(hostName, cmd);
 		}
 		catch (Exception e) {
 			log.warning(String.format("ERROR running the command (nowait): [%s]",cmd));

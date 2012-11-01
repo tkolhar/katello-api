@@ -2,8 +2,6 @@ package com.redhat.qe.katello.tests.upgrade.v1;
 
 import java.util.logging.Logger;
 
-import org.testng.SkipException;
-import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
@@ -94,6 +92,7 @@ public class ScenCustomRepo implements KatelloConstants{
 		sys.setHostName(clients[0]);
 		sys.rhsm_registerForce();
 		String pool = KatelloCli.grepCLIOutput("PoolId", sys.subscriptions_available().getStdout().trim(),1);
+		Assert.assertNotNull(pool);
 		sys.rhsm_subscribe(pool);
 		
 		KatelloUtils.sshOnClient("service goferd restart;");
