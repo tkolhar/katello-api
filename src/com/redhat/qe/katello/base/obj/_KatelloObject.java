@@ -12,6 +12,7 @@ import com.redhat.qe.tools.SSHCommandResult;
 class _KatelloObject {
 
 	protected KatelloUser user;
+	protected String hostName;
 	protected ArrayList<Attribute> opts;
 	
 	public _KatelloObject(){
@@ -23,21 +24,21 @@ class _KatelloObject {
 		this.user = user;
 	}
 	
+    public String getHostName() {
+    	return hostName;
+    }
+    
+    public void setHostName(String hostName) {
+    	this.hostName = hostName;
+    }
+	
 	protected SSHCommandResult run(String cmd){
-		KatelloCli cli;
-		if(user == null) 
-			cli = new KatelloCli(cmd, opts); // as default admin
-		else 
-			cli = new KatelloCli(cmd, opts, user); // as the user specified
+		KatelloCli cli = new KatelloCli(cmd, opts, user, hostName); // as the user specified on specified host
 		return cli.run();
 	}
 
 	protected void runNowait(String cmd){
-		KatelloCli cli;
-		if(user == null) 
-			cli = new KatelloCli(cmd, opts); // as default admin
-		else 
-			cli = new KatelloCli(cmd, opts, user); // as the user specified
+		KatelloCli cli = new KatelloCli(cmd, opts, user, hostName); // as the user specified on specified host
 		cli.runNowait();
 	}
 }

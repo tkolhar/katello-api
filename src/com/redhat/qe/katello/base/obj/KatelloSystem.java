@@ -62,7 +62,6 @@ public class KatelloSystem extends _KatelloObject{
 	private Map<String, String> facts;
 	private KatelloIdCert idCert;
 	private KatelloEnvironment environment;
-	private String hostName = null;
 	
 	public KatelloSystem(String pName, String pOrg, String pEnv){
 		this.name = pName;
@@ -146,14 +145,6 @@ public class KatelloSystem extends _KatelloObject{
 	
     public void setHref(String href) {
         this.href = href;
-    }
-    
-    public String getHostName() {
-    	return hostName;
-    }
-    
-    public void setHostName(String hostName) {
-    	this.hostName = hostName;
     }
 
 	public Map<String, String> getFacts() {
@@ -246,13 +237,6 @@ public class KatelloSystem extends _KatelloObject{
 	}
 	
 	public SSHCommandResult subscriptions_available(){
-		opts.clear();
-		opts.add(new Attribute("org", org));
-		opts.add(new Attribute("name", name));
-		return run(CMD_SUBSCRIPTIONS+" --available -v");
-	}
-	
-	public SSHCommandResult subscriptions_available(KatelloUser user){
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));

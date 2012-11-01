@@ -497,12 +497,12 @@ public class MultyOrgManifest implements KatelloConstants {
         KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);
         sys4.rhsm_registerForce();
         
-		String pool = KatelloCli.grepCLIOutput("PoolId", sys4.subscriptions_available().getStdout().trim(),1);
+		String pool = KatelloCli.grepCLIOutput("Pool Id",
+				KatelloUtils.sshOnClient("subscription-manager list --available --all | sed  -e 's/^ \\{1,\\}//'").getStdout().trim(),1);
+		Assert.assertNotNull(pool);
 		sys4.rhsm_subscribe(pool);
 		
 		KatelloUtils.sshOnClient("service goferd restart;");
-		
-		
 	}
 	
 	@Test(description="verify orgs survived the upgrade", 

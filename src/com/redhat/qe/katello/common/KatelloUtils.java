@@ -102,6 +102,7 @@ public class KatelloUtils {
 	/**
 	 * Executes ssh command on client-side.<br>
 	 * Credentials (passphrase) and other settings are all taken from System.properties.
+	 * @param _hostName the client on which command will be executed
 	 * @param _cmd Command string to execute. Multiple commands could be provided with ";".
 	 * @return SSHCommandResult object
 	 * @author Garik Khachikyan <gkhachik@redhat.com>
@@ -113,11 +114,12 @@ public class KatelloUtils {
 	/**
 	 * Executes ssh command(s) on client side and returns without waiting its result.<br>
 	 * Useful for some async commands like: provider synchronize (with option to cancel it later).
+	 * @param _hostName
 	 * @param _cmd
 	 * @author Garik Khachikyan <gkhachik@redhat.com>
 	 */
-	public static void sshOnClientNoWait(String _cmd){
-		getSSHClient().runCommand(_cmd);
+	public static void sshOnClientNoWait(String _hostName, String _cmd){
+		getSSHClient(_hostName).runCommand(_cmd);
 	}
 
 	/**
