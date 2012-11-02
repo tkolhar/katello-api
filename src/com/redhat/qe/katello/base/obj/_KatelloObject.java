@@ -12,7 +12,7 @@ import com.redhat.qe.tools.SSHCommandResult;
 class _KatelloObject {
 
 	protected KatelloUser user;
-	protected String hostName;
+	protected String hostName = System.getProperty("katello.client.hostname", "localhost");
 	protected ArrayList<Attribute> opts;
 	
 	public _KatelloObject(){

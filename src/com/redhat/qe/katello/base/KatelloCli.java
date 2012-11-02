@@ -21,7 +21,7 @@ public class KatelloCli implements KatelloConstants {
 	private String command;
 	private List<Attribute> args;
 	private List<Attribute> opts;
-	private String hostName;
+	private String hostName = System.getProperty("katello.client.hostname", "localhost");
 	
 	public KatelloCli(String command,List<Attribute> args,List<Attribute> options){
 		this.command = command;
