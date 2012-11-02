@@ -1,19 +1,57 @@
 package com.redhat.qe.katello.tests.upgrade.v1;
 
+import java.io.File;
+
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.obj.KatelloActivationKey;
+import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
+import com.redhat.qe.katello.base.obj.KatelloFilter;
+import com.redhat.qe.katello.base.obj.KatelloGpgKey;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloPermission;
+import com.redhat.qe.katello.base.obj.KatelloProduct;
+import com.redhat.qe.katello.base.obj.KatelloProvider;
+import com.redhat.qe.katello.base.obj.KatelloRepo;
+import com.redhat.qe.katello.base.obj.KatelloSystemGroup;
+import com.redhat.qe.katello.base.obj.KatelloTemplate;
 import com.redhat.qe.katello.base.obj.KatelloUser;
 import com.redhat.qe.katello.base.obj.KatelloUserRole;
 import com.redhat.qe.katello.common.KatelloConstants;
 import com.redhat.qe.katello.common.KatelloUtils;
+import com.redhat.qe.tools.SCPTools;
 import com.redhat.qe.tools.SSHCommandResult;
 
+/**
+ * current list of katello CLI calls:
+-	activation_key activation key specific actions in the katello server
++	changeset      changeset specific actions in the katello server
+*	distribution   repo specific actions in the katello server
++	environment    environment specific actions in the katello server
+*	errata         errata specific actions in the katello server
+-	filter         filter specific actions in the katello server
+-	gpg_key        GPG key specific actions in the katello server
++	org            organization specific actions in the katello server
+*	package        package specific actions in the katello server
+*	package_group  package group specific actions in the katello server
++	permission     permission pecific actions in the katello server
+--	product        product specific actions in the katello server
+--	provider       provider specific actions in the katello server
+--	repo           repo specific actions in the katello server
+	sync_plan      synchronization plan specific actions in the katello server
+	system         system specific actions in the katello server
+-	system_group   system group specific actions in the katello server
+-	template       template specific actions in the katello server
++	user           user specific actions in the katello server
++	user_role      user role specific actions in the katello server
+	
+ * @author gkhachik
+ *
+ */
 public class FillDB implements KatelloConstants{
 
 	private String uid;
@@ -24,8 +62,16 @@ public class FillDB implements KatelloConstants{
 	private String userNameGuest;
 	
 	private String roleReadAll;
-	private String permissionOrgAdmin;
+	private String roleOrgAdmin;
 	
+	private String gpgKeyZoo, gpgFilename;
+	private String akTesting, akDevelopment;
+	private String filterNoBear;
+	private String systemGRoupMyServers;
+	private String templateF16Iso;
+	
+	private String providerFedora;
+	private String providerZoo;
 	
 	@BeforeClass(groups={TNG_PRE_UPGRADE}, description="init strings")
 	public void init(){
@@ -37,9 +83,20 @@ public class FillDB implements KatelloConstants{
 		userNameDisabled = "cfse-disabled-"+uid;
 		userNameGuest = "cfse-guest-"+uid;
 		roleReadAll = KatelloUserRole.ROLE_READ_EVERYTHING+" "+uid;
+		roleOrgAdmin = KatelloUserRole.ROLE_ADMINISTRATOR+" "+uid;
+		gpgKeyZoo = "GPG-ZOO-"+uid;
+		gpgFilename = "/tmp/RPM-GPG-KEY-dummy-packages-generator";
+		akTesting = "ak-"+envNameTesting;
+		akDevelopment = "ak-"+envNameDevelopment;
+		filterNoBear = "noBear-"+uid;
+		systemGRoupMyServers = "myServers-"+uid;
+		templateF16Iso = "template-f16-"+uid;
+		providerFedora = "Fedora-"+uid;
+		providerZoo = "Zoo-"+uid;
 	}
 	
-	@Test(groups={TNG_PRE_UPGRADE}, description="create org, environment, user")
+	@Test(groups={TNG_PRE_UPGRADE}, 
+			description="create org, environment, user")
 	public void create_OrgEnvUser(){
 		SSHCommandResult res;
 		KatelloOrg org = new KatelloOrg(orgName, orgName+" description");
@@ -49,7 +106,7 @@ public class FillDB implements KatelloConstants{
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: environment.create");
 		res = new KatelloEnvironment(envNameDevelopment, envNameDevelopment+" decription", orgName, envNameTesting).cli_create();
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: environment.create");
-		res = new KatelloUser(userNameAdmin, KatelloUser.DEFAULT_USER_EMAIL, KatelloUser.DEFAULT_USER_PASS, false).cli_create();
+		res = new KatelloUser(userNameAdmin, KatelloUser.DEFAULT_USER_EMAIL, KatelloUser.DEFAULT_ADMIN_PASS, false).cli_create();
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: user.create");
 		res = new KatelloUser(userNameDisabled, KatelloUser.DEFAULT_USER_EMAIL, KatelloUser.DEFAULT_USER_PASS, true).cli_create();
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: user.create --disabled true");
@@ -61,7 +118,8 @@ public class FillDB implements KatelloConstants{
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: user.assignDefaultOrgEnv");
 	}
 	
-	@Test(groups={TNG_POST_UPGRADE}, description="check org, environent, user survived", dependsOnMethods={"create_OrgEnvUser"}) // TODO - remove depends... 
+	@Test(groups={TNG_POST_UPGRADE}, dependsOnMethods={"create_OrgEnvUser"},
+			description="check org, environent, user survived" ) // TODO - remove depends: create_*** 
 	public void check_OrgEnvUser(){
 		SSHCommandResult res;
 		String _name, _description, _prior;
@@ -97,15 +155,197 @@ public class FillDB implements KatelloConstants{
 		Assert.assertTrue(_prior.equals(envNameTesting), "stdout: environment.prior");
 	}
 	
-	@Test(groups={TNG_PRE_UPGRADE}, description="create role, permission and assignments", dependsOnMethods={"create_OrgEnvUser"})
+	@Test(groups={TNG_PRE_UPGRADE}, dependsOnMethods={"create_OrgEnvUser"},
+			description="create role, permission and assignments")
 	public void create_permissionsRoles(){
 		SSHCommandResult res;
+		
+		KatelloUser user = new KatelloUser();
 		res  = new KatelloUserRole(roleReadAll, roleReadAll+ " description").create();
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: role.create");
+		res  = new KatelloUserRole(roleOrgAdmin, roleOrgAdmin+ " description").create();
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: role.create");
+		
+		// Read all permissions
+		res = new KatelloPermission("ro-system_groups-"+uid, orgName, "system_groups", null, "read,read_systems", roleReadAll).create();
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: permission.create");
+		res = new KatelloPermission("ro-providers-"+uid, orgName, "providers", null, "read", roleReadAll).create();
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: permission.create");
+		res = new KatelloPermission("ro-environments-"+uid, orgName, "environments", null, "read_systems,read_contents,read_changesets", roleReadAll).create();
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: permission.create");
 		res = new KatelloPermission("ro-filters-"+uid, orgName, "filters", null, "read", roleReadAll).create();
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: permission.create");
 		res = new KatelloPermission("ro-roles-"+uid, orgName, "roles", null, "read", roleReadAll).create();
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: permission.create");
+		res = new KatelloPermission("ro-system_templates-"+uid, orgName, "system_templates", null, "read_all", roleReadAll).create();
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: permission.create");
+		res = new KatelloPermission("ro-organizations-"+uid, orgName, "organizations", null, "read,read_systems", roleReadAll).create();
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: permission.create");
+		res = new KatelloPermission("ro-users-"+uid, orgName, "users", null, "read", roleReadAll).create();
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: permission.create");
+		res = new KatelloPermission("ro-activation_keys-"+uid, orgName, "activation_keys", null, "read_all", roleReadAll).create();
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: permission.create");
+		
+		user.username = userNameGuest;
+		res = user.assign_role(roleReadAll);
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: user.assign_role");
+
+		// Admin org-scope permissions
+		res = new KatelloPermission("ro-system_groups-"+uid, orgName, "system_groups", null, 
+				"create,delete,delete_systems,update,update_systems,read,read_systems", roleOrgAdmin).create();
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: permission.create");
+		res = new KatelloPermission("ro-providers-"+uid, orgName, "providers", null, "create,delete,update,read", roleOrgAdmin).create();
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: permission.create");
+		res = new KatelloPermission("ro-environments-"+uid, orgName, "environments", envNameTesting+","+envNameDevelopment, 
+				"manage_changesets,delete_changesets,update_systems,promote_changesets,read_changesets," +
+				"read_contents,read_systems,register_systems,delete_systems", roleOrgAdmin).create();
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: permission.create");
+		res = new KatelloPermission("ro-filters-"+uid, orgName, "filters", null, "create,delete,update,read", roleOrgAdmin).create();
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: permission.create");
+		res = new KatelloPermission("ro-system_templates-"+uid, orgName, "system_templates", null, "manage_all, read_all", roleOrgAdmin).create();
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: permission.create");
+		res = new KatelloPermission("ro-organizations-"+uid, orgName, "organizations", null, 
+				"gpg,delete_systems,update,update_systems,read,read_systems,register_systems,sync", roleOrgAdmin).create();
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: permission.create");
+		res = new KatelloPermission("ro-activation_keys-"+uid, orgName, "activation_keys", null, "manage_all,read_all", roleOrgAdmin).create();
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: permission.create");
+				
+		user.username = userNameAdmin;
+		res = user.assign_role(roleOrgAdmin);
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: user.assign_role");
+	}
+	
+	@Test(groups={TNG_POST_UPGRADE}, dependsOnMethods={"check_OrgEnvUser","create_permissionsRoles"},
+			description="check permissions, make different calls") // TODO - remove depends: create_***
+	public void check_permissionsRoles(){
+		/**
+		 * TODO - make various calls to see that all accesses are preserved. !!! 
+		 * IMPORTANT.
+		 * Especially changesets (with environments accesses, see Terms in permission creation (aka: tags there)
+		 */
 	}
 
+	@Test(groups={TNG_PRE_UPGRADE}, dependsOnMethods={"create_permissionsRoles"},
+			description="import manifest, enable repo, promote to all envs - as the orgAdmin user", enabled = false) // TODO - enable it at the end
+	public void create_importManifestEnableRHRepoPromoteAllEnvs(){
+		SSHCommandResult res;
+		KatelloUser orgAdmin = new KatelloUser(userNameAdmin, null, KatelloUser.DEFAULT_ADMIN_PASS, false);
+		String manifest_name = KatelloProvider.MANIFEST_12SUBSCRIPTIONS;
+
+		KatelloProvider provRedHat = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, orgName, null, null);
+		provRedHat.runAs(orgAdmin);
+
+		SCPTools scp = new SCPTools(
+				System.getProperty("katello.client.hostname", "localhost"), 
+				System.getProperty("katello.client.ssh.user", "root"), 
+				System.getProperty("katello.client.sshkey.private", ".ssh/id_hudson_dsa"), 
+				System.getProperty("katello.client.sshkey.passphrase", "null"));
+		Assert.assertTrue(scp.sendFile("data"+File.separator+manifest_name, "/tmp"), manifest_name+" sent successfully");
+
+		res = provRedHat.import_manifest("/tmp/"+KatelloProvider.MANIFEST_12SUBSCRIPTIONS, true);
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: provider.import_manifest");
+		KatelloRepo repo = new KatelloRepo(KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, orgName, KatelloProduct.RHEL_SERVER, null, null, null);
+		repo.runAs(orgAdmin);
+		res = repo.enable();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: repo.enable");
+		
+		KatelloChangeset csTesting = new KatelloChangeset(envNameTesting, orgName, envNameTesting);
+		csTesting.runAs(orgAdmin);
+		res = csTesting.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: changeset.create");
+		res = csTesting.update_addProduct(KatelloProduct.RHEL_SERVER);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: changeset.update_addProduct");
+		res = csTesting.promote();
+		
+		KatelloChangeset csDEvelopment = new KatelloChangeset(envNameDevelopment, orgName, envNameDevelopment);
+		csDEvelopment.runAs(orgAdmin);
+		res = csDEvelopment.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: changeset.create");
+		res = csDEvelopment.update_addProduct(KatelloProduct.RHEL_SERVER);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: changeset.update_addProduct");
+		res = csDEvelopment.promote();
+	}
+
+	@Test(groups={TNG_POST_UPGRADE}, dependsOnMethods={"check_permissionsRoles","create_importManifestEnableRHRepoPromoteAllEnvs"},
+			description="check subscription, product, repo info in all environments - as orgAdmin user", enabled = false) // TODO - enable it at the end // TODO - remove depends: create_***
+	public void check_importManifestEnableRHRepoPromoteAllEnvs(){
+		/**
+		 * TODO - make calls to get info about product, repo, subscriptions for all the environments 
+		 * to assure they all preserved.
+		 * make the calls as the org Admin user.
+		 */
+	}
+	
+	@Test(groups={TNG_PRE_UPGRADE}, dependsOnMethods={"create_permissionsRoles"},
+			description="create: gpgKey, activationKey, filter, system_group, template objects. To be used later on next step(s) - as orgAdmin user.")
+	public void create_gpgKeyActivationKeyFilterSystemGroupTemplate(){
+		// GPG Key
+		SSHCommandResult res;
+		String cmd = String.format("rm -f %s; curl -sk %s -o %s",
+				gpgFilename, KatelloGpgKey.REPO_GPG_FILE_ZOO,gpgFilename);
+		KatelloUser orgAdmin = new KatelloUser(userNameAdmin, null, KatelloUser.DEFAULT_ADMIN_PASS, false);
+		
+		res = KatelloUtils.sshOnClient(cmd);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: curl.gpgkey-zoo");
+		KatelloGpgKey gpgKey = new KatelloGpgKey(gpgKeyZoo, orgName, gpgFilename);
+		gpgKey.runAs(orgAdmin);
+		res = gpgKey.cli_create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: gpg_key.create");
+		
+		// Activation key
+		KatelloActivationKey ak = new KatelloActivationKey(orgName, envNameTesting, akTesting, akTesting+" description", null);
+		ak.runAs(orgAdmin);
+		res = ak.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: activation_key.create");
+		ak = new KatelloActivationKey(orgName, envNameDevelopment, akDevelopment, akDevelopment+" description", null);
+		ak.runAs(orgAdmin);
+		res = ak.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: activation_key.create");
+		
+		// Filter
+		KatelloFilter filter = new KatelloFilter(filterNoBear, orgName, envNameDevelopment, "bear");
+		filter.runAs(orgAdmin);
+		res = filter.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: filter.create");
+		
+		// System Group
+		KatelloSystemGroup sg = new KatelloSystemGroup(systemGRoupMyServers,orgName,systemGRoupMyServers+" description", new Integer(2));
+		sg.runAs(orgAdmin);
+		res = sg.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: system_group.create");
+		
+		// Template
+		KatelloTemplate temp = new KatelloTemplate(templateF16Iso, templateF16Iso+" description", orgName, null);
+		temp.runAs(orgAdmin);
+		res = temp.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: template.create");
+	}
+	
+	@Test(groups={TNG_POST_UPGRADE}, dependsOnMethods={},
+			description="check diff. \"keys\" presence - as orgAdmin user", enabled = false) // TODO - enable it at the end // TODO - remove depends: create_***
+	public void check_gpgKeyActivationKeyFilterSystemGroupTemplate(){
+		/**
+		 * TODO - as usual ;)!!!
+		 */
+	}
+	
+	
+	@Test(groups={TNG_PRE_UPGRADE}, dependsOnMethods={"create_permissionsRoles"},
+			description="create: providers, products, repos {Fedora, Zoo3}. make sync - as orgAdmin user.")
+	public void create_providerProductRepoSyncF16AndZoo3(){
+		SSHCommandResult res;
+		KatelloUser orgAdmin = new KatelloUser(userNameAdmin, null, KatelloUser.DEFAULT_ADMIN_PASS, false);
+		
+		KatelloProvider prov = new KatelloProvider(providerFedora, orgName, providerFedora+" description", null);
+		prov.runAs(orgAdmin);
+		res = prov.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: provider.create");
+		
+		prov = new KatelloProvider(providerZoo, orgName, providerZoo+" description", null);
+		prov.runAs(orgAdmin);
+		res = prov.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: provider.create");
+		
+		
+	}
 }
