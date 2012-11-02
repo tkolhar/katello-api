@@ -175,9 +175,9 @@ public class KatelloCliDataProvider {
 				{ " ", null, new Integer(144), "Name can't be blank"},
 				{ " a", null, new Integer(144), "Validation failed: Name must not contain leading or trailing white spaces."},
 				{ "a ", null, new Integer(144), "Validation failed: Name must not contain leading or trailing white spaces."},
-				{ "a", null, new Integer(144), "Validation failed: Name must contain at least 2 characters"},
-				{ "?1", null, new Integer(144), "Validation failed: Name cannot contain characters other than alpha numerals, space,'_', '-'."},
-			    { strRepeat("0123456789", 12)+"abcdefghi", null, new Integer(144), "Validation failed: Name cannot contain more than 128 characters"},
+				{ "a", null, new Integer(0), "Successfully created user role [ a ]"},
+				{ "?1", null, new Integer(0), "Successfully created user role [ ?1 ]"},
+			    { strRepeat("0123456789", 12)+"abcdefghi", null, new Integer(144), "Validation failed: Name is too long (maximum is 128 characters)"},
 //				// description
 				{ "desc-specChars"+uid, "\\!@%^&*(<_-~+=//\\||,.>)", new Integer(0), "Successfully created user role [ desc-specChars"+uid+" ]"},
 				
@@ -202,7 +202,7 @@ public class KatelloCliDataProvider {
 				{ " ", null, new Integer(144), "Name can't be blank"},
 				{ " a", null, new Integer(144), "Validation failed: Name must not contain leading or trailing white spaces."},
 				{ "a ", null, new Integer(144), "Validation failed: Name must not contain leading or trailing white spaces."},
-				{ "a", null, new Integer(144), "Validation failed: Name must contain at least 2 characters"},
+				{ "a", null, new Integer(0), "Successfully created environment [ a1 ]"},
 				{ "?1", null, new Integer(144), "Validation failed: Name cannot contain characters other than alpha numerals, space,'_', '-'."},
 			    { strRepeat("0123456789", 12)+"abcdefghi", null, new Integer(144), "Validation failed: Name cannot contain more than 128 characters"},
 //				// description
@@ -246,7 +246,7 @@ public class KatelloCliDataProvider {
 				{ " ", null, new Integer(144), "Name can't be blank"},
 				{ " a", null, new Integer(144), "Validation failed: Name must not contain leading or trailing white spaces."},
 				{ "a ", null, new Integer(144), "Validation failed: Name must not contain leading or trailing white spaces."},
-				{ "a", null, new Integer(144), "Validation failed: Name must contain at least 2 characters"},
+				{ "a", null, new Integer(0), "Successfully created activation key [ a ]"},
 				{ "?1", null, new Integer(144), "Validation failed: Name cannot contain characters other than alpha numerals, space,'_', '-'."},
 			    { strRepeat("0123456789", 12)+"abcdefghi", null, new Integer(144), "Validation failed: Name cannot contain more than 128 characters"},
 //				// description
