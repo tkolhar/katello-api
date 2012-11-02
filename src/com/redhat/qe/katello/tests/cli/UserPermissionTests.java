@@ -1,4 +1,4 @@
-package com.redhat.qe.katello.tests.ad;
+package com.redhat.qe.katello.tests.cli;
 
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -18,7 +18,7 @@ import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups={"cfse-cli"})
-public class UserTests extends KatelloCliTestScript {
+public class UserPermissionTests extends KatelloCliTestScript {
 	
 	private String org;
 	private String users[];

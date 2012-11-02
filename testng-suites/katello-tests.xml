@@ -44,12 +44,6 @@
 			<package name="com.redhat.qe.katello.tests.i18n"/>
 		</packages>
 	</test>
-
-	<test name="LDAP_Tests">
-		<packages>
-			<package name="com.redhat.qe.katello.tests.ad"/>
-		</packages>
-	</test>
 			
 	<!-- Test group that could be run on SAM server(s) as well -->
 	<test name="SAM_Tests" preserve-order="true">
