@@ -10,7 +10,6 @@ public class KatelloProduct extends _KatelloObject{
 	protected static Logger log = Logger.getLogger(KatelloProduct.class.getName());
 	
 	public static final String RHEL_SERVER = "Red Hat Enterprise Linux Server";
-	public static final String Default_Org = "ACME_Corporation";
 	
 	// ** ** ** ** ** ** ** Public constants
 	public static final String CMD_CREATE = "product create";

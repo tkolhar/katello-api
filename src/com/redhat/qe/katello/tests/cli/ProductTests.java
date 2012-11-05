@@ -60,8 +60,8 @@ public class ProductTests  extends KatelloCliTestScript{
     @Test(description = "List all product for orgs", groups = {"headpin-cli"})
 	public void test_listProductDefaultOrg(){
       
-    	  String providername = "Red Hat";
-	 	  KatelloProduct list_product = new KatelloProduct(null,KatelloProduct.Default_Org,providername,null,null,null,null,null);
+    	  String providername = KatelloProvider.PROVIDER_REDHAT;
+	 	  KatelloProduct list_product = new KatelloProduct(null,KatelloOrg.getDefaultOrg(),providername,null,null,null,null,null);
 	 	  SSHCommandResult res = list_product.cli_list();
 	 	  Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
  	}
