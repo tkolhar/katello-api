@@ -1,15 +1,12 @@
 package com.redhat.qe.katello.tests.upgrade.v1;
 
-import java.io.File;
 import java.util.logging.Logger;
 
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
-import com.redhat.qe.katello.base.obj.KatelloErrata;
 import com.redhat.qe.katello.base.obj.KatelloFilter;
 import com.redhat.qe.katello.base.obj.KatelloGpgKey;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
@@ -24,18 +21,15 @@ import com.redhat.qe.katello.base.obj.KatelloUser;
 import com.redhat.qe.katello.base.obj.KatelloUserRole;
 import com.redhat.qe.katello.common.KatelloConstants;
 import com.redhat.qe.katello.common.KatelloUtils;
-import com.redhat.qe.tools.SCPTools;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(enabled=false)
-public class MultyOrgManifest implements KatelloConstants {
+public class MultyOrgRepo implements KatelloConstants {
 	
-	protected static Logger log = Logger.getLogger(MultyOrgManifest.class.getName());
+	protected static Logger log = Logger.getLogger(MultyOrgRepo.class.getName());
 
 	String _org1;
 	String _org2;
 	String _org3;
-	String _org4;
 	String _provider1;
 	String _product1_1;
 	String _product1_2;
@@ -98,20 +92,6 @@ public class MultyOrgManifest implements KatelloConstants {
 	String _templ3;
 	String _filter3;
 	String _system3;
-	
-	String _provider4;
-	String _product4;
-	String _repo4;
-	String _env4_1;
-	String _env4_2;
-	String _env4_3;
-	String _changeset4_1;
-	String _changeset4_2;
-	String _changeset4_3;
-	String _perm4_1;
-	String _perm4_2;
-	String _perm4_3;
-	String _system4;
 
 	String _user1;
 	String _user2;
@@ -196,20 +176,7 @@ public class MultyOrgManifest implements KatelloConstants {
 		_templ3 = "Templ3_" + _uid;
 		_filter3 = "Filter3_" + _uid;
 		_system3 = "Paris_" + _uid;
-		
-		_uid = KatelloUtils.getUniqueID();
-		_org4 = "torg"+_uid;
-		_env4_1 = "Dev_" + _uid;
-		_env4_2 = "QA_" + _uid;
-		_env4_3 = "GA_" + _uid;
-		_changeset4_1 = "toDev_" + _uid;
-		_changeset4_2 = "toQA_" + _uid;
-		_changeset4_3 = "toGA_" + _uid;
-		_perm4_1 = "Perm1_" + _uid;
-		_perm4_2 = "Perm2_" + _uid;
-		_perm4_3 = "Perm3_" + _uid;
-		_system4 = "Dakar_" + _uid;
-		
+
 		_user1 = "Akihito_" + KatelloUtils.getUniqueID();
 		_user2 = "Dilma_Rousseff_" + KatelloUtils.getUniqueID();
 		_user3 = "Ollanta_Humala_" + KatelloUtils.getUniqueID();
@@ -433,76 +400,7 @@ public class MultyOrgManifest implements KatelloConstants {
         perm6.create();
         KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);
         sys3.rhsm_registerForce();
-		
-        //this org contains imported manifest with RHEL repo promoted to environments
-        // DO NOT DELETE THIS ORG IN TEAR_DOWN
-		org = new KatelloOrg(_org4, null);
-		env1 = new KatelloEnvironment(_env4_1, null, _org4, KatelloEnvironment.LIBRARY);
-		env2 = new KatelloEnvironment(_env4_2, null, _org4, _env4_1);
-		env3 = new KatelloEnvironment(_env4_3, null, _org4, _env4_2);
-		perm1 = new KatelloPermission(_perm4_1, _org4, "environments", _env4_1, _perm_actions, _role1);
-		perm2 = new KatelloPermission(_perm4_2, _org4, "environments", _env4_2, _perm_actions, _role2);
-		perm3 = new KatelloPermission(_perm4_3, _org4, "environments", _env4_3, _perm_actions, _role3);
-		
-		org.cli_create();
-		env1.cli_create();
-		env2.cli_create();
-		env3.cli_create();
-		perm1.create();
-        perm2.create();
-        perm3.create();
-		
-		SCPTools scp = new SCPTools(
-				System.getProperty("katello.client.hostname", "localhost"), 
-				System.getProperty("katello.client.ssh.user", "root"), 
-				System.getProperty("katello.client.sshkey.private", ".ssh/id_hudson_dsa"), 
-				System.getProperty("katello.client.sshkey.passphrase", "null"));
-		Assert.assertTrue(scp.sendFile("data"+File.separator+"export.zip", "/tmp"),
-				"export.zip sent successfully");			
-
-		KatelloProvider prov = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, _org4, null, null);
-		res = prov.import_manifest("/tmp"+File.separator+"export.zip", new Boolean(true));
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (provider import_manifest)");
-		
-		KatelloRepo repo = new KatelloRepo(KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, _org4, KatelloProduct.RHEL_SERVER, null, null, null);
-		res = repo.enable();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo enable)");
-
-		res = repo.synchronize();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo sync)");
-
-		
-		cs1 = new KatelloChangeset(_changeset4_1, _org4, _env4_1);
-		cs2 = new KatelloChangeset(_changeset4_2, _org4, _env4_2);
-		cs3 = new KatelloChangeset(_changeset4_3, _org4, _env4_3);
-		cs1.create();
-		cs2.create();
-		cs3.create();
-		
-		res = cs1.update_addProduct(KatelloProduct.RHEL_SERVER);
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset add_product)");
-		res = cs1.promote();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset apply)");
-		
-		res = cs2.update_addProduct(KatelloProduct.RHEL_SERVER);
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset add_product)");
-		res = cs2.promote();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset apply)");
-		
-		res = cs3.update_addProduct(KatelloProduct.RHEL_SERVER);
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset add_product)");
-		res = cs3.promote();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset apply)");
-
-		KatelloSystem sys4 = new KatelloSystem(_system4, _org4, _env4_3);
-        KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);
-        sys4.rhsm_registerForce();
-        
-		String pool = KatelloCli.grepCLIOutput("Pool Id",
-				KatelloUtils.sshOnClient("subscription-manager list --available --all | sed  -e 's/^ \\{1,\\}//'").getStdout().trim(),1);
-		Assert.assertNotNull(pool);
-		sys4.rhsm_subscribe(pool);
-		
+				
 		KatelloUtils.sshOnClient("service goferd restart;");
 	}
 	
@@ -519,10 +417,6 @@ public class MultyOrgManifest implements KatelloConstants {
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (org info)");
 		
 		org = new KatelloOrg(_org3, null);
-		res = org.cli_info();
-		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (org info)");
-		
-		org = new KatelloOrg(_org4, null);
 		res = org.cli_info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (org info)");
 	}
@@ -578,18 +472,6 @@ public class MultyOrgManifest implements KatelloConstants {
 		env = new KatelloEnvironment(_env3_6, null, _org3, KatelloEnvironment.LIBRARY);
 		res = env.cli_info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (env info)");
-		
-		env = new KatelloEnvironment(_env4_1, null, _org4, KatelloEnvironment.LIBRARY);
-		res = env.cli_info();
-		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (env info)");
-		
-		env = new KatelloEnvironment(_env4_2, null, _org4, KatelloEnvironment.LIBRARY);
-		res = env.cli_info();
-		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (env info)");
-		
-		env = new KatelloEnvironment(_env4_3, null, _org4, KatelloEnvironment.LIBRARY);
-		res = env.cli_info();
-		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (env info)");
 	}
 	
 	@Test(description="verify roles survived the upgrade", 
@@ -621,7 +503,6 @@ public class MultyOrgManifest implements KatelloConstants {
 		Assert.assertTrue(res.getStdout().trim().contains(_perm2_1), "Check - permission is in list");
 		Assert.assertTrue(res.getStdout().trim().contains(_perm3_1), "Check - permission is in list");
 		Assert.assertTrue(res.getStdout().trim().contains(_perm3_4), "Check - permission is in list");
-		Assert.assertTrue(res.getStdout().trim().contains(_perm4_1), "Check - permission is in list");
 		
 		perm = new KatelloPermission(null, null, null, null, null, _role2);
 		res = perm.list();
@@ -631,7 +512,6 @@ public class MultyOrgManifest implements KatelloConstants {
 		Assert.assertTrue(res.getStdout().trim().contains(_perm2_2), "Check - permission is in list");
 		Assert.assertTrue(res.getStdout().trim().contains(_perm3_2), "Check - permission is in list");
 		Assert.assertTrue(res.getStdout().trim().contains(_perm3_5), "Check - permission is in list");
-		Assert.assertTrue(res.getStdout().trim().contains(_perm4_2), "Check - permission is in list");
 		
 		perm = new KatelloPermission(null, null, null, null, null, _role3);
 		res = perm.list();
@@ -641,7 +521,6 @@ public class MultyOrgManifest implements KatelloConstants {
 		Assert.assertTrue(res.getStdout().trim().contains(_perm2_3), "Check - permission is in list");
 		Assert.assertTrue(res.getStdout().trim().contains(_perm3_3), "Check - permission is in list");
 		Assert.assertTrue(res.getStdout().trim().contains(_perm3_6), "Check - permission is in list");
-		Assert.assertTrue(res.getStdout().trim().contains(_perm4_3), "Check - permission is in list");
 	}
 
 
@@ -695,10 +574,6 @@ public class MultyOrgManifest implements KatelloConstants {
 		provider = new KatelloProvider(_provider3, _org3, null, null);
 		res = provider.info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (provider info)");
-		
-		provider = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, _org4, null, null);
-		res = provider.info();
-		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (provider info)");
 	}
 
 	@Test(description="verify products survived the upgrade", 
@@ -722,11 +597,6 @@ public class MultyOrgManifest implements KatelloConstants {
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (product list)");
 		Assert.assertTrue(res.getStdout().trim().contains(_product3_1), "Check - locale");
 		Assert.assertTrue(res.getStdout().trim().contains(_product3_2), "Check - locale");
-		
-		product = new KatelloProduct(null, _org4, KatelloProvider.PROVIDER_REDHAT, null, null, null, null, null);
-		res = product.cli_list();
-		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (product list)");
-		Assert.assertTrue(res.getStdout().trim().contains(KatelloProduct.RHEL_SERVER), "Check - locale");
 	}
 
 	@Test(description="verify repos survived the upgrade", 
@@ -754,10 +624,6 @@ public class MultyOrgManifest implements KatelloConstants {
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (repo info)");
 		
 		repo = new KatelloRepo(_repo3_2, _org3, _product3_2, null, null, null);
-		res = repo.info();
-		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (repo info)");
-		
-		repo = new KatelloRepo(KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, _org4, KatelloProduct.RHEL_SERVER, null, null, null);
 		res = repo.info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (repo info)");
 	}
@@ -883,10 +749,6 @@ public class MultyOrgManifest implements KatelloConstants {
 		sys = new KatelloSystem(_system3, _org3, _env3_3);
 		res = sys.info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
-		
-		sys = new KatelloSystem(_system4, _org4, _env4_3);
-		res = sys.info();
-		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
 	}
 
 	@Test(description="verify that still is possible to create new objects after upgrade", 
@@ -941,16 +803,6 @@ public class MultyOrgManifest implements KatelloConstants {
 		KatelloOrg org = new KatelloOrg(_org1, null);
 		SSHCommandResult res = org.update("new description");
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (org update)");
-	}
-	
-	@Test(description="verify after upgrade errata list is survived", 
-			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE}, 
-			groups={TNG_POST_UPGRADE})
-	public void checkErrataSurvived() {
-		KatelloErrata errata = new KatelloErrata(null, _org4, KatelloProduct.RHEL_SERVER, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, _env4_3);
-		SSHCommandResult res = errata.cli_list();
-		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
-		Assert.assertTrue(res.getStdout().trim().contains("RHBA-2012:1312")); //telnet errata
 	}
 	
 	//check that pulp packages are contained in output
