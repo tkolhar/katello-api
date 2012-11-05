@@ -141,9 +141,6 @@
 	</test>
 
 	<test name="Headpin_Upgrade_Tests">
-		<packages>
-			<package name="com.redhat.qe.katello.tests.upgrade.v1"/>
-		</packages>
 		<groups preserve-order="true">
 			<run>
 				<include name="pre-upgrade"/>
