@@ -44,7 +44,7 @@
 			<package name="com.redhat.qe.katello.tests.i18n"/>
 		</packages>
 	</test>
-		
+			
 	<!-- Test group that could be run on SAM server(s) as well -->
 	<test name="SAM_Tests" preserve-order="true">
 		<groups>
@@ -136,6 +136,7 @@
 				<include name="pre-upgrade"/>
 				<include name="upgrade"/>
 				<include name="post-upgrade"/>
+				<exclude name="sam-upgrade"  />
 			</run>
 		</groups>
 	</test>
