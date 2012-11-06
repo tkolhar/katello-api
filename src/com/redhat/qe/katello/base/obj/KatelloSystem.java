@@ -179,7 +179,7 @@ public class KatelloSystem extends _KatelloObject{
 		if(this.env != null)
 			cmd += " --environment \""+this.env+"\"";
 		
-		return KatelloUtils.sshOnClient(cmd);		
+		return KatelloUtils.sshOnClient(getHostName(), cmd);		
 	}
 	
 	public SSHCommandResult rhsm_registerForce(){
@@ -193,7 +193,7 @@ public class KatelloSystem extends _KatelloObject{
 			cmd += " --environment \""+this.env+"\"";
 		cmd += " --force";
 		
-		return KatelloUtils.sshOnClient(cmd);		
+		return KatelloUtils.sshOnClient(getHostName(), cmd);		
 	}
 
 	public SSHCommandResult rhsm_registerForce(String activationkey){
@@ -207,12 +207,12 @@ public class KatelloSystem extends _KatelloObject{
 			cmd += " --activationkey \""+activationkey+"\"";
 		cmd += " --force";
 		
-		return KatelloUtils.sshOnClient(cmd);		
+		return KatelloUtils.sshOnClient(getHostName(), cmd);		
 	}
 	
 	public SSHCommandResult rhsm_clean(){
 		String cmd = RHSM_CLEAN;		
-		return KatelloUtils.sshOnClient(cmd);		
+		return KatelloUtils.sshOnClient(getHostName(), cmd);		
 	}
 
 	public SSHCommandResult list(){
@@ -237,13 +237,6 @@ public class KatelloSystem extends _KatelloObject{
 	}
 	
 	public SSHCommandResult subscriptions_available(){
-		opts.clear();
-		opts.add(new Attribute("org", org));
-		opts.add(new Attribute("name", name));
-		return run(CMD_SUBSCRIPTIONS+" --available -v");
-	}
-	
-	public SSHCommandResult subscriptions_available(KatelloUser user){
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
@@ -285,7 +278,7 @@ public class KatelloSystem extends _KatelloObject{
 		if(poolid != null)
 			cmd += " --pool "+poolid;
 		
-		return KatelloUtils.sshOnClient(cmd);		
+		return KatelloUtils.sshOnClient(getHostName(), cmd);		
 	}
 
 	public SSHCommandResult rhsm_unsubscribe(String serialId){
@@ -305,7 +298,7 @@ public class KatelloSystem extends _KatelloObject{
 		if (quantity != 0) 
 			cmd += " --quantity " + quantity;
 		
-		return KatelloUtils.sshOnClient(cmd);		
+		return KatelloUtils.sshOnClient(getHostName(), cmd);		
 	}
 	
 	public SSHCommandResult rhsm_subscribe_auto(){
@@ -317,7 +310,7 @@ public class KatelloSystem extends _KatelloObject{
 	public SSHCommandResult rhsm_identity(){
 		String cmd = RHSM_IDENTITY;
 		
-		return KatelloUtils.sshOnClient(cmd);		
+		return KatelloUtils.sshOnClient(getHostName(), cmd);		
 	}
 	
 	public SSHCommandResult system_uuids(){
