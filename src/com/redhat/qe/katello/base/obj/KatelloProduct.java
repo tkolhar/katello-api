@@ -19,6 +19,8 @@ public class KatelloProduct extends _KatelloObject{
 	public static final String CMD_PROMOTE = "product promote";
 	public static final String CMD_DELETE = "product delete";
 	public static final String CMD_SET_PLAN = "product set_plan";
+	public static final String CMD_UPDATE = "product update";
+	public static final String CMD_ADD_FILTER = "product add_filter";
 	
 	/** Parameters:<BR>1: product_name<BR>2: org_name */
 	public static final String ERR_COULD_NOT_FIND_PRODUCT = 
@@ -167,6 +169,22 @@ public class KatelloProduct extends _KatelloObject{
 		return run(CMD_DELETE);
 	}
 	
+	public SSHCommandResult update_gpgkey(String gpgkey){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("gpgkey", gpgkey));
+		return run(CMD_UPDATE);
+	}
+	
+	public SSHCommandResult add_filter(String filter){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("filter", filter));
+		return run(CMD_ADD_FILTER);
+	}
+		
 	// ** ** ** ** ** ** **
 	// ASSERTS
 	// ** ** ** ** ** ** **
