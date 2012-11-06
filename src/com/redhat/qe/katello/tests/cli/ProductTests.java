@@ -9,6 +9,7 @@ import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
@@ -170,9 +171,11 @@ public class ProductTests  extends KatelloCliTestScript{
 		
 		// try to create product second time by the same name
 		res = prod.create();
-		Assert.assertTrue(res.getExitCode().intValue() == 144, "Check - return code (product create)");
-		Assert.assertTrue(getOutput(res).trim().contains("Validation failed: Pulp id has already been taken"),
-				"Check - error message pulp id is taken");
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
+		
+		res = prod.cli_list();
+		String _prod2 = KatelloCli.grepCLIOutput("Name", getOutput(res), 2);
+		Assert.assertTrue(_prod2.equals(prodName), "Check - there are 2 products with same name");
 	}
 	
 	@Test(description="create product by the same name which is in other org", groups = {"cli-products"}, enabled=true)
