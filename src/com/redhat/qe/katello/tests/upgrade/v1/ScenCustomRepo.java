@@ -125,7 +125,7 @@ public class ScenCustomRepo implements KatelloConstants{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 
 		KatelloSystem sys = new KatelloSystem(_system, _org, _env);
-		sys.setHostName(clients[0]);
+		sys.runOn(clients[0]);
 		sys.rhsm_registerForce();
 		String pool = KatelloCli.grepCLIOutput("PoolId", sys.subscriptions_available().getStdout().trim(),1);
 		Assert.assertNotNull(pool);
@@ -189,7 +189,7 @@ public class ScenCustomRepo implements KatelloConstants{
 	private void remoteInstall() {
 		
 		KatelloSystem sys = new KatelloSystem(_system, _org, null);
-		sys.setHostName(clients[0]);
+		sys.runOn(clients[0]);
 		SSHCommandResult res = sys.packages_install("lion");
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (remote install lion)");
 		Assert.assertTrue(res.getStdout().trim().contains(KatelloSystem.OUT_REMOTE_ACTION_DONE),
