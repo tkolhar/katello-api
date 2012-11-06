@@ -3,6 +3,7 @@ package com.redhat.qe.katello.base.obj;
 import javax.management.Attribute;
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
+import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class KatelloRepo extends _KatelloObject{
@@ -261,5 +262,28 @@ public class KatelloRepo extends _KatelloObject{
 		Assert.assertTrue(reposWithGpg.contains(this.name), 
 				"Check - Repo should be in repositories list of GPG key");
 	}
-	
+
+	public static final String FEDORA_VER16 = "16";
+	public static final String FEDORA_VER17 = "17";
+	public static String getFedoraMirror(String version){
+		String domain="";
+		
+		String lab_controller = KatelloUtils.sshOnServer("echo ${LAB_CONTROLLER}").getStdout().trim();
+		if(lab_controller.equals("")) lab_controller = "lab.rhts.englab.brq.redhat.com";
+		
+		if(lab_controller.contains("eng.bos.redhat.com"))
+			domain = "download.bos.redhat.com";
+		else if(lab_controller.equals("eng.nay.redhat.com"))
+			domain = "download.eng.nay.redhat.com";
+		else if(lab_controller.equals("eng.pnq.redhat.com"))
+			domain = "download.eng.pnq.redhat.com";
+		else if(lab_controller.equals("eng.tlv.redhat.com"))
+			domain = "download.eng.tlv.redhat.com";
+		else 
+			domain = "download.eng.brq.redhat.com";
+			
+		String _url = "http://"+domain+"/pub/fedora/linux/releases/"+version+"/Fedora/x86_64/os/";
+		return _url;
+	}
+
 }
