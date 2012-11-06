@@ -3,6 +3,8 @@ package com.redhat.qe.katello.common;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -18,7 +20,7 @@ import com.redhat.qe.tools.SSHCommandRunner;
  */
 public class KatelloUtils {
 	private static Logger log = Logger.getLogger(KatelloUtils.class.getName());
-	private static SSHCommandRunner _sshClient;
+	private static Map<String, SSHCommandRunner> _sshClients = new HashMap<String, SSHCommandRunner>();
 	private static SSHCommandRunner _sshServer;
 	
     public static String run_local(String command){
@@ -96,7 +98,19 @@ public class KatelloUtils {
 	public static SSHCommandResult sshOnClient(String _cmd){
 		return getSSHClient().runCommandAndWait(_cmd);
 	}
-	
+
+	/**
+	 * Executes ssh command on client-side.<br>
+	 * Credentials (passphrase) and other settings are all taken from System.properties.
+	 * @param _hostName the client on which command will be executed
+	 * @param _cmd Command string to execute. Multiple commands could be provided with ";".
+	 * @return SSHCommandResult object
+	 * @author Garik Khachikyan <gkhachik@redhat.com>
+	 */
+	public static SSHCommandResult sshOnClient(String _hostname, String _cmd){
+		return getSSHClient(_hostname).runCommandAndWait(_cmd);
+	}
+
 	/**
 	 * Executes ssh command(s) on client side and returns without waiting its result.<br>
 	 * Useful for some async commands like: provider synchronize (with option to cancel it later).
@@ -105,6 +119,17 @@ public class KatelloUtils {
 	 */
 	public static void sshOnClientNoWait(String _cmd){
 		getSSHClient().runCommand(_cmd);
+	}
+	
+	/**
+	 * Executes ssh command(s) on client side and returns without waiting its result.<br>
+	 * Useful for some async commands like: provider synchronize (with option to cancel it later).
+	 * @param _hostName
+	 * @param _cmd
+	 * @author Garik Khachikyan <gkhachik@redhat.com>
+	 */
+	public static void sshOnClientNoWait(String _hostName, String _cmd){
+		getSSHClient(_hostName).runCommand(_cmd);
 	}
 
 	/**
@@ -136,22 +161,28 @@ public class KatelloUtils {
 	}
 
 	protected static SSHCommandRunner getSSHClient(){
-		if (_sshClient == null){
+		return getSSHClient(null);
+	}
+
+	protected static SSHCommandRunner getSSHClient(String _host){
+		String hostname = (_host == null ? System.getProperty("katello.client.hostname", "localhost") : _host);
+		if (_sshClients.get(hostname) == null){
 			try{
-				_sshClient = new SSHCommandRunner(
-						System.getProperty("katello.client.hostname", "localhost"), "root", 
+				SSHCommandRunner sshClient = new SSHCommandRunner(
+						hostname, "root", 
 						System.getProperty("katello.client.ssh.passphrase", "secret"), 
 						System.getProperty("katello.client.sshkey.private", ".ssh/id_dsa"), 
 						System.getProperty("katello.client.sshkey.passphrase", "secret"), null);
+				_sshClients.put(hostname, sshClient);
 			}catch(Throwable t){
 				log.warning("Warning: Could not initialize client's SSHCommandRunner.");
 				log.warning("Warning: "+t.getMessage());
 				t.printStackTrace();
 			}
 		}
-		return _sshClient;
+		return _sshClients.get(hostname);
 	}
-
+	
 	protected static SSHCommandRunner getSSHServer(){
 		if (_sshServer == null){
 			try{
