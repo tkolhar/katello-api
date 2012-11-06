@@ -28,7 +28,7 @@ class _KatelloObject {
     	return hostName;
     }
     
-    public void setHostName(String hostName) {
+    public void runOn(String hostName) {
     	this.hostName = hostName;
     }
 	
