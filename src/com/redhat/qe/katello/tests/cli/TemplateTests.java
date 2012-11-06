@@ -404,7 +404,7 @@ public class TemplateTests extends KatelloCliTestScript {
 	public void test_exportTemplateTdlErr(){
 		KatelloTemplate template = new KatelloTemplate(templateExport_name, null, org_name, null);
 		exec_result = template.export(templateExport_env_name, "/tmp/"+templateExport_name+".tdl", "tdl");
-		Assert.assertTrue(exec_result.getExitCode() == 244, "Check - return code (template export --format tdl)");
+		Assert.assertTrue(exec_result.getExitCode() == 144, "Check - return code (template export --format tdl)");
 		Assert.assertTrue(getOutput(exec_result).equals(KatelloTemplate.ERR_TDL_EXPORT_IMPOSSIBLE), 
 				"Check - stderr (export not possible)");
 	}
