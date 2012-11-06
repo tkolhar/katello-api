@@ -27,7 +27,6 @@ import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SCPTools;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(enabled=false)
 public class MultyOrgManifest implements KatelloConstants {
 	
 	protected static Logger log = Logger.getLogger(MultyOrgManifest.class.getName());
