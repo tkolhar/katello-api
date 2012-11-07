@@ -21,7 +21,7 @@ import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SCPTools;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups={"sam-upgrade"})
+@Test(groups={"sam-upgrade"}, enabled=false)
 public class ImportedManifest implements KatelloConstants {
 	
 	protected static Logger log = Logger.getLogger(ImportedManifest.class.getName());
