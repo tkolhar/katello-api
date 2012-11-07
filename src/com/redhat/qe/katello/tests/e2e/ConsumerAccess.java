@@ -48,23 +48,21 @@ public class ConsumerAccess extends KatelloCliTestScript{
 		user_name = "user_"+uid;
 		system_name = "system_"+uid;
 		
-		KatelloUtils.sshOnClient("yum -y erase wolf lion || true");
-		KatelloUtils.sshOnClient("subscription-manager unregister || true");
+		rhsm_clean(); // clean the RHSM registration
 		
 		// Create org:
 		KatelloOrg org = new KatelloOrg(org_name, "Org deletion");
 		exec_result = org.cli_create();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
-		Assert.assertEquals(getOutput(exec_result).trim(), "Successfully created org [ "+org_name+" ]");
+		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloOrg.OUT_CREATE,org_name));
 		
 		KatelloEnvironment env = new KatelloEnvironment(env_name, null, org_name, KatelloEnvironment.LIBRARY);
 		exec_result = env.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-
 		KatelloUser user = null;
         try {
-            user = katelloTasks.createUser(user_name, KatelloUser.DEFAULT_USER_EMAIL, 
+            user = katelloTasks.createUser(user_name, KatelloUser.DEFAULT_USER_EMAIL,
             		KatelloUser.DEFAULT_USER_PASS, false);
         } catch (KatelloApiException e) {
             Assert.fail("Could not create user", e);
@@ -79,22 +77,28 @@ public class ConsumerAccess extends KatelloCliTestScript{
 	 */
 	@Test(description="Retrieve consumer")
 	public void test_consumerRetrieve() {
-		KatelloUtils.sshOnClient("subscription-manager clean");
 		KatelloSystem sys = new KatelloSystem(this.system_name, this.org_name, null);
 		exec_result = sys.rhsm_register(); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		
+		String serverApiCurlTemplate =
+				"curl -H \"Content-Type: application/json\" -H \"Accept: application/json\" -# " +
+				"-k -u %s:%s "+
+				System.getProperty("katello.server.protocol","https")+"://"+
+				System.getProperty("katello.server.hostname","localhost")+"/"+
+				System.getProperty("katello.product", "katello")+"/api";
 		exec_result = sys.rhsm_identity();
-		String id = KatelloCli.grepCLIOutput("Current identity is", getOutput(exec_result).trim(),1);
-
+		String uuid = KatelloCli.grepCLIOutput("Current identity is", getOutput(exec_result).trim(),1);
 		
-		exec_result = KatelloUtils.sshOnClient("curl -H \"Content-Type: application/json\" -H \"Accept: application/json\" -#  -k -u " + user_name + ":" + KatelloUser.DEFAULT_USER_PASS + " https://localhost/"+ System.getProperty("katello.product", "katello") + "/api/consumers/" + id);
+		exec_result = KatelloUtils.sshOnClient(
+				String.format(serverApiCurlTemplate, user_name,KatelloUser.DEFAULT_USER_PASS)+"/consumers/"+uuid);
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains("User " + user_name + " is not allowed to access api/systems/show"), "Check - access denied output");
 		
-		exec_result = KatelloUtils.sshOnClient("curl -H \"Content-Type: application/json\" -H \"Accept: application/json\" -#  -k -u " + KatelloUser.DEFAULT_ADMIN_PASS + ":" + KatelloUser.DEFAULT_ADMIN_PASS + " https://localhost/" + System.getProperty("katello.product", "katello") + "/api/consumers/" + id);
-		Assert.assertFalse(getOutput(exec_result).replaceAll("\n", "").contains("User " + KatelloUser.DEFAULT_ADMIN_PASS + " is not allowed to access api/systems/show"), "Check - access granted output");
-
+		exec_result = KatelloUtils.sshOnClient(
+				String.format(serverApiCurlTemplate, 
+						System.getProperty("katello.admin.user",KatelloUser.DEFAULT_ADMIN_USER),
+						System.getProperty("katello.admin.password",KatelloUser.DEFAULT_ADMIN_PASS))+"/consumers/"+uuid);
+		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains(String.format("\"uuid\":\"%s\"",uuid)), "Check - access granted for admin");
 	}
-
-
+	
 }

@@ -35,14 +35,14 @@ public class OrgDeletion extends KatelloCliTestScript{
 		
 		KatelloOrg org = createOrgStuff(null);
 		
-		exec_result = KatelloUtils.sshOnClient(ls_cmd + org.name);
+		exec_result = KatelloUtils.sshOnServer(ls_cmd + org.name);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		exec_result = org.delete();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(String.format("Successfully deleted org [ %s ]",org.name)),"Check - return string");
 		
-		exec_result = KatelloUtils.sshOnClient(ls_cmd + org.name);
+		exec_result = KatelloUtils.sshOnServer(ls_cmd + org.name);
 		Assert.assertTrue(exec_result.getExitCode() == 2, "Check - return code");
 		
 		// to be sure that the same org can be created after deletion
@@ -56,20 +56,20 @@ public class OrgDeletion extends KatelloCliTestScript{
 		
 		KatelloOrg org2 = createOrgStuff(null);
 		
-		exec_result = KatelloUtils.sshOnClient(ls_cmd + org.name);
+		exec_result = KatelloUtils.sshOnServer(ls_cmd + org.name);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		exec_result = KatelloUtils.sshOnClient(ls_cmd + org2.name);
+		exec_result = KatelloUtils.sshOnServer(ls_cmd + org2.name);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		exec_result = org.delete();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(String.format("Successfully deleted org [ %s ]",org.name)),"Check - return string");
 		
-		exec_result = KatelloUtils.sshOnClient(ls_cmd + org.name);
+		exec_result = KatelloUtils.sshOnServer(ls_cmd + org.name);
 		Assert.assertTrue(exec_result.getExitCode() == 2, "Check - return code");
 		
-		exec_result = KatelloUtils.sshOnClient(ls_cmd + org2.name);
+		exec_result = KatelloUtils.sshOnServer(ls_cmd + org2.name);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		// to be sure that the same org can be created after deletion
