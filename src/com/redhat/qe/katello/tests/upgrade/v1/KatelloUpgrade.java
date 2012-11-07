@@ -5,6 +5,7 @@ import java.util.logging.Logger;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.common.KatelloConstants;
 import com.redhat.qe.katello.common.KatelloUtils;
 
 public class KatelloUpgrade extends KatelloCliTestScript{
@@ -25,7 +26,7 @@ public class KatelloUpgrade extends KatelloCliTestScript{
 				"enabled=1\\\\n"+
 				"skip_if_unavailable=1\\\\n"+
 				"gpgcheck=0";
-		KatelloUtils.sshOnServer("echo -en \""+_yumrepo+"\" > /etc/yum.repos.d/cfse-upgrade.repo");
+		KatelloUtils.sshOnServer("echo -en \""+_yumrepo+"\" > /etc/yum.repos.d/" + KatelloConstants.KATELLO_PRODUCT + "-upgrade.repo");
 	}
 	
 	@Test(description="stop services", 
@@ -50,8 +51,8 @@ public class KatelloUpgrade extends KatelloCliTestScript{
 			dependsOnGroups={TNG_PRE_UPGRADE}, 
 			groups={TNG_UPGRADE})
 	public void runUpgrade(){
-		KatelloUtils.sshOnServer("katello-upgrade -y"); // TODO using --log=LOG_FILE option.
-		KatelloUtils.sshOnServer("katello-service stop");
+		KatelloUtils.sshOnServer("yes | katello-upgrade"); // TODO using --log=LOG_FILE option. will change to -y after
+		KatelloUtils.stopKatello();
 		KatelloUtils.sshOnServer("katello-configure --answer-file=/etc/katello/katello-configure.conf -b");
 		KatelloUtils.sshOnServer("sed -i 's/5674/5671/g' /etc/gofer/plugins/katelloplugin.conf");
 	}

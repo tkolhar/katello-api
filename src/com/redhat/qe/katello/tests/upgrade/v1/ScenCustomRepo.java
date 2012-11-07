@@ -135,6 +135,7 @@ public class ScenCustomRepo implements KatelloConstants{
 		KatelloUtils.sshOnClient(clients[0], "service goferd restart;");
 		KatelloUtils.sshOnClient(clients[0], "rpm --import /tmp/RPM-GPG-KEY-dummy-packages-generator");
 
+		remoteInstall();
 	}
 	
 	@Test(description="verify org survived the upgrade", 
