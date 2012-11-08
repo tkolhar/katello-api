@@ -136,7 +136,6 @@
 				<include name="pre-upgrade"/>
 				<include name="upgrade"/>
 				<include name="post-upgrade"/>
-				<exclude name="sam-upgrade"  />
 			</run>
 		</groups>
 	</test>
