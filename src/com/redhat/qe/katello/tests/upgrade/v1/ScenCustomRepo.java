@@ -80,6 +80,7 @@ public class ScenCustomRepo implements KatelloConstants{
 		
 		KatelloUtils.sshOnClient(clients[0], "wget "+KatelloGpgKey.REPO_GPG_FILE_ZOO+" -O /tmp/RPM-GPG-KEY-dummy-packages-generator");
 		KatelloGpgKey gpg_key = new KatelloGpgKey(_gpg_key, _org, "/tmp/RPM-GPG-KEY-dummy-packages-generator");
+		gpg_key.runOn(clients[0]);
 		
 		KatelloProvider provider = new KatelloProvider(_provider, _org, null, null);
 		KatelloProduct product = new KatelloProduct(_product, _org, _provider, null, null, null, null, null);
@@ -133,7 +134,7 @@ public class ScenCustomRepo implements KatelloConstants{
 		
 		KatelloUtils.sshOnClient(clients[0], "service goferd restart;");
 		KatelloUtils.sshOnClient(clients[0], "rpm --import /tmp/RPM-GPG-KEY-dummy-packages-generator");
-		
+
 		remoteInstall();
 	}
 	
