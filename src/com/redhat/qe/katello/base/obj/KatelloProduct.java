@@ -265,14 +265,6 @@ public class KatelloProduct extends _KatelloObject{
 		return run(CMD_UPDATE);
 	}
 	
-	public SSHCommandResult add_filter(String filter){
-		opts.clear();
-		opts.add(new Attribute("org", org));
-		opts.add(new Attribute("name", name));
-		opts.add(new Attribute("filter", filter));
-		return run(CMD_ADD_FILTER);
-	}
-		
 	// ** ** ** ** ** ** **
 	// ASSERTS
 	// ** ** ** ** ** ** **
