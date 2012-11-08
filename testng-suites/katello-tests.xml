@@ -133,7 +133,6 @@
 		</packages>
 		<groups preserve-order="true">
 			<run>
-				<exclude name="sam-upgrade"  />
 				<include name="pre-upgrade"/>
 				<include name="upgrade"/>
 				<include name="post-upgrade"/>
