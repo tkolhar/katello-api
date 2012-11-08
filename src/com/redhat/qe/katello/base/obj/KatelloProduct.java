@@ -15,13 +15,11 @@ public class KatelloProduct extends _KatelloObject{
 	public static final String CMD_CREATE = "product create";
 	public static final String CLI_CMD_LIST = "product list -v";
 	public static final String CMD_STATUS = "product status";
-	public static final String CMD_UPDATE = "product update";
 	public static final String CMD_SYNC = "product synchronize";
 	public static final String CMD_PROMOTE = "product promote";
 	public static final String CMD_DELETE = "product delete";
 	public static final String CMD_SET_PLAN = "product set_plan";
 	public static final String CMD_UPDATE = "product update";
-	public static final String CMD_ADD_FILTER = "product add_filter";
 	public static final String CMD_REMOVE_PLAN = "product remove_plan";
 	public static final String CMD_ADD_FILTER = "product add_filter";
 	public static final String CMD_REMOVE_FILTER = "product remove_filter";
