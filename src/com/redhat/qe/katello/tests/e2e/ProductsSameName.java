@@ -95,14 +95,14 @@ public class ProductsSameName extends KatelloCliTestScript {
 		
 		cs.update_addProductId(product_id);		
 		cs.update_addProductId(product_id2);
-		cs.promote();
+		cs.promote();	
 	}
 	
 	@Test(description="package list of two repos")
 	public void test_packageList() {
 		
 		KatelloPackage pack = new KatelloPackage(null, null, org_name, null, repo_name, null);
-		pack.product_id = product_id; 
+		pack.setProductId(product_id); 
 		
 		exec_result = pack.cli_list();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
@@ -115,7 +115,7 @@ public class ProductsSameName extends KatelloCliTestScript {
 		Assert.assertTrue(getOutput(exec_result).contains("pulp-consumer"));
 				
 		KatelloPackage pack2 = new KatelloPackage(null, null, org_name, null, repo_name2, null);
-		pack2.product_id = product_id2;
+		pack2.setProductId(product_id2);
 		
 		exec_result = pack2.cli_list();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
@@ -124,6 +124,25 @@ public class ProductsSameName extends KatelloCliTestScript {
 		Assert.assertTrue(getOutput(exec_result).contains("wolf"));
 		Assert.assertTrue(getOutput(exec_result).contains("zebra"));
 		Assert.assertTrue(getOutput(exec_result).contains("stork"));		
+	}
+
+	@Test(description="package info of two repos")
+	public void test_packageInfo() {
+		
+		KatelloPackage pack = new KatelloPackage("8915dec5-f572-4c16-b3c7-66cbfb56c037", null, org_name, null, repo_name, null);
+		pack.setProductId(product_id); 
+		
+		exec_result = pack.cli_info();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).contains("pulp-admin"));
+
+				
+		KatelloPackage pack2 = new KatelloPackage("2c27c49a-8c64-47d8-978d-06bf69656e3f", null, org_name, null, repo_name2, null);
+		pack2.setProductId(product_id2);
+		
+		exec_result = pack2.cli_info();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).contains("lion"));	
 	}
 	
 	@Test(description="install packages of two repos")

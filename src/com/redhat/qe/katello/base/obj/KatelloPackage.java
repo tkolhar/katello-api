@@ -31,6 +31,16 @@ public class KatelloPackage extends _KatelloObject{
 		this.environment = pEnv;
 	}
 	
+	public void setProductId(String productId) {
+		this.product_id = productId;
+		this.product_label = null;
+	}
+	
+	public void setProductLabel(String productLabel) {
+		this.product_id = null;
+		this.product_label = productLabel;
+	}
+	
 	public SSHCommandResult cli_info(){
 		opts.clear();
 		opts.add(new Attribute("id", id));
