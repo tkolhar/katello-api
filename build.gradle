@@ -145,6 +145,7 @@ task printProps << {
 
 def TESTNG_KATELLO_DEFAULT_TESTS = "Smoke_Tests,CLI_Tests,E2E_Tests"
 def TESTNG_KATELLO_SUITE = "testng-suites/katello-tests.xml"
+def TESTNG_HEADPIN_SUITE = "testng-suites/headpin-tests.xml"
 def TESTNG_KATELLO_EXCLUDE_GROUPS = "openldap,sam-upgrade"
 def TESTNG_SAM_EXCLUDE_GROUPS = "openldap"
 task runTestng(dependsOn: 'testClasses') << {
@@ -221,7 +222,7 @@ task run_sam(dependsOn: 'testClasses') << {
     classpath = sourceSets.test.runtimeClasspath
     main = 'org.testng.TestNG'
     args '-d',"${outputDir}"
-    args "${TESTNG_KATELLO_SUITE}"
+    args "${TESTNG_HEADPIN_SUITE}"
     args '-listener','com.redhat.qe.auto.testng.TestNGListener,org.uncommons.reportng.HTMLReporter,org.uncommons.reportng.JUnitXMLReporter,org.testng.reporters.XMLReporter'
     args '-configfailurepolicy','continue'
     args '-testnames',"${testnames}"
