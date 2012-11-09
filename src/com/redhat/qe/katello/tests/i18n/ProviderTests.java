@@ -185,8 +185,8 @@ public class ProviderTests extends KatelloCliTestScript {
 		log.info("Cacnel synchronization");
 		res = prov.cancel_sync();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		log.info("Sleep 60 seconds and check the status");
-		try{Thread.sleep(60000);}catch(Exception ex){}
+		log.info("Sleep 120 seconds and check the status");
+		try{Thread.sleep(120000);}catch(Exception ex){}
 		res = prov.status();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		Assert.assertTrue(getOutput(res).contains(getText("provider.status.sync_state.cancelled")),"Check - stdout (provider status)");		
