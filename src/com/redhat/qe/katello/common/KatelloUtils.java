@@ -143,6 +143,10 @@ public class KatelloUtils {
 		return getSSHServer().runCommandAndWait(_cmd);
 	}
 	
+	/**
+	 * Useful for starting services of: katello|cfse
+	 * @return res Object
+	 */
 	public static SSHCommandResult stopKatello(){
 		SSHCommandResult res = sshOnServer("which katello-service");
 		String _cmd;
@@ -156,11 +160,27 @@ public class KatelloUtils {
 				"service elasticsearch stop;";
 		} else {
 			_cmd = "katello-service stop";
-		}
-		 
+		}		 
 		return sshOnServer(_cmd);
 	}
 	
+	/**
+	 * Useful for starting services of: headpin|sam
+	 * @return res Object
+	 */
+	public static SSHCommandResult stopHeadpin(){
+		String _cmd = "service katello-jobs stop; " +
+			"service katello stop; " +
+			"service thumbslag stop; " +
+			"service tomcat6 stop; " +
+			"service elasticsearch stop;";
+		return sshOnServer(_cmd);
+	}
+
+	/**
+	 * Useful for starting services of: katello|cfse
+	 * @return res Object
+	 */
 	public static SSHCommandResult startKatello(){
 		SSHCommandResult res = sshOnServer("which katello-service");
 		String _cmd;
@@ -177,6 +197,19 @@ public class KatelloUtils {
 		return sshOnServer(_cmd);
 	}
 
+	/**
+	 * Useful for starting services of: headpin|sam
+	 * @return res Object
+	 */
+	public static SSHCommandResult startHeadpin(){
+		String _cmd ="service elasticsearch start; " +
+			"service tomcat6 start; " +
+			"service thumbslug start; " +
+			"service katello start; " +
+			"service katello-jobs start;";
+		return sshOnServer(_cmd);
+	}
+	
 	protected static SSHCommandRunner getSSHClient(){
 		return getSSHClient(null);
 	}
