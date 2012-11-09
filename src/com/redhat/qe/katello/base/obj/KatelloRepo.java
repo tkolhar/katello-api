@@ -159,6 +159,7 @@ public class KatelloRepo extends _KatelloObject{
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("product", product));
+		opts.add(new Attribute("product_id", product_id));
 		return run(CMD_ENABLE);
 	}
 	
@@ -167,6 +168,7 @@ public class KatelloRepo extends _KatelloObject{
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("product", product));
+		opts.add(new Attribute("product_id", product_id));
 		return run(CMD_DISABLE);
 	}
 	
