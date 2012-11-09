@@ -10,6 +10,7 @@ import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloFilter;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
@@ -31,6 +32,7 @@ public class NonUniqueProductTests  extends KatelloCliTestScript{
 	private String filter_name;
 	private String plan_name;
 	private String env_name;
+	private String changeset_name;
 	
 	@BeforeClass(description="Prepare 2 products with same name to work with", groups = {"cli-product"})
 	public void setup_org(){
@@ -43,6 +45,7 @@ public class NonUniqueProductTests  extends KatelloCliTestScript{
 		this.filter_name = "filter"+uid;
 		this.plan_name = "plan"+uid;
 		this.env_name = "env"+uid;
+		this.changeset_name = "changeset"+uid;
 		
 		KatelloOrg org = new KatelloOrg(this.org_name, null);
 		res = org.cli_create();
@@ -168,5 +171,31 @@ public class NonUniqueProductTests  extends KatelloCliTestScript{
     	KatelloProduct prod = new KatelloProduct(null, prod_id2, this.org_name, this.prov_name, null, null, null, null, null);
     	SSHCommandResult res = prod.delete();
     	Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product delete)");
- 	}    
+ 	}
+    
+	
+	@Test(description="remove product from changeset")
+	public void testAddProductToCS() {
+		KatelloChangeset cs = new KatelloChangeset(changeset_name, org_name, env_name);
+		
+		SSHCommandResult exec_result = cs.create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		exec_result = cs.update_addProductId(prod_id1);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		exec_result = cs.info();
+		Assert.assertTrue(getOutput(exec_result).trim().contains(prod_name1));
+	}
+	
+	@Test(description="remove product from changeset", dependsOnMethods={"testAddProductToCS"})
+	public void testRemoveProductFromCS() {
+		KatelloChangeset cs = new KatelloChangeset(changeset_name, org_name, env_name);
+				
+		SSHCommandResult exec_result = cs.update_removeProductId(prod_id1);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		exec_result = cs.info();
+		Assert.assertFalse(getOutput(exec_result).trim().contains(prod_name1));
+	}
 }
