@@ -139,6 +139,15 @@ public class KatelloChangeset extends _KatelloObject{
 		opts.add(new Attribute("environment", environment));
 		return run(CMD_UPDATE);
 	}
+
+	public SSHCommandResult update_removeProductId(String product_id){
+		opts.clear();
+		opts.add(new Attribute("remove_product_id", product_id));
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("environment", environment));
+		return run(CMD_UPDATE);
+	}
 	
 	public SSHCommandResult update_add_package(String productName, String pkg) {
 		opts.clear();
