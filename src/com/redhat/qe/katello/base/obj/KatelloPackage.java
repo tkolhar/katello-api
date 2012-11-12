@@ -11,6 +11,8 @@ public class KatelloPackage extends _KatelloObject{
 	public static final String CMD_SEARCH = "package search";
 	
 	public static final String REG_PACKAGE_ID = "\\w{8}-\\w{4}-\\w{4}-\\w{4}-\\w{12}";
+	public static final String REG_CHS_PROMOTE_ERROR = "Validation failed: Repository of the package '%s' has not been promoted into the target environment!";
+	public static final String REG_CHS_DEL_ERROR = "Package's product not found within environment you want to promote from.";
 	
 	// ** ** ** ** ** ** ** Class members
 	public String id;
