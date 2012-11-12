@@ -9,6 +9,9 @@ public class KatelloErrata extends _KatelloObject{
 	public static final String CMD_INFO = "errata info";
 	public static final String CMD_LIST = "errata list";
 	
+	public static final String REG_CHS_PROMOTE_ERROR = "Validation failed: Repository of the erratum '%s' has not been promoted into the target environment!";
+	public static final String REG_CHS_DEL_ERROR = "Erratum not found within this environment you want to promote from.";
+	
 	// ** ** ** ** ** ** ** Class members
 	String id;
 	String org;
