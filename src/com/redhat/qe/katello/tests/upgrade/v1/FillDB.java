@@ -127,8 +127,8 @@ public class FillDB implements KatelloConstants{
 		//Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: user.assignDefaultOrgEnv");
 	}
 	
-	@Test(groups={TNG_POST_UPGRADE}, dependsOnMethods={"create_OrgEnvUser"},
-			description="check org, environent, user survived" ) // TODO - remove depends: create_*** 
+	@Test(groups={TNG_POST_UPGRADE},
+			description="check org, environent, user survived" ) 
 	public void check_OrgEnvUser(){
 		SSHCommandResult res;
 		String _name, _description, _prior;
@@ -219,8 +219,8 @@ public class FillDB implements KatelloConstants{
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: user.assign_role");
 	}
 	
-	@Test(groups={TNG_POST_UPGRADE}, dependsOnMethods={"check_OrgEnvUser","create_permissionsRoles"},
-			description="check permissions, make different calls") // TODO - remove depends: create_***
+	@Test(groups={TNG_POST_UPGRADE}, dependsOnMethods={"check_OrgEnvUser"},
+			description="check permissions, make different calls")
 	public void check_permissionsRoles(){
 		/**
 		 * TODO - make various calls to see that all accesses are preserved. !!! 
@@ -236,7 +236,7 @@ public class FillDB implements KatelloConstants{
 	}
 
 	@Test(groups={TNG_PRE_UPGRADE}, dependsOnMethods={"create_permissionsRoles"},
-			description="import manifest, enable repo, promote to all envs - as the orgAdmin user", enabled = false) // TODO - enable it at the end
+			description="import manifest, enable repo, promote to all envs - as the orgAdmin user", enabled = true)
 	public void create_importManifestEnableRHRepoSyncNPromoteAllEnvs(){
 		SSHCommandResult res;
 		KatelloUser orgAdmin = new KatelloUser(userNameAdmin, null, KatelloUser.DEFAULT_ADMIN_PASS, false);
@@ -278,8 +278,8 @@ public class FillDB implements KatelloConstants{
 		res = csDEvelopment.promote();
 	}
 
-	@Test(groups={TNG_POST_UPGRADE}, dependsOnMethods={"check_permissionsRoles","create_importManifestEnableRHRepoSyncNPromoteAllEnvs"},
-			description="check subscription, product, repo info in all environments - as orgAdmin user", enabled = false) // TODO - enable it at the end // TODO - remove depends: create_***
+	@Test(groups={TNG_POST_UPGRADE}, dependsOnMethods={"check_permissionsRoles"},
+			description="check subscription, product, repo info in all environments - as orgAdmin user", enabled = true)
 	public void check_importManifestEnableRHRepoPromoteAllEnvs(){
 		/**
 		 * TODO - make calls to get info about product, repo, subscriptions for all the environments 
@@ -327,8 +327,8 @@ public class FillDB implements KatelloConstants{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: template.create");
 	}
 	
-	@Test(groups={TNG_POST_UPGRADE}, dependsOnMethods={},
-			description="check diff. \"keys\" presence - as orgAdmin user", enabled = false) // TODO - enable it at the end // TODO - remove depends: create_***
+	@Test(groups={TNG_POST_UPGRADE},
+			description="check diff. \"keys\" presence - as orgAdmin user", enabled = true)
 	public void check_gpgKeyActivationKeyFilterSystemGroupTemplate(){
 		/**
 		 * TODO - as usual ;)!!!
