@@ -123,7 +123,7 @@ public class PromoteChangeset extends KatelloCliTestScript{
 	}	
 
 	@Test(description="Delete package from QE, verify that it fails as product is not promoted to this env")
-	public void test_deletePackageToQE(){
+	public void test_deletePackageFromQE(){
 		KatelloChangeset cs = new KatelloChangeset("delZooQE3"+uniqueID, this.org, this.env2, true);
 		SSHCommandResult res = cs.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
@@ -133,7 +133,7 @@ public class PromoteChangeset extends KatelloCliTestScript{
 	}
 
 	@Test(description="Delete errata to DEV, verify that it fails as product is not promoted to this env")
-	public void test_deleteErrataToQE(){	
+	public void test_deleteErrataFromQE(){	
 		KatelloChangeset cs = new KatelloChangeset("delZooQE4"+uniqueID, this.org, this.env2, true);
 		SSHCommandResult res = cs.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
