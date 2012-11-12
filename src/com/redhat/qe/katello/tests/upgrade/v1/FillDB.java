@@ -220,6 +220,7 @@ public class FillDB implements KatelloConstants{
 	}
 	
 	@Test(groups={TNG_POST_UPGRADE}, dependsOnMethods={"check_OrgEnvUser"},
+			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE},
 			description="check permissions, make different calls")
 	public void check_permissionsRoles(){
 		/**
@@ -279,6 +280,7 @@ public class FillDB implements KatelloConstants{
 	}
 
 	@Test(groups={TNG_POST_UPGRADE}, dependsOnMethods={"check_permissionsRoles"},
+			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE},
 			description="check subscription, product, repo info in all environments - as orgAdmin user", enabled = true)
 	public void check_importManifestEnableRHRepoPromoteAllEnvs(){
 		/**
@@ -328,6 +330,7 @@ public class FillDB implements KatelloConstants{
 	}
 	
 	@Test(groups={TNG_POST_UPGRADE},
+			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE},
 			description="check diff. \"keys\" presence - as orgAdmin user", enabled = true)
 	public void check_gpgKeyActivationKeyFilterSystemGroupTemplate(){
 		/**
