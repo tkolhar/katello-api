@@ -20,13 +20,13 @@ import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups={"cfse-e2e"})
-public class PromoteChangeset extends KatelloCliTestScript{
+public class PromoteChangeset extends KatelloCliTestScript {
 	protected static Logger log = Logger.getLogger(PromoteChangeset.class.getName());
 	
 	private String org;
 	private String env1 = "DEV";
-	private String env2 = "QE";
-	private String env3 = "GA";
+	private String env2 = "GA";
+	private String env3 = "QE";
 	private String provider;
 	private String product;
 	private String repo;
@@ -68,6 +68,9 @@ public class PromoteChangeset extends KatelloCliTestScript{
 		
 		res = prod.promote(this.env1);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		
+		res = prod.promote(this.env2);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 	}
 
 	
@@ -104,7 +107,7 @@ public class PromoteChangeset extends KatelloCliTestScript{
 		SSHCommandResult res = new KatelloCli("package list --org \"" + this.org + "\" --repo \"" + this.repo + "\" --product \"" + this.product + "\" | grep \"lion\" | awk '{print $1}'", null).run();
 		String packageId = res.getStdout().trim();
 		
-		KatelloChangeset cs = new KatelloChangeset("ZooQE1"+uniqueID, this.org, this.env2);
+		KatelloChangeset cs = new KatelloChangeset("ZooQE1"+uniqueID, this.org, this.env3);
 		res = cs.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		res = cs.update_add_package(this.product, "lion");
@@ -112,9 +115,9 @@ public class PromoteChangeset extends KatelloCliTestScript{
 		Assert.assertEquals(getOutput(res).trim(), String.format(KatelloPackage.REG_CHS_PROMOTE_ERROR, packageId));
 	}
 
-	@Test(description="Promote errata to DEV, verify that it fails as product is not promoted to this env")
+	@Test(description="Promote errata to QE, verify that it fails as product is not promoted to this env")
 	public void test_promoteErrataToQE(){	
-		KatelloChangeset cs = new KatelloChangeset("ZooQE2"+uniqueID, this.org, this.env2);
+		KatelloChangeset cs = new KatelloChangeset("ZooQE2"+uniqueID, this.org, this.env3);
 		SSHCommandResult res = cs.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		res = cs.update_fromProduct_addErrata(this.product, PromoteErrata.ERRATA_ZOO_SEA);
@@ -124,7 +127,7 @@ public class PromoteChangeset extends KatelloCliTestScript{
 
 	@Test(description="Delete package from QE, verify that it fails as product is not promoted to this env")
 	public void test_deletePackageFromQE(){
-		KatelloChangeset cs = new KatelloChangeset("delZooQE3"+uniqueID, this.org, this.env2, true);
+		KatelloChangeset cs = new KatelloChangeset("delZooQE3"+uniqueID, this.org, this.env3, true);
 		SSHCommandResult res = cs.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		res = cs.update_add_package(this.product, "lion");
@@ -132,13 +135,69 @@ public class PromoteChangeset extends KatelloCliTestScript{
 		Assert.assertEquals(getOutput(res).trim(), KatelloPackage.REG_CHS_DEL_ERROR);
 	}
 
-	@Test(description="Delete errata to DEV, verify that it fails as product is not promoted to this env")
+	@Test(description="Delete errata to QE, verify that it fails as product is not promoted to this env")
 	public void test_deleteErrataFromQE(){	
-		KatelloChangeset cs = new KatelloChangeset("delZooQE4"+uniqueID, this.org, this.env2, true);
+		KatelloChangeset cs = new KatelloChangeset("delZooQE4"+uniqueID, this.org, this.env3, true);
 		SSHCommandResult res = cs.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		res = cs.update_fromProduct_addErrata(this.product, PromoteErrata.ERRATA_ZOO_SEA);
 		Assert.assertEquals(res.getExitCode().intValue(), 244, "Check - return code");
 		Assert.assertEquals(getOutput(res).trim(), KatelloErrata.REG_CHS_DEL_ERROR);
+	}
+	
+	@Test(description="Promote package to GA")
+	public void test_promotePackageToGA(){
+		KatelloChangeset cs = new KatelloChangeset("ZooGA1"+uniqueID, this.org, this.env2);
+		SSHCommandResult res = cs.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		res = cs.update_add_package(this.product, "lion");
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		res = cs.apply();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		KatelloPackage pack = new KatelloPackage(null, null, this.org, this.product, this.repo, this.env2);
+		res = pack.cli_list();
+		Assert.assertTrue(getOutput(res).replaceAll("\n", "").contains("lion"), "Check - package list output");
+	}
+
+	@Test(description="Promote errata to GA")
+	public void test_promoteErrataToGA(){
+		KatelloChangeset cs = new KatelloChangeset("ZooGA2"+uniqueID, this.org, this.env2);
+		SSHCommandResult res = cs.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		res = cs.update_fromProduct_addErrata(this.product, PromoteErrata.ERRATA_ZOO_SEA);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		res = cs.apply();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		KatelloErrata err = new KatelloErrata(null, this.org, this.product, this.repo, this.env2);
+		res = err.cli_list();
+		Assert.assertTrue(getOutput(res).replaceAll("\n", "").contains(PromoteErrata.ERRATA_ZOO_SEA), "Check - errata list output");
+	}
+
+	@Test(description="Delete package from GA", dependsOnMethods={"test_promotePackageToGA"})
+	public void test_deletePackageFromGA(){
+		KatelloChangeset cs = new KatelloChangeset("delZooGA3"+uniqueID, this.org, this.env2, true);
+		SSHCommandResult res = cs.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		res = cs.update_add_package(this.product, "lion");
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		res = cs.apply();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		KatelloPackage pack = new KatelloPackage(null, null, this.org, this.product, this.repo, this.env2);
+		res = pack.cli_list();
+		Assert.assertFalse(getOutput(res).replaceAll("\n", "").contains("lion"), "Check - package list output");
+	}
+
+	@Test(description="Delete errata from GA", dependsOnMethods={"test_promoteErrataToGA"})
+	public void test_deleteErrataFromGA(){
+		KatelloChangeset cs = new KatelloChangeset("delZooGA4"+uniqueID, this.org, this.env2, true);
+		SSHCommandResult res = cs.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		res = cs.update_fromProduct_addErrata(this.product, PromoteErrata.ERRATA_ZOO_SEA);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		res = cs.apply();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		KatelloErrata err = new KatelloErrata(null, this.org, this.product, this.repo, this.env2);
+		res = err.cli_list();
+		Assert.assertFalse(getOutput(res).replaceAll("\n", "").contains(PromoteErrata.ERRATA_ZOO_SEA), "Check - errata list output");
 	}
 }
