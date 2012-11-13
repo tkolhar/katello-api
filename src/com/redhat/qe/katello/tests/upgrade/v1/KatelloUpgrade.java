@@ -74,6 +74,6 @@ public class KatelloUpgrade extends KatelloCliTestScript{
 		if(KATELLO_PRODUCT.equals("cfse"))
 			KatelloUtils.startKatello();
 		else
-			KatelloUtils.startKatello();
+			KatelloUtils.startHeadpin();
 	}
 }
