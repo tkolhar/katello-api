@@ -372,7 +372,7 @@ public class UserTests extends KatelloCliTestScript{
 	public void test_getAccessWithEmptyPassword(){
 		KatelloUser userAdmin = new KatelloUser(System.getProperty("katello.admin.user"), 
 				null,"", false);
-		KatelloOrg org = new KatelloOrg(null, null);
+		KatelloOrg org = new KatelloOrg(organization, null);
 		org.runAs(userAdmin);
 		SSHCommandResult res = org.cli_list();
 		Assert.assertTrue(res.getExitCode().intValue()==145, 
