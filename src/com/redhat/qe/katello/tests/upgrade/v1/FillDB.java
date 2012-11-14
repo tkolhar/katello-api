@@ -1,30 +1,15 @@
 package com.redhat.qe.katello.tests.upgrade.v1;
 
 import java.io.File;
+import java.util.logging.Logger;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
-import com.redhat.qe.katello.base.obj.KatelloActivationKey;
-import com.redhat.qe.katello.base.obj.KatelloChangeset;
-import com.redhat.qe.katello.base.obj.KatelloDistribution;
-import com.redhat.qe.katello.base.obj.KatelloEnvironment;
-import com.redhat.qe.katello.base.obj.KatelloFilter;
-import com.redhat.qe.katello.base.obj.KatelloGpgKey;
-import com.redhat.qe.katello.base.obj.KatelloOrg;
-import com.redhat.qe.katello.base.obj.KatelloPermission;
-import com.redhat.qe.katello.base.obj.KatelloProduct;
-import com.redhat.qe.katello.base.obj.KatelloProvider;
-import com.redhat.qe.katello.base.obj.KatelloRepo;
-import com.redhat.qe.katello.base.obj.KatelloSystemGroup;
-import com.redhat.qe.katello.base.obj.KatelloTemplate;
-import com.redhat.qe.katello.base.obj.KatelloUser;
-import com.redhat.qe.katello.base.obj.KatelloUserRole;
-import com.redhat.qe.katello.common.KatelloConstants;
-import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SCPTools;
 import com.redhat.qe.tools.SSHCommandResult;
+import com.redhat.qe.katello.base.*;
+import com.redhat.qe.katello.base.obj.*;
+import com.redhat.qe.katello.common.*;
 
 /**
  * current list of katello CLI calls:
@@ -53,6 +38,8 @@ import com.redhat.qe.tools.SSHCommandResult;
  *
  */
 public class FillDB implements KatelloConstants{
+
+	protected static Logger log = Logger.getLogger(FillDB.class.getName());
 
 	private String uid;
 	private String orgName;
@@ -121,20 +108,21 @@ public class FillDB implements KatelloConstants{
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: user.create --disabled true");
 		res = new KatelloUser(userNameGuest, KatelloUser.DEFAULT_USER_EMAIL, KatelloUser.DEFAULT_USER_PASS, false).cli_create();
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: user.create");
-		KatelloUser user = new KatelloUser();
-		user.username = userNameAdmin;
-		//res = user.update_defaultOrgEnv(orgName, envNameTesting);
-		//Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: user.assignDefaultOrgEnv");
 	}
 	
 	@Test(groups={TNG_POST_UPGRADE},
+			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE},
 			description="check org, environent, user survived" ) 
 	public void check_OrgEnvUser(){
 		SSHCommandResult res;
 		String _name, _description, _prior;
+		KatelloUser usrAdmin, usrGuest;
+		usrAdmin = new KatelloUser(userNameAdmin, null, KatelloUser.DEFAULT_ADMIN_PASS, false);
+		usrGuest = new KatelloUser(userNameGuest, null, KatelloUser.DEFAULT_USER_PASS, false);
 		
 		KatelloOrg org;
 		org = new KatelloOrg(orgName, orgName+" description");
+		org.runAs(usrGuest);
 		res = org.cli_info();
 		_name = KatelloCli.grepCLIOutput("Name", KatelloCliTestScript.sgetOutput(res));
 		_description = KatelloCli.grepCLIOutput("Description", KatelloCliTestScript.sgetOutput(res));
@@ -144,6 +132,7 @@ public class FillDB implements KatelloConstants{
 		
 		KatelloEnvironment env;
 		env = new KatelloEnvironment(envNameTesting, envNameTesting+" decription", orgName, KatelloEnvironment.LIBRARY);
+		env.runAs(usrGuest);
 		res = env.cli_info();
 		_name = KatelloCli.grepCLIOutput("Name", KatelloCliTestScript.sgetOutput(res));
 		_description = KatelloCli.grepCLIOutput("Description", KatelloCliTestScript.sgetOutput(res));
@@ -154,6 +143,7 @@ public class FillDB implements KatelloConstants{
 		Assert.assertTrue(_prior.equals(KatelloEnvironment.LIBRARY), "stdout: environment.prior");
 		
 		env = new KatelloEnvironment(envNameDevelopment, envNameDevelopment+" decription", orgName, envNameTesting);
+		env.runAs(usrGuest);
 		res = env.cli_info();
 		_name = KatelloCli.grepCLIOutput("Name", KatelloCliTestScript.sgetOutput(res));
 		_description = KatelloCli.grepCLIOutput("Description", KatelloCliTestScript.sgetOutput(res));
@@ -162,6 +152,9 @@ public class FillDB implements KatelloConstants{
 		Assert.assertTrue(_name.equals(env.getName()), "stdout: environment.name");
 		Assert.assertTrue(_description.equals(env.getDescription()), "stdout: environment.description");
 		Assert.assertTrue(_prior.equals(envNameTesting), "stdout: environment.prior");
+		
+		res = usrAdmin.update_defaultOrgEnv(orgName, envNameTesting);
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: user.assignDefaultOrgEnv");
 	}
 	
 	@Test(groups={TNG_PRE_UPGRADE}, dependsOnMethods={"create_OrgEnvUser"},
@@ -219,7 +212,8 @@ public class FillDB implements KatelloConstants{
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: user.assign_role");
 	}
 	
-	@Test(groups={TNG_POST_UPGRADE}, dependsOnMethods={"check_OrgEnvUser"},
+	@Test(groups={TNG_POST_UPGRADE}, 
+			dependsOnMethods={"check_OrgEnvUser"},
 			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE},
 			description="check permissions, make different calls")
 	public void check_permissionsRoles(){
@@ -229,11 +223,89 @@ public class FillDB implements KatelloConstants{
 		 * Especially changesets (with environments accesses, see Terms in permission creation (aka: tags there)
 		 */
 		SSHCommandResult res;
+		KatelloUser usrAdmin, usrGuest, usrDisabled;
+		usrAdmin = new KatelloUser(userNameAdmin, null, KatelloUser.DEFAULT_ADMIN_PASS, false);
+		usrGuest = new KatelloUser(userNameGuest, null, KatelloUser.DEFAULT_USER_PASS, false);
+		usrDisabled = new KatelloUser(userNameDisabled, null, KatelloUser.DEFAULT_USER_PASS, true);
+
 		res = new KatelloPermission("ro-system_groups-"+uid, orgName, "system_groups", null, "read,read_systems", roleReadAll).create();
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: permission.create");
 		res = new KatelloPermission("rw-system_groups-"+uid, orgName, "system_groups", null, 
 				"create,delete,delete_systems,update,update_systems,read,read_systems", roleOrgAdmin).create();
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: permission.create");
+		
+		log.info(String.format("Guest actions not permitted for: [%s]",userNameGuest));
+		// ============================================================================
+		KatelloOrg org = new KatelloOrg("noPermit"+uid, null);org.runAs(usrGuest);
+		res = org.cli_create();
+		Assert.assertTrue(res.getExitCode().intValue() == 147, "exit: org.create");
+		Assert.assertTrue(KatelloCliTestScript.sgetOutput(res).contains(
+				String.format(KatelloUser.ERR_NOT_ALLOWED_TO_ACCESS, userNameGuest)), 
+				"stderr: not allowed to access (org.create)");
+
+		KatelloEnvironment env = new KatelloEnvironment("notPermit"+uid, null, orgName, KatelloEnvironment.LIBRARY);
+		env.runAs(usrGuest);
+		res = env.cli_create();
+		Assert.assertTrue(res.getExitCode().intValue() == 147, "exit: environment.create");
+		Assert.assertTrue(KatelloCliTestScript.sgetOutput(res).contains(
+				String.format(KatelloUser.ERR_NOT_ALLOWED_TO_ACCESS, userNameGuest)), 
+				"stderr: not allowed to access (environment.create)");
+		
+		KatelloUserRole role = new KatelloUserRole("notPermit"+uid, null);
+		role.runAs(usrGuest);
+		res = env.cli_create();
+		Assert.assertTrue(res.getExitCode().intValue() == 147, "exit: user_role.create");
+		Assert.assertTrue(KatelloCliTestScript.sgetOutput(res).contains(
+				String.format(KatelloUser.ERR_NOT_ALLOWED_TO_ACCESS, userNameGuest)), 
+				"stderr: not allowed to access (user_role.create)");
+		
+		KatelloSystem sys = new KatelloSystem("notPermit"+uid, orgName, envNameTesting);
+		sys.runAs(usrGuest);
+		res = sys.rhsm_registerForce();
+		Assert.assertTrue(res.getExitCode().intValue() == 255, "exit: rhsm.register");
+		Assert.assertTrue(KatelloCliTestScript.sgetOutput(res).contains(
+				String.format(KatelloUser.ERR_NOT_ALLOWED_TO_ACCESS, userNameGuest)), 
+				"stderr: not allowed to access (rhsm.register)");
+
+		log.info(String.format("Actions denied for disabled user: [%s]",userNameDisabled));
+		// ============================================================================
+		org = new KatelloOrg(orgName, null);org.runAs(usrDisabled);
+		res = org.cli_info();
+		Assert.assertTrue(res.getExitCode().intValue() == 145, "exit: org.list");
+		Assert.assertTrue(KatelloCliTestScript.sgetOutput(res).contains(
+				KatelloUser.ERR_INVALID_CREDENTIALS), 
+				"stderr: invalid credentials (org.list)");
+
+		KatelloSystemGroup sysGrp = new KatelloSystemGroup(systemGroupMyServers, orgName);
+		sysGrp.runAs(usrDisabled);
+		res = sysGrp.info();
+		Assert.assertTrue(res.getExitCode().intValue() == 145, "exit: system_group.info");
+		Assert.assertTrue(KatelloCliTestScript.sgetOutput(res).contains(
+				KatelloUser.ERR_INVALID_CREDENTIALS), 
+				"stderr: invalid credentials (system_group.info)");
+		
+		log.info(String.format("Actions granted for admin user: [%s]",userNameAdmin));
+		// ============================================================================
+		env = new KatelloEnvironment("postUpgrade"+uid,null,orgName,envNameDevelopment);
+		env.runAs(usrAdmin);
+		res = env.cli_create();
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: environment.create");
+		res = env.cli_info();
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: environment.info");
+		String prior = KatelloCli.grepCLIOutput("Prior Environment", KatelloCliTestScript.sgetOutput(res));
+		Assert.assertTrue(prior.equals(envNameDevelopment), "stdout: prior environment");
+		
+		sys = new KatelloSystem("postUpgrade"+uid, orgName, env.getName());
+		sys.runAs(usrAdmin);
+		res = sys.rhsm_registerForce();
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: rhsm.create");
+		
+		// PUT permission for this new env, and then :) // TODO check the error and implement RIGHT HERE !!!!
+		KatelloChangeset cs = new KatelloChangeset("postUpgrade"+uid, orgName, env.getName());
+		cs.runAs(usrAdmin);
+		res = cs.create();
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: changeset.create");
+		
 	}
 
 	@Test(groups={TNG_PRE_UPGRADE}, dependsOnMethods={"create_permissionsRoles"},
