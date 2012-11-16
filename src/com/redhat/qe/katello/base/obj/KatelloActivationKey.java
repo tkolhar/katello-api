@@ -95,6 +95,22 @@ public class KatelloActivationKey extends _KatelloObject{
 		return run(CMD_ADD_SYSTEMGROUP);
 	}
 	
+	public SSHCommandResult update_add_subscription(String subscriptionId){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("add_subscription", subscriptionId));
+		return run(CMD_UPDATE);
+	}
+
+	public SSHCommandResult update_remove_subscription(String subscriptionId){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("remove_subscription", subscriptionId));
+		return run(CMD_UPDATE);
+	}
+
 	public SSHCommandResult remove_system_group(String pSystemGroup){
 		opts.clear();
 		opts.add(new Attribute("org", org));
