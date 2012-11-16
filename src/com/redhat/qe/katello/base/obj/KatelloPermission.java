@@ -32,6 +32,10 @@ public class KatelloPermission extends _KatelloObject{
 	}
 	
 	public SSHCommandResult create(){
+		return create(false);
+	}
+	
+	public SSHCommandResult create(boolean all_tags){
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
@@ -39,9 +43,12 @@ public class KatelloPermission extends _KatelloObject{
 		opts.add(new Attribute("tags", tags));
 		opts.add(new Attribute("verbs", verbs));
 		opts.add(new Attribute("user_role", user_role));
-		return run(CMD_CREATE);
+		if(all_tags)
+			return run(CMD_CREATE+" --all_tags");
+		else
+			return run(CMD_CREATE);
 	}
-	
+
 	public SSHCommandResult available_verbs(String orgName,String scopeName){
 		opts.clear();
 		opts.add(new Attribute("org", orgName));
