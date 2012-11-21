@@ -14,6 +14,7 @@ public class KatelloSystem extends _KatelloObject{
 	// ** ** ** ** ** ** ** Public constants	
 	public static final String CMD_INFO = "system info";
 	public static final String CMD_LIST = "system list";
+	public static final String CMD_UPDATE = "system update";
 	public static final String CMD_SUBSCRIPTIONS = "system subscriptions";
 	public static final String CMD_PACKAGES = "system packages";
 	public static final String CMD_REPORT = "system report";
@@ -38,7 +39,9 @@ public class KatelloSystem extends _KatelloObject{
 	public static final String OUT_REMOTE_ACTION_DONE = "Remote action finished:";
 	public static final String OUT_RHSM_SUBSCRIBED_OK = 
 			"Successfully subscribed the system"; // not a full string, .contains() needed. 
-
+	public static final String OUT_UPDATE = 
+			"Successfully updated system [ %s ]";
+	
 	public static final String API_CMD_INFO = "/consumers/%s";
 	public static final String API_CMD_GET_SERIALS = "/consumers/%s/certificates/serials";
 	
@@ -46,6 +49,7 @@ public class KatelloSystem extends _KatelloObject{
 	public static final String REG_SUBSCRIPTION = "Subscription Name\\s*:\\s+%s\\s+SKU\\s*:\\s+\\w{5,15}+\\s+Pool Id\\s*:\\s+\\w{32}+\\s+Quantity\\s*:\\s+%s";
 	public static final String REG_SUBSCRIPTION_CFSE = "Product\\s+Name\\s*:\\s*%s\\s+Product\\s+Id\\s*:\\s*\\w{5,15}\\s+Pool\\s+Id\\s*:\\s*\\w{32}+\\s+Quantity\\s*:\\s*%s";
 	public static final String REG_POOL_ID = "\\s+\\w{32}+\\s+";
+	public static final String REG_SYSTEM_INFO = ".*Name\\s*:\\s+%s.*Ipv4 Address\\s*:\\s+\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}.*Uuid\\s*:\\s+\\w{8}-\\w{4}-\\w{4}-\\w{4}-\\w{12}.*Location\\s*:\\s+%s.*Description\\s*:\\s+%s.*";
 	
 	public static final String SYSTEM_UUIDS = "system list --org %s --noheading -v | grep \"^Uuid\\s*:\" | cut -f2 -d: | sed 's/ *$//g' | sed 's/^ *//g'";
 	public static final String SYSTEM_UNREGISTER = "system unregister --uuid %s --org %s";
@@ -56,6 +60,8 @@ public class KatelloSystem extends _KatelloObject{
 	private String org;
 	private String env;
 	public String uuid;
+	public String description;
+	public String location;
 	private String href;
 	private Long environmentId;
 	private KatelloOwner owner;
@@ -88,6 +94,10 @@ public class KatelloSystem extends _KatelloObject{
         this.name = name;
     }
 
+    public void setEnvironmentName(String envname) {
+        this.env = envname;
+    }
+    
 	@JsonProperty("organization")
 	public String getOrganization() {
 	    return org;
@@ -226,6 +236,9 @@ public class KatelloSystem extends _KatelloObject{
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
+		if (env != null) {
+			opts.add(new Attribute("environment", env));
+		}
 		return run(CMD_INFO+" -v");
 	}
 	
@@ -326,6 +339,16 @@ public class KatelloSystem extends _KatelloObject{
 	public SSHCommandResult unregister(){
 		opts.clear();
 		return run(String.format(KatelloSystem.SYSTEM_UNREGISTER, uuid, org));
+	}
+
+	public SSHCommandResult update_environment(String newEnvironment){
+		opts.clear();
+		opts.add(new Attribute("environment", env));
+		opts.add(new Attribute("new_environment", newEnvironment));
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+
+		return run(CMD_UPDATE);
 	}
 	
 //	@SuppressWarnings("unchecked")
