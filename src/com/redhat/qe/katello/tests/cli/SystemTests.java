@@ -72,6 +72,7 @@ public class SystemTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		Assert.assertTrue(exec_result.getStdout().trim().contains(KatelloSystem.OUT_CREATE),
 				"Check - output (success)");
+		assert_systemInfo(sys);
 	}
 	
 	@Test(description = "RHSM register - already registered", 
@@ -157,6 +158,7 @@ public class SystemTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		Assert.assertTrue(exec_result.getStdout().trim().contains(KatelloSystem.OUT_CREATE),
 				"Check - output (success)");
+		assert_systemInfo(sys);
 		
 		KatelloUtils.sshOnClient("subscription-manager clean");
 		
@@ -171,6 +173,20 @@ public class SystemTests extends KatelloCliTestScript{
 		exec_result = cli.run();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code (grep: `system list --org`)");
 		Assert.assertTrue(exec_result.getStdout().replaceAll("\n", "").trim().equals("2"), "Check - 2 systems are registered with the same name");
+	}
+	
+	private void assert_systemInfo(KatelloSystem system) {
+		if (system.description == null) system.description = "Initial Registration Params";
+		if (system.location == null) system.location = "None";
+
+		SSHCommandResult res;
+		res = system.info();
+
+		String match_info = String.format(KatelloSystem.REG_SYSTEM_INFO, system.name, system.location, system.description).replaceAll("\"", "");
+		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
+		log.finest(String.format("System (info) match regex: [%s]", match_info));
+		Assert.assertTrue(getOutput(res).replaceAll("\n", " ").matches(match_info), String.format("System [%s] should be found in the result info", system.name));
+
 	}
 		
 	@AfterMethod(description = "Clean RHSM data - prepare for next scenario run", alwaysRun = true)
