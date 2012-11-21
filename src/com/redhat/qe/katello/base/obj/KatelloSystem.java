@@ -14,6 +14,7 @@ public class KatelloSystem extends _KatelloObject{
 	// ** ** ** ** ** ** ** Public constants	
 	public static final String CMD_INFO = "system info";
 	public static final String CMD_LIST = "system list";
+	public static final String CMD_UPDATE = "system update";
 	public static final String CMD_SUBSCRIPTIONS = "system subscriptions";
 	public static final String CMD_PACKAGES = "system packages";
 	public static final String CMD_REPORT = "system report";
@@ -38,7 +39,9 @@ public class KatelloSystem extends _KatelloObject{
 	public static final String OUT_REMOTE_ACTION_DONE = "Remote action finished:";
 	public static final String OUT_RHSM_SUBSCRIBED_OK = 
 			"Successfully subscribed the system"; // not a full string, .contains() needed. 
-
+	public static final String OUT_UPDATE = 
+			"Successfully updated system [ %s ]";
+	
 	public static final String API_CMD_INFO = "/consumers/%s";
 	public static final String API_CMD_GET_SERIALS = "/consumers/%s/certificates/serials";
 	
@@ -88,6 +91,10 @@ public class KatelloSystem extends _KatelloObject{
         this.name = name;
     }
 
+    public void setEnvironmentName(String envname) {
+        this.env = envname;
+    }
+    
 	@JsonProperty("organization")
 	public String getOrganization() {
 	    return org;
@@ -226,6 +233,9 @@ public class KatelloSystem extends _KatelloObject{
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
+		if (env != null) {
+			opts.add(new Attribute("environment", env));
+		}
 		return run(CMD_INFO+" -v");
 	}
 	
@@ -326,6 +336,16 @@ public class KatelloSystem extends _KatelloObject{
 	public SSHCommandResult unregister(){
 		opts.clear();
 		return run(String.format(KatelloSystem.SYSTEM_UNREGISTER, uuid, org));
+	}
+
+	public SSHCommandResult update_environment(String newEnvironment){
+		opts.clear();
+		opts.add(new Attribute("environment", env));
+		opts.add(new Attribute("new_environment", newEnvironment));
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+
+		return run(CMD_UPDATE);
 	}
 	
 //	@SuppressWarnings("unchecked")
