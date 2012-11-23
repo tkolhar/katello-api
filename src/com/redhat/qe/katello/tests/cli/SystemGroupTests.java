@@ -103,6 +103,29 @@ public class SystemGroupTests extends KatelloCliTestScript{
 		
 		assert_systemGroupList(Arrays.asList(systemGroup, systemGroup2), new ArrayList<KatelloSystemGroup>());		
 	}
+
+	@Test(description = "Update cloned system group max systems", groups = { "cli-systemgroup" })
+	public void test_updateCopiedSystemGroup() {
+		KatelloSystemGroup systemGroup = createSystemGroup();
+		
+		String sgroup_name2 = systemGroup.name + "copy";
+		String newdescr = "new description";
+		
+		exec_result = systemGroup.copy(sgroup_name2, newdescr, 1);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		systemGroup.name = sgroup_name2;
+		systemGroupName = sgroup_name2;
+		
+		addSystemToSystemGroup(systemGroup);
+		
+		String sgroup_name3 = systemGroup.name + "copy3";
+		exec_result = systemGroup.copy(sgroup_name3, newdescr, -1);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		systemGroup.name = sgroup_name3;
+		systemGroupName = sgroup_name3;
+		
+		addSystemToSystemGroup(systemGroup);
+	}
 	
 	@Test(description = "Create system group, add system to it", groups = { "cli-systemgroup" })
 	public void test_addSystemToSystemGroup() {
@@ -268,6 +291,75 @@ public class SystemGroupTests extends KatelloCliTestScript{
 		
 		assert_systemGroupList(Arrays.asList(systemGroup), Arrays.asList(systemGroup2));
 	}
+
+	@Test(description = "Delete system group with systems and verify that systems are also deleted", groups = { "cli-systemgroup" })
+	public void test_deleteSystemGroupWithSystems() {
+		KatelloSystemGroup systemGroup = createSystemGroup();
+		
+		KatelloSystem system = addSystemToSystemGroup(systemGroup);
+		
+		exec_result = systemGroup.deleteWithSystems();
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
+		Assert.assertEquals(getOutput(exec_result).trim(), "Deleted system group '" + systemGroupName + "' and it's 1 systems.");
+		
+		exec_result = systemGroup.info();
+		Assert.assertTrue(exec_result.getExitCode() == 65, "Check - return code");
+		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloSystemGroup.ERR_SYSTEMGROUP_NOTFOUND, systemGroupName, orgName));
+		
+		
+		exec_result = system.list();
+		Assert.assertFalse(getOutput(exec_result).trim().contains(system.name), "System should not be in list");
+	}
+	
+	@Test(description = "Delete clonned system group with systems and verify that systems are also deleted", groups = { "cli-systemgroup" })
+	public void test_deleteClonedSystemGroupWithSystems() {
+		KatelloSystemGroup systemGroup = createSystemGroup();
+		
+		KatelloSystem system = addSystemToSystemGroup(systemGroup);
+		
+		systemGroupName = systemGroup.name + "copy";
+		String newdescr = "new description";
+		
+		exec_result = systemGroup.copy(systemGroupName, newdescr, 1);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		KatelloSystemGroup systemGroup2 = new KatelloSystemGroup(systemGroupName, this.orgName, newdescr, 1);
+		
+		exec_result = systemGroup2.deleteWithSystems();
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
+		Assert.assertEquals(getOutput(exec_result).trim(), "Deleted system group '" + systemGroupName + "' and it's 1 systems.");
+		
+		exec_result = systemGroup2.info();
+		Assert.assertTrue(exec_result.getExitCode() == 65, "Check - return code");
+		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloSystemGroup.ERR_SYSTEMGROUP_NOTFOUND, systemGroupName, orgName));
+		
+		
+		exec_result = system.list();
+		Assert.assertFalse(getOutput(exec_result).trim().contains(system.name), "System should not be in list");
+	}
+
+	@Test(description = "Add/Delete system from cloned system group", groups = { "cli-systemgroup" })
+	public void test_addDeleteSystemsFromClonedSystemGroup() {
+		KatelloSystemGroup systemGroup = createSystemGroup();
+		
+		systemGroupName = systemGroup.name + "copy";
+		String newdescr = "new description";
+		
+		exec_result = systemGroup.copy(systemGroupName, newdescr, -1);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		KatelloSystemGroup systemGroup2 = new KatelloSystemGroup(systemGroupName, this.orgName, newdescr, -1);
+		
+		KatelloSystem system = addSystemToSystemGroup(systemGroup2);
+		
+		assert_systemList(Arrays.asList(system), new ArrayList<KatelloSystem>());
+		
+		exec_result = systemGroup2.remove_systems(system_uuid);
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloSystemGroup.OUT_REMOVE_SYSTEMS, systemGroupName));
+		
+		assert_systemList(new ArrayList<KatelloSystem>(), Arrays.asList(system));
+	}
 	
 	private KatelloSystemGroup createSystemGroup() {
 		systemGroupName = "system_group"+KatelloUtils.getUniqueID();
@@ -280,8 +372,15 @@ public class SystemGroupTests extends KatelloCliTestScript{
 		return systemGroup;
 	}
 	
-	private KatelloSystem addSystemToSystemGroup() {
-		KatelloSystemGroup systemGroup = createSystemGroup();
+	private KatelloSystem addSystemToSystemGroup() {	
+		return addSystemToSystemGroup(null);
+	}
+	
+	private KatelloSystem addSystemToSystemGroup(KatelloSystemGroup systemGroup) {
+		if (systemGroup == null) {
+			systemGroup = createSystemGroup();
+		}
+		
 		KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);
 		
 		this.systemName = "localhost-"+KatelloUtils.getUniqueID();
