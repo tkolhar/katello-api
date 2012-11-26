@@ -19,7 +19,6 @@ public class KatelloUpgrade extends KatelloCliTestScript{
 		}
 	}
 	
-	
 	@Test(description="prepare the upgrade yum repo", 
 			dependsOnGroups={TNG_PRE_UPGRADE}, 
 			groups={TNG_UPGRADE})
@@ -27,7 +26,7 @@ public class KatelloUpgrade extends KatelloCliTestScript{
 		String upgradeRepo = System.getProperty("katello.upgrade.repo", UPGRADE_REPO_LATEST);
 		String _yumrepo = 
 				"[cfse-upgrade]\\\\n" +
-				"name=System Engine Upgrade\\\\n" +
+				"name="+KatelloConstants.KATELLO_PRODUCT+" upgrade\\\\n" +
 				"baseurl="+upgradeRepo+"\\\\n"+
 				"enabled=1\\\\n"+
 				"skip_if_unavailable=1\\\\n"+
@@ -51,8 +50,15 @@ public class KatelloUpgrade extends KatelloCliTestScript{
 			dependsOnGroups={TNG_PRE_UPGRADE}, 
 			groups={TNG_UPGRADE})
 	public void updateRpms(){
+		if(KATELLO_PRODUCT.equals("sam")){
+			KatelloUtils.sshOnServer(
+					"service elasticsearch start; " +
+					"sleep 3; " +
+					"curl http://localhost:9200/_flush; " +
+					"service elasticsearch stop");
+		}
 		KatelloUtils.sshOnServer("yum clean all");
-		KatelloUtils.sshOnServer("yum upgrade -y --exclude libxslt"); // TODO --exclude libxslt is workaround which should be removed later
+		KatelloUtils.sshOnServer("yum upgrade -y --exclude libxslt --disablerepo \\*beaker\\*"); // TODO --exclude libxslt is workaround which should be removed later
 	}
 	
 	@Test(description="run schema upgrade", 
@@ -63,6 +69,8 @@ public class KatelloUpgrade extends KatelloCliTestScript{
 		KatelloUtils.sshOnServer("yes | katello-upgrade"); // TODO using --log=LOG_FILE option. will change to -y after
 		KatelloUtils.stopKatello();
 		KatelloUtils.sshOnServer("katello-configure --answer-file=/etc/katello/katello-configure.conf -b");
+		if(KATELLO_PRODUCT.equals("sam")) // YES: to be run twice for SAM 1.2
+			KatelloUtils.sshOnServer("katello-configure --answer-file=/etc/katello/katello-configure.conf -b");
 		KatelloUtils.sshOnServer("sed -i 's/5674/5671/g' /etc/gofer/plugins/katelloplugin.conf"); // even if it will fail for sam - who cares ;)
 	}
 
