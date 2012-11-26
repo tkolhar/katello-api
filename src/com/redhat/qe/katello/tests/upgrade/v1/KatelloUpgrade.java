@@ -78,7 +78,7 @@ public class KatelloUpgrade extends KatelloCliTestScript{
 		KatelloUtils.sshOnServer("sed -i 's/5674/5671/g' /etc/gofer/plugins/katelloplugin.conf"); // even if it will fail for sam - who cares ;)
 	}
 
-	@Test(description="start services", 
+	@Test(description="ping services", 
 			dependsOnMethods={"runUpgrade"},
 			dependsOnGroups={TNG_PRE_UPGRADE}, 
 			groups={TNG_UPGRADE})
