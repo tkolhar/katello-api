@@ -2,9 +2,13 @@ package com.redhat.qe.katello.tests.upgrade.v1;
 
 import java.util.logging.Logger;
 import org.testng.annotations.Test;
+
+import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.obj.KatelloPing;
 import com.redhat.qe.katello.common.KatelloConstants;
 import com.redhat.qe.katello.common.KatelloUtils;
+import com.redhat.qe.tools.SSHCommandResult;
 
 public class KatelloUpgrade extends KatelloCliTestScript{
 	protected static Logger log = Logger.getLogger(KatelloUpgrade.class.getName());
@@ -78,10 +82,10 @@ public class KatelloUpgrade extends KatelloCliTestScript{
 			dependsOnMethods={"runUpgrade"},
 			dependsOnGroups={TNG_PRE_UPGRADE}, 
 			groups={TNG_UPGRADE})
-	public void startServices(){
-		if(KATELLO_PRODUCT.equals("cfse"))
-			KatelloUtils.startKatello();
-		else
-			KatelloUtils.startHeadpin();
+	public void pingSystem(){
+		log.info("No need to start services: just ping to check all if ok");
+		KatelloPing ping = new KatelloPing();
+		SSHCommandResult res = ping.cli_ping();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check services up");
 	}
 }
