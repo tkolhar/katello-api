@@ -72,7 +72,7 @@ public class FillDB implements KatelloConstants{
 	private String repoFedora;
 	private String repoZoo;
 	
-//	private String poolIdRhel6;
+	private String poolIdRhel6;
 	private String poolIdFedora;
 	private String poolIdZoo;
 	
@@ -311,7 +311,13 @@ public class FillDB implements KatelloConstants{
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: environment.info");
 		String prior = KatelloCli.grepCLIOutput("Prior Environment", KatelloCliTestScript.sgetOutput(res));
 		Assert.assertTrue(prior.equals(envNameDevelopment), "stdout: prior environment");
-		
+
+		log.info(String.format("Additional rw permissions on environment: [%s]",env.getName()));
+		res = new KatelloPermission("rw-environments-postUpgrade-"+uid, orgName, "environments", null, 
+				"manage_changesets,update_systems,promote_changesets,read_changesets," +
+				"read_contents,read_systems,register_systems,delete_systems", roleOrgAdmin).create(true); // for all.		
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: permission.create");
+				
 		sys = new KatelloSystem(envNamePostUpgrade, orgName, env.getName());
 		sys.runAs(usrAdmin);
 		res = sys.rhsm_registerForce();
@@ -325,11 +331,11 @@ public class FillDB implements KatelloConstants{
 	}
 
 	@Test(groups={TNG_PRE_UPGRADE}, dependsOnMethods={"create_permissionsRoles"},
-			description="import manifest, enable repo, promote to all envs - as the orgAdmin user", enabled = false)
+			description="import manifest, enable repo, promote to all envs - as the orgAdmin user", enabled = true)
 	public void create_importManifestEnableRHRepoSyncNPromoteAllEnvs(){
 		SSHCommandResult res;
 		KatelloUser orgAdmin = new KatelloUser(userNameAdmin, null, KatelloUser.DEFAULT_ADMIN_PASS, false);
-		String manifest_name = KatelloProvider.MANIFEST_12SUBSCRIPTIONS;
+		String manifest_name = KatelloProvider.MANIFEST_2SUBSCRIPTIONS;
 
 		KatelloProvider provRedHat = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, orgName, null, null);
 		provRedHat.runAs(orgAdmin);
@@ -341,7 +347,7 @@ public class FillDB implements KatelloConstants{
 				System.getProperty("katello.client.sshkey.passphrase", "null"));
 		Assert.assertTrue(scp.sendFile("data"+File.separator+manifest_name, "/tmp"), manifest_name+" sent successfully");
 
-		res = provRedHat.import_manifest("/tmp/"+KatelloProvider.MANIFEST_12SUBSCRIPTIONS, true);
+		res = provRedHat.import_manifest("/tmp/"+manifest_name, true);
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: provider.import_manifest");
 		KatelloRepo repo = new KatelloRepo(KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, orgName, KatelloProduct.RHEL_SERVER, null, null, null);
 		repo.runAs(orgAdmin);
@@ -369,7 +375,7 @@ public class FillDB implements KatelloConstants{
 
 	@Test(groups={TNG_POST_UPGRADE}, dependsOnMethods={"check_permissionsRoles"},
 			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE},
-			description="check subscription, product, repo info in all environments - as orgAdmin user", enabled = false)
+			description="check subscription, product, repo info in all environments - as orgAdmin user", enabled = true)
 	public void check_importManifestEnableRHRepoPromoteAllEnvs(){
 		/**
 		 * TODO - make calls to get info about product, repo, subscriptions for all the environments 
@@ -444,8 +450,8 @@ public class FillDB implements KatelloConstants{
 		Assert.assertNotNull(poolIdZoo, "poolid for Zoo not null");
 		poolIdFedora = KatelloOrg.getPoolId(orgName, productFedora);
 		Assert.assertNotNull(poolIdFedora, "poolid for Fedora not null");
-//		poolIdRhel6 = KatelloOrg.getPoolId(orgName, KatelloProduct.RHEL_SERVER);
-//		Assert.assertNotNull(poolIdRhel6, "poolid for RHEL6 not null");
+		poolIdRhel6 = KatelloOrg.getPoolId(orgName, KatelloProduct.RHEL_SERVER_MARKETING_POOL);
+		Assert.assertNotNull(poolIdRhel6, "poolid for RHEL6 not null");
 
 		KatelloActivationKey ak = new KatelloActivationKey(orgName, envNameTesting, akTesting, akTesting+" description", null);
 		ak.runAs(orgAdmin);
@@ -454,43 +460,60 @@ public class FillDB implements KatelloConstants{
 		res = ak.update_add_subscription(poolIdFedora);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: activation_key.update-add_subscription");
 		
-//		ak = new KatelloActivationKey(orgName, envNameDevelopment, akDevelopment, null, null);
-//		ak.runAs(orgAdmin);
-//		res = ak.update_add_subscription(poolIdRhel6);
-//		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: activation_key.update-add_subscription");
-	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	@Test(groups={TNG_POST_UPGRADE},
-			dependsOnMethods={"check_permissionsRoles"},
-			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE},
-			description="check diff. \"keys\" presence - as orgAdmin user", enabled = true)
-	public void check_gpgKeyActivationKeyFilterSystemGroupTemplate(){
-		/**
-		 * TODO - as usual ;)!!!
-		 */
-		// System Group
-		SSHCommandResult res;
-		KatelloUser orgAdmin = new KatelloUser(userNameAdmin, null, KatelloUser.DEFAULT_ADMIN_PASS, false);
-		KatelloSystemGroup sg = new KatelloSystemGroup(systemGroupMyServers,orgName,systemGroupMyServers+" description", new Integer(2));
-		sg.runAs(orgAdmin);
-		res = sg.create();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: system_group.create");
-		
-		
-		KatelloActivationKey ak = new KatelloActivationKey(orgName, envNameTesting, akTesting, akTesting+" description", null);
+		ak = new KatelloActivationKey(orgName, envNameDevelopment, akDevelopment, null, null);
 		ak.runAs(orgAdmin);
-		res = ak.update_add_subscription(poolIdZoo);
+		res = ak.update_add_subscription(poolIdRhel6);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: activation_key.update-add_subscription");
 	}
+	
+	@Test(groups={TNG_POST_UPGRADE},
+			dependsOnMethods={"check_activationKey"},
+			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE},
+			description="check syste group related features", enabled = true)
+	public void check_systemGroup(){
+		SSHCommandResult res;
+		KatelloUser orgAdmin = new KatelloUser(userNameAdmin, null, KatelloUser.DEFAULT_ADMIN_PASS, false);
+
+		log.info("Additional ro permissions on system_groups");
+		res = new KatelloPermission("ro-system_groups-"+uid, orgName, "system_groups", null, 
+				"read,read_systems", roleReadAll).create();
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: permission.create");
+
+		KatelloUser guest = new KatelloUser(userNameGuest, null, KatelloUser.DEFAULT_USER_PASS, false);
+		res = guest.assign_role(roleReadAll);
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: user.assign_role");
+
+		log.info("Additional rw permissions on system_groups");
+		res = new KatelloPermission("rw-system_groups-"+uid, orgName, "system_groups", null, 
+				"create,delete,delete_systems,update,update_systems,read,read_systems", roleOrgAdmin).create();
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: permission.create");
+
+		res = orgAdmin.assign_role(roleOrgAdmin);
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: user.assign_role");
+
+		KatelloSystemGroup sysGrp = new KatelloSystemGroup(systemGroupMyServers, orgName);
+		sysGrp.runAs(orgAdmin);
+		res = sysGrp.create();
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: system_group.create");
+		
+		KatelloActivationKey ak = new KatelloActivationKey(orgName, envNameDevelopment, akDevelopment, null, null);
+		ak.runAs(orgAdmin);
+		res = ak.add_system_group(systemGroupMyServers);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: activation_key.add_system_group");
+	}
+	
+	@Test(groups={TNG_POST_UPGRADE},
+			dependsOnMethods={"check_systemGroup"},
+			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE},
+			description="register via AK and check features", enabled = true)
+	public void check_registerViaAk(){
+		
+	}
+	
+	
+	
+	
+	
 	
 	@Test(groups={TNG_PRE_UPGRADE}, 
 			dependsOnMethods={"create_permissionsRoles"},

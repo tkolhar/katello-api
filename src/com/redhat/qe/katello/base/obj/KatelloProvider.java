@@ -33,6 +33,7 @@ public class KatelloProvider extends _KatelloObject{
 	public static final String API_CMD_LIST = "/organizations/%s/providers";
 	
 	public static final String MANIFEST_12SUBSCRIPTIONS = "manifest-automation-CLI-12subscriptions.zip";
+	public static final String MANIFEST_2SUBSCRIPTIONS  = "manifest-automation-CLI-2subscriptions.zip";
 
 	// ** ** ** ** ** ** ** Class members
 	public String name;
