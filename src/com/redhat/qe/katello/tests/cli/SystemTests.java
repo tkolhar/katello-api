@@ -11,8 +11,12 @@ import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
+import com.redhat.qe.katello.base.obj.KatelloProduct;
+import com.redhat.qe.katello.base.obj.KatelloProvider;
+import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
@@ -23,21 +27,77 @@ public class SystemTests extends KatelloCliTestScript{
 	
 	private SSHCommandResult exec_result;
 	private String orgName;
+	private String orgName2;
 	private String envName_Dev;
 	private String envName_Test;
+	private String envName_Prod;
+	private String provider_name;
+	private String product_name;
+	private String repo_name;
+	private String changeset_name;
 	
 	@BeforeClass(description="Generate unique names")
 	public void setUp(){
 		String uid = KatelloUtils.getUniqueID();
 		this.orgName = "org-rhsm-"+uid;
+		this.orgName2 = "org-sys-"+uid;
 		this.envName_Dev = "Dev-"+uid;
 		this.envName_Test = "Test-"+uid;
+		this.envName_Prod = "Prod-"+uid;
+		this.provider_name = "provider_"+uid;
+		this.product_name = "product_"+uid;
+		this.repo_name = "repo_"+uid;
+		this.provider_name = "provider_"+uid;
+		this.product_name = "product_"+uid;
+		this.repo_name = "repo_name_"+uid;
+		this.changeset_name = "changeset_"+uid;
 		
 		KatelloOrg org = new KatelloOrg(this.orgName, null);
 		exec_result = org.cli_create();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code (org create)");
 		Assert.assertTrue(exec_result.getStdout().trim().equals(String.format(KatelloOrg.OUT_CREATE,this.orgName)),
 				"Check - returned message");
+		
+		org = new KatelloOrg(this.orgName2, null);
+		exec_result = org.cli_create();
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code (org create)");
+		
+		// Create provider:
+		KatelloProvider prov = new KatelloProvider(provider_name, orgName2,
+				"Package provider", null);
+		exec_result = prov.create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+
+		// Create product:
+		KatelloProduct prod = new KatelloProduct(product_name, orgName2,
+				provider_name, null, null, null, null, null);
+		exec_result = prod.create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+
+		KatelloRepo repo = new KatelloRepo(repo_name, orgName2, product_name, REPO_INECAS_ZOO3, null, null);
+		exec_result = repo.create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		KatelloEnvironment env = new KatelloEnvironment(envName_Prod, null, orgName2, KatelloEnvironment.LIBRARY);
+		exec_result = env.cli_create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (env create)");
+		
+		// promote product to the env prod.
+		exec_result = prod.promote(envName_Prod);
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (product promote)");
+
+		exec_result = repo.synchronize();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		KatelloChangeset cs = new KatelloChangeset(changeset_name, orgName2, envName_Prod);
+		exec_result = cs.create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset create)");
+		
+		exec_result = cs.update_addProduct(product_name);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset update add product)");
+		
+		exec_result = cs.apply();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset promote)");
 		
 		rhsm_clean(); // clean - in case of it registered
 		exec_result = KatelloUtils.sshOnClient(KatelloSystem.RHSM_CREATE);
@@ -173,6 +233,49 @@ public class SystemTests extends KatelloCliTestScript{
 		exec_result = cli.run();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code (grep: `system list --org`)");
 		Assert.assertTrue(exec_result.getStdout().replaceAll("\n", "").trim().equals("2"), "Check - 2 systems are registered with the same name");
+	}
+
+	//@ TODO enable after bug 878867 is fixed.
+	@Test(description = "delete registered system and verifies that it is removed successfully", enabled=false)
+	public void test_deleteSystem(){
+		String uid = KatelloUtils.getUniqueID();
+		String system = "localhost-"+uid;
+		
+		KatelloSystem sys = new KatelloSystem(system, this.orgName, this.envName_Dev);
+		exec_result = sys.rhsm_register(); 
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		
+		exec_result = sys.info();
+		String uuid = KatelloCli.grepCLIOutput("Uuid", getOutput(exec_result).trim(),1);
+		sys.setUuid(uuid);
+		
+		exec_result = sys.remove();
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		Assert.assertTrue(exec_result.getStdout().trim().contains(KatelloSystem.OUT_DELETE),
+				"Check - output (success)");
+		
+		exec_result = sys.info();
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 65, "Check - return code");
+	}
+
+	@Test(description = "subscribe system to pool")
+	public void test_subscribeSystem(){
+		String uid = KatelloUtils.getUniqueID();
+		String system = "localhost-"+uid;
+		
+		KatelloSystem sys = new KatelloSystem(system, this.orgName2, this.envName_Prod);
+		exec_result = sys.rhsm_register(); 
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		
+		exec_result = sys.subscriptions_available();
+		String poolId1 = KatelloCli.grepCLIOutput("Id", getOutput(exec_result).trim(),1);
+		Assert.assertNotNull(poolId1, "Check - pool Id is not null");
+		
+		exec_result = sys.subscribe(poolId1);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertEquals(exec_result.getStdout().trim(), 
+				String.format(KatelloSystem.OUT_SUBSCRIBE, system),
+				"Check - subscribe system output.");
 	}
 	
 	private void assert_systemInfo(KatelloSystem system) {

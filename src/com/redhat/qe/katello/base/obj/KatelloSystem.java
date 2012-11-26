@@ -18,6 +18,8 @@ public class KatelloSystem extends _KatelloObject{
 	public static final String CMD_SUBSCRIPTIONS = "system subscriptions";
 	public static final String CMD_PACKAGES = "system packages";
 	public static final String CMD_REPORT = "system report";
+	public static final String CMD_REMOVE = "system remove_deletion";
+	public static final String CMD_SUBSCRIBE = "system subscribe";
 	
 	public static final String RHSM_CREATE =String.format("subscription-manager register --username %s --password %s",
 					System.getProperty("katello.admin.user", KatelloUser.DEFAULT_ADMIN_USER),
@@ -41,6 +43,10 @@ public class KatelloSystem extends _KatelloObject{
 			"Successfully subscribed the system"; // not a full string, .contains() needed. 
 	public static final String OUT_UPDATE = 
 			"Successfully updated system [ %s ]";
+	public static final String OUT_DELETE = 
+			"Successfully deleted system [ %s ]";
+	public static final String OUT_SUBSCRIBE = 
+			"Successfully subscribed System [ %s ]";
 	
 	public static final String API_CMD_INFO = "/consumers/%s";
 	public static final String API_CMD_GET_SERIALS = "/consumers/%s/certificates/serials";
@@ -240,6 +246,23 @@ public class KatelloSystem extends _KatelloObject{
 			opts.add(new Attribute("environment", env));
 		}
 		return run(CMD_INFO+" -v");
+	}
+
+	public SSHCommandResult remove(){
+		opts.clear();
+		opts.add(new Attribute("uuid", this.uuid));
+		return run(CMD_REMOVE);
+	}
+
+	public SSHCommandResult subscribe(String poolid) {
+		opts.clear();
+		opts.add(new Attribute("pool", poolid));
+		opts.add(new Attribute("org", org));
+		if (this.uuid != null)
+			opts.add(new Attribute("uuid", uuid));
+		if (this.name != null)
+			opts.add(new Attribute("name", name));
+		return run(CMD_SUBSCRIBE);
 	}
 	
 	public SSHCommandResult report(){
