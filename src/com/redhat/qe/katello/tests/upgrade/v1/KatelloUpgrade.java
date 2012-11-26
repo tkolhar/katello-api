@@ -71,7 +71,10 @@ public class KatelloUpgrade extends KatelloCliTestScript{
 			groups={TNG_UPGRADE})
 	public void runUpgrade(){
 		KatelloUtils.sshOnServer("yes | katello-upgrade"); // TODO using --log=LOG_FILE option. will change to -y after
-		KatelloUtils.stopKatello();
+		if(KATELLO_PRODUCT.equals("cfse"))
+			KatelloUtils.stopKatello();
+		else
+			KatelloUtils.stopHeadpin();
 		KatelloUtils.sshOnServer("katello-configure --answer-file=/etc/katello/katello-configure.conf -b");
 		if(KATELLO_PRODUCT.equals("sam")) // YES: to be run twice for SAM 1.2
 			KatelloUtils.sshOnServer("katello-configure --answer-file=/etc/katello/katello-configure.conf -b");
