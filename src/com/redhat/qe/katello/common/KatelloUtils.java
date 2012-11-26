@@ -169,11 +169,19 @@ public class KatelloUtils {
 	 * @return res Object
 	 */
 	public static SSHCommandResult stopHeadpin(){
-		String _cmd = "service katello-jobs stop; " +
-			"service katello stop; " +
-			"service thumbslag stop; " +
-			"service tomcat6 stop; " +
-			"service elasticsearch stop;";
+		SSHCommandResult res = sshOnServer("which katello-service");
+		String _cmd;
+		if (res.getExitCode() != 0) {
+			_cmd =
+				"service katello-jobs stop; " +
+				"service katello stop; " +
+				"service thumbslug stop; " +
+				"service httpd stop; " + 
+				"service tomcat6 stop; " +
+				"service elasticsearch stop;";
+		}else{
+			_cmd = "katello-service stop";
+		}
 		return sshOnServer(_cmd);
 	}
 
@@ -202,11 +210,19 @@ public class KatelloUtils {
 	 * @return res Object
 	 */
 	public static SSHCommandResult startHeadpin(){
-		String _cmd ="service elasticsearch start; " +
-			"service tomcat6 start; " +
-			"service thumbslug start; " +
-			"service katello start; " +
-			"service katello-jobs start;";
+		SSHCommandResult res = sshOnServer("which katello-service");
+		String _cmd;
+		if (res.getExitCode() != 0) {
+			_cmd =
+				"service elasticsearch start; " +
+				"service tomcat6 start; " +
+				"service httpd start; " +
+				"service thumbslug start; " +
+				"service katello start; " +
+				"service katello-jobs start;";
+		} else{
+			_cmd = "katello-service start";
+		}
 		return sshOnServer(_cmd);
 	}
 	
