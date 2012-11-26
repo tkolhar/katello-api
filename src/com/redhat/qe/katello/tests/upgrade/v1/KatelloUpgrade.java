@@ -51,11 +51,11 @@ public class KatelloUpgrade extends KatelloCliTestScript{
 			groups={TNG_UPGRADE})
 	public void updateRpms(){
 		if(KATELLO_PRODUCT.equals("sam")){
+			KatelloUtils.sshOnServer("service elasticsearch start");
 			KatelloUtils.sshOnServer(
-					"service elasticsearch start; " +
-					"sleep 3; " +
-					"curl http://localhost:9200/_flush; " +
-					"service elasticsearch stop");
+					"sleep 20; " +
+					"curl http://localhost:9200/_flush; sleep 3;" +
+					"service elasticsearch stop; sleep 3;");
 		}
 		KatelloUtils.sshOnServer("yum clean all");
 		KatelloUtils.sshOnServer("yum upgrade -y --exclude libxslt --disablerepo \\*beaker\\*"); // TODO --exclude libxslt is workaround which should be removed later
