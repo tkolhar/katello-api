@@ -21,14 +21,13 @@ public class KatelloSystem extends _KatelloObject{
 	public static final String CMD_REMOVE = "system remove_deletion";
 	public static final String CMD_SUBSCRIBE = "system subscribe";
 	
-	public static final String RHSM_CREATE =String.format("subscription-manager register --username %s --password %s",
-					System.getProperty("katello.admin.user", KatelloUser.DEFAULT_ADMIN_USER),
-					System.getProperty("katello.admin.password", KatelloUser.DEFAULT_ADMIN_PASS));
+	public static final String RHSM_CREATE ="subscription-manager register --username %s --password %s";
 	public static final String RHSM_CLEAN = "subscription-manager clean";
 	public static final String RHSM_SUBSCRIBE = "subscription-manager subscribe";
 	public static final String RHSM_UNSUBSCRIBE = "subscription-manager unsubscribe";
 	public static final String RHSM_IDENTITY = "subscription-manager identity";
 	public static final String RHSM_REGISTER_BYKEY = "subscription-manager register ";
+	public static final String RHSM_UNREGISTER = "subscription-manager unregister";
 	
 	public static final String OUT_CREATE = 
 			"The system has been registered with id:";
@@ -187,7 +186,13 @@ public class KatelloSystem extends _KatelloObject{
 	
     public SSHCommandResult rhsm_register(){
 		String cmd = RHSM_CREATE;
-		
+		if(this.user==null)
+			cmd = String.format(RHSM_CREATE,
+					System.getProperty("katello.admin.user", KatelloUser.DEFAULT_ADMIN_USER),
+					System.getProperty("katello.admin.password", KatelloUser.DEFAULT_ADMIN_PASS));
+		else
+			cmd = String.format(RHSM_CREATE,user.username,user.password);
+			
 		if(this.name != null)
 			cmd += " --name \""+this.name+"\"";
 		if(this.org != null)
@@ -200,6 +205,12 @@ public class KatelloSystem extends _KatelloObject{
 	
 	public SSHCommandResult rhsm_registerForce(){
 		String cmd = RHSM_CREATE;
+		if(this.user==null)
+			cmd = String.format(RHSM_CREATE,
+					System.getProperty("katello.admin.user", KatelloUser.DEFAULT_ADMIN_USER),
+					System.getProperty("katello.admin.password", KatelloUser.DEFAULT_ADMIN_PASS));
+		else
+			cmd = String.format(RHSM_CREATE,user.username,user.password);
 		
 		if(this.name != null)
 			cmd += " --name \""+this.name+"\"";
@@ -347,6 +358,12 @@ public class KatelloSystem extends _KatelloObject{
 		String cmd = RHSM_IDENTITY;
 		
 		return KatelloUtils.sshOnClient(getHostName(), cmd);		
+	}
+
+	public SSHCommandResult rhsm_unregister(){
+		String cmd = RHSM_UNREGISTER;
+		
+		return KatelloUtils.sshOnClient(cmd);		
 	}
 	
 	public SSHCommandResult system_uuids(){
