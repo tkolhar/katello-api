@@ -35,6 +35,8 @@ public class KatelloUser extends _KatelloObject{
 
 	public static final String ERR_INVALID_CREDENTIALS = 
 			"Invalid credentials";
+	public static final String ERR_NOT_ALLOWED_TO_ACCESS = 
+			"User %s is not allowed to access";
 	
 	public static final String REG_USER_LIST = ".*Id\\s*:\\s*\\d+.*Username\\s*:\\s*%s.*Email\\s*:\\s*%s.*";
 	public static final String REG_USER_ROLE_LIST = ".*\\d+\\s*%s.*";
