@@ -1,24 +1,14 @@
 package com.redhat.qe.katello.tests.upgrade.v1;
 
-import java.io.File;
 import java.util.logging.Logger;
-
 import org.testng.annotations.Test;
-
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
-import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
-import com.redhat.qe.katello.base.obj.KatelloErrata;
 import com.redhat.qe.katello.base.obj.KatelloGpgKey;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
-import com.redhat.qe.katello.base.obj.KatelloProduct;
-import com.redhat.qe.katello.base.obj.KatelloProvider;
-import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.common.KatelloConstants;
 import com.redhat.qe.katello.common.KatelloUtils;
-import com.redhat.qe.tools.SCPTools;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups={"sam-upgrade"})
@@ -64,8 +54,6 @@ public class ImportedManifest implements KatelloConstants {
 	public void createOrgsAndSyncRepo(){
 		KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);
 		KatelloUtils.sshOnClient("rpm -e "+KatelloGpgKey.GPG_PUBKEY_RPM_ZOO+" || true");
-		
-		SSHCommandResult res;
 				
         //this org contains imported manifest with RHEL repo promoted to environments
         // DO NOT DELETE THIS ORG IN TEAR_DOWN
@@ -78,7 +66,7 @@ public class ImportedManifest implements KatelloConstants {
 		env1.cli_create();
 		env2.cli_create();
 		env3.cli_create();
-	
+		//@Owner: please, any reason why there is not a single assertion even here ??? [gkhachik]
 	}
 	
 	@Test(description="verify orgs survived the upgrade", 
