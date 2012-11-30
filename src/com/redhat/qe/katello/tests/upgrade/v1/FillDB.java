@@ -12,7 +12,6 @@ import com.redhat.qe.tools.SSHCommandResult;
 import com.redhat.qe.katello.base.*;
 import com.redhat.qe.katello.base.obj.*;
 import com.redhat.qe.katello.common.*;
-import com.redhat.qe.katello.resource.PoolResource;
 
 /**
  * current list of katello CLI calls:
