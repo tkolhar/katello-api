@@ -1,8 +1,9 @@
 package com.redhat.qe.katello.tests.upgrade.v1;
 
 import java.util.logging.Logger;
-import org.testng.annotations.Test;
 
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.KatelloPing;
@@ -12,24 +13,25 @@ import com.redhat.qe.tools.SSHCommandResult;
 
 public class KatelloUpgrade extends KatelloCliTestScript{
 	protected static Logger log = Logger.getLogger(KatelloUpgrade.class.getName());
-	private static String UPGRADE_REPO_LATEST = 
+	private String UPGRADE_REPO_LATEST = 
 			"http://download.lab.bos.redhat.com/rel-eng/CloudForms/1.1/latest/el6-se/x86_64/os/";
-	private static String KATELLO_PRODUCT = System.getProperty("katello.product", "cfse"); 
 
-	// static initializer. Specify your katello.product specific "if"s here.
-	{
-		if(KATELLO_PRODUCT.equals("sam")){
+	@BeforeClass(description="detect the product",
+			dependsOnGroups={TNG_PRE_UPGRADE},
+			groups={TNG_UPGRADE})
+	public void detectProduct(){
+		log.info("Upgrading katello.product: ["+KATELLO_PRODUCT+"] ...");
+		if(KATELLO_PRODUCT.equals("sam"))
 			UPGRADE_REPO_LATEST = "http://download.devel.redhat.com/devel/candidate-trees/SAM/latest-SAM-1-RHEL-6/compose/SAM/x86_64/os/";
-		}
 	}
 	
 	@Test(description="prepare the upgrade yum repo", 
 			dependsOnGroups={TNG_PRE_UPGRADE}, 
 			groups={TNG_UPGRADE})
-	public void installYumRepo(){
+	public void installYumRepo(){		
 		String upgradeRepo = System.getProperty("katello.upgrade.repo", UPGRADE_REPO_LATEST);
 		String _yumrepo = 
-				"[cfse-upgrade]\\\\n" +
+				"["+KatelloConstants.KATELLO_PRODUCT+"-upgrade]\\\\n" +
 				"name="+KatelloConstants.KATELLO_PRODUCT+" upgrade\\\\n" +
 				"baseurl="+upgradeRepo+"\\\\n"+
 				"enabled=1\\\\n"+
