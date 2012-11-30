@@ -28,6 +28,7 @@ public class KatelloSystem extends _KatelloObject{
 	public static final String RHSM_IDENTITY = "subscription-manager identity";
 	public static final String RHSM_REGISTER_BYKEY = "subscription-manager register ";
 	public static final String RHSM_UNREGISTER = "subscription-manager unregister";
+	public static final String RHSM_LIST_CONSUMED = "subscription-manager list --consumed";
 	
 	public static final String OUT_CREATE = 
 			"The system has been registered with id:";
@@ -37,6 +38,9 @@ public class KatelloSystem extends _KatelloObject{
 			"This system is already registered. Use --force to override";
 	public static final String ERR_RHSM_REG_MULTI_ENV = 
 			"Organization %s has more than one environment. Please specify target environment for system registration.";
+	public static final String ERR_GUEST_HAS_DIFFERENT_HOST = 
+			"Guest's host does not match owner of pool: '%s'.";
+	
 	public static final String OUT_REMOTE_ACTION_DONE = "Remote action finished:";
 	public static final String OUT_RHSM_SUBSCRIBED_OK = 
 			"Successfully subscribed the system"; // not a full string, .contains() needed. 
@@ -389,6 +393,12 @@ public class KatelloSystem extends _KatelloObject{
 		opts.add(new Attribute("name", name));
 
 		return run(CMD_UPDATE);
+	}
+	
+	public SSHCommandResult rhsm_listConsumed(){
+		String cmd = RHSM_LIST_CONSUMED;
+		
+		return KatelloUtils.sshOnClient(getHostName(), cmd);		
 	}
 	
 //	@SuppressWarnings("unchecked")
