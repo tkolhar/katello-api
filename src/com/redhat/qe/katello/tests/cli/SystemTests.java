@@ -1,13 +1,10 @@
 	package com.redhat.qe.katello.tests.cli;
 
 import java.util.logging.Logger;
-
-import org.testng.SkipException;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
@@ -100,12 +97,6 @@ public class SystemTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset promote)");
 		
 		rhsm_clean(); // clean - in case of it registered
-		exec_result = KatelloUtils.sshOnClient(KatelloSystem.RHSM_CREATE);
-		if(exec_result.getStderr().contains("certificate verify failed")){ // It's Jenkins's special server with it's own certificate. Exit Scenarios
-			log.warning("Seems your server uses its own certificate: RHSM tests can't run there - certificate issue");
-			throw new SkipException("RHSM tests can not run on this specific server. Certificate issues.");
-		}
-		rhsm_clean();
 	}
 	
 	@Test(description = "RHSM register - org have no environment but Locker only", enabled=true)
