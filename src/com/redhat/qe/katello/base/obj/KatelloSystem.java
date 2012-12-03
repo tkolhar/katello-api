@@ -50,6 +50,8 @@ public class KatelloSystem extends _KatelloObject{
 			"Successfully deleted system [ %s ]";
 	public static final String OUT_SUBSCRIBE = 
 			"Successfully subscribed System [ %s ]";
+	public static final String OUT_SUBSCRIPTIONS_EMPTY = 
+			"No Subscriptions found for System [ %s ] in Org [ %s ]";
 	
 	public static final String API_CMD_INFO = "/consumers/%s";
 	public static final String API_CMD_GET_SERIALS = "/consumers/%s/certificates/serials";
