@@ -396,6 +396,16 @@ public class KatelloSystem extends _KatelloObject{
 
 		return run(CMD_UPDATE);
 	}
+
+	public SSHCommandResult update_name(String newName){
+		opts.clear();
+		opts.add(new Attribute("environment", env));
+		opts.add(new Attribute("new_name", newName));
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+
+		return run(CMD_UPDATE);
+	}
 	
 	public SSHCommandResult rhsm_listConsumed(){
 		String cmd = RHSM_LIST_CONSUMED;
