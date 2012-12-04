@@ -50,6 +50,8 @@ public class KatelloSystem extends _KatelloObject{
 			"Successfully deleted system [ %s ]";
 	public static final String OUT_SUBSCRIBE = 
 			"Successfully subscribed System [ %s ]";
+	public static final String OUT_SUBSCRIPTIONS_EMPTY = 
+			"No Subscriptions found for System [ %s ] in Org [ %s ]";
 	
 	public static final String API_CMD_INFO = "/consumers/%s";
 	public static final String API_CMD_GET_SERIALS = "/consumers/%s/certificates/serials";
@@ -389,6 +391,16 @@ public class KatelloSystem extends _KatelloObject{
 		opts.clear();
 		opts.add(new Attribute("environment", env));
 		opts.add(new Attribute("new_environment", newEnvironment));
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+
+		return run(CMD_UPDATE);
+	}
+
+	public SSHCommandResult update_name(String newName){
+		opts.clear();
+		opts.add(new Attribute("environment", env));
+		opts.add(new Attribute("new_name", newName));
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 
