@@ -3,6 +3,9 @@ package com.redhat.qe.katello.tests.cli;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
@@ -14,7 +17,24 @@ import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class OrgTests extends KatelloCliTestScript{
-	List<KatelloOrg> orgs;
+	List<KatelloOrg> orgs = Collections.synchronizedList(new ArrayList<KatelloOrg>());
+	String uid = KatelloUtils.getUniqueID();
+	SSHCommandResult exec_result;
+	
+	@BeforeClass(description="Generate unique objects")
+	public void setUp() {
+		KatelloOrg org = new KatelloOrg("FOO"+uid,"Package tests", "BAR"+uid);
+		exec_result = org.cli_create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		orgs.add(org);
+	}
+	
+	@AfterClass(description="Remove org objects")
+	public void tearDown() {
+		for (KatelloOrg org : orgs) {
+			org.delete();
+		}
+	}	
 	
 	@Test(description = "List all orgs - default org should be there",groups={"cfse-cli","headpin-cli"})
 	public void test_listOrgs_DefaultOrg(){
@@ -32,9 +52,7 @@ public class OrgTests extends KatelloCliTestScript{
 		SSHCommandResult res = org.cli_create();
 		
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
-		if(this.orgs ==null){
-			this.orgs = Collections.synchronizedList(new ArrayList<KatelloOrg>());
-		}
+
 		this.orgs.add(org);
 	}
 	
@@ -163,6 +181,36 @@ public class OrgTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode() == 144, "Check - return code [144]");
 		Assert.assertEquals(getOutput(res).trim(), 
 				KatelloOrg.ERR_NAME_INVALID);
+	}
+	
+	@Test(description = "Create org - name and label are already used",groups={"cfse-cli","headpin-cli"})
+	public void test_createOrgExistingNameAndLabel(){
+		KatelloOrg org = new KatelloOrg("FOO"+uid, "existing org", "BAR"+uid);
+		exec_result = org.cli_create();
+		
+		Assert.assertTrue(exec_result.getExitCode() == 144, "Check - return code [144]");
+		Assert.assertEquals(getOutput(exec_result).trim(), 
+				KatelloOrg.ERR_ORG_EXISTS);
+	}	
+
+	@Test(description = "Create org - name is already used",groups={"cfse-cli","headpin-cli"})
+	public void test_createOrgExistingName(){
+		KatelloOrg org = new KatelloOrg("FOO"+uid, "existing org", "BAZ"+uid);
+		exec_result = org.cli_create();
+		
+		Assert.assertTrue(exec_result.getExitCode() == 144, "Check - return code [144]");
+		Assert.assertEquals(getOutput(exec_result).trim(), 
+				KatelloOrg.ERR_ORG_NAME_EXISTS);
+	}
+	
+	@Test(description = "Create org - label is already used",groups={"cfse-cli","headpin-cli"})
+	public void test_createOrgExistingLabel(){
+		KatelloOrg org = new KatelloOrg("BAZ"+uid, "existing org", "BAR"+uid);
+		exec_result = org.cli_create();
+		
+		Assert.assertTrue(exec_result.getExitCode() == 144, "Check - return code [144]");
+		Assert.assertEquals(getOutput(exec_result).trim(), 
+				KatelloOrg.ERR_ORG_LABEL_EXISTS);
 	}
 	
 	private void assert_orgInfo(KatelloOrg org){
