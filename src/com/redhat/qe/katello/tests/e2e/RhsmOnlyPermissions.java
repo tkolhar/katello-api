@@ -93,9 +93,9 @@ public class RhsmOnlyPermissions extends KatelloCliTestScript{
 	public void test_rhsmRegisterSystem(){
 		
 		log.info("Register the system");
-		rhsm_clean();
+		rhsm_clean_only();
 		String cmd = String.format(
-				"subscription-manager register --username %s --password %s --org \"%s\" --environment \"%s\" --name \"%s\"",
+				"subscription-manager register --username %s --password %s --org \"%s\" --environment \"%s\" --name \"%s\" --force",
 				this.user,KatelloUser.DEFAULT_USER_PASS,org,this.env_dev,this.system);
 		SSHCommandResult res = KatelloUtils.sshOnClient(cmd);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (rhsm register)");
@@ -129,14 +129,15 @@ public class RhsmOnlyPermissions extends KatelloCliTestScript{
 		
 		log.info("Subscribing system to the pool of: Zoo3");
 		KatelloSystem sys = new KatelloSystem(this.system, this.org, null);
+		KatelloUser user = new KatelloUser(this.user, null, KatelloUser.DEFAULT_USER_PASS, false);
+		sys.runAs(user);
 		SSHCommandResult res = sys.subscriptions_available();
 		String pool = KatelloCli.grepCLIOutput("Id", getOutput(res).trim(),1);
-		String poolName = KatelloCli.grepCLIOutput("Name", getOutput(res).trim(),1);
-		
+
 		String cmd = "subscription-manager subscribe --pool "+pool;
 		res = KatelloUtils.sshOnClient(cmd);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (rhsm subscribe)");
-		String MATCH_SUBSCRIBED = "Successfully.*"+poolName+".*";
+		String MATCH_SUBSCRIBED = "Successfully.*";
 		Assert.assertTrue(getOutput(res).matches(MATCH_SUBSCRIBED), "Check - message (subscribed)");
 	}
 	

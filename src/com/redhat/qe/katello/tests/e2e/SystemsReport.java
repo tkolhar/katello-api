@@ -1,13 +1,11 @@
 package com.redhat.qe.katello.tests.e2e;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.logging.Logger;
 
-import org.testng.annotations.AfterTest;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
@@ -34,6 +32,7 @@ public class SystemsReport extends KatelloCliTestScript{
 	String org;
 	private String env_dev;
 	private String env_test;
+	public static final String MANIFEST_2SUBSCRIPTIONS = "manifest-automation-CLI-2subscriptions.zip";
 
 	@BeforeClass(description="Init unique names", alwaysRun=true)
 	public void setUp(){
@@ -41,27 +40,23 @@ public class SystemsReport extends KatelloCliTestScript{
 		this.env_dev = "Dev-"+uid;
 		this.env_test = "Test-"+uid;
 
-		ArrayList<String> orgs = getOrgsWithImportedManifest();
-		if(orgs.size()==0){
-			log.info("Seems there is no org with imported stage manifest. Doing it now.");
-			SCPTools scp = new SCPTools(
-					System.getProperty("katello.client.hostname", "localhost"), 
-					System.getProperty("katello.client.ssh.user", "root"), 
-					System.getProperty("katello.client.sshkey.private", ".ssh/id_hudson_dsa"), 
-					System.getProperty("katello.client.sshkey.passphrase", "null"));
-			Assert.assertTrue(scp.sendFile("data"+File.separator+"export.zip", "/tmp"),
-					"export.zip sent successfully");			
-			this.org = "org-manifest-"+uid;
-			KatelloOrg org = new KatelloOrg(this.org, null);
-			org.cli_create();
-			KatelloProvider prov = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, this.org, null, null);
-			SSHCommandResult res = prov.import_manifest("/tmp"+File.separator+"export.zip", new Boolean(true));
-			Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (provider import_manifest)");
-			Assert.assertTrue(getOutput(res).contains("Manifest imported"),"Message - (provider import_manifest)");
-		}else{
-			this.org = orgs.get(0);
-			log.info("There is an org having manifest. Using: ["+this.org+"]");
-		}
+		SCPTools scp = new SCPTools(
+				System.getProperty("katello.client.hostname", "localhost"), 
+				System.getProperty("katello.client.ssh.user", "root"), 
+				System.getProperty("katello.client.sshkey.private", ".ssh/id_hudson_dsa"), 
+				System.getProperty("katello.client.sshkey.passphrase", "null"));
+		Assert.assertTrue(scp.sendFile("data"+File.separator+MANIFEST_2SUBSCRIPTIONS, "/tmp"),
+				MANIFEST_2SUBSCRIPTIONS+" sent successfully");			
+		this.org = "org-manifest-"+uid;
+		KatelloOrg org = new KatelloOrg(this.org, null);
+		org.cli_create();
+		KatelloProvider prov = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, this.org, null, null);
+		SSHCommandResult res = prov.import_manifest("/tmp"+File.separator+MANIFEST_2SUBSCRIPTIONS, new Boolean(true));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (provider import_manifest)");
+		Assert.assertTrue(getOutput(res).contains("Manifest imported"),"Message - (provider import_manifest)");
+		
+		log.finest("put in socket.facts \"1\" - scenario here considers having one CPU socket");
+		KatelloUtils.sshOnClient("echo '{\"cpu.cpu_socket(s)\":\"1\"}' > /etc/rhsm/facts/sockets.facts");
 	}
 	
 	@Test(description="Promote RHEL Server to both environments", enabled=true)
@@ -94,11 +89,11 @@ public class SystemsReport extends KatelloCliTestScript{
 	@Test(description="Add 2 system to env: Dev and 1 systems to: Test", dependsOnMethods={"test_promoteToEnvs"}, enabled=true)
 	public void test_addSystemsToEnvs(){
 		String sys = "`hostname`"+KatelloUtils.getUniqueID();
-		rhsm_clean();
+		rhsm_clean_only();
 		rhsm_register(org, this.env_dev, "1-"+sys, true);
-		rhsm_clean();
+		rhsm_clean_only();
 		rhsm_register(org, this.env_test, "2-"+sys, true);
-		rhsm_clean();
+		rhsm_clean_only();
 		SSHCommandResult res = rhsm_register(org, this.env_dev, "3-"+sys, true);
 //		Assert.assertTrue(res.getExitCode().intValue()==1, "Check - return code (system register)");
 		String subscriptionStatus = KatelloCli.grepCLIOutput("Status", getOutput(res).trim()); 
@@ -129,8 +124,11 @@ public class SystemsReport extends KatelloCliTestScript{
 		Assert.assertTrue((hdrCnt==1), "Check - header compliant_until");
 	}
 	
-	@AfterTest(description="Cleanup the org - allow others to reuse the manifest", alwaysRun=true)
+	@AfterClass(description="Cleanup the org - allow others to reuse the manifest", alwaysRun=true)
 	public void tearDown(){
+		log.finest("Remove the prepared: /etc/rhsm/facts/sockets.facts");
+		KatelloUtils.sshOnClient("rm -f /etc/rhsm/facts/sockets.facts");
+
 		KatelloOrg org = new KatelloOrg(this.org, null);
 		SSHCommandResult res = org.delete();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (org delete)");

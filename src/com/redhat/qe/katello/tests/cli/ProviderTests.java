@@ -287,10 +287,53 @@ public class ProviderTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		
 		res = prov.delete();
-		Assert.assertTrue(res.getExitCode().intValue()==144, "Check - return error code");
-		Assert.assertTrue(getOutput(res).contains(KatelloProvider.ERR_PROVIDER_DELETE),"Check - returned error string");
+		Assert.assertTrue(res.getExitCode().intValue()==144, "Check - return code");
+		Assert.assertTrue(getOutput(res).contains("Provider cannot be deleted since " +
+				"one of its products or repositories has already been promoted. " +
+				"Using a changeset, please delete the repository " +
+				"from existing environments before deleting it."),"Check - returned error string");
 	}
-	
+
+	@Test(description="Delete provider which contains two repos, both of them are synched but not promoted", groups = {"cli-providers"},enabled=true)
+	public void test_deleteProvider_withTwoRepos() {
+		
+		String uid = KatelloUtils.getUniqueID();
+		String provName = "withRepos-"+uid;
+		String prodName = "prod-"+KatelloUtils.getUniqueID();
+		String repoName1 = "repo1-"+ uid;
+		String repoName2 = "repo2-"+ uid;
+		
+		// Create provider, product
+		KatelloProvider prov = new KatelloProvider(provName, this.org_name, null, null);
+		SSHCommandResult res = prov.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+
+		// create product
+		KatelloProduct prod = new KatelloProduct(prodName, this.org_name, provName, null, null, null, null, true);
+		res = prod.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
+		
+		// Create repo - valid url to sync
+		KatelloRepo repo1 = new KatelloRepo(repoName1, this.org_name, prodName, PULP_RHEL6_x86_64_REPO, null, null);
+		repo1.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+
+		res = repo1.synchronize();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		
+		// Create repo - valid url to sync
+		KatelloRepo repo2 = new KatelloRepo(repoName2, this.org_name, prodName, REPO_INECAS_ZOO3, null, null);
+		res = repo2.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		
+		res = repo2.synchronize();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		
+		res = prov.delete();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		Assert.assertTrue(getOutput(res).equals(String.format(KatelloProvider.OUT_DELETE, provName)), "Check - returned output string");
+	}
+
 	@Test(description="List / Info providers - no description, no url", groups = {"cli-providers"},enabled=true)
 	public void test_listNinfoProviders_noDesc_noUrl(){
 		SSHCommandResult res;

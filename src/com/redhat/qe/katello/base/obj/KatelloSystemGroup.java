@@ -16,11 +16,15 @@ public class KatelloSystemGroup extends _KatelloObject{
 	public static final String CMD_INFO = "system_group info";	
 	public static final String CMD_LIST = "system_group list";
 	public static final String CMD_LIST_SYSTEMS = "system_group systems";
+	public static final String CMD_LIST_ERRATAS = "errata system_group";
+	public static final String CMD_LIST_ERRATA_DETAILS = "errata system_group -v";
 	public static final String CMD_DELETE = "system_group delete";
 	public static final String CMD_UPDATE = "system_group update";
 	public static final String CMD_COPY = "system_group copy";
 	public static final String CMD_ADD_SYSTEMS = "system_group add_systems";
 	public static final String CMD_REMOVE_SYSTEMS = "system_group remove_systems";
+	public static final String CMD_PACKAGES = "system_group packages";
+	public static final String CMD_ERRATA = "system_group errata";
 	
 	public static final String OUT_CREATE = 
 			"Successfully created system group [ %s ]";
@@ -115,11 +119,90 @@ public class KatelloSystemGroup extends _KatelloObject{
 		opts.add(new Attribute("name", name));
 		return run(CMD_LIST_SYSTEMS);
 	}
+
+	public SSHCommandResult list_erratas(){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		return run(CMD_LIST_ERRATAS);
+	}
+	
+
+	public SSHCommandResult list_errata_details(){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		return run(CMD_LIST_ERRATA_DETAILS);
+	}
 	
 	public SSHCommandResult delete(){
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		return run(CMD_DELETE);
+	}
+
+	public SSHCommandResult deleteWithSystems(){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("delete_systems", "true"));
+		return run(CMD_DELETE);
+	}
+	
+	public SSHCommandResult packages_install(String packageName) {
+		opts.clear();
+		opts.add(new Attribute("install", packageName));
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		return run(CMD_PACKAGES);
+	}
+
+	public SSHCommandResult erratas_install(String errata) {
+		opts.clear();
+		opts.add(new Attribute("install", errata));
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		return run(CMD_ERRATA);
+	}
+	
+	public SSHCommandResult packages_remove(String packageName) {
+		opts.clear();
+		opts.add(new Attribute("remove", packageName));
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		return run(CMD_PACKAGES);
+	}
+
+	public SSHCommandResult packages_update(String packageName) {
+		opts.clear();
+		opts.add(new Attribute("update", packageName));
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		return run(CMD_PACKAGES);
+	}
+	
+	public SSHCommandResult packagegroup_install(String packageGroupName) {
+		opts.clear();
+		opts.add(new Attribute("install_group", packageGroupName));
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		return run(CMD_PACKAGES);
+	}
+
+	public SSHCommandResult packagegroup_remove(String packageGroupName) {
+		opts.clear();
+		opts.add(new Attribute("remove_group", packageGroupName));
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		return run(CMD_PACKAGES);
+	}
+
+	public SSHCommandResult packagegroup_update(String packageGroupName) {
+		opts.clear();
+		opts.add(new Attribute("update_group", packageGroupName));
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		return run(CMD_PACKAGES);
 	}
 }

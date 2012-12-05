@@ -27,7 +27,7 @@ public class KatelloActivationKey extends _KatelloObject{
 	public static final String CMD_ADD_SYSTEMGROUP = "activation_key add_system_group";
 	public static final String CMD_REMOVE_SYSTEMGROUP = "activation_key remove_system_group";
 	public static final String ERR_TEMPLATE_NOTFOUND = 
-			"Couldn't find template '%s'";	
+			"Could not find template [ %s ]";	
 	public static final String OUT_CREATE = 
 			"Successfully created activation key [ %s ]";
 	public static final String OUT_DELETE =
@@ -79,13 +79,6 @@ public class KatelloActivationKey extends _KatelloObject{
 		return run(CMD_LIST+" -v");
 	}
 
-	public SSHCommandResult list(String pEnvironment){
-		opts.clear();
-		opts.add(new Attribute("org", org));
-		opts.add(new Attribute("environment", pEnvironment));
-		return run(CMD_LIST+" -v");
-	}
-
 	public SSHCommandResult extend_limit(String newlimit){
 		opts.clear();
 		opts.add(new Attribute("org", org));
@@ -102,6 +95,22 @@ public class KatelloActivationKey extends _KatelloObject{
 		return run(CMD_ADD_SYSTEMGROUP);
 	}
 	
+	public SSHCommandResult update_add_subscription(String subscriptionId){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("add_subscription", subscriptionId));
+		return run(CMD_UPDATE);
+	}
+
+	public SSHCommandResult update_remove_subscription(String subscriptionId){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("remove_subscription", subscriptionId));
+		return run(CMD_UPDATE);
+	}
+
 	public SSHCommandResult remove_system_group(String pSystemGroup){
 		opts.clear();
 		opts.add(new Attribute("org", org));
@@ -127,7 +136,7 @@ public class KatelloActivationKey extends _KatelloObject{
 			updateIDs();
 		
 		// asserts: activation_key list
-		res = list(this.environment);
+		res = list(); // if environment != null; result will be returned by that env. only 
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key list)");
 		String REGEXP_AK_LIST = ".*Id\\s*:\\s*\\d+.*Name\\s*:\\s*%s.*Environment Id\\s*:\\s*%s.*System Template Id\\s*:\\s*%s.*";
 		

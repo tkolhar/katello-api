@@ -10,6 +10,8 @@ public class KatelloProduct extends _KatelloObject{
 	protected static Logger log = Logger.getLogger(KatelloProduct.class.getName());
 	
 	public static final String RHEL_SERVER = "Red Hat Enterprise Linux Server";
+	public static final String RHEL_SERVER_MARKETING_POOL = 
+			"Red Hat Enterprise Linux Server, Self-support (1-2 sockets) (Up to 1 guest)";
 	
 	// ** ** ** ** ** ** ** Public constants
 	public static final String CMD_CREATE = "product create";
@@ -19,6 +21,11 @@ public class KatelloProduct extends _KatelloObject{
 	public static final String CMD_PROMOTE = "product promote";
 	public static final String CMD_DELETE = "product delete";
 	public static final String CMD_SET_PLAN = "product set_plan";
+	public static final String CMD_UPDATE = "product update";
+	public static final String CMD_REMOVE_PLAN = "product remove_plan";
+	public static final String CMD_ADD_FILTER = "product add_filter";
+	public static final String CMD_REMOVE_FILTER = "product remove_filter";
+	public static final String CMD_FILTER_LIST = "product list_filters";
 	
 	/** Parameters:<BR>1: product_name<BR>2: org_name */
 	public static final String ERR_COULD_NOT_FIND_PRODUCT = 
@@ -49,6 +56,7 @@ public class KatelloProduct extends _KatelloObject{
 	
 	// ** ** ** ** ** ** ** Class members
 	public String name;
+	public String id;
 	String org;
 	public String provider;
 	public String providerId;
@@ -75,6 +83,14 @@ public class KatelloProduct extends _KatelloObject{
 			this.nodisc = bNodisc.booleanValue();
 		if(bAssumeyes != null)
 			this.assumeyes = bAssumeyes.booleanValue();
+	}
+	
+	public KatelloProduct(
+			String pName, String id, String pOrg, String pProv, 
+			String pDesc, String pGpgkey, String pUrl,
+			Boolean bNodisc, Boolean bAssumeyes){
+		this(pName, pOrg, pProv, pDesc, pGpgkey, pUrl, bNodisc, bAssumeyes);
+		this.id = id;
 	}
 
     public String getName() {
@@ -128,34 +144,106 @@ public class KatelloProduct extends _KatelloObject{
 		opts.add(new Attribute("provider", prov));
 		return run(CLI_CMD_LIST);
 	}
+
+	public SSHCommandResult update_description(String new_description){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		if (this.id != null) {
+			opts.add(new Attribute("id", id));
+		} else {
+			opts.add(new Attribute("name", this.name));
+		}
+		opts.add(new Attribute("description", new_description));
+		return run(CMD_UPDATE);
+	}
+	
+	public SSHCommandResult add_filter(String filter){
+		opts.clear();
+		opts.add(new Attribute("filter", filter));
+		opts.add(new Attribute("org", org));
+		if (this.id != null) {
+			opts.add(new Attribute("id", id));
+		} else {
+			opts.add(new Attribute("name", this.name));
+		}
+		return run(CMD_ADD_FILTER);
+	}
+	public SSHCommandResult list_filters(){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		if (this.id != null) {
+			opts.add(new Attribute("id", id));
+		} else {
+			opts.add(new Attribute("name", this.name));
+		}
+		return run(CMD_FILTER_LIST);
+	}
+	
+	public SSHCommandResult remove_filter(String filter){
+		opts.clear();
+		opts.add(new Attribute("filter", filter));
+		opts.add(new Attribute("org", org));
+		if (this.id != null) {
+			opts.add(new Attribute("id", id));
+		} else {
+			opts.add(new Attribute("name", this.name));
+		}
+		return run(CMD_REMOVE_FILTER);
+	}
 	
 	public SSHCommandResult status(){
 		opts.clear();
 		opts.add(new Attribute("org", org));
-		opts.add(new Attribute("name", name));
+		if (this.id != null) {
+			opts.add(new Attribute("id", id));
+		} else {
+			opts.add(new Attribute("name", this.name));
+		}
 		return run(CMD_STATUS);
 	}
-
 	
 	public SSHCommandResult cli_set_plan(String plan) {
 		opts.clear();
 		opts.add(new Attribute("org", org));
-		opts.add(new Attribute("name", name));
+		if (this.id != null) {
+			opts.add(new Attribute("id", id));
+		} else {
+			opts.add(new Attribute("name", this.name));
+		}
 		opts.add(new Attribute("plan", plan));
 		return run(CMD_SET_PLAN);
+	}
+	
+	public SSHCommandResult cli_remove_plan() {
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		if (this.id != null) {
+			opts.add(new Attribute("id", id));
+		} else {
+			opts.add(new Attribute("name", this.name));
+		}
+		return run(CMD_REMOVE_PLAN);
 	}
 	
 	public SSHCommandResult synchronize(){
 		opts.clear();
 		opts.add(new Attribute("org", org));
-		opts.add(new Attribute("name", name));
+		if (this.id != null) {
+			opts.add(new Attribute("id", id));
+		} else {
+			opts.add(new Attribute("name", this.name));
+		}
 		return run(CMD_SYNC);
 	}
 	
 	public SSHCommandResult promote(String environment){
 		opts.clear();
 		opts.add(new Attribute("org", org));
-		opts.add(new Attribute("name", name));
+		if (this.id != null) {
+			opts.add(new Attribute("id", id));
+		} else {
+			opts.add(new Attribute("name", this.name));
+		}
 		opts.add(new Attribute("environment", environment));
 		return run(CMD_PROMOTE);
 	}
@@ -163,8 +251,20 @@ public class KatelloProduct extends _KatelloObject{
 	public SSHCommandResult delete(){
 		opts.clear();
 		opts.add(new Attribute("org", org));
-		opts.add(new Attribute("name", name));
+		if (this.id != null) {
+			opts.add(new Attribute("id", id));
+		} else {
+			opts.add(new Attribute("name", this.name));
+		}
 		return run(CMD_DELETE);
+	}
+	
+	public SSHCommandResult update_gpgkey(String gpgkey){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("gpgkey", gpgkey));
+		return run(CMD_UPDATE);
 	}
 	
 	// ** ** ** ** ** ** **

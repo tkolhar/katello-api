@@ -122,9 +122,27 @@ public class KatelloChangeset extends _KatelloObject{
 		return run(CMD_UPDATE);
 	}
 
+	public SSHCommandResult update_addProductId(String product_id){
+		opts.clear();
+		opts.add(new Attribute("add_product_id", product_id));
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("environment", environment));
+		return run(CMD_UPDATE);
+	}
+
 	public SSHCommandResult update_removeProduct(String productName){
 		opts.clear();
 		opts.add(new Attribute("remove_product", productName));
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("environment", environment));
+		return run(CMD_UPDATE);
+	}
+
+	public SSHCommandResult update_removeProductId(String product_id){
+		opts.clear();
+		opts.add(new Attribute("remove_product_id", product_id));
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("environment", environment));
@@ -144,6 +162,16 @@ public class KatelloChangeset extends _KatelloObject{
 	public SSHCommandResult update_fromProduct_addRepo(String productName, String repoName){
 		opts.clear();
 		opts.add(new Attribute("from_product", productName));
+		opts.add(new Attribute("add_repo", repoName));
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("environment", environment));
+		return run(CMD_UPDATE);
+	}
+	
+	public SSHCommandResult update_fromProductId_addRepo(String productId, String repoName){
+		opts.clear();
+		opts.add(new Attribute("from_product_id", productId));
 		opts.add(new Attribute("add_repo", repoName));
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));

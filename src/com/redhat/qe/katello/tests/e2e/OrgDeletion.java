@@ -30,7 +30,8 @@ public class OrgDeletion extends KatelloCliTestScript{
 	private String ls_cmd = "ls -la /var/lib/pulp/repos/";
 
 	
-	@Test(description="Create a new Org, add repo, sync it, delete the org, verify that repo is deleted from file system.")
+	@Test(description="Create a new Org, add repo, sync it, delete the org," +
+			" verify that repo is deleted from file system.")
 	public void test_deleteOrg(){
 		
 		KatelloOrg org = createOrgStuff(null);
@@ -49,7 +50,8 @@ public class OrgDeletion extends KatelloCliTestScript{
 		createOrgStuff(org.name);
 	}
 	
-	@Test(description="Create 2 Orgs, add same repo to them, sync them, delete the first org, verify that repo is deleted from file system only for first org.")
+	@Test(description="Create 2 Orgs, add same repo to them, sync them, delete the first org, " +
+			"verify that repo is deleted from file system only for first org.", dependsOnMethods={"test_deleteOrg"})
 	public void test_deleteOrgSharingRepo(){
 		
 		KatelloOrg org = createOrgStuff(null);
