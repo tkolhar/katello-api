@@ -13,6 +13,7 @@ import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloMisc;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
+import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.common.KatelloUtils;
@@ -27,6 +28,8 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 	private String org_name;
 	private String env_name;
 	private String system_name;
+	private String provider_name;
+	private String product_name;
 	SSHCommandResult exec_result;
 	
 	@BeforeClass(description="Init unique names", alwaysRun=true, enabled=true)
@@ -36,6 +39,8 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 		this.env_name = "Dev-"+uid;
 		this.system_name = "system-"+uid;
 		this.org_name = "org-manifest-"+uid;
+		this.provider_name = "provider_"+uid;
+		this.product_name = "product_"+uid;
 		
 		KatelloUtils.sshOnClient("echo '{\"cpu.cpu_socket(s)\":\"8\"}' > /etc/rhsm/facts/sockets.facts");
 		
@@ -48,7 +53,18 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 				"stack-manifest.zip sent successfully");			
 		KatelloOrg org = new KatelloOrg(this.org_name, null);
 		org.cli_create();
-		KatelloProvider prov = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, this.org_name, null, null);
+		
+		
+		// Create provider:
+		KatelloProvider prov = new KatelloProvider(provider_name, org_name,	"Package provider", null);
+		exec_result = prov.create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		// Create product:
+		KatelloProduct prod = new KatelloProduct(product_name, org_name, provider_name, null, null, null, null, null);
+		exec_result = prod.create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		prov = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, this.org_name, null, null);
 		exec_result = prov.import_manifest("/tmp"+File.separator+"stack-manifest.zip", new Boolean(true));
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (provider import_manifest)");
 		Assert.assertTrue(getOutput(exec_result).contains("Manifest imported"),"Message - (provider import_manifest)");
