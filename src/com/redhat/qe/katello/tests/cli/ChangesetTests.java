@@ -34,7 +34,9 @@ public class ChangesetTests extends KatelloCliTestScript{
 	private String env_name;
 	private String chst_name;
 	private String provider_name;
+	private String provider_name2;
 	private String product_name;
+	private String product_name2;
 	private String repo_name;
 	private String templ_name;
 	
@@ -45,7 +47,9 @@ public class ChangesetTests extends KatelloCliTestScript{
 		org_name = "org" + uid;
 		env_name = "env"+uid;
 		provider_name = "provider"+uid;
+		provider_name2 = "provider2"+uid;
 		product_name = "product"+uid;
+		product_name2 = "product2"+uid;
 		repo_name = "repo"+uid;
 		templ_name = "template"+KatelloUtils.getUniqueID();
 		
@@ -59,11 +63,19 @@ public class ChangesetTests extends KatelloCliTestScript{
 		exec_result = prov.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
+		KatelloProvider prov2 = new KatelloProvider(provider_name2, org_name, "Package provider2", null);
+		exec_result = prov2.create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
 		// Create product:
 		KatelloProduct prod = new KatelloProduct(product_name, org_name, provider_name, null, null, null, null, null);
 		exec_result = prod.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	
+		KatelloProduct prod2 = new KatelloProduct(product_name2, org_name, provider_name2, null, null, null, null, null);
+		exec_result = prod2.create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+			
 		KatelloRepo repo = new KatelloRepo(repo_name, org_name, product_name, REPO_INECAS_ZOO3, null, null);
 		exec_result = repo.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");

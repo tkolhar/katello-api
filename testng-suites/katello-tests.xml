@@ -9,25 +9,42 @@
 			<class name="com.redhat.qe.katello.tests.api.UsersTest"/>
 		</classes>
 	</test>
-	
-	<test name="CLI_Tests" preserve-order="true">
+
+	<test name="CLI_Tests">
 		<packages>
 			<package name="com.redhat.qe.katello.tests.cli"/>
 		</packages>
 	</test>
-	
+
 	<test name="E2E_Tests" preserve-order="true">
-		<packages>
-			<package name="com.redhat.qe.katello.tests.e2e"/>
-		</packages>
+		<classes>
+			<class name="com.redhat.qe.katello.tests.e2e.BPMTests"/>
+			<class name="com.redhat.qe.katello.tests.e2e.ChangesetMultyRepoDelete"/>
+			<class name="com.redhat.qe.katello.tests.e2e.ChangesetRepoDelete"/>
+			<class name="com.redhat.qe.katello.tests.e2e.ConsumerAccess"/>
+			<class name="com.redhat.qe.katello.tests.e2e.OrgDeletion"/>
+			<class name="com.redhat.qe.katello.tests.e2e.PackagesWithGPGKey"/>
+			<class name="com.redhat.qe.katello.tests.e2e.ProductsSameName"/>
+			<class name="com.redhat.qe.katello.tests.e2e.PromoteErrata"/>
+			<class name="com.redhat.qe.katello.tests.e2e.PromoteWithFilters"/>
+			<class name="com.redhat.qe.katello.tests.e2e.RhsmOnlyPermissions"/>
+			<class name="com.redhat.qe.katello.tests.e2e.StackedSubscriptions"/>
+			<class name="com.redhat.qe.katello.tests.e2e.SystemsReport"/>
+		</classes>
 	</test>
-	
-	<test name="Longrun_Tests" preserve-order="true">
+
+	<test name="Longrun_Tests">
 		<packages>
 			<package name="com.redhat.qe.katello.tests.longrun"/>
 		</packages>
 	</test>
-	
+
+	<test name="i18n_Tests">
+		<packages>
+			<package name="com.redhat.qe.katello.tests.i18n"/>
+		</packages>
+	</test>
+			
 	<!-- Test group that could be run on SAM server(s) as well -->
 	<test name="SAM_Tests" preserve-order="true">
 		<groups>
@@ -36,7 +53,6 @@
 			</run>
 		</groups>
 		<classes>
-				
 			<class name="com.redhat.qe.katello.tests.cli.ProductTests"/>  
 			<class name="com.redhat.qe.katello.tests.cli.EnvironmentTests"/> 
 			<class name="com.redhat.qe.katello.tests.cli.UserRoleTests"/> 
@@ -47,13 +63,9 @@
 			<class name="com.redhat.qe.katello.tests.cli.OrgTests"/>
 			<class name="com.redhat.qe.katello.tests.cli.ClientTests"/> 	
 			<class name="com.redhat.qe.katello.tests.cli.ActivationKeyTests"/>
-		<!--	<class name="com.redhat.qe.katello.tests.api.ConsumersTest"/>
-			<class name="com.redhat.qe.katello.tests.api.EnvironmentsTest"/>
-			<class name="com.redhat.qe.katello.tests.api.UsersTest"/> 
- 			<class name="com.redhat.qe.katello.tests.cli.SystemTests"/> --> 
-		
 		</classes>		
 	</test>
+
 	<test name="SAM_API_Tests" preserve-order="true">
 		<groups>
 			<run>
@@ -64,39 +76,6 @@
 			<class name="com.redhat.qe.katello.tests.api.EnvironmentsTest"/>
 			<class name="com.redhat.qe.katello.tests.api.UsersTest"/>
 		</classes>
-	</test>
-	<!-- ** ** ** CFSE ** ** ** -->
-	<test name="CFSE_API_Tests" preserve-order="true">
-		<packages>
-			<package name="com.redhat.qe.katello.tests.api"/>
-		</packages>
-		<groups>
-			<run>
-				<include name="cfse-api"/>
-			</run>
-		</groups>
-	</test>
-
-	<test name="CFSE_CLI_Tests" preserve-order="true">
-		<packages>
-			<package name="com.redhat.qe.katello.tests.cli"/>
-		</packages>
-		<groups>
-			<run>
-				<include name="cfse-cli"/>
-			</run>
-		</groups>
-	</test>
-
-	<test name="CFSE_E2E_Tests" preserve-order="true">
-		<packages>
-			<package name="com.redhat.qe.katello.tests.e2e"/>
-		</packages>
-		<groups>
-			<run>
-				<include name="cfse-e2e"/>
-			</run>
-		</groups>
 	</test>
 
 	<test name="Headpin_CLI_Tests" preserve-order="true">
@@ -122,5 +101,31 @@
 			</run>
 		</groups>
 	</test>
+
+	<test name="Preupgrade_Tests">
+		<packages>
+			<package name="com.redhat.qe.katello.tests.upgrade.v1"/>
+		</packages>
+		<groups preserve-order="true">
+			<run>
+				<include name="pre-upgrade"/>
+			</run>
+		</groups>
+	</test>
+
+        <test name="Upgrade_Tests1">
+                <groups preserve-order="true">
+                        <run>
+                                <include name="pre-upgrade"/>
+                                <include name="upgrade"/>
+                                <include name="post-upgrade"/>
+                        </run>
+	                <classes>
+        	                <class name="com.redhat.qe.katello.tests.upgrade.v1.FillDB"/>
+                	        <class name="com.redhat.qe.katello.tests.upgrade.v1.KatelloUpgrade"/>
+	                </classes>
+                </groups>
+        </test>
+
 
 </suite>

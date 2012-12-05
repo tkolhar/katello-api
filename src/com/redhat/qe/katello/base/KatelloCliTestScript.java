@@ -5,6 +5,7 @@ import java.util.Calendar;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.testng.Assert;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
@@ -13,6 +14,7 @@ import com.redhat.qe.katello.common.KatelloConstants;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class KatelloCliTestScript 
 extends com.redhat.qe.auto.testng.TestScript 
 implements KatelloConstants {
@@ -144,12 +146,18 @@ implements KatelloConstants {
 	}
 	
 	// TODO - DUPE?
-	protected SSHCommandResult rhsm_clean(){
-		log.info("RHSM clean");
+	protected void rhsm_clean(){
+		log.info("RHSM -> unsubscribe, unregister, clean");
 		KatelloUtils.sshOnClient("subscription-manager unsubscribe --all");
 		KatelloUtils.sshOnClient("subscription-manager unregister");
-		return KatelloUtils.sshOnClient("subscription-manager clean");
+		KatelloUtils.sshOnClient("subscription-manager clean");
 	}
+	
+	protected void rhsm_clean_only(){ 
+		log.info("RHSM -> clean");
+		KatelloUtils.sshOnClient("subscription-manager clean");
+	}
+
 	
 	protected void yum_clean() {
 		KatelloUtils.sshOnClient("yum clean all");
@@ -194,7 +202,7 @@ implements KatelloConstants {
 	 * It is static method and initializes ResourceBoundles for both messages ".properties" files.
 	 * After initializing in clears the cache from previous run. "en_US"
 	 */
-	public static String getMessage(String key) {
+	public static String getText(String key, Object...args) {
 		if (messageBundle == null || inputBundle == null) {
 			String localeStr = System.getProperty("katello.locale", KATELLO_DEFAULT_LOCALE);
 			String[] split = localeStr.split("_", 2);					
@@ -205,9 +213,9 @@ implements KatelloConstants {
 			ResourceBundle.clearCache(); //this is mandatory
 		}
 		if (messageBundle.containsKey(key)) {
-			return messageBundle.getString(key);
+			return String.format(messageBundle.getLocale(), messageBundle.getString(key), args);
 		} else if (inputBundle.containsKey(key)) {
-			return inputBundle.getString(key);
+			return String.format(inputBundle.getLocale(), inputBundle.getString(key), args);
 		} else {
 			log.warning("Message by key: " + key + " not found in locale " + messageBundle.getLocale());
 			return null;

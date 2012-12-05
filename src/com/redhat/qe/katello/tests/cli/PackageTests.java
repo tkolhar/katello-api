@@ -83,20 +83,21 @@ public class PackageTests extends KatelloCliTestScript {
 		exec_result = pack.cli_list();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		Assert.assertTrue(getOutput(exec_result).contains("pulp-admin"));
-		Assert.assertTrue(getOutput(exec_result).contains("pulp"));
-		Assert.assertTrue(getOutput(exec_result).contains("python-gofer"));
-		Assert.assertTrue(getOutput(exec_result).contains("python-qpid"));
-		Assert.assertTrue(getOutput(exec_result).contains("pulp-common"));
-		Assert.assertTrue(getOutput(exec_result).contains("pulp-consumer"));
+		Assert.assertTrue(getOutput(exec_result).contains("pulp-admin"),"is package in the list: pulp-admin");
+		Assert.assertTrue(getOutput(exec_result).contains("pulp"),"is package in the list: pulp");
+		Assert.assertTrue(getOutput(exec_result).contains("python-gofer"),"is package in the list: python-gofer");
+		Assert.assertTrue(getOutput(exec_result).contains("python-qpid"),"is package in the list: python-qpid");
+		Assert.assertTrue(getOutput(exec_result).contains("pulp-common"),"is package in the list: pulp-common");
+		Assert.assertTrue(getOutput(exec_result).contains("pulp-consumer"),"is package in the list: pulp-consumer");
 		
 	}
 	
 	@Test(description="package search", groups = {"cli-packages"}, enabled=true)
 	public void test_packageSearch() {
 		
+		log.info("Sleep 10 sec: let repodata be generated.");
+		try{Thread.sleep(10000);}catch(InterruptedException iex){iex.printStackTrace();}
 		KatelloPackage pack = new KatelloPackage(null, null, org_name, product_name, repo_name, null);
-		
 		exec_result = pack.cli_search("pulp-common*");
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		

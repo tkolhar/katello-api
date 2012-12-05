@@ -158,9 +158,11 @@ public class ProductTests  extends KatelloCliTestScript{
 		
 		// try to create product second time by the same name
 		res = prod.create();
-		Assert.assertTrue(res.getExitCode().intValue() == 144, "Check - return code (product create)");
-		Assert.assertTrue(getOutput(res).trim().contains("Validation failed: Pulp id has already been taken"),
-				"Check - error message pulp id is taken");
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
+		
+		res = prod.cli_list();
+		String _prod2 = KatelloCli.grepCLIOutput("Name", getOutput(res), 2);
+		Assert.assertTrue(_prod2.equals(prodName), "Check - there are 2 products with same name");
 	}
 	
 	@Test(description="create product by the same name which is in other org", groups = {"cli-products"}, enabled=true)
@@ -352,8 +354,9 @@ public class ProductTests  extends KatelloCliTestScript{
 		
 		// promote product to the env.
 		res = prod.promote(envName);
-		Assert.assertTrue(res.getExitCode().intValue()==148, "Check - return code (product promote)");
-		Assert.assertTrue(getOutput(res).contains(String.format(KatelloProduct.ERR_PROMOTE_NOREPOS,prodName)), "Check - returned output string (product promote)");
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product promote)");
+		Assert.assertTrue(getOutput(res).contains(String.format(KatelloProduct.OUT_PROMOTED,prodName,envName)), 
+				"Check - returned output string (product promote)");
 	}
 	
 	@Test(description="promote product", groups = {"cli-products"}, enabled=true)

@@ -3,6 +3,7 @@ package com.redhat.qe.katello.base.obj;
 import java.util.logging.Logger;
 import javax.management.Attribute;
 import org.codehaus.jackson.annotate.JsonProperty;
+import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
@@ -33,6 +34,10 @@ public class KatelloOrg extends _KatelloObject{
 			"Validation failed: Name cannot contain characters other than alpha numerals, space,'_', '-'.";
 	public static final String ERR_ORG_NOTFOUND = 
 			"Couldn't find organization '%s'";
+	public static final String ERR_ORG_NAME_EXISTS = 
+			"Validation failed: Name has already been taken";
+	public static final String ERR_ORG_LABEL_EXISTS = 
+			"Validation failed: Label has already been taken";
 	
 	public static final String REG_ORG_LIST = ".*Id\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Description\\s*:\\s+%s.*";
 	public static final String REG_ORG_INFO = ".*Id\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Description\\s*:\\s+%s.*";
@@ -151,6 +156,13 @@ public class KatelloOrg extends _KatelloObject{
 		return defaultOrg;
 	}
 	
+	public static String getPoolId(String orgName, String productName){
+		SSHCommandResult res = new KatelloOrg(orgName, null).subscriptions(); // all subscriptinos
+		String outBlock = KatelloCli.grepOutBlock(
+				"Subscription", productName, KatelloCliTestScript.sgetOutput(res)); // filter our product's output block
+		return KatelloCli.grepCLIOutput("Id", outBlock); // grep poolid
+	}
+
 	// ** ** ** ** ** ** **
 	// ASSERTS
 	// ** ** ** ** ** ** **

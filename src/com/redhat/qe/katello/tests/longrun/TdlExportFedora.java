@@ -1,10 +1,8 @@
 package com.redhat.qe.katello.tests.longrun;
 
 import java.util.logging.Logger;
-
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
@@ -28,7 +26,6 @@ import com.redhat.qe.tools.SSHCommandResult;
  */
 public class TdlExportFedora extends KatelloCliTestScript{
 	protected static Logger log = Logger.getLogger(TdlExportFedora.class.getName());
-	public static final String FEDORA_VER = "16";
 	public static final String TDL_AEOLUS_VALIDATOR = "https://raw.github.com/aeolusproject/conductor/master/src/app/util/template-rng.xml";
 
 	String org;
@@ -47,7 +44,7 @@ public class TdlExportFedora extends KatelloCliTestScript{
 		String uid = KatelloUtils.getUniqueID();
 		this.provider = "Fedora_"+uid;
 		this.product = "Fedora_"+uid;
-		this.repo = "Fedora"+FEDORA_VER+"_"+uid;
+		this.repo = "Fedora"+KatelloRepo.FEDORA_VER16+"_"+uid;
 		
 		this.env_prod = "Prod-"+uid;
 		this.template_prod = "template_Fedora_"+uid;
@@ -60,14 +57,14 @@ public class TdlExportFedora extends KatelloCliTestScript{
 		prov.create();
 		KatelloProduct prod = new KatelloProduct(this.product, this.org, this.provider, null, null, null, null, null);
 		prod.create();
-		String fedoraUrl = getFedoraUrl(); // <--- here goes URL
+		String fedoraUrl = KatelloRepo.getFedoraMirror(KatelloRepo.FEDORA_VER16); // <--- here goes URL
 		KatelloRepo repo = new KatelloRepo(this.repo, this.org, this.product, fedoraUrl, null, null);
 		repo.create();
 	}
 	
 	@Test(description="Sync Fedora repo", enabled=true)
 	public void test_syncRepo(){
-		log.info("E2E - sync Fedora "+FEDORA_VER+" repo");
+		log.info("E2E - sync Fedora "+KatelloRepo.FEDORA_VER16+" repo");
 		KatelloRepo repo = new KatelloRepo(this.repo, this.org, this.product, null, null, null);
 		SSHCommandResult res = repo.synchronize();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo synchronize)");
@@ -155,24 +152,4 @@ public class TdlExportFedora extends KatelloCliTestScript{
 		Assert.assertTrue(res.equals("1"), "Check - could be able to get repomd.xml content unlocked.");
 	}
 	
-	private String getFedoraUrl(){
-		String domain="";
-		
-		String lab_controller = KatelloUtils.sshOnServer("echo ${LAB_CONTROLLER}").getStdout().trim();
-		if(lab_controller.equals("")) lab_controller = "lab.rhts.englab.brq.redhat.com";
-		
-		if(lab_controller.contains("eng.bos.redhat.com"))
-			domain = "download.bos.redhat.com";
-		else if(lab_controller.equals("eng.nay.redhat.com"))
-			domain = "download.eng.nay.redhat.com";
-		else if(lab_controller.equals("eng.pnq.redhat.com"))
-			domain = "download.eng.pnq.redhat.com";
-		else if(lab_controller.equals("eng.tlv.redhat.com"))
-			domain = "download.eng.tlv.redhat.com";
-		else 
-			domain = "download.eng.brq.redhat.com";
-			
-		String _url = "http://"+domain+"/pub/fedora/linux/releases/"+FEDORA_VER+"/Fedora/x86_64/os/";
-		return _url;
-	}
 }

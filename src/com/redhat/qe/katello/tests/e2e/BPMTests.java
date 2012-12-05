@@ -66,12 +66,12 @@ public class BPMTests extends KatelloCliTestScript{
 		changeset_name = "changesetBPM_"+uid;
 		consumer_name = uid+"-`hostname`";
 		rhsm_pool_id = null; // going to be set after listing avail. subscriptions.
-		log.info("Clean RHSM registration");
-		KatelloUtils.sshOnClient("subscription-manager unregister || true");
 	}
 	
 	@Test(description="Create a new Org and create a user who can manage providers, systems and environments.")
 	public void test_createOrgUser(){
+		log.info("Clean RHSM registration");
+		rhsm_clean();
 		// Create org:
 		KatelloOrg org = new KatelloOrg(this.org_name,"BPM tests");
 		exec_result = org.cli_create();
@@ -148,6 +148,7 @@ public class BPMTests extends KatelloCliTestScript{
 			dependsOnMethods={"test_createEnvPromoteContent"})
 	public void test_rhsm_register(){
 		KatelloSystem sys = new KatelloSystem(this.consumer_name, this.org_name, this.env_name_Dev);
+		sys.rhsm_clean();
 		exec_result = sys.rhsm_register(); 
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains("The system has been registered with id:"),"Check - returned message");

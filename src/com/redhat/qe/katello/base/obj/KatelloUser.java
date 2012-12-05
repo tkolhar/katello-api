@@ -21,6 +21,7 @@ public class KatelloUser extends _KatelloObject{
 	public static final String CMD_UNASSIGN_ROLE = "user unassign_role";
 	public static final String CMD_LIST_ROLES = "user list_roles";
 	public static final String CMD_REPORT = "user report";
+	public static final String CMD_UPDATE = "user update";
 	public static final String OUT_CREATE = 
 			"Successfully created user [ %s ]";
 	public static final String OUT_DELETE =
@@ -30,10 +31,12 @@ public class KatelloUser extends _KatelloObject{
 	public static final String OUT_UNASSIGN_ROLE =
 			"User \'%s\' unassigned from role \'%s\'";
 	public static final String OUT_FIND_USER_ERROR =
-			"Could not find user \'%s\'";
+			"Could not find user [ %s ]";
 
 	public static final String ERR_INVALID_CREDENTIALS = 
 			"Invalid credentials";
+	public static final String ERR_NOT_ALLOWED_TO_ACCESS = 
+			"User %s is not allowed to access";
 	
 	public static final String REG_USER_LIST = ".*Id\\s*:\\s*\\d+.*Username\\s*:\\s*%s.*Email\\s*:\\s*%s.*";
 	public static final String REG_USER_ROLE_LIST = ".*\\d+\\s*%s.*";
@@ -50,7 +53,9 @@ public class KatelloUser extends _KatelloObject{
 	public String orgname="";
 	public String envname = "";
 	private Long id;
-
+	public String locale = "";
+	
+	
 	public KatelloUser() {super();} // For resteasy
 
 	public KatelloUser(String pName, String pEmail, String pPassword, boolean pDisabled){
@@ -60,6 +65,14 @@ public class KatelloUser extends _KatelloObject{
 		this.disabled = pDisabled;
 	}
 
+	public KatelloUser(String pName, String pEmail, String pPassword, boolean pDisabled, String pLocale){
+		this.username = pName;
+		this.email = pEmail;
+		this.password = pPassword;
+		this.disabled = pDisabled;
+		this.locale = pLocale;
+	}
+	
 	public KatelloUser(String pName,String pEmail,String pPassword,boolean pDisabled,String pOrgname,String pEnvname){
 		this(pName,pEmail, pPassword, pDisabled);
 		this.orgname = pOrgname;
@@ -110,6 +123,8 @@ public class KatelloUser extends _KatelloObject{
 			opts.add(new Attribute("default_organization",orgname));
 		if(!(envname.isEmpty()))
 			opts.add(new Attribute("default_environment",envname));
+		if(!(locale.isEmpty()))
+			opts.add(new Attribute("default_locale",locale));
 		return run(CMD_CREATE);
 	}
 
@@ -149,60 +164,21 @@ public class KatelloUser extends _KatelloObject{
 		opts.add(new Attribute("username", this.username));
 		return run(CMD_DELETE_USER);
 	}
+	
+	public SSHCommandResult update_defaultOrgEnv(String org, String env){
+		opts.clear();
+		opts.add(new Attribute("username", username));
+		opts.add(new Attribute("default_organization", org));
+		opts.add(new Attribute("default_environment", env));
+		return run(CMD_UPDATE);
+	}
 
-	//	public static KatelloUser api_info(String userid) throws KatelloApiException {
-	//		KatelloApiResponse response = KatelloApi.get(String.format(API_CMD_INFO,userid));
-	//		if ( response.getReturnCode() < 300 ) {
-	//		    String json = response.getContent();
-	//		    JSONObject juser = KatelloTestScript.toJSONObj(json);
-	//		    // String pName,String pEmail,String pPassword,boolean pDisabled,String pOrgname,String pEnvname
-	//            String defOrg = juser.get("default_organization") == null ? null : (String)juser.get("default_organization");
-	//            String defEnv = juser.get("default_environment") == null ? null : (String)juser.get("default_environment");
-	//		    KatelloUser user = new KatelloUser((String)juser.get("username"), (String)juser.get("email"), (String)juser.get("password"), ((Boolean)juser.get("disabled")).booleanValue(), defOrg, defEnv, (Long)juser.get("id"));
-	//		    return user;
-	//		}
-	//		throw new KatelloApiException(response);
-	//	}
-	//
-	//	public static List<KatelloUser> api_list() throws KatelloApiException {
-	//	    List<KatelloUser> users = new ArrayList<KatelloUser>();
-	//		KatelloApiResponse response = KatelloApi.get(API_CMD_LIST);		
-	//		if ( response.getReturnCode() < 300 ) {
-	//		    String json = response.getContent();
-	//		    JSONArray jusers = KatelloTestScript.toJSONArr(json);
-	//		    for ( int i = 0; i < jusers.size(); ++i ) {
-	//		        JSONObject juser = (JSONObject)jusers.get(i);
-	//                String defOrg = juser.get("default_organization") == null ? null : (String)juser.get("default_organization");
-	//                String defEnv = juser.get("default_environment") == null ? null : (String)juser.get("default_environment");
-	//	            KatelloUser user = new KatelloUser((String)juser.get("username"), (String)juser.get("email"), (String)juser.get("password"), ((Boolean)juser.get("disabled")).booleanValue(), defOrg, defEnv, (Long)juser.get("id"));
-	//	            users.add(user);
-	//		    }
-	//		    return users;
-	//		}
-	//		throw new KatelloApiException(response);
-	//	}
-	//
-	//	public static KatelloUser api_create(String username, String email, String password, boolean disabled) throws KatelloApiException {
-	//		List<NameValuePair> opts = new ArrayList<NameValuePair>();
-	//		opts.add(new BasicNameValuePair("username", username));
-	//		opts.add(new BasicNameValuePair("password", password));
-	//		opts.add(new BasicNameValuePair("disabled", String.valueOf(disabled)));
-	//		opts.add(new BasicNameValuePair("email", email));
-	//		KatelloPostParam[] params = {new KatelloPostParam(null, opts)};
-	//		KatelloApiResponse response = KatelloApi.post(params, API_CMD_CREATE);
-	//		if ( response.getReturnCode() < 300 ) {
-	//		    JSONObject juser = KatelloTestScript.toJSONObj(response.getContent());
-	//            String defOrg = juser.get("default_organization") == null ? null : (String)juser.get("default_organization");
-	//            String defEnv = juser.get("default_environment") == null ? null : (String)juser.get("default_environment");
-	//            KatelloUser user = new KatelloUser((String)juser.get("username"), (String)juser.get("email"), (String)juser.get("password"), ((Boolean)juser.get("disabled")).booleanValue(), defOrg, defEnv, (Long)juser.get("id"));
-	//            return user;
-	//		}
-	//		throw new KatelloApiException(response);
-	//	}
-
-	// ** ** ** ** ** ** **
-	// ASSERTS
-	// ** ** ** ** ** ** **
+	public SSHCommandResult update_defaultOrg(String org){
+		opts.clear();
+		opts.add(new Attribute("username", username));
+		opts.add(new Attribute("default_organization", org));
+		return run(CMD_UPDATE+" --no_default_environment");
+	}
 
 	public void asserts_delete(){
 		SSHCommandResult res;

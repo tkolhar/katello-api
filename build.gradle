@@ -100,7 +100,7 @@ dependencies {
         httpBuilderVersion = System.properties['httpbuilder.version']
     }
 
-    testCompile 'org.testng:testng:6.7','xmlunit:xmlunit:1.0'
+    testCompile 'org.testng:testng:6.8','xmlunit:xmlunit:1.0'
 
     testRuntime('org.uncommons:reportng:1.1.3') {
         exclude group: 'org.testng', module: 'testng'
@@ -110,7 +110,7 @@ dependencies {
                 'com.redhat.qe:jul.test.records:1.0.1',
                 'com.redhat.qe:testng-listeners:1.0.0'
                 
-    compile 'org.testng:testng:6.7',
+    compile 'org.testng:testng:6.8',
             'com.redhat.qe:assertions:1.0.2',
             'com.redhat.qe:logging-testscript:1.0.2',
             'com.redhat.qe:ssh-tools:1.0.1-SNAPSHOT',
@@ -132,7 +132,7 @@ dependencies {
 //        exclude group: 'org.codehaus.groovy', module: 'groovy'
 //    }
     groovy 'org.codehaus.groovy:groovy:1.8.6'
-    testng 'org.testng:testng:6.7'
+    testng 'org.testng:testng:6.8'
 }
 
 task printClasspath << {
@@ -145,7 +145,9 @@ task printProps << {
 
 def TESTNG_KATELLO_DEFAULT_TESTS = "Smoke_Tests,CLI_Tests,E2E_Tests"
 def TESTNG_KATELLO_SUITE = "testng-suites/katello-tests.xml"
-def TESTNG_KATELLO_EXCLUDE_GROUPS = "openldap"
+def TESTNG_HEADPIN_SUITE = "testng-suites/headpin-tests.xml"
+def TESTNG_KATELLO_EXCLUDE_GROUPS = "openldap,sam-upgrade"
+def TESTNG_SAM_EXCLUDE_GROUPS = "openldap"
 task runTestng(dependsOn: 'testClasses') << {
     // Defaults to $WORKSPACE, or if that's null, cwd
     def workspace = System.getProperty("workspace.dir", System.getenv("WORKSPACE") ?: System.properties["user.dir"])
@@ -201,6 +203,26 @@ task run_katello(dependsOn: 'testClasses') << {
     main = 'org.testng.TestNG'
     args '-d',"${outputDir}"
     args "${TESTNG_KATELLO_SUITE}"
+    args '-listener','com.redhat.qe.auto.testng.TestNGListener,org.uncommons.reportng.HTMLReporter,org.uncommons.reportng.JUnitXMLReporter,org.testng.reporters.XMLReporter'
+    args '-configfailurepolicy','continue'
+    args '-testnames',"${testnames}"
+    args '-excludegroups',"${excludegroups}"
+  }
+}
+
+task run_sam(dependsOn: 'testClasses') << {
+  javaexec {
+    def testnames = System.getProperty("testng.testnames", "${TESTNG_KATELLO_DEFAULT_TESTS}")
+    def excludegroups = System.getProperty("testng.excludegroups", "${TESTNG_SAM_EXCLUDE_GROUPS}")
+    def workspace = System.getProperty("workspace.dir", System.getenv("WORKSPACE") ?: System.properties["user.dir"])
+    def outputDir = "${workspace}/test-output"
+    
+    systemProperties = System.properties
+    workingDir = "${workspace}"
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'org.testng.TestNG'
+    args '-d',"${outputDir}"
+    args "${TESTNG_HEADPIN_SUITE}"
     args '-listener','com.redhat.qe.auto.testng.TestNGListener,org.uncommons.reportng.HTMLReporter,org.uncommons.reportng.JUnitXMLReporter,org.testng.reporters.XMLReporter'
     args '-configfailurepolicy','continue'
     args '-testnames',"${testnames}"
