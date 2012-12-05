@@ -228,7 +228,7 @@ public class TemplateTests extends KatelloCliTestScript {
 		
 		String packageName = "lion";
 		
-		exec_result = templ.update_add_package(packageName);
+		exec_result = templ.update_add_package(product_name, packageName);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloTemplate.OUT_UPDATE, templ_name)), "Check - output string (template update)");
 		
@@ -246,17 +246,17 @@ public class TemplateTests extends KatelloCliTestScript {
 
 		String packageName = "lion";
 
-		exec_result = templ.update_add_package(packageName);
+		exec_result = templ.update_add_package(product_name, packageName);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloTemplate.OUT_UPDATE, templ_name)), "Check - output string (template update)");
 		
 		String packageName2 = "zebra";
 		
-		exec_result = templ.update_add_package(packageName2);
+		exec_result = templ.update_add_package(product_name, packageName2);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloTemplate.OUT_UPDATE, templ_name)), "Check - output string (template update)");
 		
-		exec_result = templ.update_remove_package(packageName);
+		exec_result = templ.update_remove_package(product_name, packageName);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloTemplate.OUT_UPDATE, templ_name)), "Check - output string (template update)");
 		
