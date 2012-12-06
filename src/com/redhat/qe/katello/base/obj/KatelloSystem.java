@@ -36,7 +36,7 @@ public class KatelloSystem extends _KatelloObject{
 	public static final String OUT_CREATE = 
 			"The system has been registered with id:";
 	public static final String ERR_RHSM_LOCKER_ONLY = 
-			"Organization %s has '%s' environment only. Please create an environment for system registration.";
+			"Organization %s has the '%s' environment only. Please create an environment for system registration.";
 	public static final String ERR_RHSM_REG_ALREADY_FORCE_NEEDED = 
 			"This system is already registered. Use --force to override";
 	public static final String ERR_RHSM_REG_MULTI_ENV = 
@@ -52,7 +52,7 @@ public class KatelloSystem extends _KatelloObject{
 	public static final String OUT_DELETE = 
 			"Successfully deleted system [ %s ]";
 	public static final String OUT_SUBSCRIBE = 
-			"Successfully subscribed System [ %s ]";
+			"Successfully attached subscription to System [ %s ]";
 	public static final String OUT_SUBSCRIPTIONS_EMPTY = 
 			"No Subscriptions found for System [ %s ] in Org [ %s ]";
 	
