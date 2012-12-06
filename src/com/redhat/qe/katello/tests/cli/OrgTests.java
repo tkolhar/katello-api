@@ -169,7 +169,7 @@ public class OrgTests extends KatelloCliTestScript{
 		
 		Assert.assertTrue(res.getExitCode() == 144, "Check - return code [144]");
 		Assert.assertEquals(getOutput(res).trim(), 
-				KatelloOrg.ERR_ORG_EXISTS);
+				KatelloOrg.ERR_ORG_EXISTS_MUST_BE_UNIQUE);
 	}
 	
 	@Test(description = "Create org - name is invalid",groups={"cfse-cli","headpin-cli"})
