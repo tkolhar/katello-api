@@ -269,14 +269,15 @@ public class SystemTests extends KatelloCliTestScript{
 				"Check - subscribe system output.");
 	}
 
-	@Test(description = "rename the system")
+	@Test(description = "rename the system", 
+			dependsOnMethods={"test_rhsm_RegOneEnvOnly"})
 	public void test_renameSystem(){
 		String uid = KatelloUtils.getUniqueID();
 		String system = "rhsm-reg-"+uid;
 		
-		// Create the env.
-		KatelloEnvironment env = new KatelloEnvironment(this.envName_Dev, null, this.orgName, KatelloEnvironment.LIBRARY);
-		env.cli_create();		
+//		// Create the env.
+//		KatelloEnvironment env = new KatelloEnvironment(this.envName_Dev, null, this.orgName, KatelloEnvironment.LIBRARY);
+//		env.cli_create();		
 		KatelloSystem sys = new KatelloSystem(system, this.orgName, null);
 		exec_result = sys.rhsm_registerForce(); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
