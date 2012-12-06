@@ -1,5 +1,6 @@
 package com.redhat.qe.katello.tests.cli;
 import org.testng.SkipException;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
@@ -149,4 +150,11 @@ public class UserRoleTests extends KatelloCliTestScript{
 			}	            
 	}    
 	
+	@AfterClass(description="Cleanup the trash we did.", alwaysRun=true, groups = {"headpin-cli"}, enabled=true)
+	public void eraseRoles(){
+		Object[][] roles = KatelloCliDataProvider.user_role_create();
+		for(Object[] role: roles){
+			new KatelloUserRole((String)role[0], null).cli_delete(); // we don't care if some of them will fail.
+		}
+	}
 }
