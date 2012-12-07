@@ -31,10 +31,10 @@ public class KatelloUser extends _KatelloObject{
 	public static final String OUT_UNASSIGN_ROLE =
 			"User \'%s\' unassigned from role \'%s\'";
 	public static final String OUT_FIND_USER_ERROR =
-			"Could not find user [ %s ]";
+			"Could not find user '%s'";
 
 	public static final String ERR_INVALID_CREDENTIALS = 
-			"Invalid credentials";
+			"Invalid credentials or unable to authenticate";
 	public static final String ERR_NOT_ALLOWED_TO_ACCESS = 
 			"User %s is not allowed to access";
 	
