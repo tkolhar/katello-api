@@ -34,7 +34,7 @@ public class KatelloUser extends _KatelloObject{
 			"Could not find user '%s'";
 
 	public static final String ERR_INVALID_CREDENTIALS = 
-			"Invalid credentials or unable to authenticate";
+			"Invalid credentials";
 	public static final String ERR_NOT_ALLOWED_TO_ACCESS = 
 			"User %s is not allowed to access";
 	
