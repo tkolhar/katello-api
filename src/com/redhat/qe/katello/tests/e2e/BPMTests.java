@@ -7,6 +7,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
+import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
@@ -159,18 +160,18 @@ public class BPMTests extends KatelloCliTestScript{
 	@Test(description="List available subscriptions", dependsOnMethods={"test_rhsm_register"})
 	public void test_rhsm_listAvailableSubscriptions(){
 		// ProductName
-		exec_result = KatelloUtils.sshOnClient("subscription-manager list --available | grep -E \"Name:\"");
+		exec_result = KatelloUtils.sshOnClient("subscription-manager list --available | grep -E '(Name:|Subscription Name:)'");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(product_name), "Check - subscription.ProductName");
 		// Quantity
-		exec_result = KatelloUtils.sshOnClient("subscription-manager list --available | grep Quantity:");
+		exec_result = KatelloUtils.sshOnClient("subscription-manager list --available | grep 'Quantity:'");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).contains("unlimited"), "Check - subscription.Quantity");
+		Assert.assertTrue(getOutput(exec_result).toLowerCase().contains("unlimited"), "Check - subscription.Quantity");
 		
 		// Store poolid
-		exec_result = KatelloUtils.sshOnClient("subscription-manager list --available | grep -E \"Pool Id:\"");
+		exec_result = KatelloUtils.sshOnClient("subscription-manager list --available | grep -E 'Pool Id:'");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
-		rhsm_pool_id = getOutput(exec_result).trim().split(":")[1].trim();
+		rhsm_pool_id = KatelloCli.grepCLIOutput("Pool Id", getOutput(exec_result));
 		log.fine(String.format("Subscription is available for product: [%s] with poolid: [%s]",
 				product_name,rhsm_pool_id));
 	}
