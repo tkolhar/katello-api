@@ -314,7 +314,7 @@ public class KatelloSystem extends _KatelloObject{
 		if(this.org != null)
 			cmd += " --org \""+this.org+"\"";
 
-		cmd += " | grep \"Serial Id\" | wc -l";
+		cmd += " | grep \"Serial ID\" | wc -l";
 		
 		KatelloCli cli = new KatelloCli(cmd, null);
 		return cli.run();	
