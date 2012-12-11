@@ -69,12 +69,12 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (org delete)");
 	}
 	
-	@Test(description="Change system to have 8 sockets. Auto subscribe current system. Verify that it's compliance is green.", enabled=true)
-	public void test_autosubscribeCompliant() {		
+	@Test(description="System has 8 sockets (see setUp). Auto subscribe current system. Verify that it's compliance is green.", enabled=true)
+	public void test_autosubscribeCompliant() {
 		cleanSubscriptions();
 		
 		KatelloSystem sys = new KatelloSystem(this.system_name, this.org_name, this.env_name);
-		exec_result = sys.rhsm_registerForce(); 
+		exec_result = sys.rhsm_registerForce();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		exec_result = sys.rhsm_subscribe_auto();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
@@ -83,7 +83,7 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains("green"), "Check - compliance is green");
 	}
 
-	@Test(description="Change system to have 8 sockets. Register current system but not auto suscibe. Verify that it's compliance is red.", enabled=true)
+	@Test(description="Register current system but not auto suscibe. Verify that it's compliance is red.", enabled=true)
 	public void test_notSubscribeNotCompliant() {
 		cleanSubscriptions();
 		
@@ -229,7 +229,7 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains("green"), "Check - compliance is green");
 		
 		exec_result = sys.subscriptions();
-		String serialId = KatelloCli.grepCLIOutput("Serial Id", exec_result.getStdout());
+		String serialId = KatelloCli.grepCLIOutput("Serial ID", exec_result.getStdout());
 		
 		exec_result = sys.rhsm_unsubscribe(serialId);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
@@ -268,7 +268,6 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 		
 		exec_result = sys.subscriptions_count();
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").trim().equals("4"), "Check - subscriptions are 4");
-
 	}
 	
 	private void cleanSubscriptions() {
