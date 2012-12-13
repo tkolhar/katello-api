@@ -7,9 +7,11 @@ import java.util.List;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.obj.DeltaCloudInstance;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
@@ -20,21 +22,7 @@ public class OrgTests extends KatelloCliTestScript{
 	List<KatelloOrg> orgs = Collections.synchronizedList(new ArrayList<KatelloOrg>());
 	String uid = KatelloUtils.getUniqueID();
 	SSHCommandResult exec_result;
-	
-	@BeforeClass(description="Generate unique objects")
-	public void setUp() {
-		KatelloOrg org = new KatelloOrg("FOO"+uid,"Package tests", "BAR"+uid);
-		exec_result = org.cli_create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		orgs.add(org);
-	}
-	
-	@AfterClass(description="Remove org objects")
-	public void tearDown() {
-		for (KatelloOrg org : orgs) {
-			org.delete();
-		}
-	}	
+
 	
 	@Test(description = "List all orgs - default org should be there",groups={"cfse-cli","headpin-cli"})
 	public void test_listOrgs_DefaultOrg(){
@@ -211,6 +199,16 @@ public class OrgTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode() == 144, "Check - return code [144]");
 		Assert.assertEquals(getOutput(exec_result).trim(), 
 				KatelloOrg.ERR_ORG_LABEL_EXISTS);
+	}
+	
+	@Test()
+	public void test_deltacloud(){
+			
+		DeltaCloudInstance server = KatelloUtils.getDeltaCloudServer(1);
+		
+		DeltaCloudInstance client = KatelloUtils.getDeltaCloudClient(server.getHostName(), 1);
+
+		//KatelloUtils.destroyDeltaCloudMachine(instance);
 	}
 	
 	private void assert_orgInfo(KatelloOrg org){
