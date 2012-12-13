@@ -10,7 +10,9 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.obj.DeltaCloudInstance;
+import com.redhat.qe.katello.base.obj.KatelloPing;
 import com.redhat.qe.katello.deltacloud.DeltaCloudAPI;
 import com.redhat.qe.tools.ExecCommands;
 import com.redhat.qe.tools.SSHCommandResult;
@@ -421,7 +423,10 @@ public class KatelloUtils {
 		KatelloUtils.sshOnServer("yum install -y Katello-Katello-Installation-SystemEngineLatest --disablerepo=* --enablerepo=beaker*");
 		KatelloUtils.sshOnServer("cd /mnt/tests/Katello/Installation/SystemEngineLatest/; export CFSE_RELEASE=1.1; make run");
 		
-		
+		KatelloPing ping = new KatelloPing();
+		ping.runOn(machine.getIpAddress());
+		SSHCommandResult res = ping.cli_ping();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check services up");
 	}
 	
 	/**
@@ -464,5 +469,9 @@ public class KatelloUtils {
 		KatelloUtils.sshOnClient(machine.getIpAddress(), "yum install -y Katello-Katello-Configuration-KatelloClient --disablerepo=* --enablerepo=beaker*");
 		KatelloUtils.sshOnClient(machine.getIpAddress(), "cd /mnt/tests/Katello/Configuration/KatelloClient/; export KATELLO_SERVER_HOSTNAME=" + server + "; export CFSE_RELEASE=1.1; make run");
 		
+		KatelloPing ping = new KatelloPing();
+		ping.runOn(machine.getIpAddress());
+		SSHCommandResult res = ping.cli_ping();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check services up");
 	}
 }
