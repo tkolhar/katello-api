@@ -3,6 +3,7 @@ package com.redhat.qe.katello.tests.upgrade.v1;
 import java.util.logging.Logger;
 
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
@@ -16,6 +17,16 @@ public class KatelloUpgrade extends KatelloCliTestScript{
 	private String UPGRADE_REPO_LATEST = 
 			"http://download.lab.bos.redhat.com/rel-eng/CloudForms/1.1/latest/el6-se/x86_64/os/";
 
+	@BeforeSuite(description="Initial checks: not start upgrade if all are not fulfilled", alwaysRun=true)
+	public void initialReqs(){
+		SSHCommandResult res;
+		KatelloUtils.sshOnServer("[ $BEAKER ] && yum -y erase libvirt-client --disablerepo \\*beaker\\*"); // it harms the yum upgrade process
+		res = KatelloUtils.sshOnServer("yum repolist --disablerepo \\*beaker\\* | grep rhel-x86_64-server-6");
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - registered to RHEL6 base channel");
+		res = KatelloUtils.sshOnServer("rpm -q subscription-manager python-rhsm");
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - RHSM libs present");
+	}
+	
 	@BeforeClass(description="detect the product",
 			dependsOnGroups={TNG_PRE_UPGRADE},
 			groups={TNG_UPGRADE})
