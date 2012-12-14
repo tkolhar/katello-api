@@ -163,6 +163,11 @@ implements KatelloConstants {
 		KatelloUtils.sshOnClient("yum clean all");
 		KatelloUtils.sshOnClient("yum repolist");
 	}
+
+	protected void yum_clean(String client) {
+		KatelloUtils.sshOnClient(client, "yum clean all");
+		KatelloUtils.sshOnClient(client, "yum repolist");
+	}
 	
 	/**
 	 * Seems good one. Reworked recently to read rhsm username/password from the java properties
