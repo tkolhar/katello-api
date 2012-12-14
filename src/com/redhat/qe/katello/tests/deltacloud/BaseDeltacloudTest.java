@@ -170,11 +170,13 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 	}
 	
 	public void tearDown() {
-		if (server != null) return;
+		if (server == null) return;
 		
 		KatelloUtils.destroyDeltaCloudMachine(server);
 		KatelloUtils.destroyDeltaCloudMachine(client);
 		KatelloUtils.destroyDeltaCloudMachine(client2);
 		KatelloUtils.destroyDeltaCloudMachine(client3);
+		
+		server = null;
 	}
 }
