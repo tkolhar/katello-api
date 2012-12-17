@@ -126,7 +126,14 @@ public class KatelloSystemGroup extends _KatelloObject{
 		opts.add(new Attribute("name", name));
 		return run(CMD_LIST_ERRATAS);
 	}
-	
+
+	public SSHCommandResult list_erratas(String type){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("type", type));
+		return run(CMD_LIST_ERRATAS);
+	}
 
 	public SSHCommandResult list_errata_details(){
 		opts.clear();

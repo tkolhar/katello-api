@@ -376,7 +376,7 @@ public class KatelloUtils {
 		sshOnClient(machine.getIpAddress(), "echo \"" + configs[0] + "." + configs[1] + "\" >> /etc/sysconfig/network");
 		sshOnClientNoWait(machine.getIpAddress(), "service network restart");
 		
-		try { Thread.sleep(1000); } catch (Exception e) {}
+		try { Thread.sleep(5000); } catch (Exception e) {}
 		
 		machine.setHostName(configs[0] + "." + configs[1]);
 	}
@@ -422,6 +422,10 @@ public class KatelloUtils {
 		
 		KatelloUtils.sshOnServer("yum install -y Katello-Katello-Installation-SystemEngineLatest --disablerepo=* --enablerepo=beaker*");
 		KatelloUtils.sshOnServer("cd /mnt/tests/Katello/Installation/SystemEngineLatest/; export CFSE_RELEASE=1.1; make run");
+
+		startKatello();
+		
+		try { Thread.sleep(5000); } catch (Exception e) {}
 		
 		KatelloPing ping = new KatelloPing();
 		ping.runOn(machine.getIpAddress());
@@ -468,6 +472,10 @@ public class KatelloUtils {
 		
 		KatelloUtils.sshOnClient(machine.getIpAddress(), "yum install -y Katello-Katello-Configuration-KatelloClient --disablerepo=* --enablerepo=beaker*");
 		KatelloUtils.sshOnClient(machine.getIpAddress(), "cd /mnt/tests/Katello/Configuration/KatelloClient/; export KATELLO_SERVER_HOSTNAME=" + server + "; export CFSE_RELEASE=1.1; make run");
+		
+		startKatello();
+		
+		try { Thread.sleep(5000); } catch (Exception e) {}
 		
 		KatelloPing ping = new KatelloPing();
 		ping.runOn(machine.getIpAddress());
