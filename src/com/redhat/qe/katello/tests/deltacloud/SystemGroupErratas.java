@@ -18,6 +18,10 @@ public class SystemGroupErratas extends BaseDeltacloudTest {
 		KatelloUtils.sshOnClient(client_name, "yum erase -y walrus");
 		exec_result = KatelloUtils.sshOnClient(client_name, "yum install -y walrus-0.71-1.noarch");
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+
+		KatelloUtils.sshOnClient(client_name2, "yum erase -y walrus");
+		exec_result = KatelloUtils.sshOnClient(client_name2, "yum install -y walrus-0.71-1.noarch");
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		configureClient(client_name);
 		configureClient(client_name2);
@@ -43,6 +47,12 @@ public class SystemGroupErratas extends BaseDeltacloudTest {
 		exec_result = group.list_erratas();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains(PromoteErrata.ERRATA_ZOO_SEA), "Check - errata list output");
+		
+		group = new KatelloSystemGroup(group_name2, this.org_name);
+		group.runOn(client_name2);
+		exec_result = group.list_erratas("security");
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains(PromoteErrata.ERRATA_ZOO_SEA), "Check - errata list output");
 	}
 	
 	@Test(description = "List the errata details on system group")
@@ -54,8 +64,31 @@ public class SystemGroupErratas extends BaseDeltacloudTest {
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains(PromoteErrata.ERRATA_ZOO_SEA), "Check - errata list output");
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains(this.system_name), "Check - errata list details output contains system name");
 	}
+
+	@Test(description = "Install the errata on system", dependsOnMethods={"test_errataListOnSystemGroup", "test_errataDetailsOnSystemGroup"})
+	public void test_errataInstallOnSystem() {
+		KatelloSystemGroup group = new KatelloSystemGroup(group_name2, this.org_name);
+		group.runOn(client_name2);
+		exec_result = group.erratas_install(PromoteErrata.ERRATA_ZOO_SEA);
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).trim().contains("Remote action finished"));
+		Assert.assertTrue(getOutput(exec_result).trim().contains("Erratum Install Complete"));
+		
+		KatelloUtils.sshOnClient(client_name, "service rhsmcertd restart");
+		try { Thread.sleep(65000); } catch (Exception ex) {}
+		
+		exec_result = group.list_erratas();
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
+		Assert.assertFalse(getOutput(exec_result).replaceAll("\n", "").contains(PromoteErrata.ERRATA_ZOO_SEA), "Check - errata list output");
+		
+		group = new KatelloSystemGroup(group_name, this.org_name);
+		group.runOn(client_name);
+		exec_result = group.list_erratas();
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains(PromoteErrata.ERRATA_ZOO_SEA), "Check - errata list output");
+	}
 	
-	@Test(description = "Install the errata on system group", dependsOnMethods={"test_errataListOnSystemGroup", "test_errataDetailsOnSystemGroup"})
+	@Test(description = "Install the errata on system group", dependsOnMethods={"test_errataInstallOnSystem"})
 	public void test_errataInstallOnSystemGroup() {
 		KatelloSystemGroup group = new KatelloSystemGroup(group_name, this.org_name);
 		group.runOn(client_name);

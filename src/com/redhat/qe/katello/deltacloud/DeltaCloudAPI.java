@@ -92,7 +92,8 @@ public class DeltaCloudAPI {
 				
 				inst = dcl.listInstances(inst.getId());
 			}
-			Assert.assertTrue(inst.isRunning(), "");
+			Assert.assertTrue(inst.getPublicAddresses().size() == 3, "IP address is not provided on machine");
+			Assert.assertTrue(inst.isRunning(), "Machine is running");
 			machine.setInstance(inst);
 			machine.setIpAddress(inst.getPublicAddresses().get(0));
 		} catch (DeltaCloudClientException e) {	

@@ -30,6 +30,7 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 	protected String system_name2;
 	protected String system_name3;
 	protected String group_name;
+	protected String group_name2;
 	protected String system_uuid;
 	protected String system_uuid2;
 	protected String system_uuid3;
@@ -56,6 +57,7 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 		system_name2 = "system2_"+uid;
 		system_name3 = "system3_"+uid;
 		group_name = "group_"+uid;
+		group_name2 = "group2_"+uid;
 		
 		server = KatelloUtils.getDeltaCloudServer(1);
 		server_name = server.getHostName();
@@ -166,6 +168,14 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		exec_result = group.add_systems(system_uuid3);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		group = new KatelloSystemGroup(group_name2, this.org_name);
+		group.runOn(client_name);
+		exec_result = group.create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		exec_result = group.add_systems(system_uuid2);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
 	
