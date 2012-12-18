@@ -127,7 +127,6 @@ public interface KatelloConstants {
 	
 	public static final String KATELLO_DEFAULT_LOCALE = "en_US";
 	
-	public static final String DELTACLOUD_HOSTNAME = "http://qeblade26.rhq.lab.eng.bos.redhat.com:3005";
 	public static final String DELTACLOUD_SERVER_IMAGE_ID = "aec178fa-6a52-4110-9236-5e02cdce567d";
 	public static final String DELTACLOUD_CLIENT_IMAGE_ID = "aec178fa-6a52-4110-9236-5e02cdce567d";
 	
