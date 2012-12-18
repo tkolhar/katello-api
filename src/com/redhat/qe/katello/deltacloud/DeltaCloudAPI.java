@@ -31,9 +31,10 @@ public class DeltaCloudAPI {
 		DeltaCloudInstance machine = new DeltaCloudInstance();
 
 		try {
-			Assert.assertNotNull(System.getProperty("deltacloud.user"), "Deltacloud username shoud be provided in property \"deltacloud.user\"");
-			Assert.assertNotNull(System.getProperty("deltacloud.password"), "Deltacloud password shoud be provided in property \"deltacloud.password\"");
-			DeltaCloudClientImpl dcl = new DeltaCloudClientImpl(KatelloConstants.DELTACLOUD_HOSTNAME, System.getProperty("deltacloud.user"), System.getProperty("deltacloud.password"));
+			Assert.assertNotNull(System.getProperty("deltacloud.hostname"), "Deltacloud hostname shoud be provided in system property \"deltacloud.hostname\"");
+			Assert.assertNotNull(System.getProperty("deltacloud.user"), "Deltacloud username shoud be provided in system property \"deltacloud.user\"");
+			Assert.assertNotNull(System.getProperty("deltacloud.password"), "Deltacloud password shoud be provided in system property \"deltacloud.password\"");
+			DeltaCloudClientImpl dcl = new DeltaCloudClientImpl(System.getProperty("deltacloud.hostname"), System.getProperty("deltacloud.user"), System.getProperty("deltacloud.password"));
 			Instance inst = dcl.createInstance(image);
 			machine.setInstance(inst);
 			machine.setClient(dcl);
