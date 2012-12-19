@@ -249,7 +249,7 @@ public class SystemTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 65, "Check - return code");
 	}
 
-	@Test(description = "subscribe system to pool", dependsOnMethods={"test_rhsm_RegSameNameTwoEnvs"})
+	@Test(description = "subscribe system to pool")
 	public void test_subscribeSystem(){
 		String uid = KatelloUtils.getUniqueID();
 		String system = "localhost-"+uid;
@@ -269,7 +269,7 @@ public class SystemTests extends KatelloCliTestScript{
 				"Check - subscribe system output.");
 	}
 
-	@Test(description = "rename the system", dependsOnMethods={"test_subscribeSystem"})
+	@Test(description = "rename the system", dependsOnMethods={"test_rhsm_RegOneEnvOnly"})
 	public void test_renameSystem(){
 		String uid = KatelloUtils.getUniqueID();
 		String system = "rhsm-reg-"+uid;
