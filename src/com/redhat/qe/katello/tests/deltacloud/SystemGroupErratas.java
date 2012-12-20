@@ -3,7 +3,6 @@ package com.redhat.qe.katello.tests.deltacloud;
 import java.util.Arrays;
 import java.util.List;
 
-import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -16,7 +15,6 @@ public class SystemGroupErratas extends BaseDeltacloudTest {
 	
 	@BeforeClass(description="Generate unique names")
 	public void setUp(){
-		super.setUp();
 		
 		KatelloUtils.sshOnClient(client_name, "yum erase -y walrus");
 		exec_result = KatelloUtils.sshOnClient(client_name, "yum install -y walrus-0.71-1.noarch");
@@ -29,11 +27,6 @@ public class SystemGroupErratas extends BaseDeltacloudTest {
 		configureClient(client_name);
 		configureClient(client_name2);
 		configureClient(client_name3);
-	}
-	
-	@AfterSuite
-	public void tearDown() {
-		super.tearDown();
 	}
 	
 	private void configureClient(String client) {
