@@ -1,7 +1,5 @@
 package com.redhat.qe.katello.tests.deltacloud;
 
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -13,16 +11,10 @@ public class SystemGroupPackages extends BaseDeltacloudTest {
 	
 	@BeforeClass(description="Generate unique names")
 	public void setUp(){
-		super.setUp();
 		
 		KatelloUtils.sshOnClient(client_name, "service goferd restart;");
 		KatelloUtils.sshOnClient(client_name2, "service goferd restart;");
 		KatelloUtils.sshOnClient(client_name3, "service goferd restart;");
-	}
-	
-	@AfterSuite
-	public void tearDown() {
-		super.tearDown();
 	}
 	
 	@Test(description = "Install lion package in system group, verify that wolf and lion are installed")
