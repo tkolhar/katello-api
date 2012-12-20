@@ -20,7 +20,7 @@ public class BackupRecovery extends KatelloCliTestScript {
 	
 	private static final String BDIR = "/backup";
 	
-	@Test(description="prepare system for backup", enabled=true)
+	@Test(description="prepare system for backup", groups={TNG_BACKUP}, dependsOnGroups={TNG_PRE_BACKUP}, enabled=true)
 	public void prepareBackup() {
 		SSHCommandResult res = KatelloUtils.sshOnServer("umask 0027;" +
 				"mkdir " + BDIR + ";" +
@@ -30,9 +30,10 @@ public class BackupRecovery extends KatelloCliTestScript {
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 	}
 	
-	@Test(description="backup system files", enabled=true, dependsOnMethods={"prepareBackup"})
+	@Test(description="backup system files", groups={TNG_BACKUP}, dependsOnGroups={TNG_PRE_BACKUP},
+			enabled=true, dependsOnMethods={"prepareBackup"})
 	public void backupSystemFiles() {
-		SSHCommandResult res = KatelloUtils.sshOnServer("tar --selinux -czvf config_files.tar.gz \\" +
+		SSHCommandResult res = KatelloUtils.sshOnServer("tar --selinux -czvf " + BDIR + "/config_files.tar.gz \\" +
 				"/etc/katello \\" +
 				"/etc/elasticsearch \\" +
 				"/etc/candlepin \\" +
@@ -50,34 +51,37 @@ public class BackupRecovery extends KatelloCliTestScript {
 		
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		
-		res = KatelloUtils.sshOnServer("tar --selinux -czvf elastic_data.tar.gz /var/lib/elasticsearch");
+		res = KatelloUtils.sshOnServer("tar --selinux -czvf " + BDIR + "/elastic_data.tar.gz /var/lib/elasticsearch");
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 	}
 	
-	@Test(description="backup pulp repos", enabled=true, dependsOnMethods={"backupSystemFiles"})
+	@Test(description="backup pulp repos", groups={TNG_BACKUP}, dependsOnGroups={TNG_PRE_BACKUP},
+			enabled=true, dependsOnMethods={"backupSystemFiles"})
 	public void backupRepos() {
 		SSHCommandResult res = KatelloUtils.sshOnServer("service pulp-server stop");
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		
-		res = KatelloUtils.sshOnServer("tar --selinux -cvf pulp_data.tar /var/lib/pulp /var/www/pub");
+		res = KatelloUtils.sshOnServer("tar --selinux -cvf " + BDIR + "/pulp_data.tar /var/lib/pulp /var/www/pub");
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		
 		res = KatelloUtils.sshOnServer("service pulp-server start");
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 	}
 	
-	@Test(description="backup databases", enabled=true, dependsOnMethods={"backupRepos"})
+	@Test(description="backup databases", groups={TNG_BACKUP}, dependsOnGroups={TNG_PRE_BACKUP},
+			enabled=true, dependsOnMethods={"backupRepos"})
 	public void backupDatabases() {
 		KatelloUtils.stopKatello();
-		SSHCommandResult res = KatelloUtils.sshOnServer("tar --selinux -czvf mongo_data.tar.gz /var/lib/mongodb");
+		SSHCommandResult res = KatelloUtils.sshOnServer("tar --selinux -czvf " + BDIR + "/mongo_data.tar.gz /var/lib/mongodb");
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		
-		res = KatelloUtils.sshOnServer("tar --selinux -czvf pgsql_data.tar.gz /var/lib/pgsql/data/");
+		res = KatelloUtils.sshOnServer("tar --selinux -czvf " + BDIR + "/pgsql_data.tar.gz /var/lib/pgsql/data/");
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		KatelloUtils.startKatello();
 	}
 	
-	@Test(description="backup PSQL", enabled=true, dependsOnMethods={"backupDatabases"})
+	@Test(description="backup PSQL", groups={TNG_BACKUP}, dependsOnGroups={TNG_PRE_BACKUP},
+			enabled=true, dependsOnMethods={"backupDatabases"})
 	public void backupPSQL() {
 		SSHCommandResult res = KatelloUtils.sshOnServer("grep db_name /etc/katello/katello-configure.conf /usr/share/katello/install/default-answer-file");
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
@@ -89,13 +93,15 @@ public class BackupRecovery extends KatelloCliTestScript {
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 	}
 
-	@Test(description="backup MongoDB", enabled=true, dependsOnMethods={"backupPSQL"})
+	@Test(description="backup MongoDB", groups={TNG_BACKUP}, dependsOnGroups={TNG_PRE_BACKUP},
+			enabled=true, dependsOnMethods={"backupPSQL"})
 	public void backupMongoDB() {
 		SSHCommandResult res = KatelloUtils.sshOnServer("mongodump --host localhost --out " + BDIR + "/mongo_dump");
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 	}
 
-	@Test(description="check backup files", enabled=true, dependsOnMethods={"backupMongoDB"})
+	@Test(description="check backup files", groups={TNG_BACKUP}, dependsOnGroups={TNG_PRE_BACKUP},
+			enabled=true, dependsOnMethods={"backupMongoDB"})
 	public void checkBackup() {
 		SSHCommandResult res = KatelloUtils.sshOnServer("ls " + BDIR);
 		Assert.assertTrue(getOutput(res).contains("candlepin.dump"), "Result should contain candlepin.dump");
@@ -108,12 +114,32 @@ public class BackupRecovery extends KatelloCliTestScript {
 		Assert.assertTrue(getOutput(res).contains("pgsql_data.tar.gz"), "Result should contain pgsql_data.tar.gz");
 	}
 	
-	@Test(description="prepare for restores", enabled=true, dependsOnMethods={"checkBackup"})
+	@Test(description="reinstall katello on server", groups={TNG_BACKUP}, dependsOnGroups={TNG_PRE_BACKUP},
+			enabled=true, dependsOnMethods={"checkBackup"})
+	public void reinstallKatello() {
+		SSHCommandResult res = KatelloUtils.sshOnServer("wget https://raw.github.com/Katello/katello/master/scripts/katello_remove.sh");
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		
+		KatelloUtils.sshOnServer("chmod a+x katello_remove.sh");
+		res = KatelloUtils.sshOnServer("./katello_remove.sh");
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		
+		KatelloUtils.sshOnServer("subscription-manager clean; yum clean all");
+		
+		res = KatelloUtils.sshOnServer("cd /mnt/tests/Katello/Installation/SystemEngineLatest/; export CFSE_RELEASE=1.1 && make run");
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		
+		res = KatelloUtils.sshOnServer("cd /mnt/tests/Katello/Configuration/KatelloClient/; export CFSE_RELEASE=1.1 && make run");
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+	}
+	
+	@Test(description="prepare for restores", groups={TNG_BACKUP}, dependsOnGroups={TNG_PRE_BACKUP},
+			enabled=true, dependsOnMethods={"reinstallKatello"})
 	public void prepareRestore() {
 		SSHCommandResult res = KatelloUtils.sshOnServer("restorecon -Rnv /");
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		
-		res = KatelloUtils.sshOnServer("tar --selinux -xzvf config_files.tar.gz -C /tmp");
+		res = KatelloUtils.sshOnServer("tar --selinux -xzvf " + BDIR + "/config_files.tar.gz -C /tmp");
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		
 		res = KatelloUtils.sshOnServer("katello-configure --answer-file=/tmp/etc/katello/katello-configure.conf");
@@ -125,7 +151,8 @@ public class BackupRecovery extends KatelloCliTestScript {
 		KatelloUtils.stopKatello();
 	}
 	
-	@Test(description="restore system files", enabled=true, dependsOnMethods={"prepareRestore"})
+	@Test(description="restore system files", groups={TNG_BACKUP}, dependsOnGroups={TNG_PRE_BACKUP},
+			enabled=true, dependsOnMethods={"prepareRestore"})
 	public void restoreSystemFiles() {
 		SSHCommandResult res = KatelloUtils.sshOnServer("cd " + BDIR + ";" +
 				" tar --selinux -xzvf config_files.tar.gz -C /;" +
@@ -134,7 +161,8 @@ public class BackupRecovery extends KatelloCliTestScript {
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 	}
 	
-	@Test(description="restore PSQL", enabled=true, dependsOnMethods={"restoreSystemFiles"})
+	@Test(description="restore PSQL", groups={TNG_BACKUP}, dependsOnGroups={TNG_PRE_BACKUP},
+			enabled=true, dependsOnMethods={"restoreSystemFiles"})
 	public void restorePSQL() {
 		SSHCommandResult res = KatelloUtils.sshOnServer("service postgresql start");
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
@@ -152,7 +180,8 @@ public class BackupRecovery extends KatelloCliTestScript {
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 	}
 	
-	@Test(description="restore MongoDB", enabled=true, dependsOnMethods={"restorePSQL"})
+	@Test(description="restore MongoDB", groups={TNG_BACKUP}, dependsOnGroups={TNG_PRE_BACKUP},
+			enabled=true, dependsOnMethods={"restorePSQL"})
 	public void restoreMongoDB() {
 		SSHCommandResult res = KatelloUtils.sshOnServer("service mongod start");
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
@@ -164,9 +193,16 @@ public class BackupRecovery extends KatelloCliTestScript {
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 	}
 	
-	@Test(description="finish restore by restarting services and checking ping", enabled=true, dependsOnMethods={"restoreMongoDB"})
+	@Test(description="finish restore by restarting services and checking ping", groups={TNG_BACKUP},
+			dependsOnGroups={TNG_PRE_BACKUP}, enabled=true, dependsOnMethods={"restoreMongoDB"})
 	public void finishRestore() {
-		KatelloUtils.startKatello();
+		String cmd = 
+				"service elasticsearch start; " +
+				"service tomcat6 start; " +
+				"service pulp-server start; " +
+				"service katello start; " +
+				"service katello-jobs start;";
+		KatelloUtils.sshOnServer(cmd);
 		
 		try{Thread.sleep(60000);}catch(Exception ex){} // waiting for services to start
 		
