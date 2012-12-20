@@ -269,7 +269,7 @@ public class SystemTests extends KatelloCliTestScript{
 				"Check - subscribe system output.");
 	}
 
-	@Test(description = "rename the system")
+	@Test(description = "rename the system", dependsOnMethods={"test_rhsm_RegOneEnvOnly"})
 	public void test_renameSystem(){
 		String uid = KatelloUtils.getUniqueID();
 		String system = "rhsm-reg-"+uid;
