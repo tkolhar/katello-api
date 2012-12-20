@@ -4,6 +4,7 @@
 	
 	<test name="Smoke_Tests" preserve-order="true">
 		<classes>
+			<class name="com.redhat.qe.katello.tests.api.SetupServers"/>
 			<class name="com.redhat.qe.katello.tests.api.EnvironmentsTest"/>
 			<class name="com.redhat.qe.katello.tests.api.ProvidersTest"/>	
 			<class name="com.redhat.qe.katello.tests.api.UsersTest"/>
@@ -18,6 +19,7 @@
 
 	<test name="E2E_Tests" preserve-order="true">
 		<classes>
+			<class name="com.redhat.qe.katello.tests.e2e.SetupServers"/>
 			<class name="com.redhat.qe.katello.tests.e2e.BPMTests"/>
 			<class name="com.redhat.qe.katello.tests.e2e.ChangesetMultyRepoDelete"/>
 			<class name="com.redhat.qe.katello.tests.e2e.ChangesetRepoDelete"/>
