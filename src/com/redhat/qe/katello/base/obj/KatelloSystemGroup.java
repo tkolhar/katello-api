@@ -43,6 +43,7 @@ public class KatelloSystemGroup extends _KatelloObject{
 	public static final String REG_SYSTEMGROUP_INFO = ".*Id\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Description\\s*:\\s+%s.*Total Systems\\s*:\\s+%s.*";
 	public static final String REG_SYSTEMGROUP_LIST = ".*\\s+\\d+.*\\s+%s.*";
 	public static final String REG_SYSTEM_LIST = ".*\\s+%s.*\\s+%s.*";
+	public static final String REG_SYSTEMGROUP_ERRATA_INFO = ".*#\\s*Systems\\s*:\\s+%s.*";
 	
 	public KatelloSystemGroup(String pName, String pOrg) {
 		this(pName, pOrg, null, null);
@@ -126,7 +127,14 @@ public class KatelloSystemGroup extends _KatelloObject{
 		opts.add(new Attribute("name", name));
 		return run(CMD_LIST_ERRATAS);
 	}
-	
+
+	public SSHCommandResult list_erratas(String type){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("type", type));
+		return run(CMD_LIST_ERRATAS);
+	}
 
 	public SSHCommandResult list_errata_details(){
 		opts.clear();

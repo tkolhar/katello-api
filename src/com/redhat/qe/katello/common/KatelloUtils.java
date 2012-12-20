@@ -10,6 +10,10 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.redhat.qe.Assert;
+import com.redhat.qe.katello.base.obj.DeltaCloudInstance;
+import com.redhat.qe.katello.base.obj.KatelloPing;
+import com.redhat.qe.katello.deltacloud.DeltaCloudAPI;
 import com.redhat.qe.tools.ExecCommands;
 import com.redhat.qe.tools.SSHCommandResult;
 import com.redhat.qe.tools.SSHCommandRunner;
@@ -265,5 +269,217 @@ public class KatelloUtils {
 		}
 		return _sshServer;
 	}
+	
+	/**
+	 * Create new server in DeltaCloud, start it, and install CFSE server on it.
+	 * @param number the number of server, which will be in range of 1..KatelloConstants.DELTACLOUD_SERVERS.length
+	 * @return DeltaCloud server instance.
+	 */
+	public static DeltaCloudInstance getDeltaCloudServer(int number) {
+		return getDeltaCloudServer(number, false);
+	}
+	
+	/**
+	 * Create new server in DeltaCloud but do not start it.
+	 * @param number the number of server, which will be in range of 1..KatelloConstants.DELTACLOUD_SERVERS.length
+	 * @return DeltaCloud server instance.
+	 */
+	public static DeltaCloudInstance getDeltaCloudServerNoWait(int number) {
+		return getDeltaCloudServer(number, true);
+	}
+	
+	/**
+	 * Private method for creating DeltaCloud server machine, configuring it.
+	 */
+	private static DeltaCloudInstance getDeltaCloudServer(int number, boolean nowait) {
+		
+		if (number > KatelloConstants.DELTACLOUD_SERVERS.length) return null;
+		String[] configs = KatelloConstants.DELTACLOUD_SERVERS[number-1];
+		
+		DeltaCloudInstance server = DeltaCloudAPI.provideServer(nowait);
+		
+		System.setProperty("katello.server.hostname", server.getIpAddress());
+		
+		if (!nowait) {
+			configureDDNS(server, configs);
+			installServer(server);
+		} else {
+			server.setConfigs(configs);
+		}
+		
+		return server;
+	}
 
+	/**
+	 * Create DeltaCloud client machine, install CFSE client on it and configure it to server.
+	 * @param server the server hostname to configure with.
+	 * @param number the number of server, which will be in range of 1..KatelloConstants.DELTACLOUD_CLIENTS.length
+	 * @return DeltaCloud client machine instance.
+	 */
+	public static DeltaCloudInstance getDeltaCloudClient(String server, int number) {
+		
+		if (number > KatelloConstants.DELTACLOUD_CLIENTS.length) return null;
+
+		DeltaCloudInstance client = DeltaCloudAPI.provideClient(false);
+
+		configureDDNS(client, KatelloConstants.DELTACLOUD_CLIENTS[--number]);
+		
+		_sshClients.put(client.getHostName(), _sshClients.get(client.getIpAddress()));
+		
+		installClient(client, server);
+		
+		return client;
+	}
+	
+	/**
+	 * Destroys the machine from DeltaCloud.
+	 * @IMPORTANT EACH PROVIDED DELTACLOUD MACHINE SHOULD BE DESTROYED AFTER TEST
+	 * @param machine DeltaCloudInstance server to destroy.
+	 */
+	public static void destroyDeltaCloudMachine(DeltaCloudInstance machine) {
+		DeltaCloudAPI.destroyMachine(machine);
+		_sshClients.remove(machine.getHostName());
+		_sshClients.remove(machine.getIpAddress());
+	}
+	
+	/**
+	 * Starts, installs CFSE server on provided machine.
+	 * @param machine DeltaCloudInstance server to start.
+	 */
+	public static void  startDeltaCloudServer(DeltaCloudInstance machine) {
+		if (!machine.getInstance().isRunning()) {
+			DeltaCloudAPI.startMachine(machine);
+			configureDDNS(machine, machine.getConfigs());
+			installServer(machine);
+		}
+	}
+	
+	/**
+	 * Private method to configure and set hostname on machine.
+	 * @param machine DeltaCloudInstance server to configure
+	 * @param configs configuration array which should be from KatelloConstants.DELTACLOUD_SERVERS or KatelloConstants.DELTACLOUD_CLIENTS
+	 */
+	private static void configureDDNS(DeltaCloudInstance machine, String[] configs) {
+		sshOnClient(machine.getIpAddress(), "rm -f /etc/yum.repos.d/rhevm.repo");
+		
+		sshOnClient(machine.getIpAddress(), "wget http://hdn.corp.redhat.com/rhel6-csb/RPMS/noarch/redhat-ddns-client-1.3-4.noarch.rpm");
+		
+		sshOnClient(machine.getIpAddress(), "yum -y localinstall redhat-ddns-client-1.3-4.noarch.rpm --nogpgcheck --disablerepo=*");
+		
+		sshOnClient(machine.getIpAddress(), "echo \"" + configs[0] + " " + configs[1] + " " + configs[2] + "\" >> /etc/redhat-ddns/hosts");
+		
+		sshOnClient(machine.getIpAddress(), "redhat-ddns-client enable");
+		sshOnClient(machine.getIpAddress(), "redhat-ddns-client update");
+		sshOnClient(machine.getIpAddress(), "redhat-ddns-client update");
+		
+		sshOnClient(machine.getIpAddress(), "hostname " + configs[0] + "." + configs[1]);
+		sshOnClient(machine.getIpAddress(), "echo \"" + configs[0] + "." + configs[1] + "\" >> /etc/sysconfig/network");
+		sshOnClientNoWait(machine.getIpAddress(), "service network restart");
+		
+		try { Thread.sleep(5000); } catch (Exception e) {}
+		
+		machine.setHostName(configs[0] + "." + configs[1]);
+	}
+	
+	/**
+	 * Install CFSE server on provided machine.
+	 * @param machine DeltaCloudInstance server.
+	 */
+	private static void installServer(DeltaCloudInstance machine) {
+		KatelloUtils.sshOnServer("touch /etc/yum.repos.d/beaker-tasks.repo");
+		KatelloUtils.sshOnServer("touch /etc/yum.repos.d/beaker.repo");
+		
+		String yumrepo = 
+				"[beaker-tasks]\\\\n" +
+				"name=bkr-tasks\\\\n" +
+				"baseurl=http://beaker-02.app.eng.bos.redhat.com/rpms/\\\\n"+
+				"metadata_expire=3m\\\\n"+
+				"enabled=1\\\\n"+
+				"gpgcheck=0";
+		KatelloUtils.sshOnServer("echo -en \""+yumrepo+"\" > /etc/yum.repos.d/beaker-tasks.repo");
+		
+		yumrepo = 
+				"[beaker]\\\\n" +
+				"name=Beaker\\\\n" +
+				"baseurl=http://beaker.engineering.redhat.com/harness/RedHatEnterpriseLinux6/\\\\n"+
+				"enabled=1\\\\n"+
+				"skip_if_unavailable=1\\\\n"+
+				"gpgcheck=0";
+		KatelloUtils.sshOnServer("echo -en \""+yumrepo+"\" > /etc/yum.repos.d/beaker.repo");
+		
+		KatelloUtils.sshOnServer("yum -y install beakerlib beakerlib-redhat rhts-python rhts-test-env --disablerepo=* --enablerepo=beaker*");
+		KatelloUtils.sshOnServer("mkdir ~/.beaker_client");
+		KatelloUtils.sshOnServer("touch ~/.beaker_client/config");
+		KatelloUtils.sshOnServer("echo \"HUB_URL = \"https://beaker.engineering.redhat.com\"\" >> ~/.beaker_client/config");
+		KatelloUtils.sshOnServer("echo \"AUTH_METHOD = \"password\"\" >> ~/.beaker_client/config");
+		KatelloUtils.sshOnServer("chmod a+x ~/.beaker_client/config");
+		
+		KatelloUtils.sshOnServer("yum install -y Katello-Katello-Sanity-ImportKeys --disablerepo=* --enablerepo=beaker*");
+		KatelloUtils.sshOnServer("cd /mnt/tests/Katello/Sanity/ImportKeys/; export CFSE_RELEASE=1.1; make run");
+		
+		KatelloUtils.sshOnServer("yum install -y Katello-Katello-Installation-RegisterRHNClassic --disablerepo=* --enablerepo=beaker*");
+		KatelloUtils.sshOnServer("cd /mnt/tests/Katello/Installation/RegisterRHNClassic/; export CFSE_RELEASE=1.1; make run");
+		
+		KatelloUtils.sshOnServer("yum install -y Katello-Katello-Installation-SystemEngineLatest --disablerepo=* --enablerepo=beaker*");
+		KatelloUtils.sshOnServer("cd /mnt/tests/Katello/Installation/SystemEngineLatest/; export CFSE_RELEASE=1.1; make run");
+
+		startKatello();
+		
+		try { Thread.sleep(5000); } catch (Exception e) {}
+		
+		KatelloPing ping = new KatelloPing();
+		ping.runOn(machine.getIpAddress());
+		SSHCommandResult res = ping.cli_ping();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check services up");
+	}
+	
+	/**
+	 * Install CFSE client on provided machine and configure it to server.
+	 * @param machine DeltaCloudInstance on which client should be installed.
+	 * @param server the hostname of server to which the client should be configured.
+	 */
+	private static void installClient(DeltaCloudInstance machine, String server) {
+		String yumrepo = 
+				"[beaker-tasks]\\\\n" +
+				"name=bkr-tasks\\\\n" +
+				"baseurl=http://beaker-02.app.eng.bos.redhat.com/rpms/\\\\n"+
+				"metadata_expire=3m\\\\n"+
+				"enabled=1\\\\n"+
+				"gpgcheck=0";
+		KatelloUtils.sshOnClient(machine.getIpAddress(), "echo -en \""+yumrepo+"\" > /etc/yum.repos.d/beaker-tasks.repo");
+		
+		yumrepo = 
+				"[beaker]\\\\n" +
+				"name=Beaker\\\\n" +
+				"baseurl=http://beaker.engineering.redhat.com/harness/RedHatEnterpriseLinux6/\\\\n"+
+				"enabled=1\\\\n"+
+				"skip_if_unavailable=1\\\\n"+
+				"gpgcheck=0";
+		KatelloUtils.sshOnClient(machine.getIpAddress(), "echo -en \""+yumrepo+"\" > /etc/yum.repos.d/beaker.repo");
+		
+		KatelloUtils.sshOnClient(machine.getIpAddress(), "yum -y install beakerlib beakerlib-redhat rhts-python rhts-test-env --disablerepo=* --enablerepo=beaker*");
+		KatelloUtils.sshOnClient(machine.getIpAddress(), "mkdir ~/.beaker_client");
+		KatelloUtils.sshOnClient(machine.getIpAddress(), "touch ~/.beaker_client/config");
+		KatelloUtils.sshOnClient(machine.getIpAddress(), "echo \"HUB_URL = \"https://beaker.engineering.redhat.com\"\" >> ~/.beaker_client/config");
+		KatelloUtils.sshOnClient(machine.getIpAddress(), "echo \"AUTH_METHOD = \"password\"\" >> ~/.beaker_client/config");
+		KatelloUtils.sshOnClient(machine.getIpAddress(), "chmod a+x ~/.beaker_client/config");
+		
+		KatelloUtils.sshOnClient(machine.getIpAddress(), "yum install -y Katello-Katello-Sanity-ImportKeys --disablerepo=* --enablerepo=beaker*");
+		KatelloUtils.sshOnClient(machine.getIpAddress(), "cd /mnt/tests/Katello/Sanity/ImportKeys/; export CFSE_RELEASE=1.1; make run");
+		
+		KatelloUtils.sshOnClient(machine.getIpAddress(), "yum install -y Katello-Katello-Installation-RegisterRHNClassic --disablerepo=* --enablerepo=beaker*");
+		KatelloUtils.sshOnClient(machine.getIpAddress(), "cd /mnt/tests/Katello/Installation/RegisterRHNClassic/; export CFSE_RELEASE=1.1; make run");
+		
+		KatelloUtils.sshOnClient(machine.getIpAddress(), "yum install -y Katello-Katello-Configuration-KatelloClient --disablerepo=* --enablerepo=beaker*");
+		KatelloUtils.sshOnClient(machine.getIpAddress(), "cd /mnt/tests/Katello/Configuration/KatelloClient/; export KATELLO_SERVER_HOSTNAME=" + server + "; export CFSE_RELEASE=1.1; make run");
+		
+		startKatello();
+		
+		try { Thread.sleep(5000); } catch (Exception e) {}
+		
+		KatelloPing ping = new KatelloPing();
+		ping.runOn(machine.getIpAddress());
+		SSHCommandResult res = ping.cli_ping();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check services up");
+	}
 }
