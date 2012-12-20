@@ -113,6 +113,17 @@
 		</groups>
 	</test>
 
+	<test name="Postupgrade_Tests">
+		<packages>
+			<package name="com.redhat.qe.katello.tests.upgrade.v1"/>
+		</packages>
+		<groups preserve-order="true">
+			<run>
+				<include name="post-upgrade"/>
+			</run>
+		</groups>
+	</test>
+	
         <test name="Upgrade_Tests1">
                 <groups preserve-order="true">
                         <run>
