@@ -10,6 +10,7 @@ import com.redhat.qe.katello.base.obj.KatelloSystemGroup;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.tests.e2e.PromoteErrata;
 
+@Test(groups="cfse-dc-errata")
 public class SystemGroupErratas extends BaseDeltacloudTest {
 	
 
