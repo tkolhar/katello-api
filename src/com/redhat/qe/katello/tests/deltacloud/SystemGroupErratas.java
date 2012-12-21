@@ -12,9 +12,8 @@ import com.redhat.qe.katello.tests.e2e.PromoteErrata;
 
 public class SystemGroupErratas extends BaseDeltacloudTest {
 	
-	@Test
-	public void setUpErratas(){
-		
+
+	private void setUpErratas(){
 		KatelloUtils.sshOnClient(client_name, "yum erase -y walrus");
 		exec_result = KatelloUtils.sshOnClient(client_name, "yum install -y walrus-0.71-1.noarch");
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
@@ -37,6 +36,8 @@ public class SystemGroupErratas extends BaseDeltacloudTest {
 	
 	@Test(description = "List the errata on system group", dependsOnMethods={"setUpErratas"})
 	public void test_errataListOnSystemGroup() {
+		setUpErratas();
+		
 		KatelloSystemGroup group = new KatelloSystemGroup(group_name, org_name);
 		group.runOn(client_name);
 		exec_result = group.list_erratas();
@@ -52,6 +53,8 @@ public class SystemGroupErratas extends BaseDeltacloudTest {
 	
 	@Test(description = "List the errata details on system group", dependsOnMethods={"test_errataListOnSystemGroup"})
 	public void test_errataDetailsOnSystemGroup() {
+		setUpErratas();
+		
 		verifyErrataDetailsOnSystemGroup(group_name, 2, Arrays.asList(system_name, system_name2), Arrays.asList(system_name3));
 		
 		verifyErrataDetailsOnSystemGroup(group_name2, 1, Arrays.asList(system_name2), Arrays.asList(system_name, system_name3));
