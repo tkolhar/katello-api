@@ -3,7 +3,6 @@ package com.redhat.qe.katello.tests.deltacloud;
 import java.util.Arrays;
 import java.util.List;
 
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
@@ -13,8 +12,8 @@ import com.redhat.qe.katello.tests.e2e.PromoteErrata;
 
 public class SystemGroupErratas extends BaseDeltacloudTest {
 	
-	@BeforeClass(description="Generate unique names")
-	public void setUp(){
+	@Test
+	public void setUpErratas(){
 		
 		KatelloUtils.sshOnClient(client_name, "yum erase -y walrus");
 		exec_result = KatelloUtils.sshOnClient(client_name, "yum install -y walrus-0.71-1.noarch");
@@ -36,31 +35,31 @@ public class SystemGroupErratas extends BaseDeltacloudTest {
 		KatelloUtils.sshOnClient(client, "service goferd restart;");		
 	}
 	
-	@Test(description = "List the errata on system group")
+	@Test(description = "List the errata on system group", dependsOnMethods={"setUpErratas"})
 	public void test_errataListOnSystemGroup() {
-		KatelloSystemGroup group = new KatelloSystemGroup(group_name, this.org_name);
+		KatelloSystemGroup group = new KatelloSystemGroup(group_name, org_name);
 		group.runOn(client_name);
 		exec_result = group.list_erratas();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains(PromoteErrata.ERRATA_ZOO_SEA), "Check - errata list output");
 		
-		group = new KatelloSystemGroup(group_name2, this.org_name);
+		group = new KatelloSystemGroup(group_name2, org_name);
 		group.runOn(client_name2);
 		exec_result = group.list_erratas("security");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains(PromoteErrata.ERRATA_ZOO_SEA), "Check - errata list output");
 	}
 	
-	@Test(description = "List the errata details on system group")
+	@Test(description = "List the errata details on system group", dependsOnMethods={"test_errataListOnSystemGroup"})
 	public void test_errataDetailsOnSystemGroup() {
-		verifyErrataDetailsOnSystemGroup(group_name, 2, Arrays.asList(this.system_name, this.system_name2), Arrays.asList(this.system_name3));
+		verifyErrataDetailsOnSystemGroup(group_name, 2, Arrays.asList(system_name, system_name2), Arrays.asList(system_name3));
 		
-		verifyErrataDetailsOnSystemGroup(group_name2, 1, Arrays.asList(this.system_name2), Arrays.asList(this.system_name, this.system_name3));
+		verifyErrataDetailsOnSystemGroup(group_name2, 1, Arrays.asList(system_name2), Arrays.asList(system_name, system_name3));
 	}
 
-	@Test(description = "Install the errata on system", dependsOnMethods={"test_errataListOnSystemGroup", "test_errataDetailsOnSystemGroup"})
+	@Test(description = "Install the errata on system", dependsOnMethods={"test_errataDetailsOnSystemGroup"})
 	public void test_errataInstallOnSystem() {
-		KatelloSystemGroup group = new KatelloSystemGroup(group_name2, this.org_name);
+		KatelloSystemGroup group = new KatelloSystemGroup(group_name2, org_name);
 		group.runOn(client_name2);
 		exec_result = group.erratas_install(PromoteErrata.ERRATA_ZOO_SEA);
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
@@ -74,18 +73,18 @@ public class SystemGroupErratas extends BaseDeltacloudTest {
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertFalse(getOutput(exec_result).replaceAll("\n", "").contains(PromoteErrata.ERRATA_ZOO_SEA), "Check - errata list output");
 		
-		group = new KatelloSystemGroup(group_name, this.org_name);
+		group = new KatelloSystemGroup(group_name, org_name);
 		group.runOn(client_name);
 		exec_result = group.list_erratas();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains(PromoteErrata.ERRATA_ZOO_SEA), "Check - errata list output");
 		
-		verifyErrataDetailsOnSystemGroup(group_name, 1, Arrays.asList(this.system_name), Arrays.asList(this.system_name2, this.system_name3));
+		verifyErrataDetailsOnSystemGroup(group_name, 1, Arrays.asList(system_name), Arrays.asList(system_name2, system_name3));
 	}
 	
 	@Test(description = "Install the errata on system group", dependsOnMethods={"test_errataInstallOnSystem"})
 	public void test_errataInstallOnSystemGroup() {
-		KatelloSystemGroup group = new KatelloSystemGroup(group_name, this.org_name);
+		KatelloSystemGroup group = new KatelloSystemGroup(group_name, org_name);
 		group.runOn(client_name);
 		exec_result = group.erratas_install(PromoteErrata.ERRATA_ZOO_SEA);
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
@@ -101,7 +100,7 @@ public class SystemGroupErratas extends BaseDeltacloudTest {
 	}
 	
 	private void verifyErrataDetailsOnSystemGroup(String groupName, int systemCount, List<String> existingSystems, List<String> excludeSystems) {
-		KatelloSystemGroup group = new KatelloSystemGroup(groupName, this.org_name);
+		KatelloSystemGroup group = new KatelloSystemGroup(groupName, org_name);
 		group.runOn(client_name);
 		exec_result = group.list_errata_details();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
