@@ -7,6 +7,7 @@ import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.obj.KatelloSystemGroup;
 import com.redhat.qe.katello.common.KatelloUtils;
 
+@Test(dependsOnGroups="cfse-dc-errata")
 public class SystemGroupPackages extends BaseDeltacloudTest {
 	
 	@BeforeClass(description="Generate unique names")
@@ -75,7 +76,7 @@ public class SystemGroupPackages extends BaseDeltacloudTest {
 		Assert.assertTrue(getOutput(exec_result).trim().contains("package wolf is not installed"));
 	}
 	
-	@Test(description = "Install lion zebra tiger packages in system group, verify that packages are installed")
+	@Test(description = "Install lion zebra tiger packages in system group, verify that packages are installed", dependsOnMethods={"test_removePackageFromSystemGroup"})
 	public void test_installPackagesOnSystemGroup() {
 		
 		KatelloUtils.sshOnClient(client_name, "yum -y erase zebra lion tiger");
@@ -110,7 +111,7 @@ public class SystemGroupPackages extends BaseDeltacloudTest {
 		Assert.assertTrue(getOutput(exec_result).trim().contains("tiger-"));		
 	}
 	
-	@Test(description = "Install birds package group in system group, verify that all birds packages are installed")
+	@Test(description = "Install birds package group in system group, verify that all birds packages are installed", dependsOnMethods={"test_installPackagesOnSystemGroup"})
 	public void test_installPackageGroupOnSystemGroup() {
 		
 		KatelloUtils.sshOnClient(client_name, "yum -y erase stork cockateel penguin duck");
