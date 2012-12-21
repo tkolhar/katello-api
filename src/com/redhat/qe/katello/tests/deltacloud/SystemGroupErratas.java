@@ -34,7 +34,7 @@ public class SystemGroupErratas extends BaseDeltacloudTest {
 		KatelloUtils.sshOnClient(client, "service goferd restart;");		
 	}
 	
-	@Test(description = "List the errata on system group", dependsOnMethods={"setUpErratas"})
+	@Test(description = "List the errata on system group")
 	public void test_errataListOnSystemGroup() {
 		setUpErratas();
 		
