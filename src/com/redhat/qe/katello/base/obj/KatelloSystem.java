@@ -340,7 +340,7 @@ public class KatelloSystem extends _KatelloObject{
 		if(serialId != null)
 			cmd += " --serial "+serialId;
 		
-		return KatelloUtils.sshOnClient(cmd);		
+		return KatelloUtils.sshOnClient(getHostName(), cmd);		
 	}
 	
 	public SSHCommandResult rhsm_subscribe(String poolid, int quantity){
@@ -357,7 +357,7 @@ public class KatelloSystem extends _KatelloObject{
 	public SSHCommandResult rhsm_subscribe_auto(){
 		String cmd = RHSM_SUBSCRIBE + " --auto";
 		
-		return KatelloUtils.sshOnClient(cmd);		
+		return KatelloUtils.sshOnClient(getHostName(), cmd);		
 	}
 	
 	public SSHCommandResult rhsm_identity(){
@@ -369,7 +369,7 @@ public class KatelloSystem extends _KatelloObject{
 	public SSHCommandResult rhsm_unregister(){
 		String cmd = RHSM_UNREGISTER;
 		
-		return KatelloUtils.sshOnClient(cmd);		
+		return KatelloUtils.sshOnClient(getHostName(), cmd);		
 	}
 	
 	public SSHCommandResult system_uuids(){
