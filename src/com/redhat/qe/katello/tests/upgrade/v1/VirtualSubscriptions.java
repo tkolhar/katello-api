@@ -276,7 +276,7 @@ public class VirtualSubscriptions implements KatelloConstants {
 		SSHCommandResult res;
 		
 		KatelloSystem sys = new KatelloSystem(clients[0]+"-"+uid, orgName, envTesting);
-		sys.runAs(samAdmin); sys.runOn(clients[0]);
+		sys.runAs(samAdmin);// sys.runOn(clients[0]);
 		res = sys.subscriptions();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit(0) - system subscriptions");
 		String retPoolId = KatelloCli.grepCLIOutput("Subscription ID", KatelloCliTestScript.sgetOutput(res));
@@ -288,6 +288,7 @@ public class VirtualSubscriptions implements KatelloConstants {
 		String retQuantity = KatelloCli.grepCLIOutput("Quantity", KatelloCliTestScript.sgetOutput(res));
 		Assert.assertTrue(retQuantity.equals("1"), "stdout - quantity 1");
 		
+		sys.runOn(clients[0]);
 		res = sys.rhsm_listConsumed();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit(0) - rhsm list (consumed)");
 		String retSerial = KatelloCli.grepCLIOutput("Serial Number", KatelloCliTestScript.sgetOutput(res));
