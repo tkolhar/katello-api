@@ -29,7 +29,7 @@ public class KatelloOrg extends _KatelloObject{
 	public static final String OUT_CREATE = 
 			"Successfully created org [ %s ]";
 	public static final String ERR_ORG_EXISTS = 
-			"Validation failed: Name has already been taken, Label has already been taken";
+			"Validation failed: Name has already been taken, Label has already been taken, Organization Names and labels must be unique across all organizations";  //"Name has already been taken, Label has already been taken, Organization Names and labels must be unique across all organizations";                                     //"Validation failed: Name has already been taken, Label has already been taken";
 	public static final String ERR_NAME_INVALID = 
 			"Validation failed: Name cannot contain characters other than alpha numerals, space,'_', '-'.";
 	public static final String ERR_ORG_NOTFOUND = 
@@ -37,7 +37,7 @@ public class KatelloOrg extends _KatelloObject{
 	public static final String ERR_ORG_NAME_EXISTS = 
 			"Validation failed: Name has already been taken";
 	public static final String ERR_ORG_LABEL_EXISTS = 
-			"Validation failed: Label has already been taken";
+			"Validation failed: Organization Names and labels must be unique across all organizations";                //"Validation failed: Label has already been taken";
 	
 	public static final String REG_ORG_LIST = ".*Id\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Description\\s*:\\s+%s.*";
 	public static final String REG_ORG_INFO = ".*Id\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Description\\s*:\\s+%s.*";

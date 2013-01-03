@@ -172,6 +172,7 @@ public class OrgTests extends KatelloCliTestScript{
 				KatelloOrg.ERR_ORG_EXISTS);
 	}
 	
+	/*
 	@Test(description = "Create org - name is invalid",groups={"cfse-cli","headpin-cli"})
 	public void test_createOrgInvalidName(){
 		String uniqueID = KatelloUtils.getUniqueID();
@@ -212,6 +213,7 @@ public class OrgTests extends KatelloCliTestScript{
 		Assert.assertEquals(getOutput(exec_result).trim(), 
 				KatelloOrg.ERR_ORG_LABEL_EXISTS);
 	}
+	*/
 	
 	private void assert_orgInfo(KatelloOrg org){
 		
