@@ -194,8 +194,8 @@ public class VirtualSubscriptions implements KatelloConstants {
 		sys.runOn(clients[1]);
 		res = sys.rhsm_registerForce(akVirt);
 		Assert.assertTrue(res.getExitCode().intValue()==255, "exit(1) - rhsm register failure (activationkey virtual)");
-		Assert.assertTrue(KatelloCliTestScript.sgetOutput(res).contains(String.format(KatelloSystem.ERR_GUEST_HAS_DIFFERENT_HOST, poolVirt)), 
-				"stderr - guest has different host not matching pool owner");
+		Assert.assertTrue(KatelloCliTestScript.sgetOutput(res).contains(String.format(KatelloSystem.ERR_POOL_IS_RESTRICTED, poolVirt)), 
+				"stderr - pool is restricted to virt guests only");
 	}
 	
 	
