@@ -19,7 +19,7 @@ public class KatelloUserRole extends _KatelloObject{
 	public static final String CMD_LDAP_GRP_REMOVE = "user_role remove_ldap_group";
 	
 	public static final String ERROR_INFO =
-			"Cannot find user role [ %s ]";
+			"Cannot find user role \'%s\'";
 	public static final String OUT_UPDATE =  
 			"Successfully updated user role [ %s ]";
 	public static final String OUT_DELETE = 
