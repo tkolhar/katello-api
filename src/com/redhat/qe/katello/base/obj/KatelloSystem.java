@@ -39,7 +39,7 @@ public class KatelloSystem extends _KatelloObject{
 	public static final String ERR_RHSM_REG_MULTI_ENV = 
 			"Organization %s has more than one environment. Please specify target environment for system registration.";
 	public static final String ERR_POOL_IS_RESTRICTED = 
-			"Pool is restricted to virtual guests: '%s'";
+			"Guest's host does not match owner of pool: '%s'";
 	
 	public static final String OUT_REMOTE_ACTION_DONE = "Remote action finished:";
 	public static final String OUT_RHSM_SUBSCRIBED_OK = 
