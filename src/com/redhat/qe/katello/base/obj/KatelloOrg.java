@@ -41,8 +41,8 @@ public class KatelloOrg extends _KatelloObject{
 	public static final String ERR_ORG_LABEL_EXISTS = 
 			"Validation failed: Label has already been taken";
 	
-	public static final String REG_ORG_LIST = ".*Id\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Description\\s*:\\s+%s.*";
-	public static final String REG_ORG_INFO = ".*Id\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Description\\s*:\\s+%s.*";
+	public static final String REG_ORG_LIST = ".*ID\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Description\\s*:\\s+%s.*";
+	public static final String REG_ORG_INFO = ".*ID\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Description\\s*:\\s+%s.*";
 	
 	public static final String OUT_ORG_SUBSCR = ".*Subscription\\s*:\\s*%s.*";
 	

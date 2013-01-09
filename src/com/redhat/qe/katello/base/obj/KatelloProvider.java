@@ -43,13 +43,13 @@ public class KatelloProvider extends _KatelloObject{
 
 	public static final String MANIFEST_2SUBSCRIPTIONS  = "manifest-automation-CLI-2subscriptions.zip";
 
-	public static final String REG_REDHAT_LIST = ".*Id\\s*:\\s+\\d+.*Name\\s*:\\s+"+KatelloProvider.PROVIDER_REDHAT+".*Type\\s*:\\s+Red\\sHat.*Url\\s*:\\s+%s.*";
+	public static final String REG_REDHAT_LIST = ".*ID\\s*:\\s+\\d+.*Name\\s*:\\s+"+KatelloProvider.PROVIDER_REDHAT+".*Type\\s*:\\s+Red\\sHat.*Url\\s*:\\s+%s.*";
 	
-	public static final String REG_REDHAT_STATUS = ".*Id\\s*:\\s+\\d+.*Name\\s*:\\s+"+KatelloProvider.PROVIDER_REDHAT+".*Last\\sSync\\s*:\\s+%s.*Sync\\sState\\s*:\\s+%s.*";
+	public static final String REG_REDHAT_STATUS = ".*ID\\s*:\\s+\\d+.*Name\\s*:\\s+"+KatelloProvider.PROVIDER_REDHAT+".*Last\\sSync\\s*:\\s+%s.*Sync\\sState\\s*:\\s+%s.*";
 	
-	public static final String REG_REDHAT_INFO = ".*Id\\s*:\\s+\\d+.*Name\\s*:\\s+"+KatelloProvider.PROVIDER_REDHAT+".*Type\\s*:\\s+Red Hat.*Url\\s*:\\s+%s.*Org Id\\s*:\\s+%s.*Description\\s*:\\s+%s.*";
+	public static final String REG_REDHAT_INFO = ".*ID\\s*:\\s+\\d+.*Name\\s*:\\s+"+KatelloProvider.PROVIDER_REDHAT+".*Type\\s*:\\s+Red Hat.*Url\\s*:\\s+%s.*Org Id\\s*:\\s+%s.*Description\\s*:\\s+%s.*";
 	
-	public static final String REG_PROVIDER_LIST = ".*Id\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Type\\s*:\\s+Custom.*Url\\s*:\\s+%s.*Description\\s*:\\s+%s.*";
+	public static final String REG_PROVIDER_LIST = ".*ID\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Type\\s*:\\s+Custom.*Url\\s*:\\s+%s.*Description\\s*:\\s+%s.*";
 	
 	// ** ** ** ** ** ** ** Class members
 	public String name;

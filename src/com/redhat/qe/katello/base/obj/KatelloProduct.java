@@ -50,8 +50,8 @@ public class KatelloProduct extends _KatelloObject{
 
 	public static final String API_CMD_LIST = "/organizations/%s/products"; // by org
 	
-	public static final String REG_PROD_LIST = ".*Id\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Provider Id\\s*:\\s+\\d+.*Provider Name\\s*:\\s+%s.*Sync Plan Name\\s*:\\s+%s.*Last Sync\\s*:\\s+%s.*GPG key\\s*:\\s*%s.*";
-	public static final String REG_PROD_STATUS = ".*Id\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Provider Id\\s*:\\s+\\d+.*Provider Name\\s*:\\s+%s.*Last Sync\\s*:\\s+.*Sync State\\s*:\\s+%s.*";
+	public static final String REG_PROD_LIST = ".*ID\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Provider Id\\s*:\\s+\\d+.*Provider Name\\s*:\\s+%s.*Sync Plan Name\\s*:\\s+%s.*Last Sync\\s*:\\s+%s.*GPG key\\s*:\\s*%s.*";
+	public static final String REG_PROD_STATUS = ".*ID\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Provider Id\\s*:\\s+\\d+.*Provider Name\\s*:\\s+%s.*Last Sync\\s*:\\s+.*Sync State\\s*:\\s+%s.*";
 	public static final String REG_PROD_LASTSYNC = "\\d{4}/\\d{2}/\\d{2}\\s\\d{2}:\\d{2}:\\d{2}";
 	
 	// ** ** ** ** ** ** ** Class members
