@@ -25,8 +25,8 @@ public class KatelloChangeset extends _KatelloObject{
 	public static final String OUT_APPLIED = 
 			"Changeset [ %s ] applied";
 	
-	public static final String REG_CHST_INFO = ".*Id\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Description\\s*:\\s+%s.*State\\s*:\\s+%s.*Environment Name\\s*:\\s+%s.*";
-	public static final String REG_CHST_ID = "Id\\s*:\\s+\\d+\\s+Name\\s*:";
+	public static final String REG_CHST_INFO = ".*ID\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Description\\s*:\\s+%s.*State\\s*:\\s+%s.*Environment Name\\s*:\\s+%s.*";
+	public static final String REG_CHST_ID = "ID\\s*:\\s+\\d+\\s+Name\\s*:";
 	public static final String REG_CHST_LIST = ".*\\s+\\d+.*\\s+%s.*\\s+%s.*";
 	
 	public static final String REG_CHST_PACKAGES = ".*Packages\\s*:\\s+.*%s.*";
