@@ -39,7 +39,7 @@ public class KatelloRepo extends _KatelloObject{
 			"Added filter [ %s ] to repository [ %s ]";
 	public static final String OUT_REPO_SYNCHED = "Repo [ %s ] synced";
 	
-	public static final String REG_REPO_INFO = ".*ID\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Url\\s*:\\s+%s.*Last Sync\\s*:\\s+%s.*Progress\\s*:\\s+%s.*GPG key\\s*:\\s*+%s.*";
+	public static final String REG_REPO_INFO = ".*ID\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*URL\\s*:\\s+%s.*Last Sync\\s*:\\s+%s.*Progress\\s*:\\s+%s.*GPG Key\\s*:\\s*+%s.*";
 	public static final String REG_REPO_STATUS = ".*Package Count\\s*:\\s+\\d+.*Last Sync\\s*:\\s+%s.*Sync State\\s*:\\s+%s.*";
 	public static final String REG_FILTER_LIST = ".*\\s*%s.*\\s+%s.*";
 	public static final String REG_REPO_LIST = ".*ID\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Package Count\\s*:\\s+\\d+.*Last Sync\\s*:\\s+%s.*";
@@ -255,15 +255,15 @@ public class KatelloRepo extends _KatelloObject{
 		
 		res = info();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo info)");
-		String gpg_key = KatelloCli.grepCLIOutput("GPG key", res.getStdout());
+		String gpg_key = KatelloCli.grepCLIOutput("GPG Key", res.getStdout());
 		Assert.assertTrue(this.gpgkey.equals(gpg_key), 
-				String.format("Check - GPG key [%s] should be found in the repo info",this.gpgkey));
+				String.format("Check - GPG Key [%s] should be found in the repo info",this.gpgkey));
 		KatelloGpgKey gpg = new KatelloGpgKey(this.gpgkey, this.org, null);
 		res = gpg.cli_info();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (gpg_key info)");
 		String reposWithGpg = KatelloCli.grepCLIOutput("Repositories", res.getStdout());
 		Assert.assertTrue(reposWithGpg.contains(this.name), 
-				"Check - Repo should be in repositories list of GPG key");
+				"Check - Repo should be in repositories list of GPG Key");
 	}
 
 	public static final String FEDORA_VER16 = "16";

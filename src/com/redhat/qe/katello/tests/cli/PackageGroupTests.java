@@ -88,7 +88,7 @@ public class PackageGroupTests extends KatelloCliTestScript {
 	public void test_packageGroupList() {
 		KatelloRepo repo = new KatelloRepo(repo_name, org_name, product_name, REPO_INECAS_ZOO3, null, null);
 		exec_result = repo.info();
-		repo_id = KatelloCli.grepCLIOutput("Id", getOutput(exec_result).trim(),1);
+		repo_id = KatelloCli.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
 		
 		KatelloPackageGroup packGr = new KatelloPackageGroup(null, null, null);
 		

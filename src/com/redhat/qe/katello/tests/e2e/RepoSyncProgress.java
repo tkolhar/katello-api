@@ -139,7 +139,7 @@ public class RepoSyncProgress extends KatelloCliTestScript{
 		KatelloSystem sys = new KatelloSystem(systemName, orgName, envTesting, null, null, null, null, null, null);
 		res = sys.subscriptions_available();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: system.subscriptions-available");
-		String poolId = KatelloCli.grepCLIOutput("Id", getOutput(res));
+		String poolId = KatelloCli.grepCLIOutput("ID", getOutput(res));
 		Assert.assertTrue(poolId!=null, "Check poolID is returned");
 		res = sys.rhsm_subscribe(poolId);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: rhsm.subscribe");
