@@ -92,7 +92,7 @@ public class TdlExportFedora extends KatelloCliTestScript{
 		tpl.create();
 		KatelloDistribution dist = new KatelloDistribution(this.org, this.product,this.repo, null);
 		SSHCommandResult res = dist.list();
-		this.distribution = KatelloCli.grepCLIOutput("Id", res.getStdout());
+		this.distribution = KatelloCli.grepCLIOutput("ID", res.getStdout());
 		Assert.assertTrue((this.distribution!=null), "Check - distribution exists in repo");
 		tpl.update_add_repo(this.product, this.repo);
 		res = tpl.update_add_distribution(this.product, this.distribution);

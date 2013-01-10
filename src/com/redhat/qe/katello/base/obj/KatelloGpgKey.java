@@ -16,9 +16,9 @@ public class KatelloGpgKey extends _KatelloObject{
 	public static final String CLI_CMD_DELETE = "gpg_key delete";
 	
 	public static final String OUT_CREATE = 
-			"Successfully created GPG key [ %s ]"; 
+			"Successfully created GPG Key [ %s ]"; 
 	public static final String ERR_KEY_NOT_FOUND = 
-			"Could not find GPG key [ %s ]"; 
+			"Could not find GPG Key [ %s ]"; 
 
 	public static final String REGEXP_GPG = ".*Name\\s*:\\s+%s.*";
 	// ** ** ** ** ** ** ** Class members

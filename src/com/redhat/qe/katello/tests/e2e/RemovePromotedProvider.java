@@ -91,7 +91,7 @@ public class RemovePromotedProvider  extends KatelloCliTestScript {
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		
 		exec_result = sys.subscriptions_available();
-		String poolId1 = KatelloCli.grepCLIOutput("Id", getOutput(exec_result).trim(),1);
+		String poolId1 = KatelloCli.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
 		Assert.assertNotNull(poolId1, "Check - pool Id is not null");
 		
 		exec_result = sys.rhsm_subscribe(poolId1);

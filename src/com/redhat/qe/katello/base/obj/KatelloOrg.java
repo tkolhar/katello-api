@@ -162,7 +162,7 @@ public class KatelloOrg extends _KatelloObject{
 		SSHCommandResult res = new KatelloOrg(orgName, null).subscriptions(); // all subscriptinos
 		String outBlock = KatelloCli.grepOutBlock(
 				"Subscription", productName, KatelloCliTestScript.sgetOutput(res)); // filter our product's output block
-		return KatelloCli.grepCLIOutput("Id", outBlock); // grep poolid
+		return KatelloCli.grepCLIOutput("ID", outBlock); // grep poolid
 	}
 
 	// ** ** ** ** ** ** **

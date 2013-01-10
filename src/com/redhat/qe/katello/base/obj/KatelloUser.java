@@ -31,14 +31,14 @@ public class KatelloUser extends _KatelloObject{
 	public static final String OUT_UNASSIGN_ROLE =
 			"User \'%s\' unassigned from role \'%s\'";
 	public static final String OUT_FIND_USER_ERROR =
-			"Could not find user '%s'";
+			"Could not find user [ %s ]";
 
 	public static final String ERR_INVALID_CREDENTIALS = 
 			"Invalid credentials";
 	public static final String ERR_NOT_ALLOWED_TO_ACCESS = 
 			"User %s is not allowed to access";
 	
-	public static final String REG_USER_LIST = ".*Id\\s*:\\s*\\d+.*Username\\s*:\\s*%s.*Email\\s*:\\s*%s.*";
+	public static final String REG_USER_LIST = ".*ID\\s*:\\s*\\d+.*Username\\s*:\\s*%s.*Email\\s*:\\s*%s.*";
 	public static final String REG_USER_ROLE_LIST = ".*\\d+\\s*%s.*";
 
 	public static final String API_CMD_INFO = "/users/%s";
@@ -193,9 +193,9 @@ public class KatelloUser extends _KatelloObject{
 		// asserts: user list
 		res = cli_list();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+CLI_CMD_LIST+")");
-		String REGEXP_LIST = ".*Id\\s*:\\s*\\d+.*Username\\s*:\\s*%s.*Email\\s*:\\s*%s.*Disabled\\s*:\\s*False.*Default Organization\\s*:\\s*%s.*Default Environment\\s*:\\s*%s.*";
+		String REGEXP_LIST = ".*ID\\s*:\\s*\\d+.*Username\\s*:\\s*%s.*Email\\s*:\\s*%s.*Disabled\\s*:\\s*False.*Default Organization\\s*:\\s*%s.*Default Environment\\s*:\\s*%s.*";
 		if(this.disabled)
-			REGEXP_LIST = ".*Id\\s*:\\s*\\d+.*Username\\s*:\\s*%s.*Email\\s*:\\s*%s.*Disabled\\s*:\\s*True.*Default Organization\\s*:\\s*%s.*Default Environment\\s*:\\s*%s.*";
+			REGEXP_LIST = ".*ID\\s*:\\s*\\d+.*Username\\s*:\\s*%s.*Email\\s*:\\s*%s.*Disabled\\s*:\\s*True.*Default Organization\\s*:\\s*%s.*Default Environment\\s*:\\s*%s.*";
 
 		String match_info = String.format(REGEXP_LIST,
 				this.username,this.email, this.orgname != null ? this.orgname : "None", this.envname != null ? this.envname : "None").replaceAll("\"", "");
@@ -207,9 +207,9 @@ public class KatelloUser extends _KatelloObject{
 		// asserts: user info
 		res = cli_info();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+CLI_CMD_INFO+")");
-		String REGEXP_INFO = ".*Id\\s*:\\s*\\d+.*Username\\s*:\\s*%s.*Email\\s*:\\s*%s.*Disabled\\s*:\\s*False.*Default Organization\\s*:\\s*%s.*Default Environment\\s*:\\s*%s.*";
+		String REGEXP_INFO = ".*ID\\s*:\\s*\\d+.*Username\\s*:\\s*%s.*Email\\s*:\\s*%s.*Disabled\\s*:\\s*False.*Default Organization\\s*:\\s*%s.*Default Environment\\s*:\\s*%s.*";
 		if(this.disabled)
-			REGEXP_INFO =  ".*Id\\s*:\\s*\\d+.*Username\\s*:\\s*%s.*Email\\s*:\\s*%s.*Disabled\\s*:\\s*True.*Default Organization\\s*:\\s*%s.*Default Environment\\s*:\\s*%s.*";
+			REGEXP_INFO =  ".*ID\\s*:\\s*\\d+.*Username\\s*:\\s*%s.*Email\\s*:\\s*%s.*Disabled\\s*:\\s*True.*Default Organization\\s*:\\s*%s.*Default Environment\\s*:\\s*%s.*";
 		match_info = String.format(REGEXP_INFO,
 				this.username, this.email, this.orgname != null ? this.orgname : "None", this.envname != null ? this.envname : "None").replaceAll("\"", "");
 		Assert.assertTrue(KatelloCliTestScript.sgetOutput(res).replaceAll("\n", "").matches(match_info), 

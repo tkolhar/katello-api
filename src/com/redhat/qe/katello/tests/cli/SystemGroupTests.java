@@ -447,7 +447,7 @@ public class SystemGroupTests extends KatelloCliTestScript{
 		log.finest(String.format("System Group (info) match regex: [%s]", match_info));
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", " ").matches(match_info), String.format("System Group [%s] should be found in the result info", systemGroup.name));
 
-		String id = KatelloCli.grepCLIOutput("Id", exec_result.getStdout());
+		String id = KatelloCli.grepCLIOutput("ID", exec_result.getStdout());
 		
 		return id;
 	}

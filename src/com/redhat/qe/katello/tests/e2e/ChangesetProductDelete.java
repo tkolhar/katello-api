@@ -164,7 +164,7 @@ public class ChangesetProductDelete extends KatelloCliTestScript {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		exec_result = sys.subscriptions_available();
-		String poolId1 = KatelloCli.grepCLIOutput("Id", getOutput(exec_result).trim(),1);
+		String poolId1 = KatelloCli.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
 		
 		exec_result = sys.rhsm_subscribe(poolId1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");

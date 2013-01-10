@@ -421,7 +421,7 @@ public class TemplateTests extends KatelloCliTestScript {
 		log.finest(String.format("Template (info) match regex: [%s]", match_info));
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", " ").matches(match_info), String.format("Template [%s] should be found in the result info", templ.name));
 
-		return KatelloCli.grepCLIOutput("Id", getOutput(exec_result));
+		return KatelloCli.grepCLIOutput("ID", getOutput(exec_result));
 	}
 	
 	private void assert_templList(List<KatelloTemplate> templates, List<KatelloTemplate> excludeTemplates) {

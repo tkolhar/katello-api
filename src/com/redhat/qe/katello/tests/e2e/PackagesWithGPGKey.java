@@ -22,7 +22,7 @@ import com.redhat.qe.tools.SSHCommandResult;
 
 /**
  * Scenario:<BR>
- * GPG keys: End to end "If I sign it can I install it"?<BR>
+ * GPG Keys: End to end "If I sign it can I install it"?<BR>
  * @author gkhachik
  */
 @Test(groups={"cfse-e2e"})
@@ -110,7 +110,7 @@ public class PackagesWithGPGKey extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (rhsm register)");
 		
 		KatelloOrg org = new KatelloOrg(this.org, null);
-		String poolID = KatelloCli.grepCLIOutput("Id",org.subscriptions().getStdout());
+		String poolID = KatelloCli.grepCLIOutput("ID",org.subscriptions().getStdout());
 		String poolName = KatelloCli.grepCLIOutput("Subscription",org.subscriptions().getStdout());
 		res = KatelloUtils.sshOnClient(String.format("subscription-manager subscribe --pool=%s",poolID));
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (rhsm subscribe)");
