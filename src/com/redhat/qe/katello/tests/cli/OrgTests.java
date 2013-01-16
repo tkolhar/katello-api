@@ -56,8 +56,29 @@ public class OrgTests extends KatelloCliTestScript{
 		this.orgs.add(org);
 	}
 	
+	
+	@Test(description = "Create org - different variations", groups={"cfse-cli","headpin-cli"})
+	public void test_createOrgNonLatin(){		
+		String uniqueID = KatelloUtils.getUniqueID();
+		
+		KatelloOrg org1 = new KatelloOrg("Орга низация" + uniqueID, "");
+		SSHCommandResult res = org1.cli_create();
+		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
+		this.orgs.add(org1);
+		
+		KatelloOrg org2 = new KatelloOrg("կազմա կերպություն" + uniqueID, "");
+		res = org2.cli_create();
+		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
+		this.orgs.add(org2);
+		
+		KatelloOrg org3 = new KatelloOrg("组 织" + uniqueID, "");
+		res = org3.cli_create();
+		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
+		this.orgs.add(org3);
+	}
+	
 	@Test(description = "List orgs - created", 
-			dependsOnMethods={"test_createOrg"},groups={"cfse-cli","headpin-cli"})
+			dependsOnMethods={"test_createOrg", "test_createOrgNonLatin"},groups={"cfse-cli","headpin-cli"})
 	public void test_infoListOrg(){
 		String uniqueID = KatelloUtils.getUniqueID();
 		KatelloOrg list_org = new KatelloOrg("orgUpd"+uniqueID, "Simple description");		
