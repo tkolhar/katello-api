@@ -11,10 +11,13 @@ import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
+import com.redhat.qe.katello.base.obj.KatelloPermission;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
+import com.redhat.qe.katello.base.obj.KatelloUser;
+import com.redhat.qe.katello.base.obj.KatelloUserRole;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
@@ -32,6 +35,9 @@ public class SystemTests extends KatelloCliTestScript{
 	private String product_name;
 	private String repo_name;
 	private String changeset_name;
+	private String user;
+	private String user_role;
+	private String perm_name;
 	
 	@BeforeClass(description="Generate unique names")
 	public void setUp(){
@@ -48,6 +54,9 @@ public class SystemTests extends KatelloCliTestScript{
 		this.product_name = "product_"+uid;
 		this.repo_name = "repo_name_"+uid;
 		this.changeset_name = "changeset_"+uid;
+		this.user = "usr"+uid;
+		this.user_role = "Full RHSM "+uid;
+		this.perm_name = "perm-notdelete-"+ uid; 
 		
 		KatelloOrg org = new KatelloOrg(this.orgName, null);
 		exec_result = org.cli_create();
@@ -95,6 +104,19 @@ public class SystemTests extends KatelloCliTestScript{
 		
 		exec_result = cs.apply();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset promote)");
+		
+		KatelloUser user = new KatelloUser(this.user, "root@localhost", KatelloUser.DEFAULT_USER_PASS, false);
+		exec_result = user.cli_create();
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (user create)");
+		KatelloUserRole role = new KatelloUserRole(this.user_role, "not delete to system");
+		exec_result = role.create();
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (user_role create)");
+		KatelloPermission perm = new KatelloPermission(perm_name, this.orgName2, "environments", null,
+				"update_systems,read_contents,read_systems,register_systems", this.user_role);
+		exec_result = perm.create();
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (perm create)");
+		exec_result = user.assign_role(this.user_role);
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (user assign_role)");
 		
 		rhsm_clean(); // clean - in case of it registered
 	}
@@ -226,29 +248,81 @@ public class SystemTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getStdout().replaceAll("\n", "").trim().equals("2"), "Check - 2 systems are registered with the same name");
 	}
 
-	//@ TODO enable after bug 878867 is fixed.
-	@Test(description = "delete registered system and verifies that it is removed successfully", enabled=false)
+	@Test(description = "delete registered system and verifies that it is removed successfully")
 	public void test_deleteSystem(){
 		String uid = KatelloUtils.getUniqueID();
 		String system = "localhost-"+uid;
 		
-		KatelloSystem sys = new KatelloSystem(system, this.orgName, this.envName_Dev);
+		KatelloSystem sys = new KatelloSystem(system, this.orgName2, this.envName_Prod);
 		exec_result = sys.rhsm_register(); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		
 		exec_result = sys.info();
-		String uuid = KatelloCli.grepCLIOutput("Uuid", getOutput(exec_result).trim(),1);
+		String uuid = KatelloCli.grepCLIOutput("UUID", getOutput(exec_result).trim(),1);
 		sys.setUuid(uuid);
+		
+		sys.rhsm_unregister();
 		
 		exec_result = sys.remove();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
-		Assert.assertTrue(exec_result.getStdout().trim().contains(KatelloSystem.OUT_DELETE),
+		Assert.assertTrue(exec_result.getStdout().trim().contains(String.format(KatelloSystem.OUT_DELETE, uuid)),
 				"Check - output (success)");
 		
 		exec_result = sys.info();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 65, "Check - return code");
+		
+		exec_result = sys.list();
+		Assert.assertFalse(exec_result.getStdout().trim().contains(uuid),
+				"Check - output (list)");
 	}
 
+	@Test(description = "delete registered system by providing invalid credentials")
+	public void test_deleteSystemInvalidCredentials(){
+		String uid = KatelloUtils.getUniqueID();
+		String system = "localhost-"+uid;
+		KatelloUser invaliduser = new KatelloUser("name", "email@redhat.com", "password", false);
+		
+		KatelloSystem sys = new KatelloSystem(system, this.orgName2, this.envName_Prod);
+		exec_result = sys.rhsm_register(); 
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		
+		exec_result = sys.info();
+		String uuid = KatelloCli.grepCLIOutput("UUID", getOutput(exec_result).trim(),1);
+		sys.setUuid(uuid);
+		
+		sys.rhsm_unregister();
+		
+		sys.runAs(invaliduser);
+		exec_result = sys.remove();
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 145, "Check - return code");
+		Assert.assertTrue(exec_result.getStderr().trim().contains("Invalid credentials"),
+				"Check - output (error)");
+	}
+
+	// @ TODO enable when bug 896074 is fixed
+	@Test(description = "delete registered system by user who has not permissions", enabled=false)
+	public void test_deleteSystemInvalidAccess(){
+		String uid = KatelloUtils.getUniqueID();
+		String system = "localhost-"+uid;
+		KatelloUser user = new KatelloUser(this.user, "root@localhost", KatelloUser.DEFAULT_USER_PASS, false);
+		
+		KatelloSystem sys = new KatelloSystem(system, this.orgName2, this.envName_Prod);
+		exec_result = sys.rhsm_register(); 
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		
+		exec_result = sys.info();
+		String uuid = KatelloCli.grepCLIOutput("UUID", getOutput(exec_result).trim(),1);
+		sys.setUuid(uuid);
+		
+		sys.rhsm_unregister();
+		
+		sys.runAs(user);
+		exec_result = sys.remove();
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 145, "Check - return code");
+		Assert.assertTrue(exec_result.getStdout().trim().contains(KatelloSystem.OUT_DELETE),
+				"Check - output (success)");
+	}
+	
 	@Test(description = "subscribe system to pool")
 	public void test_subscribeSystem(){
 		String uid = KatelloUtils.getUniqueID();
