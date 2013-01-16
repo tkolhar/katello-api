@@ -50,7 +50,7 @@ public class KatelloSystem extends _KatelloObject{
 	public static final String OUT_UPDATE = 
 			"Successfully updated system [ %s ]";
 	public static final String OUT_DELETE = 
-			"Successfully deleted system [ %s ]";
+			"Successfully removed deletion record for hypervisor with uuid [ %s ]";
 	public static final String OUT_SUBSCRIBE = 
 			"Successfully attached subscription to System [ %s ]";
 	public static final String OUT_SUBSCRIPTIONS_EMPTY = 
