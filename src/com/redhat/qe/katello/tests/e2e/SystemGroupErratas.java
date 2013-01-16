@@ -97,7 +97,7 @@ public class SystemGroupErratas extends KatelloCliTestScript {
 		system_uuid = KatelloCli.grepCLIOutput("Current identity is", exec_result.getStdout());
 		
 		exec_result = sys.subscriptions_available();
-		String poolId1 = KatelloCli.grepCLIOutput("Id", getOutput(exec_result).trim(),1);
+		String poolId1 = KatelloCli.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
 		Assert.assertNotNull(poolId1, "Check - pool Id is not null");
 		
 		exec_result = sys.rhsm_subscribe(poolId1);

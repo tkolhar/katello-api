@@ -21,7 +21,7 @@ import com.redhat.qe.katello.common.*;
 +	environment    environment specific actions in the katello server
 *	errata         errata specific actions in the katello server
 +	filter         filter specific actions in the katello server
-+	gpg_key        GPG key specific actions in the katello server
++	gpg_key        GPG Key specific actions in the katello server
 +	org            organization specific actions in the katello server
 *	package        package specific actions in the katello server
 *	package_group  package group specific actions in the katello server
@@ -435,7 +435,7 @@ public class FillDB implements KatelloConstants{
 		KatelloGpgKey key = new KatelloGpgKey(gpgKeyZoo, orgName, null);
 		key.runAs(orgAdmin);
 		res = key.cli_info();
-		Assert.assertTrue(KatelloCliTestScript.sgetOutput(res).contains(productZoo), "check GPG key info has product Zoo");
+		Assert.assertTrue(KatelloCliTestScript.sgetOutput(res).contains(productZoo), "check GPG Key info has product Zoo");
 	}
 	
 	@Test(groups={TNG_POST_UPGRADE},
@@ -569,7 +569,7 @@ public class FillDB implements KatelloConstants{
 		KatelloDistribution dist = new KatelloDistribution(orgName, productFedora,repoFedora, null);
 		res = dist.list();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: distribution.list");
-		String distroF16 = KatelloCli.grepCLIOutput("Id", res.getStdout());
+		String distroF16 = KatelloCli.grepCLIOutput("ID", res.getStdout());
 		Assert.assertTrue(!distroF16.isEmpty(), "Check - distribution exists in repo");
 		KatelloTemplate template = new KatelloTemplate(templateF16Iso, null, orgName, null);
 		res = template.update_add_repo(productFedora, repoFedora);

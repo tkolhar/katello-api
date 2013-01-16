@@ -61,11 +61,11 @@ public class KatelloSystem extends _KatelloObject{
 	
 	//Very sensitive regexp is used here for matching exact subscription in list.
 	public static final String REG_SUBSCRIPTION = "Subscription Name\\s*:\\s+%s\\s+SKU\\s*:\\s+\\w{5,15}+\\s+Pool Id\\s*:\\s+\\w{32}+\\s+Quantity\\s*:\\s+%s";
-	public static final String REG_SUBSCRIPTION_CFSE = "Product\\s+Name\\s*:\\s*%s\\s+Product\\s+Id\\s*:\\s*\\w{5,15}\\s+Pool\\s+Id\\s*:\\s*\\w{32}+\\s+Quantity\\s*:\\s*%s";
+	public static final String REG_SUBSCRIPTION_CFSE = "Product\\s+Name\\s*:\\s*%s\\s+Product\\s+ID\\s*:\\s*\\w{5,15}\\s+Pool\\s+ID\\s*:\\s*\\w{32}+\\s+Quantity\\s*:\\s*%s";
 	public static final String REG_POOL_ID = "\\s+\\w{32}+\\s+";
-	public static final String REG_SYSTEM_INFO = ".*Name\\s*:\\s+%s.*Ipv4 Address\\s*:\\s+\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}.*Uuid\\s*:\\s+\\w{8}-\\w{4}-\\w{4}-\\w{4}-\\w{12}.*Location\\s*:\\s+%s.*Description\\s*:\\s+%s.*";
+	public static final String REG_SYSTEM_INFO = ".*Name\\s*:\\s+%s.*IPv4 Address\\s*:\\s+\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}.*UUID\\s*:\\s+\\w{8}-\\w{4}-\\w{4}-\\w{4}-\\w{12}.*Location\\s*:\\s+%s.*Description\\s*:\\s+%s.*";
 	
-	public static final String SYSTEM_UUIDS = "system list --org %s --noheading -v | grep \"^Uuid\\s*:\" | cut -f2 -d: | sed 's/ *$//g' | sed 's/^ *//g'";
+	public static final String SYSTEM_UUIDS = "system list --org %s --noheading -v | grep \"^UUID\\s*:\" | cut -f2 -d: | sed 's/ *$//g' | sed 's/^ *//g'";
 	public static final String SYSTEM_UNREGISTER = "system unregister --uuid %s --org %s";
 	public static final String SYSTEM_UNSUBSCRIBE = "system unsubscribe --all --uuid %s --org %s";
 	
@@ -314,7 +314,7 @@ public class KatelloSystem extends _KatelloObject{
 		if(this.org != null)
 			cmd += " --org \""+this.org+"\"";
 
-		cmd += " | grep \"Serial Id\" | wc -l";
+		cmd += " | grep \"Serial ID\" | wc -l";
 		
 		KatelloCli cli = new KatelloCli(cmd, null);
 		return cli.run();	
@@ -343,7 +343,7 @@ public class KatelloSystem extends _KatelloObject{
 		if(serialId != null)
 			cmd += " --serial "+serialId;
 		
-		return KatelloUtils.sshOnClient(cmd);		
+		return KatelloUtils.sshOnClient(getHostName(), cmd);		
 	}
 	
 	public SSHCommandResult rhsm_subscribe(String poolid, int quantity){
@@ -360,7 +360,7 @@ public class KatelloSystem extends _KatelloObject{
 	public SSHCommandResult rhsm_subscribe_auto(){
 		String cmd = RHSM_SUBSCRIBE + " --auto";
 		
-		return KatelloUtils.sshOnClient(cmd);		
+		return KatelloUtils.sshOnClient(getHostName(), cmd);		
 	}
 	
 	public SSHCommandResult rhsm_identity(){
@@ -372,7 +372,7 @@ public class KatelloSystem extends _KatelloObject{
 	public SSHCommandResult rhsm_unregister(){
 		String cmd = RHSM_UNREGISTER;
 		
-		return KatelloUtils.sshOnClient(cmd);		
+		return KatelloUtils.sshOnClient(getHostName(), cmd);		
 	}
 	
 	public SSHCommandResult system_uuids(){

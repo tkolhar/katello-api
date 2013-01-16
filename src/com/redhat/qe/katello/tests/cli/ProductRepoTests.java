@@ -73,7 +73,7 @@ public class ProductRepoTests extends KatelloCliTestScript {
 		exec_result = prod.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		exec_result = prod.cli_list();
-		product_id = KatelloCli.grepCLIOutput("Id", getOutput(exec_result).trim(),1);
+		product_id = KatelloCli.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
 
 		prod = new KatelloProduct(product_name, org_name,
 				provider_name, null, null, null, null, null);

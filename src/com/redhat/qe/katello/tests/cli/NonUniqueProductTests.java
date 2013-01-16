@@ -68,8 +68,8 @@ public class NonUniqueProductTests  extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
 		
 		res = prod.cli_list();
-		prod_id1 = KatelloCli.grepCLIOutput("Id", getOutput(res).trim(),1);
-		prod_id2 = KatelloCli.grepCLIOutput("Id", getOutput(res).trim(),2);
+		prod_id1 = KatelloCli.grepCLIOutput("ID", getOutput(res).trim(),1);
+		prod_id2 = KatelloCli.grepCLIOutput("ID", getOutput(res).trim(),2);
 		
 		DateFormat dformat = new SimpleDateFormat("yyyy-MM-dd");
 		DateFormat tformat = new SimpleDateFormat("HH:mm:ss");

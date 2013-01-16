@@ -18,7 +18,7 @@ public class KatelloTemplate extends _KatelloObject{
 	public static final String ERR_TEMPL_NOTFOUND = 
 			"Could not find template [ %s ] within environment [ %s ]";
 	
-	public static final String REG_TEMPL_INFO = ".*Id\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Revision\\s*:\\s+%s.*Description\\s*:\\s+%s.*Parent Id\\s*:\\s+%s.*";
+	public static final String REG_TEMPL_INFO = ".*ID\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Revision\\s*:\\s+%s.*Description\\s*:\\s+%s.*Parent ID\\s*:\\s+%s.*";
 	public static final String REG_TEMPL_PARAMS = ".*Parameters\\s*:\\s+.*%s\\s*:\\s+%s.*";
 	public static final String REG_TEMPL_PACKAGES = ".*Packages\\s*:\\s+.*%s.*";
 	public static final String REG_TEMPL_PACKAGEGROUPS = ".*Package Groups\\s*:\\s+.*%s.*";

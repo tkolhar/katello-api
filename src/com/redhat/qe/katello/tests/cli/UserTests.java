@@ -370,7 +370,7 @@ public class UserTests extends KatelloCliTestScript{
 	
 	@Test(description="access to cli calls by providing an empty password")
 	public void test_getAccessWithEmptyPassword(){
-		KatelloUser userAdmin = new KatelloUser(System.getProperty("katello.admin.user"), 
+		KatelloUser userAdmin = new KatelloUser(System.getProperty("katello.admin.user",KatelloUser.DEFAULT_ADMIN_USER), 
 				null,"", false);
 		KatelloOrg org = new KatelloOrg(organization, null);
 		org.runAs(userAdmin);

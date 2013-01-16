@@ -117,7 +117,7 @@ public class TdlExportRhel extends KatelloCliTestScript{
 		KatelloDistribution dist = new KatelloDistribution(this.org, KatelloProduct.RHEL_SERVER, 
 				KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, null);
 		SSHCommandResult res = dist.list();
-		this.distribution = KatelloCli.grepCLIOutput("Id", res.getStdout());
+		this.distribution = KatelloCli.grepCLIOutput("ID", res.getStdout());
 		Assert.assertTrue((this.distribution!=null), "Check - distribution exists in repo");
 		tpl.update_add_repo(KatelloProduct.RHEL_SERVER, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT);
 		res = tpl.update_add_distribution(KatelloProduct.RHEL_SERVER, this.distribution);
