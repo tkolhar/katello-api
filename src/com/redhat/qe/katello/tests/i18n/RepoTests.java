@@ -106,7 +106,7 @@ public class RepoTests extends KatelloCliTestScript {
 		Assert.assertTrue(getOutput(exec_result).contains(getText("repo.discover.stdout", repo_name2)), "Check - output string (repo discover)");
 		
 		exec_result = repo.info();
-		repo_id2 = KatelloCli.grepCLIOutput("Id", getOutput(exec_result));
+		repo_id2 = KatelloCli.grepCLIOutput("ID", getOutput(exec_result));
 	}
 	
 	@Test(description = "List repos", dependsOnMethods = {"test_discoverRepo", "test_createRepo"})

@@ -61,7 +61,7 @@ public class ErrataTests extends KatelloCliTestScript {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		exec_result = prod.cli_list();
-		product_Id = KatelloCli.grepCLIOutput("Id", getOutput(exec_result).trim(),1);
+		product_Id = KatelloCli.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
 	
 		KatelloRepo repo = new KatelloRepo(repo_name, org_name, product_name, REPO_INECAS_ZOO3, null, null);
 		exec_result = repo.create();

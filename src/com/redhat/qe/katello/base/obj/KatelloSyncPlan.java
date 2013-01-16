@@ -14,7 +14,7 @@ public class KatelloSyncPlan extends _KatelloObject{
 	public static final String CMD_UPDATE = "sync_plan update";
 	public static final String CMD_DELETE = "sync_plan delete";
 	
-	public static final String REG_SYNCPLAN_INFO = ".*Id\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Description\\s*:\\s*%s.*Start date\\s*:\\s+%s.*Interval\\s*:\\s+%s.*";
+	public static final String REG_SYNCPLAN_INFO = ".*ID\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Description\\s*:\\s*%s.*Start date\\s*:\\s+%s.*Interval\\s*:\\s+%s.*";
 	public static final String REG_SYNCPLAN_LIST = ".*\\s+\\d+.*\\s+%s.*\\s+%s.*\\s+%s.*\\s+%s.*";
 	public static final String ERR_NOT_FOUND = "Cannot find sync plan [ %s ]";
 	public static final String OUT_DELETE = "Successfully deleted sync plan [ %s ]";

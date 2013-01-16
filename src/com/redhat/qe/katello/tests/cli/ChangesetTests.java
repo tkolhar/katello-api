@@ -319,7 +319,7 @@ public class ChangesetTests extends KatelloCliTestScript{
 		log.finest(String.format("Changeset (info) match regex: [%s]", match_info));
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", " ").matches(match_info), String.format("Changeset [%s] should be found in the result info", chst.name));
 
-		return KatelloCli.grepCLIOutput("Id", getOutput(exec_result));
+		return KatelloCli.grepCLIOutput("ID", getOutput(exec_result));
 	}
 		
 	private void assert_changesetList(List<KatelloChangeset> chsts, List<KatelloChangeset> excludeChsts) {

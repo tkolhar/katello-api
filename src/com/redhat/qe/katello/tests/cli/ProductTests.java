@@ -570,7 +570,7 @@ public class ProductTests  extends KatelloCliTestScript{
 		// Final action - DELETE the product
 		// ... but get its id first. To check the output string.
 		res = prod.status();
-		String prodId = KatelloCli.grepCLIOutput("Id", res.getStdout());
+		String prodId = KatelloCli.grepCLIOutput("ID", res.getStdout());
 		res = prod.delete();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
 		Assert.assertTrue(getOutput(res).contains(String.format(KatelloProduct.OUT_DELETED,prodId)), "Check - returned output string (product delete)");
@@ -641,7 +641,7 @@ public class ProductTests  extends KatelloCliTestScript{
 		if (product.syncState.equals("Not synced")) Assert.assertEquals(lastSync, "never");
 		else Assert.assertMatch(lastSync, KatelloProduct.REG_PROD_LASTSYNC);
 		
-		return KatelloCli.grepCLIOutput("Id", getOutput(res).trim(),1);
+		return KatelloCli.grepCLIOutput("ID", getOutput(res).trim(),1);
 	}
 	
 }
