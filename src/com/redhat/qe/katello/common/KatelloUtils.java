@@ -298,6 +298,8 @@ public class KatelloUtils {
 		
 		DeltaCloudInstance server = DeltaCloudAPI.provideServer(nowait);
 		
+		Assert.assertNotNull(server.getClient());
+		
 		System.setProperty("katello.server.hostname", server.getIpAddress());
 		
 		if (!nowait) {
@@ -322,6 +324,8 @@ public class KatelloUtils {
 
 		DeltaCloudInstance client = DeltaCloudAPI.provideClient(false);
 
+		Assert.assertNotNull(client.getClient());
+		
 		configureDDNS(client, KatelloConstants.DELTACLOUD_CLIENTS[--number]);
 		
 		_sshClients.put(client.getHostName(), _sshClients.get(client.getIpAddress()));
@@ -389,6 +393,8 @@ public class KatelloUtils {
 		KatelloUtils.sshOnServer("touch /etc/yum.repos.d/beaker-tasks.repo");
 		KatelloUtils.sshOnServer("touch /etc/yum.repos.d/beaker.repo");
 		
+		String CFSE_REL = System.getProperty("CFSE_REL", "1.1");
+		
 		String yumrepo = 
 				"[beaker-tasks]\\\\n" +
 				"name=bkr-tasks\\\\n" +
@@ -415,13 +421,13 @@ public class KatelloUtils {
 		KatelloUtils.sshOnServer("chmod a+x ~/.beaker_client/config");
 		
 		KatelloUtils.sshOnServer("yum install -y Katello-Katello-Sanity-ImportKeys --disablerepo=* --enablerepo=beaker*");
-		KatelloUtils.sshOnServer("cd /mnt/tests/Katello/Sanity/ImportKeys/; export CFSE_RELEASE=1.1; make run");
+		KatelloUtils.sshOnServer("cd /mnt/tests/Katello/Sanity/ImportKeys/; export CFSE_RELEASE=" + CFSE_REL + "; make run");
 		
 		KatelloUtils.sshOnServer("yum install -y Katello-Katello-Installation-RegisterRHNClassic --disablerepo=* --enablerepo=beaker*");
-		KatelloUtils.sshOnServer("cd /mnt/tests/Katello/Installation/RegisterRHNClassic/; export CFSE_RELEASE=1.1; make run");
+		KatelloUtils.sshOnServer("cd /mnt/tests/Katello/Installation/RegisterRHNClassic/; export CFSE_RELEASE=" + CFSE_REL + "; make run");
 		
 		KatelloUtils.sshOnServer("yum install -y Katello-Katello-Installation-SystemEngineLatest --disablerepo=* --enablerepo=beaker*");
-		KatelloUtils.sshOnServer("cd /mnt/tests/Katello/Installation/SystemEngineLatest/; export CFSE_RELEASE=1.1; make run");
+		KatelloUtils.sshOnServer("cd /mnt/tests/Katello/Installation/SystemEngineLatest/; export CFSE_RELEASE=" + CFSE_REL + "; make run");
 
 		startKatello();
 		
@@ -457,6 +463,8 @@ public class KatelloUtils {
 				"gpgcheck=0";
 		KatelloUtils.sshOnClient(machine.getIpAddress(), "echo -en \""+yumrepo+"\" > /etc/yum.repos.d/beaker.repo");
 		
+		String CFSE_REL = System.getProperty("CFSE_REL", "1.1");
+		
 		KatelloUtils.sshOnClient(machine.getIpAddress(), "yum -y install beakerlib beakerlib-redhat rhts-python rhts-test-env --disablerepo=* --enablerepo=beaker*");
 		KatelloUtils.sshOnClient(machine.getIpAddress(), "mkdir ~/.beaker_client");
 		KatelloUtils.sshOnClient(machine.getIpAddress(), "touch ~/.beaker_client/config");
@@ -465,13 +473,13 @@ public class KatelloUtils {
 		KatelloUtils.sshOnClient(machine.getIpAddress(), "chmod a+x ~/.beaker_client/config");
 		
 		KatelloUtils.sshOnClient(machine.getIpAddress(), "yum install -y Katello-Katello-Sanity-ImportKeys --disablerepo=* --enablerepo=beaker*");
-		KatelloUtils.sshOnClient(machine.getIpAddress(), "cd /mnt/tests/Katello/Sanity/ImportKeys/; export CFSE_RELEASE=1.1; make run");
+		KatelloUtils.sshOnClient(machine.getIpAddress(), "cd /mnt/tests/Katello/Sanity/ImportKeys/; export CFSE_RELEASE=" + CFSE_REL + "; make run");
 		
 		KatelloUtils.sshOnClient(machine.getIpAddress(), "yum install -y Katello-Katello-Installation-RegisterRHNClassic --disablerepo=* --enablerepo=beaker*");
-		KatelloUtils.sshOnClient(machine.getIpAddress(), "cd /mnt/tests/Katello/Installation/RegisterRHNClassic/; export CFSE_RELEASE=1.1; make run");
+		KatelloUtils.sshOnClient(machine.getIpAddress(), "cd /mnt/tests/Katello/Installation/RegisterRHNClassic/; export CFSE_RELEASE=" + CFSE_REL + "; make run");
 		
 		KatelloUtils.sshOnClient(machine.getIpAddress(), "yum install -y Katello-Katello-Configuration-KatelloClient --disablerepo=* --enablerepo=beaker*");
-		KatelloUtils.sshOnClient(machine.getIpAddress(), "cd /mnt/tests/Katello/Configuration/KatelloClient/; export KATELLO_SERVER_HOSTNAME=" + server + "; export CFSE_RELEASE=1.1; make run");
+		KatelloUtils.sshOnClient(machine.getIpAddress(), "cd /mnt/tests/Katello/Configuration/KatelloClient/; export KATELLO_SERVER_HOSTNAME=" + server + "; export CFSE_RELEASE=" + CFSE_REL + "; make run");
 		
 		startKatello();
 		

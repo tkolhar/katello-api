@@ -8,7 +8,6 @@ import org.apache.deltacloud.client.Instance;
 
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.obj.DeltaCloudInstance;
-import com.redhat.qe.katello.common.KatelloConstants;
 
 public class DeltaCloudAPI {
 	
@@ -19,18 +18,19 @@ public class DeltaCloudAPI {
 	private static final int MAX_ATTEMPTS = 10; 
 	
 	public static DeltaCloudInstance provideServer(boolean nowait) {
-		return provideMachine(nowait, KatelloConstants.DELTACLOUD_SERVER_IMAGE_ID);
+		return provideMachine(nowait);
 	}
 
 	public static DeltaCloudInstance provideClient(boolean nowait) {
-		return provideMachine(nowait, KatelloConstants.DELTACLOUD_CLIENT_IMAGE_ID);
+		return provideMachine(nowait);
 	}
 	
-	private static DeltaCloudInstance provideMachine(boolean nowait, String image) {
+	private static DeltaCloudInstance provideMachine(boolean nowait) {
 		
 		DeltaCloudInstance machine = new DeltaCloudInstance();
 
 		try {
+			String image = System.getProperty("deltacloud.imageid", "2e477879-c1d3-4fe0-a5a3-493bccdde031");
 			Assert.assertNotNull(System.getProperty("deltacloud.hostname"), "Deltacloud hostname shoud be provided in system property \"deltacloud.hostname\"");
 			Assert.assertNotNull(System.getProperty("deltacloud.user"), "Deltacloud username shoud be provided in system property \"deltacloud.user\"");
 			Assert.assertNotNull(System.getProperty("deltacloud.password"), "Deltacloud password shoud be provided in system property \"deltacloud.password\"");
@@ -48,8 +48,8 @@ public class DeltaCloudAPI {
 			} else {
 				startMachine(machine);
 			}
-		} catch (DeltaCloudClientException e) {	
-		} catch (MalformedURLException e) {}
+		} catch (DeltaCloudClientException e) {	e.printStackTrace();
+		} catch (MalformedURLException e) { e.printStackTrace();}
 		
 		return machine;
 	}
