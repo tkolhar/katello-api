@@ -20,7 +20,7 @@ public class KatelloUpgrade extends KatelloCliTestScript{
 	@BeforeSuite(description="Initial checks: not start upgrade if all are not fulfilled", alwaysRun=true)
 	public void initialReqs(){
 		SSHCommandResult res;
-		KatelloUtils.sshOnServer("[ $BEAKER ] && yum -y erase libvirt-client --disablerepo \\*beaker\\*"); // it harms the yum upgrade process
+		KatelloUtils.sshOnServer("[ $BEAKER ] && yum -y erase libvirt-client lvm2 --disablerepo \\*beaker\\*"); // it harms the yum upgrade process
 		res = KatelloUtils.sshOnServer("yum repolist --disablerepo \\*beaker\\* | grep rhel-x86_64-server-6");
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - registered to RHEL6 base channel");
 		res = KatelloUtils.sshOnServer("rpm -q subscription-manager python-rhsm");
@@ -75,7 +75,7 @@ public class KatelloUpgrade extends KatelloCliTestScript{
 					"service elasticsearch stop; sleep 3;");
 		}
 		KatelloUtils.sshOnServer("yum clean all");
-		KatelloUtils.sshOnServer("yum upgrade -y --exclude libxslt lvm2 initscripts --disablerepo \\*beaker\\*"); // TODO --exclude libxslt is workaround which should be removed later
+		KatelloUtils.sshOnServer("yum upgrade -y --exclude libxslt --exclude lvm2 --disablerepo \\*beaker\\*"); // TODO --exclude libxslt is workaround which should be removed later
 	}
 	
 	@Test(description="run schema upgrade", 
