@@ -75,7 +75,7 @@ public class KatelloUpgrade extends KatelloCliTestScript{
 					"service elasticsearch stop; sleep 3;");
 		}
 		KatelloUtils.sshOnServer("yum clean all");
-		KatelloUtils.sshOnServer("yum upgrade -y --exclude libxslt --disablerepo \\*beaker\\*"); // TODO --exclude libxslt is workaround which should be removed later
+		KatelloUtils.sshOnServer("yum upgrade -y --exclude libxslt lvm2 initscripts --disablerepo \\*beaker\\*"); // TODO --exclude libxslt is workaround which should be removed later
 	}
 	
 	@Test(description="run schema upgrade", 
