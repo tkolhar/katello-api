@@ -394,6 +394,7 @@ public class KatelloUtils {
 		KatelloUtils.sshOnServer("touch /etc/yum.repos.d/beaker.repo");
 		
 		String CFSE_REL = System.getProperty("CFSE_REL", "1.1");
+		String SAM_REL = System.getProperty("SAM_REL", "1.2");
 		String product = System.getProperty("katello.product", "katello");
 		
 		String yumrepo = 
@@ -438,7 +439,10 @@ public class KatelloUtils {
 			KatelloUtils.sshOnServer("cd /mnt/tests/Katello/Installation/SystemEngineLatest/; export CFSE_RELEASE=" + CFSE_REL + "; make run");
 		} else if (product.equals("sam")) {
 			KatelloUtils.sshOnServer("yum install -y Katello-Katello-Installation-SAMLatest --disablerepo=* --enablerepo=beaker*");
-			KatelloUtils.sshOnServer("cd /mnt/tests/Katello/Installation/SAMLatest/; make run");
+			KatelloUtils.sshOnServer("cd /mnt/tests/Katello/Installation/SAMLatest/; export SAM_RELEASE=" + SAM_REL + "; make run");
+		} else if (product.equals("headpin")) {
+			KatelloUtils.sshOnServer("yum install -y Katello-Katello-Installation-HeadpinNightly --disablerepo=* --enablerepo=beaker*");
+			KatelloUtils.sshOnServer("cd /mnt/tests/Katello/Installation/HeadpinNightly/; make run");
 		}
 		
 		startKatello();
@@ -500,13 +504,13 @@ public class KatelloUtils {
 		} else if (product.equals("cfse")) {
 			KatelloUtils.sshOnClient(machine.getIpAddress(), "yum install -y Katello-Katello-Configuration-KatelloClient --disablerepo=* --enablerepo=beaker*");
 			KatelloUtils.sshOnClient(machine.getIpAddress(), "cd /mnt/tests/Katello/Configuration/KatelloClient/; export KATELLO_SERVER_HOSTNAME=" + server + "; export CFSE_RELEASE=" + CFSE_REL + "; make run");
-		} else if (product.equals("sam")) {
+		} else if (product.equals("sam") || product.equals("headpin")) {
 			KatelloUtils.sshOnClient(machine.getIpAddress(), "yum -y update subscription-manager python-rhsm --disablerepo=\\*beaker\\*");
 			KatelloUtils.sshOnClient(machine.getIpAddress(), "yum -y install http://" + server + "/pub/candlepin-cert-consumer-" + server + "-1.0-1.noarch.rpm --disablerepo \\*beaker\\*");
 			KatelloUtils.sshOnClient(machine.getIpAddress(), "sed -i \\\"s|host\\s*=.*|host = " + server + "|g\\\" /etc/katello/client.conf");
 		}
 		
-		if (!product.equals("sam")) {
+		if (!product.equals("sam") && !product.equals("headpin")) {
 			startKatello();
 		
 			try { Thread.sleep(5000); } catch (Exception e) {}
