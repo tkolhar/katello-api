@@ -26,8 +26,6 @@ public class SetupServers extends KatelloCliTestScript {
 		
 		isDeltacloud = Boolean.parseBoolean(System.getProperty("runondeltacloud", "false"));
 		
-		System.out.println("isDeltacloud" + isDeltacloud);
-		
 		if (isDeltacloud) {
 			server = KatelloUtils.getDeltaCloudServer(1);
 			server_name = server.getHostName();
