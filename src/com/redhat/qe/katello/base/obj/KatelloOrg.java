@@ -22,6 +22,9 @@ public class KatelloOrg extends _KatelloObject{
 	public static final String CMD_UEBERCERT = "org uebercert";
 	public static final String CMD_DELETE = "org delete";
 	public static final String CMD_UPDATE = "org update";
+	public static final String CMD_ADD_SYS_INFO = "org add_default_system_info";
+	public static final String CMD_APPLY_SYS_INFO = "org apply_default_system_info";
+	public static final String CMD_REMOVE_SYS_INFO = "org remove_default_system_info";
 	
 	public static final String API_CMD_INFO = "/organizations/%s";
 	
@@ -148,6 +151,26 @@ public class KatelloOrg extends _KatelloObject{
 		return run(CMD_UPDATE);
 	}
 
+	public SSHCommandResult add_system_info(String keyname){
+		opts.clear();
+		opts.add(new Attribute("name", this.name));
+		opts.add(new Attribute("keyname", keyname));
+		return run(CMD_ADD_SYS_INFO);
+	}
+
+	public SSHCommandResult apply_system_info(){
+		opts.clear();
+		opts.add(new Attribute("name", this.name));
+		return run(CMD_APPLY_SYS_INFO);
+	}
+	
+	public SSHCommandResult remove_system_info(String keyname){
+		opts.clear();
+		opts.add(new Attribute("name", this.name));
+		opts.add(new Attribute("keyname", keyname));
+		return run(CMD_REMOVE_SYS_INFO);
+	}
+	
 	public static String getDefaultOrg(){
 		if(defaultOrg!=null) 
 			return defaultOrg;
