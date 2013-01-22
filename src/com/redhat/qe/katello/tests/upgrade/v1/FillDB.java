@@ -78,7 +78,7 @@ public class FillDB implements KatelloConstants{
 	
 	private String clientHostname1;
 	
-	@BeforeClass(groups={TNG_PRE_UPGRADE}, description="init strings")
+	@Test(groups={TNG_PRE_UPGRADE}, description="init strings")
 	public void init(){
 		uid = KatelloUtils.getUniqueID();
 		orgName = "CFSE QE Team "+uid;
@@ -112,7 +112,7 @@ public class FillDB implements KatelloConstants{
 		clientHostname1 = clients[1];
 	}
 	
-	@Test(groups={TNG_PRE_UPGRADE}, 
+	@Test(groups={TNG_PRE_UPGRADE}, dependsOnMethods={"init"},
 			description="create org, environment, user", enabled = true)
 	public void create_OrgEnvUser(){
 		SSHCommandResult res;
@@ -131,7 +131,7 @@ public class FillDB implements KatelloConstants{
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: user.create");
 	}
 	
-	@Test(groups={TNG_POST_UPGRADE},
+	@Test(groups={TNG_POST_UPGRADE}, dependsOnMethods={"init"},
 			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE},
 			description="check org, environent, user survived", enabled = true ) 
 	public void check_OrgEnvUser(){
@@ -178,7 +178,7 @@ public class FillDB implements KatelloConstants{
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: user.assignDefaultOrgEnv");
 	}
 	
-	@Test(groups={TNG_PRE_UPGRADE}, dependsOnMethods={"create_OrgEnvUser"},
+	@Test(groups={TNG_PRE_UPGRADE}, dependsOnMethods={"create_OrgEnvUser", "init"},
 			description="create role, permission and assignments", enabled = true)
 	public void create_permissionsRoles(){
 		SSHCommandResult res;

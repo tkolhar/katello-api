@@ -4,6 +4,7 @@
 	
 	<test name="Smoke_Tests" preserve-order="true">
 		<classes>
+			<class name="com.redhat.qe.katello.tests.api.SetupServers"/>
 			<class name="com.redhat.qe.katello.tests.api.EnvironmentsTest"/>
 			<class name="com.redhat.qe.katello.tests.api.ProvidersTest"/>	
 			<class name="com.redhat.qe.katello.tests.api.UsersTest"/>
@@ -18,14 +19,19 @@
 
 	<test name="E2E_Tests" preserve-order="true">
 		<classes>
+			<class name="com.redhat.qe.katello.tests.e2e.SetupServers"/>
 			<class name="com.redhat.qe.katello.tests.e2e.BPMTests"/>
 			<class name="com.redhat.qe.katello.tests.e2e.ChangesetMultyRepoDelete"/>
 			<class name="com.redhat.qe.katello.tests.e2e.ChangesetRepoDelete"/>
 			<class name="com.redhat.qe.katello.tests.e2e.ConsumerAccess"/>
 			<class name="com.redhat.qe.katello.tests.e2e.OrgDeletion"/>
+			<class name="com.redhat.qe.katello.tests.e2e.OrgReCreate"/>
 			<class name="com.redhat.qe.katello.tests.e2e.PackagesWithGPGKey"/>
 			<class name="com.redhat.qe.katello.tests.e2e.ProductsSameName"/>
 			<class name="com.redhat.qe.katello.tests.e2e.PromoteErrata"/>
+			<class name="com.redhat.qe.katello.tests.e2e.PromoteChangeset"/>
+			<class name="com.redhat.qe.katello.tests.e2e.PromotePackageWithDashes"/>
+			<class name="com.redhat.qe.katello.tests.e2e.PromoteProductToDifferentEnvs"/>
 			<class name="com.redhat.qe.katello.tests.e2e.PromoteWithFilters"/>
 			<class name="com.redhat.qe.katello.tests.e2e.RhsmOnlyPermissions"/>
 			<class name="com.redhat.qe.katello.tests.e2e.StackedSubscriptions"/>
@@ -53,6 +59,7 @@
 			</run>
 		</groups>
 		<classes>
+			<class name="com.redhat.qe.katello.tests.cli.SetupServers"/>
 			<class name="com.redhat.qe.katello.tests.cli.ProductTests"/>  
 			<class name="com.redhat.qe.katello.tests.cli.EnvironmentTests"/> 
 			<class name="com.redhat.qe.katello.tests.cli.UserRoleTests"/> 
@@ -73,6 +80,7 @@
 			</run>
         </groups>	
 		<classes>
+		    <class name="com.redhat.qe.katello.tests.api.SetupServers"/>
 			<class name="com.redhat.qe.katello.tests.api.EnvironmentsTest"/>
 			<class name="com.redhat.qe.katello.tests.api.UsersTest"/>
 		</classes>

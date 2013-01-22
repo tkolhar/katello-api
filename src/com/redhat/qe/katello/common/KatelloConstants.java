@@ -126,10 +126,7 @@ public interface KatelloConstants {
 	public static final String TNG_POST_RECOVERY = "post-recovery";
 	
 	public static final String KATELLO_DEFAULT_LOCALE = "en_US";
-	
-	public static final String DELTACLOUD_SERVER_IMAGE_ID = "aec178fa-6a52-4110-9236-5e02cdce567d";
-	public static final String DELTACLOUD_CLIENT_IMAGE_ID = "aec178fa-6a52-4110-9236-5e02cdce567d";
-	
+
 	public static final String[][] DELTACLOUD_CLIENTS = new String[][]{{"cfseclient1", "usersys.redhat.com", "335f800994d9adc5947b49728b14d527"}, {"cfseclient2", "usersys.redhat.com", "c9c0395f0730624541d8d26f7eb11be8"}, {"cfseclient3", "usersys.redhat.com", "edcf8c472ca601e33326f50f5d46ba8e"}};
 	public static final String[][] DELTACLOUD_SERVERS = new String[][]{{"cfseserver1", "usersys.redhat.com", "502f89b3921dcff92ccdfcf91a6e7db9", "10.16.120.72", "00:1a:4a:10:78:36"}};
 	
