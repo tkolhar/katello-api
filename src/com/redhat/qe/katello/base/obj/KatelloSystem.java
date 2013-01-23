@@ -21,6 +21,10 @@ public class KatelloSystem extends _KatelloObject{
 	public static final String CMD_REMOVE = "system remove_deletion";
 	public static final String CMD_SUBSCRIBE = "system subscribe";
 	
+	public static final String CMD_ADD_CUSTOM_INFO = "system add_custom_info";
+	public static final String CMD_UPDATE_CUSTOM_INFO = "system update_custom_info";
+	public static final String CMD_REMOVE_CUSTOM_INFO = "system remove_custom_info";
+	
 //	public static final String RHSM_CREATE =String.format("subscription-manager register --username %s --password %s",
 //					System.getProperty("katello.admin.user", KatelloUser.DEFAULT_ADMIN_USER),
 //					System.getProperty("katello.admin.password", KatelloUser.DEFAULT_ADMIN_PASS));
@@ -55,6 +59,12 @@ public class KatelloSystem extends _KatelloObject{
 			"Successfully attached subscription to System [ %s ]";
 	public static final String OUT_SUBSCRIPTIONS_EMPTY = 
 			"No Subscriptions found for System [ %s ] in Org [ %s ]";
+	public static final String OUT_ADD_CUSTOM_INFO =
+			"Successfully added Custom Information [ %s : %s ] to System [ %s ]";
+	public static final String OUT_UPDATE_CUSTOM_INFO =
+			"Successfully updated Custom Information [ %s ] for System [ %s ]";
+	public static final String OUT_REMOVE_CUSTOM_INFO =
+			"Successfully removed Custom Information from System [ %s ]";
 	
 	public static final String API_CMD_INFO = "/consumers/%s";
 	public static final String API_CMD_GET_SERIALS = "/consumers/%s/certificates/serials";
@@ -64,6 +74,7 @@ public class KatelloSystem extends _KatelloObject{
 	public static final String REG_SUBSCRIPTION_CFSE = "Product\\s+Name\\s*:\\s*%s\\s+Product\\s+ID\\s*:\\s*\\w{5,15}\\s+Pool\\s+ID\\s*:\\s*\\w{32}+\\s+Quantity\\s*:\\s*%s";
 	public static final String REG_POOL_ID = "\\s+\\w{32}+\\s+";
 	public static final String REG_SYSTEM_INFO = ".*Name\\s*:\\s+%s.*IPv4 Address\\s*:\\s+\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}.*UUID\\s*:\\s+\\w{8}-\\w{4}-\\w{4}-\\w{4}-\\w{12}.*Location\\s*:\\s+%s.*Description\\s*:\\s+%s.*";
+	public static final String REG_CUSTOM_INFO = ".*Custom Info\\s*:\\s+[\\s+%s\\s+].*";
 	
 	public static final String SYSTEM_UUIDS = "system list --org %s --noheading -v | grep \"^UUID\\s*:\" | cut -f2 -d: | sed 's/ *$//g' | sed 's/^ *//g'";
 	public static final String SYSTEM_UNREGISTER = "system unregister --uuid %s --org %s";
@@ -415,6 +426,38 @@ public class KatelloSystem extends _KatelloObject{
 		
 		return KatelloUtils.sshOnClient(getHostName(), cmd);		
 	}
+	
+	public SSHCommandResult add_custom_info(String keyname, String value){
+		opts.clear();
+		opts.add(new Attribute("environment", env));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("keyname", keyname));
+		opts.add(new Attribute("value", value));
+
+		return run(CMD_ADD_CUSTOM_INFO);
+	}	
+	
+	public SSHCommandResult update_custom_info(String keyname, String value){
+		opts.clear();
+		opts.add(new Attribute("environment", env));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("keyname", keyname));
+		opts.add(new Attribute("value", value));
+
+		return run(CMD_UPDATE_CUSTOM_INFO);
+	}	
+	
+	public SSHCommandResult remove_custom_info(String keyname){
+		opts.clear();
+		opts.add(new Attribute("environment", env));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("keyname", keyname));
+
+		return run(CMD_REMOVE_CUSTOM_INFO);
+	}	
 	
 //	@SuppressWarnings("unchecked")
 //    public static KatelloSystem api_info(String byId) throws KatelloApiException {
