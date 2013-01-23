@@ -34,7 +34,13 @@ public class KatelloOrg extends _KatelloObject{
 			"Validation failed: Name has already been taken, Label already exists (including organizations being deleted), Organization Names and labels must be unique across all organizations";
 	public static final String ERR_ORG_EXISTS = 
 			"Validation failed: Name has already been taken, Label already exists (including organizations being deleted)";
-
+	public static final String OUT_ADD_SYS_INFO = 
+			"Successfully added default custom info key [ %s ] to Org [ %s ]";
+	public static final String OUT_APPLY_SYS_INFO = 
+			"Successfully applied default custom info keys to [ %s ] systems in Org [ %s ]";
+	public static final String OUT_REMOVE_SYS_INFO = 
+			"Successfully removed default custom info key [ %s ] for Org [ %s ]";
+	
 	public static final String ERR_NAME_INVALID = 
 			"Validation failed: Name cannot contain characters other than alpha numerals, space,'_', '-'.";
 	public static final String ERR_ORG_NOTFOUND = 
@@ -46,6 +52,7 @@ public class KatelloOrg extends _KatelloObject{
 	
 	public static final String REG_ORG_LIST = ".*ID\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Description\\s*:\\s+%s.*";
 	public static final String REG_ORG_INFO = ".*ID\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Description\\s*:\\s+%s.*";
+	public static final String REG_CUSTOM_INFO = ".*Default System Info Keys\\s*:\\s+[\\s+%s\\s+].*";
 	
 	public static final String OUT_ORG_SUBSCR = ".*Subscription\\s*:\\s*%s.*";
 	
