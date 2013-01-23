@@ -38,8 +38,10 @@ public class KatelloSystem extends _KatelloObject{
 			"This system is already registered. Use --force to override";
 	public static final String ERR_RHSM_REG_MULTI_ENV = 
 			"Organization %s has more than one environment. Please specify target environment for system registration.";
-	public static final String ERR_POOL_IS_RESTRICTED = 
-			"Pool is restricted to virtual guests: '%s'";
+	public static final String ERR_POOL_IS_RESTRICTED_VERSION_1_1 = 
+			"Pool is restricted to virtual guests: '%s'"; // SAM 1.1 seems using this string
+	public static final String ERR_POOL_IS_RESTRICTED_VERSION_1_0 = 
+			"Guest's host does not match owner of pool: '%s'"; // SAM 1.0 was using this one
 	
 	public static final String OUT_REMOTE_ACTION_DONE = "Remote action finished:";
 	public static final String OUT_RHSM_SUBSCRIBED_OK = 
