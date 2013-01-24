@@ -25,6 +25,7 @@
 			<class name="com.redhat.qe.katello.tests.e2e.ChangesetRepoDelete"/>
 			<class name="com.redhat.qe.katello.tests.e2e.ConsumerAccess"/>
 			<class name="com.redhat.qe.katello.tests.e2e.OrgDeletion"/>
+			<class name="com.redhat.qe.katello.tests.e2e.CRLRegen"/>
 			<class name="com.redhat.qe.katello.tests.e2e.OrgReCreate"/>
 			<class name="com.redhat.qe.katello.tests.e2e.PackagesWithGPGKey"/>
 			<class name="com.redhat.qe.katello.tests.e2e.ProductsSameName"/>
@@ -68,6 +69,7 @@
 			<class name="com.redhat.qe.katello.tests.cli.PermissionTests"/>
 			<class name="com.redhat.qe.katello.tests.cli.UserTests"/> 
 			<class name="com.redhat.qe.katello.tests.cli.OrgTests"/>
+			<class name="com.redhat.qe.katello.tests.cli.SystemInfoTests"/>
 			<class name="com.redhat.qe.katello.tests.cli.ClientTests"/> 	
 			<class name="com.redhat.qe.katello.tests.cli.ActivationKeyTests"/>
 		</classes>		
