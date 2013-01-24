@@ -4,6 +4,7 @@
 	
 	<test name="Smoke_Tests" preserve-order="true">
 		<classes>
+		    
 			<class name="com.redhat.qe.katello.tests.api.EnvironmentsTest"/>
 			<class name="com.redhat.qe.katello.tests.api.ProvidersTest"/>	
 			<class name="com.redhat.qe.katello.tests.api.UsersTest"/>
@@ -53,6 +54,7 @@
 			</run>
 		</groups>
 		<classes>
+		    <class name="com.redhat.qe.katello.tests.cli.SetupServers"/>
 			<class name="com.redhat.qe.katello.tests.cli.ProductTests"/>  
 			<class name="com.redhat.qe.katello.tests.cli.EnvironmentTests"/> 
 			<class name="com.redhat.qe.katello.tests.cli.UserRoleTests"/> 
@@ -73,6 +75,7 @@
 			</run>
         </groups>	
 		<classes>
+		    <class name="com.redhat.qe.katello.tests.api.SetupServers"/>
 			<class name="com.redhat.qe.katello.tests.api.EnvironmentsTest"/>
 			<class name="com.redhat.qe.katello.tests.api.UsersTest"/>
 		</classes>
