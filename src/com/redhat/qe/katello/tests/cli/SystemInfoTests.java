@@ -27,6 +27,8 @@ public class SystemInfoTests extends KatelloCliTestScript{
 	private String keyname2 = "second question";
 	private String value2 = "value2";
 	private String value2_edit = "edit2";
+	private String keyname3 = "secret location";
+	private String value3 = "secret place";
 
 	@BeforeClass(description="Generate unique names")
 	public void setUp(){
@@ -121,7 +123,7 @@ public class SystemInfoTests extends KatelloCliTestScript{
 		assert_orgInfo(org, orgparamsList);
 	}
 
-	@Test(description="added a parameter to system", dependsOnMethods={"removeOrgInfo"})
+	@Test(description="adding 2 parameters to system", dependsOnMethods={"removeOrgInfo"})
 	public void addSystemInfo() {
 		KatelloSystem sys = new KatelloSystem(this.system, this.org, this.environment);
 		exec_result = sys.add_custom_info(keyname2, value2);
@@ -133,6 +135,16 @@ public class SystemInfoTests extends KatelloCliTestScript{
 		List<String[]> sysparamsList = new LinkedList<String[]>();
 		sysparamsList.add(new String[] {this.keyname, "None"});
 		sysparamsList.add(new String[] {this.keyname2, value2});
+		
+		assert_systemInfo(new KatelloSystem(this.system, this.org, this.environment), sysparamsList);
+		
+		exec_result = sys.add_custom_info(keyname3, value3);
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
+		Assert.assertEquals(exec_result.getStdout().trim(), 
+				String.format(KatelloSystem.OUT_ADD_CUSTOM_INFO, keyname3, value3, sys.name),
+				"Check - add custom info output.");
+		
+		sysparamsList.add(new String[] {this.keyname3, value3});
 		
 		assert_systemInfo(new KatelloSystem(this.system, this.org, this.environment), sysparamsList);
 	}
@@ -149,6 +161,7 @@ public class SystemInfoTests extends KatelloCliTestScript{
 		List<String[]> sysparamsList = new LinkedList<String[]>();
 		sysparamsList.add(new String[] {this.keyname, "None"});
 		sysparamsList.add(new String[] {this.keyname2, value2_edit});
+		sysparamsList.add(new String[] {this.keyname3, value3});
 		
 		assert_systemInfo(new KatelloSystem(this.system, this.org, this.environment), sysparamsList);
 	}
@@ -164,6 +177,7 @@ public class SystemInfoTests extends KatelloCliTestScript{
 		
 		List<String[]> sysparamsList = new LinkedList<String[]>();
 		sysparamsList.add(new String[] {this.keyname, "None"});
+		sysparamsList.add(new String[] {this.keyname3, value3});
 		
 		assert_systemInfo(new KatelloSystem(this.system, this.org, this.environment), sysparamsList);
 	}
