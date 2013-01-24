@@ -127,7 +127,8 @@ dependencies {
             "org.jboss.resteasy:resteasy-jaxrs:${resteasyVersion}",
             "org.jboss.resteasy:resteasy-jackson-provider:${resteasyVersion}",
             "org.jboss.resteasy:resteasy-multipart-provider:${resteasyVersion}",
-            'net.oauth.core:oauth:20100527'
+            'net.oauth.core:oauth:20100527',
+            "org.apache.deltacloud.client:deltacloud-client:0.2.0"
 //    compile("org.codehaus.groovy.modules.http-builder:http-builder:${httpBuilderVersion}") {
 //        exclude group: 'org.codehaus.groovy', module: 'groovy'
 //    }
