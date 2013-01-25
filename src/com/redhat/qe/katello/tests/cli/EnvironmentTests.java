@@ -21,6 +21,10 @@ public class EnvironmentTests extends KatelloCliTestScript{
 			KatelloOrg org = new KatelloOrg(this.organization, null);
 			res = org.cli_create();
 			Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+			
+			KatelloEnvironment env = new KatelloEnvironment("BAR", "BAR env", this.organization, KatelloEnvironment.LIBRARY);
+			res = env.cli_create();
+			Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 		}
 		
 		
@@ -40,6 +44,18 @@ public class EnvironmentTests extends KatelloCliTestScript{
 			}
 		} 
 	
+		@Test(description="create Environment which name is Library, verify error es shown", groups = {"headpin-cli"})
+		public void testCreateEnvironmentError() {
+			SSHCommandResult res;
+			
+			KatelloEnvironment env = new KatelloEnvironment(KatelloEnvironment.LIBRARY, "Library env", this.organization, KatelloEnvironment.LIBRARY);
+			res = env.cli_create();
+			Assert.assertEquals(res.getExitCode().intValue(), 144, "Check - return code");
+			
+			env = new KatelloEnvironment(KatelloEnvironment.LIBRARY, "Library env", this.organization, "BAR");
+			res = env.cli_create();
+			Assert.assertEquals(res.getExitCode().intValue(), 144, "Check - return code");			
+		}
 		
 		@Test(description="Environment info",groups = {"headpin-cli"})
 		public void testEnv_info()
