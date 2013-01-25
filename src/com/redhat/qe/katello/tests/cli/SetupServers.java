@@ -45,7 +45,10 @@ public class SetupServers extends KatelloCliTestScript {
 		public void tearDown() {
 			if (isDeltacloud) {
 				KatelloUtils.destroyDeltaCloudMachine(server);
-				KatelloUtils.destroyDeltaCloudMachine(client);
+				if (System.getProperty("katello.product", "katello").equals("katello") || System.getProperty("katello.product", "katello").equals("cfse")) 
+				{	
+					KatelloUtils.destroyDeltaCloudMachine(client);
+				}
 			}
 		}
 
