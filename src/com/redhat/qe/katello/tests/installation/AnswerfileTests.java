@@ -9,7 +9,7 @@ import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 import com.redhat.qe.katello.common.KatelloConstants;
 
-@Test(groups={"headpin-cli"})
+@Test(groups={"cfse-cli","headpin-cli"})
 public class AnswerfileTests extends KatelloCliTestScript{
 	
 	private SSHCommandResult exec_result;
@@ -35,6 +35,7 @@ public class AnswerfileTests extends KatelloCliTestScript{
 			Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code Check all the Services Running");
 			exec_result = KatelloUtils.sshOnServer(engine +" -u "+ user_name + " -p "+ user_pass + " org list");
 			Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code Displayed the Org");
-	}  	  
+	}  
+		
 }
 
