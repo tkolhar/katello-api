@@ -21,6 +21,10 @@ public class EnvironmentTests extends KatelloCliTestScript{
 			KatelloOrg org = new KatelloOrg(this.organization, null);
 			res = org.cli_create();
 			Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+			
+			KatelloEnvironment env = new KatelloEnvironment("BAR", "BAR env", this.organization, KatelloEnvironment.LIBRARY);
+			res = env.cli_create();
+			Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 		}
 		
 		
@@ -40,6 +44,21 @@ public class EnvironmentTests extends KatelloCliTestScript{
 			}
 		} 
 	
+		@Test(description="create Environment which name is Library, verify error es shown", groups = {"headpin-cli"})
+		public void testCreateEnvironmentError() {
+			SSHCommandResult res;
+			String output = "Validation failed: Name : 'Library' is a built-in environment, Name of environment must be unique within one organization, Label : 'Library' is a built-in environment, Label of environment must be unique within one organization";
+			
+			KatelloEnvironment env = new KatelloEnvironment(KatelloEnvironment.LIBRARY, "Library env", this.organization, KatelloEnvironment.LIBRARY);
+			res = env.cli_create();
+			Assert.assertEquals(res.getExitCode().intValue(), 144, "Check - return code");
+			Assert.assertTrue(getOutput(res).contains(output),"Check - returned error string");
+			
+			env = new KatelloEnvironment(KatelloEnvironment.LIBRARY, "Library env", this.organization, "BAR");
+			res = env.cli_create();
+			Assert.assertEquals(res.getExitCode().intValue(), 144, "Check - return code");
+			Assert.assertTrue(getOutput(res).contains(output),"Check - returned error string");
+		}
 		
 		@Test(description="Environment info",groups = {"headpin-cli"})
 		public void testEnv_info()
