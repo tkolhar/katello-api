@@ -217,7 +217,6 @@ public class ProductRepoTests extends KatelloCliTestScript {
 	
 	@Test(description = "Delete repo", groups = { "cli-repo" })
 	public void test_deleteRepo() {
-		//@ TODO change output product name to correct one when bug 875117 is fixed.
 		KatelloRepo repo = createRepo();
 		
 		repo.delete();
@@ -225,7 +224,7 @@ public class ProductRepoTests extends KatelloCliTestScript {
 		
 		exec_result = repo.info();
 		Assert.assertTrue(exec_result.getExitCode() == 65, "Check - return code");
-		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloRepo.ERR_REPO_NOTFOUND, repo.name, repo.org, "None", "Library"));
+		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloRepo.ERR_REPO_NOTFOUND, repo.name, repo.org, product_name, "Library"));
 	}
 	
 	@Test(description = "Add filter to repo", groups = { "cli-repo" })
@@ -260,39 +259,38 @@ public class ProductRepoTests extends KatelloCliTestScript {
 	
 	@Test(description = "Call commands on non existing repo", groups = { "cli-repo" })
 	public void test_commandsInvalidRepo() {
-		//@ TODO change output product name to correct one when bug 875117 is fixed.
 		repo_name = "repo"+KatelloUtils.getUniqueID();;
 		
 		KatelloRepo repo = new KatelloRepo(repo_name, org_name, null, PULP_RHEL6_x86_64_REPO, null, null, null, product_id);
 		
 		exec_result = repo.add_filter(filter_name);
 		Assert.assertTrue(exec_result.getExitCode() == 65, "Check - return code");
-		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloRepo.ERR_REPO_NOTFOUND, repo.name, repo.org, "None", "Library"));
+		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloRepo.ERR_REPO_NOTFOUND, repo.name, repo.org, product_name, "Library"));
 		
 		exec_result = repo.remove_filter(filter_name2);
 		Assert.assertTrue(exec_result.getExitCode() == 65, "Check - return code");
-		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloRepo.ERR_REPO_NOTFOUND, repo.name, repo.org, "None", "Library"));
+		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloRepo.ERR_REPO_NOTFOUND, repo.name, repo.org, product_name, "Library"));
 		
 		exec_result = repo.disable();
 		Assert.assertTrue(exec_result.getExitCode() == 65, "Check - return code");
-		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloRepo.ERR_REPO_NOTFOUND, repo.name, repo.org, "None", "Library"));
+		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloRepo.ERR_REPO_NOTFOUND, repo.name, repo.org, product_name, "Library"));
 		
 		exec_result = repo.enable();
 		Assert.assertTrue(exec_result.getExitCode() == 65, "Check - return code");
-		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloRepo.ERR_REPO_NOTFOUND, repo.name, repo.org, "None", "Library"));
+		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloRepo.ERR_REPO_NOTFOUND, repo.name, repo.org, product_name, "Library"));
 		
 		exec_result = repo.info();
 		Assert.assertTrue(exec_result.getExitCode() == 65, "Check - return code");
-		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloRepo.ERR_REPO_NOTFOUND, repo.name, repo.org, "None", "Library"));
+		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloRepo.ERR_REPO_NOTFOUND, repo.name, repo.org, product_name, "Library"));
 		
 		exec_result = repo.synchronize();
 		Assert.assertTrue(exec_result.getExitCode() == 65, "Check - return code");
-		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloRepo.ERR_REPO_NOTFOUND, repo.name, repo.org, "None", "Library"));
+		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloRepo.ERR_REPO_NOTFOUND, repo.name, repo.org, product_name, "Library"));
 		
 		repo.gpgkey = gpg_key;
 		exec_result = repo.update_gpgkey();
 		Assert.assertTrue(exec_result.getExitCode() == 65, "Check - return code");
-		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloRepo.ERR_REPO_NOTFOUND, repo.name, repo.org, "None", "Library"));
+		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloRepo.ERR_REPO_NOTFOUND, repo.name, repo.org, product_name, "Library"));
 		
 	}
 
