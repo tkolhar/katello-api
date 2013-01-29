@@ -151,6 +151,21 @@
                 </groups>
         </test>
 
+	<test name="Upgrade_Tests_Light">
+		<groups preserve-order="true">
+			<run>
+				<include name="pre-upgrade"/>
+				<include name="upgrade"/>
+				<include name="post-upgrade"/>
+			</run>
+			<classes>
+			    <class name="com.redhat.qe.katello.tests.upgrade.v1.SetupServers"/>
+			    <class name="com.redhat.qe.katello.tests.upgrade.v1.ScenCustomRepo"/>
+			    <class name="com.redhat.qe.katello.tests.upgrade.v1.KatelloUpgrade"/>
+			</classes>
+		</groups>
+	</test>
+
 	<test name="DC_Tests">
 		<packages>
 			<package name="com.redhat.qe.katello.tests.deltacloud"/>
