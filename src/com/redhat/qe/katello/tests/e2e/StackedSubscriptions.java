@@ -32,7 +32,7 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 	private String product_name;
 	SSHCommandResult exec_result;
 	
-	@BeforeClass(description="Init unique names", alwaysRun=true, enabled=true)
+	@BeforeClass(description="Init unique names", alwaysRun=true, enabled=false)
 	public void setUp(){
 		
 		String uid = KatelloUtils.getUniqueID();
@@ -74,7 +74,7 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 	}
 	
 	
-	@AfterClass(description="Cleanup the org - allow others to reuse the manifest", alwaysRun=true, enabled=true)
+	@AfterClass(description="Cleanup the org - allow others to reuse the manifest", alwaysRun=true, enabled=false)
 	public void tearDown(){
 		log.finest("Remove the prepared: /etc/rhsm/facts/sockets.facts");
 		KatelloUtils.sshOnClient("rm -f /etc/rhsm/facts/sockets.facts");
@@ -83,7 +83,7 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (org delete)");
 	}
 	
-	@Test(description="Change system to have 8 sockets. Auto subscribe current system. Verify that it's compliance is green.", enabled=true)
+	@Test(description="Change system to have 8 sockets. Auto subscribe current system. Verify that it's compliance is green.", enabled=false)
 	public void test_autosubscribeCompliant() {		
 		cleanSubscriptions();
 		
@@ -97,7 +97,7 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains("green"), "Check - compliance is green");
 	}
 
-	@Test(description="Change system to have 8 sockets. Register current system but not auto suscibe. Verify that it's compliance is red.", enabled=true)
+	@Test(description="Change system to have 8 sockets. Register current system but not auto suscibe. Verify that it's compliance is red.", enabled=false)
 	public void test_notSubscribeNotCompliant() {
 		cleanSubscriptions();
 		
@@ -109,7 +109,7 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains("red"), "Check - compliance is red");
 	}
 
-	@Test(description="Change system to have 8 sockets. Subscribe current system only to first 2 sockets. Verify that it's compliance is yellow.", enabled=true)
+	@Test(description="Change system to have 8 sockets. Subscribe current system only to first 2 sockets. Verify that it's compliance is yellow.", enabled=false)
 	public void test_subscribeNonCompliant() {
 		cleanSubscriptions();
 		
@@ -126,7 +126,7 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 	}
 
 	@Test(description="Change system to have 8 sockets. Subscribe current system only to first 2 sockets. " +
-			"Verify that it's compliance is yellow. Subscribe 2 socept by loop untill it is compliant.", enabled=true)
+			"Verify that it's compliance is yellow. Subscribe 2 socept by loop untill it is compliant.", enabled=false)
 	public void test_loopsubscribeCompliant() {
 		cleanSubscriptions();
 		
@@ -160,7 +160,7 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 	}
 
 	@Test(description="Change system to have 8 sockets. Subscribe current system only to first 2 sockets of one of pools. " +
-			"Verify that it's compliance is yellow. Subscribe 2 socket of second pool. Verify that it's compliance is yellow.", enabled=true)
+			"Verify that it's compliance is yellow. Subscribe 2 socket of second pool. Verify that it's compliance is yellow.", enabled=false)
 	public void test_subscribeNonCompliantBothPools() {
 		cleanSubscriptions();
 		
@@ -185,7 +185,7 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 	}
 
 	@Test(description="Change system to have 8 sockets. Subscribe current system only to first 2 sockets of one of pools. Verify that it's compliance is yellow. " +
-			"Subscribe 8 socket of another product with 2 pools. Verify that it's compliance is yellow.", enabled=true)
+			"Subscribe 8 socket of another product with 2 pools. Verify that it's compliance is yellow.", enabled=false)
 	public void test_subscribeNonCompliantFirstProduct() {
 		cleanSubscriptions();
 		
@@ -216,7 +216,7 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 	}
 	
 	@Test(description="Change system to have 8 sockets. Subscribe current system to 8 sockets by several attempts to have multiple subscriptions. " +
-			"Remove one of them. Verify that it's compliance is yellow.", enabled=true)
+			"Remove one of them. Verify that it's compliance is yellow.", enabled=false)
 	public void test_unsubscribeNonCompliant() {
 		cleanSubscriptions();
 		
@@ -254,7 +254,7 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 	
 	
 	@Test(description="Change system to have 8 sockets. Subscribe current system to 8 sockets by several attempts to have multiple subscriptions for example 4. " +
-			"Verify that there are 4 separate subscriptions for system.", enabled=true)
+			"Verify that there are 4 separate subscriptions for system.", enabled=false)
 	public void test_differentSubscriptions() {
 		cleanSubscriptions();
 		
