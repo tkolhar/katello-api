@@ -47,6 +47,8 @@ public class KatelloSystem extends _KatelloObject{
 			"Organization %s has more than one environment. Please specify target environment for system registration.";
 	public static final String ERR_GUEST_HAS_DIFFERENT_HOST = 
 			"Guest's host does not match owner of pool: '%s'.";
+	public static final String ERR_DELETE_ACCESS = 
+			"User %s is not allowed to access api/candlepin_proxies/delete";
 	
 	public static final String OUT_REMOTE_ACTION_DONE = "Remote action finished:";
 	public static final String OUT_RHSM_SUBSCRIBED_OK = 
