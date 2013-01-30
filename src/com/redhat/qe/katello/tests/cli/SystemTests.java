@@ -299,8 +299,7 @@ public class SystemTests extends KatelloCliTestScript{
 				"Check - output (error)");
 	}
 
-	// @ TODO enable when bug 896074 is fixed
-	@Test(description = "delete registered system by user who has not permissions", enabled=false)
+	@Test(description = "delete registered system by user who has not permissions", enabled=true)
 	public void test_deleteSystemInvalidAccess(){
 		String uid = KatelloUtils.getUniqueID();
 		String system = "localhost-"+uid;
@@ -318,9 +317,9 @@ public class SystemTests extends KatelloCliTestScript{
 		
 		sys.runAs(user);
 		exec_result = sys.remove();
-		Assert.assertEquals(exec_result.getExitCode().intValue(), 145, "Check - return code");
-		Assert.assertTrue(exec_result.getStdout().trim().contains(KatelloSystem.OUT_DELETE),
-				"Check - output (success)");
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 147, "Check - return code");
+		Assert.assertTrue(exec_result.getStderr().trim().contains(String.format(KatelloSystem.ERR_DELETE_ACCESS, user.username)),
+				"Check - output (error)");
 	}
 	
 	@Test(description = "subscribe system to pool")
