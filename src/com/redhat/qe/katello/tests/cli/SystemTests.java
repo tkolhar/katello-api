@@ -104,8 +104,8 @@ public class SystemTests extends KatelloCliTestScript{
 		KatelloSystem sys = new KatelloSystem("localhost"+KatelloUtils.getUniqueID(), this.orgName, null);
 		exec_result = sys.rhsm_register(); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 255, "Check - return code");
-		Assert.assertEquals(exec_result.getStderr().trim(), 
-				String.format(KatelloSystem.ERR_RHSM_LOCKER_ONLY,this.orgName, KatelloEnvironment.LIBRARY),
+		Assert.assertTrue(exec_result.getStderr().trim().contains(
+				String.format(KatelloSystem.ERR_RHSM_LOCKER_ONLY,this.orgName, KatelloEnvironment.LIBRARY)),
 				"Check - please create an env.");
 	}
 	
@@ -264,8 +264,8 @@ public class SystemTests extends KatelloCliTestScript{
 		
 		exec_result = sys.subscribe(poolId1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertEquals(exec_result.getStdout().trim(), 
-				String.format(KatelloSystem.OUT_SUBSCRIBE, system),
+		Assert.assertTrue(exec_result.getStdout().trim().equals( 
+				String.format(KatelloSystem.OUT_SUBSCRIBE, system)),
 				"Check - subscribe system output.");
 	}
 
