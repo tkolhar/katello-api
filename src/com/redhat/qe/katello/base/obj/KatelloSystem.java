@@ -5,6 +5,7 @@ import javax.management.Attribute;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
 import com.redhat.qe.katello.base.KatelloCli;
+import com.redhat.qe.katello.common.KatelloConstants;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
@@ -73,7 +74,7 @@ public class KatelloSystem extends _KatelloObject{
 	
 	//Very sensitive regexp is used here for matching exact subscription in list.
 	public static final String REG_SUBSCRIPTION = "Subscription Name\\s*:\\s+%s\\s+SKU\\s*:\\s+\\w{5,15}+\\s+Pool Id\\s*:\\s+\\w{32}+\\s+Quantity\\s*:\\s+%s";
-	public static final String REG_SUBSCRIPTION_CFSE = "Product\\s+Name\\s*:\\s*%s\\s+Product\\s+ID\\s*:\\s*\\w{5,15}\\s+Pool\\s+ID\\s*:\\s*\\w{32}+\\s+Quantity\\s*:\\s*%s";
+	public static final String REG_SUBSCRIPTION_CFSE = "Product\\s+Name\\s*:\\s*%s\\s+Product\\s+Id\\s*:\\s*\\w{5,15}\\s+Pool\\s+Id\\s*:\\s*\\w{32}+\\s+Quantity\\s*:\\s*%s";
 	public static final String REG_POOL_ID = "\\s+\\w{32}+\\s+";
 	public static final String REG_SYSTEM_INFO = ".*Name\\s*:\\s+%s.*IPv4 Address\\s*:\\s+\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}.*UUID\\s*:\\s+\\w{8}-\\w{4}-\\w{4}-\\w{4}-\\w{12}.*Location\\s*:\\s+%s.*Description\\s*:\\s+%s.*";
 	public static final String REG_CUSTOM_INFO = ".*Custom Info\\s*:\\s+[\\s+%s\\s+].*";
@@ -327,7 +328,11 @@ public class KatelloSystem extends _KatelloObject{
 		if(this.org != null)
 			cmd += " --org \""+this.org+"\"";
 
-		cmd += " | grep \"Serial ID\" | wc -l";
+		if (KatelloConstants.KATELLO_PRODUCT.equals("katello") || KatelloConstants.KATELLO_PRODUCT.equals("headpin")) {
+			cmd += " | grep \"Serial ID\" | wc -l";	
+		} else {
+			cmd += " | grep \"Serial Id\" | wc -l";
+		}
 		
 		KatelloCli cli = new KatelloCli(cmd, null);
 		return cli.run();	
