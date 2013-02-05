@@ -235,6 +235,9 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 		
 		exec_result = sys.subscriptions();
 		String serialId = KatelloCli.grepCLIOutput("Serial Id", exec_result.getStdout());
+		if (serialId == null || serialId.isEmpty()) {
+			serialId = KatelloCli.grepCLIOutput("Serial ID", exec_result.getStdout());
+		}
 		
 		exec_result = sys.rhsm_unsubscribe(serialId);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
