@@ -19,7 +19,7 @@ import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SCPTools;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups={"cfse-e2e"})
+@Test(groups={"cfse-e2e","headpin-e2e"})
 public class StackedSubscriptions extends KatelloCliTestScript {
 	
 	protected static Logger log = Logger.getLogger(StackedSubscriptions.class.getName());
