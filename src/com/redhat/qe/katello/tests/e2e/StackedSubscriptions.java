@@ -38,8 +38,6 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 		this.system_name = "system-"+uid;
 		this.org_name = "org-manifest-"+uid;
 		
-		// [gkhachik] bot sure, it comes from "old" master. So I commented it. as for CFSE 1.1 it seems worked without this!
-		// But from the other side: lkook at tearDown.... So I decided to open it. Fixme if you see issues on Jenkins CI.
 		KatelloUtils.sshOnClient("echo '{\"cpu.cpu_socket(s)\":\"8\"}' > /etc/rhsm/facts/sockets.facts");
 		
 		SCPTools scp = new SCPTools(
@@ -51,6 +49,8 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 				"stack-manifest.zip sent successfully");			
 		KatelloOrg org = new KatelloOrg(this.org_name, null);
 		org.cli_create();
+
+		
 		KatelloProvider prov = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, this.org_name, null, null);
 		exec_result = prov.import_manifest("/tmp"+File.separator+"stack-manifest.zip", new Boolean(true));
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (provider import_manifest)");
@@ -234,7 +234,10 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains("green"), "Check - compliance is green");
 		
 		exec_result = sys.subscriptions();
-		String serialId = KatelloCli.grepCLIOutput("Serial ID", exec_result.getStdout());
+		String serialId = KatelloCli.grepCLIOutput("Serial Id", exec_result.getStdout());
+		if (serialId == null || serialId.isEmpty()) {
+			serialId = KatelloCli.grepCLIOutput("Serial ID", exec_result.getStdout());
+		}
 		
 		exec_result = sys.rhsm_unsubscribe(serialId);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
