@@ -31,14 +31,13 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 	
 	@BeforeClass(description="Init unique names", alwaysRun=true, enabled=true)
 	public void setUp(){
+		rhsm_clean();
 		
 		String uid = KatelloUtils.getUniqueID();
 		this.env_name = "Dev-"+uid;
 		this.system_name = "system-"+uid;
 		this.org_name = "org-manifest-"+uid;
 		
-		// [gkhachik] bot sure, it comes from "old" master. So I commented it. as for CFSE 1.1 it seems worked without this!
-		// But from the other side: lkook at tearDown.... So I decided to open it. Fixme if you see issues on Jenkins CI.
 		KatelloUtils.sshOnClient("echo '{\"cpu.cpu_socket(s)\":\"8\"}' > /etc/rhsm/facts/sockets.facts");
 		
 		SCPTools scp = new SCPTools(
@@ -50,6 +49,8 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 				"stack-manifest.zip sent successfully");			
 		KatelloOrg org = new KatelloOrg(this.org_name, null);
 		org.cli_create();
+
+		
 		KatelloProvider prov = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, this.org_name, null, null);
 		exec_result = prov.import_manifest("/tmp"+File.separator+"stack-manifest.zip", new Boolean(true));
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (provider import_manifest)");
@@ -64,9 +65,13 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 	public void tearDown(){
 		log.finest("Remove the prepared: /etc/rhsm/facts/sockets.facts");
 		KatelloUtils.sshOnClient("rm -f /etc/rhsm/facts/sockets.facts");
-		KatelloOrg org = new KatelloOrg(this.org_name, null);
-		SSHCommandResult res = org.delete();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (org delete)");
+		try {
+			cleanSubscriptions();
+		} finally {
+			KatelloOrg org = new KatelloOrg(this.org_name, null);
+			SSHCommandResult res = org.delete();
+			Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (org delete)");
+		}
 	}
 	
 	@Test(description="System has 8 sockets (see setUp). Auto subscribe current system. Verify that it's compliance is green.", enabled=true)
@@ -83,7 +88,7 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains("green"), "Check - compliance is green");
 	}
 
-	@Test(description="Register current system but not auto suscibe. Verify that it's compliance is red.", enabled=true)
+	@Test(description="Register current system but not auto suscibe. Verify that it's compliance is red.", enabled=true, dependsOnMethods={"test_autosubscribeCompliant"})
 	public void test_notSubscribeNotCompliant() {
 		cleanSubscriptions();
 		
@@ -95,7 +100,7 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains("red"), "Check - compliance is red");
 	}
 
-	@Test(description="Change system to have 8 sockets. Subscribe current system only to first 2 sockets. Verify that it's compliance is yellow.", enabled=true)
+	@Test(description="Change system to have 8 sockets. Subscribe current system only to first 2 sockets. Verify that it's compliance is yellow.", enabled=true, dependsOnMethods={"test_notSubscribeNotCompliant"})
 	public void test_subscribeNonCompliant() {
 		cleanSubscriptions();
 		
@@ -112,7 +117,7 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 	}
 
 	@Test(description="Change system to have 8 sockets. Subscribe current system only to first 2 sockets. " +
-			"Verify that it's compliance is yellow. Subscribe 2 socept by loop untill it is compliant.", enabled=true)
+			"Verify that it's compliance is yellow. Subscribe 2 socept by loop untill it is compliant.", enabled=true, dependsOnMethods={"test_subscribeNonCompliant"})
 	public void test_loopsubscribeCompliant() {
 		cleanSubscriptions();
 		
@@ -146,7 +151,7 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 	}
 
 	@Test(description="Change system to have 8 sockets. Subscribe current system only to first 2 sockets of one of pools. " +
-			"Verify that it's compliance is yellow. Subscribe 2 socket of second pool. Verify that it's compliance is yellow.", enabled=true)
+			"Verify that it's compliance is yellow. Subscribe 2 socket of second pool. Verify that it's compliance is yellow.", enabled=true, dependsOnMethods={"test_loopsubscribeCompliant"})
 	public void test_subscribeNonCompliantBothPools() {
 		cleanSubscriptions();
 		
@@ -171,7 +176,7 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 	}
 
 	@Test(description="Change system to have 8 sockets. Subscribe current system only to first 2 sockets of one of pools. Verify that it's compliance is yellow. " +
-			"Subscribe 8 socket of another product with 2 pools. Verify that it's compliance is yellow.", enabled=true)
+			"Subscribe 8 socket of another product with 2 pools. Verify that it's compliance is yellow.", enabled=true, dependsOnMethods={"test_subscribeNonCompliantBothPools"})
 	public void test_subscribeNonCompliantFirstProduct() {
 		cleanSubscriptions();
 		
@@ -202,7 +207,7 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 	}
 	
 	@Test(description="Change system to have 8 sockets. Subscribe current system to 8 sockets by several attempts to have multiple subscriptions. " +
-			"Remove one of them. Verify that it's compliance is yellow.", enabled=true)
+			"Remove one of them. Verify that it's compliance is yellow.", enabled=true, dependsOnMethods="test_subscribeNonCompliantFirstProduct")
 	public void test_unsubscribeNonCompliant() {
 		cleanSubscriptions();
 		
@@ -229,7 +234,10 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains("green"), "Check - compliance is green");
 		
 		exec_result = sys.subscriptions();
-		String serialId = KatelloCli.grepCLIOutput("Serial ID", exec_result.getStdout());
+		String serialId = KatelloCli.grepCLIOutput("Serial Id", exec_result.getStdout());
+		if (serialId == null || serialId.isEmpty()) {
+			serialId = KatelloCli.grepCLIOutput("Serial ID", exec_result.getStdout());
+		}
 		
 		exec_result = sys.rhsm_unsubscribe(serialId);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
@@ -240,7 +248,7 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 	
 	
 	@Test(description="Change system to have 8 sockets. Subscribe current system to 8 sockets by several attempts to have multiple subscriptions for example 4. " +
-			"Verify that there are 4 separate subscriptions for system.", enabled=true)
+			"Verify that there are 4 separate subscriptions for system.", enabled=true, dependsOnMethods={"test_unsubscribeNonCompliant"})
 	public void test_differentSubscriptions() {
 		cleanSubscriptions();
 		
