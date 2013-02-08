@@ -28,17 +28,29 @@ public class KatelloUpgrade extends KatelloCliTestScript{
 	@Test(description="prepare the upgrade yum repo", 
 			dependsOnGroups={TNG_PRE_UPGRADE}, 
 			groups={TNG_UPGRADE})
-	public void installYumRepo(){		
-		String upgradeRepo = System.getProperty("katello.upgrade.repo", UPGRADE_REPO_LATEST);
-		String _yumrepo = 
-				"["+KatelloConstants.KATELLO_PRODUCT+"-upgrade]\\\\n" +
-				"name="+KatelloConstants.KATELLO_PRODUCT+" upgrade\\\\n" +
-				"baseurl="+upgradeRepo+"\\\\n"+
-				"enabled=1\\\\n"+
-				"skip_if_unavailable=1\\\\n"+
-				"gpgcheck=0";
-		KatelloUtils.sshOnServer("echo -en \""+_yumrepo+"\" > /etc/yum.repos.d/" + KatelloConstants.KATELLO_PRODUCT + "-upgrade.repo");
-		
+	public void installYumRepo(){
+		if (Boolean.parseBoolean(System.getProperty("katello.upgrade.usecdn", "false"))) {
+			KatelloUtils.sshOnServer("subscription-manager clean");
+			KatelloUtils.sshOnServer("sed -i 's/hostname.*/hostname=subscription.rhn.redhat.com/g' /etc/rhsm/rhsm.conf");
+			KatelloUtils.sshOnServer("sed -i 's/prefix.*/prefix=/subscription/g' /etc/rhsm/rhsm.conf");
+			KatelloUtils.sshOnServer("sed -i 's/baseurl.*/baseurl=https:\\/\\/cdn.redhat.com/g' /etc/rhsm/rhsm.conf");
+			KatelloUtils.sshOnServer("subscription-manager register --username " + System.getProperty("cdn.username", "qa@redhat.com") + " --password " + System.getProperty("cdn.password", "password") + " --autosubscribe --force");
+			KatelloUtils.sshOnServer("subscription-manager subscribe --pool " + System.getProperty("cdn.poolid", "8a85f9843affb61f013b1fae79e26a75"));
+			KatelloUtils.sshOnServer("yum clean all");
+			KatelloUtils.sshOnServer("yum -y install yum-utils");
+			KatelloUtils.sshOnServer("yum-config-manager --enable rhel-6-server-cf-se-1-rpms");
+			KatelloUtils.sshOnServer("yum-config-manager --enable rhel-6-server-cf-tools-1-rpms");
+		} else {
+			String upgradeRepo = System.getProperty("katello.upgrade.repo", UPGRADE_REPO_LATEST);
+			String _yumrepo = 
+					"["+KatelloConstants.KATELLO_PRODUCT+"-upgrade]\\\\n" +
+					"name="+KatelloConstants.KATELLO_PRODUCT+" upgrade\\\\n" +
+					"baseurl="+upgradeRepo+"\\\\n"+
+					"enabled=1\\\\n"+
+					"skip_if_unavailable=1\\\\n"+
+					"gpgcheck=0";
+			KatelloUtils.sshOnServer("echo -en \""+_yumrepo+"\" > /etc/yum.repos.d/" + KatelloConstants.KATELLO_PRODUCT + "-upgrade.repo");
+		}
 		KatelloUtils.sshOnServer("sed -i 's/enabled=1/enabled=0/g' /etc/yum.repos.d/" + KatelloConstants.KATELLO_PRODUCT + ".repo");
 	}
 	
@@ -75,6 +87,10 @@ public class KatelloUpgrade extends KatelloCliTestScript{
 			dependsOnGroups={TNG_PRE_UPGRADE}, 
 			groups={TNG_UPGRADE})
 	public void runUpgrade(){
+		if(KATELLO_PRODUCT.equals("cfse"))
+			KatelloUtils.stopKatello();
+		else
+			KatelloUtils.stopHeadpin();
 		KatelloUtils.sshOnServer("yes | katello-upgrade"); // TODO using --log=LOG_FILE option. will change to -y after
 		if(KATELLO_PRODUCT.equals("cfse"))
 			KatelloUtils.stopKatello();
@@ -84,6 +100,10 @@ public class KatelloUpgrade extends KatelloCliTestScript{
 		if(KATELLO_PRODUCT.equals("sam")) // YES: to be run twice for SAM 1.2
 			KatelloUtils.sshOnServer("katello-configure --answer-file=/etc/katello/katello-configure.conf -b");
 		KatelloUtils.sshOnServer("sed -i 's/5674/5671/g' /etc/gofer/plugins/katelloplugin.conf"); // even if it will fail for sam - who cares ;)
+		if(KATELLO_PRODUCT.equals("cfse"))
+			KatelloUtils.startKatello();
+		else
+			KatelloUtils.startHeadpin();
 	}
 
 	@Test(description="ping services", 
