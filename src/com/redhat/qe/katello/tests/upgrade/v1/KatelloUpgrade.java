@@ -87,10 +87,6 @@ public class KatelloUpgrade extends KatelloCliTestScript{
 			dependsOnGroups={TNG_PRE_UPGRADE}, 
 			groups={TNG_UPGRADE})
 	public void runUpgrade(){
-		if(KATELLO_PRODUCT.equals("cfse"))
-			KatelloUtils.stopKatello();
-		else
-			KatelloUtils.stopHeadpin();
 		KatelloUtils.sshOnServer("yes | katello-upgrade"); // TODO using --log=LOG_FILE option. will change to -y after
 		if(KATELLO_PRODUCT.equals("cfse"))
 			KatelloUtils.stopKatello();
@@ -100,10 +96,6 @@ public class KatelloUpgrade extends KatelloCliTestScript{
 		if(KATELLO_PRODUCT.equals("sam")) // YES: to be run twice for SAM 1.2
 			KatelloUtils.sshOnServer("katello-configure --answer-file=/etc/katello/katello-configure.conf -b");
 		KatelloUtils.sshOnServer("sed -i 's/5674/5671/g' /etc/gofer/plugins/katelloplugin.conf"); // even if it will fail for sam - who cares ;)
-		if(KATELLO_PRODUCT.equals("cfse"))
-			KatelloUtils.startKatello();
-		else
-			KatelloUtils.startHeadpin();
 	}
 
 	@Test(description="ping services", 
