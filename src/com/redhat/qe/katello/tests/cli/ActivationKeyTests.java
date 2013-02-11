@@ -268,6 +268,46 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 		res = sys.rhsm_registerForce(akName); 
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
     }
+
+    
+    @Test(description="create activationkey with usage limit 2, register two systems, and try to register third, it will fail, unreister last one, register third one", groups = {"headpin-cli"}, enabled=true)
+    public void test_unregisterRegister() {
+    	String uid = KatelloUtils.getUniqueID();
+    	String akName="act_key-"+ uid; 
+    	SSHCommandResult res;
+    	KatelloActivationKey ak = new KatelloActivationKey(this.organization, this.env, akName, "Activation key created to ", null, "1");
+    	res = ak.create();
+    	Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key create)");
+    	ak.asserts_create();
+    	
+    	KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);
+    	
+    	String systemName = "localhost-"+KatelloUtils.getUniqueID();
+		KatelloSystem sys = new KatelloSystem(systemName, this.organization, null);
+		res = sys.rhsm_registerForce(akName); 
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
+		
+		KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);
+		
+		systemName = "localhost-"+KatelloUtils.getUniqueID();
+		sys = new KatelloSystem(systemName, this.organization, null);
+		res = sys.rhsm_registerForce(akName); 
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
+		
+		// third system should not register
+		systemName = "localhost-"+KatelloUtils.getUniqueID();
+		KatelloSystem sys3 = new KatelloSystem(systemName, this.organization, null);
+		res = sys3.rhsm_registerForce(akName); 
+		Assert.assertTrue(res.getExitCode().intValue() == 255, "Check - return code");
+		Assert.assertTrue(getOutput(res).contains(
+    			String.format(KatelloActivationKey.ERROR_EXCEED, "1", akName)), 
+    			"Check - returned output string for registering by activation key");	
+		
+		sys.unregister();
+		
+		res = sys3.rhsm_registerForce(akName);
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
+    }
     
     @Test(description="add system group to activationkey", groups = {"cli-activationkey"}, enabled=true)
     public void test_addSystemGroup() {
