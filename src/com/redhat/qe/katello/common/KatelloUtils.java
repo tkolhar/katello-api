@@ -440,6 +440,9 @@ public class KatelloUtils {
 			KatelloUtils.sshOnServer("yum install -y Katello-Katello-Installation-SAMLatest --disablerepo=* --enablerepo=beaker*");
 			KatelloUtils.sshOnServer("cd /mnt/tests/Katello/Installation/SAMLatest/; export SAM_RELEASE=" + version + "; make run");
 		} else if (product.equals("headpin")) {
+			KatelloUtils.sshOnServer("yum install -y Katello-Katello-Installation-ConfigureRepos --disablerepo=* --enablerepo=beaker*");
+			KatelloUtils.sshOnServer("cd /mnt/tests/Katello/Installation/ConfigureRepos/; make run");	
+
 			KatelloUtils.sshOnServer("yum install -y Katello-Katello-Installation-HeadpinNightly --disablerepo=* --enablerepo=beaker*");
 			KatelloUtils.sshOnServer("cd /mnt/tests/Katello/Installation/HeadpinNightly/; make run");
 		}
