@@ -17,15 +17,15 @@ public class DeltaCloudAPI {
 	
 	private static final int MAX_ATTEMPTS = 10; 
 	
-	public static DeltaCloudInstance provideServer(boolean nowait) {
-		return provideMachine(nowait);
+	public static DeltaCloudInstance provideServer(boolean nowait, String hostname) {
+		return provideMachine(nowait, hostname, "8192", "8");
 	}
 
-	public static DeltaCloudInstance provideClient(boolean nowait) {
-		return provideMachine(nowait);
+	public static DeltaCloudInstance provideClient(boolean nowait, String hostname) {
+		return provideMachine(nowait, hostname, null, null);
 	}
 	
-	private static DeltaCloudInstance provideMachine(boolean nowait) {
+	private static DeltaCloudInstance provideMachine(boolean nowait, String hostname, String memory, String storage) {
 		
 		DeltaCloudInstance machine = new DeltaCloudInstance();
 
@@ -35,7 +35,7 @@ public class DeltaCloudAPI {
 			Assert.assertNotNull(System.getProperty("deltacloud.user"), "Deltacloud username shoud be provided in system property \"deltacloud.user\"");
 			Assert.assertNotNull(System.getProperty("deltacloud.password"), "Deltacloud password shoud be provided in system property \"deltacloud.password\"");
 			DeltaCloudClientImpl dcl = new DeltaCloudClientImpl(System.getProperty("deltacloud.hostname"), System.getProperty("deltacloud.user"), System.getProperty("deltacloud.password"));
-			Instance inst = dcl.createInstance(image);
+			Instance inst = dcl.createInstance(hostname, image, null, null, memory, storage);
 			machine.setInstance(inst);
 			machine.setClient(dcl);
 			if (nowait) {

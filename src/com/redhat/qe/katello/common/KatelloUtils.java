@@ -296,7 +296,7 @@ public class KatelloUtils {
 		if (number > KatelloConstants.DELTACLOUD_SERVERS.length) return null;
 		String[] configs = KatelloConstants.DELTACLOUD_SERVERS[number-1];
 		
-		DeltaCloudInstance server = DeltaCloudAPI.provideServer(nowait);
+		DeltaCloudInstance server = DeltaCloudAPI.provideServer(nowait, configs[0]);
 		
 		Assert.assertNotNull(server.getClient());
 		
@@ -321,12 +321,13 @@ public class KatelloUtils {
 	public static DeltaCloudInstance getDeltaCloudClient(String server, int number) {
 		
 		if (number > KatelloConstants.DELTACLOUD_CLIENTS.length) return null;
+		String[] configs = KatelloConstants.DELTACLOUD_CLIENTS[number-1];
 
-		DeltaCloudInstance client = DeltaCloudAPI.provideClient(false);
+		DeltaCloudInstance client = DeltaCloudAPI.provideClient(false, configs[0]);
 
 		Assert.assertNotNull(client.getClient());
 		
-		configureDDNS(client, KatelloConstants.DELTACLOUD_CLIENTS[--number]);
+		configureDDNS(client, configs);
 		
 		_sshClients.put(client.getHostName(), _sshClients.get(client.getIpAddress()));
 		
@@ -381,6 +382,9 @@ public class KatelloUtils {
 		sshOnClientNoWait(machine.getIpAddress(), "service network restart");
 		
 		try { Thread.sleep(5000); } catch (Exception e) {}
+		
+		sshOnClient(machine.getIpAddress(), "sed -i 's/server 10.16.47.254 /server 10.16.71.254/g' /etc/ntp.conf");
+		sshOnClient(machine.getIpAddress(), "service ntpd restart");
 		
 		machine.setHostName(configs[0] + "." + configs[1]);
 	}
