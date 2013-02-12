@@ -109,7 +109,7 @@ public class KatelloTemplate extends _KatelloObject{
 		opts.add(new Attribute("name", name));
 		return run(CMD_UPDATE);
 	}
-
+	
 	public SSHCommandResult update_add_package(String pkg){
 		return update_add_package(null, pkg);
 	}
