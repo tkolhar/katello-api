@@ -90,13 +90,7 @@ public class OrgTests extends KatelloCliTestScript{
 		res = org.update(new_desc);
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 		Assert.assertEquals(getOutput(res).trim(), String.format("Successfully updated org [ %s ]",org.name));
-		
-		// @ TODO this fails on jenkins
-//		org.description = "您好" + org.description;
-//		res = org.update(org.description);
-//		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
-//		Assert.assertEquals(getOutput(res).trim(), String.format("Successfully updated org [ %s ]",org.name));
-		
+
 		res = org.cli_list();
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code (org list)");
 
