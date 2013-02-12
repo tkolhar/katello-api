@@ -99,6 +99,7 @@ public class KatelloActivationKey extends _KatelloObject{
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("environment", environment));
 		opts.add(new Attribute("add_subscription", subscriptionId));
 		return run(CMD_UPDATE);
 	}
