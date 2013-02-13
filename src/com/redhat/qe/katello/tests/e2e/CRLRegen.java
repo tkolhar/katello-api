@@ -130,7 +130,7 @@ public class CRLRegen extends KatelloCliTestScript{
 		KatelloCli cli = new KatelloCli("admin crl_regen", null);
 		exec_result = cli.run();
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (admin crl_regen)");
-		exec_result = KatelloUtils.sshOnClient("ls -la /var/lib/candlepin/ | grep candlepin-crl.crl");
+		exec_result = KatelloUtils.sshOnServer("ls -la /var/lib/candlepin/ | grep candlepin-crl.crl");
 		Assert.assertTrue(getOutput(exec_result).contains("candlepin-crl.crl"));
 		
 		yum_clean();
