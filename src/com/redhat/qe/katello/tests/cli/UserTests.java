@@ -172,13 +172,15 @@ public class UserTests extends KatelloCliTestScript{
 	
 	@Test(description="Generates User Report - pdf format", enabled=true)
 	public void test_UserReport_pdf(){
+		KatelloUtils.sshOnClient("rm -f katello_users_report.pdf");
 		SSHCommandResult res;
 		String format = "pdf";
 		KatelloUser usr = new KatelloUser();
 		res = usr.report(format);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+KatelloUser.CMD_REPORT+")");
 		
-	
+		res = KatelloUtils.sshOnClient("ls -la | grep katello_users_report.pdf");
+		Assert.assertTrue(getOutput(res).contains("katello_users_report.pdf"));
 	}
 	
 	@Test(description="Generates User Report - html format", enabled=true)

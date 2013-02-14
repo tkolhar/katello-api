@@ -111,7 +111,12 @@ public class KatelloTemplate extends _KatelloObject{
 	}
 	
 	public SSHCommandResult update_add_package(String pkg){
+		return update_add_package(null, pkg);
+	}
+	
+	public SSHCommandResult update_add_package(String product, String pkg){
 		opts.clear();
+		opts.add(new Attribute("from_product", product));
 		opts.add(new Attribute("add_package", pkg));
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
@@ -119,7 +124,12 @@ public class KatelloTemplate extends _KatelloObject{
 	}
 
 	public SSHCommandResult update_remove_package(String pkg){
+		return update_remove_package(null, pkg);
+	}
+	
+	public SSHCommandResult update_remove_package(String product, String pkg){
 		opts.clear();
+		opts.add(new Attribute("from_product", product));
 		opts.add(new Attribute("remove_package", pkg));
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));

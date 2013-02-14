@@ -144,7 +144,7 @@ task printProps << {
     println System.properties
 }
 
-def TESTNG_KATELLO_DEFAULT_TESTS = "Smoke_Tests,CLI_Tests,E2E_Tests"
+def TESTNG_KATELLO_DEFAULT_TESTS = "Smoke_Tests,CLI_Tests,E2E_Tests,DC_Tests"
 def TESTNG_KATELLO_SUITE = "testng-suites/katello-tests.xml"
 def TESTNG_HEADPIN_SUITE = "testng-suites/headpin-tests.xml"
 def TESTNG_KATELLO_EXCLUDE_GROUPS = "openldap,sam-upgrade"

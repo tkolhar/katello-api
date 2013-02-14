@@ -86,15 +86,11 @@ public class OrgTests extends KatelloCliTestScript{
 		res = org.cli_create();
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 		String new_desc = String.format("Updated %s",org.description);
+		org.description = new_desc;
 		res = org.update(new_desc);
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 		Assert.assertEquals(getOutput(res).trim(), String.format("Successfully updated org [ %s ]",org.name));
-		
-		org.description = "您好" + org.description;
-		res = org.update(org.description);
-		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
-		Assert.assertEquals(getOutput(res).trim(), String.format("Successfully updated org [ %s ]",org.name));
-		
+
 		res = org.cli_list();
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code (org list)");
 

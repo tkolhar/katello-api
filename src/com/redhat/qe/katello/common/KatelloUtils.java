@@ -296,7 +296,9 @@ public class KatelloUtils {
 		if (number > KatelloConstants.DELTACLOUD_SERVERS.length) return null;
 		String[] configs = KatelloConstants.DELTACLOUD_SERVERS[number-1];
 		
-		DeltaCloudInstance server = DeltaCloudAPI.provideServer(nowait);
+		DeltaCloudInstance server = DeltaCloudAPI.provideServer(nowait, configs[0]);
+		
+		Assert.assertNotNull(server.getClient());
 		
 		System.setProperty("katello.server.hostname", server.getIpAddress());
 		
@@ -319,10 +321,13 @@ public class KatelloUtils {
 	public static DeltaCloudInstance getDeltaCloudClient(String server, int number) {
 		
 		if (number > KatelloConstants.DELTACLOUD_CLIENTS.length) return null;
+		String[] configs = KatelloConstants.DELTACLOUD_CLIENTS[number-1];
 
-		DeltaCloudInstance client = DeltaCloudAPI.provideClient(false);
+		DeltaCloudInstance client = DeltaCloudAPI.provideClient(false, configs[0]);
 
-		configureDDNS(client, KatelloConstants.DELTACLOUD_CLIENTS[--number]);
+		Assert.assertNotNull(client.getClient());
+		
+		configureDDNS(client, configs);
 		
 		_sshClients.put(client.getHostName(), _sshClients.get(client.getIpAddress()));
 		
@@ -378,6 +383,9 @@ public class KatelloUtils {
 		
 		try { Thread.sleep(5000); } catch (Exception e) {}
 		
+		sshOnClient(machine.getIpAddress(), "sed -i 's/server 10.16.47.254 /server 10.16.71.254/g' /etc/ntp.conf");
+		sshOnClient(machine.getIpAddress(), "service ntpd restart");
+		
 		machine.setHostName(configs[0] + "." + configs[1]);
 	}
 	
@@ -388,6 +396,9 @@ public class KatelloUtils {
 	private static void installServer(DeltaCloudInstance machine) {
 		KatelloUtils.sshOnServer("touch /etc/yum.repos.d/beaker-tasks.repo");
 		KatelloUtils.sshOnServer("touch /etc/yum.repos.d/beaker.repo");
+		
+		String version = System.getProperty("katello.product.version", "1.1");
+		String product = System.getProperty("katello.product", "katello");
 		
 		String yumrepo = 
 				"[beaker-tasks]\\\\n" +
@@ -415,14 +426,31 @@ public class KatelloUtils {
 		KatelloUtils.sshOnServer("chmod a+x ~/.beaker_client/config");
 		
 		KatelloUtils.sshOnServer("yum install -y Katello-Katello-Sanity-ImportKeys --disablerepo=* --enablerepo=beaker*");
-		KatelloUtils.sshOnServer("cd /mnt/tests/Katello/Sanity/ImportKeys/; export CFSE_RELEASE=1.1; make run");
+		KatelloUtils.sshOnServer("cd /mnt/tests/Katello/Sanity/ImportKeys/; make run");
 		
 		KatelloUtils.sshOnServer("yum install -y Katello-Katello-Installation-RegisterRHNClassic --disablerepo=* --enablerepo=beaker*");
-		KatelloUtils.sshOnServer("cd /mnt/tests/Katello/Installation/RegisterRHNClassic/; export CFSE_RELEASE=1.1; make run");
+		KatelloUtils.sshOnServer("cd /mnt/tests/Katello/Installation/RegisterRHNClassic/; make run");
 		
-		KatelloUtils.sshOnServer("yum install -y Katello-Katello-Installation-SystemEngineLatest --disablerepo=* --enablerepo=beaker*");
-		KatelloUtils.sshOnServer("cd /mnt/tests/Katello/Installation/SystemEngineLatest/; export CFSE_RELEASE=1.1; make run");
+		if (product.equals("katello")) {
+			KatelloUtils.sshOnServer("yum install -y Katello-Katello-Installation-ConfigureRepos --disablerepo=* --enablerepo=beaker*");
+			KatelloUtils.sshOnServer("cd /mnt/tests/Katello/Installation/ConfigureRepos/; make run");	
 
+			KatelloUtils.sshOnServer("yum install -y Katello-Katello-Installation-KatelloNightly --disablerepo=* --enablerepo=beaker*");
+			KatelloUtils.sshOnServer("cd /mnt/tests/Katello/Installation/KatelloNightly/; make run");
+		} else if (product.equals("cfse")) {
+			KatelloUtils.sshOnServer("yum install -y Katello-Katello-Installation-SystemEngineLatest --disablerepo=* --enablerepo=beaker*");
+			KatelloUtils.sshOnServer("cd /mnt/tests/Katello/Installation/SystemEngineLatest/; export CFSE_RELEASE=" + version + "; make run");
+		} else if (product.equals("sam")) {
+			KatelloUtils.sshOnServer("yum install -y Katello-Katello-Installation-SAMLatest --disablerepo=* --enablerepo=beaker*");
+			KatelloUtils.sshOnServer("cd /mnt/tests/Katello/Installation/SAMLatest/; export SAM_RELEASE=" + version + "; make run");
+		} else if (product.equals("headpin")) {
+			KatelloUtils.sshOnServer("yum install -y Katello-Katello-Installation-ConfigureRepos --disablerepo=* --enablerepo=beaker*");
+			KatelloUtils.sshOnServer("cd /mnt/tests/Katello/Installation/ConfigureRepos/; make run");	
+
+			KatelloUtils.sshOnServer("yum install -y Katello-Katello-Installation-HeadpinNightly --disablerepo=* --enablerepo=beaker*");
+			KatelloUtils.sshOnServer("cd /mnt/tests/Katello/Installation/HeadpinNightly/; make run");
+		}
+		
 		startKatello();
 		
 		try { Thread.sleep(5000); } catch (Exception e) {}
@@ -457,6 +485,9 @@ public class KatelloUtils {
 				"gpgcheck=0";
 		KatelloUtils.sshOnClient(machine.getIpAddress(), "echo -en \""+yumrepo+"\" > /etc/yum.repos.d/beaker.repo");
 		
+		String version = System.getProperty("katello.product.version", "1.1");
+		String product = System.getProperty("katello.product", "katello");
+		
 		KatelloUtils.sshOnClient(machine.getIpAddress(), "yum -y install beakerlib beakerlib-redhat rhts-python rhts-test-env --disablerepo=* --enablerepo=beaker*");
 		KatelloUtils.sshOnClient(machine.getIpAddress(), "mkdir ~/.beaker_client");
 		KatelloUtils.sshOnClient(machine.getIpAddress(), "touch ~/.beaker_client/config");
@@ -465,21 +496,35 @@ public class KatelloUtils {
 		KatelloUtils.sshOnClient(machine.getIpAddress(), "chmod a+x ~/.beaker_client/config");
 		
 		KatelloUtils.sshOnClient(machine.getIpAddress(), "yum install -y Katello-Katello-Sanity-ImportKeys --disablerepo=* --enablerepo=beaker*");
-		KatelloUtils.sshOnClient(machine.getIpAddress(), "cd /mnt/tests/Katello/Sanity/ImportKeys/; export CFSE_RELEASE=1.1; make run");
+		KatelloUtils.sshOnClient(machine.getIpAddress(), "cd /mnt/tests/Katello/Sanity/ImportKeys/; make run");
 		
 		KatelloUtils.sshOnClient(machine.getIpAddress(), "yum install -y Katello-Katello-Installation-RegisterRHNClassic --disablerepo=* --enablerepo=beaker*");
-		KatelloUtils.sshOnClient(machine.getIpAddress(), "cd /mnt/tests/Katello/Installation/RegisterRHNClassic/; export CFSE_RELEASE=1.1; make run");
+		KatelloUtils.sshOnClient(machine.getIpAddress(), "cd /mnt/tests/Katello/Installation/RegisterRHNClassic/; make run");
 		
-		KatelloUtils.sshOnClient(machine.getIpAddress(), "yum install -y Katello-Katello-Configuration-KatelloClient --disablerepo=* --enablerepo=beaker*");
-		KatelloUtils.sshOnClient(machine.getIpAddress(), "cd /mnt/tests/Katello/Configuration/KatelloClient/; export KATELLO_SERVER_HOSTNAME=" + server + "; export CFSE_RELEASE=1.1; make run");
+		if (product.equals("katello")) {
+			KatelloUtils.sshOnClient(machine.getIpAddress(), "yum install -y Katello-Katello-Installation-ConfigureRepos --disablerepo=* --enablerepo=beaker*");
+			KatelloUtils.sshOnClient(machine.getIpAddress(), "cd /mnt/tests/Katello/Installation/ConfigureRepos/; make run");	
+
+			KatelloUtils.sshOnClient(machine.getIpAddress(), "yum install -y Katello-Katello-Configuration-KatelloClient --disablerepo=* --enablerepo=beaker*");
+			KatelloUtils.sshOnClient(machine.getIpAddress(), "cd /mnt/tests/Katello/Configuration/KatelloClient/; export KATELLO_SERVER_HOSTNAME=" + server + "; make run");
+		} else if (product.equals("cfse")) {
+			KatelloUtils.sshOnClient(machine.getIpAddress(), "yum install -y Katello-Katello-Configuration-KatelloClient --disablerepo=* --enablerepo=beaker*");
+			KatelloUtils.sshOnClient(machine.getIpAddress(), "cd /mnt/tests/Katello/Configuration/KatelloClient/; export KATELLO_SERVER_HOSTNAME=" + server + "; export CFSE_RELEASE=" + version + "; make run");
+		} else if (product.equals("sam") || product.equals("headpin")) {
+			KatelloUtils.sshOnClient(machine.getIpAddress(), "yum -y update subscription-manager python-rhsm --disablerepo=\\*beaker\\*");
+			KatelloUtils.sshOnClient(machine.getIpAddress(), "yum -y install http://" + server + "/pub/candlepin-cert-consumer-" + server + "-1.0-1.noarch.rpm --disablerepo \\*beaker\\*");
+			KatelloUtils.sshOnClient(machine.getIpAddress(), "sed -i \\\"s|host\\s*=.*|host = " + server + "|g\\\" /etc/katello/client.conf");
+		}
 		
-		startKatello();
+		if (!product.equals("sam") && !product.equals("headpin")) {
+			startKatello();
 		
-		try { Thread.sleep(5000); } catch (Exception e) {}
-		
-		KatelloPing ping = new KatelloPing();
-		ping.runOn(machine.getIpAddress());
-		SSHCommandResult res = ping.cli_ping();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check services up");
+			try { Thread.sleep(5000); } catch (Exception e) {}
+			
+			KatelloPing ping = new KatelloPing();
+			ping.runOn(machine.getIpAddress());
+			SSHCommandResult res = ping.cli_ping();
+			Assert.assertTrue(res.getExitCode().intValue()==0, "Check services up");
+		}
 	}
 }

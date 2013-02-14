@@ -20,25 +20,25 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 	protected SSHCommandResult exec_result;
 
 	// Katello objects below
-	protected String org_name;
-	protected String provider_name;
-	protected String product_name;
-	protected String repo_name;
-	protected String env_name;
-	protected String changeset_name;
-	protected String system_name;
-	protected String system_name2;
-	protected String system_name3;
-	protected String group_name;
-	protected String group_name2;
-	protected String system_uuid;
-	protected String system_uuid2;
-	protected String system_uuid3;
-	protected DeltaCloudInstance server;
-	protected DeltaCloudInstance client;
-	protected DeltaCloudInstance client2;
-	protected DeltaCloudInstance client3;
-	protected String server_name;
+	protected static String org_name;
+	protected static String provider_name;
+	protected static String product_name;
+	protected static String repo_name;
+	protected static String env_name;
+	protected static String changeset_name;
+	protected static String system_name;
+	protected static String system_name2;
+	protected static String system_name3;
+	protected static String group_name;
+	protected static String group_name2;
+	protected static String system_uuid;
+	protected static String system_uuid2;
+	protected static String system_uuid3;
+	protected static DeltaCloudInstance server;
+	protected static DeltaCloudInstance client;
+	protected static DeltaCloudInstance client2;
+	protected static DeltaCloudInstance client3;
+	protected static String server_name;
 	protected static String client_name;
 	protected static String client_name2;
 	protected static String client_name3;
@@ -72,7 +72,7 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 		client_name3 = client3.getHostName();
 		
 		// Create org:
-		KatelloOrg org = new KatelloOrg(this.org_name, "Package tests");
+		KatelloOrg org = new KatelloOrg(org_name, "Package tests");
 		org.runOn(client_name);
 		exec_result = org.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
@@ -119,7 +119,7 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 		exec_result = cs.apply();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset promote)");
 		
-		KatelloSystem sys = new KatelloSystem(system_name, this.org_name, this.env_name);
+		KatelloSystem sys = new KatelloSystem(system_name, org_name, env_name);
 		sys.runOn(client_name);
 		exec_result = sys.rhsm_registerForce(); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
@@ -134,7 +134,7 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 		exec_result = sys.rhsm_subscribe(poolId1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		sys = new KatelloSystem(system_name2, this.org_name, this.env_name);
+		sys = new KatelloSystem(system_name2, org_name, env_name);
 		sys.runOn(client_name2);
 		exec_result = sys.rhsm_registerForce(); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
@@ -145,7 +145,7 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 		exec_result = sys.rhsm_subscribe(poolId1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
-		sys = new KatelloSystem(system_name3, this.org_name, this.env_name);
+		sys = new KatelloSystem(system_name3, org_name, env_name);
 		sys.runOn(client_name3);
 		exec_result = sys.rhsm_registerForce(); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
@@ -156,7 +156,7 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 		exec_result = sys.rhsm_subscribe(poolId1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		KatelloSystemGroup group = new KatelloSystemGroup(group_name, this.org_name);
+		KatelloSystemGroup group = new KatelloSystemGroup(group_name, org_name);
 		group.runOn(client_name);
 		exec_result = group.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
@@ -170,7 +170,7 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 		exec_result = group.add_systems(system_uuid3);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		group = new KatelloSystemGroup(group_name2, this.org_name);
+		group = new KatelloSystemGroup(group_name2, org_name);
 		group.runOn(client_name);
 		exec_result = group.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
