@@ -33,11 +33,11 @@ public class SetupServers extends KatelloCliTestScript {
 			client = KatelloUtils.getDeltaCloudClient(server_name, 1);
 			client_name = client.getHostName();
 			
-			client2 = KatelloUtils.getDeltaCloudClient(server_name, 2);
-			client_name2 = client2.getHostName();
-			
-			client3 = KatelloUtils.getDeltaCloudClient(server_name, 3);
-			client_name3 = client3.getHostName();
+//			client2 = KatelloUtils.getDeltaCloudClient(server_name, 2);
+//			client_name2 = client2.getHostName();
+//			
+//			client3 = KatelloUtils.getDeltaCloudClient(server_name, 3);
+//			client_name3 = client3.getHostName();
 			
 			System.setProperty("katello.server.hostname", server.getHostName());
 			System.setProperty("katello.client.hostname", client.getHostName());
@@ -47,8 +47,8 @@ public class SetupServers extends KatelloCliTestScript {
 	@AfterSuite
 	public void tearDown() {
 		if (isDeltacloud) {
-//			KatelloUtils.destroyDeltaCloudMachine(server);
-//			KatelloUtils.destroyDeltaCloudMachine(client);
+			KatelloUtils.destroyDeltaCloudMachine(server);
+			KatelloUtils.destroyDeltaCloudMachine(client);
 //			KatelloUtils.destroyDeltaCloudMachine(client2);
 //			KatelloUtils.destroyDeltaCloudMachine(client3);
 		}
