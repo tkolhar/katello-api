@@ -40,10 +40,14 @@ public class VirtualSubscriptions implements KatelloConstants {
 			groups={TNG_PRE_UPGRADE},
 			alwaysRun=true)
 	public void checkClients(){
-		String clientsStr = System.getProperty("katello.upgrade.clients", "");
-		clients = clientsStr.split(",");
-		if(clientsStr.isEmpty() || clients.length <2 ||  clients[0].isEmpty() || clients[1].isEmpty()) {
-			Assert.fail("Please specify \"katello.upgrade.clients\" with at least 2 clients");
+		if (SetupServers.isDeltacloud) {
+			clients = new String[] {SetupServers.client_name2, SetupServers.client_name3};
+		} else {
+			String clientsStr = System.getProperty("katello.upgrade.clients", "");
+			clients = clientsStr.split(",");
+			if(clientsStr.isEmpty() || clients.length <2 ||  clients[0].isEmpty() || clients[1].isEmpty()) {
+				Assert.fail("Please specify \"katello.upgrade.clients\" with at least 2 clients");
+			}
 		}
 		Assert.assertFalse(clients[1].equalsIgnoreCase(clients[0]), "2 clients are different");
 		

@@ -28,16 +28,30 @@ public class KatelloUpgrade extends KatelloCliTestScript{
 	@Test(description="prepare the upgrade yum repo", 
 			dependsOnGroups={TNG_PRE_UPGRADE}, 
 			groups={TNG_UPGRADE})
-	public void installYumRepo(){		
-		String upgradeRepo = System.getProperty("katello.upgrade.repo", UPGRADE_REPO_LATEST);
-		String _yumrepo = 
-				"["+KatelloConstants.KATELLO_PRODUCT+"-upgrade]\\\\n" +
-				"name="+KatelloConstants.KATELLO_PRODUCT+" upgrade\\\\n" +
-				"baseurl="+upgradeRepo+"\\\\n"+
-				"enabled=1\\\\n"+
-				"skip_if_unavailable=1\\\\n"+
-				"gpgcheck=0";
-		KatelloUtils.sshOnServer("echo -en \""+_yumrepo+"\" > /etc/yum.repos.d/" + KatelloConstants.KATELLO_PRODUCT + "-upgrade.repo");
+	public void installYumRepo(){
+		if (Boolean.parseBoolean(System.getProperty("katello.upgrade.usecdn", "false"))) {
+			KatelloUtils.sshOnServer("subscription-manager clean");
+			KatelloUtils.sshOnServer("sed -i 's/hostname.*/hostname=subscription.rhn.redhat.com/g' /etc/rhsm/rhsm.conf");
+			KatelloUtils.sshOnServer("sed -i 's/prefix.*/prefix=/subscription/g' /etc/rhsm/rhsm.conf");
+			KatelloUtils.sshOnServer("sed -i 's/baseurl.*/baseurl=https:\\/\\/cdn.redhat.com/g' /etc/rhsm/rhsm.conf");
+			KatelloUtils.sshOnServer("subscription-manager register --username " + System.getProperty("cdn.username", "qa@redhat.com") + " --password " + System.getProperty("cdn.password", "password") + " --autosubscribe --force");
+			KatelloUtils.sshOnServer("subscription-manager subscribe --pool " + System.getProperty("cdn.poolid", "8a85f9843affb61f013b1fae79e26a75"));
+			KatelloUtils.sshOnServer("yum clean all");
+			KatelloUtils.sshOnServer("yum -y install yum-utils");
+			KatelloUtils.sshOnServer("yum-config-manager --enable rhel-6-server-cf-se-1-rpms");
+			KatelloUtils.sshOnServer("yum-config-manager --enable rhel-6-server-cf-tools-1-rpms");
+		} else {
+			String upgradeRepo = System.getProperty("katello.upgrade.repo", UPGRADE_REPO_LATEST);
+			String _yumrepo = 
+					"["+KatelloConstants.KATELLO_PRODUCT+"-upgrade]\\\\n" +
+					"name="+KatelloConstants.KATELLO_PRODUCT+" upgrade\\\\n" +
+					"baseurl="+upgradeRepo+"\\\\n"+
+					"enabled=1\\\\n"+
+					"skip_if_unavailable=1\\\\n"+
+					"gpgcheck=0";
+			KatelloUtils.sshOnServer("echo -en \""+_yumrepo+"\" > /etc/yum.repos.d/" + KatelloConstants.KATELLO_PRODUCT + "-upgrade.repo");
+		}
+		KatelloUtils.sshOnServer("sed -i 's/enabled=1/enabled=0/g' /etc/yum.repos.d/" + KatelloConstants.KATELLO_PRODUCT + ".repo");
 	}
 	
 	@Test(description="stop services", 
@@ -64,7 +78,8 @@ public class KatelloUpgrade extends KatelloCliTestScript{
 					"service elasticsearch stop; sleep 3;");
 		}
 		KatelloUtils.sshOnServer("yum clean all");
-		KatelloUtils.sshOnServer("yum upgrade -y --exclude libxslt --disablerepo \\*beaker\\*"); // TODO --exclude libxslt is workaround which should be removed later
+		SSHCommandResult res = KatelloUtils.sshOnServer("yum upgrade -y"); // TODO --exclude libxslt is workaround which should be removed later
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (upgrade)");
 	}
 	
 	@Test(description="run schema upgrade", 
