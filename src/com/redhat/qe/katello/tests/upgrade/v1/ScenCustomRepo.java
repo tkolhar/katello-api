@@ -44,7 +44,7 @@ public class ScenCustomRepo implements KatelloConstants{
 	@BeforeGroups(description="check that at there is at least one separate katello client provided to install remotelly on it", groups={TNG_PRE_UPGRADE, TNG_UPGRADE, TNG_POST_UPGRADE})
 	public void checkUpgradeClients() {
 		if (SetupServers.isDeltacloud) {
-			clients = new String[] {SetupServers.client_name2};
+			clients = new String[] {SetupServers.client_name};
 		} else {
 			String clientsStr = System.getProperty("katello.upgrade.clients", "");
 			clients = clientsStr.split(",");
