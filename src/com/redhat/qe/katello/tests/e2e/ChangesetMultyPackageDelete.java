@@ -61,6 +61,7 @@ public class ChangesetMultyPackageDelete extends KatelloCliTestScript {
 		gpg_key.cli_create();
 	}
 	
+	// @ TODO enable when bug 903520 is fixed
 	@Test(description = "Create changeset of deletion type," +
 			" then add already promoted packages to changeset and promote it," +
 			" verify that packages does not exist in environment anymore", enabled=false)
@@ -111,6 +112,7 @@ public class ChangesetMultyPackageDelete extends KatelloCliTestScript {
 		Assert.assertFalse(exec_result.getExitCode().intValue()==0, "Check - return code (install package)");
 	}
 
+	// @ TODO enable when bug 903520 is fixed
 	@Test(description = "Create changeset of promotion type," +
 			" then add already reomved packages to changeset and promote it," +
 			" verify that packages exist in environment", dependsOnMethods = {"test_deletionChangesetRemovePackages"}, enabled=false)
