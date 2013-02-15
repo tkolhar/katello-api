@@ -116,8 +116,8 @@ public class ChangesetProductDelete extends KatelloCliTestScript {
 		provider_name = "provider"+uid;
 		product_name = "product"+uid;
 		repo_name = "repo"+uid;
-		chst_name = "MötleyCrüechangeset"+uid;		
-		delchst_name = "我喜欢吃饺子deletion_chst" +uid;
+		chst_name = "MotleyCruechangeset"+uid;		
+		delchst_name = "deletion_chst" +uid;
 		system_name = "system" +uid;
 		readdchst_name = "readd_chst" + uid;
 		
