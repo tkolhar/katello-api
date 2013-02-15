@@ -79,9 +79,9 @@ public class KatelloSystem extends _KatelloObject{
 	public static final String REG_SYSTEM_INFO = ".*Name\\s*:\\s+%s.*IPv4 Address\\s*:\\s+\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}.*UUID\\s*:\\s+\\w{8}-\\w{4}-\\w{4}-\\w{4}-\\w{12}.*Location\\s*:\\s+%s.*Description\\s*:\\s+%s.*";
 	public static final String REG_CUSTOM_INFO = ".*Custom Info\\s*:\\s+[\\s+%s\\s+].*";
 	
-	public static final String SYSTEM_UUIDS = "system list --org %s --noheading -v | grep \"^UUID\\s*:\" | cut -f2 -d: | sed 's/ *$//g' | sed 's/^ *//g'";
-	public static final String SYSTEM_UNREGISTER = "system unregister --uuid %s --org %s";
-	public static final String SYSTEM_UNSUBSCRIBE = "system unsubscribe --all --uuid %s --org %s";
+	public static final String SYSTEM_UUIDS = "system list --org '%s' --noheading -v | grep \"^UUID\\s*:\" | cut -f2 -d: | sed 's/ *$//g' | sed 's/^ *//g'";
+	public static final String SYSTEM_UNREGISTER = "system unregister --uuid %s --org '%s'";
+	public static final String SYSTEM_UNSUBSCRIBE = "system unsubscribe --all --uuid %s --org '%s'";
 	
 	// ** ** ** ** ** ** ** Class members
 	public String name;
