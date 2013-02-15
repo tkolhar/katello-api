@@ -31,15 +31,19 @@ public class KatelloUpgrade extends KatelloCliTestScript{
 	public void installYumRepo(){
 		if (Boolean.parseBoolean(System.getProperty("katello.upgrade.usecdn", "false"))) {
 			KatelloUtils.sshOnServer("subscription-manager clean");
-			KatelloUtils.sshOnServer("sed -i 's/hostname.*/hostname=subscription.rhn.redhat.com/g' /etc/rhsm/rhsm.conf");
+			KatelloUtils.sshOnServer("sed -i 's/^hostname.*/hostname=subscription.rhn.redhat.com/g' /etc/rhsm/rhsm.conf");
 			KatelloUtils.sshOnServer("sed -i 's/prefix.*/prefix=/subscription/g' /etc/rhsm/rhsm.conf");
 			KatelloUtils.sshOnServer("sed -i 's/baseurl.*/baseurl=https:\\/\\/cdn.redhat.com/g' /etc/rhsm/rhsm.conf");
 			KatelloUtils.sshOnServer("subscription-manager register --username " + System.getProperty("cdn.username", "qa@redhat.com") + " --password " + System.getProperty("cdn.password", "password") + " --autosubscribe --force");
 			KatelloUtils.sshOnServer("subscription-manager subscribe --pool " + System.getProperty("cdn.poolid", "8a85f9843affb61f013b1fae79e26a75"));
 			KatelloUtils.sshOnServer("yum clean all");
 			KatelloUtils.sshOnServer("yum -y install yum-utils");
-			KatelloUtils.sshOnServer("yum-config-manager --enable rhel-6-server-cf-se-1-rpms");
-			KatelloUtils.sshOnServer("yum-config-manager --enable rhel-6-server-cf-tools-1-rpms");
+			if (KATELLO_PRODUCT.equals("cfse")) {
+				KatelloUtils.sshOnServer("yum-config-manager --enable rhel-6-server-cf-se-1-rpms");
+				KatelloUtils.sshOnServer("yum-config-manager --enable rhel-6-server-cf-tools-1-rpms");
+			} else {
+				KatelloUtils.sshOnServer("yum-config-manager --enable rhel-6-server-sam-rpms");	
+			}
 		} else {
 			String upgradeRepo = System.getProperty("katello.upgrade.repo", UPGRADE_REPO_LATEST);
 			String _yumrepo = 
@@ -95,7 +99,6 @@ public class KatelloUpgrade extends KatelloCliTestScript{
 		KatelloUtils.sshOnServer("katello-configure --answer-file=/etc/katello/katello-configure.conf -b");
 		if(KATELLO_PRODUCT.equals("sam")) // YES: to be run twice for SAM 1.2
 			KatelloUtils.sshOnServer("katello-configure --answer-file=/etc/katello/katello-configure.conf -b");
-		KatelloUtils.sshOnServer("sed -i 's/5674/5671/g' /etc/gofer/plugins/katelloplugin.conf"); // even if it will fail for sam - who cares ;)
 	}
 
 	@Test(description="ping services", 
