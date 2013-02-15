@@ -54,4 +54,17 @@
 		</classes>
 	</test>
 	
+	<test name="SAM_API_Tests" preserve-order="true">
+		<groups>
+			<run>
+				<include name="headpin-api"/>
+			</run>
+        </groups>	
+		<classes>
+		    <class name="com.redhat.qe.katello.tests.api.SetupServers"/>
+			<class name="com.redhat.qe.katello.tests.api.EnvironmentsTest"/>
+			<class name="com.redhat.qe.katello.tests.api.UsersTest"/>
+		</classes>
+	</test>
+	
 </suite>
