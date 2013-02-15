@@ -31,7 +31,7 @@ public class KatelloUpgrade extends KatelloCliTestScript{
 	public void installYumRepo(){
 		if (Boolean.parseBoolean(System.getProperty("katello.upgrade.usecdn", "false"))) {
 			KatelloUtils.sshOnServer("subscription-manager clean");
-			KatelloUtils.sshOnServer("sed -i 's/hostname.*/hostname=subscription.rhn.redhat.com/g' /etc/rhsm/rhsm.conf");
+			KatelloUtils.sshOnServer("sed -i 's/^hostname.*/hostname=subscription.rhn.redhat.com/g' /etc/rhsm/rhsm.conf");
 			KatelloUtils.sshOnServer("sed -i 's/prefix.*/prefix=/subscription/g' /etc/rhsm/rhsm.conf");
 			KatelloUtils.sshOnServer("sed -i 's/baseurl.*/baseurl=https:\\/\\/cdn.redhat.com/g' /etc/rhsm/rhsm.conf");
 			KatelloUtils.sshOnServer("subscription-manager register --username " + System.getProperty("cdn.username", "qa@redhat.com") + " --password " + System.getProperty("cdn.password", "password") + " --autosubscribe --force");
@@ -95,7 +95,6 @@ public class KatelloUpgrade extends KatelloCliTestScript{
 		KatelloUtils.sshOnServer("katello-configure --answer-file=/etc/katello/katello-configure.conf -b");
 		if(KATELLO_PRODUCT.equals("sam")) // YES: to be run twice for SAM 1.2
 			KatelloUtils.sshOnServer("katello-configure --answer-file=/etc/katello/katello-configure.conf -b");
-		KatelloUtils.sshOnServer("sed -i 's/5674/5671/g' /etc/gofer/plugins/katelloplugin.conf"); // even if it will fail for sam - who cares ;)
 	}
 
 	@Test(description="ping services", 
