@@ -4,6 +4,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
+import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.KatelloActivationKey;
@@ -275,7 +276,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
     	String uid = KatelloUtils.getUniqueID();
     	String akName="act_key-"+ uid; 
     	SSHCommandResult res;
-    	KatelloActivationKey ak = new KatelloActivationKey(this.organization, this.env, akName, "Activation key created to ", null, "1");
+    	KatelloActivationKey ak = new KatelloActivationKey(this.organization, this.env, akName, "Activation key created to ", null, "2");
     	res = ak.create();
     	Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key create)");
     	ak.asserts_create();
@@ -293,6 +294,10 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 		sys = new KatelloSystem(systemName, this.organization, null);
 		res = sys.rhsm_registerForce(akName); 
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
+		res = sys.rhsm_identity();
+		String system_uuid = KatelloCli.grepCLIOutput("Current identity is", res.getStdout());
+		
+		KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);
 		
 		// third system should not register
 		systemName = "localhost-"+KatelloUtils.getUniqueID();
@@ -300,10 +305,12 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 		res = sys3.rhsm_registerForce(akName); 
 		Assert.assertTrue(res.getExitCode().intValue() == 255, "Check - return code");
 		Assert.assertTrue(getOutput(res).contains(
-    			String.format(KatelloActivationKey.ERROR_EXCEED, "1", akName)), 
+    			String.format(KatelloActivationKey.ERROR_EXCEED, "2", akName)), 
     			"Check - returned output string for registering by activation key");	
 		
-		sys.unregister();
+		sys.uuid = system_uuid;
+		res = sys.unregister();
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 		
 		res = sys3.rhsm_registerForce(akName);
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
