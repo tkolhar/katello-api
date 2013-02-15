@@ -38,8 +38,12 @@ public class KatelloUpgrade extends KatelloCliTestScript{
 			KatelloUtils.sshOnServer("subscription-manager subscribe --pool " + System.getProperty("cdn.poolid", "8a85f9843affb61f013b1fae79e26a75"));
 			KatelloUtils.sshOnServer("yum clean all");
 			KatelloUtils.sshOnServer("yum -y install yum-utils");
-			KatelloUtils.sshOnServer("yum-config-manager --enable rhel-6-server-cf-se-1-rpms");
-			KatelloUtils.sshOnServer("yum-config-manager --enable rhel-6-server-cf-tools-1-rpms");
+			if (KATELLO_PRODUCT.equals("cfse")) {
+				KatelloUtils.sshOnServer("yum-config-manager --enable rhel-6-server-cf-se-1-rpms");
+				KatelloUtils.sshOnServer("yum-config-manager --enable rhel-6-server-cf-tools-1-rpms");
+			} else {
+				KatelloUtils.sshOnServer("yum-config-manager --enable rhel-6-server-sam-rpms");	
+			}
 		} else {
 			String upgradeRepo = System.getProperty("katello.upgrade.repo", UPGRADE_REPO_LATEST);
 			String _yumrepo = 
