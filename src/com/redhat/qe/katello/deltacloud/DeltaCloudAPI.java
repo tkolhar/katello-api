@@ -31,11 +31,13 @@ public class DeltaCloudAPI {
 
 		try {
 			String image = System.getProperty("deltacloud.imageid", "2e477879-c1d3-4fe0-a5a3-493bccdde031");
+			String realm = System.getProperty("deltacloud.realm");
+			if (realm != null && realm.trim().isEmpty()) realm = null;
 			Assert.assertNotNull(System.getProperty("deltacloud.hostname"), "Deltacloud hostname shoud be provided in system property \"deltacloud.hostname\"");
 			Assert.assertNotNull(System.getProperty("deltacloud.user"), "Deltacloud username shoud be provided in system property \"deltacloud.user\"");
 			Assert.assertNotNull(System.getProperty("deltacloud.password"), "Deltacloud password shoud be provided in system property \"deltacloud.password\"");
 			DeltaCloudClientImpl dcl = new DeltaCloudClientImpl(System.getProperty("deltacloud.hostname"), System.getProperty("deltacloud.user"), System.getProperty("deltacloud.password"));
-			Instance inst = dcl.createInstance(hostname, image, null, null, memory, storage);
+			Instance inst = dcl.createInstance(hostname, image, null, realm, memory, storage);
 			machine.setInstance(inst);
 			machine.setClient(dcl);
 			if (nowait) {
