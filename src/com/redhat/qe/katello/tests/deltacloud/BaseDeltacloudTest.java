@@ -59,16 +59,16 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 		group_name = "group_"+uid;
 		group_name2 = "group2_"+uid;
 		
-		server = KatelloUtils.getDeltaCloudServer(1);
+		server = KatelloUtils.getDeltaCloudServer();
 		server_name = server.getHostName();
 		
-		client = KatelloUtils.getDeltaCloudClient(server_name, 1);
+		client = KatelloUtils.getDeltaCloudClient(server_name);
 		client_name = client.getHostName();
 		
-		client2 = KatelloUtils.getDeltaCloudClient(server_name, 2);
+		client2 = KatelloUtils.getDeltaCloudClient(server_name);
 		client_name2 = client2.getHostName();
 		
-		client3 = KatelloUtils.getDeltaCloudClient(server_name, 3);
+		client3 = KatelloUtils.getDeltaCloudClient(server_name);
 		client_name3 = client3.getHostName();
 		
 		// Create org:
