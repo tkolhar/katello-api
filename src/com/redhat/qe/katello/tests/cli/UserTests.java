@@ -381,6 +381,45 @@ public class UserTests extends KatelloCliTestScript{
 				"Check - error string (invalid credentials)");
 	}
 	
+	@Test(description="Login incorrect username")
+	public void test_loginIncorrectUsername() {
+		KatelloUser userAdmin = new KatelloUser("wrong", 
+				null, System.getProperty("katello.admin.password"), false);
+		KatelloOrg org = new KatelloOrg(organization, null);
+		org.runAs(userAdmin);
+		SSHCommandResult res = org.cli_list();
+		Assert.assertTrue(res.getExitCode().intValue()==145, 
+				"Check - return code (invalid credentials)");
+		Assert.assertTrue(getOutput(res).equals(KatelloUser.ERR_INVALID_CREDENTIALS), 
+				"Check - error string (invalid credentials)");
+	}
+
+	@Test(description="Login incorrect password")
+	public void test_loginIncorrectPassword() {
+		KatelloUser userAdmin = new KatelloUser(System.getProperty("katello.admin.user"), 
+				null, "wrong", false);
+		KatelloOrg org = new KatelloOrg(organization, null);
+		org.runAs(userAdmin);
+		SSHCommandResult res = org.cli_list();
+		Assert.assertTrue(res.getExitCode().intValue()==145, 
+				"Check - return code (invalid credentials)");
+		Assert.assertTrue(getOutput(res).equals(KatelloUser.ERR_INVALID_CREDENTIALS), 
+				"Check - error string (invalid credentials)");
+	}
+
+	@Test(description="Login incorrect credentials")
+	public void test_loginIncorrectCredentials() {
+		KatelloUser userAdmin = new KatelloUser("wrong", 
+				null, "wrong", false);
+		KatelloOrg org = new KatelloOrg(organization, null);
+		org.runAs(userAdmin);
+		SSHCommandResult res = org.cli_list();
+		Assert.assertTrue(res.getExitCode().intValue()==145, 
+				"Check - return code (invalid credentials)");
+		Assert.assertTrue(getOutput(res).equals(KatelloUser.ERR_INVALID_CREDENTIALS), 
+				"Check - error string (invalid credentials)");
+	}
+	
 	private void assert_userInfo(KatelloUser user){
 		SSHCommandResult res;
 		res = user.cli_info();
