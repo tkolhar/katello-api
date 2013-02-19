@@ -10,7 +10,7 @@ public class SetupServers extends BaseDeltacloudTest {
 		super.setUp();
 	}
 	
-	@AfterSuite
+	@AfterSuite(alwaysRun=true)
 	public void tearDown() {
 		super.tearDown();
 	}

@@ -272,29 +272,27 @@ public class KatelloUtils {
 	
 	/**
 	 * Create new server in DeltaCloud, start it, and install CFSE server on it.
-	 * @param number the number of server, which will be in range of 1..KatelloConstants.DELTACLOUD_SERVERS.length
 	 * @return DeltaCloud server instance.
 	 */
-	public static DeltaCloudInstance getDeltaCloudServer(int number) {
-		return getDeltaCloudServer(number, false);
+	public static DeltaCloudInstance getDeltaCloudServer() {
+		return getDeltaCloudServer(false);
 	}
 	
 	/**
 	 * Create new server in DeltaCloud but do not start it.
-	 * @param number the number of server, which will be in range of 1..KatelloConstants.DELTACLOUD_SERVERS.length
 	 * @return DeltaCloud server instance.
 	 */
-	public static DeltaCloudInstance getDeltaCloudServerNoWait(int number) {
-		return getDeltaCloudServer(number, true);
+	public static DeltaCloudInstance getDeltaCloudServerNoWait() {
+		return getDeltaCloudServer(true);
 	}
 	
 	/**
 	 * Private method for creating DeltaCloud server machine, configuring it.
 	 */
-	private static DeltaCloudInstance getDeltaCloudServer(int number, boolean nowait) {
+	private static DeltaCloudInstance getDeltaCloudServer(boolean nowait) {
 		
-		if (number > KatelloConstants.DELTACLOUD_SERVERS.length) return null;
-		String[] configs = KatelloConstants.DELTACLOUD_SERVERS[number-1];
+		String[] configs = getMachineConfigs(true);
+		Assert.assertNotNull(configs, "No free machine available on Deltacloud");
 		
 		DeltaCloudInstance server = DeltaCloudAPI.provideServer(nowait, configs[0]);
 		
@@ -315,13 +313,12 @@ public class KatelloUtils {
 	/**
 	 * Create DeltaCloud client machine, install CFSE client on it and configure it to server.
 	 * @param server the server hostname to configure with.
-	 * @param number the number of server, which will be in range of 1..KatelloConstants.DELTACLOUD_CLIENTS.length
 	 * @return DeltaCloud client machine instance.
 	 */
-	public static DeltaCloudInstance getDeltaCloudClient(String server, int number) {
+	public static DeltaCloudInstance getDeltaCloudClient(String server) {
 		
-		if (number > KatelloConstants.DELTACLOUD_CLIENTS.length) return null;
-		String[] configs = KatelloConstants.DELTACLOUD_CLIENTS[number-1];
+		String[] configs = getMachineConfigs(false);
+		Assert.assertNotNull(configs, "No free machine available on Deltacloud");
 
 		DeltaCloudInstance client = DeltaCloudAPI.provideClient(false, configs[0]);
 
@@ -357,6 +354,25 @@ public class KatelloUtils {
 			configureDDNS(machine, machine.getConfigs());
 			installServer(machine);
 		}
+	}
+	
+	private static String[] getMachineConfigs(boolean isServer) {
+		String[][] configs = null;
+		if (isServer) {
+			configs = KatelloConstants.DELTACLOUD_SERVERS;
+		} else {
+			configs = KatelloConstants.DELTACLOUD_CLIENTS;
+		}
+		
+		for (String[] config : configs) {
+			boolean isHostDisabled = false;
+			String result = run_local("/bin/ping -i 1 -c 10 "+config[0] + "." + config[1]);				
+			if (result.contains("unknown host") && !DeltaCloudAPI.isMachineExists(config[0] + "." + config[1])) {
+				isHostDisabled = true;
+			}	    
+			if (isHostDisabled) return config;
+		}
+		return null;
 	}
 	
 	/**

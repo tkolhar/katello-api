@@ -4,6 +4,7 @@ import java.net.MalformedURLException;
 
 import org.apache.deltacloud.client.DeltaCloudClientException;
 import org.apache.deltacloud.client.DeltaCloudClientImpl;
+import org.apache.deltacloud.client.DeltaCloudNotFoundClientException;
 import org.apache.deltacloud.client.Instance;
 
 import com.redhat.qe.Assert;
@@ -129,6 +130,21 @@ public class DeltaCloudAPI {
 				}
 			}
 		} catch (InterruptedException e) {}		
+	}
+	
+	public static boolean isMachineExists(String hostname) {
+		try {
+			Assert.assertNotNull(System.getProperty("deltacloud.hostname"), "Deltacloud hostname shoud be provided in system property \"deltacloud.hostname\"");
+			Assert.assertNotNull(System.getProperty("deltacloud.user"), "Deltacloud username shoud be provided in system property \"deltacloud.user\"");
+			Assert.assertNotNull(System.getProperty("deltacloud.password"), "Deltacloud password shoud be provided in system property \"deltacloud.password\"");
+			DeltaCloudClientImpl dcl = new DeltaCloudClientImpl(System.getProperty("deltacloud.hostname"), System.getProperty("deltacloud.user"), System.getProperty("deltacloud.password"));
+			Instance inst = dcl.listInstances(hostname);
+			if (inst != null) return true;
+		} catch (DeltaCloudNotFoundClientException e) {	return false;
+		} catch (DeltaCloudClientException e) {	e.printStackTrace();
+		} catch (MalformedURLException e) { e.printStackTrace();}
+		
+		return false;
 	}
 
 }
