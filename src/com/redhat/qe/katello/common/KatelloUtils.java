@@ -367,7 +367,7 @@ public class KatelloUtils {
 		for (String[] config : configs) {
 			boolean isHostDisabled = false;
 			String result = run_local("/bin/ping -i 1 -c 10 "+config[0] + "." + config[1]);				
-			if (result.contains("unknown host") && !DeltaCloudAPI.isMachineExists(config[0] + "." + config[1])) {
+			if (result.contains("unknown host") && !DeltaCloudAPI.isMachineExists(config[0])) {
 				isHostDisabled = true;
 			}	    
 			if (isHostDisabled) return config;
