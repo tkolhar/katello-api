@@ -115,7 +115,12 @@ public class KatelloUpgrade extends KatelloCliTestScript{
 					"service elasticsearch stop; sleep 3;");
 		}
 		KatelloUtils.sshOnServer("yum clean all");
-		SSHCommandResult res = KatelloUtils.sshOnServer("yum upgrade -y"); // TODO --exclude libxslt is workaround which should be removed later
+		SSHCommandResult res;
+		if (Boolean.parseBoolean(System.getProperty("katello.upgrade.usecdn", "false"))) {
+			res = KatelloUtils.sshOnServer("yum upgrade -y --skip-broken");
+		} else {
+			res = KatelloUtils.sshOnServer("yum upgrade -y");
+		}
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (upgrade)");		
 	}
 	
