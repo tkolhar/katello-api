@@ -21,6 +21,7 @@
 			<class name="com.redhat.qe.katello.tests.cli.OrgTests"/>
 			<class name="com.redhat.qe.katello.tests.cli.ClientTests"/> 	
 			<class name="com.redhat.qe.katello.tests.cli.UserNoRoleNoAccess"/>				
+			<class name="com.redhat.qe.katello.tests.cli.ContentTest"/>			
 		</classes>		
 	</test>
 
