@@ -20,6 +20,8 @@ public class KatelloSystem extends _KatelloObject{
 	public static final String CMD_REPORT = "system report";
 	public static final String CMD_REMOVE = "system remove_deletion";
 	public static final String CMD_SUBSCRIBE = "system subscribe";
+	public static final String CMD_LIST_ERRATAS = "errata system";
+	public static final String CMD_LIST_ERRATA_DETAILS = "errata system -v";
 	
 	public static final String RHSM_CREATE ="subscription-manager register --username %s --password %s";
 	public static final String RHSM_CLEAN = "subscription-manager clean";
@@ -411,6 +413,28 @@ public class KatelloSystem extends _KatelloObject{
 		String cmd = RHSM_LIST_CONSUMED;
 		
 		return KatelloUtils.sshOnClient(getHostName(), cmd);		
+	}
+	
+	public SSHCommandResult list_erratas(){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		return run(CMD_LIST_ERRATAS);
+	}
+
+	public SSHCommandResult list_erratas(String type){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("type", type));
+		return run(CMD_LIST_ERRATAS);
+	}
+
+	public SSHCommandResult list_errata_details(){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		return run(CMD_LIST_ERRATA_DETAILS);
 	}
 	
 //	@SuppressWarnings("unchecked")
