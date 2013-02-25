@@ -10,9 +10,11 @@ import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
+import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
@@ -170,6 +172,28 @@ public class OrgTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode() == 144, "Check - return code [144]");
 		Assert.assertEquals(getOutput(res).trim(), 
 				KatelloOrg.ERR_ORG_EXISTS);
+	}
+	
+	@Test(description = "Delete Organization with Systems ",groups={"cfse-cli","headpin-cli"})
+	public void test_Delete_OrgWithSystems(){
+		
+		String uniqueID = KatelloUtils.getUniqueID();
+		String org_system_name = "org_system-" + uniqueID;
+		String env_system_name = "env_system-" + uniqueID;
+		String sys_del_name = "system_del-" + uniqueID;
+		KatelloOrg org_system = new KatelloOrg(org_system_name, null);
+		exec_result = org_system.cli_create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		KatelloEnvironment env_system = new KatelloEnvironment(env_system_name,null,org_system_name,KatelloEnvironment.LIBRARY);
+		exec_result = env_system.cli_create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		KatelloSystem system_del = new KatelloSystem(sys_del_name,org_system_name, env_system_name);
+		exec_result = system_del.rhsm_registerForce();
+		exec_result = system_del.list();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		exec_result = org_system.delete();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
 	}
 	
 	/*
