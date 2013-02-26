@@ -7,6 +7,7 @@ import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
+import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 public class EnvironmentTests extends KatelloCliTestScript{
@@ -133,7 +134,40 @@ public class EnvironmentTests extends KatelloCliTestScript{
 			 
 		}
 		
-		
-		
+	  	   
+		@Test(description="Register same system to different environments",groups = {"headpin-cli"})
+		public void testEnv_Regsystem()
+		{
 
+			SSHCommandResult res;
+			KatelloSystem sys_reg;
+			String uid = KatelloUtils.getUniqueID();
+			String sys_name = "sys-reg-" + uid;
+			String env1_name = "env1-"+uid;
+			uid = KatelloUtils.getUniqueID();
+	  	    String env2_name = "env2-"+uid;
+	  	    String descr_env1 = "Environment "+ env1_name  + " Created";
+	  	    String descr_env2 = "Environment "+ env2_name + " Created";
+	  	    KatelloEnvironment env1 = new KatelloEnvironment(env1_name,descr_env1,this.organization,KatelloEnvironment.LIBRARY);
+	  	    KatelloEnvironment env2 = new KatelloEnvironment(env2_name,descr_env2,this.organization,KatelloEnvironment.LIBRARY);
+	  	    sys_reg = new KatelloSystem(sys_name,this.organization,env1_name);
+	  	    res = env1.cli_create();
+	  	    Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
+	  	    Assert.assertTrue(getOutput(res).contains(String.format(KatelloEnvironment.OUT_CREATE,env1_name)),"Check - returned output string ("+KatelloEnvironment.CMD_CREATE+")");
+	  	    res = sys_reg.rhsm_registerForce();
+	  	    Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
+	  	    Assert.assertTrue(res.getStdout().trim().contains(KatelloSystem.OUT_CREATE),"Check - output (success)");
+	  	    res = env1.cli_info();      
+	  	    Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
+	  	    sys_reg = new KatelloSystem(sys_name,this.organization,env2_name);  
+	  	    res = env2.cli_create();
+	  	    Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
+	  	    Assert.assertTrue(getOutput(res).contains(String.format(KatelloEnvironment.OUT_CREATE,env2_name)),"Check - returned output string ("+KatelloEnvironment.CMD_CREATE+")");
+	  	    res = sys_reg.rhsm_registerForce();
+	  	    Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
+	  	    Assert.assertTrue(res.getStdout().trim().contains(KatelloSystem.OUT_CREATE),"Check - output (success)");
+	  	    res = env2.cli_info();      
+	  	    Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
+
+		}
 }

@@ -420,6 +420,29 @@ public class UserTests extends KatelloCliTestScript{
 				"Check - error string (invalid credentials)");
 	}
 	
+	
+	@Test(description="Read-only user for an organization can only view information but cannot modify it")
+	public void test_ReadonlyUser(){
+
+		SSHCommandResult res;
+	    String uniqueID = KatelloUtils.getUniqueID();
+	    String readonly_user_name = "read_only-" + uniqueID;
+	    String readonly_email = readonly_user_name + "@redhat.com";
+	    String readonly_pass = "redhat";
+	    String org_name = "readonly_org-"+ uniqueID;
+	    KatelloOrg org = new KatelloOrg(org_name,null);
+	    KatelloUser readonly_user = new KatelloUser(readonly_user_name,readonly_email,readonly_pass,false,this.organization,this.env);
+	    res = readonly_user.cli_create();
+	    Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code (" + KatelloUser.CMD_CREATE + ")");
+	    res=readonly_user.assign_role(KatelloUserRole.ROLE_READ_EVERYTHING);
+	    Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
+	    org.runAs(readonly_user);
+	    res = org.cli_create();
+	    Assert.assertTrue(res.getExitCode().intValue() == 147, "Check - return code");
+
+	}
+	
+	
 	private void assert_userInfo(KatelloUser user){
 		SSHCommandResult res;
 		res = user.cli_info();
