@@ -122,7 +122,7 @@ public class SystemErratas extends KatelloCliTestScript {
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains(this.system_name), "Check - errata list details output contains system name");
 	}
 
-	@Test(description = "List the errata on system not register, verify that errata does not listed", dependsOnMethods={"test_errataDetailsOnSystem"})
+	@Test(description = "List the errata on system which is unsubscribed, verify that errata does not listed", dependsOnMethods={"test_errataDetailsOnSystem"})
 	public void test_errataListOnUnsubscribedSystem() {
 		KatelloSystem system = new KatelloSystem(system_name, this.org_name, this.env_name);
 		
