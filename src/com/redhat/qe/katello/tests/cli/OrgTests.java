@@ -1,5 +1,6 @@
 package com.redhat.qe.katello.tests.cli;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -196,6 +197,53 @@ public class OrgTests extends KatelloCliTestScript{
 		
 	}
 	
+	@Test(description = "Attempt to upload an already imported manifest in a different ORG",groups={"cfse-cli","headpin-cli"})
+	public void test_UploadManifestDiffOrg(){
+		
+		String uniqueID = KatelloUtils.getUniqueID();
+		String org_name = "Raleigh-" + uniqueID;
+		String diff_org_name = "Durham-" + uniqueID;
+		KatelloOrg org = new KatelloOrg(org_name,null);
+		exec_result = org.cli_create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		KatelloProvider provider = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT,org_name,null,null);
+		exec_result = provider.import_manifest("/tmp"+File.separator+"stack-manifest.zip", new Boolean(true));
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		KatelloOrg diff_org = new KatelloOrg(diff_org_name,null);
+		exec_result = diff_org.cli_create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		provider = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT,diff_org_name,null,null);
+		exec_result = provider.import_manifest("/tmp"+File.separator+"stack-manifest.zip", new Boolean(true));
+		Assert.assertTrue(exec_result.getExitCode() == 144, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format("This distributor has already been imported by another owner")),"Check - return string");
+		exec_result	= org.delete();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		exec_result = diff_org.delete();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+
+	}
+	
+	@Test(description = "Attempt to upload an already imported manifest in the same ORG",groups={"cfse-cli","headpin-cli"})
+	public void test_UploadManifestSameOrg(){
+		
+		String uniqueID = KatelloUtils.getUniqueID();
+		String org_name = "Raleigh-" + uniqueID;
+		
+		KatelloOrg org = new KatelloOrg(org_name,null);
+		exec_result = org.cli_create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		KatelloProvider provider = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT,org_name,null,null);
+		exec_result = provider.import_manifest("/tmp"+File.separator+"stack-manifest.zip", new Boolean(true));
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format("Manifest imported")),"Check - return string");
+		exec_result = provider.import_manifest("/tmp"+File.separator+"stack-manifest.zip", new Boolean(true));
+		Assert.assertTrue(exec_result.getExitCode() == 144, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format("Import is the same as existing data")),"Check - return string");
+		exec_result	= org.delete();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+
+	}
 	/*
 	@Test(description = "Create org - name is invalid",groups={"cfse-cli","headpin-cli"})
 	public void test_createOrgInvalidName(){
