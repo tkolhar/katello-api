@@ -113,7 +113,7 @@ public class SystemErratas extends KatelloCliTestScript {
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains(PromoteErrata.ERRATA_ZOO_SEA), "Check - errata list output");
 	}
 	
-	@Test(description = "List the errata details on system")
+	@Test(description = "List the errata details on system", dependsOnMethods={"test_errataListOnSystem"})
 	public void test_errataDetailsOnSystem() {
 		KatelloSystem system = new KatelloSystem(system_name, this.org_name, this.env_name);
 		exec_result = system.list_errata_details();
@@ -121,5 +121,22 @@ public class SystemErratas extends KatelloCliTestScript {
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains(PromoteErrata.ERRATA_ZOO_SEA), "Check - errata list output");
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains(this.system_name), "Check - errata list details output contains system name");
 	}
-	
+
+	@Test(description = "List the errata on system not register, verify that errata does not listed", dependsOnMethods={"test_errataDetailsOnSystem"})
+	public void test_errataListOnUnsubscribedSystem() {
+		KatelloSystem system = new KatelloSystem(system_name, this.org_name, this.env_name);
+		
+		exec_result = KatelloUtils.sshOnClient("subscription-manager unsubscribe --all");
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
+		
+		KatelloUtils.sshOnClient("sed -i -e \"s/certFrequency.*/certFrequency = 1/\" /etc/rhsm/rhsm.conf");
+		KatelloUtils.sshOnClient("service rhsmcertd restart");
+		yum_clean();
+		KatelloUtils.sshOnClient("service goferd restart;");
+		try { Thread.sleep(10000); } catch (Exception ex) {}
+		
+		exec_result = system.list_erratas();
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
+		Assert.assertFalse(getOutput(exec_result).replaceAll("\n", "").contains(PromoteErrata.ERRATA_ZOO_SEA), "Check - errata list output");
+	}
 }
