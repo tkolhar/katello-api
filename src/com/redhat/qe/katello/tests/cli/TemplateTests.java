@@ -94,6 +94,25 @@ public class TemplateTests extends KatelloCliTestScript {
 		assert_templList(Arrays.asList(templ, tpl), new ArrayList<KatelloTemplate>());
 	}
 	
+	@Test(description = "Create template with empty name, verify error", groups = { "cli-template" })
+	public void test_createTemplateEmptyName() {
+		KatelloTemplate tpl = new KatelloTemplate(" ", null, org_name, null);
+		exec_result = tpl.create();
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 144, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).equals(KatelloTemplate.ERR_CREATE_EMPTY), "Check - error string (template create)");
+	}
+	
+	@Test(description = "Create template with long name, verify error", groups = { "cli-template" })
+	public void test_createTemplateLongName() {
+		String name = "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
+		for (int i = 0; i < 4; i++) name += name;
+		
+		KatelloTemplate tpl = new KatelloTemplate(name, null, org_name, null);
+		exec_result = tpl.create();
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 144, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).equals(KatelloTemplate.ERR_CREATE_LONG), "Check - error string (template create)");
+	}
+	
 	@Test(description = "Create template, than update template name", groups = { "cli-template" })
 	public void test_updateTemplateName() {
 		KatelloTemplate templ = createTemplate();
