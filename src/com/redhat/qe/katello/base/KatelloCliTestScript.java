@@ -153,6 +153,13 @@ implements KatelloConstants {
 		KatelloUtils.sshOnClient("subscription-manager clean");
 	}
 	
+	protected void rhsm_clean(String client){
+		log.info("RHSM -> unsubscribe, unregister, clean");
+		KatelloUtils.sshOnClient(client, "subscription-manager unsubscribe --all");
+		KatelloUtils.sshOnClient(client, "subscription-manager unregister");
+		KatelloUtils.sshOnClient(client, "subscription-manager clean");
+	}
+	
 	protected void rhsm_clean_only(){ 
 		log.info("RHSM -> clean");
 		KatelloUtils.sshOnClient("subscription-manager clean");

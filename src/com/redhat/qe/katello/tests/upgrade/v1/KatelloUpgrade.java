@@ -115,14 +115,13 @@ public class KatelloUpgrade extends KatelloCliTestScript{
 					"service elasticsearch stop; sleep 3;");
 		}
 		KatelloUtils.sshOnServer("yum clean all");
-		SSHCommandResult res = KatelloUtils.sshOnServer("yum upgrade -y"); // TODO --exclude libxslt is workaround which should be removed later
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (upgrade)");
-		
-		for (String client : clients) {
-			KatelloUtils.sshOnClient(client, "yum clean all");
-			res = KatelloUtils.sshOnClient(client, "yum upgrade -y");
-			Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (upgrade)");
+		SSHCommandResult res;
+		if (Boolean.parseBoolean(System.getProperty("katello.upgrade.usecdn", "false"))) {
+			res = KatelloUtils.sshOnServer("yum upgrade -y --skip-broken");
+		} else {
+			res = KatelloUtils.sshOnServer("yum upgrade -y");
 		}
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (upgrade)");		
 	}
 	
 	@Test(description="run schema upgrade", 
@@ -140,8 +139,21 @@ public class KatelloUpgrade extends KatelloCliTestScript{
 			KatelloUtils.sshOnServer("katello-configure --answer-file=/etc/katello/katello-configure.conf -b");
 	}
 
-	@Test(description="ping services", 
+	@Test(description="upgrade clients", 
 			dependsOnMethods={"runUpgrade"},
+			dependsOnGroups={TNG_PRE_UPGRADE}, 
+			groups={TNG_UPGRADE})
+	public void upgradeClients() {
+		SSHCommandResult res;
+		for (String client : clients) {
+			KatelloUtils.sshOnClient(client, "yum clean all");
+			res = KatelloUtils.sshOnClient(client, "yum upgrade -y");
+			Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (upgrade)");
+		}
+	}
+
+	@Test(description="ping services", 
+			dependsOnMethods={"upgradeClients"},
 			dependsOnGroups={TNG_PRE_UPGRADE}, 
 			groups={TNG_UPGRADE})
 	public void pingSystem(){
