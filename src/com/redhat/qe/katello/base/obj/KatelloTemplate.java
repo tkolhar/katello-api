@@ -32,6 +32,11 @@ public class KatelloTemplate extends _KatelloObject{
 	public static final String OUT_UPDATE = 
 			"Successfully updated template [ %s ]";
 	
+	public static final String ERR_CREATE_EMPTY =
+			"Validation failed: Name can't be blank";
+	public static final String ERR_CREATE_LONG =
+			"Validation failed: Name is too long (maximum is 255 characters)";
+	
 	public static final String ERR_TDL_EXPORT_IMPOSSIBLE = 
 			"Template cannot be exported: " +
 			"At least repository must be present to export a TDL, " +
@@ -156,6 +161,14 @@ public class KatelloTemplate extends _KatelloObject{
 	public SSHCommandResult update_name(String newname){
 		opts.clear();
 		opts.add(new Attribute("new_name", newname));
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		return run(CMD_UPDATE);
+	}
+
+	public SSHCommandResult update(String newdescr) {
+		opts.clear();
+		opts.add(new Attribute("description", newdescr));
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		return run(CMD_UPDATE);
