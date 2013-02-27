@@ -36,6 +36,10 @@ public class KatelloTemplate extends _KatelloObject{
 			"Validation failed: Name can't be blank";
 	public static final String ERR_CREATE_LONG =
 			"Validation failed: Name is too long (maximum is 255 characters)";
+	public static final String ERR_ADD_REPO =
+			"Could not find repository [ %s ] within organization [ %s ], product [ %s ] and environment [ %s ]";
+	public static final String ERR_ADD_PACKAGE =
+			"Validation failed: Package '%s' not found in the %s environment";
 	
 	public static final String ERR_TDL_EXPORT_IMPOSSIBLE = 
 			"Template cannot be exported: " +
