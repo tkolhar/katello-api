@@ -20,6 +20,9 @@ public class KatelloSystem extends _KatelloObject{
 	public static final String CMD_REPORT = "system report";
 	public static final String CMD_REMOVE = "system remove_deletion";
 	public static final String CMD_SUBSCRIBE = "system subscribe";
+	public static final String CMD_ADD_CUSTOM_INFO = "system add_custom_info";
+	public static final String CMD_REMOVE_CUSTOM_INFO = "system remove_custom_info";
+	public static final String CMD_UPDATE_CUSTOM_INFO = "system update_custom_info";
 	
 	public static final String RHSM_CREATE ="subscription-manager register --username %s --password %s";
 	public static final String RHSM_CLEAN = "subscription-manager clean";
@@ -75,6 +78,8 @@ public class KatelloSystem extends _KatelloObject{
 	public String uuid;
 	public String description;
 	public String location;
+	public String keyname;
+	public String value;
 	private String href;
 	private Long environmentId;
 	private KatelloOwner owner;
@@ -191,7 +196,48 @@ public class KatelloSystem extends _KatelloObject{
 	// ** ** ** ** ** ** **
 	// ASSERTS
 	// ** ** ** ** ** ** **
+	public SSHCommandResult add_custom_info(String keynm,String val){
 	
+		opts.clear();
+		if(this.name  != null)
+			opts.add(new Attribute("name",this.name));
+		if(this.org != null)
+			opts.add(new Attribute("org",this.org));
+		if(this.env != null)
+			opts.add(new Attribute("environment",this.env));
+		opts.add(new Attribute("keyname",keynm));
+		opts.add(new Attribute("value",val));		
+		return	run(CMD_ADD_CUSTOM_INFO);
+
+	}
+    
+	public SSHCommandResult remove_custom_info(String keyname){
+		
+		opts.clear();
+		if(this.name  != null)
+			opts.add(new Attribute("name",this.name));
+		if(this.org != null)
+			opts.add(new Attribute("org",this.org));
+		opts.add(new Attribute("keyname",keyname));
+		
+		return run(CMD_REMOVE_CUSTOM_INFO);
+
+	}
+	
+	public SSHCommandResult update_custom_info(String keyname,String value){
+		
+		opts.clear();
+		opts.clear();
+		if(this.name  != null)
+			opts.add(new Attribute("name",this.name));
+		if(this.org != null)
+			opts.add(new Attribute("org",this.org));
+		opts.add(new Attribute("keyname",keyname));
+		opts.add(new Attribute("value",value));		
+		return	run(CMD_UPDATE_CUSTOM_INFO);
+		
+
+	}
     public SSHCommandResult rhsm_register(){
 		String cmd = RHSM_CREATE;
 		if(this.user==null)
@@ -269,6 +315,7 @@ public class KatelloSystem extends _KatelloObject{
 
 	public SSHCommandResult remove(){
 		opts.clear();
+		System.out.println(this.uuid + " UUid");
 		opts.add(new Attribute("uuid", this.uuid));
 		return run(CMD_REMOVE);
 	}

@@ -215,6 +215,22 @@ public class KatelloCliDataProvider {
 		};
 	}
 	
+	
+	@DataProvider(name="add_custom_info")
+	public static Object[][] add_custom_info(){
+		String uid = KatelloUtils.getUniqueID();
+		return new Object[][] {
+				// name
+				{ "env-aa", "env-aa", new Integer(0),null},
+				{ strRepeat("0123456789", 12)+"abcdefgh",strRepeat("0123456789", 12)+"abcdefgh", new Integer(0),null},
+				{ " ", "value", new Integer(144),"Validation failed: Keyname can't be blank"},
+				{ "desc-specChars"+uid, "\\!@%^&*(<_-~+=//\\||,.>)", new Integer(0),null},
+				{"desc-256Chars"+uid, strRepeat("0123456789", 25)+"abcdef",new Integer(244), "PGError: ERROR:  value too long for type character varying(255)"},
+				{strRepeat("0123456789", 25)+"abcdef", "desc-256Chars", new Integer(244), "PGError: ERROR:  value too long for type character varying(255)"},
+				
+								
+		};
+	}
 	/**
 	 * Object[] contains of:<BR>
 	 * activation key:<BR>
