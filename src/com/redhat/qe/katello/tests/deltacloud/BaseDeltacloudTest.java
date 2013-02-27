@@ -59,7 +59,7 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 		repo_name = "repo_name_"+uid;
 		env_name = "env_Dev_"+uid;
 		changeset_name = "changeset_"+uid;
-		//changeset_name2 = "chsrhel_"+uid;
+		changeset_name2 = "chsrhel_"+uid;
 		system_name = "system_"+uid;
 		system_name2 = "system2_"+uid;
 		system_name3 = "system3_"+uid;
