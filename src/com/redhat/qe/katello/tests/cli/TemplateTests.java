@@ -112,6 +112,19 @@ public class TemplateTests extends KatelloCliTestScript {
 		Assert.assertTrue(exec_result.getExitCode() == 65, "Check - return code");
 		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloTemplate.ERR_TEMPL_NOTFOUND, templ.name, "Library"));
 	}
+
+	@Test(description = "Create template, than update template description", groups = { "cli-template" })
+	public void test_updateTemplateDescription() {
+		KatelloTemplate templ = createTemplate();
+		
+		String newdesc = templ.description + "new";
+		
+		templ.description = newdesc;
+		exec_result = templ.update(newdesc);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		assert_templInfo(templ);
+	}
 	
 	@Test(description = "Create template and add subtemplate to it", groups = { "cli-template" })
 	public void test_createSubTemplate() {
