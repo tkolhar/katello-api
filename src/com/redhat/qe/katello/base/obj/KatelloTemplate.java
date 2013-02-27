@@ -160,6 +160,14 @@ public class KatelloTemplate extends _KatelloObject{
 		opts.add(new Attribute("name", name));
 		return run(CMD_UPDATE);
 	}
+
+	public SSHCommandResult update(String newdescr) {
+		opts.clear();
+		opts.add(new Attribute("description", newdescr));
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		return run(CMD_UPDATE);
+	}
 	
 	public SSHCommandResult update_add_package_group(String pkgGrp){
 		opts.clear();
