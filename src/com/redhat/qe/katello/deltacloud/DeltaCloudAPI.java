@@ -17,21 +17,23 @@ public class DeltaCloudAPI {
 	 */
 	
 	private static final int MAX_ATTEMPTS = 10; 
+	private static final int SLEEP_TIME = 30000;
 	
 	public static DeltaCloudInstance provideServer(boolean nowait, String hostname) {
-		return provideMachine(nowait, hostname, "8192", "8");
+		String image = System.getProperty("deltacloud.server.imageid", "7657667a-4108-4484-88d2-c103467a20b3");
+		return provideMachine(nowait, hostname, "4096", "50", image);
 	}
 
 	public static DeltaCloudInstance provideClient(boolean nowait, String hostname) {
-		return provideMachine(nowait, hostname, null, null);
+		String image = System.getProperty("deltacloud.client.imageid", "fc06e21b-8973-48e2-9d64-3b5a90f2717e");
+		return provideMachine(nowait, hostname, null, null, image);
 	}
 	
-	private static DeltaCloudInstance provideMachine(boolean nowait, String hostname, String memory, String storage) {
+	private static DeltaCloudInstance provideMachine(boolean nowait, String hostname, String memory, String storage, String image) {
 		
 		DeltaCloudInstance machine = new DeltaCloudInstance();
 
 		try {
-			String image = System.getProperty("deltacloud.imageid", "2e477879-c1d3-4fe0-a5a3-493bccdde031");
 			String realm = System.getProperty("deltacloud.realm");
 			if (realm != null && realm.trim().isEmpty()) realm = null;
 			Assert.assertNotNull(System.getProperty("deltacloud.hostname"), "Deltacloud hostname shoud be provided in system property \"deltacloud.hostname\"");
@@ -67,7 +69,7 @@ public class DeltaCloudAPI {
 					inst.stop(dcl);
 				} catch (Exception e) {}
 				
-				Thread.sleep(10000);
+				Thread.sleep(SLEEP_TIME);
 				
 				inst = dcl.listInstances(inst.getId());
 			}
@@ -86,13 +88,13 @@ public class DeltaCloudAPI {
 					inst.start(dcl);
 				} catch (Exception e) {}
 				
-				Thread.sleep(10000);
+				Thread.sleep(SLEEP_TIME);
 				
 				inst = dcl.listInstances(inst.getId());
 			}
 			i = 0;
 			while (inst.getPublicAddresses().size() <= 2 && ++i <= MAX_ATTEMPTS) {
-				Thread.sleep(10000);
+				Thread.sleep(SLEEP_TIME);
 				
 				inst = dcl.listInstances(inst.getId());
 			}
@@ -121,7 +123,7 @@ public class DeltaCloudAPI {
 					inst.destroy(dcl);
 				} catch (Exception e) {}
 				
-				Thread.sleep(10000);
+				Thread.sleep(SLEEP_TIME);
 				
 				try {
 					inst = dcl.listInstances(inst.getId());
