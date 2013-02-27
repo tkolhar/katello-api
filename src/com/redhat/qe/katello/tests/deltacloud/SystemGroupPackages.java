@@ -1,6 +1,5 @@
 package com.redhat.qe.katello.tests.deltacloud;
 
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
@@ -9,14 +8,6 @@ import com.redhat.qe.katello.common.KatelloUtils;
 
 @Test(dependsOnGroups="cfse-dc-errata")
 public class SystemGroupPackages extends BaseDeltacloudTest {
-	
-	@BeforeClass(description="Generate unique names")
-	public void setUp(){
-		
-		KatelloUtils.sshOnClient(client_name, "service goferd restart;");
-		KatelloUtils.sshOnClient(client_name2, "service goferd restart;");
-		KatelloUtils.sshOnClient(client_name3, "service goferd restart;");
-	}
 	
 	@Test(description = "Install lion package in system group, verify that wolf and lion are installed")
 	public void test_installPackageOnSystemGroup() {
