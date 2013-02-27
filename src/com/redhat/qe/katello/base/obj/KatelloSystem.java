@@ -437,6 +437,48 @@ public class KatelloSystem extends _KatelloObject{
 		return run(CMD_LIST_ERRATA_DETAILS);
 	}
 	
+	public SSHCommandResult list_errata_count(String query) {
+		String cmd = CMD_LIST_ERRATAS;
+		
+		if(this.name != null)
+			cmd += " --name \""+this.name+"\"";
+		if(this.org != null)
+			cmd += " --org \""+this.org+"\"";
+
+		cmd += " | grep \"" + query + "\" | wc -l";
+		
+		KatelloCli cli = new KatelloCli(cmd, null);
+		return cli.run();	
+	}
+
+	public SSHCommandResult list_errata_names(String query) {
+		String cmd = CMD_LIST_ERRATAS;
+		
+		if(this.name != null)
+			cmd += " --name \""+this.name+"\"";
+		if(this.org != null)
+			cmd += " --org \""+this.org+"\"";
+
+		cmd += " | grep \"" + query + "\" | awk '{print $1}'";
+		
+		KatelloCli cli = new KatelloCli(cmd, null);
+		return cli.run();	
+	}
+	
+	public SSHCommandResult list_errata_details_count(String query) {
+		String cmd = CMD_LIST_ERRATA_DETAILS;
+		
+		if(this.name != null)
+			cmd += " --name \""+this.name+"\"";
+		if(this.org != null)
+			cmd += " --org \""+this.org+"\"";
+
+		cmd += " | grep \"" + query + "\" | wc -l";
+		
+		KatelloCli cli = new KatelloCli(cmd, null);
+		return cli.run();	
+	}
+	
 //	@SuppressWarnings("unchecked")
 //    public static KatelloSystem api_info(String byId) throws KatelloApiException {
 //		KatelloApiResponse response = KatelloApi.get(String.format(API_CMD_INFO, byId));
