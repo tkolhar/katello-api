@@ -347,6 +347,18 @@ public class TemplateTests extends KatelloCliTestScript {
 		Assert.assertTrue(matcher.find(), "Check - Package shoul Groupd exist in template info");
 	}
 
+	@Test(description = "Create template, than add wrong package group to template, verify error", groups = { "cli-template" })
+	public void test_updateTemplateAddWrongPackageGroup() {
+		KatelloTemplate templ = createTemplate();
+		
+		String packageGroupName = "rancidfood";
+		
+		exec_result = templ.update_add_package_group(product_name, packageGroupName);
+		Assert.assertTrue(exec_result.getExitCode() == 144, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloTemplate.ERR_ADD_PACKAGE_GROUP, packageGroupName, "Library")), "Check - output string (template update)");
+
+	}
+	
 	@Test(description = "Create template, than add package group to template and then remove it", groups = { "cli-template" })
 	public void test_updateTemplateRemovePackageGroup() {
 		KatelloTemplate templ = createTemplate();

@@ -64,4 +64,15 @@ public class TemplateTests extends BaseDeltacloudTest {
 		Assert.assertTrue(exec_result.getExitCode() == 144, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloTemplate.ERR_ADD_PACKAGE, packageName, "Library")), "Check - output string (template update)");
 	}
+	
+	@Test(description = "add wrong package group to template, verify error")
+	public void test_updateTemplateAddWrongRHELPackageGroup() {
+		KatelloTemplate templ = new KatelloTemplate(templ_name, null, org_name, null);
+		
+		String packageGroupName = "rancidfood";
+		
+		exec_result = templ.update_add_package_group(KatelloProduct.RHEL_SERVER, packageGroupName);
+		Assert.assertTrue(exec_result.getExitCode() == 144, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloTemplate.ERR_ADD_PACKAGE_GROUP, packageGroupName, "Library")), "Check - output string (template update)");
+	}
 }
