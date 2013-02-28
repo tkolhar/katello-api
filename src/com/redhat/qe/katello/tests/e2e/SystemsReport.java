@@ -15,6 +15,7 @@ import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
+import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SCPTools;
 import com.redhat.qe.tools.SSHCommandResult;
@@ -32,6 +33,9 @@ public class SystemsReport extends KatelloCliTestScript{
 	String org;
 	private String env_dev;
 	private String env_test;
+	private String sys_name1;
+	private String sys_name2;
+	private String sys_name3;
 	public static final String MANIFEST_HACKED = "manifest-hacked.zip";
 	public static final String EMPTY_HACKED = "manifest-empty.zip";
 	public static final String MANIFEST_2SUBSCRIPTIONS = "manifest-automation-CLI-2subscriptions.zip";
@@ -125,17 +129,24 @@ public class SystemsReport extends KatelloCliTestScript{
 		res = cs.apply();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset promote)");
 		Assert.assertTrue(getOutput(res).endsWith("applied"),"Message - (changeset promote)");		
+		
+		KatelloOrg org = new KatelloOrg(this.org, null);
+    	res = org.subscriptions();
+  
 	}
 	
 	@Test(description="Add 2 system to env: Dev and 1 systems to: Test", dependsOnMethods={"test_promoteToEnvs"}, enabled=true)
 	public void test_addSystemsToEnvs(){
-		String sys = "`hostname`"+KatelloUtils.getUniqueID();
+		String sys = "localhost"+KatelloUtils.getUniqueID();
+		sys_name1= sys;
+		sys_name2 = "1-"+sys;
+		sys_name3 = "2-"+sys;
 		rhsm_clean_only();
-		rhsm_register(org, this.env_dev, "1-"+sys, true);
+		rhsm_register(org, this.env_dev, sys_name1, true);
 		rhsm_clean_only();
-		rhsm_register(org, this.env_test, "2-"+sys, true);
+		rhsm_register(org, this.env_test, sys_name2, true);
 		rhsm_clean_only();
-		SSHCommandResult res = rhsm_register(org, this.env_dev, "3-"+sys, true);
+		SSHCommandResult res = rhsm_register(org, this.env_dev, sys_name3, true);
 //		Assert.assertTrue(res.getExitCode().intValue()==1, "Check - return code (system register)");
 		String subscriptionStatus = KatelloCli.grepCLIOutput("Status", getOutput(res).trim()); 
 		Assert.assertTrue(subscriptionStatus.trim().equals("Not Subscribed"),"Check - system should not be subscribed (3rd registration)");		
@@ -163,6 +174,23 @@ public class SystemsReport extends KatelloCliTestScript{
 		res = new KatelloCli("system report --org "+this.org+" | grep \"| compliant_until |\\|compliant until\" | wc -l", null).run();
 		hdrCnt = Integer.parseInt(getOutput(res).trim());
 		Assert.assertTrue((hdrCnt==1), "Check - header compliant_until");
+	}
+	
+	@Test(description="unsibscribe systems", dependsOnMethods={"test_reportHeaders_compliance"})
+	public void test_unsubscribeSystems() {
+		KatelloSystem sys = new KatelloSystem(sys_name1, this.org, this.env_dev);
+		SSHCommandResult res = sys.rhsm_identity();
+		String system_uuid = KatelloCli.grepCLIOutput("Current identity is", res.getStdout());
+		sys.uuid = system_uuid;
+		res = sys.unsubscribe();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (system unsubscribe)");
+		
+		sys = new KatelloSystem(sys_name2, this.org, this.env_test);
+		res = sys.rhsm_identity();
+		system_uuid = KatelloCli.grepCLIOutput("Current identity is", res.getStdout());
+		sys.uuid = system_uuid;
+		res = sys.unsubscribe();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (system unsubscribe)");
 	}
 	
 	@AfterClass(description="Cleanup the org - allow others to reuse the manifest", alwaysRun=true)
