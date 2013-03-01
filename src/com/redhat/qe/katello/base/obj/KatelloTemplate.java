@@ -36,6 +36,12 @@ public class KatelloTemplate extends _KatelloObject{
 			"Validation failed: Name can't be blank";
 	public static final String ERR_CREATE_LONG =
 			"Validation failed: Name is too long (maximum is 255 characters)";
+	public static final String ERR_ADD_REPO =
+			"Could not find repository [ %s ] within organization [ %s ], product [ %s ] and environment [ %s ]";
+	public static final String ERR_ADD_PACKAGE =
+			"Validation failed: Package '%s' not found in the %s environment";
+	public static final String ERR_ADD_PACKAGE_GROUP =
+			"Validation failed: Package group '%s' not found in the %s environment";
 	
 	public static final String ERR_TDL_EXPORT_IMPOSSIBLE = 
 			"Template cannot be exported: " +
@@ -182,6 +188,15 @@ public class KatelloTemplate extends _KatelloObject{
 		return run(CMD_UPDATE);
 	}
 
+	public SSHCommandResult update_add_package_group(String product, String pkgGrp) {
+		opts.clear();
+		opts.add(new Attribute("from_product", product));
+		opts.add(new Attribute("add_package_group", pkgGrp));
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		return run(CMD_UPDATE);
+	}
+	
 	public SSHCommandResult update_remove_package_group(String pkgGrp){
 		opts.clear();
 		opts.add(new Attribute("remove_package_group", pkgGrp));

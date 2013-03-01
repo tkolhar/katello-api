@@ -180,6 +180,19 @@ public class TemplateTests extends KatelloCliTestScript {
 		
 		assert_templList(Arrays.asList(tpl), Arrays.asList(templ));
 	}
+
+	@Test(description = "Create template, then delete it and then recreate it", groups = { "cli-template" })
+	public void test_recreateTemplate() {
+		KatelloTemplate templ = createTemplate();
+
+		exec_result = templ.delete();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		exec_result = templ.create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		assert_templInfo(templ);
+	}
 	
 	@Test(description = "Create template and add subtemplate to it and try to delete parent template, verify error", groups = { "cli-template" })
 	public void test_deleteParentTemplate() {
@@ -272,6 +285,17 @@ public class TemplateTests extends KatelloCliTestScript {
 		Assert.assertTrue(matcher.find(), "Check - Package should exist in template info");
 	}
 
+	@Test(description = "Create template, than add wrong package to template, verify error", groups = { "cli-template" })
+	public void test_updateTemplateAddWrongPackage() {
+		KatelloTemplate templ = createTemplate();
+		
+		String packageName = "rancidfood";
+		
+		exec_result = templ.update_add_package(product_name, packageName);
+		Assert.assertTrue(exec_result.getExitCode() == 144, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloTemplate.ERR_ADD_PACKAGE, packageName, "Library")), "Check - output string (template update)");
+	}
+	
 	@Test(description = "Create template, than add package to template and then remove it", groups = { "cli-template" })
 	public void test_updateTemplateRemovePackage() {
 		KatelloTemplate templ = createTemplate();
@@ -323,6 +347,18 @@ public class TemplateTests extends KatelloCliTestScript {
 		Assert.assertTrue(matcher.find(), "Check - Package shoul Groupd exist in template info");
 	}
 
+	@Test(description = "Create template, than add wrong package group to template, verify error", groups = { "cli-template" })
+	public void test_updateTemplateAddWrongPackageGroup() {
+		KatelloTemplate templ = createTemplate();
+		
+		String packageGroupName = "rancidfood";
+		
+		exec_result = templ.update_add_package_group(product_name, packageGroupName);
+		Assert.assertTrue(exec_result.getExitCode() == 144, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloTemplate.ERR_ADD_PACKAGE_GROUP, packageGroupName, "Library")), "Check - output string (template update)");
+
+	}
+	
 	@Test(description = "Create template, than add package group to template and then remove it", groups = { "cli-template" })
 	public void test_updateTemplateRemovePackageGroup() {
 		KatelloTemplate templ = createTemplate();
@@ -370,6 +406,15 @@ public class TemplateTests extends KatelloCliTestScript {
 		Pattern pattern = Pattern.compile(match_info);
 		Matcher matcher = pattern.matcher(getOutput(exec_result).replaceAll("\n", " "));
 		Assert.assertTrue(matcher.find(), "Check - Repository should exist in template info");
+	}
+	
+	@Test(description = "Create template, than add wrong repository to template, verify error", groups = { "cli-template" })
+	public void test_updateTemplateAddWrongRepo() {
+		KatelloTemplate templ = createTemplate();
+			
+		exec_result = templ.update_add_repo(product_name, "rancidfood");
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 65, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloTemplate.ERR_ADD_REPO, "rancidfood", org_name, product_name, "Library")), "Check - error string (template update)");
 	}
 
 	@Test(description = "Create template, than add repository to template and then remove it",  groups = { "cli-template" })
