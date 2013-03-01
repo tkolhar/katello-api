@@ -74,8 +74,8 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 		}
 	}
 	
-	@Test(description="System has 8 sockets (see setUp). Auto subscribe current system. Verify that it's compliance is green.", enabled=true)
-	public void test_autosubscribeCompliant() {
+	@Test(description="Change system to have 8 sockets. Auto subscribe current system. Verify that it's compliance is green.", enabled=true)
+	public void test_autosubscribeCompliant() {		
 		cleanSubscriptions();
 		
 		KatelloSystem sys = new KatelloSystem(this.system_name, this.org_name, this.env_name);
@@ -88,7 +88,7 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains("green"), "Check - compliance is green");
 	}
 
-	@Test(description="Register current system but not auto suscibe. Verify that it's compliance is red.", enabled=true, dependsOnMethods={"test_autosubscribeCompliant"})
+	@Test(description="Change system to have 8 sockets. Register current system but not auto suscibe. Verify that it's compliance is red.", enabled=true, dependsOnMethods={"test_autosubscribeCompliant"})
 	public void test_notSubscribeNotCompliant() {
 		cleanSubscriptions();
 		

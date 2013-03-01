@@ -160,18 +160,18 @@ public class BPMTests extends KatelloCliTestScript{
 	@Test(description="List available subscriptions", dependsOnMethods={"test_rhsm_register"})
 	public void test_rhsm_listAvailableSubscriptions(){
 		// ProductName
-		exec_result = KatelloUtils.sshOnClient("subscription-manager list --available | grep -E '(Name:|Subscription Name:)'");
+		KatelloSystem sys = new KatelloSystem(this.consumer_name, this.org_name, this.env_name_Dev);
+		exec_result = sys.subscriptions_available();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
+		
 		Assert.assertTrue(getOutput(exec_result).contains(product_name), "Check - subscription.ProductName");
+		
 		// Quantity
-		exec_result = KatelloUtils.sshOnClient("subscription-manager list --available | grep 'Quantity:'");
-		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).toLowerCase().contains("unlimited"), "Check - subscription.Quantity");
+		Assert.assertTrue(getOutput(exec_result).contains("Unlimited"), "Check - subscription.Quantity");
 		
 		// Store poolid
-		exec_result = KatelloUtils.sshOnClient("subscription-manager list --available | grep -E 'Pool Id:'");
-		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
-		rhsm_pool_id = KatelloCli.grepCLIOutput("Pool Id", getOutput(exec_result));
+		rhsm_pool_id = KatelloCli.grepCLIOutput("Id", getOutput(exec_result).trim(),1);
+		Assert.assertNotNull(rhsm_pool_id, "Check Pool Id is retrieved.");
 		log.fine(String.format("Subscription is available for product: [%s] with poolid: [%s]",
 				product_name,rhsm_pool_id));
 	}
@@ -183,7 +183,7 @@ public class BPMTests extends KatelloCliTestScript{
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).trim().startsWith("Successfully"), 
 				"Check - returned message (Successfully)");
-		Assert.assertTrue(getOutput(exec_result).trim().contains(this.product_name), 
+		Assert.assertTrue(getOutput(exec_result).trim().contains(rhsm_pool_id) || getOutput(exec_result).trim().contains(product_name), 
 				"Check - returned message (pool ID)");
 	}
 	

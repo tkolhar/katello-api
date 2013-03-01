@@ -126,8 +126,8 @@ public class SystemTests extends KatelloCliTestScript{
 		KatelloSystem sys = new KatelloSystem("localhost"+KatelloUtils.getUniqueID(), this.orgName, null);
 		exec_result = sys.rhsm_register(); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 255, "Check - return code");
-		Assert.assertEquals(exec_result.getStderr().trim(), 
-				String.format(KatelloSystem.ERR_RHSM_LOCKER_ONLY,this.orgName, KatelloEnvironment.LIBRARY),
+		Assert.assertTrue(exec_result.getStderr().trim().contains(
+				String.format(KatelloSystem.ERR_RHSM_LOCKER_ONLY,this.orgName, KatelloEnvironment.LIBRARY)),
 				"Check - please create an env.");
 	}
 	

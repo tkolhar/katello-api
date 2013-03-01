@@ -49,7 +49,7 @@ public class KatelloOrg extends _KatelloObject{
 			"Validation failed: Name has already been taken";
 	public static final String ERR_ORG_LABEL_EXISTS = 
 			"Validation failed: Label already exists (including organizations being deleted)";
-	
+
 	public static final String REG_ORG_LIST = ".*ID\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Description\\s*:\\s+%s.*";
 	public static final String REG_ORG_INFO = ".*ID\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Description\\s*:\\s+%s.*";
 	public static final String REG_CUSTOM_INFO = ".*Default System Info Keys\\s*:\\s+[\\s+%s\\s+].*";
