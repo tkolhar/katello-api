@@ -13,6 +13,7 @@ import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.base.obj.KatelloSystemGroup;
+import com.redhat.qe.katello.base.obj.KatelloTemplate;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SCPTools;
 import com.redhat.qe.tools.SSHCommandResult;
@@ -29,6 +30,7 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 	protected static String product_name;
 	protected static String repo_name;
 	protected static String env_name;
+	protected static String templ_name;
 	protected static String changeset_name;
 	protected static String changeset_name2;
 	protected static String system_name;
@@ -64,6 +66,7 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 		system_name3 = "system3_"+uid;
 		group_name = "group_"+uid;
 		group_name2 = "group2_"+uid;
+		templ_name = "template"+KatelloUtils.getUniqueID();
 		
 		server = KatelloUtils.getDeltaCloudServer();
 		server_name = server.getHostName();
@@ -127,6 +130,10 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 		
 		exec_result = cs.apply();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset promote)");
+				
+		KatelloTemplate tpl = new KatelloTemplate(templ_name, null, org_name, null);
+		exec_result = tpl.create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		SCPTools scp = new SCPTools(
 		System.getProperty("katello.server.hostname", "localhost"), 
@@ -179,8 +186,8 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		exec_result = sys.subscriptions_available();
-		String poolId2 = "8a90f8e73d104ae8013d109013ff011e";
-		Assert.assertNotNull(poolId1, "Check - pool Id is not null");
+		String poolId2 = KatelloCli.grepCLIOutput("Id", getOutput(exec_result).trim(),1);
+		Assert.assertNotNull(poolId2, "Check - pool Id is not null");
 		
 		exec_result = sys.rhsm_subscribe(poolId2);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
@@ -208,6 +215,9 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 		system_uuid3 = KatelloCli.grepCLIOutput("Current identity is", exec_result.getStdout());
 		
 		exec_result = sys.rhsm_subscribe(poolId1);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		exec_result = sys.rhsm_subscribe(poolId2);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		KatelloSystemGroup group = new KatelloSystemGroup(group_name, org_name);
