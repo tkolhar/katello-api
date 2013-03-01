@@ -21,7 +21,7 @@ import com.redhat.qe.katello.common.*;
 +	environment    environment specific actions in the katello server
 *	errata         errata specific actions in the katello server
 +	filter         filter specific actions in the katello server
-+	gpg_key        GPG Key specific actions in the katello server
++	gpg_key        GPG key specific actions in the katello server
 +	org            organization specific actions in the katello server
 *	package        package specific actions in the katello server
 *	package_group  package group specific actions in the katello server
@@ -76,9 +76,7 @@ public class FillDB implements KatelloConstants{
 	private String poolIdFedora;
 	private String poolIdZoo;
 	
-	private String clientHostname1;
-	
-	@Test(groups={TNG_PRE_UPGRADE}, description="init strings")
+	@BeforeClass(groups={TNG_PRE_UPGRADE}, description="init strings")
 	public void init(){
 		uid = KatelloUtils.getUniqueID();
 		orgName = "CFSE QE Team "+uid;
@@ -109,11 +107,10 @@ public class FillDB implements KatelloConstants{
 		if(clientsStr.isEmpty() || clients.length<2 || clients[1].isEmpty()) {
 			throw new SkipException("Please specify \"katello.upgrade.clients\" with at least 2 _different_ clients registered to the server");
 		}
-		clientHostname1 = clients[1];
 	}
 	
-	@Test(groups={TNG_PRE_UPGRADE}, dependsOnMethods={"init"},
-			description="create org, environment, user", enabled = true)
+	@Test(groups={TNG_PRE_UPGRADE}, 
+			description="create org, environment, user", enabled = false)
 	public void create_OrgEnvUser(){
 		SSHCommandResult res;
 		KatelloOrg org = new KatelloOrg(orgName, orgName+" description");
@@ -131,9 +128,9 @@ public class FillDB implements KatelloConstants{
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: user.create");
 	}
 	
-	@Test(groups={TNG_POST_UPGRADE}, dependsOnMethods={"init"},
+	@Test(groups={TNG_POST_UPGRADE},
 			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE},
-			description="check org, environent, user survived", enabled = true ) 
+			description="check org, environent, user survived", enabled = false ) 
 	public void check_OrgEnvUser(){
 		SSHCommandResult res;
 		String _name, _description, _prior;
@@ -178,8 +175,8 @@ public class FillDB implements KatelloConstants{
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: user.assignDefaultOrgEnv");
 	}
 	
-	@Test(groups={TNG_PRE_UPGRADE}, dependsOnMethods={"create_OrgEnvUser", "init"},
-			description="create role, permission and assignments", enabled = true)
+	@Test(groups={TNG_PRE_UPGRADE}, dependsOnMethods={"create_OrgEnvUser"},
+			description="create role, permission and assignments", enabled = false)
 	public void create_permissionsRoles(){
 		SSHCommandResult res;
 		String verbEnvAll = envNameTesting+","+envNameDevelopment;
@@ -237,7 +234,7 @@ public class FillDB implements KatelloConstants{
 	@Test(groups={TNG_POST_UPGRADE}, 
 			dependsOnMethods={"check_OrgEnvUser"},
 			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE},
-			description="check permissions, make different calls", enabled = true)
+			description="check permissions, make different calls", enabled = false)
 	public void check_permissionsRoles(){
 		SSHCommandResult res;
 		KatelloUser usrAdmin, usrGuest, usrDisabled;
@@ -331,7 +328,7 @@ public class FillDB implements KatelloConstants{
 	}
 
 	@Test(groups={TNG_PRE_UPGRADE}, dependsOnMethods={"create_permissionsRoles"},
-			description="import manifest, enable repo, promote to all envs - as the orgAdmin user", enabled = true)
+			description="import manifest, enable repo, promote to all envs - as the orgAdmin user", enabled = false)
 	public void create_importManifestEnableRHRepoSyncNPromoteAllEnvs(){
 		SSHCommandResult res;
 		KatelloUser orgAdmin = new KatelloUser(userNameAdmin, null, KatelloUser.DEFAULT_ADMIN_PASS, false);
@@ -375,7 +372,7 @@ public class FillDB implements KatelloConstants{
 
 	@Test(groups={TNG_POST_UPGRADE}, dependsOnMethods={"check_permissionsRoles"},
 			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE},
-			description="check subscription, product, repo info in all environments - as orgAdmin user", enabled = true)
+			description="check subscription, product, repo info in all environments - as orgAdmin user", enabled = false)
 	public void check_importManifestEnableRHRepoPromoteAllEnvs(){
 		/**
 		 * TODO - make calls to get info about product, repo, subscriptions for all the environments 
@@ -386,7 +383,7 @@ public class FillDB implements KatelloConstants{
 	
 	@Test(groups={TNG_PRE_UPGRADE}, dependsOnMethods={"create_permissionsRoles"},
 			description="create: gpgKey, activationKey, filter, system_group, template objects. " +
-					"To be used later on next step(s) - as orgAdmin user.", enabled = true)
+					"To be used later on next step(s) - as orgAdmin user.", enabled = false)
 	public void create_gpgKeyActivationKeyFilterSystemGroupTemplate(){
 		// GPG Key
 		SSHCommandResult res;
@@ -423,7 +420,7 @@ public class FillDB implements KatelloConstants{
 	@Test(groups={TNG_POST_UPGRADE},
 			dependsOnMethods={"check_permissionsRoles"},
 			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE},
-			description="check gpg key can be added to product Zoo", enabled = true)
+			description="check gpg key can be added to product Zoo", enabled = false)
 	public void check_addGpgKey(){
 		SSHCommandResult res;
 		KatelloUser orgAdmin = new KatelloUser(userNameAdmin, null, KatelloUser.DEFAULT_ADMIN_PASS, false);
@@ -435,13 +432,13 @@ public class FillDB implements KatelloConstants{
 		KatelloGpgKey key = new KatelloGpgKey(gpgKeyZoo, orgName, null);
 		key.runAs(orgAdmin);
 		res = key.cli_info();
-		Assert.assertTrue(KatelloCliTestScript.sgetOutput(res).contains(productZoo), "check GPG Key info has product Zoo");
+		Assert.assertTrue(KatelloCliTestScript.sgetOutput(res).contains(productZoo), "check GPG key info has product Zoo");
 	}
 	
 	@Test(groups={TNG_POST_UPGRADE},
 			dependsOnMethods={"check_permissionsRoles"},
 			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE},
-			description="check activation key related features", enabled = true)
+			description="check activation key related features", enabled = false)
 	public void check_activationKey(){
 		SSHCommandResult res;
 		KatelloUser orgAdmin = new KatelloUser(userNameAdmin, null, KatelloUser.DEFAULT_ADMIN_PASS, false);
@@ -469,7 +466,7 @@ public class FillDB implements KatelloConstants{
 	@Test(groups={TNG_POST_UPGRADE},
 			dependsOnMethods={"check_activationKey"},
 			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE},
-			description="check syste group related features", enabled = true)
+			description="check syste group related features", enabled = false)
 	public void check_systemGroup(){
 		SSHCommandResult res;
 		KatelloUser orgAdmin = new KatelloUser(userNameAdmin, null, KatelloUser.DEFAULT_ADMIN_PASS, false);
@@ -505,20 +502,15 @@ public class FillDB implements KatelloConstants{
 	@Test(groups={TNG_POST_UPGRADE},
 			dependsOnMethods={"check_systemGroup"},
 			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE},
-			description="register via AK and check features", enabled = true)
+			description="register via AK and check features", enabled = false)
 	public void check_registerViaAk(){
 		
 	}
 	
-	
-	
-	
-	
-	
 	@Test(groups={TNG_PRE_UPGRADE}, 
 			dependsOnMethods={"create_permissionsRoles"},
 			description="create: providers, products, repos {Fedora, Zoo3}. " +
-			"Make sync - as orgAdmin user.", enabled = true)
+			"Make sync - as orgAdmin user.", enabled = false)
 	public void create_providerProductRepoSyncF16AndZoo3(){
 		SSHCommandResult res;
 		KatelloUser orgAdmin = new KatelloUser(userNameAdmin, null, KatelloUser.DEFAULT_ADMIN_PASS, false);

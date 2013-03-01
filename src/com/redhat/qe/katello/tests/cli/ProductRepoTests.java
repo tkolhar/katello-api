@@ -361,7 +361,5 @@ public class ProductRepoTests extends KatelloCliTestScript {
 		
 		return repo;
 	}
-	
-	
 
 }

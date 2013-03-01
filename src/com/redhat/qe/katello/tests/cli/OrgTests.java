@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
@@ -24,7 +25,15 @@ public class OrgTests extends KatelloCliTestScript{
 	String orgName_Exists = "EXIST-"+uid;
 	String orgLabel_Exists = "LBL"+uid;
 
-	@AfterClass(description="Remove org objects", alwaysRun=true)
+	@BeforeClass(description="Generate unique objects")
+	public void setUp() {
+		KatelloOrg org = new KatelloOrg("FOO"+uid,"Package tests", "BAR"+uid);
+		exec_result = org.cli_create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		orgs.add(org);
+	}
+	
+        @AfterClass(description="Remove org objects", alwaysRun=true)
 	public void tearDown() {
 		for (KatelloOrg org : orgs) {
 			org.delete();
@@ -102,15 +111,11 @@ public class OrgTests extends KatelloCliTestScript{
 		res = org.cli_create();
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 		String new_desc = String.format("Updated %s",org.description);
+		org.description = new_desc;
 		res = org.update(new_desc);
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 		Assert.assertEquals(getOutput(res).trim(), String.format("Successfully updated org [ %s ]",org.name));
-		
-		org.description = "您好" + org.description;
-		res = org.update(org.description);
-		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
-		Assert.assertEquals(getOutput(res).trim(), String.format("Successfully updated org [ %s ]",org.name));
-		
+
 		res = org.cli_list();
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code (org list)");
 

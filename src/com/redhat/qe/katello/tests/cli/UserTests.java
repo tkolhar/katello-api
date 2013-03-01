@@ -172,13 +172,15 @@ public class UserTests extends KatelloCliTestScript{
 	
 	@Test(description="Generates User Report - pdf format", enabled=true)
 	public void test_UserReport_pdf(){
+		KatelloUtils.sshOnClient("rm -f katello_users_report.pdf");
 		SSHCommandResult res;
 		String format = "pdf";
 		KatelloUser usr = new KatelloUser();
 		res = usr.report(format);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+KatelloUser.CMD_REPORT+")");
 		
-	
+		res = KatelloUtils.sshOnClient("ls -la | grep katello_users_report.pdf");
+		Assert.assertTrue(getOutput(res).contains("katello_users_report.pdf"));
 	}
 	
 	@Test(description="Generates User Report - html format", enabled=true)
@@ -370,7 +372,7 @@ public class UserTests extends KatelloCliTestScript{
 	
 	@Test(description="access to cli calls by providing an empty password")
 	public void test_getAccessWithEmptyPassword(){
-		KatelloUser userAdmin = new KatelloUser(System.getProperty("katello.admin.user",KatelloUser.DEFAULT_ADMIN_USER), 
+		KatelloUser userAdmin = new KatelloUser(System.getProperty("katello.admin.user"), 
 				null,"", false);
 		KatelloOrg org = new KatelloOrg(organization, null);
 		org.runAs(userAdmin);
@@ -420,7 +422,6 @@ public class UserTests extends KatelloCliTestScript{
 				"Check - error string (invalid credentials)");
 	}
 	
-	
 	@Test(description="Read-only user for an organization can only view information but cannot modify it")
 	public void test_ReadonlyUser(){
 
@@ -441,7 +442,6 @@ public class UserTests extends KatelloCliTestScript{
 	    Assert.assertTrue(res.getExitCode().intValue() == 147, "Check - return code");
 
 	}
-	
 	
 	private void assert_userInfo(KatelloUser user){
 		SSHCommandResult res;
@@ -474,6 +474,5 @@ public class UserTests extends KatelloCliTestScript{
 		
 		return role;
 	}
-	
 
 }
