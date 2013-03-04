@@ -8,11 +8,14 @@ import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
+import com.redhat.qe.katello.base.obj.KatelloProduct;
+import com.redhat.qe.katello.base.obj.KatelloProvider;
+import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.tools.SSHCommandResult;
 import com.redhat.qe.tools.SCPTools;
 
 	
-@Test(groups={"headpin-cli"})
+@Test(groups={"cfse-cli"})
 public class ContentTest extends KatelloCliTestScript{
 
 	private SSHCommandResult res;
@@ -35,13 +38,21 @@ public class ContentTest extends KatelloCliTestScript{
 		env = new KatelloEnvironment(this.env_name, "Env-content Created",this.org_name,KatelloEnvironment.LIBRARY);
 		res = env.cli_create();
 		Assert.assertTrue(res.getExitCode() == 0 , "Check - return code");
+		KatelloProvider provider = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT,org_name,null,null);
 		SCPTools scp = new SCPTools(
         System.getProperty("katello.client.hostname", "localhost"), 
         System.getProperty("katello.client.ssh.user", "root"), 
         System.getProperty("katello.client.sshkey.private", ".ssh/id_hudson_dsa"), 
         System.getProperty("katello.client.sshkey.passphrase", "null"));
-		Assert.assertTrue(scp.sendFile("data"+File.separator+"stack-manifest.zip", "/tmp"),"stack-manifest.zip sent successfully");    
-	 	
+		Assert.assertTrue(scp.sendFile("data"+File.separator+"manifest.zip", "/tmp"),"manifest.zip sent successfully");    
+		res = provider.import_manifest("/tmp"+File.separator+"manifest.zip", new Boolean(true));
+		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
+		KatelloRepo repo = new KatelloRepo(KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT,org_name, KatelloProduct.RHEL_SERVER, null, null, null);
+		SSHCommandResult res = repo.enable();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo enable)");
+		Assert.assertTrue(getOutput(res).contains("enabled."),"Message - (repo enable)");
+		res = repo.synchronize();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo synchronize)");
 	}
 
 	
@@ -49,11 +60,23 @@ public class ContentTest extends KatelloCliTestScript{
 			"able to access repo and obtain contents")
 	public void test_Content()
 	{
+		res = KatelloUtils.sshOnClient("rpm -qa | grep yum-utils");
+		int exitCode = res.getExitCode().intValue();
+		if(exitCode == 1)
+		{
+			res = KatelloUtils.sshOnClient("yum install -y yum-utils");
+			Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 
-		KatelloUtils.sshOnClient("yum-config-manager --enable beaker-HighAvailability beaker-LoadBalancer beaker-ResilientStorage beaker-ScalableFileSystem beaker-Server beaker-debuginfo beaker-harness beaker-optional beaker-tasks");
-		KatelloUtils.sshOnClient("subscription-manager register --user admin --password admin --org ACME_Corporation --environment DEV --force");
-		KatelloUtils.sshOnClient("yum repolist");
-		KatelloUtils.sshOnClient("yum install -y zsh");
+		}
+		res = KatelloUtils.sshOnClient("yum-config-manager --enable beaker-HighAvailability beaker-LoadBalancer beaker-ResilientStorage beaker-ScalableFileSystem beaker-Server beaker-debuginfo beaker-harness beaker-optional beaker-tasks");
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		res = KatelloUtils.sshOnClient("subscription-manager register --user admin --password admin --org "+ this.org_name +" --environment "+this.env_name +" --force");
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		res = KatelloUtils.sshOnClient("yum repolist");
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		res = KatelloUtils.sshOnClient("yum install -y zsh");
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+
 	}
 
 
