@@ -303,6 +303,7 @@ public class KatelloSystem extends _KatelloObject{
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("environment", env));
+		opts.add(new Attribute("format","pdf"));
 		return run(CMD_REPORT+" -v");
 	}
 	
