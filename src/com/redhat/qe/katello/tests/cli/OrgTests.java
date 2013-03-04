@@ -264,6 +264,13 @@ public class OrgTests extends KatelloCliTestScript{
 		exec_result = org.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		KatelloProvider provider = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT,org_name,null,null);
+		SCPTools scp = new SCPTools(
+				System.getProperty("katello.server.hostname", "localhost"), 
+				System.getProperty("katello.server.ssh.user", "root"), 
+				System.getProperty("katello.server.sshkey.private", ".ssh/id_hudson_dsa"), 
+				System.getProperty("katello.server.sshkey.passphrase", "null"));
+		Assert.assertTrue(scp.sendFile("data"+File.separator+"stack-manifest.zip", "/tmp"),
+				"stack-manifest.zip sent successfully");			
 		exec_result = provider.import_manifest("/tmp"+File.separator+"stack-manifest.zip", new Boolean(true));
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		KatelloOrg diff_org = new KatelloOrg(diff_org_name,null);
@@ -290,6 +297,13 @@ public class OrgTests extends KatelloCliTestScript{
 		exec_result = org.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		KatelloProvider provider = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT,org_name,null,null);
+		SCPTools scp = new SCPTools(
+				System.getProperty("katello.server.hostname", "localhost"), 
+				System.getProperty("katello.server.ssh.user", "root"), 
+				System.getProperty("katello.server.sshkey.private", ".ssh/id_hudson_dsa"), 
+				System.getProperty("katello.server.sshkey.passphrase", "null"));
+		Assert.assertTrue(scp.sendFile("data"+File.separator+"stack-manifest.zip", "/tmp"),
+				"stack-manifest.zip sent successfully");			
 		exec_result = provider.import_manifest("/tmp"+File.separator+"stack-manifest.zip", new Boolean(true));
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(String.format("Manifest imported")),"Check - return string");
