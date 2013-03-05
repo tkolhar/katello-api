@@ -57,46 +57,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 			Assert.assertTrue(getOutput(res).contains(output),"Check - returned error string");
 		}
 	} 
-	
-    
-	@Test(description="create AK - template does not exist", groups = {"cli-activationkey"}, enabled=true)
-	public void test_create_noTemplate(){
-		SSHCommandResult res;
-		String uid = KatelloUtils.getUniqueID();
-		String ak_name = "ne-"+uid;
-		String template_name = "neTemplate-"+uid;
-		
-		KatelloActivationKey ak = new KatelloActivationKey(this.organization, this.env, ak_name, null, template_name);
-		res = ak.create();
-		Assert.assertTrue(res.getExitCode().intValue()==65, "Check - return code (activation_key create --template)");
-		Assert.assertTrue(getOutput(res).trim().contains(
-				String.format(KatelloActivationKey.ERR_TEMPLATE_NOTFOUND,template_name)), 
-				"Check - returned error string (activation_key create --template)");
-	}
-	
-	
-	@Test(description="create AK - template not exported to the env.", groups = {"cli-activationkey"}, enabled=true)
-	public void test_create_TemplateNotForEnv(){
-		SSHCommandResult res;
-		String uid = KatelloUtils.getUniqueID();
-		String template = "template-"+uid;
-		String ak_name = "nfe-"+uid;
-
-		// create the template
-		KatelloTemplate tmpl = new KatelloTemplate(template, null, this.organization, null);
-		res = tmpl.create();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (template create)");
-		
-		KatelloActivationKey ak = new KatelloActivationKey(this.organization, this.env, ak_name, null, template);
-		res = ak.create();
-		Assert.assertTrue(res.getExitCode().intValue()==65, "Check - return code (activation_key create --template)");
-		Assert.assertTrue(getOutput(res).contains(
-				String.format(KatelloActivationKey.ERR_TEMPLATE_NOTFOUND,template)), 
-				"Check - returned error string (activation_key create --template)");
-	}
-	
-	
-	
+	    
 	@Test(description="create AK - same name, diff. orgs", groups = {"cli-activationkey","headpin-cli"}, enabled=true)
 	public void test_create_diffOrgsSameName(){
 		SSHCommandResult res;

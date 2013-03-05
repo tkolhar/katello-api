@@ -3,11 +3,9 @@ package com.redhat.qe.katello.tests.cli;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
-import com.redhat.qe.katello.base.obj.KatelloFilter;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloPermission;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
@@ -171,15 +169,7 @@ public class UserPermissionTests extends KatelloCliTestScript {
 	
 	@Test(description="create permissions - for default org", dependsOnMethods={"test_createPermissions"}, enabled=true)
 	public void test_userAccess() {
-		KatelloFilter filter = new KatelloFilter("FilterLDAP" + uid, org, envs[0], null);
-		filter.runAs(user1);
-		SSHCommandResult res = filter.create();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		res = filter.cli_info();
-		Assert.assertTrue(res.getExitCode().intValue()==147, "Check - return code");
-		res = filter.delete();
-		Assert.assertTrue(res.getExitCode().intValue()==147, "Check - return code");
-		filter.runAs(null);
+		SSHCommandResult res;
 		
 		KatelloOrg organization = new KatelloOrg(org, "");
 		organization.runAs(user1);

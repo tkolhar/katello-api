@@ -1,15 +1,12 @@
 package com.redhat.qe.katello.tests.upgrade.v1;
 
 import java.util.logging.Logger;
-
 import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.Test;
-
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
-import com.redhat.qe.katello.base.obj.KatelloFilter;
 import com.redhat.qe.katello.base.obj.KatelloGpgKey;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
@@ -36,7 +33,6 @@ public class ScenCustomRepo implements KatelloConstants{
 	String _system;
 	String _gpg_key;
 	String _templ;
-	String _filter;
 	String _user1;
 	String _role1;
 	String[] clients = null;
@@ -66,7 +62,6 @@ public class ScenCustomRepo implements KatelloConstants{
 		_system = "localhost-" + _uid;
 		_gpg_key = "gpg_zoo-" + _uid;
 		_templ = "templ-" + _uid;
-		_filter = "filter" + _uid;
 		_user1 = "user" + _uid;
 		_role1 = "role" + _uid;
 	}
@@ -93,10 +88,8 @@ public class ScenCustomRepo implements KatelloConstants{
 		KatelloEnvironment env = new KatelloEnvironment(_env, null, _org, KatelloEnvironment.LIBRARY);
 		KatelloChangeset cs = new KatelloChangeset(_changeset, _org, _env);
 		KatelloTemplate templ1 = new KatelloTemplate(_templ, null, _org, null);
-		KatelloFilter filter1 = new KatelloFilter(_filter, _org, _env, "");
 		KatelloUser user1 = new KatelloUser(_user1, _user1+"@redhat.com", "redhat", false);
 		KatelloUserRole role1 = new KatelloUserRole(_role1, null);
-		
 		
 		SSHCommandResult res = user1.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");		
@@ -119,8 +112,6 @@ public class ScenCustomRepo implements KatelloConstants{
 		res = repo.synchronize();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		res = templ1.create();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		res = filter1.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		res = cs.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
@@ -160,11 +151,7 @@ public class ScenCustomRepo implements KatelloConstants{
 		
 		KatelloTemplate templ = new KatelloTemplate(_templ, null, _org, null);
 		res = templ.info(null);
-		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
-		
-		KatelloFilter filter = new KatelloFilter(_filter, _org, _env, "");
-		res = filter.cli_info();
-		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
+		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");		
 	}
 
 	@Test(description="verify repo survived the upgrade", 

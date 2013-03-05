@@ -52,12 +52,12 @@ public class EnvironmentTests extends KatelloCliTestScript{
 			
 			KatelloEnvironment env = new KatelloEnvironment(KatelloEnvironment.LIBRARY, "Library env", this.organization, KatelloEnvironment.LIBRARY);
 			res = env.cli_create();
-			Assert.assertEquals(res.getExitCode().intValue(), 144, "Check - return code");
+			Assert.assertEquals(res.getExitCode().intValue(), 166, "Check - return code");
 			Assert.assertTrue(getOutput(res).contains(output),"Check - returned error string");
 			
 			env = new KatelloEnvironment(KatelloEnvironment.LIBRARY, "Library env", this.organization, "BAR");
 			res = env.cli_create();
-			Assert.assertEquals(res.getExitCode().intValue(), 144, "Check - return code");
+			Assert.assertEquals(res.getExitCode().intValue(), 166, "Check - return code");
 			Assert.assertTrue(getOutput(res).contains(output),"Check - returned error string");
 		}
 		

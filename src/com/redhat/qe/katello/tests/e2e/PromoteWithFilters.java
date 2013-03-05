@@ -1,16 +1,13 @@
 package com.redhat.qe.katello.tests.e2e;
 
 import java.util.logging.Logger;
-
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
-import com.redhat.qe.katello.base.obj.KatelloFilter;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
@@ -49,7 +46,6 @@ public class PromoteWithFilters extends KatelloCliTestScript{
 	private String repo;
 	private String cs1;
 	private String cs2;
-	private String filter;
 	
 	@BeforeClass(description="Init unique names", alwaysRun=true)
 	public void setUp(){
@@ -60,7 +56,6 @@ public class PromoteWithFilters extends KatelloCliTestScript{
 		this.repo = "ZooRepo"+uniqueID;
 		this.cs1 = "cs1-"+uniqueID;
 		this.cs2 = "cs2-"+uniqueID;
-		this.filter = "noBearFrog"+uniqueID;
 		
 		log.info("E2E - Create org/env");
 		KatelloOrg org = new KatelloOrg(this.org, null);
@@ -97,18 +92,7 @@ public class PromoteWithFilters extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo sync)");
 	}
 	
-	@Test(description="Create filter and apply to repo. Important to have repo synced before (seems)", dependsOnMethods={"test_syncRepo"}, enabled=true)
-	public void test_createApplyFilter(){
-		
-		log.info("E2E - create filter and apply to the repo");
-		KatelloFilter filter = new KatelloFilter(this.filter, this.org, this.env, PACKAGES_TO_BLACKLIST);
-		SSHCommandResult res = filter.create();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (filter create)");
-		KatelloRepo repo = new KatelloRepo(this.repo, this.org, this.product, REPO_INECAS_ZOO3, null, null);
-		repo.add_filter(this.filter);
-	}
-	
-	@Test(description="Promote repo again: with filter now", dependsOnMethods={"test_createApplyFilter"}, enabled=true)
+	@Test(description="Promote repo again: with filter now", dependsOnMethods={"test_syncRepo"}, enabled=true)
 	public void test_promoteToDeSyncedAndFiltered(){
 		log.info("E2E - Promote to Dev - synced and with filter on repo");
 		KatelloChangeset cs = new KatelloChangeset(this.cs2, this.org, this.env);
