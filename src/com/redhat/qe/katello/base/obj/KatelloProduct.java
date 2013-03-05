@@ -47,6 +47,8 @@ public class KatelloProduct extends _KatelloObject{
 			"Couldn't find Product with cp_id = ";
 	public static final String ERR_GPGKEY_NOTFOUND = 
 			"Couldn't find GpgKey with name = %s";
+	public static final String ERR_HAS_NO_REPO = 
+			"Product [ %s ] has no repository";
 
 	public static final String API_CMD_LIST = "/organizations/%s/products"; // by org
 	

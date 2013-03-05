@@ -21,14 +21,16 @@ public class KatelloSystem extends _KatelloObject{
 	public static final String CMD_REPORT = "system report";
 	public static final String CMD_REMOVE = "system remove_deletion";
 	public static final String CMD_SUBSCRIBE = "system subscribe";
+	public static final String CMD_RELEASES = "system releases";
+	public static final String CMD_FACTS = "system facts";
 	
 	public static final String CMD_ADD_CUSTOM_INFO = "system add_custom_info";
 	public static final String CMD_UPDATE_CUSTOM_INFO = "system update_custom_info";
 	public static final String CMD_REMOVE_CUSTOM_INFO = "system remove_custom_info";
 	
-//	public static final String RHSM_CREATE =String.format("subscription-manager register --username %s --password %s",
-//					System.getProperty("katello.admin.user", KatelloUser.DEFAULT_ADMIN_USER),
-//					System.getProperty("katello.admin.password", KatelloUser.DEFAULT_ADMIN_PASS));
+	public static final String CMD_LIST_ERRATAS = "errata system";
+	public static final String CMD_LIST_ERRATA_DETAILS = "errata system -v";
+	
 	public static final String RHSM_CREATE ="subscription-manager register --username %s --password %s";
 	public static final String RHSM_CLEAN = "subscription-manager clean";
 	public static final String RHSM_SUBSCRIBE = "subscription-manager subscribe";
@@ -80,6 +82,7 @@ public class KatelloSystem extends _KatelloObject{
 	public static final String REG_CUSTOM_INFO = ".*Custom Info\\s*:\\s+[\\s+%s\\s+].*";
 	
 	public static final String SYSTEM_UUIDS = "system list --org '%s' --noheading -v | grep \"^UUID\\s*:\" | cut -f2 -d: | sed 's/ *$//g' | sed 's/^ *//g'";
+	
 	public static final String SYSTEM_UNREGISTER = "system unregister --uuid %s --org '%s'";
 	public static final String SYSTEM_UNSUBSCRIBE = "system unsubscribe --all --uuid %s --org '%s'";
 	
@@ -299,10 +302,14 @@ public class KatelloSystem extends _KatelloObject{
 		return run(CMD_SUBSCRIBE);
 	}
 	
-	public SSHCommandResult report(){
+	public SSHCommandResult report(String format){
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("environment", env));
+		if(format != null)
+		{
+			opts.add(new Attribute("format",format));
+		}	
 		return run(CMD_REPORT+" -v");
 	}
 	
@@ -320,6 +327,20 @@ public class KatelloSystem extends _KatelloObject{
 		return run(CMD_SUBSCRIPTIONS);
 	}
 
+	public SSHCommandResult releases() {
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		return run(CMD_RELEASES);
+	}
+	
+	public SSHCommandResult facts() {
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		return run(CMD_FACTS);
+	}
+	
 	public SSHCommandResult subscriptions_count() {
 		String cmd = CMD_SUBSCRIPTIONS;
 		
@@ -434,6 +455,70 @@ public class KatelloSystem extends _KatelloObject{
 		return KatelloUtils.sshOnClient(getHostName(), cmd);		
 	}
 	
+	public SSHCommandResult list_erratas(){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		return run(CMD_LIST_ERRATAS);
+	}
+
+	public SSHCommandResult list_erratas(String type){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("type", type));
+		return run(CMD_LIST_ERRATAS);
+	}
+
+	public SSHCommandResult list_errata_details(){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		return run(CMD_LIST_ERRATA_DETAILS);
+	}
+	
+	public SSHCommandResult list_errata_count(String query) {
+		String cmd = CMD_LIST_ERRATAS;
+		
+		if(this.name != null)
+			cmd += " --name \""+this.name+"\"";
+		if(this.org != null)
+			cmd += " --org \""+this.org+"\"";
+
+		cmd += " | grep \"" + query + "\" | wc -l";
+		
+		KatelloCli cli = new KatelloCli(cmd, null);
+		return cli.run();	
+	}
+
+	public SSHCommandResult list_errata_names(String query) {
+		String cmd = CMD_LIST_ERRATAS;
+		
+		if(this.name != null)
+			cmd += " --name \""+this.name+"\"";
+		if(this.org != null)
+			cmd += " --org \""+this.org+"\"";
+
+		cmd += " | grep \"" + query + "\" | awk '{print $1}'";
+		
+		KatelloCli cli = new KatelloCli(cmd, null);
+		return cli.run();	
+	}
+	
+	public SSHCommandResult list_errata_details_count(String query) {
+		String cmd = CMD_LIST_ERRATA_DETAILS;
+		
+		if(this.name != null)
+			cmd += " --name \""+this.name+"\"";
+		if(this.org != null)
+			cmd += " --org \""+this.org+"\"";
+
+		cmd += " | grep \"" + query + "\" | wc -l";
+		
+		KatelloCli cli = new KatelloCli(cmd, null);
+		return cli.run();	
+	}
+
 	public SSHCommandResult add_custom_info(String keyname, String value){
 		opts.clear();
 		opts.add(new Attribute("environment", env));
@@ -465,31 +550,4 @@ public class KatelloSystem extends _KatelloObject{
 
 		return run(CMD_REMOVE_CUSTOM_INFO);
 	}	
-	
-//	@SuppressWarnings("unchecked")
-//    public static KatelloSystem api_info(String byId) throws KatelloApiException {
-//		KatelloApiResponse response = KatelloApi.get(String.format(API_CMD_INFO, byId));
-//		if ( response.getReturnCode() == 200 ) {
-//		    String json = response.getContent();
-//		    JSONObject jobj = KatelloTestScript.toJSONObj(json);
-//		    JSONObject jenv = (JSONObject)jobj.get("environment");
-//		    JSONObject jown = (JSONObject)jobj.get("owner");
-//		    KatelloOwner owner = new KatelloOwner((Long)jown.get("id"), (String)jown.get("key"), (String)jown.get("displayName"), (String)jown.get("href"));
-//		    return new KatelloSystem((String)jobj.get("name"), (String)jenv.get("organization"), (String)jenv.get("name"), (String)jobj.get("uuid"), (Long)jenv.get("id"), (String)jobj.get("href"), owner, (Map<String,String>)jobj.get("facts"), (Map<String,Object>)jobj.get("idCert"));          
-//        }
-//		throw new KatelloApiException(response);
-//	}
-//	
-//	public static List<Long> api_getSerials(String customerId) throws KatelloApiException {
-//	    KatelloApiResponse response = KatelloApi.get(String.format(API_CMD_GET_SERIALS, customerId));
-//	    if ( response.getReturnCode() == 200 ) {
-//	        List<Long> _return = new ArrayList<Long>();
-//	        JSONArray serials = KatelloTestScript.toJSONArr(response.getContent());
-//	        for ( Object serial : serials ) {
-//	            _return.add((Long)((JSONObject)serial).get("serial"));
-//	        }
-//	        return _return;
-//	    }
-//	    throw new KatelloApiException(response);
-//	}
 }

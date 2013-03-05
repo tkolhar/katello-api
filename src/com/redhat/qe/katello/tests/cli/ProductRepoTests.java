@@ -3,20 +3,14 @@ package com.redhat.qe.katello.tests.cli;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
-import com.redhat.qe.katello.base.obj.KatelloFilter;
 import com.redhat.qe.katello.base.obj.KatelloGpgKey;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
@@ -40,10 +34,6 @@ public class ProductRepoTests extends KatelloCliTestScript {
 	private String repo_name;
 	private String gpg_key;
 	private String file_name;
-	private String filter_name;
-	private String filter_name2;
-	private KatelloFilter filter1;
-	private KatelloFilter filter2;
 
 	@BeforeClass(description = "Generate unique objects")
 	public void setUp() {
@@ -88,16 +78,6 @@ public class ProductRepoTests extends KatelloCliTestScript {
 		KatelloGpgKey gpg = new KatelloGpgKey(gpg_key, org_name, file_name);
 		exec_result = gpg.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		filter_name = "filter"+uid;
-		filter1 = new KatelloFilter(filter_name, org_name, null, null);
-		exec_result = filter1.create();
-		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code (filter create)");
-		
-		filter_name2 = "filter2"+uid;
-		filter2 = new KatelloFilter(filter_name2, org_name, null, null);
-		exec_result = filter2.create();
-		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code (filter create)");
 	}
 
 	@Test(description = "Create repo", groups = { "cli-repo" })
@@ -227,49 +207,11 @@ public class ProductRepoTests extends KatelloCliTestScript {
 		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloRepo.ERR_REPO_NOTFOUND, repo.name, repo.org, product_name, "Library"));
 	}
 	
-	@Test(description = "Add filter to repo", groups = { "cli-repo" })
-	public void test_addFilter() {
-
-		KatelloRepo repo = createRepo();
-		
-		exec_result = repo.add_filter(filter_name);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloRepo.OUT_FILTER_ADDED, filter_name, repo.name));
-		
-		assert_repoFilterList(repo, Arrays.asList(filter1), new ArrayList<KatelloFilter>());
-	}
-	
-	@Test(description = "Remove filter from repo", groups = { "cli-repo" })
-	public void test_removeFilter() {
-
-		KatelloRepo repo = createRepo();
-		
-		exec_result = repo.add_filter(filter_name);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		exec_result = repo.add_filter(filter_name2);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		assert_repoFilterList(repo, Arrays.asList(filter1, filter2), new ArrayList<KatelloFilter>());
-		
-		repo.remove_filter(filter_name);
-		
-		assert_repoFilterList(repo, Arrays.asList(filter2), Arrays.asList(filter1));
-	}
-	
 	@Test(description = "Call commands on non existing repo", groups = { "cli-repo" })
 	public void test_commandsInvalidRepo() {
 		repo_name = "repo"+KatelloUtils.getUniqueID();;
 		
 		KatelloRepo repo = new KatelloRepo(repo_name, org_name, null, PULP_RHEL6_x86_64_REPO, null, null, null, product_id);
-		
-		exec_result = repo.add_filter(filter_name);
-		Assert.assertTrue(exec_result.getExitCode() == 65, "Check - return code");
-		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloRepo.ERR_REPO_NOTFOUND, repo.name, repo.org, product_name, "Library"));
-		
-		exec_result = repo.remove_filter(filter_name2);
-		Assert.assertTrue(exec_result.getExitCode() == 65, "Check - return code");
-		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloRepo.ERR_REPO_NOTFOUND, repo.name, repo.org, product_name, "Library"));
 		
 		exec_result = repo.disable();
 		Assert.assertTrue(exec_result.getExitCode() == 65, "Check - return code");
@@ -323,27 +265,6 @@ public class ProductRepoTests extends KatelloCliTestScript {
 
 	}
 	
-	private void assert_repoFilterList(KatelloRepo repo, List<KatelloFilter> filters, List<KatelloFilter> excludeFilters) {
-
-		SSHCommandResult res;
-		res = repo.list_filters();
-
-		//filters that exist in list
-		for(KatelloFilter flt : filters){
-			if(flt.description ==null) flt.description = "None";
-			String match_list = String.format(KatelloRepo.REG_FILTER_LIST, flt.name, flt.description).replaceAll("\"", ""); // output not have '"' signs
-			Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_list), "Check - filter matches ["+flt.name+"]");
-		}
-		
-		//filters that should not exist in list
-		for(KatelloFilter flt : excludeFilters){
-			if(flt.description ==null) flt.description = "None";
-			String match_list = String.format(KatelloRepo.REG_FILTER_LIST, flt.name, flt.description).replaceAll("\"", ""); // output not have '"' signs
-			Assert.assertFalse(getOutput(res).replaceAll("\n", "").matches(match_list), "Check - filter not matches ["+flt.name+"]");
-		}
-		
-	}
-	
 	private void assert_repoList(String result, KatelloRepo repo) {
 		if (repo.lastSync == null) repo.lastSync = "never";
 
@@ -361,7 +282,5 @@ public class ProductRepoTests extends KatelloCliTestScript {
 		
 		return repo;
 	}
-	
-	
 
 }

@@ -153,6 +153,14 @@ implements KatelloConstants {
 		KatelloUtils.sshOnClient("subscription-manager clean");
 	}
 	
+	protected void rhsm_clean(String client){
+		log.info("RHSM -> unsubscribe, unregister, clean");
+		KatelloUtils.sshOnClient(client, "subscription-manager unsubscribe --all");
+		KatelloUtils.sshOnClient(client, "subscription-manager unregister");
+		KatelloUtils.sshOnClient(client, "subscription-manager clean");
+	}
+
+	
 	protected void rhsm_clean_only(){ 
 		log.info("RHSM -> clean");
 		KatelloUtils.sshOnClient("subscription-manager clean");
@@ -201,6 +209,7 @@ implements KatelloConstants {
 	
 	/**
 	 * Returns the localized message value of provided key.
+	 * The second argument args are optional, which are used for missing values (%s) in message text.  
 	 * It requires to specify "katello.locale" parameter while running tests, otherwise "KATELLO_DEFAULT_LOCALE" default value should be used.
 	 * It lookups in two different message.properties files, first is inputs file, where are kept texts to send to katello as input parameter in CLI.
 	 * Second file is contains output messages of katello to verify them in different locale.

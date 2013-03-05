@@ -116,7 +116,7 @@ public class PackagesWithGPGKey extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (rhsm subscribe)");
 		Assert.assertTrue(getOutput(res).startsWith("Successfully"), 
 				"Check - return message starts with word \"Successfully\" (rhsm subscribe)");
-		Assert.assertTrue(getOutput(res).contains(product), 
+		Assert.assertTrue(getOutput(res).contains(poolID) || getOutput(res).contains(poolName), 
 				"Check - return message contains pool name "+ poolName);
 		
 		KatelloUtils.sshOnClient("service goferd restart;");

@@ -13,6 +13,7 @@ import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
+import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.base.obj.KatelloSystemGroup;
 import com.redhat.qe.katello.base.obj.KatelloTemplate;
@@ -29,8 +30,8 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 	public void setUp(){
 		SSHCommandResult res;
 		String uid = KatelloUtils.getUniqueID();
-		this.organization = "ak-"+uid;
-		this.env = "ak-"+uid;
+		this.organization = "Simple Org"+uid;
+		this.env = "GA Env"+uid;
 
 		KatelloOrg org = new KatelloOrg(this.organization, null);
 		res = org.cli_create();
@@ -56,46 +57,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 			Assert.assertTrue(getOutput(res).contains(output),"Check - returned error string");
 		}
 	} 
-	
-    
-	@Test(description="create AK - template does not exist", groups = {"cli-activationkey"}, enabled=true)
-	public void test_create_noTemplate(){
-		SSHCommandResult res;
-		String uid = KatelloUtils.getUniqueID();
-		String ak_name = "ne-"+uid;
-		String template_name = "neTemplate-"+uid;
-		
-		KatelloActivationKey ak = new KatelloActivationKey(this.organization, this.env, ak_name, null, template_name);
-		res = ak.create();
-		Assert.assertTrue(res.getExitCode().intValue()==65, "Check - return code (activation_key create --template)");
-		Assert.assertTrue(getOutput(res).trim().contains(
-				String.format(KatelloActivationKey.ERR_TEMPLATE_NOTFOUND,template_name)), 
-				"Check - returned error string (activation_key create --template)");
-	}
-	
-	
-	@Test(description="create AK - template not exported to the env.", groups = {"cli-activationkey"}, enabled=true)
-	public void test_create_TemplateNotForEnv(){
-		SSHCommandResult res;
-		String uid = KatelloUtils.getUniqueID();
-		String template = "template-"+uid;
-		String ak_name = "nfe-"+uid;
-
-		// create the template
-		KatelloTemplate tmpl = new KatelloTemplate(template, null, this.organization, null);
-		res = tmpl.create();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (template create)");
-		
-		KatelloActivationKey ak = new KatelloActivationKey(this.organization, this.env, ak_name, null, template);
-		res = ak.create();
-		Assert.assertTrue(res.getExitCode().intValue()==65, "Check - return code (activation_key create --template)");
-		Assert.assertTrue(getOutput(res).contains(
-				String.format(KatelloActivationKey.ERR_TEMPLATE_NOTFOUND,template)), 
-				"Check - returned error string (activation_key create --template)");
-	}
-	
-	
-	
+	    
 	@Test(description="create AK - same name, diff. orgs", groups = {"cli-activationkey","headpin-cli"}, enabled=true)
 	public void test_create_diffOrgsSameName(){
 		SSHCommandResult res;
@@ -163,13 +125,14 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 		ak.asserts_create();
 	}
 	
-	
-    @Test(description="add subscription to ak", groups = {"cli-activationkey"},enabled=true)
-    public void test_update_addSubscription1(){
+	// @ TODO enable test when bug 909612 is fixed.
+    @Test(description="add subscription to ak, verify that it is shown in info, remove it, verify that is is not shown", groups = {"cli-activationkey"},enabled=false)
+    public void test_update_addremoveSubscription(){
     	String uid = KatelloUtils.getUniqueID();
     	String akName="ak-subscription-zoo3-"+uid;
     	String providerName = "Zoo3-"+uid;
     	String productName = "Zoo3 "+uid;
+    	String repoName = "Zoo3 "+uid;
     	SSHCommandResult res;
 
     	KatelloActivationKey ak = new KatelloActivationKey(this.organization, this.env, akName, "Activation key with Zoo3 subscription", null);
@@ -180,8 +143,30 @@ public class ActivationKeyTests extends KatelloCliTestScript{
     	KatelloProduct prod = new KatelloProduct(productName, this.organization, providerName, null, null, null, null, null);
     	res = prod.create();
     	Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
+    	KatelloRepo repo = new KatelloRepo(repoName, this.organization, productName, REPO_INECAS_ZOO3, null, null);
+    	res = repo.create();
+		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
+		res = prod.promote(this.env);
+		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
+		
     	KatelloOrg org = new KatelloOrg(this.organization, null);
     	res = org.subscriptions();
+  
+		String poolId1 = KatelloCli.grepCLIOutput("Id", getOutput(res).trim(),1);
+		Assert.assertNotNull(poolId1, "Check - pool Id is not null");
+		
+		res = ak.update_add_subscription(poolId1);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (add subscription)");
+		
+		
+		res = ak.info();
+		Assert.assertTrue(res.getStdout().contains(poolId1), "Check that pool Id is in info page.");
+		
+		res = ak.update_remove_subscription(poolId1);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (add subscription)");
+		
+		res = ak.info();
+		Assert.assertFalse(res.getStdout().contains(poolId1), "Check that pool Id is NOT in info page.");
     }
     
 	

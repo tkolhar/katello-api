@@ -10,6 +10,7 @@ import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
+import com.redhat.qe.katello.base.obj.KatelloGpgKey;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloPackage;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
@@ -25,6 +26,7 @@ public class ChangesetMultyPackageDelete extends KatelloCliTestScript {
 	protected static Logger log = Logger.getLogger(ChangesetMultyPackageDelete.class.getName());
 	
 	private String org_name;
+	private String gpg_key;
 	private String env_name;
 	private String system_name;
 	private String provider_name;
@@ -38,7 +40,7 @@ public class ChangesetMultyPackageDelete extends KatelloCliTestScript {
 	private String readdchst_name;
 	private String readdchst_name2;
 	private String package_name1 = "lion";
-	private String package_name2 = "akuma-debuginfo";
+	private String package_name2 = "google-chrome-stable";
 	
 	SSHCommandResult exec_result;
 	
@@ -47,16 +49,22 @@ public class ChangesetMultyPackageDelete extends KatelloCliTestScript {
 		
 		String uid = KatelloUtils.getUniqueID();
 		org_name = "org" + uid;
+		gpg_key = "gpg_chrome"+uid;
 		
 		// Create org:
 		KatelloOrg org = new KatelloOrg(this.org_name, "Package tests");
 		exec_result = org.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		KatelloUtils.sshOnClient("wget https://dl-ssl.google.com/linux/linux_signing_key.pub -O /tmp/RPM-GPG-KEY-dummy-packages-generator");
+		KatelloGpgKey gpg_key = new KatelloGpgKey(this.gpg_key, this.org_name, "/tmp/RPM-GPG-KEY-dummy-packages-generator");
+		gpg_key.cli_create();
 	}
 	
+	// @ TODO enable when bug 903520 is fixed
 	@Test(description = "Create changeset of deletion type," +
 			" then add already promoted packages to changeset and promote it," +
-			" verify that packages does not exist in environment anymore")
+			" verify that packages does not exist in environment anymore", enabled=false)
 	public void test_deletionChangesetRemovePackages() {
 		setupRepos();
 		KatelloUtils.sshOnClient("yum -y erase " + package_name1);
@@ -104,9 +112,10 @@ public class ChangesetMultyPackageDelete extends KatelloCliTestScript {
 		Assert.assertFalse(exec_result.getExitCode().intValue()==0, "Check - return code (install package)");
 	}
 
+	// @ TODO enable when bug 903520 is fixed
 	@Test(description = "Create changeset of promotion type," +
 			" then add already reomved packages to changeset and promote it," +
-			" verify that packages exist in environment", dependsOnMethods = {"test_deletionChangesetRemovePackages"})
+			" verify that packages exist in environment", dependsOnMethods = {"test_deletionChangesetRemovePackages"}, enabled=false)
 	public void test_promoteChangesetReAddPackages() {
 		
 		KatelloPackage package1 = new KatelloPackage(null, null, org_name, product_name, repo_name, env_name);
@@ -167,8 +176,8 @@ public class ChangesetMultyPackageDelete extends KatelloCliTestScript {
 		provider_name2 = "provider"+uid2;
 		product_name2 = "product"+uid2;
 		repo_name2 = "repo"+uid2;
-		chst_name = "MötleyCrüechangeset"+uid;		
-		delchst_name = "我喜欢吃饺子deletion_chst" +uid;
+		chst_name = "changeset"+uid;		
+		delchst_name = "deletion_chst" +uid;
 		system_name = "system" +uid;
 		readdchst_name = "readd_chst" + uid;
 		readdchst_name2 = "readd_chst" + uid2;
@@ -193,12 +202,12 @@ public class ChangesetMultyPackageDelete extends KatelloCliTestScript {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		// Create second product:
-		KatelloProduct prod2 = new KatelloProduct(product_name2, org_name, provider_name2, null, null, null, null, null);
+		KatelloProduct prod2 = new KatelloProduct(product_name2, org_name, provider_name2, null, gpg_key, null, null, null);
 		exec_result = prod2.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	
 		// Create second repo
-		KatelloRepo repo2 = new KatelloRepo(repo_name2, org_name, product_name2, "http://repos.fedorapeople.org/repos/candlepin/thumbslug/epel-6Server/x86_64/", null, null);//"http://dl.google.com/linux/chrome/rpm/stable/x86_64", null, null);//@TODO should be chrome
+		KatelloRepo repo2 = new KatelloRepo(repo_name2, org_name, product_name2, "http://dl.google.com/linux/chrome/rpm/stable/x86_64", gpg_key, false);//@TODO should be chrome
 		exec_result = repo2.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		

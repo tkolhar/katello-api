@@ -1,14 +1,11 @@
 package com.redhat.qe.katello.tests.i18n;
 
 import java.util.logging.Logger;
-
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
-import com.redhat.qe.katello.base.obj.KatelloFilter;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
@@ -31,7 +28,6 @@ public class RepoTests extends KatelloCliTestScript {
 	private String repo_name;
 	private String repo_name2;
 	private String repo_id2;
-	private String filter_name;
 	
 	@BeforeClass(description = "Generate unique objects", groups={"i18n-init"})
 	public void setUp() {
@@ -40,7 +36,6 @@ public class RepoTests extends KatelloCliTestScript {
 		user_name = "user" + uid;
 		provider_name = "provider" + uid;
 		product_name = "product" + uid;
-		filter_name = "filter"+uid;
 		
 		// Create org:
 		KatelloOrg org = new KatelloOrg(this.org_name, "Package tests");
@@ -64,11 +59,6 @@ public class RepoTests extends KatelloCliTestScript {
 				provider_name, null, null, null, null, null);
 		exec_result = prod.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		
-		KatelloFilter filter1 = new KatelloFilter(filter_name, org_name, null, null);
-		exec_result = filter1.create();
-		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code (filter create)");
 	}
 
 	@Test(description = "Create repo")
@@ -145,27 +135,6 @@ public class RepoTests extends KatelloCliTestScript {
 		Assert.assertTrue(exec_result.getExitCode() == 148, "Check - return code");
 		Assert.assertEquals(getOutput(exec_result).trim(), getText("repo.disable.enable.stderror"));
 	}
-	
-	@Test(description = "Add filter to repo", dependsOnMethods = {"test_createRepo"})
-	public void test_addFilter() {
-
-		KatelloRepo repo = new KatelloRepo(repo_name, org_name, product_name, PULP_RHEL6_x86_64_REPO, null, null);
-		
-		exec_result = repo.add_filter(filter_name);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertEquals(getOutput(exec_result).trim(), getText("repo.add.filter.stdout", filter_name, repo.name));
-	}
-	
-	@Test(description = "Remove filter from repo", dependsOnMethods = {"test_createRepo", "test_addFilter"})
-	public void test_removeFilter() {
-
-		KatelloRepo repo = new KatelloRepo(repo_name, org_name, product_name, PULP_RHEL6_x86_64_REPO, null, null);
-			
-		exec_result = repo.remove_filter(filter_name);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertEquals(getOutput(exec_result).trim(), getText("repo.remove.filter.stdout", filter_name, repo.name));		
-	}
-
 	
 	@Test(description = "Delete repo", dependsOnMethods = {"test_discoverRepo", "test_listRepo"})
 	public void test_deleteRepo() {

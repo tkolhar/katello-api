@@ -24,9 +24,12 @@
 			<class name="com.redhat.qe.katello.tests.e2e.ChangesetMultyRepoDelete"/>
 			<class name="com.redhat.qe.katello.tests.e2e.ChangesetMultyPackageDelete"/>
 			<class name="com.redhat.qe.katello.tests.e2e.ChangesetRepoDelete"/>
+			<class name="com.redhat.qe.katello.tests.e2e.ChangesetPackageDelete"/>
+			<class name="com.redhat.qe.katello.tests.e2e.ChangesetProductDelete"/>
 			<class name="com.redhat.qe.katello.tests.e2e.ConsumerAccess"/>
 			<class name="com.redhat.qe.katello.tests.e2e.OrgDeletion"/>
 			<class name="com.redhat.qe.katello.tests.e2e.CRLRegen"/>
+			<class name="com.redhat.qe.katello.tests.e2e.MultyManifest"/>
 			<class name="com.redhat.qe.katello.tests.e2e.OrgReCreate"/>
 			<class name="com.redhat.qe.katello.tests.e2e.PackagesWithGPGKey"/>
 			<class name="com.redhat.qe.katello.tests.e2e.ProductsSameName"/>
@@ -53,45 +56,6 @@
 		</packages>
 	</test>
 			
-	<!-- Test group that could be run on SAM server(s) as well -->
-	<test name="SAM_Tests" preserve-order="true">
-		<groups>
-			<run>
-				<include name="headpin-cli"/>
-			</run>
-		</groups>
-		<classes>
-			<class name="com.redhat.qe.katello.tests.cli.SetupServers"/>
-			<class name="com.redhat.qe.katello.tests.cli.ProductTests"/>  
-			<class name="com.redhat.qe.katello.tests.cli.EnvironmentTests"/> 
-			<class name="com.redhat.qe.katello.tests.cli.UserRoleTests"/> 
-			<class name="com.redhat.qe.katello.tests.cli.PingTest"/> 
-			<class name="com.redhat.qe.katello.tests.cli.VersionTest"/>
-			<class name="com.redhat.qe.katello.tests.cli.PermissionTests"/>
-			<class name="com.redhat.qe.katello.tests.cli.UserTests"/> 
-			<class name="com.redhat.qe.katello.tests.cli.OrgTests"/>
-			<class name="com.redhat.qe.katello.tests.cli.SystemInfoTests"/>
-			<class name="com.redhat.qe.katello.tests.cli.ClientTests"/> 	
-			<class name="com.redhat.qe.katello.tests.cli.ActivationKeyTests"/>
-			<class name="com.redhat.qe.katello.tests.e2e.StackedSubscriptions"/>
-			<class name="com.redhat.qe.katello.tests.cli.UserNoRoleNoAccess"/>	
-			<class name="com.redhat.qe.katello.tests.cli.ContentTest"/>			
-		</classes>		
-	</test>
-
-	<test name="SAM_API_Tests" preserve-order="true">
-		<groups>
-			<run>
-				<include name="headpin-api"/>
-			</run>
-        </groups>	
-		<classes>
-		    <class name="com.redhat.qe.katello.tests.api.SetupServers"/>
-			<class name="com.redhat.qe.katello.tests.api.EnvironmentsTest"/>
-			<class name="com.redhat.qe.katello.tests.api.UsersTest"/>
-		</classes>
-	</test>
-	
 	 <test name="Installation_Tests">
 		<groups>
     			<run>
@@ -105,17 +69,6 @@
 		</classes>
 	</test>
 	
-	<test name="Headpin_CLI_Tests" preserve-order="true">
-		<packages>
-			<package name="com.redhat.qe.katello.tests.cli"/>
-		</packages>
-		<groups>
-			<run>
-				<include name="headpin-cli"/>
-			</run>
-		</groups>
-	</test>
-
 	<test name="Upgrade_Tests">
 		<packages>
 			<package name="com.redhat.qe.katello.tests.upgrade.v1"/>
@@ -140,20 +93,17 @@
 		</groups>
 	</test>
 
-        <test name="Upgrade_Tests1">
-                <groups preserve-order="true">
-                        <run>
-                                <include name="pre-upgrade"/>
-                                <include name="upgrade"/>
-                                <include name="post-upgrade"/>
-                        </run>
-	                <classes>
-        	                <class name="com.redhat.qe.katello.tests.upgrade.v1.FillDB"/>
-                	        <class name="com.redhat.qe.katello.tests.upgrade.v1.KatelloUpgrade"/>
-	                </classes>
-                </groups>
-        </test>
-
+	<test name="Postupgrade_Tests">
+		<packages>
+			<package name="com.redhat.qe.katello.tests.upgrade.v1"/>
+		</packages>
+		<groups preserve-order="true">
+			<run>
+				<include name="post-upgrade"/>
+			</run>
+		</groups>
+	</test>
+	
 	<test name="Upgrade_Tests_Light">
 		<groups preserve-order="true">
 			<run>

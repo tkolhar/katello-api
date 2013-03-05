@@ -1,5 +1,6 @@
 package com.redhat.qe.katello.tests.deltacloud;
 
+import java.io.File;
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
@@ -12,11 +13,15 @@ import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.base.obj.KatelloSystemGroup;
+import com.redhat.qe.katello.base.obj.KatelloTemplate;
 import com.redhat.qe.katello.common.KatelloUtils;
+import com.redhat.qe.tools.SCPTools;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class BaseDeltacloudTest extends KatelloCliTestScript {
 
+	public static final String MANIFEST_12SUBSCRIPTIONS = "manifest-automation-CLI-12subscriptions.zip";
+	
 	protected SSHCommandResult exec_result;
 
 	// Katello objects below
@@ -25,7 +30,9 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 	protected static String product_name;
 	protected static String repo_name;
 	protected static String env_name;
+	protected static String templ_name;
 	protected static String changeset_name;
+	protected static String changeset_name2;
 	protected static String system_name;
 	protected static String system_name2;
 	protected static String system_name3;
@@ -53,23 +60,28 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 		repo_name = "repo_name_"+uid;
 		env_name = "env_Dev_"+uid;
 		changeset_name = "changeset_"+uid;
+		changeset_name2 = "chsrhel_"+uid;
 		system_name = "system_"+uid;
 		system_name2 = "system2_"+uid;
 		system_name3 = "system3_"+uid;
 		group_name = "group_"+uid;
 		group_name2 = "group2_"+uid;
+		templ_name = "template"+KatelloUtils.getUniqueID();
 		
-		server = KatelloUtils.getDeltaCloudServer(1);
+		server = KatelloUtils.getDeltaCloudServer();
 		server_name = server.getHostName();
 		
-		client = KatelloUtils.getDeltaCloudClient(server_name, 1);
+		client = KatelloUtils.getDeltaCloudClient(server_name);
 		client_name = client.getHostName();
 		
-		client2 = KatelloUtils.getDeltaCloudClient(server_name, 2);
+		client2 = KatelloUtils.getDeltaCloudClient(server_name);
 		client_name2 = client2.getHostName();
 		
-		client3 = KatelloUtils.getDeltaCloudClient(server_name, 3);
+		client3 = KatelloUtils.getDeltaCloudClient(server_name);
 		client_name3 = client3.getHostName();
+		
+		System.setProperty("katello.server.hostname", server_name);
+		System.setProperty("katello.client.hostname", client_name);
 		
 		// Create org:
 		KatelloOrg org = new KatelloOrg(org_name, "Package tests");
@@ -118,6 +130,45 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 		
 		exec_result = cs.apply();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset promote)");
+				
+		KatelloTemplate tpl = new KatelloTemplate(templ_name, null, org_name, null);
+		exec_result = tpl.create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		SCPTools scp = new SCPTools(
+		System.getProperty("katello.server.hostname", "localhost"), 
+		System.getProperty("katello.server.ssh.user", "root"), 
+		System.getProperty("katello.server.sshkey.private", ".ssh/id_hudson_dsa"), 
+		System.getProperty("katello.server.sshkey.passphrase", "null"));
+		Assert.assertTrue(scp.sendFile("data"+File.separator+MANIFEST_12SUBSCRIPTIONS, "/tmp"),
+				MANIFEST_12SUBSCRIPTIONS+" sent successfully");			
+			
+		prov = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, org_name, null, null);
+		prov.runOn(server_name);
+		SSHCommandResult res = prov.import_manifest("/tmp"+File.separator+MANIFEST_12SUBSCRIPTIONS, new Boolean(true));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (provider import_manifest)");
+		Assert.assertTrue(getOutput(res).contains("Manifest imported"),"Message - (provider import_manifest)");
+		
+		log.info("Enable repo: ["+KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT+"]");
+		repo = new KatelloRepo(KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, org_name, KatelloProduct.RHEL_SERVER, null, null, null);
+		res = repo.enable();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo enable)");
+		Assert.assertTrue(getOutput(res).contains("enabled."),"Message - (repo enable)");
+		
+		res = repo.synchronize();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo synchronize)");
+		res = repo.info();
+		int pkgCount = Integer.parseInt(KatelloCli.grepCLIOutput("Package Count", res.getStdout()));
+		String progress = KatelloCli.grepCLIOutput("Progress", res.getStdout());
+		Assert.assertTrue(pkgCount>0, "Check - Packages >0");
+		Assert.assertTrue(progress.equals("Finished"), "Check: status of repo sync - Finished");
+		
+		cs = new KatelloChangeset(changeset_name2, org_name, env_name);
+		cs.create();
+		res = cs.update_addProduct(KatelloProduct.RHEL_SERVER);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset add_product)");
+		res = cs.apply();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset promote)");
 		
 		KatelloSystem sys = new KatelloSystem(system_name, org_name, env_name);
 		sys.runOn(client_name);
@@ -134,6 +185,13 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 		exec_result = sys.rhsm_subscribe(poolId1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
+		exec_result = sys.subscriptions_available();
+		String poolId2 = KatelloCli.grepCLIOutput("Id", getOutput(exec_result).trim(),1);
+		Assert.assertNotNull(poolId2, "Check - pool Id is not null");
+		
+		exec_result = sys.rhsm_subscribe(poolId2);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
 		sys = new KatelloSystem(system_name2, org_name, env_name);
 		sys.runOn(client_name2);
 		exec_result = sys.rhsm_registerForce(); 
@@ -145,6 +203,9 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 		exec_result = sys.rhsm_subscribe(poolId1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
+		exec_result = sys.rhsm_subscribe(poolId2);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
 		sys = new KatelloSystem(system_name3, org_name, env_name);
 		sys.runOn(client_name3);
 		exec_result = sys.rhsm_registerForce(); 
@@ -154,6 +215,9 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 		system_uuid3 = KatelloCli.grepCLIOutput("Current identity is", exec_result.getStdout());
 		
 		exec_result = sys.rhsm_subscribe(poolId1);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		exec_result = sys.rhsm_subscribe(poolId2);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		KatelloSystemGroup group = new KatelloSystemGroup(group_name, org_name);
@@ -177,6 +241,10 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 		
 		exec_result = group.add_systems(system_uuid2);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+
+		KatelloUtils.sshOnClient(client_name, "service goferd restart;");
+		KatelloUtils.sshOnClient(client_name2, "service goferd restart;");
+		KatelloUtils.sshOnClient(client_name3, "service goferd restart;");
 	}
 	
 	public void tearDown() {

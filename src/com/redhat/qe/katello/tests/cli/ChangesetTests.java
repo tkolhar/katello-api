@@ -109,7 +109,7 @@ public class ChangesetTests extends KatelloCliTestScript{
 		KatelloChangeset chst = createChangeset();
 		
 		exec_result = chst.create();
-		Assert.assertTrue(exec_result.getExitCode() == 144, "Check - return code (changeset create)");
+		Assert.assertTrue(exec_result.getExitCode() == 166, "Check - return code (changeset create)");
 		Assert.assertEquals(getOutput(exec_result).trim(), "Validation failed: Name Must be unique within an environment");
 		
 	}

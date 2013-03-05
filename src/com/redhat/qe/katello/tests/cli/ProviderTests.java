@@ -15,7 +15,6 @@ import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups={"cfse-cli"})
 public class ProviderTests extends KatelloCliTestScript{
 	private String org_name;
 	
@@ -498,7 +497,7 @@ public class ProviderTests extends KatelloCliTestScript{
 		SSHCommandResult res;
 		KatelloProvider prov = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, this.org_name, null, null);
 		res = prov.update("REDHAT", null, null);
-		Assert.assertTrue(res.getExitCode().intValue()==144, "Check - return code (provider update)");
+		Assert.assertTrue(res.getExitCode().intValue()==166, "Check - return code (provider update)");
 		Assert.assertTrue(getOutput(res).contains(KatelloProvider.ERR_REDHAT_UPDATENAME), "Check - returned error string (provider update)");
 	}
 	
@@ -581,5 +580,21 @@ public class ProviderTests extends KatelloCliTestScript{
 		match_info = String.format(KatelloProvider.REG_PROVIDER_LIST,new_name, "", prov.description).replaceAll("\"", "");
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info), 
 				String.format("Provider [%s] should be found in the info", new_name));
+	}
+	
+	
+	@Test(description="sam only : check whether status of provider's sychronisation is displayed via cli", groups = {"headpin-cli"}, enabled=true)
+	public void test_CheckStatusProvider(){
+		
+		SSHCommandResult res;
+		String uid = KatelloUtils.getUniqueID();
+		String org_name = "org-status-" + uid;
+		KatelloOrg org=new KatelloOrg(org_name,null);
+		res= org.cli_create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		KatelloProvider prov = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, org_name, null, null);
+		res=prov.status();
+		Assert.assertTrue(res.getExitCode().intValue()==2, "Check - return code");
+		Assert.assertTrue(getOutput(res).contains("headpin: error: invalid action: please see --help"),"Check - returned error string");
 	}
 }
