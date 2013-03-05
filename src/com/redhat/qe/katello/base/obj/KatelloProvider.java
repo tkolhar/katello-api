@@ -18,6 +18,7 @@ public class KatelloProvider extends _KatelloObject{
 	public static final String CMD_UPDATE = "provider update";
 	public static final String CMD_DELETE = "provider delete";
 	public static final String CMD_STATUS = "provider status";
+	public static final String CMD_DELETE_MANIFEST = "provider delete_manifest";
 	public static final String CMD_REFRESH_PRODUCTS = "provider refresh_products";
 	public static final String CMD_CANCEL_SYNC = "provider cancel_sync";
 	
@@ -219,6 +220,13 @@ public class KatelloProvider extends _KatelloObject{
 		return run(CMD_CANCEL_SYNC);
 	}
 
+	
+	public SSHCommandResult delete_manifest(){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		return run(CMD_DELETE_MANIFEST);
+	}
 	// ** ** ** ** ** ** **
 	// ASSERTS
 	// ** ** ** ** ** ** **
