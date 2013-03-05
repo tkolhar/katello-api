@@ -84,7 +84,7 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 		exec_result = sys.rhsm_subscribe_auto();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		exec_result = sys.report();
+		exec_result = sys.report(null);
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains("green"), "Check - compliance is green");
 	}
 
@@ -96,7 +96,7 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 		exec_result = sys.rhsm_registerForce(); 
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
-		exec_result = sys.report();
+		exec_result = sys.report(null);
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains("red"), "Check - compliance is red");
 	}
 
@@ -112,7 +112,7 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 		exec_result = sys.rhsm_subscribe(pool_id, 1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		exec_result = sys.report();
+		exec_result = sys.report(null);
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains("yellow"), "Check - compliance is yellow");
 	}
 
@@ -129,24 +129,24 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 		exec_result = sys.rhsm_subscribe(pool_id, 1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		exec_result = sys.report();
+		exec_result = sys.report(null);
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains("yellow"), "Check - compliance is yellow");
 		
 		String pool_id2 = new KatelloMisc().cli_getPoolBySubscription("Red Hat Enterprise Linux Server, Self-support \\(1-2 sockets\\) \\(Up to 1 guest\\)", 3);
 		
 		exec_result = sys.rhsm_subscribe(pool_id2, 1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		exec_result = sys.report();
+		exec_result = sys.report(null);
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains("yellow"), "Check - compliance is yellow");
 		
 		exec_result = sys.rhsm_subscribe(pool_id2, 1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		exec_result = sys.report();
+		exec_result = sys.report(null);
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains("yellow"), "Check - compliance is yellow");
 		
 		exec_result = sys.rhsm_subscribe(pool_id2, 1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		exec_result = sys.report();
+		exec_result = sys.report(null);
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains("green"), "Check - compliance is green");
 	}
 
@@ -165,12 +165,12 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 		exec_result = sys.rhsm_subscribe(pool_id, 1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		exec_result = sys.report();
+		exec_result = sys.report(null);
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains("yellow"), "Check - compliance is yellow");
 		
 		exec_result = sys.rhsm_subscribe(pool_id2, 1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		exec_result = sys.report();
+		exec_result = sys.report(null);
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains("yellow"), "Check - compliance is yellow");
 
 	}
@@ -190,7 +190,7 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 		exec_result = sys.rhsm_subscribe(pool_id, 1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		exec_result = sys.report();
+		exec_result = sys.report(null);
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains("yellow"), "Check - compliance is yellow");
 		
 		exec_result = sys.rhsm_subscribe(pool_id2, 3);
@@ -201,7 +201,7 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 		exec_result = sys.rhsm_subscribe(pool_id2, 1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		exec_result = sys.report();
+		exec_result = sys.report(null);
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains("yellow"), "Check - compliance is yellow");
 
 	}
@@ -230,7 +230,7 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 		exec_result = sys.rhsm_subscribe(pool_id2, 1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		exec_result = sys.report();
+		exec_result = sys.report(null);
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains("green"), "Check - compliance is green");
 		
 		exec_result = sys.subscriptions();
@@ -242,7 +242,7 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 		exec_result = sys.rhsm_unsubscribe(serialId);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		exec_result = sys.report();
+		exec_result = sys.report(null);
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains("yellow"), "Check - compliance is yellow");
 	}
 	
@@ -271,7 +271,7 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 		exec_result = sys.rhsm_subscribe(pool_id2, 1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		exec_result = sys.report();
+		exec_result = sys.report(null);
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains("green"), "Check - compliance is green");
 		
 		exec_result = sys.subscriptions_count();
