@@ -31,9 +31,11 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 	protected static String product_name;
 	protected static String repo_name;
 	protected static String env_name;
+	protected static String env_name2;
 	protected static String templ_name;
 	protected static String changeset_name;
 	protected static String changeset_name2;
+	protected static String changeset_name3;
 	protected static String system_name;
 	protected static String system_name2;
 	protected static String system_name3;
@@ -54,14 +56,16 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 	public void setUp(){
 		if (server != null) return;
 		
-		String uid = KatelloUtils.getUniqueID();
+		String uid = "1362145766";
 		org_name = "org_"+uid;
 		provider_name = "provider_"+uid;
 		product_name = "product_"+uid;
 		repo_name = "repo_name_"+uid;
 		env_name = "env_Dev_"+uid;
+		env_name2 = "env_Test_"+uid;
 		changeset_name = "changeset_"+uid;
 		changeset_name2 = "chsrhel_"+uid;
+		changeset_name3 = "chsrhel3_"+uid;
 		system_name = "system_"+uid;
 		system_name2 = "system2_"+uid;
 		system_name3 = "system3_"+uid;
@@ -114,10 +118,18 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 		exec_result = env.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (env create)");
 		
+		env = new KatelloEnvironment(env_name2, null, org_name, KatelloEnvironment.LIBRARY);
+		env.runOn(client_name);
+		exec_result = env.cli_create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (env create)");
+		
 		// promote product to the env dev.
 		exec_result = prod.promote(env_name);
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (product promote)");
 
+		exec_result = prod.promote(env_name2);
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (product promote)");
+		
 		exec_result = repo.synchronize();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
@@ -156,6 +168,13 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo enable)");
 		Assert.assertTrue(getOutput(res).contains("enabled."),"Message - (repo enable)");
 		
+		cs = new KatelloChangeset(changeset_name3, org_name, env_name2);
+		cs.create();
+		res = cs.update_addProduct(KatelloProduct.RHEL_SERVER);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset add_product)");
+		res = cs.apply();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset promote)");
+		
 		res = repo.synchronize();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo synchronize)");
 		res = repo.info();
@@ -181,14 +200,11 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 		
 		exec_result = sys.subscriptions_available();
 		String poolId1 = KatelloCli.grepCLIOutput("Id", getOutput(exec_result).trim(),1);
+		String poolId2 = KatelloCli.grepCLIOutput("Id", getOutput(exec_result).trim(),2);
 		Assert.assertNotNull(poolId1, "Check - pool Id is not null");
 		
 		exec_result = sys.rhsm_subscribe(poolId1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		exec_result = sys.subscriptions_available();
-		String poolId2 = KatelloCli.grepCLIOutput("Id", getOutput(exec_result).trim(),1);
-		Assert.assertNotNull(poolId2, "Check - pool Id is not null");
 		
 		exec_result = sys.rhsm_subscribe(poolId2);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
