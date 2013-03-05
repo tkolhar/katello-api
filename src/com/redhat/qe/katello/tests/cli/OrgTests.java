@@ -188,7 +188,7 @@ public class OrgTests extends KatelloCliTestScript{
 		KatelloOrg org2 = new KatelloOrg("orgCrt"+uniqueID, "Simple description");	
 		SSHCommandResult res = org2.cli_create();
 		
-		Assert.assertTrue(res.getExitCode() == 144, "Check - return code [144]");
+		Assert.assertTrue(res.getExitCode() == 166, "Check - return code [166]");
 		Assert.assertEquals(getOutput(res).trim(), 
 				KatelloOrg.ERR_ORG_EXISTS_MUST_BE_UNIQUE);
 	}
@@ -199,7 +199,7 @@ public class OrgTests extends KatelloCliTestScript{
 		KatelloOrg org = new KatelloOrg("orgCrt"+uniqueID + " very ++== invalid name", "Simple description");	
 		SSHCommandResult res = org.cli_create();
 		
-		Assert.assertTrue(res.getExitCode() == 144, "Check - return code [144]");
+		Assert.assertTrue(res.getExitCode() == 166, "Check - return code [144]");
 		Assert.assertEquals(getOutput(res).trim(), 
 				KatelloOrg.ERR_NAME_INVALID);
 	}
@@ -210,7 +210,7 @@ public class OrgTests extends KatelloCliTestScript{
 		org.cli_create();
 		exec_result = new KatelloOrg(orgName_Exists, "existing org 2", "new"+org.label).cli_create();
 		
-		Assert.assertTrue(exec_result.getExitCode() == 144, "Check - return code [144]");
+		Assert.assertTrue(exec_result.getExitCode() == 166, "Check - return code [166]");
 		Assert.assertEquals(getOutput(exec_result).trim(), KatelloOrg.ERR_ORG_NAME_EXISTS);
 	}
 	
@@ -220,7 +220,7 @@ public class OrgTests extends KatelloCliTestScript{
 		org.cli_create();
 		exec_result = new KatelloOrg("new"+org.name, "existing label", orgLabel_Exists).cli_create();
 		
-		Assert.assertTrue(exec_result.getExitCode() == 144, "Check - return code [144]");
+		Assert.assertTrue(exec_result.getExitCode() == 166, "Check - return code [166]");
 		Assert.assertEquals(getOutput(exec_result).trim(), KatelloOrg.ERR_ORG_LABEL_EXISTS);
 	}
 	
@@ -230,7 +230,7 @@ public class OrgTests extends KatelloCliTestScript{
 		org.cli_create();
 		exec_result = new KatelloOrg(org.name, org.description, org.label).cli_create();
 		
-		Assert.assertTrue(exec_result.getExitCode() == 144, "Check - return code [144]");
+		Assert.assertTrue(exec_result.getExitCode() == 166, "Check - return code [166]");
 		Assert.assertEquals(getOutput(exec_result).trim(), KatelloOrg.ERR_ORG_EXISTS_MUST_BE_UNIQUE);
 	}	
 
@@ -275,7 +275,7 @@ public class OrgTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		provider = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT,diff_org_name,null,null);
 		exec_result = provider.import_manifest("/tmp"+File.separator+"stack-manifest.zip", new Boolean(true));
-		Assert.assertTrue(exec_result.getExitCode() == 144, "Check - return code");
+		Assert.assertTrue(exec_result.getExitCode() == 166, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(String.format("This distributor has already been imported by another owner")),"Check - return string");
 		exec_result  = org.delete();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
@@ -298,7 +298,7 @@ public class OrgTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(String.format("Manifest imported")),"Check - return string");
 		exec_result = provider.import_manifest("/tmp"+File.separator+"stack-manifest.zip", new Boolean(true));
-		Assert.assertTrue(exec_result.getExitCode() == 144, "Check - return code");
+		Assert.assertTrue(exec_result.getExitCode() == 166, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(String.format("Import is the same as existing data")),"Check - return string");
 		exec_result  = org.delete();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");

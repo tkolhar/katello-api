@@ -61,7 +61,6 @@ public class FillDB implements KatelloConstants{
 	
 	private String gpgKeyZoo, gpgFilename;
 	private String akTesting, akDevelopment;
-	private String filterNoBear;
 	private String templateF16Iso;
 	private String systemGroupMyServers;
 	
@@ -91,7 +90,6 @@ public class FillDB implements KatelloConstants{
 		gpgFilename = "/tmp/RPM-GPG-KEY-dummy-packages-generator";
 		akTesting = "ak-"+envNameTesting;
 		akDevelopment = "ak-"+envNameDevelopment;
-		filterNoBear = "noBear-"+uid;
 		templateF16Iso = "template-f16-"+uid;
 		systemGroupMyServers = "my-servers-"+uid;
 		providerFedora = "Fedora-"+uid;
@@ -404,12 +402,6 @@ public class FillDB implements KatelloConstants{
 		res = new KatelloActivationKey(orgName, envNameDevelopment, akDevelopment, akDevelopment+" description", null).create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: activation_key.create");
 		
-		// Filter
-		KatelloFilter filter = new KatelloFilter(filterNoBear, orgName, envNameDevelopment, "bear");
-		filter.runAs(orgAdmin);
-		res = filter.create();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: filter.create");
-		
 		// Template
 		KatelloTemplate temp = new KatelloTemplate(templateF16Iso, templateF16Iso+" description", orgName, null);
 		temp.runAs(orgAdmin);
@@ -551,10 +543,6 @@ public class FillDB implements KatelloConstants{
 		// assign gpgkey - zoo
 		prod = new KatelloProduct(productZoo, orgName, null, null, null, null, null, null);
 		res = prod.update_gpgkey(gpgKeyZoo);
-		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: product.update");
-
-		// assign filter - no bear package to be promoted.
-		res = prod.add_filter(filterNoBear);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: product.update");
 
 		// assign: distro, repo, package, package_group, param to the template

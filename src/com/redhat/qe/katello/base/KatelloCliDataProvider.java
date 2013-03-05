@@ -48,16 +48,16 @@ public class KatelloCliDataProvider {
 				{ "prov-"+uid, null, null, new Integer(0), "Successfully created provider [ prov-"+uid+" ]"},
 				{ "prov "+uid, "Provider with space in name", null, new Integer(0), "Successfully created provider [ prov "+uid+" ]"},
 				{ null, null, null, new Integer(2), System.getProperty("katello.engine", "katello")+": error: Option --name is required; please see --help"},
-				{ " ", null, null, new Integer(144), "Name can't be blank"},
-				{ " a", null, null, new Integer(144), "Validation failed: Name must not contain leading or trailing white spaces."},
-				{ "a ", null, null, new Integer(144), "Validation failed: Name must not contain leading or trailing white spaces."},
+				{ " ", null, null, new Integer(166), "Name can't be blank"},
+				{ " a", null, null, new Integer(166), "Validation failed: Name must not contain leading or trailing white spaces."},
+				{ "a ", null, null, new Integer(166), "Validation failed: Name must not contain leading or trailing white spaces."},
 				{ "a", null, null, new Integer(0), "Successfully created provider [ a ]"},
-				{ "?1", null, null, new Integer(144), "Validation failed: Name cannot contain characters other than alpha numerals, space,'_', '-'."},
-				{ strRepeat("0123456789", 12)+"abcdefghi", null, null, new Integer(144), "Validation failed: Name cannot contain more than 128 characters"},
+				{ "?1", null, null, new Integer(166), "Validation failed: Name cannot contain characters other than alpha numerals, space,'_', '-'."},
+				{ strRepeat("0123456789", 12)+"abcdefghi", null, null, new Integer(166), "Validation failed: Name cannot contain more than 128 characters"},
 				// description
 				{ "desc-specChars"+uid, "\\!@%^&*(<_-~+=//\\||,.>)", null, new Integer(0), "Successfully created provider [ desc-specChars"+uid+" ]"},
 				{ "desc-255Chars"+uid, strRepeat("0123456789", 25)+"abcde", null, new Integer(0), "Successfully created provider [ desc-255Chars"+uid+" ]"},
-				{ "desc-256Chars"+uid, strRepeat("0123456789", 25)+"abcdef", null, new Integer(144), "Validation failed: Description cannot contain more than 255 characters"},
+				{ "desc-256Chars"+uid, strRepeat("0123456789", 25)+"abcdef", null, new Integer(166), "Validation failed: Description cannot contain more than 255 characters"},
 				// url
 				{ "url-httpOnly"+uid, null, "http://", new Integer(2), System.getProperty("katello.engine", "katello")+": error: option --url: invalid format"}, // see below
 				{ "url-httpsOnly"+uid, null, "https://", new Integer(2), System.getProperty("katello.engine", "katello")+": error: option --url: invalid format"}, // according changes of: tstrachota
@@ -65,7 +65,7 @@ public class KatelloCliDataProvider {
 				{ "url-with_space"+uid, null, "http://url with space/", new Integer(0), "Successfully created provider [ url-with_space"+uid+" ]"},
 				// misc
 				{ "duplicate"+uid, null, null, new Integer(0), "Successfully created provider [ duplicate"+uid+" ]"},
-				{ "duplicate"+uid, null, null, new Integer(144), "Validation failed: Name has already been taken"}
+				{ "duplicate"+uid, null, null, new Integer(166), "Validation failed: Name has already been taken"}
 		};		
 	}
 	
@@ -172,16 +172,16 @@ public class KatelloCliDataProvider {
 				{ uid+strRepeat("0123456789", 11)+"abcdefgh", null, new Integer(0), "Successfully created user role [ "+uid+strRepeat("0123456789", 11)+"abcdefgh"+" ]"},
 				{ "user_role-"+uid, null, new Integer(0), "Successfully created user role [ user_role-"+uid+" ]"},
 				{ "user_role "+uid, "Provider with space in name", new Integer(0), "Successfully created user role [ user_role "+uid+" ]"},
-				{ " ", null, new Integer(144), "Name can't be blank"},
-				{ " a", null, new Integer(144), "Validation failed: Name must not contain leading or trailing white spaces."},
-				{ "a ", null, new Integer(144), "Validation failed: Name must not contain leading or trailing white spaces."},
-				{ "a", null, new Integer(0), "Successfully created user role [ a ]"},
-				{ "?1", null, new Integer(0), "Successfully created user role [ ?1 ]"},
-			    { strRepeat("0123456789", 12)+"abcdefghi", null, new Integer(144), "Validation failed: Name is too long (maximum is 128 characters)"},
+				{ " ", null, new Integer(166), "Name can't be blank"},
+				{ " a", null, new Integer(166), "Validation failed: Name must not contain leading or trailing white spaces."},
+				{ "a ", null, new Integer(166), "Validation failed: Name must not contain leading or trailing white spaces."},
+				{ "a", null, new Integer(166), "Validation failed: Name must contain at least 3 character"},
+				{ "?1", null, new Integer(166), "Validation failed: Name must contain at least 3 character"},
+			    { strRepeat("0123456789", 12)+"abcdefghi", null, new Integer(166), "Validation failed: Name is too long (maximum is 128 characters)"},
 //				// description
 				{ "desc-specChars"+uid, "\\!@%^&*(<_-~+=//\\||,.>)", new Integer(0), "Successfully created user role [ desc-specChars"+uid+" ]"},
 				
-				{ "desc-256Chars"+uid, strRepeat("0123456789", 25)+"abcdef", new Integer(144), "Validation failed: Description is too long (maximum is 250 characters)"},
+				{ "desc-256Chars"+uid, strRepeat("0123456789", 25)+"abcdef", new Integer(166), "Validation failed: Description is too long (maximum is 250 characters)"},
 				// misc
 				{ "duplicate"+uid, null, new Integer(0), "Successfully created user role [ duplicate"+uid+" ]"},
  				
@@ -199,16 +199,16 @@ public class KatelloCliDataProvider {
 				{ strRepeat("0123456789", 12)+"abcdefgh", null, new Integer(0), "Successfully created environment [ "+strRepeat("0123456789", 12)+"abcdefgh"+" ]"},
 				{ "env-"+uid, null, new Integer(0), "Successfully created environment [ env-"+uid+" ]"},
 				{ "env "+uid, "Provider with space in name", new Integer(0), "Successfully created environment [ env "+uid+" ]"},
-				{ " ", null, new Integer(144), "Name can't be blank"},
-				{ " a", null, new Integer(144), "Validation failed: Name must not contain leading or trailing white spaces."},
-				{ "a ", null, new Integer(144), "Validation failed: Name must not contain leading or trailing white spaces."},
+				{ " ", null, new Integer(166), "Name can't be blank"},
+				{ " a", null, new Integer(166), "Validation failed: Name must not contain leading or trailing white spaces."},
+				{ "a ", null, new Integer(166), "Validation failed: Name must not contain leading or trailing white spaces."},
 				{ "a", null, new Integer(0), "Successfully created environment [ a ]"},
-				{ "?1", null, new Integer(144), "Validation failed: Name cannot contain characters other than alpha numerals, space,'_', '-'."},
-			    { strRepeat("0123456789", 12)+"abcdefghi", null, new Integer(144), "Validation failed: Name cannot contain more than 128 characters"},
+				{ "?1", null, new Integer(166), "Validation failed: Name cannot contain characters other than alpha numerals, space,'_', '-'."},
+			    { strRepeat("0123456789", 12)+"abcdefghi", null, new Integer(166), "Validation failed: Name cannot contain more than 128 characters"},
 //				// description
 				{ "desc-specChars"+uid, "\\!@%^&*(<_-~+=//\\||,.>)", new Integer(0), "Successfully created environment [ desc-specChars"+uid+" ]"},
 				{ "desc-255Chars"+uid, strRepeat("0123456789", 25)+"abcde", new Integer(0), "Successfully created environment [ desc-255Chars"+uid+" ]"},
-				{ "desc-256Chars"+uid, strRepeat("0123456789", 25)+"abcdef", new Integer(144), "Validation failed: Description cannot contain more than 255 characters"},
+				{ "desc-256Chars"+uid, strRepeat("0123456789", 25)+"abcdef", new Integer(166), "Validation failed: Description cannot contain more than 255 characters"},
 				// misc
 				{ "duplicate"+uid, null, new Integer(0), "Successfully created environment [ duplicate"+uid+" ]"},
  				
@@ -243,19 +243,19 @@ public class KatelloCliDataProvider {
 
 				{ null, null, new Integer(2), System.getProperty("katello.engine", "katello")+": error: Option --name is required; please see --help"},
 
-				{ " ", null, new Integer(144), "Name can't be blank"},
-				{ " a", null, new Integer(144), "Validation failed: Name must not contain leading or trailing white spaces."},
-				{ "a ", null, new Integer(144), "Validation failed: Name must not contain leading or trailing white spaces."},
+				{ " ", null, new Integer(166), "Name can't be blank"},
+				{ " a", null, new Integer(166), "Validation failed: Name must not contain leading or trailing white spaces."},
+				{ "a ", null, new Integer(166), "Validation failed: Name must not contain leading or trailing white spaces."},
 				{ "a", null, new Integer(0), "Successfully created activation key [ a ]"},
-				{ "?1", null, new Integer(144), "Validation failed: Name cannot contain characters other than alpha numerals, space,'_', '-'."},
-			    { strRepeat("0123456789", 12)+"abcdefghi", null, new Integer(144), "Validation failed: Name cannot contain more than 128 characters"},
+				{ "?1", null, new Integer(166), "Validation failed: Name cannot contain characters other than alpha numerals, space,'_', '-'."},
+			    { strRepeat("0123456789", 12)+"abcdefghi", null, new Integer(166), "Validation failed: Name cannot contain more than 128 characters"},
 //				// description
 				{ "desc-specChars"+uid, "\\!@%^&*(<_-~+=//\\||,.>)", new Integer(0), "Successfully created activation key [ desc-specChars"+uid+" ]"},
 				{ "desc-255Chars"+uid, strRepeat("0123456789", 25)+"abcde", new Integer(0), "Successfully created activation key [ desc-255Chars"+uid+" ]"},
-				{ "desc-256Chars"+uid, strRepeat("0123456789", 25)+"abcdef", new Integer(144), "Validation failed: Description cannot contain more than 255 characters"},
+				{ "desc-256Chars"+uid, strRepeat("0123456789", 25)+"abcdef", new Integer(166), "Validation failed: Description cannot contain more than 255 characters"},
 				// misc
 				{ "duplicate"+uid, null, new Integer(0), "Successfully created activation key [ duplicate"+uid+" ]"},
- 				{ "duplicate"+uid, null, new Integer(144), "Validation failed: Name has already been taken"}
+ 				{ "duplicate"+uid, null, new Integer(166), "Validation failed: Name has already been taken"}
 		};
 	}
 	

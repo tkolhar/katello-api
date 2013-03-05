@@ -498,7 +498,7 @@ public class ProviderTests extends KatelloCliTestScript{
 		SSHCommandResult res;
 		KatelloProvider prov = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, this.org_name, null, null);
 		res = prov.update("REDHAT", null, null);
-		Assert.assertTrue(res.getExitCode().intValue()==144, "Check - return code (provider update)");
+		Assert.assertTrue(res.getExitCode().intValue()==166, "Check - return code (provider update)");
 		Assert.assertTrue(getOutput(res).contains(KatelloProvider.ERR_REDHAT_UPDATENAME), "Check - returned error string (provider update)");
 	}
 	
