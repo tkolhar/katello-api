@@ -21,6 +21,8 @@ public class KatelloSystem extends _KatelloObject{
 	public static final String CMD_REPORT = "system report";
 	public static final String CMD_REMOVE = "system remove_deletion";
 	public static final String CMD_SUBSCRIBE = "system subscribe";
+	public static final String CMD_RELEASES = "system releases";
+	public static final String CMD_FACTS = "system facts";
 	
 	public static final String CMD_ADD_CUSTOM_INFO = "system add_custom_info";
 	public static final String CMD_UPDATE_CUSTOM_INFO = "system update_custom_info";
@@ -299,11 +301,14 @@ public class KatelloSystem extends _KatelloObject{
 		return run(CMD_SUBSCRIBE);
 	}
 	
-	public SSHCommandResult report(){
+	public SSHCommandResult report(String format){
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("environment", env));
-		opts.add(new Attribute("format","pdf"));
+		if(format != null)
+		{
+			opts.add(new Attribute("format",format));
+		}	
 		return run(CMD_REPORT+" -v");
 	}
 	
@@ -321,6 +326,20 @@ public class KatelloSystem extends _KatelloObject{
 		return run(CMD_SUBSCRIPTIONS);
 	}
 
+	public SSHCommandResult releases() {
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		return run(CMD_RELEASES);
+	}
+	
+	public SSHCommandResult facts() {
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		return run(CMD_FACTS);
+	}
+	
 	public SSHCommandResult subscriptions_count() {
 		String cmd = CMD_SUBSCRIPTIONS;
 		
