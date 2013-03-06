@@ -8,7 +8,7 @@ public class KatelloPackage extends _KatelloObject{
 	// ** ** ** ** ** ** ** Public constants
 	public static final String CMD_INFO = "package info";
 	public static final String CMD_LIST = "package list";
-	public static final String CMD_SEARCH = "package search";
+	public static final String CMD_SEARCH = "package search --noheading";
 	
 	public static final String REG_PACKAGE_ID = "\\w{8}-\\w{4}-\\w{4}-\\w{4}-\\w{12}";
 	public static final String REG_CHS_PROMOTE_ERROR = "Validation failed: Repository of the package '%s' has not been promoted into the target environment!";

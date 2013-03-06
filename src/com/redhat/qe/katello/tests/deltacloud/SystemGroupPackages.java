@@ -6,7 +6,7 @@ import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.obj.KatelloSystemGroup;
 import com.redhat.qe.katello.common.KatelloUtils;
 
-@Test(dependsOnGroups="cfse-dc-errata")
+@Test(groups="cfse-pack", dependsOnGroups="cfse-dc-errata")
 public class SystemGroupPackages extends BaseDeltacloudTest {
 	
 	@Test(description = "Install lion package in system group, verify that wolf and lion are installed")
