@@ -25,6 +25,9 @@ public class GpgKeyExtTests extends KatelloCliTestScript{
 	private String org;
 	private String gpg;
 	private String filename;
+	private String repo_name = "gpg-repo1";
+	private String repo_name2 = "gpg-repo2";
+	private final String GPG_KEY = "GPG Key";
 	
 	private String productNameWithGpg1;
 
@@ -79,6 +82,28 @@ public class GpgKeyExtTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create --gpgkey)");
 		Assert.assertTrue(getOutput(res).equals(getText("product.create.stdout", productNameWithGpg1)), "Check - stdout (product create)");
 	}
+
+	@Test(description="add repo to the product with gpg key", dependsOnMethods={"test_createProduct_validGpg"})
+	public void test_add2Repos_WithGpg(){
+		SSHCommandResult res;	
+		KatelloRepo repo = new KatelloRepo(repo_name, org, productNameWithGpg1, REPO_INECAS_ZOO3, gpg, null);
+		res = repo.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo create)");
+		
+		res = repo.info();
+		String repo_gpg = KatelloCli.grepCLIOutput(GPG_KEY, getOutput(res));
+		Assert.assertTrue(!repo_gpg.isEmpty(), "Check - repo info contains \"GPG Key\" value");
+		Assert.assertTrue(repo_gpg.equals(gpg), "Check - repo gpg key info is what we expect");
+		
+		KatelloRepo repo2 = new KatelloRepo(repo_name2, org, productNameWithGpg1, REPO_INECAS_ZOO3, gpg, null);
+		res = repo2.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo create)");
+		
+		res = repo2.info();
+		repo_gpg = KatelloCli.grepCLIOutput(GPG_KEY, getOutput(res));
+		Assert.assertTrue(!repo_gpg.isEmpty(), "Check - repo info contains \"GPG Key\" value");
+		Assert.assertTrue(repo_gpg.equals(gpg), "Check - repo gpg key info is what we expect");
+	}
 	
 	@Test(description="add repo to the product with gpg key", dependsOnMethods={"test_createProduct_validGpg"})
 	public void test_addRepo_productHasGpg(){
@@ -90,7 +115,7 @@ public class GpgKeyExtTests extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(res).equals(getText("repo.create.stdout", repo_name)), "Check - stdout (repo create)");
 		
 		res = repo.info();
-		String repo_gpg = KatelloCli.grepCLIOutput("GPG Key", getOutput(res));
+		String repo_gpg = KatelloCli.grepCLIOutput(GPG_KEY, getOutput(res));
 		Assert.assertTrue(!repo_gpg.isEmpty(), "Check - repo info contains \"GPG Key\" value");
 		Assert.assertTrue(repo_gpg.equals(gpg), "Check - repo gpg key info is what we expect");
 	}
@@ -105,7 +130,7 @@ public class GpgKeyExtTests extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(res).equals(getText("repo.create.stdout", repo_name)), "Check - stdout (repo create)");
 		
 		res = repo.info();
-		String repo_gpg = KatelloCli.grepCLIOutput("GPG Key", getOutput(res));
+		String repo_gpg = KatelloCli.grepCLIOutput(GPG_KEY, getOutput(res));
 		Assert.assertTrue(repo_gpg.isEmpty(), "Check - repo info contains no \"GPG Key\" value");
 		Assert.assertTrue(!repo_gpg.equals(gpg), "Check - repo gpg key info is what we expect");
 	}
@@ -125,8 +150,34 @@ public class GpgKeyExtTests extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(res).equals(getText("repo.create.stdout", repo_name)), "Check - stdout (repo create)");
 		
 		res = repo.info();
-		String repo_gpg = KatelloCli.grepCLIOutput("GPG Key", getOutput(res));
+		String repo_gpg = KatelloCli.grepCLIOutput(GPG_KEY, getOutput(res));
 		Assert.assertTrue(!repo_gpg.isEmpty(), "Check - repo info contains no \"GPG Key\" value");
 		Assert.assertTrue(repo_gpg.equals(anotherGpg_name), "Check - repo gpg key info is what we expect");
+	}
+	
+	
+	@Test(description="delete gpg key verify that it is deleted from repos as well", dependsOnMethods={"test_add2Repos_WithGpg","test_addRepo_productHasGpg"})
+	public void test_deleteGPG(){
+		KatelloGpgKey gpg = new KatelloGpgKey(this.gpg, this.org, null);
+		SSHCommandResult res = gpg.cli_delete();
+		Assert.assertTrue(res.getExitCode().intValue()==0,"Check - return code (gpg_key delete)");
+		Assert.assertFalse(getOutput(res).replaceAll("\n", "").matches(String.format(KatelloGpgKey.REGEXP_GPG, this.gpg)),
+				"Check - gpg key should not be listed");
+		res = gpg.cli_info();
+		Assert.assertTrue(res.getExitCode().intValue()==65,"Check - return code (gpg_key info)");
+		Assert.assertTrue(getOutput(res).equals(String.format(KatelloGpgKey.ERR_KEY_NOT_FOUND, this.gpg)),
+				"Check - gpg info error string");
+		
+		KatelloRepo repo = new KatelloRepo(repo_name, org, productNameWithGpg1, REPO_INECAS_ZOO3, null, null);
+		res = repo.info();
+		String repo_gpg = KatelloCli.grepCLIOutput(GPG_KEY, getOutput(res));
+		Assert.assertTrue(repo_gpg.isEmpty(), "Check - repo info contains no \"GPG Key\" value");
+		Assert.assertTrue(!repo_gpg.equals(gpg), "Check - repo gpg key info is what we expect");
+		
+		repo = new KatelloRepo(repo_name2, org, productNameWithGpg1, REPO_INECAS_ZOO3, null, null);
+		res = repo.info();
+		repo_gpg = KatelloCli.grepCLIOutput(GPG_KEY, getOutput(res));
+		Assert.assertTrue(repo_gpg.isEmpty(), "Check - repo info contains no \"GPG Key\" value");
+		Assert.assertTrue(!repo_gpg.equals(gpg), "Check - repo gpg key info is what we expect");
 	}
 }
