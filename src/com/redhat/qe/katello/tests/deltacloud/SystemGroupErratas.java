@@ -56,9 +56,9 @@ public class SystemGroupErratas extends BaseDeltacloudTest {
 	public void test_errataDetailsOnSystemGroup() {
 		setUpErratas();
 		
-		verifyErrataDetailsOnSystemGroup(group_name, 2, Arrays.asList(system_name, system_name2), Arrays.asList(system_name3));
+		verifyErrataDetailsOnSystemGroup(group_name, 2, Arrays.asList(system_name, system_name2));
 		
-		verifyErrataDetailsOnSystemGroup(group_name2, 1, Arrays.asList(system_name2), Arrays.asList(system_name, system_name3));
+		verifyErrataDetailsOnSystemGroup(group_name2, 1, Arrays.asList(system_name2));
 	}
 	
 	@Test(description = "Install the errata on system group", dependsOnMethods={"test_errataDetailsOnSystemGroup"})
@@ -154,18 +154,15 @@ public class SystemGroupErratas extends BaseDeltacloudTest {
 		Assert.assertFalse(getOutput(exec_result).replaceAll("\n", "").contains(PromoteErrata.ERRATA_ZOO_SEA), "Check - errata list output");
 	}
 	
-	private void verifyErrataDetailsOnSystemGroup(String groupName, int systemCount, List<String> existingSystems, List<String> excludeSystems) {
+	private void verifyErrataDetailsOnSystemGroup(String groupName, int systemCount, List<String> existingSystems) {
 		KatelloSystemGroup group = new KatelloSystemGroup(groupName, org_name);
 		group.runOn(client_name);
-		exec_result = group.list_errata_details();
+		exec_result = group.list_errata_details("security");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains(PromoteErrata.ERRATA_ZOO_SEA), "Check - errata list output");
+		String sysregexp = "";
 		for (String sys : existingSystems) {
-			Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains(sys), "Check - errata list details output contains system name");
+			sysregexp += sys + "\\s*";
 		}
-		for (String sys : excludeSystems) {
-			Assert.assertFalse(getOutput(exec_result).replaceAll("\n", "").contains(sys), "Check - errata list details output contains system name");
-		}
-		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").matches(String.format(KatelloSystemGroup.REG_SYSTEMGROUP_ERRATA_INFO, systemCount)), "Check - errata list output");
+		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").matches(String.format(KatelloSystemGroup.REG_SYSTEMGROUP_ERRATA_INFO, PromoteErrata.ERRATA_ZOO_SEA, "Sea_Erratum", "security", systemCount, sysregexp).replaceAll("\"", "")), "Check - errata list output");
 	}
 }
