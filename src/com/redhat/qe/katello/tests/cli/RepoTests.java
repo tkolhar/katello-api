@@ -34,6 +34,7 @@ public class RepoTests extends KatelloCliTestScript {
 	private String repo_name;
 	private String gpg_key;
 	private String file_name;
+	private String ls_cmd = "ls -la /var/lib/pulp/repos/";
 
 	@BeforeClass(description = "Generate unique objects")
 	public void setUp() {
@@ -202,8 +203,30 @@ public class RepoTests extends KatelloCliTestScript {
 
 		KatelloRepo repo = createRepo();
 		
-		repo.delete();
+		exec_result = repo.delete();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		exec_result = repo.info();
+		Assert.assertTrue(exec_result.getExitCode() == 65, "Check - return code");
+		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloRepo.ERR_REPO_NOTFOUND, repo.name, repo.org, repo.product, "Library"));
+	}
+
+	@Test(description = "Delete synced repo", groups = { "cli-repo" })
+	public void test_deleteSyncedRepo() {
+
+		KatelloRepo repo = createRepo();
+		
+		exec_result = repo.synchronize();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		exec_result = KatelloUtils.sshOnServer(ls_cmd + org_name);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		exec_result = repo.delete();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		exec_result = KatelloUtils.sshOnServer(ls_cmd + org_name);
+		Assert.assertTrue(exec_result.getExitCode() == 2, "Check - return code");
 		
 		exec_result = repo.info();
 		Assert.assertTrue(exec_result.getExitCode() == 65, "Check - return code");
