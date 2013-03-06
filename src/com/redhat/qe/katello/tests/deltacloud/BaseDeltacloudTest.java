@@ -56,7 +56,7 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 	public void setUp(){
 		if (server != null) return;
 		
-		String uid = "1362145766";
+		String uid = KatelloUtils.getUniqueID();
 		org_name = "org_"+uid;
 		provider_name = "provider_"+uid;
 		product_name = "product_"+uid;
