@@ -148,4 +148,7 @@ public interface KatelloConstants {
 		{"cfseserver5", "usersys.redhat.com", "a70017101d57379c611a30cea1f76182", "10.16.120.72", "00:1a:4a:10:78:36"},
 		{"cfseserver6", "usersys.redhat.com", "08d568db541879e2f684bcf637cf1375", "10.16.120.72", "00:1a:4a:10:78:36"}};
 
+	public static final String REDHAT_RELEASE_RHEL5X = "Red Hat Enterprise Linux Server release 5.";
+	public static final String REDHAT_RELEASE_RHEL6X = "Red Hat Enterprise Linux Server release 6.";
+	
 }
