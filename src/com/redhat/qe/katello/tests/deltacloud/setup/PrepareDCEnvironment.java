@@ -1,4 +1,4 @@
-package com.redhat.qe.katello.tests.deltacloud;
+package com.redhat.qe.katello.tests.deltacloud.setup;
 
 import java.util.ArrayList;
 import java.util.StringTokenizer;
