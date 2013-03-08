@@ -15,5 +15,15 @@ public class VersionTest extends KatelloCliTestScript{
 		KatelloVersion version_obj= new KatelloVersion();
 		exec_result = version_obj.cli_version(); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).trim().matches(KatelloVersion.REG_VERSION), "Check version output format");
+		
+		if (KATELLO_PRODUCT.equals("sam") || KATELLO_PRODUCT.equals("headpin")) {
+			Assert.assertTrue(getOutput(exec_result).trim().contains("Headpin"), "Check version output");
+		} else if (KATELLO_PRODUCT.equals("katello")) {
+			Assert.assertTrue(getOutput(exec_result).trim().contains("Katello"), "Check version output");
+		} else {
+			Assert.assertTrue(getOutput(exec_result).trim().contains("CloudForms System Engine"), "Check version output");
+		}
+		
 	}
 }
