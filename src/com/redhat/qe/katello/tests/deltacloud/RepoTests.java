@@ -77,6 +77,18 @@ public class RepoTests extends BaseDeltacloudTest {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset promote)");		
 	}
 	
+	@Test(description="install zsh package")
+	public void test_installRHELPackage() {
+		KatelloUtils.sshOnClient(client_name3, "yum clean all");
+		exec_result = KatelloUtils.sshOnClient(client_name3, "yum repolist");
+		Assert.assertTrue(getOutput(exec_result).trim().contains("Red Hat Enterprise Linux Server"), "Contains RHEL repo");
+		KatelloUtils.sshOnClient(client_name3, "yum erase -y zsh");
+		exec_result = KatelloUtils.sshOnClient(client_name3, "yum install -y zsh beaker*");
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (yum install zsh)");
+		exec_result = KatelloUtils.sshOnClient(client_name3, "rpm -q zsh");
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (rpm -q zsh)");
+	}
+	
 	@Test(description="promote rhel errata")
 	public void test_promoteRHELErrata() {
 		

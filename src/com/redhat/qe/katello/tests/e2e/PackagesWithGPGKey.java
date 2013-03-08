@@ -133,6 +133,9 @@ public class PackagesWithGPGKey extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (out redhat.repo)");
 		String REPO_STRUCT = String.format(".*name = %s.*enabled = 1.*gpgcheck = 1.*",this.repo);
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(REPO_STRUCT), "Check - redhat.repo content");
+		res = KatelloUtils.sshOnClient("yes | yum install wolf");
+		Assert.assertTrue(getOutput(res).contains("Refusing to automatically import keys when running unattended."),
+				"Check - error string (GPG check)");
 		res = KatelloUtils.sshOnClient("yum -y install wolf --disablerepo \\* --enablerepo *"+this.repo+"*");
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (yum install wolf)");
 		res = KatelloUtils.sshOnClient("rpm -qi "+KatelloGpgKey.GPG_PUBKEY_RPM_ZOO);

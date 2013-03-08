@@ -14,7 +14,7 @@ public class ArchitectureTests extends KatelloCliTestScript {
 	private String name;
 	private String new_name;
 	
-	@BeforeClass(description="Prepare an org to work with")
+	@BeforeClass(description="Prepare an data to work with")
 	public void setup_org(){
 		String uid = KatelloUtils.getUniqueID();
 		this.name = "arch"+uid.substring(7);
