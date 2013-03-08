@@ -636,28 +636,6 @@ public class SystemTests extends KatelloCliTestScript{
 			Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 	}
 	
-	@Test(description = "register system, clean rhsm, reregister by the same name",groups={"cfse-cli"}, dependsOnMethods={"test_subscribeSystem"})
-	public void test_reRegisterSystem(){
-		rhsm_clean();
-		
-		String uid = KatelloUtils.getUniqueID();
-		String system = "localhost-"+uid;
-		
-		KatelloSystem sys = new KatelloSystem(system, this.orgName2, this.envName_Prod);
-		exec_result = sys.rhsm_register(); 
-		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
-		Assert.assertTrue(exec_result.getStdout().trim().contains(KatelloSystem.OUT_CREATE),
-				"Check - output (success)");
-		
-		rhsm_clean_only();
-		
-		sys = new KatelloSystem(system, this.orgName2, this.envName_Prod);
-		exec_result = sys.rhsm_register(); 
-		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
-		Assert.assertTrue(exec_result.getStdout().trim().contains(KatelloSystem.OUT_CREATE),
-				"Check - output (success)");
-	}
-	
 	private void assert_systemInfo(KatelloSystem system) {
 		if (system.description == null) system.description = "Initial Registration Params";
 		if (system.location == null) system.location = "None";
