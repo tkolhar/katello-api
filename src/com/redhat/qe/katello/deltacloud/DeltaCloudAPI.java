@@ -28,6 +28,9 @@ public class DeltaCloudAPI {
 		String image = System.getProperty("deltacloud.client.imageid", "fc06e21b-8973-48e2-9d64-3b5a90f2717e");
 		return provideMachine(nowait, hostname, null, null, image);
 	}
+	public static DeltaCloudInstance provideClient(boolean nowait, String hostname, String imageId) {
+		return provideMachine(nowait, hostname, null, null, imageId);
+	}
 	
 	private static DeltaCloudInstance provideMachine(boolean nowait, String hostname, String memory, String storage, String image) {
 		

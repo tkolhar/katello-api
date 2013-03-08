@@ -19,13 +19,19 @@ public class KatelloErrata extends _KatelloObject{
 	String repo;
 	String environment;
 	String product_id;
+	String type;
 	
 	public KatelloErrata(String pId, String pOrg, String pProd, String pRepo, String pEnv){
+		this(pId, pOrg, pProd, pRepo, pEnv, null);
+	}
+
+	public KatelloErrata(String pId, String pOrg, String pProd, String pRepo, String pEnv, String pType){
 		this.id = pId;
 		this.org = pOrg;
 		this.product = pProd;
 		this.repo = pRepo;
 		this.environment = pEnv;
+		this.type = pType;
 	}
 	
 	public void setProductId(String productId) {
@@ -57,6 +63,7 @@ public class KatelloErrata extends _KatelloObject{
 		}
 		opts.add(new Attribute("repo", repo));
 		opts.add(new Attribute("environment", environment));
+		opts.add(new Attribute("type", type));
 		return run(CMD_LIST);
 	}
 	

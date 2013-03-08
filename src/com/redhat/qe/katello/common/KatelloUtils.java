@@ -11,6 +11,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.redhat.qe.Assert;
+import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.DeltaCloudInstance;
 import com.redhat.qe.katello.base.obj.KatelloPing;
 import com.redhat.qe.katello.deltacloud.DeltaCloudAPI;
@@ -22,7 +23,7 @@ import com.redhat.qe.tools.SSHCommandRunner;
  * Utility for common (independent from api/cli) and static calls only.<BR>
  * Providing javadoc is appreciated.
  */
-public class KatelloUtils {
+public class KatelloUtils implements KatelloConstants {
 	private static Logger log = Logger.getLogger(KatelloUtils.class.getName());
 	private static Map<String, SSHCommandRunner> _sshClients = new HashMap<String, SSHCommandRunner>();
 	private static SSHCommandRunner _sshServer;
@@ -317,10 +318,16 @@ public class KatelloUtils {
 	 */
 	public static DeltaCloudInstance getDeltaCloudClient(String server) {
 		
+		String image = System.getProperty("deltacloud.client.imageid", "fc06e21b-8973-48e2-9d64-3b5a90f2717e");
+		return getDeltaCloudClient(server, image);
+	}
+
+	public static DeltaCloudInstance getDeltaCloudClient(String server, String imageId) {
+		
 		String[] configs = getMachineConfigs(false);
 		Assert.assertNotNull(configs, "No free machine available on Deltacloud");
 
-		DeltaCloudInstance client = DeltaCloudAPI.provideClient(false, configs[0]);
+		DeltaCloudInstance client = DeltaCloudAPI.provideClient(false, configs[0],imageId);
 
 		Assert.assertNotNull(client.getClient());
 		
@@ -332,7 +339,7 @@ public class KatelloUtils {
 		
 		return client;
 	}
-	
+		
 	/**
 	 * Destroys the machine from DeltaCloud.
 	 * @IMPORTANT EACH PROVIDED DELTACLOUD MACHINE SHOULD BE DESTROYED AFTER TEST
@@ -407,69 +414,35 @@ public class KatelloUtils {
 	 * @param machine DeltaCloudInstance server.
 	 */
 	private static void installServer(DeltaCloudInstance machine) {
-		KatelloUtils.sshOnServer("touch /etc/yum.repos.d/beaker-tasks.repo");
-		KatelloUtils.sshOnServer("touch /etc/yum.repos.d/beaker.repo");
-		
+		String hostIP = machine.getIpAddress();
 		String version = System.getProperty("katello.product.version", "1.1");
 		String product = System.getProperty("katello.product", "katello");
 		
-		String yumrepo = 
-				"[beaker-tasks]\\\\n" +
-				"name=bkr-tasks\\\\n" +
-				"baseurl=http://beaker-02.app.eng.bos.redhat.com/rpms/\\\\n"+
-				"metadata_expire=3m\\\\n"+
-				"enabled=1\\\\n"+
-				"gpgcheck=0";
-		KatelloUtils.sshOnServer("echo -en \""+yumrepo+"\" > /etc/yum.repos.d/beaker-tasks.repo");
+		setupBeakerRepo(hostIP);
+		configureBeaker(hostIP);
+				
+		BeakerUtils.Katello_Sanity_ImportKeys(hostIP);
+		BeakerUtils.Katello_Installation_RegisterRHNClassic(hostIP);
 		
-		yumrepo = 
-				"[beaker]\\\\n" +
-				"name=Beaker\\\\n" +
-				"baseurl=http://beaker.engineering.redhat.com/harness/RedHatEnterpriseLinux6/\\\\n"+
-				"enabled=1\\\\n"+
-				"skip_if_unavailable=1\\\\n"+
-				"gpgcheck=0";
-		KatelloUtils.sshOnServer("echo -en \""+yumrepo+"\" > /etc/yum.repos.d/beaker.repo");
-		
-		KatelloUtils.sshOnServer("yum -y install beakerlib beakerlib-redhat rhts-python rhts-test-env --disablerepo=* --enablerepo=beaker*");
-		KatelloUtils.sshOnServer("mkdir ~/.beaker_client");
-		KatelloUtils.sshOnServer("touch ~/.beaker_client/config");
-		KatelloUtils.sshOnServer("echo \"HUB_URL = \"https://beaker.engineering.redhat.com\"\" >> ~/.beaker_client/config");
-		KatelloUtils.sshOnServer("echo \"AUTH_METHOD = \"password\"\" >> ~/.beaker_client/config");
-		KatelloUtils.sshOnServer("chmod a+x ~/.beaker_client/config");
-		
-		KatelloUtils.sshOnServer("yum install -y Katello-Katello-Sanity-ImportKeys --disablerepo=* --enablerepo=beaker*");
-		KatelloUtils.sshOnServer("cd /mnt/tests/Katello/Sanity/ImportKeys/; make run");
-		
-		KatelloUtils.sshOnServer("yum install -y Katello-Katello-Installation-RegisterRHNClassic --disablerepo=* --enablerepo=beaker*");
-		KatelloUtils.sshOnServer("cd /mnt/tests/Katello/Installation/RegisterRHNClassic/; make run");
-		
+		// Install the product
 		if (product.equals("katello")) {
-			KatelloUtils.sshOnServer("yum install -y Katello-Katello-Installation-ConfigureRepos --disablerepo=* --enablerepo=beaker*");
-			KatelloUtils.sshOnServer("cd /mnt/tests/Katello/Installation/ConfigureRepos/; make run");	
-
-			KatelloUtils.sshOnServer("yum install -y Katello-Katello-Installation-KatelloNightly --disablerepo=* --enablerepo=beaker*");
-			KatelloUtils.sshOnServer("cd /mnt/tests/Katello/Installation/KatelloNightly/; make run");
+			BeakerUtils.Katello_Installation_ConfigureRepos(hostIP);
+			BeakerUtils.Katello_Installation_KatelloNightly(hostIP);
 		} else if (product.equals("cfse")) {
-			KatelloUtils.sshOnServer("yum install -y Katello-Katello-Installation-SystemEngineLatest --disablerepo=* --enablerepo=beaker*");
-			KatelloUtils.sshOnServer("cd /mnt/tests/Katello/Installation/SystemEngineLatest/; export CFSE_RELEASE=" + version + "; make run");
+			BeakerUtils.Katello_Installation_SystemEngineLatest(hostIP, version);
 		} else if (product.equals("sam")) {
-			KatelloUtils.sshOnServer("yum install -y Katello-Katello-Installation-SAMLatest --disablerepo=* --enablerepo=beaker*");
-			KatelloUtils.sshOnServer("cd /mnt/tests/Katello/Installation/SAMLatest/; export SAM_RELEASE=" + version + "; make run");
+			BeakerUtils.Katello_Installation_SAMLatest(hostIP, version);
 		} else if (product.equals("headpin")) {
-			KatelloUtils.sshOnServer("yum install -y Katello-Katello-Installation-ConfigureRepos --disablerepo=* --enablerepo=beaker*");
-			KatelloUtils.sshOnServer("cd /mnt/tests/Katello/Installation/ConfigureRepos/; make run");	
-
-			KatelloUtils.sshOnServer("yum install -y Katello-Katello-Installation-HeadpinNightly --disablerepo=* --enablerepo=beaker*");
-			KatelloUtils.sshOnServer("cd /mnt/tests/Katello/Installation/HeadpinNightly/; make run");
+			BeakerUtils.Katello_Installation_ConfigureRepos(hostIP);
+			BeakerUtils.Katello_Installation_HeadpinNightly(hostIP);
 		}
 		
-		startKatello();
+		// Configure the server as a self-client
+		BeakerUtils.Katello_Configuration_KatelloClient(hostIP, machine.getHostName(), version); // at this time DDNS should return the hostname already! It takes ~5 min.
 		
 		try { Thread.sleep(5000); } catch (Exception e) {}
-		
 		KatelloPing ping = new KatelloPing();
-		ping.runOn(machine.getIpAddress());
+		ping.runOn(machine.getHostName()); // Yes, we can use the hostname already. Assuming installation would take >5 min.
 		SSHCommandResult res = ping.cli_ping();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check services up");
 	}
@@ -480,64 +453,55 @@ public class KatelloUtils {
 	 * @param server the hostname of server to which the client should be configured.
 	 */
 	private static void installClient(DeltaCloudInstance machine, String server) {
+		String hostname = machine.getIpAddress();
+		String version = System.getProperty("katello.product.version", "1.1");
+		
+		setupBeakerRepo(hostname);
+		configureBeaker(hostname);
+				
+		BeakerUtils.Katello_Sanity_ImportKeys(hostname);
+		BeakerUtils.Katello_Installation_RegisterRHNClassic(hostname);
+		BeakerUtils.Katello_Configuration_KatelloClient(hostname, server, version);
+	}
+	
+	/**
+	 * @author Garik Khachikyan
+	 * @since 07.Mar.2013 - Katello nightly katello-1.3.14-1.git.817.b5f1eb9.el6.noarch
+	 */
+	private static void setupBeakerRepo(String hostname){
+		String redhatRelease = KatelloCliTestScript.sgetOutput(KatelloUtils.sshOnClient(hostname, "cat /etc/redhat-release"));
+		String bkrRepoUrl = "http://beaker.engineering.redhat.com/harness/RedHatEnterpriseLinux6";
+		if(redhatRelease.startsWith(REDHAT_RELEASE_RHEL5X))
+			bkrRepoUrl = "http://beaker.engineering.redhat.com/harness/RedHatEnterpriseLinuxServer5";
+		
 		String yumrepo = 
+				"[beaker]\\\\n" +
+				"name=Beaker\\\\n" +
+				"baseurl="+bkrRepoUrl+"\\\\n"+
+				"enabled=1\\\\n"+
+				"skip_if_unavailable=1\\\\n"+
+				"gpgcheck=0";
+		KatelloUtils.sshOnClient(hostname, "echo -en \""+yumrepo+"\" > /etc/yum.repos.d/beaker.repo");
+		
+		yumrepo = 
 				"[beaker-tasks]\\\\n" +
 				"name=bkr-tasks\\\\n" +
 				"baseurl=http://beaker-02.app.eng.bos.redhat.com/rpms/\\\\n"+
 				"metadata_expire=3m\\\\n"+
 				"enabled=1\\\\n"+
 				"gpgcheck=0";
-		KatelloUtils.sshOnClient(machine.getIpAddress(), "echo -en \""+yumrepo+"\" > /etc/yum.repos.d/beaker-tasks.repo");
-		
-		yumrepo = 
-				"[beaker]\\\\n" +
-				"name=Beaker\\\\n" +
-				"baseurl=http://beaker.engineering.redhat.com/harness/RedHatEnterpriseLinux6/\\\\n"+
-				"enabled=1\\\\n"+
-				"skip_if_unavailable=1\\\\n"+
-				"gpgcheck=0";
-		KatelloUtils.sshOnClient(machine.getIpAddress(), "echo -en \""+yumrepo+"\" > /etc/yum.repos.d/beaker.repo");
-		
-		String version = System.getProperty("katello.product.version", "1.1");
-		String product = System.getProperty("katello.product", "katello");
-		
-		KatelloUtils.sshOnClient(machine.getIpAddress(), "yum -y install beakerlib beakerlib-redhat rhts-python rhts-test-env --disablerepo=* --enablerepo=beaker*");
-		KatelloUtils.sshOnClient(machine.getIpAddress(), "mkdir ~/.beaker_client");
-		KatelloUtils.sshOnClient(machine.getIpAddress(), "touch ~/.beaker_client/config");
-		KatelloUtils.sshOnClient(machine.getIpAddress(), "echo \"HUB_URL = \"https://beaker.engineering.redhat.com\"\" >> ~/.beaker_client/config");
-		KatelloUtils.sshOnClient(machine.getIpAddress(), "echo \"AUTH_METHOD = \"password\"\" >> ~/.beaker_client/config");
-		KatelloUtils.sshOnClient(machine.getIpAddress(), "chmod a+x ~/.beaker_client/config");
-		
-		KatelloUtils.sshOnClient(machine.getIpAddress(), "yum install -y Katello-Katello-Sanity-ImportKeys --disablerepo=* --enablerepo=beaker*");
-		KatelloUtils.sshOnClient(machine.getIpAddress(), "cd /mnt/tests/Katello/Sanity/ImportKeys/; make run");
-		
-		KatelloUtils.sshOnClient(machine.getIpAddress(), "yum install -y Katello-Katello-Installation-RegisterRHNClassic --disablerepo=* --enablerepo=beaker*");
-		KatelloUtils.sshOnClient(machine.getIpAddress(), "cd /mnt/tests/Katello/Installation/RegisterRHNClassic/; make run");
-		
-		if (product.equals("katello")) {
-			KatelloUtils.sshOnClient(machine.getIpAddress(), "yum install -y Katello-Katello-Installation-ConfigureRepos --disablerepo=* --enablerepo=beaker*");
-			KatelloUtils.sshOnClient(machine.getIpAddress(), "cd /mnt/tests/Katello/Installation/ConfigureRepos/; make run");	
-
-			KatelloUtils.sshOnClient(machine.getIpAddress(), "yum install -y Katello-Katello-Configuration-KatelloClient --disablerepo=* --enablerepo=beaker*");
-			KatelloUtils.sshOnClient(machine.getIpAddress(), "cd /mnt/tests/Katello/Configuration/KatelloClient/; export KATELLO_SERVER_HOSTNAME=" + server + "; make run");
-		} else if (product.equals("cfse")) {
-			KatelloUtils.sshOnClient(machine.getIpAddress(), "yum install -y Katello-Katello-Configuration-KatelloClient --disablerepo=* --enablerepo=beaker*");
-			KatelloUtils.sshOnClient(machine.getIpAddress(), "cd /mnt/tests/Katello/Configuration/KatelloClient/; export KATELLO_SERVER_HOSTNAME=" + server + "; export CFSE_RELEASE=" + version + "; make run");
-		} else if (product.equals("sam") || product.equals("headpin")) {
-			KatelloUtils.sshOnClient(machine.getIpAddress(), "yum -y update subscription-manager python-rhsm --disablerepo=\\*beaker\\*");
-			KatelloUtils.sshOnClient(machine.getIpAddress(), "yum -y install http://" + server + "/pub/candlepin-cert-consumer-" + server + "-1.0-1.noarch.rpm --disablerepo \\*beaker\\*");
-			KatelloUtils.sshOnClient(machine.getIpAddress(), "sed -i \\\"s|host\\s*=.*|host = " + server + "|g\\\" /etc/katello/client.conf");
-		}
-		
-		if (!product.equals("sam") && !product.equals("headpin")) {
-			startKatello();
-		
-			try { Thread.sleep(5000); } catch (Exception e) {}
-			
-			KatelloPing ping = new KatelloPing();
-			ping.runOn(machine.getIpAddress());
-			SSHCommandResult res = ping.cli_ping();
-			Assert.assertTrue(res.getExitCode().intValue()==0, "Check services up");
-		}
+		KatelloUtils.sshOnClient(hostname, "echo -en \""+yumrepo+"\" > /etc/yum.repos.d/beaker-tasks.repo");
 	}
+	
+	private static void configureBeaker(String hostname){
+		String cmds = 
+				"yum -y install beakerlib beakerlib-redhat rhts-python rhts-test-env --disablerepo=* --enablerepo=beaker*; " +
+				"mkdir ~/.beaker_client; " +
+				"touch ~/.beaker_client/config; " +
+				"echo \"HUB_URL = \"https://beaker.engineering.redhat.com\"\" >> ~/.beaker_client/config; " +
+				"echo \"AUTH_METHOD = \"password\"\" >> ~/.beaker_client/config; " +
+				"chmod a+x ~/.beaker_client/config";
+		KatelloUtils.sshOnClient(hostname, cmds);
+	}
+	
 }
