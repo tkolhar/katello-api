@@ -147,7 +147,7 @@ task printProps << {
 def TESTNG_KATELLO_DEFAULT_TESTS = "Smoke_Tests,CLI_Tests,E2E_Tests,DC_Tests"
 def TESTNG_KATELLO_SUITE = "testng-suites/katello-tests.xml"
 def TESTNG_HEADPIN_SUITE = "testng-suites/headpin-tests.xml"
-def TESTNG_KATELLO_EXCLUDE_GROUPS = "openldap,sam-upgrade"
+def TESTNG_KATELLO_EXCLUDE_GROUPS = "openldap,sam-upgrade,cfse-ignore"
 def TESTNG_SAM_EXCLUDE_GROUPS = "openldap"
 task runTestng(dependsOn: 'testClasses') << {
     // Defaults to $WORKSPACE, or if that's null, cwd

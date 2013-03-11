@@ -250,6 +250,7 @@ public class SystemTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getStdout().replaceAll("\n", "").trim().equals("2"), "Check - 2 systems are registered with the same name");
 	}
 
+	//@ TODO fails because of bug https://bugzilla.redhat.com/show_bug.cgi?id=896074
 	@Test(description = "delete registered system and verifies that it is removed successfully",groups={"cfse-cli"})
 	public void test_deleteSystem(){
 		String uid = KatelloUtils.getUniqueID();
@@ -504,6 +505,7 @@ public class SystemTests extends KatelloCliTestScript{
 					System.getProperty("katello.server.sshkey.passphrase", "null"));
 			Assert.assertTrue(scp.sendFile("data"+File.separator+"stack-manifest.zip", "/tmp"),
 					"stack-manifest.zip sent successfully");	
+			try {
 			res = prov.import_manifest("/tmp"+File.separator+"stack-manifest.zip", new Boolean(true));
 			Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 			KatelloSystem sys = new KatelloSystem(sys_name, org_name, env_name);
@@ -513,8 +515,10 @@ public class SystemTests extends KatelloCliTestScript{
 			Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 			res = sys.report("pdf");
 			Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
+			} finally {
 			res = org.delete();
 			Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
+			}
 
 	}
 	
@@ -541,6 +545,7 @@ public class SystemTests extends KatelloCliTestScript{
 					System.getProperty("katello.server.sshkey.passphrase", "null"));
 			Assert.assertTrue(scp.sendFile("data"+File.separator+"stack-manifest.zip", "/tmp"),
 					"stack-manifest.zip sent successfully");	
+			try {
 			res = prov.import_manifest("/tmp"+File.separator+"stack-manifest.zip", new Boolean(true));
 			Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 			KatelloSystem sys = new KatelloSystem(sys_name, org_name, env_name);
@@ -550,9 +555,10 @@ public class SystemTests extends KatelloCliTestScript{
 			Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 			res = sys.releases();
 			Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
+			} finally {
 			res = org.delete();
 			Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
-
+			}
 
 	}
 	
@@ -578,6 +584,7 @@ public class SystemTests extends KatelloCliTestScript{
 					System.getProperty("katello.server.sshkey.passphrase", "null"));
 			Assert.assertTrue(scp.sendFile("data"+File.separator+"stack-manifest.zip", "/tmp"),
 					"stack-manifest.zip sent successfully");	
+			try {
 			res = prov.import_manifest("/tmp"+File.separator+"stack-manifest.zip", new Boolean(true));
 			Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 			KatelloSystem sys = new KatelloSystem(sys_name, org_name, env_name);
@@ -587,9 +594,10 @@ public class SystemTests extends KatelloCliTestScript{
 			Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 			res = sys.facts();
 			Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
+			} finally {
 			res = org.delete();
 			Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
-
+			}
 
 	}
 	
@@ -621,6 +629,7 @@ public class SystemTests extends KatelloCliTestScript{
 					System.getProperty("katello.server.sshkey.passphrase", "null"));
 			Assert.assertTrue(scp.sendFile("data"+File.separator+"stack-manifest.zip", "/tmp"),
 					"stack-manifest.zip sent successfully");	
+			try {
 			res = prov.import_manifest("/tmp"+File.separator+"stack-manifest.zip", new Boolean(true));
 			Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 			KatelloSystem sys = new KatelloSystem(sys_name, org_name, env_name);
@@ -632,8 +641,10 @@ public class SystemTests extends KatelloCliTestScript{
 			Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 			res = sys.report("pdf");
 			Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
+			} finally {
 			res = org.delete();
 			Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
+			}
 	}
 	
 	private void assert_systemInfo(KatelloSystem system) {
