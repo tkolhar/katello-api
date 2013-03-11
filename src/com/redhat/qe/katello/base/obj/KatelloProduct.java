@@ -12,6 +12,7 @@ public class KatelloProduct extends _KatelloObject{
 	public static final String RHEL_SERVER = "Red Hat Enterprise Linux Server";
 	public static final String RHEL_SERVER_MARKETING_POOL = 
 			"Red Hat Enterprise Linux Server, Self-support (1-2 sockets) (Up to 1 guest)";
+	public static final String REPO_SET_NAME = "Red Hat Enterprise Linux 6 Server (RPMs)";
 	
 	// ** ** ** ** ** ** ** Public constants
 	public static final String CMD_CREATE = "product create";
@@ -26,6 +27,7 @@ public class KatelloProduct extends _KatelloObject{
 	public static final String CMD_ADD_FILTER = "product add_filter";
 	public static final String CMD_REMOVE_FILTER = "product remove_filter";
 	public static final String CMD_FILTER_LIST = "product list_filters";
+	public static final String CMD_ENABLE_REPO_SET= "product repository_set_enable";
 	
 	/** Parameters:<BR>1: product_name<BR>2: org_name */
 	public static final String ERR_COULD_NOT_FIND_PRODUCT = 
@@ -147,6 +149,14 @@ public class KatelloProduct extends _KatelloObject{
 		return run(CLI_CMD_LIST);
 	}
 
+	public SSHCommandResult repository_set_enable(String repoSetName,String prodName){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name",prodName));
+		opts.add(new Attribute("set_name",repoSetName));
+		return run(CMD_ENABLE_REPO_SET);
+	}
+	
 	public SSHCommandResult update_description(String new_description){
 		opts.clear();
 		opts.add(new Attribute("org", org));
