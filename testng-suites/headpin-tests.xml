@@ -20,9 +20,38 @@
 			<class name="com.redhat.qe.katello.tests.cli.UserTests"/> 
 			<class name="com.redhat.qe.katello.tests.cli.OrgTests"/>
 			<class name="com.redhat.qe.katello.tests.cli.ClientTests"/> 	
+			<class name="com.redhat.qe.katello.tests.cli.UserNoRoleNoAccess"/>				
+			<class name="com.redhat.qe.katello.tests.cli.ContentTest"/>	
+			<class name="com.redhat.qe.katello.tests.cli.SystemTests"/>		
 		</classes>		
 	</test>
-
+	
+	 <test name="Installation_Tests">
+		<groups>
+    			<run>
+      				<include name="headpin-cli"/>
+    			</run>
+ 		</groups>
+		<classes>
+		    <class name="com.redhat.qe.katello.tests.installation.SetupServers"/>
+			<class name="com.redhat.qe.katello.tests.installation.AnswerfileTests"/>
+			<class name="com.redhat.qe.katello.tests.installation.DifferentProductDeployment"/>
+		</classes>
+	</test>
+	
+	<test name="SAM_API_Tests" preserve-order="true">
+		<groups>
+			<run>
+				<include name="headpin-api"/>
+			</run>
+        </groups>	
+		<classes>
+		    <class name="com.redhat.qe.katello.tests.api.SetupServers"/>
+			<class name="com.redhat.qe.katello.tests.api.EnvironmentsTest"/>
+			<class name="com.redhat.qe.katello.tests.api.UsersTest"/>
+		</classes>
+	</test>
+	
 	<test name="SAM_Upgrade_Tests">
 		<groups preserve-order="true">
 			<run>
