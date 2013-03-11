@@ -113,6 +113,7 @@ public class UserTests extends KatelloCliTestScript{
 		}
 	}
 	
+	//@ TODO bug 920135
 	@Test(description = "delete users - for some org provided", enabled = true)
 	public void test_DeleteUserOrg() {
 		SSHCommandResult res;
@@ -333,6 +334,7 @@ public class UserTests extends KatelloCliTestScript{
 				String.format(KatelloUser.OUT_FIND_USER_ERROR,user.username));
 	}
 	
+	//@ TODO bug 920135
 	@Test(description="Create a user with default org and environment", enabled=true)
 	public void test_createUserDefaultValues() {
 		SSHCommandResult res;
