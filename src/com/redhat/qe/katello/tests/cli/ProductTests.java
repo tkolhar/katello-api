@@ -475,7 +475,7 @@ public class ProductTests  extends KatelloCliTestScript{
 		res = prod.synchronize();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product synchronize)");
 		Assert.assertTrue(getOutput(res).contains(String.format(KatelloProduct.OUT_SYNCHRONIZED,prodName)), "Check - returned output string (product synchronize)");
-		try{Thread.sleep(60000);}catch (Exception e){}
+		try{Thread.sleep(10000);}catch (Exception e){}
 		
 		// get packages count for the repo - !=0
 		KatelloRepo repo = new KatelloRepo(null,this.org_name,prodName,null,null,null);

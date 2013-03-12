@@ -212,6 +212,22 @@ public class RepoTests extends KatelloCliTestScript {
 		Assert.assertTrue(exec_result.getExitCode() == 65, "Check - return code");
 		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloRepo.ERR_REPO_NOTFOUND, repo.name, repo.org, repo.product, "Library"));
 	}
+
+	@Test(description = "Delete synced repo", groups = { "cli-repo" })
+	public void test_deleteSyncedRepo() {
+
+		KatelloRepo repo = createRepo();
+		
+		exec_result = repo.synchronize();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		exec_result = repo.delete();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		exec_result = repo.info();
+		Assert.assertTrue(exec_result.getExitCode() == 65, "Check - return code");
+		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloRepo.ERR_REPO_NOTFOUND, repo.name, repo.org, repo.product, "Library"));
+	}
 	
 	@Test(description = "Call commands on non existing repo", groups = { "cli-repo" })
 	public void test_commandsInvalidRepo() {
