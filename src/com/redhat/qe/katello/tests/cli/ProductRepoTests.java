@@ -80,6 +80,7 @@ public class ProductRepoTests extends KatelloCliTestScript {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
 
+	//@ TODO bug 918452
 	@Test(description = "Create repo", groups = { "cli-repo" })
 	public void test_createRepo() {
 
@@ -98,14 +99,14 @@ public class ProductRepoTests extends KatelloCliTestScript {
 		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloRepo.ERR_REPO_EXISTS, repo.name, product_name));
 	}
 	
+	//@ TODO bug 918452
 	@Test(description = "Discover repo", groups = { "cli-repo" })
 	public void test_discoverRepo() {
 
 		repo_name = "repo"+KatelloUtils.getUniqueID();
 		String url_name = PULP_RHEL6_x86_64_REPO.replace("http://repos.fedorapeople.org", "").replace("/", "_");
-		url_name = url_name.substring(0, url_name.length()-1);
 		KatelloRepo repo = new KatelloRepo(repo_name, org_name, null, PULP_RHEL6_x86_64_REPO, null, null, null, product_id);
-		exec_result = repo.discover();
+		exec_result = repo.discover(provider_name);
 		repo_name += url_name;
 		repo.name = repo_name;
 		repo.url = repo.url.substring(0, repo.url.length() - 1);
@@ -133,6 +134,7 @@ public class ProductRepoTests extends KatelloCliTestScript {
 		assert_repoList(getOutput(exec_result).replaceAll("\n", " "), repo1);
 	}
 	
+	//@ TODO bug 918452
 	@Test(description = "Update repo gpg key", groups = { "cli-repo" })
 	public void test_updateRepo() {
 
@@ -145,6 +147,7 @@ public class ProductRepoTests extends KatelloCliTestScript {
 		assert_repoStatus(repo);
 	}
 	
+	//@ TODO bug 918452
 	@Test(description = "Synchronize repository", groups = { "cli-repo" })
 	public void test_syncRepo() {
 

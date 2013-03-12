@@ -81,6 +81,7 @@ public class ErrataTests extends KatelloCliTestScript {
 		cs.apply();
 	}
 	
+	//@ TODO bug 918157
 	@Test(description="errata list")
 	public void test_errataList() {
 		KatelloErrata errata = new KatelloErrata(null, org_name, product_name, repo_name, env_name);
@@ -91,6 +92,7 @@ public class ErrataTests extends KatelloCliTestScript {
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains(PromoteErrata.ERRATA_ZOO_SEA), "Check - errata list output");
 	}
 
+	//@ TODO bug 918157
 	@Test(description="errata info")
 	public void test_errataInfo() {
 		KatelloErrata errata = new KatelloErrata(PromoteErrata.ERRATA_ZOO_SEA, org_name, product_name, repo_name, env_name);

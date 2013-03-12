@@ -425,6 +425,7 @@ public class ProviderTests extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(res).equals(String.format(KatelloProvider.OUT_SYNCHRONIZE, provName)), "Check - returned output string");
 	}
 
+	//@ TODO bug 918452
 	@Test(description="Synchronize provider - single product", groups = {"cli-providers"},enabled=true)
 	public void test_syncProvider_singleProduct(){
 		SSHCommandResult res;
@@ -453,6 +454,7 @@ public class ProviderTests extends KatelloCliTestScript{
 		assert_repoSynced(repo);
 	}
 	
+	//@ TODO bug 918452
 	@Test(description="Synchronize provider - multiple products", groups = {"cli-providers"},enabled=true)
 	public void test_syncProvider_multiProducts(){
 		SSHCommandResult res;
@@ -583,7 +585,7 @@ public class ProviderTests extends KatelloCliTestScript{
 	}
 	
 	
-	@Test(description="sam only : check whether status of provider's sychronisation is displayed via cli", groups = {"headpin-cli"}, enabled=true)
+	@Test(description="sam only : check whether status of provider's sychronisation is displayed via cli", groups = {"headpin-cli", "cfse-ignore"}, enabled=true)
 	public void test_CheckStatusProvider(){
 		
 		SSHCommandResult res;

@@ -120,8 +120,7 @@ public class PackageTests extends KatelloCliTestScript {
 		SSHCommandResult res;
 		res = pack.cli_info();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		Assert.assertTrue(getOutput(res).contains(pack.id), "Check - package Id should exist in list result");		
+	
 		Assert.assertTrue(getOutput(res).contains(pack.name), "Check - package name should exist in list result");
 	}
 	

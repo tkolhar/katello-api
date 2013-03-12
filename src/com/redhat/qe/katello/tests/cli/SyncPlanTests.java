@@ -59,7 +59,7 @@ public class SyncPlanTests extends KatelloCliTestScript {
 		KatelloSyncPlan sp = createSyncPlan(new Date(), SyncPlanInterval.hourly);
 		
 		exec_result = sp.create();
-		Assert.assertTrue(exec_result.getExitCode() == 144, "Check - return code (sync plan create)");
+		Assert.assertTrue(exec_result.getExitCode() == 166, "Check - return code (sync plan create)");
 		Assert.assertEquals(getOutput(exec_result).trim(), "Validation failed: Name has already been taken");
 	}
 
@@ -91,6 +91,7 @@ public class SyncPlanTests extends KatelloCliTestScript {
 		Assert.assertEquals(getOutput(exec_result).trim(), "Time format is invalid. Required: HH:MM:SS[+HH:MM]");
 	}
 
+	//@ TODO bug 920187
 	@Test(description = "Create sync plan update it's name", groups = { "cli-sync_plan" })
 	public void test_updateSyncPlanName() {
 		KatelloSyncPlan sp = createSyncPlan(new Date(), SyncPlanInterval.hourly);
@@ -165,14 +166,14 @@ public class SyncPlanTests extends KatelloCliTestScript {
 		//sync plans that exist in list
 		for(KatelloSyncPlan sp : splans) {
 			if (sp.description == null) sp.description = "None";
-			String match_info = String.format(KatelloSyncPlan.REG_SYNCPLAN_LIST, sp.name, sp.description, sp.date.replaceAll("-", "/") + " " + sp.time, sp.interval).replaceAll("\"", "");
+			String match_info = String.format(KatelloSyncPlan.REG_SYNCPLAN_LIST, sp.name, sp.description, sp.date.replaceAll("-", "/") + "\\s+[0-9]{2}:[0-9]{2}:[0-9]{2}", sp.interval).replaceAll("\"", "");
 			Assert.assertTrue(getOutput(exec_result).replaceAll("\n", " ").matches(match_info), String.format("Sync Plan [%s] should be found in the result list", sp.name));
 		}
 		
 		//sync plans that should not exist in list
 		for(KatelloSyncPlan sp : excludeSplans) {			
 			if (sp.description == null) sp.description = "None";
-			String match_info = String.format(KatelloSyncPlan.REG_SYNCPLAN_LIST, sp.name, sp.description, sp.date.replaceAll("-", "/") + " " + sp.time, sp.interval).replaceAll("\"", "");
+			String match_info = String.format(KatelloSyncPlan.REG_SYNCPLAN_LIST, sp.name, sp.description, sp.date.replaceAll("-", "/") + "\\s+[0-9]{2}:[0-9]{2}:[0-9]{2}", sp.interval).replaceAll("\"", "");
 			Assert.assertFalse(getOutput(exec_result).replaceAll("\n", " ").matches(match_info), String.format("Sync Plan [%s] should be found in the result list", sp.name));
 		}
 	}

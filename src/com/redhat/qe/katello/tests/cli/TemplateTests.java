@@ -98,7 +98,7 @@ public class TemplateTests extends KatelloCliTestScript {
 	public void test_createTemplateEmptyName() {
 		KatelloTemplate tpl = new KatelloTemplate(" ", null, org_name, null);
 		exec_result = tpl.create();
-		Assert.assertEquals(exec_result.getExitCode().intValue(), 144, "Check - return code");
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 166, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).equals(KatelloTemplate.ERR_CREATE_EMPTY), "Check - error string (template create)");
 	}
 	
@@ -109,7 +109,7 @@ public class TemplateTests extends KatelloCliTestScript {
 		
 		KatelloTemplate tpl = new KatelloTemplate(name, null, org_name, null);
 		exec_result = tpl.create();
-		Assert.assertEquals(exec_result.getExitCode().intValue(), 144, "Check - return code");
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 166, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).equals(KatelloTemplate.ERR_CREATE_LONG), "Check - error string (template create)");
 	}
 	
@@ -213,7 +213,7 @@ public class TemplateTests extends KatelloCliTestScript {
 		KatelloTemplate templ = createTemplate();
 		
 		exec_result = templ.create();
-		Assert.assertTrue(exec_result.getExitCode() == 144, "Check - return code");
+		Assert.assertTrue(exec_result.getExitCode() == 166, "Check - return code");
 		Assert.assertEquals(getOutput(exec_result).trim(), "Validation failed: Name has already been taken");
 	}
 	
@@ -292,7 +292,7 @@ public class TemplateTests extends KatelloCliTestScript {
 		String packageName = "rancidfood";
 		
 		exec_result = templ.update_add_package(product_name, packageName);
-		Assert.assertTrue(exec_result.getExitCode() == 144, "Check - return code");
+		Assert.assertTrue(exec_result.getExitCode() == 166, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloTemplate.ERR_ADD_PACKAGE, packageName, "Library")), "Check - output string (template update)");
 	}
 	
@@ -354,7 +354,7 @@ public class TemplateTests extends KatelloCliTestScript {
 		String packageGroupName = "rancidfood";
 		
 		exec_result = templ.update_add_package_group(product_name, packageGroupName);
-		Assert.assertTrue(exec_result.getExitCode() == 144, "Check - return code");
+		Assert.assertTrue(exec_result.getExitCode() == 166, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloTemplate.ERR_ADD_PACKAGE_GROUP, packageGroupName, "Library")), "Check - output string (template update)");
 
 	}

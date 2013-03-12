@@ -34,7 +34,6 @@ public class RepoTests extends KatelloCliTestScript {
 	private String repo_name;
 	private String gpg_key;
 	private String file_name;
-	private String ls_cmd = "ls -la /var/lib/pulp/repos/";
 
 	@BeforeClass(description = "Generate unique objects")
 	public void setUp() {
@@ -82,6 +81,7 @@ public class RepoTests extends KatelloCliTestScript {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
 
+	//@ TODO bug 918452
 	@Test(description = "Create repo", groups = { "cli-repo" })
 	public void test_createRepo() {
 
@@ -101,14 +101,14 @@ public class RepoTests extends KatelloCliTestScript {
 		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloRepo.ERR_REPO_EXISTS, repo.name, repo.product));
 	}
 	
+	//@ TODO bug 918452
 	@Test(description = "Discover repo", groups = { "cli-repo" })
 	public void test_discoverRepo() {
 
 		repo_name = "repo"+KatelloUtils.getUniqueID();
 		String url_name = PULP_RHEL6_x86_64_REPO.replace("http://repos.fedorapeople.org", "").replace("/", "_");
-		url_name = url_name.substring(0, url_name.length()-1);
 		KatelloRepo repo = new KatelloRepo(repo_name, org_name, product_name, PULP_RHEL6_x86_64_REPO, null, null);
-		exec_result = repo.discover();
+		exec_result = repo.discover(provider_name);
 		repo_name += url_name;
 		repo.name = repo_name;
 		repo.url = repo.url.substring(0, repo.url.length() - 1);
@@ -136,6 +136,7 @@ public class RepoTests extends KatelloCliTestScript {
 		assert_repoList(getOutput(exec_result).replaceAll("\n", " "), repo1);
 	}
 	
+	//@ TODO bug 918452 
 	@Test(description = "Update repo gpg key", groups = { "cli-repo" })
 	public void test_updateRepo() {
 
@@ -148,6 +149,7 @@ public class RepoTests extends KatelloCliTestScript {
 		assert_repoStatus(repo);
 	}
 	
+	//@ TODO bug 918452 
 	@Test(description = "Synchronize repository", groups = { "cli-repo" })
 	public void test_syncRepo() {
 
@@ -205,28 +207,6 @@ public class RepoTests extends KatelloCliTestScript {
 		
 		exec_result = repo.delete();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		exec_result = repo.info();
-		Assert.assertTrue(exec_result.getExitCode() == 65, "Check - return code");
-		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloRepo.ERR_REPO_NOTFOUND, repo.name, repo.org, repo.product, "Library"));
-	}
-
-	@Test(description = "Delete synced repo", groups = { "cli-repo" })
-	public void test_deleteSyncedRepo() {
-
-		KatelloRepo repo = createRepo();
-		
-		exec_result = repo.synchronize();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		exec_result = KatelloUtils.sshOnServer(ls_cmd + org_name);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		exec_result = repo.delete();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		exec_result = KatelloUtils.sshOnServer(ls_cmd + org_name);
-		Assert.assertTrue(exec_result.getExitCode() == 2, "Check - return code");
 		
 		exec_result = repo.info();
 		Assert.assertTrue(exec_result.getExitCode() == 65, "Check - return code");
