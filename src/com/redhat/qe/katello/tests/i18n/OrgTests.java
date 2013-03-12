@@ -47,7 +47,7 @@ public class OrgTests extends KatelloCliTestScript {
 		
 		SSHCommandResult res = org.cli_info();
 		
-		String match_info = getText("org.info.stdout.regexp", orgName, orgNewDescr, "None").replaceAll("\"", "");
+		String match_info = getText("org.info.stdout.regexp", orgName, orgNewDescr, "").replaceAll("\"", "");
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 		log.finest(String.format("Org (info) match regex: [%s]",match_info));
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info), 

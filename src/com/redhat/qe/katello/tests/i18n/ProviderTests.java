@@ -155,6 +155,10 @@ public class ProviderTests extends KatelloCliTestScript {
 	public void enableRepo(){
 		SSHCommandResult res;
 		
+		KatelloProduct prod=new KatelloProduct(KatelloProduct.RHEL_SERVER,org_name, KatelloProvider.PROVIDER_REDHAT, null, null, null,null, null);
+		res = prod.repository_set_enable(KatelloProduct.REPO_SET_NAME,KatelloProduct.RHEL_SERVER);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo set enable)");
+		
 		KatelloRepo repo = new KatelloRepo(KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, org_name, 
 				KatelloProduct.RHEL_SERVER, null, null, null);
 		log.finest(String.format("Enable the repo: [%s] for synchronization",repo.name));

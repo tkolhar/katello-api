@@ -86,17 +86,15 @@ public class RepoTests extends KatelloCliTestScript {
 
 		repo_name2 = getText("repo.create.name") + KatelloUtils.getUniqueID();
 		String url_name = PULP_RHEL6_x86_64_REPO.replace("http://repos.fedorapeople.org", "").replace("/", "_");
-		url_name = url_name.substring(0, url_name.length()-1);
 		KatelloRepo repo = new KatelloRepo(repo_name2, org_name, product_name, PULP_RHEL6_x86_64_REPO, null, null);
-		exec_result = repo.discover();
+		exec_result = repo.discover(provider_name);
 		repo_name2 += url_name;
 		repo.name = repo_name2;
-		repo.url = repo.url.substring(0, repo.url.length() - 1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(getText("repo.discover.stdout", repo_name2)), "Check - output string (repo discover)");
 		
-		exec_result = repo.info();
-		repo_id2 = KatelloCli.grepCLIOutput("ID", getOutput(exec_result));
+		exec_result = repo.list();
+		repo_id2 = KatelloCli.grepCLIOutput("ID", getOutput(exec_result), 2);
 	}
 	
 	@Test(description = "List repos", dependsOnMethods = {"test_discoverRepo", "test_createRepo"})

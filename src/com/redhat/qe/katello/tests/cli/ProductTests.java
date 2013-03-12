@@ -103,6 +103,7 @@ public class ProductTests  extends KatelloCliTestScript{
 				"Repo list should contain info about just created repo (requested by: org, product)");
 	}
 	
+	//@ TODO bug 918452
 	@Test(description="create product - with multiple repos", groups = {"cli-products"}, enabled=true)
 	public void test_createProduct_urlMultipleRepo(){
 		String uid = KatelloUtils.getUniqueID();
@@ -354,9 +355,9 @@ public class ProductTests  extends KatelloCliTestScript{
 		
 		// promote product to the env.
 		res = prod.promote(envName);
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product promote)");
-		Assert.assertTrue(getOutput(res).contains(String.format(KatelloProduct.OUT_PROMOTED,prodName,envName)), 
-				"Check - returned output string (product promote)");
+    	Assert.assertTrue(res.getExitCode().intValue()==65, "Check - return code (product promote)");
+    	Assert.assertTrue(getOutput(res).equals(String.format(KatelloProduct.ERR_HAS_NO_REPO, prodName)), 
+    			"Check - stderr (no repo for the product)");
 	}
 	
 	@Test(description="promote product", groups = {"cli-products"}, enabled=true)
@@ -464,7 +465,7 @@ public class ProductTests  extends KatelloCliTestScript{
 		SSHCommandResult res;
 
 		// create product
-		KatelloProduct prod = new KatelloProduct(prodName, this.org_name, this.prov_name, null, null, PULP_RHEL6_i386_REPO, null, true);
+		KatelloProduct prod = new KatelloProduct(prodName, this.org_name, this.prov_name, null, null, PULP_RHEL6_x86_64_REPO, null, true);
 		res = prod.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
 		Assert.assertTrue(getOutput(res).contains(String.format(KatelloProduct.OUT_CREATED,prodName)), "Check - returned output string (product create)");
@@ -474,6 +475,7 @@ public class ProductTests  extends KatelloCliTestScript{
 		res = prod.synchronize();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product synchronize)");
 		Assert.assertTrue(getOutput(res).contains(String.format(KatelloProduct.OUT_SYNCHRONIZED,prodName)), "Check - returned output string (product synchronize)");
+		try{Thread.sleep(10000);}catch (Exception e){}
 		
 		// get packages count for the repo - !=0
 		KatelloRepo repo = new KatelloRepo(null,this.org_name,prodName,null,null,null);

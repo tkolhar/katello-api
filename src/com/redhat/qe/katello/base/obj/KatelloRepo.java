@@ -37,7 +37,7 @@ public class KatelloRepo extends _KatelloObject{
 	public static final String ERR_REPO_EXISTS = "There is already a repo with the name [ %s ] for product [ %s ]";
 	public static final String OUT_FILTER_ADDED = 
 			"Added filter [ %s ] to repository [ %s ]";
-	public static final String OUT_REPO_SYNCHED = "Repo [ %s ] synced";
+	public static final String OUT_REPO_SYNCHED = "Repo [ %s ] synchronized";
 	
 	public static final String REG_REPO_INFO = ".*ID\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*URL\\s*:\\s+%s.*Last Sync\\s*:\\s+%s.*Progress\\s*:\\s+%s.*GPG Key\\s*:\\s*+%s.*";
 	public static final String REG_REPO_STATUS = ".*Package Count\\s*:\\s+\\d+.*Last Sync\\s*:\\s+%s.*Sync State\\s*:\\s+%s.*";
@@ -217,7 +217,7 @@ public class KatelloRepo extends _KatelloObject{
 	}
 
 	
-	public SSHCommandResult discover(){
+	public SSHCommandResult discover(String provider){
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
@@ -226,6 +226,7 @@ public class KatelloRepo extends _KatelloObject{
 		opts.add(new Attribute("assumeyes", "y"));
 		opts.add(new Attribute("product_label", product_label));
 		opts.add(new Attribute("product_id", product_id));
+		opts.add(new Attribute("provider", provider));
 		return run(CMD_DISCOVER);
 	}
 	public SSHCommandResult list(){

@@ -61,7 +61,7 @@ public class SystemGroupTests extends KatelloCliTestScript{
 		KatelloSystemGroup systemGroup = createSystemGroup();
 		
 		exec_result = systemGroup.create();
-		Assert.assertTrue(exec_result.getExitCode() == 144, "Check - return code");
+		Assert.assertTrue(exec_result.getExitCode() == 166, "Check - return code");
 		//@TODO fix message remove Name when bug #846251 is fixed.
 		Assert.assertEquals(getOutput(exec_result).trim(), "Validation failed: Name must be unique within one organization");
 	}
@@ -191,7 +191,7 @@ public class SystemGroupTests extends KatelloCliTestScript{
 		sys.uuid = system_uuid;
 		
 		exec_result = systemGroup.add_systems(system_uuid);
-		Assert.assertTrue(exec_result.getExitCode().intValue() == 144, "Check - return code");
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 166, "Check - return code");
 		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloSystemGroup.ERR_SYSTEMGROUP_EXCEED, "1", systemGroupName));
 	}
 
@@ -389,9 +389,9 @@ public class SystemGroupTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		Assert.assertTrue(exec_result.getStdout().trim().contains(KatelloSystem.OUT_CREATE),
 				"Check - output (success)");
-		
-		exec_result = sys.rhsm_identity();
-		system_uuid = KatelloCli.grepCLIOutput("Current identity is", exec_result.getStdout());
+
+		exec_result = sys.info();
+		system_uuid = KatelloCli.grepCLIOutput("UUID", getOutput(exec_result).trim(),1);
 		sys.uuid = system_uuid;
 		
 		exec_result = systemGroup.add_systems(system_uuid);

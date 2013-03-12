@@ -47,7 +47,7 @@ public class UserPermissionTests extends KatelloCliTestScript {
 		this.roles[1] = "LDAProles2" + uid;
 		
 		this.permissions = new String[5];
-		this.permissions[0] = "Filtersperm1" + uid;
+		this.permissions[0] = "Environmentsperm1" + uid;
 		this.permissions[1] = "Orgsperm2" + uid;
 		this.permissions[2] = "Provperm3" + uid;
 		this.permissions[3] = "Groupsperm5" + uid;
@@ -141,8 +141,8 @@ public class UserPermissionTests extends KatelloCliTestScript {
 	@Test(description="create permissions - for default org", dependsOnMethods={"test_createUsers", "test_createRoles"}, enabled=true)
 	public void test_createPermissions() {
 		
-		KatelloPermission perm = new KatelloPermission(this.permissions[0], this.org, "filters", null, 
-				"create", this.roles[0]);
+		KatelloPermission perm = new KatelloPermission(this.permissions[0], this.org, "environments", null, 
+				"register_systems", this.roles[0]);
 		SSHCommandResult res = perm.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		
