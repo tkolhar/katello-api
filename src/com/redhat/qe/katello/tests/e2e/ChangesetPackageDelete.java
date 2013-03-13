@@ -82,6 +82,7 @@ public class ChangesetPackageDelete extends KatelloCliTestScript {
 		Assert.assertFalse(exec_result.getExitCode().intValue()==0, "Check - return code (install package)");
 	}
 
+	//@ TODO bug 896600
 	@Test(description = "Create changeset of promotion type," +
 			" then add already reomved packages to changeset and promote it," +
 			" verify that packages exist in environment", dependsOnMethods = {"test_deletionChangesetRemovePackages"})

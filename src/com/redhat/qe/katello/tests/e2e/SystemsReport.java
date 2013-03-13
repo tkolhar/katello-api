@@ -64,7 +64,7 @@ public class SystemsReport extends KatelloCliTestScript{
 		KatelloProvider prov = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, this.org, null, null);
 		SSHCommandResult res = prov.import_manifest("/tmp"+File.separator+MANIFEST_HACKED, new Boolean(true));
 		Assert.assertEquals(res.getExitCode().intValue(), 144, "Check - error code (provider import_manifest)");
-		Assert.assertTrue(getOutput(res).contains("unable to extract export archive"),"Message - (provider import_manifest)");
+		Assert.assertTrue(getOutput(res).contains("is not a properly compressed file or is empty"),"Message - (provider import_manifest)");
 	}
 
 	@Test(description="Import empty manifest", enabled=true)
@@ -81,7 +81,7 @@ public class SystemsReport extends KatelloCliTestScript{
 		KatelloProvider prov = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, this.org, null, null);
 		SSHCommandResult res = prov.import_manifest("/tmp"+File.separator+EMPTY_HACKED, new Boolean(true));
 		Assert.assertEquals(res.getExitCode().intValue(), 144, "Check - error code (provider import_manifest)");
-		Assert.assertTrue(getOutput(res).contains("unable to extract export archive"),"Message - (provider import_manifest)");
+		Assert.assertTrue(getOutput(res).contains("is not a properly compressed file or is empty"),"Message - (provider import_manifes)");
 	}
 	
 	@Test(description="Import correct manifest", enabled=true, dependsOnMethods={"test_importHackedManifest", "test_importEmptyManifest"})
@@ -107,8 +107,12 @@ public class SystemsReport extends KatelloCliTestScript{
 	@Test(description="Promote RHEL Server to both environments", enabled=true, dependsOnMethods={"test_importManifest"})
 	public void test_promoteToEnvs(){
 		log.info("Enable repo: ["+KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT+"]");
+		
+		KatelloProduct prod=new KatelloProduct(KatelloProduct.RHEL_SERVER, this.org, KatelloProvider.PROVIDER_REDHAT, null, null, null,null, null);
+		SSHCommandResult res = prod.repository_set_enable(KatelloProduct.REPO_SET_NAME,KatelloProduct.RHEL_SERVER);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo set enable)");
 		KatelloRepo repo = new KatelloRepo(KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, this.org, KatelloProduct.RHEL_SERVER, null, null, null);
-		SSHCommandResult res = repo.enable();
+		res = repo.enable();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo enable)");
 		Assert.assertTrue(getOutput(res).contains("enabled."),"Message - (repo enable)");
 		

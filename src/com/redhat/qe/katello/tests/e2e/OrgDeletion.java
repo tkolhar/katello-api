@@ -27,52 +27,31 @@ public class OrgDeletion extends KatelloCliTestScript{
 	private String env_name;
 	private String provider_name;
 	private String product_name;
-	private String ls_cmd = "ls -la /var/lib/pulp/repos/";
 
 	
-	@Test(description="Create a new Org, add repo, sync it, delete the org," +
-			" verify that repo is deleted from file system.")
+	@Test(description="Create a new Org, add repo, sync it, delete the org")
 	public void test_deleteOrg(){
 		
 		KatelloOrg org = createOrgStuff(null);
 		
-		exec_result = KatelloUtils.sshOnServer(ls_cmd + org.name);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
 		exec_result = org.delete();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(String.format("Successfully deleted org [ %s ]",org.name)),"Check - return string");
-		
-		exec_result = KatelloUtils.sshOnServer(ls_cmd + org.name);
-		Assert.assertTrue(exec_result.getExitCode() == 2, "Check - return code");
 		
 		// to be sure that the same org can be created after deletion
 		createOrgStuff(org.name);
 	}
 	
-	@Test(description="Create 2 Orgs, add same repo to them, sync them, delete the first org, " +
-			"verify that repo is deleted from file system only for first org.", dependsOnMethods={"test_deleteOrg"})
+	@Test(description="Create 2 Orgs, add same repo to them, sync them, delete the first org", dependsOnMethods={"test_deleteOrg"})
 	public void test_deleteOrgSharingRepo(){
 		
 		KatelloOrg org = createOrgStuff(null);
 		
-		KatelloOrg org2 = createOrgStuff(null);
-		
-		exec_result = KatelloUtils.sshOnServer(ls_cmd + org.name);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		exec_result = KatelloUtils.sshOnServer(ls_cmd + org2.name);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		createOrgStuff(null);
 		
 		exec_result = org.delete();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(String.format("Successfully deleted org [ %s ]",org.name)),"Check - return string");
-		
-		exec_result = KatelloUtils.sshOnServer(ls_cmd + org.name);
-		Assert.assertTrue(exec_result.getExitCode() == 2, "Check - return code");
-		
-		exec_result = KatelloUtils.sshOnServer(ls_cmd + org2.name);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		// to be sure that the same org can be created after deletion
 		createOrgStuff(org.name);

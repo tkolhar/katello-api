@@ -88,6 +88,7 @@ public class PromoteChangeset extends KatelloCliTestScript {
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").contains("lion"), "Check - package list output");
 	}
 
+	//@ TODO 918157
 	@Test(description="Promote errata to DEV")
 	public void test_promoteErrataToDEV(){
 		KatelloChangeset cs = new KatelloChangeset("ZooDEV2"+uniqueID, this.org, this.env1);
@@ -102,6 +103,7 @@ public class PromoteChangeset extends KatelloCliTestScript {
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").contains(PromoteErrata.ERRATA_ZOO_SEA), "Check - errata list output");
 	}
 	
+	//@ TODO 921103
 	@Test(description="Promote package to QE, verify that it fails as product is not promoted to this env")
 	public void test_promotePackageToQE(){
 		SSHCommandResult res = new KatelloCli("package list --org \"" + this.org + "\" --repo \"" + this.repo + "\" --product \"" + this.product + "\" | grep \"lion\" | awk '{print $1}'", null).run();
@@ -111,7 +113,7 @@ public class PromoteChangeset extends KatelloCliTestScript {
 		res = cs.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		res = cs.update_add_package(this.product, "lion");
-		Assert.assertEquals(res.getExitCode().intValue(), 144, "Check - return code");
+		Assert.assertEquals(res.getExitCode().intValue(), 166, "Check - return code");
 		Assert.assertEquals(getOutput(res).trim(), String.format(KatelloPackage.REG_CHS_PROMOTE_ERROR, packageId));
 	}
 
@@ -121,7 +123,7 @@ public class PromoteChangeset extends KatelloCliTestScript {
 		SSHCommandResult res = cs.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		res = cs.update_fromProduct_addErrata(this.product, PromoteErrata.ERRATA_ZOO_SEA);
-		Assert.assertEquals(res.getExitCode().intValue(), 144, "Check - return code");
+		Assert.assertEquals(res.getExitCode().intValue(), 166, "Check - return code");
 		Assert.assertEquals(getOutput(res).trim(), String.format(KatelloErrata.REG_CHS_PROMOTE_ERROR, PromoteErrata.ERRATA_ZOO_SEA));
 	}	
 
@@ -159,6 +161,7 @@ public class PromoteChangeset extends KatelloCliTestScript {
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").contains("lion"), "Check - package list output");
 	}
 
+	//@ TODO 918157
 	@Test(description="Promote errata to GA")
 	public void test_promoteErrataToGA(){
 		KatelloChangeset cs = new KatelloChangeset("ZooGA2"+uniqueID, this.org, this.env2);

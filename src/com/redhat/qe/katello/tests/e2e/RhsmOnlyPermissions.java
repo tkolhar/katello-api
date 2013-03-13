@@ -80,9 +80,14 @@ public class RhsmOnlyPermissions extends KatelloCliTestScript{
 		log.info("Create RHSM full access permission and assign it to the user.");
 		KatelloPermission perm = new KatelloPermission(this.user_role, this.org, "environments", this.env_dev, 
 				"update_systems,read_contents,read_systems,register_systems,delete_systems", this.user_role);
-		perm.create();
+		SSHCommandResult res = perm.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (create role)");
+		KatelloPermission perm2 = new KatelloPermission(this.user_role+"1", this.org, "organizations", null, 
+				"read", this.user_role);
+		res = perm2.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (create role)");
 		KatelloUser user = new KatelloUser(this.user, null, null, false);
-		SSHCommandResult res = user.assign_role(this.user_role);
+		res = user.assign_role(this.user_role);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (user assign_role)");
 		Assert.assertTrue(getOutput(res).equals(
 				String.format("User '%s' assigned to role '%s'",this.user, this.user_role)), 
@@ -141,6 +146,7 @@ public class RhsmOnlyPermissions extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(res).matches(MATCH_SUBSCRIBED), "Check - message (subscribed)");
 	}
 	
+	//@ TODO bug 896600
 	@Test(description="Yum operations", dependsOnMethods={"test_subscribeSystemToZoo3"}, enabled=true)
 	public void test_yumOperations(){
 		

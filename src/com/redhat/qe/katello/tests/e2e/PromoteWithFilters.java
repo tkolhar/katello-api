@@ -22,10 +22,11 @@ import com.redhat.qe.tools.SSHCommandResult;
  * <pre>
  * 	promote product (without sync)
  * 	sync the repo
- * 	apply filter to the repo
  *	create another CS
  * 	add repo to changeset (with --from_product option - it promoted before)
  * 	promote the changeset
+ *  create deletion type changeset
+ *  add frog and bear tinto it and promote
  * 	check that the packages - there are 2 - not in the package list there
  * 	check that the errata (for package: bear) is also absent (TBD) 
  * </pre>
@@ -46,6 +47,7 @@ public class PromoteWithFilters extends KatelloCliTestScript{
 	private String repo;
 	private String cs1;
 	private String cs2;
+	private String cs3;
 	
 	@BeforeClass(description="Init unique names", alwaysRun=true)
 	public void setUp(){
@@ -56,6 +58,7 @@ public class PromoteWithFilters extends KatelloCliTestScript{
 		this.repo = "ZooRepo"+uniqueID;
 		this.cs1 = "cs1-"+uniqueID;
 		this.cs2 = "cs2-"+uniqueID;
+		this.cs3 = "cs3-"+uniqueID;
 		
 		log.info("E2E - Create org/env");
 		KatelloOrg org = new KatelloOrg(this.org, null);
@@ -92,17 +95,24 @@ public class PromoteWithFilters extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo sync)");
 	}
 	
-	@Test(description="Promote repo again: with filter now", dependsOnMethods={"test_syncRepo"}, enabled=true)
-	public void test_promoteToDeSyncedAndFiltered(){
-		log.info("E2E - Promote to Dev - synced and with filter on repo");
+	@Test(description="Promote repo again: remove some packages", dependsOnMethods={"test_syncRepo"}, enabled=true)
+	public void test_promoteToDeSynced(){
+		log.info("E2E - Promote to Dev - synced on repo");
 		KatelloChangeset cs = new KatelloChangeset(this.cs2, this.org, this.env);
 		cs.create();
 		cs.update_fromProduct_addRepo(this.product, this.repo);
 		SSHCommandResult res = cs.apply();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset promote - with filter & synced)");
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset promote - synced)");
+		
+		cs = new KatelloChangeset(this.cs3, this.org, this.env, true);
+		cs.create();
+		cs.update_add_package(this.product, "bear");
+		cs.update_add_package(this.product, "frog");
+		res = cs.apply();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset promote - synced)");
 	}
 	
-	@Test(description="Check packages: bear,frog - (absent); lion - (present)", dependsOnMethods={"test_promoteToDeSyncedAndFiltered"}, enabled=true)
+	@Test(description="Check packages: bear,frog - (absent); lion - (present)", dependsOnMethods={"test_promoteToDeSynced"}, enabled=true)
 	public void test_packagesPromotedDev(){
 		String cmd_packListDev = "package list --org \"%s\" --environment \"%s\" --product \"%s\" --repo \"%s\" | grep -E \"%s\" | wc -l";
 		cmd_packListDev = String.format(cmd_packListDev, this.org, this.env, this.product, this.repo, PACKAGES_TO_BLACKLIST_GREP);

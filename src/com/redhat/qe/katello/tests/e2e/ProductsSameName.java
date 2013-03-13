@@ -126,6 +126,7 @@ public class ProductsSameName extends KatelloCliTestScript {
 		Assert.assertTrue(getOutput(exec_result).contains("stork"));		
 	}
 
+	//@ TODO Bug 921103
 	@Test(description="package info of two repos")
 	public void test_packageInfo() {
 		
@@ -154,6 +155,7 @@ public class ProductsSameName extends KatelloCliTestScript {
 		Assert.assertTrue(getOutput(exec_result).contains("lion"));	
 	}
 	
+	//@ TODO bug 896600
 	@Test(description="install packages of two repos")
 	public void testInstallPackage() {
 		
