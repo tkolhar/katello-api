@@ -88,7 +88,7 @@ public class PromoteErrata extends KatelloCliTestScript{
 		repo.synchronize();
 	}
 	
-
+	//@ TODO bug 918157
 	@Test(description="Add errata and promote 2nd time", dependsOnMethods={"test_syncRepo"}, enabled=true)
 	public void test_addErrataAndPromote(){
 		SSHCommandResult res;

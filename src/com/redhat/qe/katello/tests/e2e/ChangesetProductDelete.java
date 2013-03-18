@@ -79,6 +79,7 @@ public class ChangesetProductDelete extends KatelloCliTestScript {
 		Assert.assertFalse(exec_result.getExitCode().intValue()==0, "Check - return code (install lion)");
 	}
 
+	//@ TODO bug 896600
 	@Test(description = "Create changeset of promotion type," +
 			" then add already reomved repo to changeset and promote it," +
 			" verify that repo exist in environment", dependsOnMethods = {"test_deletionChangesetRemoveRepo"})

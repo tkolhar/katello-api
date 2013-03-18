@@ -170,7 +170,7 @@ public class BPMTests extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(exec_result).contains("Unlimited"), "Check - subscription.Quantity");
 		
 		// Store poolid
-		rhsm_pool_id = KatelloCli.grepCLIOutput("Id", getOutput(exec_result).trim(),1);
+		rhsm_pool_id = KatelloCli.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
 		Assert.assertNotNull(rhsm_pool_id, "Check Pool Id is retrieved.");
 		log.fine(String.format("Subscription is available for product: [%s] with poolid: [%s]",
 				product_name,rhsm_pool_id));
@@ -187,6 +187,7 @@ public class BPMTests extends KatelloCliTestScript{
 				"Check - returned message (pool ID)");
 	}
 	
+	//@ TODO bug 896600
 	@Test(description="Yum should work - yum info pulp-admin", 
 			dependsOnMethods={"test_rhsm_subscribeToPool"})
 	public void test_yuminfo(){
