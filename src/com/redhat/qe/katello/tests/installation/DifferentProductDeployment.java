@@ -46,7 +46,7 @@ public class DifferentProductDeployment extends KatelloCliTestScript {
 		
 		for (String value : katello_list) {
 			exec_result = KatelloUtils.sshOnServer("katello-configure --deployment="
-							+ value + " --reset-cache=YES--reset-data=YES");
+							+ value + " --reset-cache=YES --reset-data=YES");
 			Assert.assertTrue(exec_result.getExitCode() == 2, "Check - return code Configuration failed");
 		}
 		exec_result = KatelloUtils.sshOnServer("katello-configure --deployment=" + deployment
