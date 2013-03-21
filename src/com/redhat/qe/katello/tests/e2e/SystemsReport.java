@@ -105,7 +105,7 @@ public class SystemsReport extends KatelloCliTestScript{
 	}
 	
 	@Test(description="Promote RHEL Server to both environments", enabled=true, dependsOnMethods={"test_importManifest"})
-	public void test_promoteToEnvs(){
+	public void test_disableenableRHELRepo() {
 		log.info("Enable repo: ["+KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT+"]");
 		
 		KatelloProduct prod=new KatelloProduct(KatelloProduct.RHEL_SERVER, this.org, KatelloProvider.PROVIDER_REDHAT, null, null, null,null, null);
@@ -115,6 +115,18 @@ public class SystemsReport extends KatelloCliTestScript{
 		res = repo.enable();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo enable)");
 		Assert.assertTrue(getOutput(res).contains("enabled."),"Message - (repo enable)");
+		
+		res = repo.disable();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo disable)");
+		Assert.assertTrue(getOutput(res).contains("disabled."),"Message - (repo disable)");
+		
+		res = repo.enable();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo enable)");
+		Assert.assertTrue(getOutput(res).contains("enabled."),"Message - (repo enable)");
+	}
+	
+	@Test(description="Promote RHEL Server to both environments", enabled=true, dependsOnMethods={"test_disableenableRHELRepo"})
+	public void test_promoteToEnvs(){		
 		
 		KatelloEnvironment env = new KatelloEnvironment(this.env_dev, null, this.org, KatelloEnvironment.LIBRARY);
 		env.cli_create();
