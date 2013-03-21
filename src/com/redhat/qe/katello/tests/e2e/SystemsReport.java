@@ -133,7 +133,7 @@ public class SystemsReport extends KatelloCliTestScript{
 		KatelloChangeset cs = new KatelloChangeset("csDev_"+KatelloUtils.getUniqueID(), this.org, this.env_dev);
 		cs.create();
 		cs.update_addProduct(KatelloProduct.RHEL_SERVER);
-		res = cs.apply();
+		SSHCommandResult res = cs.apply();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset promote)");
 		Assert.assertTrue(getOutput(res).endsWith("applied"),"Message - (changeset promote)");
 		
