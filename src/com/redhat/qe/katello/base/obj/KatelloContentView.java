@@ -24,6 +24,8 @@ public class KatelloContentView extends _KatelloObject{
 	
 	public static final String OUT_CREATE_DEFINITION = 
 			"Successfully created content view definition [ %s ]";
+	public static final String OUT_DELETE_DEFINITION = 
+			"Successfully deleted definition [ %s ]";
 	public static final String OUT_ADD_SYS_INFO = 
 			"Successfully added default custom info key [ %s ] to Org [ %s ]";
 	public static final String OUT_ADD_PRODUCT = 

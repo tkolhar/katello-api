@@ -108,6 +108,7 @@ public class ContentDefinitionTest extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(exec_result).equals(KatelloContentView.ERR_NAME_LONG), "Check - error string (content create)");
 	}
 	
+	//@ TODO bug 924253
 	@Test(description = "Create 2 new content definitions, delete one of them")
 	public void test_delete() {
 		
@@ -119,6 +120,7 @@ public class ContentDefinitionTest extends KatelloCliTestScript{
 		
 		exec_result = content2.definition_delete();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentView.OUT_DELETE_DEFINITION, content_name)), "Check - error string (content delete)");
 		
 		assert_contentList(Arrays.asList(content), Arrays.asList(content2));
 	}
@@ -219,6 +221,7 @@ public class ContentDefinitionTest extends KatelloCliTestScript{
 		KatelloContentView content = new KatelloContentView(content_name, "descritpion", org_name, content_name);
 		exec_result = content.create_definition();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentView.OUT_CREATE_DEFINITION, content_name)), "Check - out string (content create)");
 		
 		return content;
 	}
