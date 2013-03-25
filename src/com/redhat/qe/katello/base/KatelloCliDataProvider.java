@@ -52,7 +52,7 @@ public class KatelloCliDataProvider {
 				{ " a", null, null, new Integer(166), "Validation failed: Name must not contain leading or trailing white spaces."},
 				{ "a ", null, null, new Integer(166), "Validation failed: Name must not contain leading or trailing white spaces."},
 				{ "a", null, null, new Integer(0), "Successfully created provider [ a ]"},
-				{ "?1", null, null, new Integer(166), "Validation failed: Name cannot contain characters other than alpha numerals, space,'_', '-'."},
+				{ "?1", null, null, new Integer(166), "Validation failed: Name cannot contain characters other than alpha numerals, space, '_', '-'"},
 				{ strRepeat("0123456789", 12)+"abcdefghi", null, null, new Integer(166), "Validation failed: Name cannot contain more than 128 characters"},
 				// description
 				{ "desc-specChars"+uid, "\\!@%^&*(<_-~+=//\\||,.>)", null, new Integer(0), "Successfully created provider [ desc-specChars"+uid+" ]"},
@@ -203,7 +203,7 @@ public class KatelloCliDataProvider {
 				{ " a", null, new Integer(166), "Validation failed: Name must not contain leading or trailing white spaces."},
 				{ "a ", null, new Integer(166), "Validation failed: Name must not contain leading or trailing white spaces."},
 				{ "a", null, new Integer(0), "Successfully created environment [ a ]"},
-				{ "?1", null, new Integer(166), "Validation failed: Name cannot contain characters other than alpha numerals, space,'_', '-'."},
+				{ "?1", null, new Integer(166), "Validation failed: Name cannot contain characters other than alpha numerals, space, '_', '-'"},
 			    { strRepeat("0123456789", 12)+"abcdefghi", null, new Integer(166), "Validation failed: Name cannot contain more than 128 characters"},
 //				// description
 				{ "desc-specChars"+uid, "\\!@%^&*(<_-~+=//\\||,.>)", new Integer(0), "Successfully created environment [ desc-specChars"+uid+" ]"},
