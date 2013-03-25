@@ -42,7 +42,7 @@ public class KatelloOrg extends _KatelloObject{
 			"Successfully removed default custom info key [ %s ] for Org [ %s ]";
 	
 	public static final String ERR_NAME_INVALID = 
-			"Validation failed: Name cannot contain characters other than alpha numerals, space,'_', '-'.";
+			"Validation failed: Name cannot contain characters >, <, or /";
 	public static final String ERR_ORG_NOTFOUND = 
 			"Couldn't find organization '%s'";
 	public static final String ERR_ORG_NAME_EXISTS = 
