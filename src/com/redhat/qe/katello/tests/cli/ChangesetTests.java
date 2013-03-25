@@ -19,7 +19,6 @@ import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
-import com.redhat.qe.katello.base.obj.KatelloTemplate;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
@@ -38,7 +37,6 @@ public class ChangesetTests extends KatelloCliTestScript{
 	private String product_name;
 	private String product_name2;
 	private String repo_name;
-	private String templ_name;
 	
 	@BeforeClass(description="init: create org stuff", groups = {"cli-changeset"})
 	public void setUp() {
@@ -51,7 +49,6 @@ public class ChangesetTests extends KatelloCliTestScript{
 		product_name = "product"+uid;
 		product_name2 = "product2"+uid;
 		repo_name = "repo"+uid;
-		templ_name = "template"+KatelloUtils.getUniqueID();
 		
 		// Create org:
 		KatelloOrg org = new KatelloOrg(this.org_name, "Package tests");
@@ -88,11 +85,6 @@ public class ChangesetTests extends KatelloCliTestScript{
 		exec_result = prod.promote(env_name);
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (product promote)");
 				
-		KatelloTemplate tpl = new KatelloTemplate(templ_name, null, org_name, null);
-		exec_result = tpl.create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloTemplate.OUT_CREATE, templ_name)), "Check - output string (template create)");
-
 		exec_result = repo.synchronize();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
@@ -110,7 +102,7 @@ public class ChangesetTests extends KatelloCliTestScript{
 		
 		exec_result = chst.create();
 		Assert.assertTrue(exec_result.getExitCode() == 166, "Check - return code (changeset create)");
-		Assert.assertEquals(getOutput(exec_result).trim(), "Validation failed: Name Must be unique within an environment");
+		Assert.assertEquals(getOutput(exec_result).trim(), "Validation failed: Name Label has already been taken");
 		
 	}
 	
@@ -244,41 +236,6 @@ public class ChangesetTests extends KatelloCliTestScript{
 		Pattern pattern = Pattern.compile(match_info);
 		Matcher matcher = pattern.matcher(getOutput(exec_result).replaceAll("\n", " "));
 		Assert.assertFalse(matcher.find(), "Check - Repository should not exist in changeset info");
-	}
-	
-	@Test(description = "Create changeset, than add template to changeset", groups = { "cli-changeset" })
-	public void test_updateChangesetAddTemplate() {
-		KatelloChangeset chst = createChangeset();
-		
-		exec_result = chst.update_addTemplate(templ_name);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloChangeset.OUT_UPDATE, chst_name)), "Check - output string (changeset update)");
-		
-		exec_result = chst.info();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		String match_info = String.format(KatelloChangeset.REG_CHST_TEMPLS, templ_name).replaceAll("\"", "");
-		Pattern pattern = Pattern.compile(match_info);
-		Matcher matcher = pattern.matcher(getOutput(exec_result).replaceAll("\n", " "));
-		Assert.assertTrue(matcher.find(), "Check - Template should exist in changeset info");
-	}
-	
-	@Test(description = "Create changeset, add template to changeset, then remove template", groups = { "cli-changeset" })
-	public void test_updateChangesetRemoveTemplate() {
-		KatelloChangeset chst = createChangeset();
-		
-		exec_result = chst.update_addTemplate(templ_name);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		exec_result = chst.update_removeTemplate(templ_name);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloChangeset.OUT_UPDATE, chst_name)), "Check - output string (changeset update)");
-		
-		exec_result = chst.info();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		String match_info = String.format(KatelloChangeset.REG_CHST_TEMPLS, templ_name).replaceAll("\"", "");
-		Pattern pattern = Pattern.compile(match_info);
-		Matcher matcher = pattern.matcher(getOutput(exec_result).replaceAll("\n", " "));
-		Assert.assertFalse(matcher.find(), "Check - Template should not exist in changeset info");
 	}
 	
 	@Test(description = "Create changeset, than add package to changeset", groups = { "cli-changeset" })

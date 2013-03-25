@@ -32,7 +32,6 @@ public class KatelloChangeset extends _KatelloObject{
 	public static final String REG_CHST_PACKAGES = ".*Packages\\s*:\\s+.*%s.*";
 	public static final String REG_CHST_PRODUCTS = ".*Products\\s*:\\s+.*%s.*";
 	public static final String REG_CHST_REPOS = ".*Repositories\\s*:\\s+.*%s.*";
-	public static final String REG_CHST_TEMPLS = ".*System Templates\\s*:\\s+.*%s.*";
 	public static final String REG_CHST_ERRATA = ".*Errata\\s*:\\s+.*%s.*";
 
 	// ** ** ** ** ** ** ** Class members
@@ -213,24 +212,6 @@ public class KatelloChangeset extends _KatelloObject{
 		opts.clear();
 		opts.add(new Attribute("from_product", productName));
 		opts.add(new Attribute("remove_erratum", errataName));
-		opts.add(new Attribute("org", org));
-		opts.add(new Attribute("name", name));
-		opts.add(new Attribute("environment", environment));
-		return run(CMD_UPDATE);
-	}
-	
-	public SSHCommandResult update_addTemplate(String templateName){
-		opts.clear();
-		opts.add(new Attribute("add_template", templateName));
-		opts.add(new Attribute("org", org));
-		opts.add(new Attribute("name", name));
-		opts.add(new Attribute("environment", environment));
-		return run(CMD_UPDATE);
-	}
-
-	public SSHCommandResult update_removeTemplate(String templateName){
-		opts.clear();
-		opts.add(new Attribute("remove_template", templateName));
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("environment", environment));

@@ -2,7 +2,9 @@ package com.redhat.qe.katello.tests.upgrade.v1;
 
 import java.io.File;
 import java.util.logging.Logger;
+
 import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.obj.KatelloChangeset;
@@ -16,7 +18,6 @@ import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
-import com.redhat.qe.katello.base.obj.KatelloTemplate;
 import com.redhat.qe.katello.base.obj.KatelloUser;
 import com.redhat.qe.katello.base.obj.KatelloUserRole;
 import com.redhat.qe.katello.common.KatelloConstants;
@@ -46,7 +47,6 @@ public class MultyOrgManifest implements KatelloConstants {
 	String _perm1_1;
 	String _perm1_2;
 	String _perm1_3;	
-	String _templ1;
 	String _system1;
 	
 	String _provider2;
@@ -62,8 +62,7 @@ public class MultyOrgManifest implements KatelloConstants {
 	String _changeset2_3;
 	String _perm2_1;
 	String _perm2_2;
-	String _perm2_3;
-	String _templ2;
+	String _perm2_3;;
 	String _system2;
 	
 	String _provider3;
@@ -89,7 +88,6 @@ public class MultyOrgManifest implements KatelloConstants {
 	String _perm3_4;
 	String _perm3_5;
 	String _perm3_6;
-	String _templ3;
 	String _system3;
 	
 	String _provider4;
@@ -137,7 +135,6 @@ public class MultyOrgManifest implements KatelloConstants {
 		_perm1_1 = "Perm1_" + _uid;
 		_perm1_2 = "Perm2_" + _uid;
 		_perm1_3 = "Perm3_" + _uid;
-		_templ1 = "Templ1_" + _uid;
 		_system1 = "Tokyo_" + _uid;
 
 		_uid = KatelloUtils.getUniqueID();
@@ -156,7 +153,6 @@ public class MultyOrgManifest implements KatelloConstants {
 		_perm2_1 = "Perm1_" + _uid;
 		_perm2_2 = "Perm2_" + _uid;
 		_perm2_3 = "Perm3_" + _uid;
-		_templ2 = "Templ2_" + _uid;
 		_system2 = "SanPaulo"+ _uid;
 		
 		_uid = KatelloUtils.getUniqueID();
@@ -184,7 +180,6 @@ public class MultyOrgManifest implements KatelloConstants {
 		_perm3_4 = "Perm4_" + _uid;
 		_perm3_5 = "Perm5_" + _uid;
 		_perm3_6 = "Perm6_" + _uid;
-		_templ3 = "Templ3_" + _uid;
 		_system3 = "Paris_" + _uid;
 		
 		_uid = KatelloUtils.getUniqueID();
@@ -262,7 +257,6 @@ public class MultyOrgManifest implements KatelloConstants {
 		KatelloPermission perm1 = new KatelloPermission(_perm1_1, _org1, "environments", _env1_1, _perm_actions, _role1);
 		KatelloPermission perm2 = new KatelloPermission(_perm1_2, _org1, "environments", _env1_2, _perm_actions, _role2);
 		KatelloPermission perm3 = new KatelloPermission(_perm1_3, _org1, "environments", _env1_3, _perm_actions, _role3);
-        KatelloTemplate templ1 = new KatelloTemplate(_templ1, null, _org1, null);
 		KatelloSystem sys1 = new KatelloSystem(_system1, _org1, _env1_3);
 		org.cli_create();
 		provider.create();
@@ -275,9 +269,7 @@ public class MultyOrgManifest implements KatelloConstants {
 		repo2.create();
 		repo1.synchronize();
 		repo2.synchronize();
-		templ1.create();
 		cs1.create();
-		cs1.update_addTemplate(_templ1);
 		cs1.update_addProduct(_product1_1);
 		cs1.update_addProduct(_product1_2);
 		cs1.promote();
@@ -310,7 +302,6 @@ public class MultyOrgManifest implements KatelloConstants {
 		perm1 = new KatelloPermission(_perm2_1, _org2, "environments", _env2_1, _perm_actions, _role1);
 		perm2 = new KatelloPermission(_perm2_2, _org2, "environments", _env2_2, _perm_actions, _role2);
 		perm3 = new KatelloPermission(_perm2_3, _org2, "environments", _env2_3, _perm_actions, _role3);
-		KatelloTemplate templ2 = new KatelloTemplate(_templ2, null, _org2, null);
 		KatelloSystem sys2 = new KatelloSystem(_system2, _org2, _env2_3);
 		org.cli_create();
 		provider.create();
@@ -321,11 +312,9 @@ public class MultyOrgManifest implements KatelloConstants {
 		env3.cli_create();
 		repo1.create(); 
 		repo2.create();
-		templ2.create();
 		repo1.synchronize();
 		repo2.synchronize();
 		cs1.create();
-        cs1.update_addTemplate(_templ2);
 		cs1.update_addProduct(_product2_1);
 		cs1.update_addProduct(_product2_2);
 		cs1.promote();
@@ -367,7 +356,6 @@ public class MultyOrgManifest implements KatelloConstants {
 		KatelloPermission perm4 = new KatelloPermission(_perm3_4, _org3, "environments", _env3_4, _perm_actions, _role1);
 		KatelloPermission perm5 = new KatelloPermission(_perm3_5, _org3, "environments", _env3_5, _perm_actions, _role2);
 		KatelloPermission perm6 = new KatelloPermission(_perm3_6, _org3, "environments", _env3_6, _perm_actions, _role3);
-		KatelloTemplate templ3 = new KatelloTemplate(_templ3, null, _org3, null);
 		KatelloSystem sys3 = new KatelloSystem(_system3, _org3, _env3_3);
 		org.cli_create();
 		provider.create();
@@ -381,11 +369,9 @@ public class MultyOrgManifest implements KatelloConstants {
 		env6.cli_create();
 		repo1.create(); 
 		repo2.create();
-		templ3.create();
 		repo1.synchronize();
 		repo2.synchronize();
 		cs1.create();
-        cs1.update_addTemplate(_templ3);
 		cs1.update_addProduct(_product3_1);
 		cs1.update_addProduct(_product3_2);
 		cs1.promote();
@@ -821,23 +807,6 @@ public class MultyOrgManifest implements KatelloConstants {
 		
 		pack = new KatelloPackage(null, null, _org3, _product3_2, _repo3_2, _env3_6);
 		checkPulpPackages(pack.cli_list());
-	}
-	
-	@Test(description="verify templates and filters survived the upgrade", 
-			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE}, 
-			groups={TNG_POST_UPGRADE})
-	public void checkTemplatesAndFiltersSurvived() {
-		KatelloTemplate templ = new KatelloTemplate(_templ1, null, _org1, null);
-		SSHCommandResult res = templ.info(null);
-		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
-		
-		templ = new KatelloTemplate(_templ2, null, _org2, null);
-		res = templ.info(null);
-		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
-		
-		templ = new KatelloTemplate(_templ3, null, _org3, null);
-		res = templ.info(null);
-		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 	}
 	
 	@Test(description="verify systems survived the upgrade", 
