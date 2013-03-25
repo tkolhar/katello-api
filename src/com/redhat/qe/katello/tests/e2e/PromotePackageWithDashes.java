@@ -13,7 +13,6 @@ import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
-import com.redhat.qe.katello.base.obj.KatelloTemplate;
 import com.redhat.qe.katello.base.obj.KatelloUser;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
@@ -32,7 +31,6 @@ public class PromotePackageWithDashes extends KatelloCliTestScript {
 	private String env_name;
 	private String env_name2;
 	private String chst_name, chst_name2;
-	private String templ_name;
 	private final String packageName = "pulp-selinux-server";
 	
 	@BeforeClass(description="Generate unique objects")
@@ -47,7 +45,6 @@ public class PromotePackageWithDashes extends KatelloCliTestScript {
 		env_name2 = "env2"+uid;
 		chst_name = "changeset"+uid;
 		chst_name2 = "changeset2"+uid;
-		templ_name = "template"+uid;
 		
 		// Create org:
 		KatelloOrg org = new KatelloOrg(this.org_name,"Package tests");
@@ -106,27 +103,4 @@ public class PromotePackageWithDashes extends KatelloCliTestScript {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
 	
-	@Test(description = "Create template, than add package to template, add it to changeset and promote it", groups = { "cli-changeset" })
-	public void test_promotePackageByTemplate() {
-		
-		KatelloTemplate tpl = new KatelloTemplate(templ_name, null, org_name, null);
-		exec_result = tpl.create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-			
-		exec_result = tpl.update_add_package(product_name, packageName);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		// create Changeset
-		KatelloChangeset cs = new KatelloChangeset(chst_name2, org_name, env_name2);
-		exec_result = cs.create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset create)");
-		
-		//@ TODO uncomment when bug 
-		/**exec_result = cs.update_addTemplate(templ_name);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloChangeset.OUT_UPDATE, chst_name2)), "Check - output string (changeset update)");
-		
-		exec_result = cs.apply();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");**/
-	}
 }

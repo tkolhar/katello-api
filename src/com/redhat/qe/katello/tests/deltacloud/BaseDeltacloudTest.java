@@ -1,6 +1,7 @@
 package com.redhat.qe.katello.tests.deltacloud;
 
 import java.io.File;
+
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
@@ -13,7 +14,6 @@ import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.base.obj.KatelloSystemGroup;
-import com.redhat.qe.katello.base.obj.KatelloTemplate;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SCPTools;
 import com.redhat.qe.tools.SSHCommandResult;
@@ -31,7 +31,6 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 	protected static String repo_name;
 	protected static String env_name;
 	protected static String env_name2;
-	protected static String templ_name;
 	protected static String changeset_name;
 	protected static String changeset_name2;
 	protected static String changeset_name3;
@@ -70,7 +69,6 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 		system_name3 = "system3_"+uid;
 		group_name = "group_"+uid;
 		group_name2 = "group2_"+uid;
-		templ_name = "template"+KatelloUtils.getUniqueID();
 		
 		server = KatelloUtils.getDeltaCloudServer();
 		server_name = server.getHostName();
@@ -142,10 +140,6 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 		
 		exec_result = cs.apply();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset promote)");
-				
-		KatelloTemplate tpl = new KatelloTemplate(templ_name, null, org_name, null);
-		exec_result = tpl.create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		SCPTools scp = new SCPTools(
 		System.getProperty("katello.server.hostname", "localhost"), 
@@ -161,7 +155,12 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (provider import_manifest)");
 		Assert.assertTrue(getOutput(res).contains("Manifest imported"),"Message - (provider import_manifest)");
 		
-		log.info("Enable repo: ["+KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT+"]");
+		prod = new KatelloProduct(KatelloProduct.RHEL_SERVER,org_name, KatelloProvider.PROVIDER_REDHAT, null, null, null,null, null);
+		res = prod.repository_set_enable(KatelloProduct.REPO_SET_NAME,KatelloProduct.RHEL_SERVER);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo set enable)");
+		
+		log.info("Enable repo: ["
+		+KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT+"]");
 		repo = new KatelloRepo(KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, org_name, KatelloProduct.RHEL_SERVER, null, null, null);
 		res = repo.enable();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo enable)");

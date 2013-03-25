@@ -14,6 +14,7 @@ public class KatelloContentView extends _KatelloObject{
 	public static final String CMD_DEFINITION_LIST = "content definition list";
 	public static final String CMD_DEFINITION_UPDATE = "content definition update";
 	public static final String CMD_DEFINITION_DELETE = "content definition delete";
+	public static final String CMD_DEFINITION_PUBLISH = "content definition publish";
 	public static final String CMD_DEFINITION_ADD_PRODUCT = "content definition add_product";
 	public static final String CMD_DEFINITION_REMOVE_PRODUCT = "content definition remove_product";
 	public static final String CMD_DEFINITION_ADD_REPO = "content definition add_repo";
@@ -23,6 +24,8 @@ public class KatelloContentView extends _KatelloObject{
 	
 	public static final String OUT_CREATE_DEFINITION = 
 			"Successfully created content view definition [ %s ]";
+	public static final String OUT_DELETE_DEFINITION = 
+			"Successfully deleted definition [ %s ]";
 	public static final String OUT_ADD_SYS_INFO = 
 			"Successfully added default custom info key [ %s ] to Org [ %s ]";
 	public static final String OUT_ADD_PRODUCT = 
@@ -193,6 +196,16 @@ public class KatelloContentView extends _KatelloObject{
 		opts.add(new Attribute("org", this.org));
 		opts.add(new Attribute("content_view", view));
 		return run(CMD_DEFINITION_REMOVE_VIEW);
+	}
+
+	public SSHCommandResult publish(String name, String label, String description){
+		opts.clear();
+		opts.add(new Attribute("name", this.name));
+		opts.add(new Attribute("org", this.org));
+		opts.add(new Attribute("view_name", name));
+		opts.add(new Attribute("view_label", label));
+		opts.add(new Attribute("description", description));
+		return run(CMD_DEFINITION_PUBLISH);
 	}
 	
 	// ** ** ** ** ** ** **

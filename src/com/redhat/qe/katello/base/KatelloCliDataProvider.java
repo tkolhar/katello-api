@@ -247,7 +247,7 @@ public class KatelloCliDataProvider {
 				{ " a", null, new Integer(166), "Validation failed: Name must not contain leading or trailing white spaces."},
 				{ "a ", null, new Integer(166), "Validation failed: Name must not contain leading or trailing white spaces."},
 				{ "a", null, new Integer(0), "Successfully created activation key [ a ]"},
-				{ "?1", null, new Integer(166), "Validation failed: Name cannot contain characters other than alpha numerals, space,'_', '-'."},
+				{ ">1", null, new Integer(166), "Validation failed: Name cannot contain characters other than alpha numerals, space, '_', '-'"},
 			    { strRepeat("0123456789", 12)+"abcdefghi", null, new Integer(166), "Validation failed: Name cannot contain more than 128 characters"},
 //				// description
 				{ "desc-specChars"+uid, "\\!@%^&*(<_-~+=//\\||,.>)", new Integer(0), "Successfully created activation key [ desc-specChars"+uid+" ]"},

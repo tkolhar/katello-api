@@ -8,7 +8,6 @@ import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.KatelloActivationKey;
-import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
@@ -16,7 +15,6 @@ import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.base.obj.KatelloSystemGroup;
-import com.redhat.qe.katello.base.obj.KatelloTemplate;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
@@ -86,45 +84,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 		
 		ak.asserts_create();
 	}
-	
-	
-	
-	@Test(description="create AK - with template",groups = {"cli-activationkey"}, enabled=true)
-	public void test_create_withTemplate(){
-		SSHCommandResult res;
-		String uid = KatelloUtils.getUniqueID();
-		String template = "templateForEnv-"+uid;
-		String changeset = "csForEnv-"+uid;
-		String ak_name = "akTemplate-"+uid;
-
-		// create template
-		KatelloTemplate tmpl = new KatelloTemplate(template, null, this.organization, null);
-		res = tmpl.create();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (template create)");
 		
-		// create changeset
-		KatelloChangeset cs = new KatelloChangeset(changeset, this.organization, this.env);
-		res = cs.create();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset create)");
-		
-		// add template to changeset
-		res = cs.update_addTemplate(template);
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset update --add_template)");
-		
-		// apply changeset to the env.
-		res = cs.apply();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset promote)");
-		
-		KatelloActivationKey ak = new KatelloActivationKey(this.organization, this.env, ak_name, null, template);
-		res = ak.create();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key create --template)");
-		Assert.assertTrue(getOutput(res).contains(
-				String.format(KatelloActivationKey.OUT_CREATE,ak_name)), 
-				"Check - returned output string (activation_key create --template)");
-		
-		ak.asserts_create();
-	}
-	
 	// @ TODO enable test when bug 909612 is fixed.
     @Test(description="add subscription to ak, verify that it is shown in info, remove it, verify that is is not shown", groups = {"cli-activationkey"},enabled=false)
     public void test_update_addremoveSubscription(){
@@ -200,7 +160,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
     	String uid = KatelloUtils.getUniqueID();
     	String akName="act_key-"+ uid; 
     	SSHCommandResult res;
-    	KatelloActivationKey ak = new KatelloActivationKey(this.organization, this.env, akName, "Activation key created to ", null, "1");
+    	KatelloActivationKey ak = new KatelloActivationKey(this.organization, this.env, akName, "Activation key created to ", "1");
     	res = ak.create();
     	Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key create)");
     	ak.asserts_create();
@@ -228,7 +188,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
     	String uid = KatelloUtils.getUniqueID();
     	String akName="act_key-"+ uid; 
     	SSHCommandResult res;
-    	KatelloActivationKey ak = new KatelloActivationKey(this.organization, this.env, akName, "Activation key created to ", null, "1");
+    	KatelloActivationKey ak = new KatelloActivationKey(this.organization, this.env, akName, "Activation key created to ", "1");
     	res = ak.create();
     	Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key create)");
     	ak.asserts_create();
@@ -261,7 +221,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
     	String uid = KatelloUtils.getUniqueID();
     	String akName="act_key-"+ uid; 
     	SSHCommandResult res;
-    	KatelloActivationKey ak = new KatelloActivationKey(this.organization, this.env, akName, "Activation key created to ", null, "2");
+    	KatelloActivationKey ak = new KatelloActivationKey(this.organization, this.env, akName, "Activation key created to ", "2");
     	res = ak.create();
     	Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key create)");
     	ak.asserts_create();

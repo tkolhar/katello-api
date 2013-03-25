@@ -32,7 +32,6 @@ import com.redhat.qe.katello.common.*;
 	sync_plan      synchronization plan specific actions in the katello server
 	system         system specific actions in the katello server
 -	system_group   system group specific actions in the katello server
-+	template       template specific actions in the katello server
 +	user           user specific actions in the katello server
 +	user_role      user role specific actions in the katello server
 	
@@ -61,7 +60,6 @@ public class FillDB implements KatelloConstants{
 	
 	private String gpgKeyZoo, gpgFilename;
 	private String akTesting, akDevelopment;
-	private String templateF16Iso;
 	private String systemGroupMyServers;
 	
 	private String providerFedora;
@@ -90,7 +88,6 @@ public class FillDB implements KatelloConstants{
 		gpgFilename = "/tmp/RPM-GPG-KEY-dummy-packages-generator";
 		akTesting = "ak-"+envNameTesting;
 		akDevelopment = "ak-"+envNameDevelopment;
-		templateF16Iso = "template-f16-"+uid;
 		systemGroupMyServers = "my-servers-"+uid;
 		providerFedora = "Fedora-"+uid;
 		providerZoo = "Zoo-"+uid;
@@ -194,8 +191,6 @@ public class FillDB implements KatelloConstants{
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: permission.create");
 		res = new KatelloPermission("ro-roles-"+uid, orgName, "roles", null, "read", roleReadAll).create();
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: permission.create");
-		res = new KatelloPermission("ro-system_templates-"+uid, orgName, "system_templates", null, "read_all", roleReadAll).create();
-		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: permission.create");
 		res = new KatelloPermission("ro-organizations-"+uid, orgName, "organizations", null, "read,read_systems", roleReadAll).create();
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: permission.create");
 		res = new KatelloPermission("ro-users-"+uid, orgName, "users", null, "read", roleReadAll).create();
@@ -215,8 +210,6 @@ public class FillDB implements KatelloConstants{
 				"read_contents,read_systems,register_systems,delete_systems", roleOrgAdmin).create();		
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: permission.create");
 		res = new KatelloPermission("rw-filters-"+uid, orgName, "filters", null, "create,delete,update,read", roleOrgAdmin).create();
-		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: permission.create");
-		res = new KatelloPermission("rw-system_templates-"+uid, orgName, "system_templates", null, "manage_all", roleOrgAdmin).create();
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: permission.create");
 		res = new KatelloPermission("rw-organizations-"+uid, orgName, "organizations", null, 
 				"gpg,delete_systems,update,update_systems,read,read_systems,register_systems,sync", roleOrgAdmin).create();
@@ -380,9 +373,9 @@ public class FillDB implements KatelloConstants{
 	}
 	
 	@Test(groups={TNG_PRE_UPGRADE}, dependsOnMethods={"create_permissionsRoles"},
-			description="create: gpgKey, activationKey, filter, system_group, template objects. " +
+			description="create: gpgKey, activationKey, filter, system_group. " +
 					"To be used later on next step(s) - as orgAdmin user.", enabled = false)
-	public void create_gpgKeyActivationKeyFilterSystemGroupTemplate(){
+	public void create_gpgKeyActivationKeyFilterSystemGroup(){
 		// GPG Key
 		SSHCommandResult res;
 		String cmd = String.format("rm -f %s; curl -sk %s -o %s",
@@ -400,13 +393,7 @@ public class FillDB implements KatelloConstants{
 		res = new KatelloActivationKey(orgName, envNameTesting, akTesting, akTesting+" description", null).create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: activation_key.create");
 		res = new KatelloActivationKey(orgName, envNameDevelopment, akDevelopment, akDevelopment+" description", null).create();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: activation_key.create");
-		
-		// Template
-		KatelloTemplate temp = new KatelloTemplate(templateF16Iso, templateF16Iso+" description", orgName, null);
-		temp.runAs(orgAdmin);
-		res = temp.create();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: template.create");
+		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: activation_key.create");		
 	}
 	
 	@Test(groups={TNG_POST_UPGRADE},
@@ -545,23 +532,12 @@ public class FillDB implements KatelloConstants{
 		res = prod.update_gpgkey(gpgKeyZoo);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: product.update");
 
-		// assign: distro, repo, package, package_group, param to the template
+		// assign: distro, repo, package, package_group, param
 		KatelloDistribution dist = new KatelloDistribution(orgName, productFedora,repoFedora, null);
 		res = dist.list();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: distribution.list");
 		String distroF16 = KatelloCli.grepCLIOutput("ID", res.getStdout());
 		Assert.assertTrue(!distroF16.isEmpty(), "Check - distribution exists in repo");
-		KatelloTemplate template = new KatelloTemplate(templateF16Iso, null, orgName, null);
-		res = template.update_add_repo(productFedora, repoFedora);
-		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: template.add_repo");
-		res = template.update_add_distribution(productFedora, distroF16);
-		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: template.add_distribution");
-		res = template.update_add_package_group("GNOME Desktop Environment");
-		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: template.add_package_group");
-		res = template.update_add_package("firefox");
-		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: template.add_package");
-		res = template.update_add_param("LANG", "fr_FR");
-		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: template.add_param");
 		
 		KatelloChangeset cs1 = new KatelloChangeset("cs-fedoraZoo-"+uid, orgName, envNameTesting);
 		res = cs1.create();
@@ -570,8 +546,6 @@ public class FillDB implements KatelloConstants{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: changeset.add_product");
 		res = cs1.update_addProduct(productZoo);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: changeset.add_product");
-		res = cs1.update_addTemplate(templateF16Iso);
-		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: changeset.add_template");
 		res = cs1.promote();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: changeset.promote");
 	}

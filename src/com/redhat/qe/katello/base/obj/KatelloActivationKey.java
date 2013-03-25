@@ -12,12 +12,10 @@ public class KatelloActivationKey extends _KatelloObject{
 	String environment;
 	String name;
 	String description;
-	String template;
 	String limit;
 	
 	private String id;
 	private String environment_id;
-	private String template_id;
 	
 	public static final String CMD_CREATE = "activation_key create";
 	public static final String CMD_INFO = "activation_key info";
@@ -25,9 +23,7 @@ public class KatelloActivationKey extends _KatelloObject{
 	public static final String CMD_DELETE = "activation_key delete";
 	public static final String CMD_UPDATE = "activation_key update";
 	public static final String CMD_ADD_SYSTEMGROUP = "activation_key add_system_group";
-	public static final String CMD_REMOVE_SYSTEMGROUP = "activation_key remove_system_group";
-	public static final String ERR_TEMPLATE_NOTFOUND = 
-			"Could not find template [ %s ]";	
+	public static final String CMD_REMOVE_SYSTEMGROUP = "activation_key remove_system_group";	
 	public static final String OUT_CREATE = 
 			"Successfully created activation key [ %s ]";
 	public static final String OUT_DELETE =
@@ -41,17 +37,16 @@ public class KatelloActivationKey extends _KatelloObject{
 	public static final String ERROR_EXCEED =
 			"Usage limit (%s) exhausted for activation key '%s'";	
 	
-	public KatelloActivationKey(String pOrg, String pEnv, String pName, String pDesc, String pTemplate){
-		this(pOrg,pEnv,pName,pDesc,pTemplate,null);
+	public KatelloActivationKey(String pOrg, String pEnv, String pName, String pDesc){
+		this(pOrg,pEnv,pName,pDesc,null);
 		
 	}
 	
-	public KatelloActivationKey(String pOrg, String pEnv, String pName, String pDesc, String pTemplate, String pLimit){
+	public KatelloActivationKey(String pOrg, String pEnv, String pName, String pDesc, String pLimit){
 		this.org = pOrg;
 		this.environment = pEnv;
 		this.name = pName;
 		this.description = pDesc;
-		this.template = pTemplate;
 		this.limit = pLimit;
 	}
 		
@@ -61,7 +56,6 @@ public class KatelloActivationKey extends _KatelloObject{
 		opts.add(new Attribute("environment", environment));
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("description", description));
-		opts.add(new Attribute("template", template));
 		opts.add(new Attribute("limit", limit));
 		return run(CMD_CREATE);
 	}
@@ -139,29 +133,21 @@ public class KatelloActivationKey extends _KatelloObject{
 		// asserts: activation_key list
 		res = list(); // if environment != null; result will be returned by that env. only 
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key list)");
-		String REGEXP_AK_LIST = ".*ID\\s*:\\s*\\d+.*Name\\s*:\\s*%s.*Environment ID\\s*:\\s*%s.*System Template ID\\s*:\\s*%s.*";
+		String REGEXP_AK_LIST = ".*ID\\s*:\\s*\\d+.*Name\\s*:\\s*%s.*Environment ID\\s*:\\s*%s.*";
 		
-		String match_info;
-		if(this.template_id==null){
-			match_info = String.format(REGEXP_AK_LIST,
-					this.name,this.environment_id,"None").replaceAll("\"", "");
-		}else{
-			match_info = String.format(REGEXP_AK_LIST,
-					this.name,this.environment_id,this.template_id).replaceAll("\"", "");
-		}
+		String match_info = String.format(REGEXP_AK_LIST,
+					this.name,this.environment_id).replaceAll("\"", "");
+		
 		Assert.assertTrue(KatelloCliTestScript.sgetOutput(res).replaceAll("\n", "").matches(match_info), 
 				String.format("Activation key [%s] should be found in the list",this.name));
 		
 		// asserts: activation_key info
 		res = info();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key info)");
-		String REGEXP_AK_INFO = ".*ID\\s*:\\s*\\d+.*Name\\s*:\\s*%s.*Usage Limit\\s*:\\s*%s.*Environment ID\\s*:\\s*%s.*System Template ID\\s*:\\s*%s.*Pools\\s*:.*";		
+		String REGEXP_AK_INFO = ".*ID\\s*:\\s*\\d+.*Name\\s*:\\s*%s.*Usage Limit\\s*:\\s*%s.*Environment ID\\s*:\\s*%s.*Pools\\s*:.*";		
 		match_info = String.format(REGEXP_AK_INFO,
-				this.name, (this.limit != null ? this.limit : "unlimited"), this.environment_id,this.template_id).replaceAll("\"", "");
-		if(this.template_id==null){
-			match_info = String.format(REGEXP_AK_INFO,
-					this.name,(this.limit != null ? this.limit : "unlimited"), this.environment_id,"None").replaceAll("\"", "");				
-		}
+				this.name, (this.limit != null ? this.limit : "unlimited"), this.environment_id).replaceAll("\"", "");
+		
 		Assert.assertTrue(KatelloCliTestScript.sgetOutput(res).replaceAll("\n", "").matches(match_info), 
 				String.format("Activation key [%s] should contain correct info",this.name));			
 	}
@@ -170,7 +156,6 @@ public class KatelloActivationKey extends _KatelloObject{
 	 * Retrieves the IDs (or does updates) like:<BR>
 	 * id - activation key id in DB<BR>
 	 * environment_id - id of the environment<BR>
-	 * template_id - id of the template (could be null)<BR>
 	 * subscriptions - array of pool_ids (could be null) 
 	 */
 	private void updateIDs(){
@@ -182,13 +167,7 @@ public class KatelloActivationKey extends _KatelloObject{
 			Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (environment info)");
 			this.environment_id = KatelloCli.grepCLIOutput("ID", res.getStdout());				
 		}
-		//retrieve template_id for an environment
-		if(this.template !=null){
-			KatelloTemplate tmpl = new KatelloTemplate(template, null, this.org, null);
-			res = tmpl.info(this.environment);
-			Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (template info)");
-			this.template_id = KatelloCli.grepCLIOutput("ID", res.getStdout());				
-		}
+		
 		// retrieve id
 		if(this.name != null){
 			res = info();
