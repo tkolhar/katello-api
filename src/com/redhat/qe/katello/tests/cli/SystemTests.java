@@ -384,6 +384,7 @@ public class SystemTests extends KatelloCliTestScript{
 		exec_result = sys.update_name(system);
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		
+		try { Thread.sleep(1000); } catch (Exception e) {}
 		exec_result = sys.info();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 65, "Check - return code");
 		

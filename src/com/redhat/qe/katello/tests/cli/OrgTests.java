@@ -197,10 +197,21 @@ public class OrgTests extends KatelloCliTestScript{
 	@Test(description = "Create org - name is invalid",groups={"cfse-cli","headpin-cli"})
 	public void test_createOrgInvalidName(){
 		String uniqueID = KatelloUtils.getUniqueID();
-		KatelloOrg org = new KatelloOrg("orgCrt"+uniqueID + " very ++== invalid name", "Simple description");	
+		KatelloOrg org = new KatelloOrg("orgCrt"+uniqueID + " very < invalid name", "Simple description");	
 		SSHCommandResult res = org.cli_create();
+		Assert.assertTrue(res.getExitCode() == 166, "Check - return code [166]");
+		Assert.assertEquals(getOutput(res).trim(), 
+				KatelloOrg.ERR_NAME_INVALID);
 		
-		Assert.assertTrue(res.getExitCode() == 166, "Check - return code [144]");
+		org = new KatelloOrg("orgCrt"+uniqueID + " very > invalid name", "Simple description");	
+		res = org.cli_create();
+		Assert.assertTrue(res.getExitCode() == 166, "Check - return code [166]");
+		Assert.assertEquals(getOutput(res).trim(), 
+				KatelloOrg.ERR_NAME_INVALID);
+		
+		org = new KatelloOrg("orgCrt"+uniqueID + " very / invalid name", "Simple description");	
+		res = org.cli_create();
+		Assert.assertTrue(res.getExitCode() == 166, "Check - return code [166]");
 		Assert.assertEquals(getOutput(res).trim(), 
 				KatelloOrg.ERR_NAME_INVALID);
 	}

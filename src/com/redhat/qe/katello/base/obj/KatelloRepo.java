@@ -35,6 +35,7 @@ public class KatelloRepo extends _KatelloObject{
 	public static final String ERR_REPO_NOTFOUND = 
 			"Could not find repository [ %s ] within organization [ %s ], product [ %s ] and environment [ %s ]";	
 	public static final String ERR_REPO_EXISTS = "There is already a repo with the name [ %s ] for product [ %s ]";
+	public static final String ERR_LABEL_EXISTS = "Label has already been taken";
 	public static final String OUT_FILTER_ADDED = 
 			"Added filter [ %s ] to repository [ %s ]";
 	public static final String OUT_REPO_SYNCHED = "Repo [ %s ] synchronized";

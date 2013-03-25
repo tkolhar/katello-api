@@ -22,8 +22,8 @@ public class KatelloOrg extends _KatelloObject{
 	public static final String CMD_UEBERCERT = "org uebercert";
 	public static final String CMD_DELETE = "org delete";
 	public static final String CMD_UPDATE = "org update";
-	public static final String CMD_ADD_SYS_INFO = "org add_default_system_info";
-	public static final String CMD_APPLY_SYS_INFO = "org apply_default_system_info";
+	public static final String CMD_ADD_SYS_INFO = "org default_info add";
+	public static final String CMD_APPLY_SYS_INFO = "org default_info apply";
 	public static final String CMD_REMOVE_SYS_INFO = "org remove_default_system_info";
 	
 	public static final String API_CMD_INFO = "/organizations/%s";
@@ -35,14 +35,14 @@ public class KatelloOrg extends _KatelloObject{
 	public static final String ERR_ORG_EXISTS = 
 			"Validation failed: Name has already been taken, Label already exists (including organizations being deleted)";
 	public static final String OUT_ADD_SYS_INFO = 
-			"Successfully added default custom info key [ %s ] to Org [ %s ]";
+			"Successfully added [ System ] default custom info [ %s ] to Org [ %s ]";
 	public static final String OUT_APPLY_SYS_INFO = 
 			"Successfully applied default custom info keys to [ %s ] systems in Org [ %s ]";
 	public static final String OUT_REMOVE_SYS_INFO = 
 			"Successfully removed default custom info key [ %s ] for Org [ %s ]";
 	
 	public static final String ERR_NAME_INVALID = 
-			"Validation failed: Name cannot contain characters other than alpha numerals, space,'_', '-'.";
+			"Validation failed: Name cannot contain characters >, <, or /";
 	public static final String ERR_ORG_NOTFOUND = 
 			"Couldn't find organization '%s'";
 	public static final String ERR_ORG_NAME_EXISTS = 
@@ -162,12 +162,14 @@ public class KatelloOrg extends _KatelloObject{
 		opts.clear();
 		opts.add(new Attribute("name", this.name));
 		opts.add(new Attribute("keyname", keyname));
+		opts.add(new Attribute("type", "system"));
 		return run(CMD_ADD_SYS_INFO);
 	}
 
 	public SSHCommandResult apply_system_info(){
 		opts.clear();
 		opts.add(new Attribute("name", this.name));
+		opts.add(new Attribute("type", "system"));
 		return run(CMD_APPLY_SYS_INFO);
 	}
 	
