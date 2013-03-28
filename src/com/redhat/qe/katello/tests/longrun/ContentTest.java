@@ -1,4 +1,4 @@
-package com.redhat.qe.katello.tests.cli;
+package com.redhat.qe.katello.tests.longrun;
 
 import java.io.File;
 import org.testng.annotations.Test;
