@@ -84,7 +84,7 @@ public void setUp() {
 	
 
 @Test(description = "Adding a published content view to an activation key",groups={"cfse-cli"})
-public void test_Add_ContentView(){
+public void test_addContentView(){
 		
 		condef = new KatelloContentView(condef_name,null,org_name,null);
 		exec_result = condef.create_definition();
