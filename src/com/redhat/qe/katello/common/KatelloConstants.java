@@ -24,7 +24,9 @@ public interface KatelloConstants {
 	public static final int PRODUCTS_IN_EXPORT_ZIP = 6;
 	public static final String AWESOME_SERVER_BASIC = 
 		"Awesome OS Server Basic";
-	
+	public static final String REPO_DISCOVER_PULP_V2_ALL = 
+			"http://repos.fedorapeople.org/repos/pulp/pulp/v2/stable";
+
 	// Some repo URLs
 	public static final String REPO_INECAS_ZOO3 = "http://inecas.fedorapeople.org/fakerepos/zoo3/";
 

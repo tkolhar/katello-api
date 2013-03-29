@@ -8,6 +8,7 @@ public class KatelloPackage extends _KatelloObject{
 	// ** ** ** ** ** ** ** Public constants
 	public static final String CMD_INFO = "package info";
 	public static final String CMD_LIST = "package list";
+	public static final String CMD_LIST_V = "package list -v"; //gkhachik - too many usages of cli_list() call. Better have a new -v option for packagesCount();
 	public static final String CMD_SEARCH = "package search --noheading";
 	
 	public static final String REG_PACKAGE_ID = "\\w{8}-\\w{4}-\\w{4}-\\w{4}-\\w{12}";
@@ -78,6 +79,20 @@ public class KatelloPackage extends _KatelloObject{
 		return run(CMD_SEARCH);
 	}
 	
+	public SSHCommandResult custom_packagesCount(String environment){
+		opts.clear();
+		if(environment == null) 
+			environment = KatelloEnvironment.LIBRARY;
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("product", product));
+		opts.add(new Attribute("repo", repo));
+		opts.add(new Attribute("environment", environment));
+		opts.add(new Attribute("product_label", product_label));
+		opts.add(new Attribute("product_id", product_id));
+		return runExt(CMD_LIST_V, " | grep -e \"^Name.*\\:\" | wc -l"); // -v option here in the command is really important
+	}
+		
 	// ** ** ** ** ** ** **
 	// ASSERTS
 	// ** ** ** ** ** ** **	

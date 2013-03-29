@@ -41,4 +41,9 @@ class _KatelloObject {
 		KatelloCli cli = new KatelloCli(cmd, opts, user, hostName); // as the user specified on specified host
 		cli.runNowait();
 	}
+
+	protected SSHCommandResult runExt(String cmd, String cmdTail){
+		KatelloCli cli = new KatelloCli(cmd, opts, user, hostName);
+		return cli.runExt(cmdTail);
+	}
 }
