@@ -50,6 +50,8 @@ public class KatelloActivationKey extends _KatelloObject{
 		this.limit = pLimit;
 	}
 		
+
+	
 	public SSHCommandResult create(){
 		opts.clear();
 		opts.add(new Attribute("org", org));
@@ -97,7 +99,17 @@ public class KatelloActivationKey extends _KatelloObject{
 		opts.add(new Attribute("add_subscription", subscriptionId));
 		return run(CMD_UPDATE);
 	}
-
+	
+	
+	public SSHCommandResult update_add_content_view(String pubView){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("environment", environment));
+		opts.add(new Attribute("content_view", pubView));
+		return run(CMD_UPDATE);
+	}
+	
 	public SSHCommandResult update_remove_subscription(String subscriptionId){
 		opts.clear();
 		opts.add(new Attribute("org", org));

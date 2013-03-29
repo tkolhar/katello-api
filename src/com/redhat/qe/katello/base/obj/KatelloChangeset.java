@@ -121,6 +121,14 @@ public class KatelloChangeset extends _KatelloObject{
 		return run(CMD_UPDATE);
 	}
 
+	public SSHCommandResult update_addView(String viewName){
+		opts.clear();
+		opts.add(new Attribute("add_content_view", viewName));
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("environment", environment));
+		return run(CMD_UPDATE);
+	}
 	public SSHCommandResult update_addProductId(String product_id){
 		opts.clear();
 		opts.add(new Attribute("add_product_id", product_id));
