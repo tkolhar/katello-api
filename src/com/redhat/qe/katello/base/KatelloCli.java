@@ -57,6 +57,10 @@ public class KatelloCli implements KatelloConstants {
 	}
 	
 	public SSHCommandResult run(){
+		return runExt("");
+	}
+
+	public SSHCommandResult runExt(String cmdTail){
 		String cmd = System.getProperty("katello.engine", "katello");
 		String locale = System.getProperty("katello.locale", KATELLO_DEFAULT_LOCALE);
 		for(int i=0;i<this.args.size();i++){
@@ -69,7 +73,7 @@ public class KatelloCli implements KatelloConstants {
 		}
 		
 		try {
-			return KatelloUtils.sshOnClient(hostName, cmd);
+			return KatelloUtils.sshOnClient(hostName, cmd+cmdTail);
 		}
 		catch (Exception e) {
 			e.printStackTrace();

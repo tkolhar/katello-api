@@ -9,9 +9,13 @@ import java.util.regex.Pattern;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
+import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.obj.KatelloChangeset;
+import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloGpgKey;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
+import com.redhat.qe.katello.base.obj.KatelloPackage;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
@@ -35,6 +39,11 @@ public class RepoTests extends KatelloCliTestScript {
 	private String gpg_key;
 	private String file_name;
 
+	private String providerAutoDiscoverHttpPulpV2;
+	private String providerAutoDiscoverFileZoo5;
+	private String productAutoDiscoverHttpPulpV2;
+	private String productAutoDiscoverFileZoo5;
+	
 	@BeforeClass(description = "Generate unique objects")
 	public void setUp() {
 		String uid = KatelloUtils.getUniqueID();
@@ -260,7 +269,83 @@ public class RepoTests extends KatelloCliTestScript {
 		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloRepo.ERR_REPO_NOTFOUND, repo.name, repo.org, repo.product, "Library"));
 		
 	}
+	
+	/**
+	 * @see https://github.com/gkhachik/katello-api/issues/278
+	 */
+	@Test(description="Repository Autodiscovery for existing Product - http method")
+	public void test_discoverRepo_MultiRepos_HttpMethod(){
+		String uid = KatelloUtils.getUniqueID();
+		String url = REPO_DISCOVER_PULP_V2_ALL;
+		this.providerAutoDiscoverHttpPulpV2 = "Pulp "+uid;
+		this.productAutoDiscoverHttpPulpV2 = "Pulp V2 "+uid;
+		new KatelloProvider(this.providerAutoDiscoverHttpPulpV2, this.org_name, "Pulp provider - autodiscovery via http", null).create();
+		new KatelloProduct(this.productAutoDiscoverHttpPulpV2, this.org_name, this.providerAutoDiscoverHttpPulpV2, null, null, null, null, null).create();
+		KatelloRepo _repo = new KatelloRepo("pulp-v2", this.org_name, this.productAutoDiscoverHttpPulpV2, url, null, null);
+		SSHCommandResult res = _repo.discover(this.providerAutoDiscoverHttpPulpV2);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check  -return code");
+		Assert.assertTrue(getOutput(_repo.custom_reposCount(null)).equals("8"), "Check - 8 repos were prepared");
+	}
+	
+	/**
+	 * @see https://github.com/gkhachik/katello-api/issues/282 
+	 */
+	@Test(description="Repository Autodiscovery for existing Product - file method")
+	public void test_discoverRepo_SingleRepo_FileMethod(){
+		String uid = KatelloUtils.getUniqueID();
 
+		KatelloUtils.sshOnServer("rpm -q grinder || yum -y install grinder"); // it's part of katello-pulp yum repo.
+		String url = "/var/www/html/auto-discover-"+uid;
+		String cmd = String.format(
+				"mkdir %s; " +
+				"grinder yum --label zoo5 -U http://lzap.fedorapeople.org/fakerepos/zoo5/ -b %s; " +
+				"createrepo %s/zoo5/",url,url,url);
+		KatelloUtils.sshOnServer(cmd);
+
+		this.providerAutoDiscoverFileZoo5 = "Zoo "+uid;
+		this.productAutoDiscoverFileZoo5 = "Zoo5 "+uid;
+		new KatelloProvider(this.providerAutoDiscoverFileZoo5, this.org_name, "Zoo provider - autodiscovery via file", null).create();
+		new KatelloProduct(this.productAutoDiscoverFileZoo5, this.org_name, this.providerAutoDiscoverFileZoo5, null, null, null, null, null).create();
+		KatelloRepo _repo = new KatelloRepo("_zoo5", this.org_name, this.productAutoDiscoverFileZoo5, "file://"+url, null, null);
+		SSHCommandResult res = _repo.discover(this.providerAutoDiscoverFileZoo5);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check  -return code");
+		Assert.assertTrue(getOutput(_repo.custom_reposCount(null)).equals("1"), "Check - 1 repo was prepared");
+	}
+	
+	/**
+	 * @see https://github.com/gkhachik/katello-api/issues/283
+	 */
+	@Test(description="Auto-discovered repositories can be synced and promoted",
+			dependsOnMethods={"test_discoverRepo_MultiRepos_HttpMethod","test_discoverRepo_SingleRepo_FileMethod"})
+	public void test_syncAndPromoteAutoDiscoveredRepos(){
+		String uid = KatelloUtils.getUniqueID();
+		String env_testing = "Testing "+uid;
+		SSHCommandResult res = new KatelloEnvironment(env_testing, null, this.org_name, KatelloEnvironment.LIBRARY).cli_create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check  -return code"); // we need to have the env. created.
+		
+		KatelloProduct prodPulpV2 = new KatelloProduct(this.productAutoDiscoverHttpPulpV2, this.org_name, this.providerAutoDiscoverHttpPulpV2, null, null, null, null, null);
+		res = prodPulpV2.synchronize();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check  -return code");
+		
+		KatelloProduct prodZoo5 = new KatelloProduct(this.productAutoDiscoverFileZoo5, this.org_name, this.providerAutoDiscoverFileZoo5, null, null, null, null, null);
+		res = prodZoo5.synchronize();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check  -return code");
+		
+		KatelloChangeset csTwoProds = new KatelloChangeset("cs-"+productAutoDiscoverHttpPulpV2, this.org_name, env_testing);
+		csTwoProds.create();
+		csTwoProds.update_addProduct(productAutoDiscoverHttpPulpV2);
+		csTwoProds.update_addProduct(productAutoDiscoverFileZoo5);
+		res = csTwoProds.apply();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check  -return code");
+		Assert.assertTrue(getOutput(res).contains(String.format(KatelloChangeset.OUT_APPLIED,csTwoProds.name)), "Check - stdout successfully applied");
+		
+		// HTTP. Check - packages synced and promoted too.
+		assert_allRepoPackagesSynced(this.org_name, this.productAutoDiscoverHttpPulpV2, env_testing, 8);
+		
+		// FTP. Check - packages synced and promoted too.
+		assert_allRepoPackagesSynced(this.org_name, this.productAutoDiscoverFileZoo5, env_testing, 1);
+	}
+	
 	private void assert_repoInfo(KatelloRepo repo) {
 		if (repo.gpgkey == null) repo.gpgkey = "";
 		if (repo.progress == null) repo.progress = "Not synced";
@@ -308,6 +393,19 @@ public class RepoTests extends KatelloCliTestScript {
 		return repo;
 	}
 	
-	
+	private void assert_allRepoPackagesSynced(String orgname, String productname, String envname, int repoCount){
+		if(envname==null) envname = KatelloEnvironment.LIBRARY;
+		KatelloRepo repo = new KatelloRepo(null, orgname, productname, null, null, null);
+		SSHCommandResult res = repo.list(envname);
+		int repoCnt = new Integer(getOutput(repo.custom_reposCount(envname))).intValue();
+		Assert.assertTrue(repoCnt==repoCount, "Assert - all repos are promoted");
+		String repoName; int pkgCount;
+		for(int i=0;i<repoCnt;i++){
+			repoName = KatelloCli.grepCLIOutput("Name", getOutput(res), (i+1));
+			pkgCount = new Integer(getOutput(new KatelloPackage(null, null, orgname, 
+					productname, repoName, envname).custom_packagesCount(null))).intValue();
+			Assert.assertTrue(pkgCount>0, "Check - packages are synced for: "+repoName);
+		}
+	}
 
 }

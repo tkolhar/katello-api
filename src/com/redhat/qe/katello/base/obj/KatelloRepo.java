@@ -243,9 +243,23 @@ public class KatelloRepo extends _KatelloObject{
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("environment", environment));
+		opts.add(new Attribute("product", product)); // gkhachik - added, seems was missing.
 		opts.add(new Attribute("product_label", product_label));
 		opts.add(new Attribute("product_id", product_id));
 		return run(CMD_LIST);
+	}
+	
+	public SSHCommandResult custom_reposCount(String environment){
+		opts.clear();
+		if(environment == null) 
+			environment = KatelloEnvironment.LIBRARY;
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("environment", environment));
+		opts.add(new Attribute("product", product));
+		opts.add(new Attribute("product_label", product_label));
+		opts.add(new Attribute("product_id", product_id));
+		return runExt(CMD_LIST, " | grep -e \"^Name.*\\:\" | wc -l"); // -v option here in the command is really important
 	}
 
 	// ** ** ** ** ** ** **
