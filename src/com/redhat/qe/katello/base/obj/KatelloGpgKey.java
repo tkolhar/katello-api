@@ -8,6 +8,8 @@ public class KatelloGpgKey extends _KatelloObject{
 			"gpg-pubkey-f78fb195-4f0d5ba1";
 	public static final String REPO_GPG_FILE_ZOO = 
 			"http://inecas.fedorapeople.org/fakerepos/zoo/RPM-GPG-KEY-dummy-packages-generator";
+	public static final String FILE_GPG_GKHACHIK_KATELLO_API = 
+			"GKHACHIK-KATELLO-API-RPM-GPG-KEY";
 	
 	// ** ** ** ** ** ** ** Public constants
 	public static final String CLI_CMD_CREATE = "gpg_key create";
@@ -22,9 +24,9 @@ public class KatelloGpgKey extends _KatelloObject{
 
 	public static final String REGEXP_GPG = ".*Name\\s*:\\s+%s.*";
 	// ** ** ** ** ** ** ** Class members
-	String name;
-	String org;
-	String file;
+	public String name;
+	public String org;
+	public String file;
 		
 	public KatelloGpgKey(String pName, String pOrg, String pFile){
 		this.name = pName;

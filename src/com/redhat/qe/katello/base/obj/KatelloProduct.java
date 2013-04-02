@@ -279,6 +279,16 @@ public class KatelloProduct extends _KatelloObject{
 		return run(CMD_UPDATE);
 	}
 	
+	public SSHCommandResult update_gpgkey(String gpgkey, boolean recursive){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("gpgkey", gpgkey));
+		if(recursive)
+			opts.add(new Attribute("recursive",""));
+		return run(CMD_UPDATE);
+	}
+
 	// ** ** ** ** ** ** **
 	// ASSERTS
 	// ** ** ** ** ** ** **
