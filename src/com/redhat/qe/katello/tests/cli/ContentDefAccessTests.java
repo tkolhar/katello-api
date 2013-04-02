@@ -118,4 +118,40 @@ public class ContentDefAccessTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode() == 147, "Check - error code");
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentView.ERR_CREATE_DENIED, this.user_create)), "Check - error string (content create)");
 	}
+
+	//@ TODO bug 947464
+	@Test(description="try to delete content definition without permissions", dependsOnMethods={"test_CreateAccess"})
+	public void test_DeleteNoAccess() {
+		KatelloUser user = new KatelloUser(user_create, "root@localhost", KatelloUser.DEFAULT_USER_PASS, false);
+		KatelloContentView content = new KatelloContentView(content_name1, "description", org_name, content_name1);
+		content.runAs(user);
+		exec_result = content.definition_delete();
+		Assert.assertTrue(exec_result.getExitCode()==147, "Check = error code (delete content definition)");
+		// TODO check error message User #{} is not allowed to access #{}
+		//Assert.assertTrue()
+	}
+
+	//@ TODO bug 947464
+	@Test(description="check permissions to delete content definition", dependsOnMethods={"test_DeleteNoAccess"})
+	public void test_DeleteAccess() {
+		// delete old permission
+		KatelloPermission perm = new KatelloPermission(perm_create, this.org_name, "content_view_definitions", null,
+				"read,create", this.role_create);
+		exec_result = perm.delete();
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (perm delete)");
+		// create new one with delete privileges
+		perm = new KatelloPermission(perm_create, this.org_name, "content_view_definitions", null,
+				"read,delete,create", this.role_create);
+		exec_result = perm.create();
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (perm create)");
+
+		// now delete that content definition
+		KatelloUser user = new KatelloUser(user_create, "root@localhost", KatelloUser.DEFAULT_USER_PASS, false);
+		KatelloContentView content = new KatelloContentView(content_name1, "description", org_name, content_name1);
+		content.runAs(user);
+		exec_result = content.definition_delete();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check - return code (delete content definition)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentView.OUT_DELETE_DEFINITION, content_name1)), "Check - output message");
+	}
+
 }
