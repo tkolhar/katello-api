@@ -68,4 +68,10 @@
 		</classes>
 	</test>
 	
+	<test name="Longrun_Tests">
+		<classes>
+			<class name="com.redhat.qe.katello.tests.longrun.ContentTest"/>
+		</classes>
+	</test>
+
 </suite>
