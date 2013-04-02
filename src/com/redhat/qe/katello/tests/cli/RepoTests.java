@@ -1,5 +1,6 @@
 package com.redhat.qe.katello.tests.cli;
 
+import java.io.File;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -21,6 +22,7 @@ import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.base.obj.KatelloUser;
 import com.redhat.qe.katello.common.KatelloUtils;
+import com.redhat.qe.tools.SCPTools;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups = { "cfse-cli" })
@@ -346,6 +348,73 @@ public class RepoTests extends KatelloCliTestScript {
 		assert_allRepoPackagesSynced(this.org_name, this.productAutoDiscoverFileZoo5, env_testing, 1);
 	}
 	
+	/**
+	 * @see https://github.com/gkhachik/katello-api/issues/284
+	 */
+	@Test(description="Auto-discovered repositories can use GPG keys from product")
+	public void test_discoverRepo_addGPGBeforeDiscovery(){
+		// send gpg key to the server /tmp
+		SCPTools scp = new SCPTools(
+				System.getProperty("katello.client.hostname", "localhost"), 
+				System.getProperty("katello.client.ssh.user", "root"), 
+				System.getProperty("katello.client.sshkey.private", ".ssh/id_hudson_dsa"), 
+				System.getProperty("katello.client.sshkey.passphrase", "null"));
+		Assert.assertTrue(scp.sendFile("data"+File.separator+KatelloGpgKey.FILE_GPG_GKHACHIK_KATELLO_API, "/tmp"),
+				KatelloGpgKey.FILE_GPG_GKHACHIK_KATELLO_API+" sent successfully");
+		
+		String uid = KatelloUtils.getUniqueID();
+		String url = REPO_DISCOVER_PULP_V2_ALL;
+		String providername = "PulpGPG Before "+uid;
+		String productname = "PulpGPG Before V2 "+uid;
+
+		KatelloGpgKey key = new KatelloGpgKey("katello-api-"+uid, this.org_name, "/tmp/"+KatelloGpgKey.FILE_GPG_GKHACHIK_KATELLO_API);
+		SSHCommandResult res = key.cli_create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check  -return code");
+		
+		new KatelloProvider(providername, this.org_name, null, null).create();
+		new KatelloProduct(productname, this.org_name, providername, null, null, null, null, null).create();
+		res = new KatelloProduct(productname, this.org_name, 
+				providername, null, null, null, null, null).update_gpgkey(key.name);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check  -return code");
+		KatelloRepo _repo = new KatelloRepo("pulp-v2", this.org_name, productname, url, null, null);
+		res = _repo.discover(providername);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check  -return code");
+		Assert.assertTrue(getOutput(_repo.custom_reposCount(null)).equals("8"), "Check - 8 repos were prepared");
+		
+		assert_allReposGPGAssigned(this.org_name, productname, key.name);
+	}
+	
+	/**
+	 * @see https://github.com/gkhachik/katello-api/issues/285
+	 */
+	@Test(description="Auto-discovered repositories can use GPG keys after creation", dependsOnMethods={"test_discoverRepo_addGPGBeforeDiscovery"})
+	public void test_discoverRepo_addGPGAfterDiscovery(){
+		String uid = KatelloUtils.getUniqueID();
+		String url = REPO_DISCOVER_PULP_V2_ALL;
+		String providername = "PulpGPG After "+uid;
+		String productname = "PulpGPG After V2 "+uid;
+
+		KatelloGpgKey key = new KatelloGpgKey("katello-api-"+uid, this.org_name, "/tmp/"+KatelloGpgKey.FILE_GPG_GKHACHIK_KATELLO_API);
+		SSHCommandResult res = key.cli_create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check  -return code");
+		
+		new KatelloProvider(providername, this.org_name, null, null).create();
+		new KatelloProduct(productname, this.org_name, providername, null, null, null, null, null).create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check  -return code");
+		KatelloRepo _repo = new KatelloRepo("pulp-v2", this.org_name, productname, url, null, null);
+		res = _repo.discover(providername);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check  -return code");
+		Assert.assertTrue(getOutput(_repo.custom_reposCount(null)).equals("8"), "Check - 8 repos were prepared");
+		
+		assert_allReposGPGAssigned(this.org_name, productname, "");
+
+		res = new KatelloProduct(productname, this.org_name, 
+				providername, null, null, null, null, null).update_gpgkey(key.name,true);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check  -return code");
+
+		assert_allReposGPGAssigned(this.org_name, productname, key.name);
+	}
+			
 	private void assert_repoInfo(KatelloRepo repo) {
 		if (repo.gpgkey == null) repo.gpgkey = "";
 		if (repo.progress == null) repo.progress = "Not synced";
@@ -405,6 +474,19 @@ public class RepoTests extends KatelloCliTestScript {
 			pkgCount = new Integer(getOutput(new KatelloPackage(null, null, orgname, 
 					productname, repoName, envname).custom_packagesCount(null))).intValue();
 			Assert.assertTrue(pkgCount>0, "Check - packages are synced for: "+repoName);
+		}
+	}
+	
+	private void assert_allReposGPGAssigned(String orgname, String productname, String gpgName){
+		String repoName; SSHCommandResult res;
+		KatelloRepo repo = new KatelloRepo(null, orgname, productname, null, null, null);
+		SSHCommandResult resRepoList = repo.list();
+		int repoCount = new Integer(getOutput(repo.custom_reposCount(null))).intValue();
+		for(int i=0;i<repoCount;i++){
+			repoName = KatelloCli.grepCLIOutput("Name", getOutput(resRepoList), (i+1));
+			res = new KatelloRepo(repoName, orgname, productname, null, null, null).info();
+			String __gpg = KatelloCli.grepCLIOutput("GPG Key", getOutput(res));
+			Assert.assertTrue(gpgName.equals(__gpg), "Check - gpg is assigned for: "+repoName);
 		}
 	}
 
