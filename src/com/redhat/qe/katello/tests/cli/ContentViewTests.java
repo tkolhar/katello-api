@@ -134,9 +134,7 @@ public class ContentViewTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
 		exec_result = act_key.info();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
-		
-		exec_result = condef.definition_info();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");		
+		Assert.assertTrue(getOutput(exec_result).contains(this.conview_name), "Content view name is in output.");
 	}
 	
 	@Test(description = "register client via activation key",groups={"cfse-cli"}, dependsOnMethods={"test_addContentView"})
@@ -163,6 +161,17 @@ public class ContentViewTests extends KatelloCliTestScript{
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("Remote action finished"));
 		Assert.assertTrue(getOutput(exec_result).trim().contains("Erratum Install Complete"));
+	}
+	
+	//@ TODO will fail because of 947859
+	@Test(description = "Remove a published content view to an activation key",groups={"cfse-cli"}, dependsOnMethods={"test_ConsumeErrata"})
+	public void test_removeContentView() {
+		
+		exec_result = act_key.update_remove_content_view();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
+		exec_result = act_key.info();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
+		Assert.assertFalse(getOutput(exec_result).contains(this.conview_name), "Content view name is not in output.");
 	}
 	
 	@AfterClass
