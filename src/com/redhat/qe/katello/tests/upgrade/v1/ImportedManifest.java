@@ -7,6 +7,7 @@ import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloGpgKey;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
+import com.redhat.qe.katello.base.obj.KatelloUser;
 import com.redhat.qe.katello.common.KatelloConstants;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
@@ -30,12 +31,16 @@ public class ImportedManifest implements KatelloConstants {
 	String _perm_3;
 	String _system;
 	String _org;
+	String _neworg;
+	String _newuser;
+	String _newsystem;
 
 	@Test(description="init object unique names", 
 			groups={TNG_PRE_UPGRADE})
 	public void init(){
 		String _uid = KatelloUtils.getUniqueID();
 		_org = "torg"+_uid;
+		_neworg = "neworg"+_uid;
 		_env_1 = "Dev_" + _uid;
 		_env_2 = "QA_" + _uid;
 		_env_3 = "GA_" + _uid;
@@ -46,6 +51,8 @@ public class ImportedManifest implements KatelloConstants {
 		_perm_2 = "Perm2_" + _uid;
 		_perm_3 = "Perm3_" + _uid;
 		_system = "Dakar_" + _uid;
+		_newuser = "newuser" + _uid;
+		_newsystem = "newsystem" + _uid;
 	}
 	
 	@Test(description="prepare all test data, orgs environments and repos", 
@@ -95,5 +102,39 @@ public class ImportedManifest implements KatelloConstants {
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (env info)");
 	}
 
+	@Test(description="verify it is possible to create org", 
+			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE}, 
+			groups={TNG_POST_UPGRADE})
+	public void checkOrgCreate(){
+		KatelloOrg org = new KatelloOrg(_neworg, null);
+		SSHCommandResult res = org.cli_create();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (org create)");		
+	}
+
+	@Test(description="verify it is possible to remove org", 
+			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE}, 
+			groups={TNG_POST_UPGRADE}, dependsOnMethods={"checkOrgCreate"})
+	public void checkOrgRemove(){
+		KatelloOrg org = new KatelloOrg(_neworg, null);
+		SSHCommandResult res = org.delete();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (org remove)");		
+	}
 	
+	@Test(description="verify it is possible to create user", 
+			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE}, 
+			groups={TNG_POST_UPGRADE})
+	public void checkUserCreate(){
+		KatelloUser user = new KatelloUser(_newuser, "newuser@localhost", "redhat", false);
+		SSHCommandResult res = user.cli_create();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (user create)");	
+	}
+
+	@Test(description="verify it is possible to remove user", 
+			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE}, 
+			groups={TNG_POST_UPGRADE}, dependsOnMethods={"checkUserCreate"})
+	public void checkUserRemove(){
+		KatelloUser user = new KatelloUser(_newuser, "newuser@localhost", "redhat", false);
+		SSHCommandResult res = user.delete();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (user remove)");		
+	}
 }
