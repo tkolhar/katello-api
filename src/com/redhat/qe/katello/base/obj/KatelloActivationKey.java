@@ -109,6 +109,15 @@ public class KatelloActivationKey extends _KatelloObject{
 		opts.add(new Attribute("content_view", pubView));
 		return run(CMD_UPDATE);
 	}
+
+	// @ TODO BZ 947859
+	public SSHCommandResult update_remove_content_view(){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("environment", environment));
+		return run(CMD_UPDATE);
+	}
 	
 	public SSHCommandResult update_remove_subscription(String subscriptionId){
 		opts.clear();

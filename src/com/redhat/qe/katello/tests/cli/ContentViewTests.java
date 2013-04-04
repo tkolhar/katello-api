@@ -38,7 +38,8 @@ public class ContentViewTests extends KatelloCliTestScript{
 	String pubview_name = "pubview-" + uid;
 	String act_key_name = "act_key" + uid;
 	String prod_name2 = "prodcon2-" + uid;
-	String repo_name2 = "repo_name2-" + uid; 
+	String repo_name2 = "repo_name2-" + uid;
+	String group_name = "group" + uid;
 	String system_name1 = "system" + uid;
 	String system_uuid1;
 	
@@ -103,13 +104,10 @@ public class ContentViewTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 				
 		// The only way to install ERRATA on System is by system group
-		group = new KatelloSystemGroup("", this.org_name);
+		group = new KatelloSystemGroup(group_name, this.org_name);
 		exec_result = group.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		KatelloUtils.sshOnClient("yum erase -y walrus");
-		exec_result = KatelloUtils.sshOnClient("yum install -y walrus-0.71-1.noarch");
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		KatelloUtils.sshOnClient("sed -i -e \"s/certFrequency.*/certFrequency = 1/\" /etc/rhsm/rhsm.conf");
 		KatelloUtils.sshOnClient("service rhsmcertd restart");
 		yum_clean();
@@ -134,9 +132,7 @@ public class ContentViewTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
 		exec_result = act_key.info();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
-		
-		exec_result = condef.definition_info();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");		
+		Assert.assertTrue(getOutput(exec_result).contains(this.pubview_name), "Content view name is in output.");
 	}
 	
 	@Test(description = "register client via activation key",groups={"cfse-cli"}, dependsOnMethods={"test_addContentView"})
@@ -152,6 +148,10 @@ public class ContentViewTests extends KatelloCliTestScript{
 	
 	@Test(description = "consume Errata content",groups={"cfse-cli"}, dependsOnMethods={"test_registerClient"})
 	public void test_ConsumeErrata(){
+		KatelloUtils.sshOnClient("yum erase -y walrus");
+		exec_result = KatelloUtils.sshOnClient("yum install -y walrus-0.71-1.noarch");
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
 		KatelloErrata ert = new KatelloErrata(ERRATA_ZOO_SEA, this.org_name, this.prod_name, this.repo_name, this.env_name);
 		exec_result = ert.info();
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (errata info --environment Dev)");
@@ -163,6 +163,17 @@ public class ContentViewTests extends KatelloCliTestScript{
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("Remote action finished"));
 		Assert.assertTrue(getOutput(exec_result).trim().contains("Erratum Install Complete"));
+	}
+	
+	//@ TODO will fail because of 947859
+	@Test(description = "Remove a published content view to an activation key",groups={"cfse-cli"}, dependsOnMethods={"test_ConsumeErrata"})
+	public void test_removeContentView() {
+		
+		exec_result = act_key.update_remove_content_view();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
+		exec_result = act_key.info();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
+		Assert.assertFalse(getOutput(exec_result).contains(this.pubview_name), "Content view name is not in output.");
 	}
 	
 	@AfterClass
