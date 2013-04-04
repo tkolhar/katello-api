@@ -273,42 +273,50 @@ public class OrgTests extends KatelloCliTestScript{
 	@Test(description = "Attempt to upload an already imported manifest in a different ORG",groups={"cfse-cli","headpin-cli"})
 	public void test_UploadManifestDiffOrg(){
 
+		KatelloProvider providerRH;
 		String uniqueID = KatelloUtils.getUniqueID();
 		String org_name = "Raleigh-" + uniqueID;
 		String diff_org_name = "Durham-" + uniqueID;
-		KatelloOrg org = new KatelloOrg(org_name,null);
-		KatelloOrg diff_org = null;
-		exec_result = org.cli_create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		KatelloProvider provider = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT,org_name,null,null);
+
+		// upload the manifest to server.
 		SCPTools scp = new SCPTools(
 				System.getProperty("katello.server.hostname", "localhost"), 
 				System.getProperty("katello.server.ssh.user", "root"), 
 				System.getProperty("katello.server.sshkey.private", ".ssh/id_hudson_dsa"), 
 				System.getProperty("katello.server.sshkey.passphrase", "null"));
 		Assert.assertTrue(scp.sendFile("data"+File.separator+"stack-manifest.zip", "/tmp"),
-				"stack-manifest.zip sent successfully");			
-		try {
-		exec_result = provider.import_manifest("/tmp"+File.separator+"stack-manifest.zip", new Boolean(true));
+				"stack-manifest.zip sent successfully"); // check it's uploaded ok.			
+		
+		// create org-1
+		KatelloOrg org = new KatelloOrg(org_name,null);
+		exec_result = org.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		diff_org = new KatelloOrg(diff_org_name,null);
+
+		// create org-2
+		KatelloOrg diff_org = new KatelloOrg(diff_org_name,null);
 		exec_result = diff_org.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		provider = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT,diff_org_name,null,null);
-		exec_result = provider.import_manifest("/tmp"+File.separator+"stack-manifest.zip", new Boolean(true));
-		Assert.assertTrue(exec_result.getExitCode().intValue() == 144, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).contains("This subscription management application has already been imported by another owner."),"Check - return string");
-		} finally {
-		exec_result  = org.delete();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		if (diff_org != null) {
-			exec_result = diff_org.delete();
+
+		try {
+			// import manifest for the org-1
+			providerRH = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT,org_name,null,null);
+			exec_result = providerRH.import_manifest("/tmp"+File.separator+"stack-manifest.zip", new Boolean(true));
 			Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		}
+			
+			// now try to import the _same_ manifest for another org. 
+			providerRH = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT,diff_org_name,null,null);
+			exec_result = providerRH.import_manifest("/tmp"+File.separator+"stack-manifest.zip", new Boolean(true));
+			Assert.assertTrue(exec_result.getExitCode().intValue() == 144, "Check - return code");
+			Assert.assertTrue(getOutput(exec_result).contains("This subscription management application has already been imported by another owner."),"Check - return string");
+		} finally {
+			exec_result  = org.delete();
+			Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+			if (diff_org != null) {
+				exec_result = diff_org.delete();
+				Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+			}
 		}
 	}
-
- 	
 
 	@Test(description = "Attempt to upload an already imported manifest in the same ORG",groups={"cfse-cli","headpin-cli"})
 	public void test_UploadManifestSameOrg(){
