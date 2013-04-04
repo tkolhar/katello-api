@@ -180,7 +180,7 @@ public class ContentDefAccessTests extends KatelloCliTestScript{
 	}
 
 	//@ TODO bug 947464
-	@Test(description="check permissions to delete content definition", dependsOnMethods={"test_CreateAccess"})
+	@Test(description="check permissions to delete content definition")
 	public void test_DeleteAccess() {
 		KatelloUser user = new KatelloUser(user_delete, "root@localhost", KatelloUser.DEFAULT_USER_PASS, false);
 		KatelloContentView content = new KatelloContentView(content_name3, "description", org_name, content_name3);
