@@ -140,6 +140,7 @@ public class KatelloContentView extends _KatelloObject{
 		opts.clear();
 		opts.add(new Attribute("id", this.id));
 		opts.add(new Attribute("org", this.org));
+		opts.add(new Attribute("label", this.label));
 		return run(CMD_DEFINITION_DELETE);
 	}
 	
