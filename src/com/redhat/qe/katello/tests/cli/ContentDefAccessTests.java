@@ -30,6 +30,13 @@ public class ContentDefAccessTests extends KatelloCliTestScript{
 	private String perm_create;
 	private String content_name1;
 	private String content_name2;
+	private String content_name3;
+	private String user_delete;
+	private String role_delete;
+	private String perm_delete;
+	private String user_read;
+	private String role_read;
+	private String perm_read;
 	
 	
 	@BeforeClass(description="init: create initial stuff")
@@ -42,8 +49,15 @@ public class ContentDefAccessTests extends KatelloCliTestScript{
 		user_create = "user1"+uid;
 		role_create = "role1"+uid;
 		perm_create = "perm1"+uid;
+		user_delete = "user2"+uid;
+		role_delete = "role2"+uid;
+		perm_delete = "perm2"+uid;
+		user_read = "user3"+uid;
+		role_read = "role3"+uid;
+		perm_read = "perm3"+uid;
 		content_name1 = "content1"+uid;
 		content_name2 = "content2"+uid;
+		content_name3 = "content3"+uid;
 		
 		// Create org:
 		KatelloOrg org = new KatelloOrg(this.org_name, "Permission tests");
@@ -85,7 +99,42 @@ public class ContentDefAccessTests extends KatelloCliTestScript{
 		exec_result = user.assign_role(this.role_create);
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (user assign_role)");
 		
+		// user delete
+		KatelloUser user2 = new KatelloUser(user_delete, "root@localhost", KatelloUser.DEFAULT_USER_PASS, false);
+		exec_result = user2.cli_create();
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (user create)");
+
+		KatelloUserRole role2 = new KatelloUserRole(role_delete, "delete content definition");
+		exec_result = role2.create();
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (user_role create)");
+
+		KatelloPermission perm2 = new KatelloPermission(perm_delete, this.org_name, "content_view_definitions", null,
+				"read,delete", this.role_delete);
+		exec_result = perm2.create();
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (perm create)");
+		exec_result = user2.assign_role(role_delete);
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (user assign_role)");
+
+		// user read
+		KatelloUser user3 = new KatelloUser(user_read, "root@localhost", KatelloUser.DEFAULT_USER_PASS, false);
+		exec_result = user3.cli_create();
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (user create)");
 		
+		KatelloUserRole role3 = new KatelloUserRole(role_read, "delete content definition");
+		exec_result = role3.create();
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (user_role create)");
+
+		KatelloPermission perm3 = new KatelloPermission(perm_read, this.org_name, "content_view_definitions", null,
+				"read", this.role_read);
+		exec_result = perm3.create();
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (perm create)");
+		exec_result = user3.assign_role(role_read);
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (user assign_role)");
+
+		// content to delete
+		KatelloContentView content = new KatelloContentView(content_name3, "description", org_name, content_name3);
+		exec_result = content.create_definition();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
 
 	
@@ -118,4 +167,27 @@ public class ContentDefAccessTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode() == 147, "Check - error code");
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentView.ERR_CREATE_DENIED, this.user_create)), "Check - error string (content create)");
 	}
+
+	//@ TODO bug 947464
+	@Test(description="try to delete content definition without permissions", dependsOnMethods={"test_CreateAccess"})
+	public void test_DeleteNoAccess() {
+		KatelloUser user = new KatelloUser(user_read, "root@localhost", KatelloUser.DEFAULT_USER_PASS, false);
+		KatelloContentView content = new KatelloContentView(content_name1, "description", org_name, content_name1);
+		content.runAs(user);
+		exec_result = content.definition_delete();
+		Assert.assertTrue(exec_result.getExitCode()==147, "Check = error code (delete content definition)");
+		// TODO check error message User ?? is not allowed to access ??
+	}
+
+	//@ TODO bug 947464
+	@Test(description="check permissions to delete content definition")
+	public void test_DeleteAccess() {
+		KatelloUser user = new KatelloUser(user_delete, "root@localhost", KatelloUser.DEFAULT_USER_PASS, false);
+		KatelloContentView content = new KatelloContentView(content_name3, "description", org_name, content_name3);
+		content.runAs(user);
+		exec_result = content.definition_delete();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check - return code (delete content definition)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentView.OUT_DELETE_DEFINITION, content_name3)), "Check - output message");
+	}
+
 }
