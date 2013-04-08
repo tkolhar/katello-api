@@ -111,11 +111,16 @@ public class KatelloContentView extends _KatelloObject{
 	}
 
 	public SSHCommandResult create_definition(){		
+		return create_definition(false);
+	}
+
+	public SSHCommandResult create_definition(boolean isComposite){		
 		opts.clear();
 		opts.add(new Attribute("name", this.name));
 		opts.add(new Attribute("description", this.description));
 		opts.add(new Attribute("label", this.label));
 		opts.add(new Attribute("org", this.org));
+		if (isComposite) opts.add(new Attribute("composite", "true"));
 		return run(CMD_DEFINITION_CREATE);
 	}
 	

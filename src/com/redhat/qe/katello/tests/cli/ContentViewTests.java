@@ -35,6 +35,7 @@ public class ContentViewTests extends KatelloCliTestScript{
 	String prod_name = "prodcon-"+ uid;
 	String repo_name = "repocon-" + uid;
 	String changeset_name = "changecon-" + uid;
+	String comp_changeset_name = "comp_changeset-" + uid;
 	String condef_name = "condef-" + uid;
 	String conview_name = "conview-" + uid;
 	String pubview_name = "pubview-" + uid;
@@ -47,11 +48,13 @@ public class ContentViewTests extends KatelloCliTestScript{
 	String pubview_name2_2 = "pubview2-2" + uid;
 	String pubcompview_name1 = "pubcompview1" + uid;
 	String act_key_name = "act_key" + uid;
+	String act_key_name2 = "act_key2" + uid;
 	String prod_name2 = "prodcon2-" + uid;
 	String repo_name2 = "repo_name2-" + uid;
 	String group_name = "group" + uid;
 	String system_name1 = "system" + uid;
 	String system_uuid1;
+	String system_name2 = "system2" + uid;
 	String prov_local1_name = "provlocal1-" + uid;
 	String prod_local1_name = "prodlocal1-"+ uid;
 	String repo_local1_name = "repolocal1-" + uid;
@@ -79,12 +82,15 @@ public class ContentViewTests extends KatelloCliTestScript{
 	KatelloProduct prod2;
 	KatelloRepo repo2;
 	KatelloChangeset changeset;
+	KatelloChangeset comp_changeset;
 	KatelloContentView condef;
 	KatelloContentView condef1;
 	KatelloContentView condef2;
 	KatelloContentView compcondef;
 	KatelloActivationKey act_key;
+	KatelloActivationKey act_key2;
 	KatelloSystem sys;
+	KatelloSystem sys2;
 	KatelloSystemGroup group;
 	
 	@BeforeClass(description="Generate unique objects")
@@ -257,17 +263,72 @@ public class ContentViewTests extends KatelloCliTestScript{
 
 	@Test(description="Create composite content view definition")
 	public void test_createComposite() {
-		//@ TODO
+		compcondef = new KatelloContentView(condef_composite_name,null,org_name2,null);
+		exec_result = condef.create_definition(true);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		exec_result = condef.add_view(pubview_name1_2);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
+		
+		exec_result = condef.add_view(pubview_name2_2);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		exec_result = condef.publish(pubcompview_name1, pubcompview_name1, "Publish Content");
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");		
 	}
 	
 	@Test(description="Check adding old views into composite content view definition", dependsOnMethods={"test_createComposite"})
 	public void test_checkOldViewsIntoComposite() {
-		//@ TODO
+		exec_result = condef.add_view(pubview_name1_1);
+		Assert.assertTrue(exec_result.getExitCode() == 147, "Check - return code");	
+		
+		exec_result = condef.add_view(pubview_name2_1);
+		Assert.assertTrue(exec_result.getExitCode() == 147, "Check - return code");
 	}
 	
 	@Test(description="Consume content from composite content view definition", dependsOnMethods={"test_checkOldViewsIntoComposite"})
 	public void test_consumeCompositeContent() {
-		//@ TODO
+		// erase packages
+		exec_result = KatelloUtils.sshOnClient("yum erase -y wolf");
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		exec_result = KatelloUtils.sshOnClient("yum erase -y shark");
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		exec_result = KatelloUtils.sshOnClient("yum erase -y cheetah");
+		Assert.assertTrue(exec_result.getExitCode() == 1, "Check - return code");
+		
+		comp_changeset = new KatelloChangeset(comp_changeset_name,org_name2,env_name2);
+		exec_result = comp_changeset.create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		exec_result = comp_changeset.update_addView(pubcompview_name1);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");		
+		exec_result = comp_changeset.apply();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
+		
+		act_key2 = new KatelloActivationKey(org_name2, env_name2, act_key_name2, "Act key2 created");
+		exec_result = act_key2.create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
+		exec_result = act_key2.update_add_content_view(pubcompview_name1);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
+		exec_result = act_key2.info();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
+		Assert.assertTrue(getOutput(exec_result).contains(this.pubcompview_name1), "Content view name is in output.");
+		
+		KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);
+		sys = new KatelloSystem(system_name2, this.org_name2, null);
+		exec_result = sys.rhsm_registerForce(act_key_name2);
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		
+		//install package from content view 1
+		exec_result = KatelloUtils.sshOnClient("yum install -y wolf");
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		//install package from content view 2
+		exec_result = KatelloUtils.sshOnClient("yum install -y shark");
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		//package should not be available to install
+		exec_result = KatelloUtils.sshOnClient("yum install -y cheetah");
+		Assert.assertTrue(exec_result.getExitCode() == 1, "Check - return code");
 	}
 	
 	/**
