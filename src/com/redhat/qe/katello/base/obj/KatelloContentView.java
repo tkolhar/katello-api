@@ -161,6 +161,8 @@ public class KatelloContentView extends _KatelloObject{
 		opts.clear();
 		opts.add(new Attribute("name", this.name));
 		opts.add(new Attribute("description", new_description));
+		opts.add(new Attribute("org", this.org));
+		opts.add(new Attribute("label", this.label));
 		return run(CMD_DEFINITION_UPDATE);
 	}
 
