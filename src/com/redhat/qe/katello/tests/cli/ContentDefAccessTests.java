@@ -242,4 +242,31 @@ public class ContentDefAccessTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode()==147, "Check - error code (publish content)");
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentView.ERR_PUBLISH_DENIED, user_read)), "Check - error string (content create)");
 	}
+
+	@Test(description="read access to content definition")
+	public void test_ReadAccess() {
+		KatelloUser user = new KatelloUser(user_read, "root@localhost", KatelloUser.DEFAULT_USER_PASS, false);
+		KatelloContentView content = new KatelloContentView(content_publish1, "description", org_name, content_publish1);
+		content.runAs(user);
+		exec_result = content.definition_info();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check - return code (content info)");
+		exec_result = content.definition_list();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check - return code (content list)");
+	}
+
+	@Test(description="no access to content definition")
+	public void test_ReadNoAccess() {
+		String uid = KatelloUtils.getUniqueID();
+		String user_nobody = "nobody" + uid;
+		KatelloUser user = new KatelloUser(user_nobody, "root@localhost", KatelloUser.DEFAULT_USER_PASS, false);
+		exec_result = user.cli_create();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check - return code (acreted user)");
+		KatelloContentView content = new KatelloContentView(content_publish1, "description", org_name, content_publish1);
+		content.runAs(user);
+		exec_result = content.definition_info();
+		Assert.assertTrue(exec_result.getExitCode()==147, "Check - return code (content info)");
+		exec_result = content.definition_list();
+		Assert.assertTrue(exec_result.getExitCode()==147, "Check - return code (content list)");
+	}
+
 }
