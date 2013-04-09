@@ -136,7 +136,7 @@ public class ContentDefAccessTests extends KatelloCliTestScript{
 
 		KatelloPermission perm3 = new KatelloPermission(perm_read, this.org_name, "content_view_definitions", null,
 				"read", this.role_read);
-		exec_result = perm3.create();
+		exec_result = perm3.create(true);
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (perm create)");
 		exec_result = user3.assign_role(role_read);
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (user assign_role)");
@@ -156,7 +156,7 @@ public class ContentDefAccessTests extends KatelloCliTestScript{
 
 		perm = new KatelloPermission(perm_publish, this.org_name, "content_view_definitions", null,
 				"read,update,publish", role_publish);
-		exec_result = perm.create();
+		exec_result = perm.create(true);
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (perm create)");
 
 		exec_result = user.assign_role(role_publish);
@@ -223,7 +223,6 @@ public class ContentDefAccessTests extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentView.OUT_DELETE_DEFINITION, content_name3)), "Check - output message");
 	}
 
-	//@ TODO bug 947464
 	@Test(description="publish access")
 	public void test_PublishAccess() {
 		KatelloUser user = new KatelloUser(user_publish, "root@localhost", KatelloUser.DEFAULT_USER_PASS, false);
@@ -234,8 +233,7 @@ public class ContentDefAccessTests extends KatelloCliTestScript{
 		Assert.assertContainsMatch(getOutput(exec_result), "published successfully", null, "Check - output message (publish content)");
 	}
 
-	//@ TODO bug 947464
-	@Test(description="publish no access",dependsOnMethods={"test_PublishAccess"})
+	@Test(description="publish no access")
 	public void test_PublishNoAccess() {
 		KatelloUser user = new KatelloUser(user_read, "root@localhost", KatelloUser.DEFAULT_USER_PASS, false);
 		KatelloContentView content = new KatelloContentView(content_publish2, "description", org_name, content_publish2);
