@@ -120,7 +120,7 @@ public class ContentDefAccessTests extends KatelloCliTestScript{
 
 		KatelloPermission perm2 = new KatelloPermission(perm_delete, this.org_name, "content_view_definitions", null,
 				"read,delete", this.role_delete);
-		exec_result = perm2.create();
+		exec_result = perm2.create(true);
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (perm create)");
 		exec_result = user2.assign_role(role_delete);
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (user assign_role)");
@@ -201,7 +201,7 @@ public class ContentDefAccessTests extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentView.ERR_CREATE_DENIED, this.user_create)), "Check - error string (content create)");
 	}
 
-	//@ TODO bug 947464
+	//@ TODO bug 950420
 	@Test(description="try to delete content definition without permissions", dependsOnMethods={"test_CreateAccess"})
 	public void test_DeleteNoAccess() {
 		KatelloUser user = new KatelloUser(user_read, "root@localhost", KatelloUser.DEFAULT_USER_PASS, false);
@@ -209,10 +209,15 @@ public class ContentDefAccessTests extends KatelloCliTestScript{
 		content.runAs(user);
 		exec_result = content.definition_delete();
 		Assert.assertTrue(exec_result.getExitCode()==147, "Check = error code (delete content definition)");
-		// TODO check error message User ?? is not allowed to access ??
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentView.ERR_DELETE_DENIED, this.user_read)), "Check - error string (content delete)");
+		user = new KatelloUser(user_publish, "root@localhost", KatelloUser.DEFAULT_USER_PASS, false);
+		content.runAs(user);
+		exec_result = content.definition_delete();
+		Assert.assertTrue(exec_result.getExitCode()==147, "Check = error code (delete content definition)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentView.ERR_DELETE_DENIED, this.user_read)), "Check - error string (content delete)");
 	}
 
-	//@ TODO bug 947464
+	//@ TODO bug 950420
 	@Test(description="check permissions to delete content definition")
 	public void test_DeleteAccess() {
 		KatelloUser user = new KatelloUser(user_delete, "root@localhost", KatelloUser.DEFAULT_USER_PASS, false);
