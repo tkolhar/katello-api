@@ -57,6 +57,8 @@ public class KatelloContentView extends _KatelloObject{
 			"Couldn't find organization '%s'";
 	public static final String ERR_CREATE_DENIED = 
 			"User %s is not allowed to access api/content_view_definitions/create";
+	public static final String ERR_PUBLISH_DENIED =
+			"User %s is not allowed to access api/content_view_definitions/publish";
 	
 	public static final String REG_DEF_INFO = ".*ID\\s*:\\s+\\d+.*Name\\s*:\\s+%sLabel\\s*:\\s+%s.*Description\\s*:\\s+%s.*Org\\s*:\\s+%s.*Published Views\\s*:\\s+%s.*Component Views\\s*:\\s+%s.*Products\\s*:\\s+%s.*Repos\\s*:\\s*%s.*";
 	public static final String REG_DEF_LIST = ".*\\s+\\d+.*\\s+%s.*\\s+%s.*\\s+%s.*\\s+%s.*";
