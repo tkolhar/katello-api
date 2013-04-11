@@ -46,7 +46,15 @@ public class ContentDefAccessTests extends KatelloCliTestScript{
 	private String perm_publish;
 	private String content_publish1;
 	private String content_publish2;
-	
+	private String user_rpub;
+	private String role_rpub;
+	private String perm_rpub_v;
+	private String perm_rpub_d;
+	private String perm_rpub_o;
+	private String content_rpub1;
+	private String content_rpub2;
+	private String view_name1;
+	private String view_name2;
 	
 	@BeforeClass(description="init: create initial stuff")
 	public void setUp() {
@@ -73,9 +81,21 @@ public class ContentDefAccessTests extends KatelloCliTestScript{
 		user_publish = "user5"+uid;
 		role_publish = "role5"+uid;
 		perm_publish = "perm5"+uid;
+
 		user_modify = "user4"+uid;
 		role_modify = "role4"+uid;
 		perm_modify = "perm4"+uid;
+
+		user_rpub = "userrp"+uid;
+		role_rpub = "rolerp"+uid;
+		perm_rpub_v = "permrp1"+uid;
+		perm_rpub_d = "permrp2"+uid;
+		perm_rpub_o = "permrp3"+uid;
+		content_rpub1 = "contentrp1"+uid;
+		content_rpub2 = "contentrp2"+uid;
+		view_name1 = "view1"+uid;
+		view_name2 = "view2"+uid;
+
 		
 		// Create org:
 		KatelloOrg org = new KatelloOrg(this.org_name, "Permission tests");
@@ -196,8 +216,45 @@ public class ContentDefAccessTests extends KatelloCliTestScript{
 
 		exec_result = user.assign_role(role_modify);
 		Assert.assertTrue(exec_result.getExitCode()==0, "Check - exit code (assign role)");
-	}
 
+		// read published access stuff
+		content = new KatelloContentView(content_rpub1, "description", org_name, content_rpub1);
+		exec_result = content.create_definition();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check - exit code (content create)");
+
+		exec_result = content.publish(view_name1, view_name1, "description");
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check - exit code (content publish)");
+
+		content = new KatelloContentView(content_rpub2, "description", org_name, content_rpub2);
+		exec_result = content.create_definition();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check - exit code (content create)");
+
+		exec_result = content.publish(view_name2, view_name2, "description");
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check - exit code (content publish)");
+
+		user = new KatelloUser(user_rpub, KatelloUser.DEFAULT_USER_EMAIL, KatelloUser.DEFAULT_USER_PASS, false);
+		exec_result = user.cli_create();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check - exit code (user create)");
+
+		role = new KatelloUserRole(role_rpub, "read published content view");
+		exec_result = role.create();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check - exit code (role create)");
+
+		perm = new KatelloPermission(perm_rpub_v, org_name, "content_views", view_name1, "read", role_rpub);
+		exec_result = perm.create();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check - exit code (perm create)");
+
+		perm = new KatelloPermission(perm_rpub_d, org_name, "content_view_definitions", null, "create,delete,update,publish,read", role_rpub);
+		exec_result = perm.create(true);
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check - exit code (perm create)");
+
+		perm = new KatelloPermission(perm_rpub_o, org_name, "organizations", null, "read", role_rpub);
+		exec_result = perm.create(true);
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check - exit code (perm create)");
+
+		exec_result = user.assign_role(role_rpub);
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check - exit code (assign role)");
+	}
 	
 	@Test(description = "check access in creating new content definition")
 	public void test_CreateAccess() {
@@ -322,6 +379,32 @@ public class ContentDefAccessTests extends KatelloCliTestScript{
 		exec_result = content.definition_update("new description II");
 		Assert.assertTrue(exec_result.getExitCode()==147, "Check - exit code (update content)");
 		// TODO check error message
+	}
+
+	@Test(description="test read permission to content view")
+	public void test_ReadPublishedAccess() {
+		KatelloUser user = new KatelloUser(user_rpub, KatelloUser.DEFAULT_USER_EMAIL, KatelloUser.DEFAULT_USER_PASS, false);
+		KatelloContentView content = new KatelloContentView(view_name1, "description", org_name, view_name1);
+		content.runAs(user);
+		exec_result = content.view_list();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check - exit code (list views)");
+		Assert.assertTrue(getOutput(exec_result).contains(view_name1), "Check - output");
+		Assert.assertFalse(getOutput(exec_result).contains(view_name2), "Check - output");
+		exec_result = content.view_info();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check - exit code (list views)");
+	}
+
+	@Test(description="test read permission to content view")
+	public void test_ReadPublishedNoAccess() {
+		KatelloUser user = new KatelloUser(user_read, KatelloUser.DEFAULT_USER_EMAIL, KatelloUser.DEFAULT_USER_PASS, false);
+		KatelloContentView content = new KatelloContentView(view_name1, "description", org_name, view_name1);
+		content.runAs(user);
+		exec_result = content.view_list();
+		Assert.assertTrue(exec_result.getExitCode()==147, "Check - exit code (list views)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentView.ERR_VIEW_READ, this.user_read)), "Check - error string (view read)");
+		exec_result = content.view_info();
+		Assert.assertTrue(exec_result.getExitCode()==147, "Check - exit code (list views)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentView.ERR_VIEW_READ, this.user_read)), "Check - error string (view read)");
 	}
 
 }
