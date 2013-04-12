@@ -217,8 +217,8 @@ public class ContentViewTests extends KatelloCliTestScript{
 	
 	@AfterClass
 	public void tearDown() {
-//		exec_result = org.delete();
-//		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		exec_result = org.delete();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
 
 }
