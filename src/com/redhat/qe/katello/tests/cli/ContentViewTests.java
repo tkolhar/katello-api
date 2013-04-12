@@ -32,10 +32,12 @@ public class ContentViewTests extends KatelloCliTestScript{
 	String prov_name = "provcon-" + uid;
 	String prod_name = "prodcon-"+ uid;
 	String repo_name = "repocon-" + uid;
-	String changeset_name = "changecon-" + uid;
+	String changeset_name2 = "changecon2-" + uid;
 	String condef_name = "condef-" + uid;
 	String conview_name = "conview-" + uid;
 	String pubview_name = "pubview-" + uid;
+	String condef_name1 = "condef1-" + uid;
+	String condef_name2 = "condef2-" + uid;
 	String act_key_name = "act_key" + uid;
 	String prod_name2 = "prodcon2-" + uid;
 	String repo_name2 = "repo_name2-" + uid;
@@ -51,7 +53,7 @@ public class ContentViewTests extends KatelloCliTestScript{
 	KatelloRepo repo;
 	KatelloProduct prod2;
 	KatelloRepo repo2;
-	KatelloChangeset changeset;
+	KatelloChangeset changeset2;
 	KatelloContentView condef;
 	KatelloActivationKey act_key;
 	KatelloSystem sys;
@@ -87,9 +89,13 @@ public class ContentViewTests extends KatelloCliTestScript{
 		exec_result = prod2.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		repo2 = new KatelloRepo(repo_name2,org_name,prod_name,PULP_RHEL6_x86_64_REPO, null, null);
+		repo2 = new KatelloRepo(repo_name2,org_name,prod_name2,PULP_RHEL6_x86_64_REPO, null, null);
 		exec_result = repo2.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		exec_result = repo2.synchronize();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
 		exec_result = repo.synchronize();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
@@ -100,9 +106,13 @@ public class ContentViewTests extends KatelloCliTestScript{
 		exec_result = condef.add_product(prod_name);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
 		
+		exec_result = condef.add_repo(prod_name, repo_name);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
+		
 		exec_result = condef.publish(pubview_name,pubview_name,"Publish Content");
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-				
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");		
+	
+		
 		// The only way to install ERRATA on System is by system group
 		group = new KatelloSystemGroup(group_name, this.org_name);
 		exec_result = group.create();
@@ -114,16 +124,16 @@ public class ContentViewTests extends KatelloCliTestScript{
 		KatelloUtils.sshOnClient("service goferd restart;");
 	}
 
-	@Test(description = "Adding a published content view to an activation key",groups={"cfse-cli"})
-	public void test_addContentView(){
-
-		changeset = new KatelloChangeset(changeset_name,org_name,env_name);
-		exec_result = changeset.create();
+	@Test(description="promote content view to environment",groups={"cfse-cli"})
+	public void test_promoteContentView() {
+		condef = new KatelloContentView(condef_name,null,org_name,null);
+		exec_result = condef.promote_view(pubview_name, env_name);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		exec_result = changeset.update_addView(pubview_name);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");		
-		exec_result = changeset.apply();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentView.OUT_PROMOTE, this.pubview_name, env_name)), "Content view promote output.");
+	}
+	
+	@Test(description = "Adding a published content view to an activation key",groups={"cfse-cli"}, dependsOnMethods={"test_promoteContentView"})
+	public void test_addContentView() {
 		
 		act_key = new KatelloActivationKey(org_name,env_name,act_key_name,"Act key created");
 		exec_result = act_key.create();
@@ -144,6 +154,19 @@ public class ContentViewTests extends KatelloCliTestScript{
 		
 		exec_result = sys.rhsm_identity();
 		system_uuid1 = KatelloCli.grepCLIOutput("Current identity is", exec_result.getStdout());
+		
+		exec_result = sys.subscriptions_available();
+		String poolId1 = KatelloCli.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
+		Assert.assertNotNull(poolId1, "Check - pool Id is not null");
+		
+		String poolId2 = KatelloCli.grepCLIOutput("ID", getOutput(exec_result).trim(),2);
+		Assert.assertNotNull(poolId2, "Check - pool Id is not null");
+		
+		exec_result = sys.rhsm_subscribe(poolId1);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		exec_result = sys.rhsm_subscribe(poolId2);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
 	
 	@Test(description = "consume Errata content",groups={"cfse-cli"}, dependsOnMethods={"test_registerClient"})
@@ -164,10 +187,26 @@ public class ContentViewTests extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(exec_result).trim().contains("Remote action finished"));
 		Assert.assertTrue(getOutput(exec_result).trim().contains("Erratum Install Complete"));
 	}
+
+	@Test(description = "promoted content view delete by changeset from environment, verify that packages are not availble anymore",groups={"cfse-cli"}, dependsOnMethods={"test_ConsumeErrata"})
+	public void test_deletePromotedContentView() {
+		KatelloUtils.sshOnClient("yum erase -y walrus");
+		
+		changeset2 = new KatelloChangeset(changeset_name2,org_name,env_name, true);
+		exec_result = changeset2.create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		exec_result = changeset2.update_addView(pubview_name);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");		
+		exec_result = changeset2.apply();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		exec_result = KatelloUtils.sshOnClient("yum install -y walrus");
+		Assert.assertTrue(exec_result.getExitCode() == 147, "Check - error code");
+	}
 	
 	//@ TODO will fail because of 947859
-	@Test(description = "Remove a published content view to an activation key",groups={"cfse-cli"}, dependsOnMethods={"test_ConsumeErrata"})
-	public void test_removeContentView() {
+	@Test(description = "Remove a published content view to an activation key",groups={"cfse-cli"}, dependsOnMethods={"test_deletePromotedContentView"})
+	public void test_removeContentViewFromKey() {
 		
 		exec_result = act_key.update_remove_content_view();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	

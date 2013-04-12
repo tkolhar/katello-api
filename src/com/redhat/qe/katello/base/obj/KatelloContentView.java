@@ -21,6 +21,8 @@ public class KatelloContentView extends _KatelloObject{
 	public static final String CMD_DEFINITION_REMOVE_REPO = "content definition remove_repo";
 	public static final String CMD_DEFINITION_ADD_VIEW = "content definition add_view";
 	public static final String CMD_DEFINITION_REMOVE_VIEW = "content definition remove_view";
+	public static final String CMD_PROMOTE_VIEW = "content view promote";
+	public static final String CMD_REFRESH_VIEW = "content view refresh";
 	
 	public static final String OUT_CREATE_DEFINITION = 
 			"Successfully created content view definition [ %s ]";
@@ -40,6 +42,8 @@ public class KatelloContentView extends _KatelloObject{
 			"Successfully applied default custom info keys to [ %s ] systems in Org [ %s ]";
 	public static final String OUT_REMOVE_SYS_INFO = 
 			"Successfully removed default custom info key [ %s ] for Org [ %s ]";
+	public static final String OUT_PROMOTE =
+			"Content view [ %s ] promoted to environment [ %s ]";
 	
 	public static final String ERR_DEFINITION_EXISTS = 
 			"Validation failed: Label has already been taken, Name has already been taken";
@@ -115,11 +119,16 @@ public class KatelloContentView extends _KatelloObject{
 	}
 
 	public SSHCommandResult create_definition(){		
+		return create_definition(false);
+	}
+
+	public SSHCommandResult create_definition(boolean isComposite){		
 		opts.clear();
 		opts.add(new Attribute("name", this.name));
 		opts.add(new Attribute("description", this.description));
 		opts.add(new Attribute("label", this.label));
 		opts.add(new Attribute("org", this.org));
+		if (isComposite) opts.add(new Attribute("composite", "true"));
 		return run(CMD_DEFINITION_CREATE);
 	}
 	
@@ -213,6 +222,21 @@ public class KatelloContentView extends _KatelloObject{
 		opts.add(new Attribute("view_label", label));
 		opts.add(new Attribute("description", description));
 		return run(CMD_DEFINITION_PUBLISH);
+	}
+
+	public SSHCommandResult refresh_view(String view){
+		opts.clear();
+		opts.add(new Attribute("name", view));
+		opts.add(new Attribute("org", this.org));
+		return run(CMD_REFRESH_VIEW);
+	}
+	
+	public SSHCommandResult promote_view(String view, String environment){
+		opts.clear();
+		opts.add(new Attribute("name", view));
+		opts.add(new Attribute("environment", environment));
+		opts.add(new Attribute("org", this.org));
+		return run(CMD_PROMOTE_VIEW);
 	}
 	
 	// ** ** ** ** ** ** **
