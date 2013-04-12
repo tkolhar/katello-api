@@ -203,6 +203,19 @@ public class ContentViewTests extends KatelloCliTestScript{
 		exec_result = KatelloUtils.sshOnClient("yum install -y walrus");
 		Assert.assertTrue(exec_result.getExitCode() == 147, "Check - error code");
 	}
+
+	@Test(description = "removed content view on previous scenario promote back by changeset to environment, verify that packages are already availble",
+			groups={"cfse-cli"}, dependsOnMethods={"test_deletePromotedContentView"})
+	public void test_RePromoteContentView() {
+		KatelloUtils.sshOnClient("yum erase -y walrus");
+		
+		exec_result = condef.promote_view(pubview_name, env_name);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentView.OUT_PROMOTE, this.pubview_name, env_name)), "Content view promote output.");
+		
+		exec_result = KatelloUtils.sshOnClient("yum install -y walrus");
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - error code");
+	}
 	
 	//@ TODO will fail because of 947859
 	@Test(description = "Remove a published content view to an activation key",groups={"cfse-cli"}, dependsOnMethods={"test_deletePromotedContentView"})

@@ -23,6 +23,7 @@ public class KatelloContentView extends _KatelloObject{
 	public static final String CMD_DEFINITION_REMOVE_VIEW = "content definition remove_view";
 	public static final String CMD_PROMOTE_VIEW = "content view promote";
 	public static final String CMD_REFRESH_VIEW = "content view refresh";
+	public static final String CMD_INFO_VIEW = "content view info";
 	
 	public static final String OUT_CREATE_DEFINITION = 
 			"Successfully created content view definition [ %s ]";
@@ -44,6 +45,8 @@ public class KatelloContentView extends _KatelloObject{
 			"Successfully removed default custom info key [ %s ] for Org [ %s ]";
 	public static final String OUT_PROMOTE =
 			"Content view [ %s ] promoted to environment [ %s ]";
+	public static final String OUT_REFRESH =
+			"Content view [ %s ] was successfully refreshed.";
 	
 	public static final String ERR_DEFINITION_EXISTS = 
 			"Validation failed: Label has already been taken, Name has already been taken";
@@ -62,6 +65,7 @@ public class KatelloContentView extends _KatelloObject{
 	
 	public static final String REG_DEF_INFO = ".*ID\\s*:\\s+\\d+.*Name\\s*:\\s+%sLabel\\s*:\\s+%s.*Description\\s*:\\s+%s.*Org\\s*:\\s+%s.*Published Views\\s*:\\s+%s.*Component Views\\s*:\\s+%s.*Products\\s*:\\s+%s.*Repos\\s*:\\s*%s.*";
 	public static final String REG_DEF_LIST = ".*\\s+\\d+.*\\s+%s.*\\s+%s.*\\s+%s.*\\s+%s.*";
+	public static final String REG_VIEW_INFO = ".*ID\\s*:\\s*\\d+.*Name\\s*:\\s*%sLabel\\s*:\\s*%s.*Description\\s*:\\s*%s.*Org\\s*:\\s*%s.*Definition\\s*:\\s*%s.*Environments\\s*:\\s*%s.*Versions\\s*:\\s*%s.*Repos\\s*:\\s*%s.*";
 	
 	// ** ** ** ** ** ** ** Class members
 	public String name;
@@ -235,6 +239,13 @@ public class KatelloContentView extends _KatelloObject{
 		opts.add(new Attribute("environment", environment));
 		opts.add(new Attribute("org", this.org));
 		return run(CMD_PROMOTE_VIEW);
+	}
+
+	public SSHCommandResult view_info(String view){
+		opts.clear();
+		opts.add(new Attribute("name", view));
+		opts.add(new Attribute("org", this.org));
+		return run(CMD_INFO_VIEW);
 	}
 	
 	// ** ** ** ** ** ** **
