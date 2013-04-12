@@ -62,6 +62,8 @@ public class KatelloContentView extends _KatelloObject{
 			"User %s is not allowed to access api/content_view_definitions/create";
 	public static final String ERR_PUBLISH_DENIED =
 			"User %s is not allowed to access api/content_view_definitions/publish";
+	public static final String ERR_DELETE_DENIED =
+			"User %s is not allowed to access api/content_view_definitions/destroy";
 	
 	public static final String REG_DEF_INFO = ".*ID\\s*:\\s+\\d+.*Name\\s*:\\s+%sLabel\\s*:\\s+%s.*Description\\s*:\\s+%s.*Org\\s*:\\s+%s.*Published Views\\s*:\\s+%s.*Component Views\\s*:\\s+%s.*Products\\s*:\\s+%s.*Repos\\s*:\\s*%s.*";
 	public static final String REG_DEF_LIST = ".*\\s+\\d+.*\\s+%s.*\\s+%s.*\\s+%s.*\\s+%s.*";
@@ -163,6 +165,8 @@ public class KatelloContentView extends _KatelloObject{
 		opts.clear();
 		opts.add(new Attribute("name", this.name));
 		opts.add(new Attribute("description", new_description));
+		opts.add(new Attribute("org", this.org));
+		opts.add(new Attribute("label", this.label));
 		return run(CMD_DEFINITION_UPDATE);
 	}
 
