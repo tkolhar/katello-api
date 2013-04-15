@@ -134,6 +134,7 @@ public class CompositeContentViewTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");		
 	}
 	
+	//@ TODO fails 952249
 	@Test(description="Check adding old views into composite content view definition", dependsOnMethods={"test_createComposite"})
 	public void test_checkOldViewsIntoComposite() {
 		exec_result = compcondef.add_view(pubview_name1_1);
@@ -142,8 +143,39 @@ public class CompositeContentViewTests extends KatelloCliTestScript{
 		exec_result = compcondef.add_view(pubview_name2_1);
 		Assert.assertTrue(exec_result.getExitCode() == 147, "Check - return code");
 	}
+
+	@Test(description="add/remove views into composite content view definition", dependsOnMethods={"test_checkOldViewsIntoComposite"})
+	public void test_addRemoveViewsIntoComposite() {
+		exec_result = compcondef.remove_view(pubview_name1_2);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		exec_result = compcondef.definition_info();
+		Assert.assertFalse(getOutput(exec_result).contains(pubview_name1_2), "Not contains view");
+		Assert.assertTrue(getOutput(exec_result).contains(pubview_name2_2), "Contains view");
+		
+		exec_result = compcondef.remove_view(pubview_name2_2);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		exec_result = compcondef.definition_info();
+		Assert.assertFalse(getOutput(exec_result).contains(pubview_name1_2), "Not contains view");
+		Assert.assertFalse(getOutput(exec_result).contains(pubview_name2_2), "Not contains view");
+		
+		exec_result = compcondef.add_view(pubview_name1_2);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
+
+		exec_result = compcondef.definition_info();
+		Assert.assertTrue(getOutput(exec_result).contains(pubview_name1_2), "Contains view");
+		Assert.assertFalse(getOutput(exec_result).contains(pubview_name2_2), "Not contains view");
+		
+		exec_result = compcondef.add_view(pubview_name2_2);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		exec_result = compcondef.definition_info();
+		Assert.assertTrue(getOutput(exec_result).contains(pubview_name1_2), "Contains view");
+		Assert.assertTrue(getOutput(exec_result).contains(pubview_name2_2), "Contains view");
+	}
 	
-	@Test(description="Consume content from composite content view definition", dependsOnMethods={"test_checkOldViewsIntoComposite"})
+	@Test(description="Consume content from composite content view definition", dependsOnMethods={"test_addRemoveViewsIntoComposite"})
 	public void test_consumeCompositeContent() {
 		// erase packages
 		exec_result = KatelloUtils.sshOnClient("yum erase -y wolf");
