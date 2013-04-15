@@ -24,7 +24,7 @@ public class KatelloOrg extends _KatelloObject{
 	public static final String CMD_UPDATE = "org update";
 	public static final String CMD_ADD_SYS_INFO = "org default_info add";
 	public static final String CMD_APPLY_SYS_INFO = "org default_info apply";
-	public static final String CMD_REMOVE_SYS_INFO = "org remove_default_system_info";
+	public static final String CMD_REMOVE_SYS_INFO = "org default_info remove --type system";
 	
 	public static final String API_CMD_INFO = "/organizations/%s";
 	
