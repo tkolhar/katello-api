@@ -112,7 +112,7 @@ public class ContentViewRefreshTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
 
-	//@ TODO fails because of https://github.com/Katello/katello/issues/1935
+	//@ TODO fails because of 951599
 	@Test(description = "refesh content view, verify version is changed", groups={"cfse-cli"}, dependsOnMethods={"test_registerClient"})
 	public void test_refreshContentView() {
 		updateLocalRepo1();
