@@ -47,6 +47,8 @@ public class KatelloContentView extends _KatelloObject{
 			"Successfully removed default custom info key [ %s ] for Org [ %s ]";
 	public static final String OUT_PROMOTE =
 			"Content view [ %s ] promoted to environment [ %s ]";
+	public static final String OUT_REFRESH =
+			"Content view [ %s ] was successfully refreshed.";
 	
 	public static final String ERR_DEFINITION_EXISTS = 
 			"Validation failed: Label has already been taken, Name has already been taken";
@@ -70,6 +72,7 @@ public class KatelloContentView extends _KatelloObject{
 	
 	public static final String REG_DEF_INFO = ".*ID\\s*:\\s+\\d+.*Name\\s*:\\s+%sLabel\\s*:\\s+%s.*Description\\s*:\\s+%s.*Org\\s*:\\s+%s.*Published Views\\s*:\\s+%s.*Component Views\\s*:\\s+%s.*Products\\s*:\\s+%s.*Repos\\s*:\\s*%s.*";
 	public static final String REG_DEF_LIST = ".*\\s+\\d+.*\\s+%s.*\\s+%s.*\\s+%s.*\\s+%s.*";
+	public static final String REG_VIEW_INFO = ".*ID\\s*:\\s*\\d+.*Name\\s*:\\s*%sLabel\\s*:\\s*%s.*Description\\s*:\\s*%s.*Org\\s*:\\s*%s.*Definition\\s*:\\s*%s.*Environments\\s*:\\s*%s.*Versions\\s*:\\s*%s.*Repos\\s*:\\s*%s.*";
 	
 	// ** ** ** ** ** ** ** Class members
 	public String name;

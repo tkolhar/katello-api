@@ -111,7 +111,7 @@ public class CompositeContentViewTests extends KatelloCliTestScript{
 		
 		exec_result = condef2.publish(pubview_name2_2, pubview_name2_2, "Publish Content");
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
+			
 		KatelloUtils.sshOnClient("sed -i -e \"s/certFrequency.*/certFrequency = 1/\" /etc/rhsm/rhsm.conf");
 		KatelloUtils.sshOnClient("service rhsmcertd restart");
 		yum_clean();
@@ -204,37 +204,6 @@ public class CompositeContentViewTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode() == 1, "Check - return code");
 	}
 
-	@Test(description = "part of promoted composite content view delete by changeset from environment, verify that packages are not availble anymore",
-			groups={"cfse-cli"}, dependsOnMethods={"test_consumeCompositeContent"})
-	public void test_deletePromotedContentView() {
-		KatelloUtils.sshOnClient("yum erase -y walrus");
-		
-		del_changeset = new KatelloChangeset(del_changeset_name,org_name2,env_name2, true);
-		exec_result = del_changeset.create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		exec_result = del_changeset.update_addView(pubview_name1_1);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");		
-		exec_result = del_changeset.apply();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		exec_result = KatelloUtils.sshOnClient("yum install -y walrus");
-		Assert.assertTrue(exec_result.getExitCode() == 147, "Check - error code");
-	}
-
-	@Test(description = "removed content view on previous scenario promote back by changeset to environment, verify that packages are already availble",
-			groups={"cfse-cli"}, dependsOnMethods={"test_deletePromotedContentView"})
-	public void test_RePromoteContentView() {
-		KatelloUtils.sshOnClient("yum erase -y walrus");
-		
-		compcondef = new KatelloContentView(condef_composite_name,null,org_name2,null);
-		exec_result = compcondef.promote_view(pubview_name1_1, env_name2);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentView.OUT_PROMOTE, this.pubview_name1_1, env_name2)), "Content view promote output.");
-		
-		exec_result = KatelloUtils.sshOnClient("yum install -y walrus");
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - error code");
-	}
-	
 	/**
 	 * Creates local repo 1 which packages are from REPO_INECAS_ZOO3.
 	 */
