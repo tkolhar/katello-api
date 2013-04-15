@@ -87,14 +87,9 @@ public class KatelloContentView extends _KatelloObject{
 	
 	public KatelloContentView(){super();}
 	
-	public KatelloContentView(String pName, String pDesc){
+	private KatelloContentView(String pName, String pDesc){
 		this.name = pName;
 		this.description = pDesc;
-	}
-	
-	protected KatelloContentView(Long id, String name, String description) {
-	    this(name, description);
-	    this.id = id;
 	}
 	
 	public KatelloContentView(String name, String description, String pOrg, String label) {
