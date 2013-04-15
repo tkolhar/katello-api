@@ -318,7 +318,7 @@ public class ContentDefAccessTests extends KatelloCliTestScript{
 		KatelloUser user = new KatelloUser(user_publish, "root@localhost", KatelloUser.DEFAULT_USER_PASS, false);
 		KatelloContentView content = new KatelloContentView(content_publish1, "description", org_name, content_publish1);
 		content.runAs(user);
-		exec_result = content.publish("view_name", "view_label", "view description");
+		exec_result = content.publish("view_name1", "view_name1", "view description");
 		Assert.assertTrue(exec_result.getExitCode()==0, "Check - exit code (publish content)");
 		Assert.assertContainsMatch(getOutput(exec_result), "published successfully", null, "Check - output message (publish content)");
 	}
@@ -328,7 +328,7 @@ public class ContentDefAccessTests extends KatelloCliTestScript{
 		KatelloUser user = new KatelloUser(user_read, "root@localhost", KatelloUser.DEFAULT_USER_PASS, false);
 		KatelloContentView content = new KatelloContentView(content_publish2, "description", org_name, content_publish2);
 		content.runAs(user);
-		exec_result = content.publish("view_name", "view_label", "view description");
+		exec_result = content.publish("view_name2", "view_name2", "view description");
 		Assert.assertTrue(exec_result.getExitCode()==147, "Check - error code (publish content)");
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentView.ERR_PUBLISH_DENIED, user_read)), "Check - error string (content create)");
 	}
@@ -390,7 +390,7 @@ public class ContentDefAccessTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode()==0, "Check - exit code (list views)");
 		Assert.assertTrue(getOutput(exec_result).contains(view_name1), "Check - output");
 		Assert.assertFalse(getOutput(exec_result).contains(view_name2), "Check - output");
-		exec_result = content.view_info();
+		exec_result = content.view_info(view_name1);
 		Assert.assertTrue(exec_result.getExitCode()==0, "Check - exit code (list views)");
 	}
 
@@ -402,7 +402,7 @@ public class ContentDefAccessTests extends KatelloCliTestScript{
 		exec_result = content.view_list();
 		Assert.assertTrue(exec_result.getExitCode()==147, "Check - exit code (list views)");
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentView.ERR_VIEW_READ, this.user_read)), "Check - error string (view read)");
-		exec_result = content.view_info();
+		exec_result = content.view_info(view_name1);
 		Assert.assertTrue(exec_result.getExitCode()==147, "Check - exit code (list views)");
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentView.ERR_VIEW_READ, this.user_read)), "Check - error string (view read)");
 	}

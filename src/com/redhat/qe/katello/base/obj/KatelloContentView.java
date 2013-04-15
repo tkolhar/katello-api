@@ -253,20 +253,13 @@ public class KatelloContentView extends _KatelloObject{
 		return run(CMD_VIEW_LIST);
 	}
 
-	public SSHCommandResult view_info() {
+	public SSHCommandResult view_info(String name) {
 		opts.clear();
 		opts.add(new Attribute("org", this.org));
-		opts.add(new Attribute("label", this.label));
+		opts.add(new Attribute("name", name));
 		return run(CMD_VIEW_INFO);
 	}
 
-	public SSHCommandResult view_promote(String environment) {
-		opts.clear();
-		opts.add(new Attribute("org", this.org));
-		opts.add(new Attribute("label", this.label));
-		opts.add(new Attribute("environment", environment));
-		return run(CMD_PROMOTE_VIEW);
-	}
 
 	// ** ** ** ** ** ** **
 	// ASSERTS
