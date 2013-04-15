@@ -24,9 +24,9 @@ public class KatelloSystem extends _KatelloObject{
 	public static final String CMD_RELEASES = "system releases";
 	public static final String CMD_FACTS = "system facts";
 	
-	public static final String CMD_ADD_CUSTOM_INFO = "system add_custom_info";
-	public static final String CMD_UPDATE_CUSTOM_INFO = "system update_custom_info";
-	public static final String CMD_REMOVE_CUSTOM_INFO = "system remove_custom_info";
+	public static final String CMD_ADD_CUSTOM_INFO = "system custom_info add";
+	public static final String CMD_UPDATE_CUSTOM_INFO = "system custom_info update";
+	public static final String CMD_REMOVE_CUSTOM_INFO = "system custom_info remove";
 	
 	public static final String CMD_LIST_ERRATAS = "errata system";
 	public static final String CMD_LIST_ERRATA_DETAILS = "errata system -v";
