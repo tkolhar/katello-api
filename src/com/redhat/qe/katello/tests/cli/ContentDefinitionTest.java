@@ -11,6 +11,8 @@ import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloTestScript;
+import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
 import com.redhat.qe.katello.base.obj.KatelloContentView;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
@@ -35,6 +37,7 @@ public class ContentDefinitionTest extends KatelloCliTestScript{
 	private String content_name_prod;
 	private String content_name_repo;
 	
+	private String _cvdClone;
 	
 	@BeforeClass(description="init: create initial stuff")
 	public void setUp() {
@@ -46,6 +49,8 @@ public class ContentDefinitionTest extends KatelloCliTestScript{
 		provider_name2 = "provider2"+uid;
 		product_name2 = "product2"+uid;
 		repo_name2 = "repo2"+uid;
+		
+		this._cvdClone = "cvdClone-"+uid;
 
 		// Create org:
 		KatelloOrg org = new KatelloOrg(this.org_name,"Package tests");
@@ -79,6 +84,9 @@ public class ContentDefinitionTest extends KatelloCliTestScript{
 		repo = new KatelloRepo(repo_name2, org_name, product_name2, REPO_INECAS_ZOO3, null, null);
 		exec_result = repo.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		// init-s
+		init_cvdClone();
 	}
 
 	
@@ -181,6 +189,42 @@ public class ContentDefinitionTest extends KatelloCliTestScript{
 		assert_ContentViewDefinitionInfo(content);
 	}
 	
+	/**
+	 * Cloning content definition
+	 * @see <a href='https://github.com/gkhachik/katello-api/issues/290'>github issue</a>
+	 * @author gkhachik
+	 * @since 15.April.2013
+	 */
+	@Test(description="Clone content definition")
+	public void test_clone(){
+		String sCvdOrigin = this._cvdClone+"-origin";
+		String sCvdClone = this._cvdClone+"-clone";
+		KatelloContentDefinition cvdOrigin = new KatelloContentDefinition(sCvdOrigin, null, this.org_name, null);
+		exec_result = cvdOrigin.create();
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		exec_result = cvdOrigin.add_product(this._cvdClone);
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		
+		exec_result = cvdOrigin.clone(sCvdClone, null, null);
+		// asserts
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).equals(
+				String.format(KatelloContentDefinition.OUT_CLONE_SUCCESSFUL,sCvdClone)), 
+				"Check - stdout (successfully cloned)");
+		KatelloContentDefinition cvdClone = new KatelloContentDefinition(sCvdClone, null, this.org_name, null);
+
+		exec_result = cvdClone.list();
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		String matchInList = ".*Name\\s+:\\s+%s.*Composite\\s+:\\s+False.*";
+		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", " ").matches(String.format(matchInList,sCvdClone)), "Check - contains in content definition list");
+		
+		exec_result = cvdClone.info();
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		Assert.assertTrue(KatelloCli.grepCLIOutput("Name",getOutput(exec_result)).equals(sCvdClone), "Check - stdout (content definition info: Name)");
+		Assert.assertTrue(KatelloCli.grepCLIOutput("Composite",getOutput(exec_result)).equals("False"), "Check - stdout (content definition info: Composite)");
+		Assert.assertTrue(KatelloCli.grepCLIOutput("Org",getOutput(exec_result)).equals(this.org_name), "Check - stdout (content definition info: Org)");
+	}
+	
 	private void assert_contentList(List<KatelloContentView> contents, List<KatelloContentView> excludeContents) {
 
 		SSHCommandResult res = new KatelloContentView(null, null, org_name, null).definition_list();
@@ -226,4 +270,24 @@ public class ContentDefinitionTest extends KatelloCliTestScript{
 		return content;
 	}
 
+	/**
+	 * Init required for content view definition cloning scenario(s).
+	 * @author gkhachik
+	 * @since 15.Apr.2013
+	 */
+	private void init_cvdClone(){
+		exec_result = new KatelloProvider(this._cvdClone, this.org_name, null, null).create();
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		exec_result = new KatelloProduct(this._cvdClone, this.org_name, this._cvdClone, null, null, null, null, null).create();
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		// create repo zoo
+		exec_result = new KatelloRepo(this._cvdClone+"-zoo", this.org_name, this._cvdClone, REPO_INECAS_ZOO3, null, null).create();
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		// create repo pulp
+		exec_result = new KatelloRepo(this._cvdClone+"-pulp", this.org_name, this._cvdClone, PULP_RHEL6_x86_64_REPO, null, null).create();
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		// sync the provider
+		exec_result = new KatelloProvider(this._cvdClone, this.org_name, null, null).synchronize();
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+	}
 }
