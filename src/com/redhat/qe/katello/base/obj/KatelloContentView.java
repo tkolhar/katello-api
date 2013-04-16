@@ -208,7 +208,7 @@ public class KatelloContentView extends _KatelloObject{
 		opts.clear();
 		opts.add(new Attribute("name", this.name));
 		opts.add(new Attribute("org", this.org));
-		opts.add(new Attribute("content_view", view));
+		opts.add(new Attribute("view_name", view));
 		return run(CMD_DEFINITION_ADD_VIEW);
 	}
 	
@@ -216,7 +216,7 @@ public class KatelloContentView extends _KatelloObject{
 		opts.clear();
 		opts.add(new Attribute("name", this.name));
 		opts.add(new Attribute("org", this.org));
-		opts.add(new Attribute("content_view", view));
+		opts.add(new Attribute("view_name", view));
 		return run(CMD_DEFINITION_REMOVE_VIEW);
 	}
 

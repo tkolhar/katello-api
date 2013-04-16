@@ -134,6 +134,7 @@ public class CompositeContentViewTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");		
 	}
 	
+	//@ TODO fails 952249
 	@Test(description="Check adding old views into composite content view definition", dependsOnMethods={"test_createComposite"})
 	public void test_checkOldViewsIntoComposite() {
 		exec_result = compcondef.add_view(pubview_name1_1);
@@ -142,8 +143,39 @@ public class CompositeContentViewTests extends KatelloCliTestScript{
 		exec_result = compcondef.add_view(pubview_name2_1);
 		Assert.assertTrue(exec_result.getExitCode() == 147, "Check - return code");
 	}
+
+	@Test(description="add/remove views into composite content view definition", dependsOnMethods={"test_checkOldViewsIntoComposite"})
+	public void test_addRemoveViewsIntoComposite() {
+		exec_result = compcondef.remove_view(pubview_name1_2);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		exec_result = compcondef.definition_info();
+		Assert.assertFalse(getOutput(exec_result).contains(pubview_name1_2), "Not contains view");
+		Assert.assertTrue(getOutput(exec_result).contains(pubview_name2_2), "Contains view");
+		
+		exec_result = compcondef.remove_view(pubview_name2_2);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		exec_result = compcondef.definition_info();
+		Assert.assertFalse(getOutput(exec_result).contains(pubview_name1_2), "Not contains view");
+		Assert.assertFalse(getOutput(exec_result).contains(pubview_name2_2), "Not contains view");
+		
+		exec_result = compcondef.add_view(pubview_name1_2);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
+
+		exec_result = compcondef.definition_info();
+		Assert.assertTrue(getOutput(exec_result).contains(pubview_name1_2), "Contains view");
+		Assert.assertFalse(getOutput(exec_result).contains(pubview_name2_2), "Not contains view");
+		
+		exec_result = compcondef.add_view(pubview_name2_2);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		exec_result = compcondef.definition_info();
+		Assert.assertTrue(getOutput(exec_result).contains(pubview_name1_2), "Contains view");
+		Assert.assertTrue(getOutput(exec_result).contains(pubview_name2_2), "Contains view");
+	}
 	
-	@Test(description="Consume content from composite content view definition", dependsOnMethods={"test_checkOldViewsIntoComposite"})
+	@Test(description="Consume content from composite content view definition", dependsOnMethods={"test_addRemoveViewsIntoComposite"})
 	public void test_consumeCompositeContent() {
 		// erase packages
 		exec_result = KatelloUtils.sshOnClient("yum erase -y wolf");
@@ -203,6 +235,37 @@ public class CompositeContentViewTests extends KatelloCliTestScript{
 		exec_result = KatelloUtils.sshOnClient("yum install -y cheetah");
 		Assert.assertTrue(exec_result.getExitCode() == 1, "Check - return code");
 	}
+
+	@Test(description = "part of promoted composite content view delete by changeset from environment, verify that packages are not availble anymore",
+			groups={"cfse-cli"}, dependsOnMethods={"test_consumeCompositeContent"})
+	public void test_deletePromotedContentViewPart() {
+		KatelloUtils.sshOnClient("yum erase -y walrus");
+		
+		del_changeset = new KatelloChangeset(del_changeset_name,org_name2,env_name2, true);
+		exec_result = del_changeset.create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		exec_result = del_changeset.update_addView(pubview_name1_2);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");		
+		exec_result = del_changeset.apply();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		exec_result = KatelloUtils.sshOnClient("yum install -y walrus");
+		Assert.assertTrue(exec_result.getExitCode() == 147, "Check - error code");
+	}
+
+	@Test(description = "removed content view on previous scenario promote back by changeset to environment, verify that packages are already availble",
+			groups={"cfse-cli"}, dependsOnMethods={"test_deletePromotedContentViewPart"})
+	public void test_RePromoteContentViewPart() {
+		KatelloUtils.sshOnClient("yum erase -y walrus");
+		
+		compcondef = new KatelloContentView(condef_composite_name,null,org_name2,null);
+		exec_result = compcondef.promote_view(pubview_name1_2, env_name2);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentView.OUT_PROMOTE, this.pubview_name1_1, env_name2)), "Content view promote output.");
+		
+		exec_result = KatelloUtils.sshOnClient("yum install -y walrus");
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - error code");
+	}	
 
 	/**
 	 * Creates local repo 1 which packages are from REPO_INECAS_ZOO3.
