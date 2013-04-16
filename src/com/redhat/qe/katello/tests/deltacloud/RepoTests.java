@@ -54,7 +54,7 @@ public class RepoTests extends BaseDeltacloudTest {
 	}
 	
 	//@ TODO enable when bug 918093 is fixed
-	@Test(description="list rhel repo packages deleted to test environment", dependsOnMethods={"test_deleteRHELPackages"}, enabled=false)
+	@Test(description="list rhel repo packages deleted to test environment", dependsOnMethods={"test_deleteRHELPackages"}, enabled=true)
 	public void test_listRHELRepoPackagesDeleted() {
 		KatelloPackage pack = new KatelloPackage(null, null, org_name, KatelloProduct.RHEL_SERVER, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, env_name2);
 		pack.runOn(client_name);
