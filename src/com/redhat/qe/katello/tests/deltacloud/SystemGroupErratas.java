@@ -40,13 +40,11 @@ public class SystemGroupErratas extends BaseDeltacloudTest {
 		setUpErratas();
 		
 		KatelloSystemGroup group = new KatelloSystemGroup(group_name, org_name);
-		group.runOn(client_name);
 		exec_result = group.list_erratas();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains(PromoteErrata.ERRATA_ZOO_SEA), "Check - errata list output");
 		
 		group = new KatelloSystemGroup(group_name2, org_name);
-		group.runOn(client_name2);
 		exec_result = group.list_erratas("security");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains(PromoteErrata.ERRATA_ZOO_SEA), "Check - errata list output");
@@ -64,7 +62,6 @@ public class SystemGroupErratas extends BaseDeltacloudTest {
 	@Test(description = "Install the errata on system group", dependsOnMethods={"test_errataDetailsOnSystemGroup"})
 	public void test_errataInstallOnSystemGroup() {
 		KatelloSystemGroup group = new KatelloSystemGroup(group_name, org_name);
-		group.runOn(client_name);
 		exec_result = group.erratas_install(PromoteErrata.ERRATA_ZOO_SEA);
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("Remote action finished"));
@@ -83,7 +80,6 @@ public class SystemGroupErratas extends BaseDeltacloudTest {
 		setUpErratas();
 		
 		KatelloSystemGroup group = new KatelloSystemGroup(group_name, org_name);
-		group.runOn(client_name2);
 		
 		exec_result = group.erratas_install("RHBA-2012:1007");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
@@ -104,7 +100,6 @@ public class SystemGroupErratas extends BaseDeltacloudTest {
 		setUpErratas();
 		
 		KatelloSystemGroup group = new KatelloSystemGroup(group_name, org_name);
-		group.runOn(client_name2);
 		
 		exec_result = group.list_errata_names("RHBA");
 		String ert1 = getOutput(exec_result).replaceAll("\n", ",").split(",")[0];
@@ -133,13 +128,11 @@ public class SystemGroupErratas extends BaseDeltacloudTest {
 		setUpErratas();
 		
 		KatelloSystemGroup group = new KatelloSystemGroup(group_name, org_name);
-		group.runOn(client_name);
 		
 		exec_result = group.copy("cloned" + group.name, null, null);
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		
 		group = new KatelloSystemGroup("cloned" + group.name, org_name);
-		group.runOn(client_name);
 		
 		exec_result = group.erratas_install(PromoteErrata.ERRATA_ZOO_SEA);
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
@@ -156,7 +149,6 @@ public class SystemGroupErratas extends BaseDeltacloudTest {
 	
 	private void verifyErrataDetailsOnSystemGroup(String groupName, int systemCount, List<String> existingSystems) {
 		KatelloSystemGroup group = new KatelloSystemGroup(groupName, org_name);
-		group.runOn(client_name);
 		exec_result = group.list_errata_details("security");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		String sysregexp = "";

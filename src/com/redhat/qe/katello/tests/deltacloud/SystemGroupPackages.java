@@ -17,7 +17,6 @@ public class SystemGroupPackages extends BaseDeltacloudTest {
 		KatelloUtils.sshOnClient(client_name3, "yum -y erase wolf lion");
 		
 		KatelloSystemGroup group = new KatelloSystemGroup(group_name, org_name);
-		group.runOn(client_name);
 		exec_result = group.packages_install("lion");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("Remote action finished"));
@@ -44,7 +43,6 @@ public class SystemGroupPackages extends BaseDeltacloudTest {
 	public void test_removePackageFromSystemGroup() {
 		
 		KatelloSystemGroup group = new KatelloSystemGroup(group_name, org_name);
-		group.runOn(client_name);
 		exec_result = group.packages_remove("wolf");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("Remote action finished"));
@@ -75,7 +73,6 @@ public class SystemGroupPackages extends BaseDeltacloudTest {
 		KatelloUtils.sshOnClient(client_name3, "yum -y erase zebra lion tiger");
 		
 		KatelloSystemGroup group = new KatelloSystemGroup(group_name, org_name);
-		group.runOn(client_name);
 		exec_result = group.packages_install("lion,zebra,tiger");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("Remote action finished"));
@@ -110,7 +107,6 @@ public class SystemGroupPackages extends BaseDeltacloudTest {
 		KatelloUtils.sshOnClient(client_name3, "yum -y erase stork cockateel penguin duck");
 		
 		KatelloSystemGroup group = new KatelloSystemGroup(group_name, org_name);
-		group.runOn(client_name);
 		exec_result = group.packagegroup_install("birds");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("Remote action finished"));
@@ -145,7 +141,6 @@ public class SystemGroupPackages extends BaseDeltacloudTest {
 	public void test_removePackagesFromSystemGroup() {
 		
 		KatelloSystemGroup group = new KatelloSystemGroup(group_name, org_name);
-		group.runOn(client_name);
 		exec_result = group.packages_remove("stork,cockateel");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("Remote action finished"));
@@ -172,7 +167,6 @@ public class SystemGroupPackages extends BaseDeltacloudTest {
 	public void test_updatePackageGroupOnSystemGroup() {
 		
 		KatelloSystemGroup group = new KatelloSystemGroup(group_name, org_name);
-		group.runOn(client_name);
 		exec_result = group.packagegroup_update("birds");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("Remote action finished"));
@@ -207,7 +201,6 @@ public class SystemGroupPackages extends BaseDeltacloudTest {
 	public void test_removePackageGroupFromSystemGroup() {
 		
 		KatelloSystemGroup group = new KatelloSystemGroup(group_name, org_name);
-		group.runOn(client_name);
 		exec_result = group.packagegroup_remove("birds");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("Remote action finished"));
@@ -246,7 +239,6 @@ public class SystemGroupPackages extends BaseDeltacloudTest {
 		KatelloUtils.sshOnClient(client_name3, "yum -y erase stork cockateel penguin duck lion tyger wolf zebra");
 		
 		KatelloSystemGroup group = new KatelloSystemGroup(group_name, org_name);
-		group.runOn(client_name);
 		exec_result = group.packagegroup_install("birds, mammals");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("Remote action finished"));
@@ -294,7 +286,6 @@ public class SystemGroupPackages extends BaseDeltacloudTest {
 	public void test_removePackagesFromMultyPackageGroup() {
 		
 		KatelloSystemGroup group = new KatelloSystemGroup(group_name, org_name);
-		group.runOn(client_name);
 		exec_result = group.packages_remove("stork,cockateel,tiger,lion");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("Remote action finished"));
@@ -331,7 +322,6 @@ public class SystemGroupPackages extends BaseDeltacloudTest {
 	public void test_updatePackageGroupsOnSystemGroup() {
 		
 		KatelloSystemGroup group = new KatelloSystemGroup(group_name, org_name);
-		group.runOn(client_name);
 		exec_result = group.packagegroup_update("birds,mammals");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("Remote action finished"));
@@ -367,7 +357,6 @@ public class SystemGroupPackages extends BaseDeltacloudTest {
 	public void test_removePackageGroupsFromSystemGroup() {
 		
 		KatelloSystemGroup group = new KatelloSystemGroup(group_name, org_name);
-		group.runOn(client_name);
 		exec_result = group.packagegroup_remove("birds,mammals");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("Remote action finished"));
