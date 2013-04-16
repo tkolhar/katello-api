@@ -25,7 +25,6 @@ public class KatelloContentView extends _KatelloObject{
 	public static final String CMD_REFRESH_VIEW = "content view refresh";
 	public static final String CMD_VIEW_INFO = "content view info";
 	public static final String CMD_VIEW_LIST = "content view list";
-
 	
 	public static final String OUT_CREATE_DEFINITION = 
 			"Successfully created content view definition [ %s ]";
@@ -68,7 +67,8 @@ public class KatelloContentView extends _KatelloObject{
 			"User %s is not allowed to access api/content_view_definitions/destroy";
 	public static final String ERR_VIEW_READ =
 			"User %s is not allowed to access api/content_views/index";
-
+	public static final String ERR_PROMOTE_DENIED =
+			"User %s is not allowed to access api/content_views/promote";
 	
 	public static final String REG_DEF_INFO = ".*ID\\s*:\\s+\\d+.*Name\\s*:\\s+%sLabel\\s*:\\s+%s.*Description\\s*:\\s+%s.*Org\\s*:\\s+%s.*Published Views\\s*:\\s+%s.*Component Views\\s*:\\s+%s.*Products\\s*:\\s+%s.*Repos\\s*:\\s*%s.*";
 	public static final String REG_DEF_LIST = ".*\\s+\\d+.*\\s+%s.*\\s+%s.*\\s+%s.*\\s+%s.*";
@@ -257,7 +257,6 @@ public class KatelloContentView extends _KatelloObject{
 		opts.add(new Attribute("name", name));
 		return run(CMD_VIEW_INFO);
 	}
-
 
 	// ** ** ** ** ** ** **
 	// ASSERTS
