@@ -6,6 +6,7 @@ import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.KatelloContentView;
+import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloPermission;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
@@ -55,7 +56,17 @@ public class ContentDefAccessTests extends KatelloCliTestScript{
 	private String content_rpub2;
 	private String view_name1;
 	private String view_name2;
-	
+	private String env_name;
+	private String content_pro1;
+	private String user_prom;
+	private String role_prom;
+	private String perm_prom_v;
+	private String perm_prom_d;
+	private String perm_prom_o;
+	private String view_pub1;
+	private String view_pub2;
+
+
 	@BeforeClass(description="init: create initial stuff")
 	public void setUp() {
 		String uid = KatelloUtils.getUniqueID();
@@ -96,6 +107,15 @@ public class ContentDefAccessTests extends KatelloCliTestScript{
 		view_name1 = "view1"+uid;
 		view_name2 = "view2"+uid;
 
+		env_name = "env1";
+		content_pro1 = "contentpro1"+uid;
+		user_prom = "userpr"+uid;
+		role_prom = "rolepr"+uid;
+		perm_prom_v = "permprv"+uid;
+		perm_prom_d = "permprd"+uid;
+		perm_prom_o = "permpro"+uid;
+		view_pub1=  "view1";
+		view_pub2=  "view2";
 		
 		// Create org:
 		KatelloOrg org = new KatelloOrg(this.org_name, "Permission tests");
@@ -115,6 +135,10 @@ public class ContentDefAccessTests extends KatelloCliTestScript{
 		KatelloRepo repo = new KatelloRepo(repo_name, org_name, product_name, PULP_RHEL6_x86_64_REPO, null, null);
 		exec_result = repo.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+
+		KatelloEnvironment env = new KatelloEnvironment(env_name, "description", org_name, "Library");
+		exec_result = env.cli_create();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check - exit code (create env)");
 
 		KatelloUser user = new KatelloUser(this.user_create, "root@localhost", KatelloUser.DEFAULT_USER_PASS, false);
 		exec_result = user.cli_create();
@@ -196,6 +220,42 @@ public class ContentDefAccessTests extends KatelloCliTestScript{
 		content = new KatelloContentView(content_publish2, "description", org_name, content_publish2);
 		exec_result = content.create_definition();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+
+		// promote access stuff
+		content = new KatelloContentView(content_pro1, "description", org_name, content_pro1);
+		exec_result = content.create_definition();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check - exit code (create definition)");
+		exec_result = content.publish(view_pub1, view_pub1, "description");
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check - exit code (publish view)");
+		exec_result = content.publish(view_pub2, view_pub2, "description");
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check - exit code (publish view)");
+
+		user = new KatelloUser(user_prom, KatelloUser.DEFAULT_USER_EMAIL, KatelloUser.DEFAULT_USER_PASS, false);
+		exec_result = user.cli_create();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check - exit code (create user)");
+
+		role = new KatelloUserRole(role_prom, "promote views");
+		exec_result = role.create();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check - exit code (create role)");
+
+		perm = new KatelloPermission(perm_prom_v, org_name, "content_views", view_pub1, "read,promote", role_prom);
+		exec_result = perm.create();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check - exit code (create perm)");
+
+		perm = new KatelloPermission(perm_prom_d, org_name, "content_view_definitions", null, "create,delete,update,publish,read", role_prom);
+		exec_result = perm.create(true);
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check - exit code (create perm)");
+
+		perm = new KatelloPermission(perm_prom_o, org_name, "organizations", null, "read", role_prom);
+		exec_result = perm.create(true);
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check - exit code (create perm)");
+
+		perm = new KatelloPermission(perm_prom_v+"r", org_name, "content_views", view_pub2, "read", role_prom);
+		exec_result = perm.create();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check - exit code (create perm)");
+
+		exec_result = user.assign_role(role_prom);
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check - exit code (assign role)");
 
 		// stuff for modify tests
 		content = new KatelloContentView(content_name4, "description", org_name, content_name4);
@@ -405,6 +465,27 @@ public class ContentDefAccessTests extends KatelloCliTestScript{
 		exec_result = content.view_info(view_name1);
 		Assert.assertTrue(exec_result.getExitCode()==147, "Check - exit code (list views)");
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentView.ERR_VIEW_READ, this.user_read)), "Check - error string (view read)");
+	}
+
+	@Test(description="access to promote content views")
+	public void test_PromoteAccess() {
+		KatelloUser user = new KatelloUser(user_prom, KatelloUser.DEFAULT_USER_EMAIL, KatelloUser.DEFAULT_USER_PASS, false);
+		KatelloContentView content = new KatelloContentView(view_pub1, "description", org_name, view_pub1);
+		content.runAs(user);
+		exec_result = content.promote_view(view_pub1, env_name);
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check - exit code (promote view)");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentView.OUT_PROMOTE, view_pub1, env_name)), "Check - output message");
+	}
+
+	@Test(description="promote no access")
+	public void test_PromoteNoAccess() {
+		// TODO maybe use existing content views
+		KatelloUser user = new KatelloUser(user_prom, KatelloUser.DEFAULT_USER_EMAIL, KatelloUser.DEFAULT_USER_PASS, false);
+		KatelloContentView content = new KatelloContentView(view_pub2, "description", org_name, view_pub2);
+		content.runAs(user);
+		exec_result = content.promote_view(view_pub2, env_name);
+		Assert.assertTrue(exec_result.getExitCode()==147, "Check - exit code (promote view)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentView.ERR_PROMOTE_DENIED, user_prom)), "Check - output message");		
 	}
 
 }
