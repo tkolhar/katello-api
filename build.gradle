@@ -197,6 +197,7 @@ task run_katello(dependsOn: 'testClasses') << {
     def excludegroups = System.getProperty("testng.excludegroups", "${TESTNG_KATELLO_EXCLUDE_GROUPS}")
     def workspace = System.getProperty("workspace.dir", System.getenv("WORKSPACE") ?: System.properties["user.dir"])
     def outputDir = "${workspace}/test-output"
+    def groups = System.getProperty("testng.groups", "")
     
     systemProperties = System.properties
     workingDir = "${workspace}"
@@ -208,6 +209,7 @@ task run_katello(dependsOn: 'testClasses') << {
     args '-configfailurepolicy','continue'
     args '-testnames',"${testnames}"
     args '-excludegroups',"${excludegroups}"
+    args '-groups',"$groups"
   }
 }
 
