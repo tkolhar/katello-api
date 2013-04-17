@@ -263,6 +263,20 @@ public class KatelloSystem extends _KatelloObject{
 		return KatelloUtils.sshOnClient(getHostName(), cmd);		
 	}
 	
+	
+	public SSHCommandResult rhsm_registerForce_multiplekeys(String act_list){
+		String cmd = RHSM_REGISTER_BYKEY;
+		
+		if(this.name != null)
+			cmd += " --name \""+this.name+"\"";
+		if(this.org != null)
+			cmd += " --org \""+this.org+"\"";
+		if(act_list != null)
+			cmd += " --activationkey \"" + act_list +"\"";
+		cmd += " --force";
+		
+		return KatelloUtils.sshOnClient(getHostName(), cmd);		
+	}
 	public SSHCommandResult rhsm_clean(){
 		String cmd = RHSM_CLEAN;		
 		return KatelloUtils.sshOnClient(getHostName(), cmd);		
