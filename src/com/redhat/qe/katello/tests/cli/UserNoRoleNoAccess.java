@@ -9,9 +9,10 @@ import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloUser;
 import com.redhat.qe.katello.base.obj.KatelloUserRole;
 import com.redhat.qe.katello.common.KatelloUtils;
+import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups={"headpin-cli"})
+@Test(groups={"headpin-cli",TngRunGroups.TNG_KATELLO_Users_Roles})
 public class UserNoRoleNoAccess extends KatelloCliTestScript {
 	
 	private String users;	

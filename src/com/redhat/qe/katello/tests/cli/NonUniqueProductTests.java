@@ -16,8 +16,10 @@ import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloSyncPlan;
 import com.redhat.qe.katello.base.obj.KatelloSyncPlan.SyncPlanInterval;
 import com.redhat.qe.katello.common.KatelloUtils;
+import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
+@Test(groups=TngRunGroups.TNG_KATELLO_Providers_Repos)
 public class NonUniqueProductTests  extends KatelloCliTestScript{
 
 	private String org_name;

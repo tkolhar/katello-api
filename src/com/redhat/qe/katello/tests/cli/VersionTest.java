@@ -5,11 +5,10 @@ import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.KatelloVersion;
 
 import com.redhat.qe.tools.SSHCommandResult;
-@Test(groups={"headpin-cli"})
+@Test(groups={"headpin-cli","Install / Configuration"})
 public class VersionTest extends KatelloCliTestScript{
-
-	
 	private SSHCommandResult exec_result;
+	
 	@Test(description = "Version - get the version of the server")
 	public void test_Version(){
 		KatelloVersion version_obj= new KatelloVersion();

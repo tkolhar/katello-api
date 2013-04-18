@@ -10,9 +10,10 @@ import com.redhat.qe.katello.base.obj.KatelloGpgKey;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.common.KatelloConstants;
 import com.redhat.qe.katello.common.KatelloUtils;
+import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups={KatelloConstants.TNG_CFSE_CLI})
+@Test(groups={KatelloConstants.TNG_CFSE_CLI, TngRunGroups.TNG_KATELLO_Providers_Repos})
 public class GpgKeyTests extends KatelloCliTestScript{
 	private String rand;
 	private String org;

@@ -21,9 +21,11 @@ import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.base.obj.KatelloUser;
 import com.redhat.qe.katello.base.obj.KatelloUserRole;
 import com.redhat.qe.katello.common.KatelloUtils;
+import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SCPTools;
 import com.redhat.qe.tools.SSHCommandResult;
 
+@Test(groups={TngRunGroups.TNG_KATELLO_System_Consumer})
 public class SystemTests extends KatelloCliTestScript{	
 	protected static Logger log = Logger.getLogger(SystemTests.class.getName());
 	

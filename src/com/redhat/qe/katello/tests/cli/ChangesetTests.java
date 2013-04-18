@@ -20,9 +20,10 @@ import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.common.KatelloUtils;
+import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups={"cfse-cli"})
+@Test(groups={"cfse-cli",TngRunGroups.TNG_KATELLO_Content})
 public class ChangesetTests extends KatelloCliTestScript{
 
 	protected static Logger log = Logger.getLogger(ChangesetTests.class.getName());

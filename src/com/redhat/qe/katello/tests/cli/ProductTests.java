@@ -16,11 +16,11 @@ import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.common.KatelloUtils;
+import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
-
+@Test(groups={TngRunGroups.TNG_KATELLO_Content})
 public class ProductTests  extends KatelloCliTestScript{
-
 	private String org_name;
 	private String prov_name;
 	private String org_name2;
@@ -626,7 +626,6 @@ public class ProductTests  extends KatelloCliTestScript{
 			String match_info = String.format(KatelloProduct.REG_PROD_LIST, prod.getName(), prod.provider, prod.syncPlanName, prod.lastSync, prod.gpgkey).replaceAll("\"", "");
 			Assert.assertFalse(getOutput(exec_result).replaceAll("\n", " ").matches(match_info), String.format("Product [%s] should be found in the result list", prod.getName()));
 		}
-		
 	}
 	
 	private String assert_productStatus(KatelloProduct product) {

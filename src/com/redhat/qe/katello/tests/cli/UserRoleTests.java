@@ -8,26 +8,28 @@ import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.KatelloUserRole;
 import com.redhat.qe.katello.common.KatelloUtils;
+import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
+@Test(groups={TngRunGroups.TNG_KATELLO_Users_Roles})
 public class UserRoleTests extends KatelloCliTestScript{
-	
+
 	@Test(description="create User Role", groups = {"headpin-cli"}, 
 			dataProvider="user_role_create", dataProviderClass = KatelloCliDataProvider.class, enabled=true)
 	public void testUserRole_create(String name, String descr, Integer exitCode, String output){
 		SSHCommandResult res;
-		
+
 		KatelloUserRole user_role = new KatelloUserRole(name, descr);
 		res = user_role.create();
 		Assert.assertTrue(res.getExitCode().intValue() == exitCode.intValue(), "Check - return code");
-		
+
 		if(exitCode.intValue()==0){ //
 			Assert.assertTrue(getOutput(res).contains(output),"Check - returned output string");
 		}else{ // Failure to be checked
 			Assert.assertTrue(getOutput(res).contains(output),"Check - returned error string");
 		}
 	}
-	
+
 	@Test(description="User Role Update",groups = {"headpin-cli"})
 	public void testUserRole_update()
 	{
@@ -49,37 +51,37 @@ public class UserRoleTests extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(res).contains(
 				String.format(KatelloUserRole.OUT_UPDATE,name)), 
 				"Check - returned output string ("+KatelloUserRole.CMD_UPDATE+")");
-		
-		 
+
+
 	}
-	
+
 	@Test(description="delete a UserRole", groups = {"headpin-cli"},enabled=true)
 	public void test_delete_UserRole(){
-	            String uid = KatelloUtils.getUniqueID();
-	            String user_role_name="user_role-delete-"+ uid; 
-	            SSHCommandResult res;
-	            KatelloUserRole user_role = new KatelloUserRole(user_role_name, "User Role Created");
-	            res = user_role.create();
-	            Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (user role create)");
-	            Assert.assertTrue(getOutput(res).contains(
-	    				String.format(KatelloUserRole.OUT_CREATE,user_role_name)), 
-	    				"Check - returned output string ("+KatelloUserRole.CMD_CREATE+")");
-	            res = user_role.cli_delete();
-	            Assert.assertTrue(res.getExitCode().intValue() == 0,"Check - return code (user role delete)");
-	            Assert.assertTrue(getOutput(res).contains(
-	    				String.format(KatelloUserRole.OUT_DELETE,user_role_name)), 
-	    				"Check - returned output string ("+KatelloUserRole.CMD_DELETE+")");
-	           
-	            res = user_role.cli_info();
-	            Assert.assertTrue(res.getExitCode().intValue() == 65,"Check - return code (user role delete)");
-	            Assert.assertTrue(getOutput(res).contains(
-	    				String.format(KatelloUserRole.ERROR_INFO,user_role_name)), 
-	    				"Check - returned output string ("+KatelloUserRole.CMD_INFO+")");	
-	            res = user_role.cli_list();
-	            Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (user role list)");
-	            
+		String uid = KatelloUtils.getUniqueID();
+		String user_role_name="user_role-delete-"+ uid; 
+		SSHCommandResult res;
+		KatelloUserRole user_role = new KatelloUserRole(user_role_name, "User Role Created");
+		res = user_role.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (user role create)");
+		Assert.assertTrue(getOutput(res).contains(
+				String.format(KatelloUserRole.OUT_CREATE,user_role_name)), 
+				"Check - returned output string ("+KatelloUserRole.CMD_CREATE+")");
+		res = user_role.cli_delete();
+		Assert.assertTrue(res.getExitCode().intValue() == 0,"Check - return code (user role delete)");
+		Assert.assertTrue(getOutput(res).contains(
+				String.format(KatelloUserRole.OUT_DELETE,user_role_name)), 
+				"Check - returned output string ("+KatelloUserRole.CMD_DELETE+")");
+
+		res = user_role.cli_info();
+		Assert.assertTrue(res.getExitCode().intValue() == 65,"Check - return code (user role delete)");
+		Assert.assertTrue(getOutput(res).contains(
+				String.format(KatelloUserRole.ERROR_INFO,user_role_name)), 
+				"Check - returned output string ("+KatelloUserRole.CMD_INFO+")");	
+		res = user_role.cli_list();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (user role list)");
+
 	}  
-	
+
 	//todo : add ldapgroup/removeldap group
 	@Test(description="Add ldap group to a UserRole", groups = {"headpin-cli","openldap"},enabled=true)
 	public void test_add_ldap_group() {
@@ -111,7 +113,7 @@ public class UserRoleTests extends KatelloCliTestScript{
 				Assert.assertTrue(res.getExitCode().intValue() == 0,"Check - return code (user role info)");
 			}	                       	            
 	}  
-	
+
 	@Test(description="Remove ldap group to a UserRole", groups = {"headpin-cli","openldap"},enabled=true)
 	public void test_remove_ldap_group(){
 		String uid = KatelloUtils.getUniqueID();
@@ -149,7 +151,7 @@ public class UserRoleTests extends KatelloCliTestScript{
 				Assert.assertTrue(res.getExitCode().intValue() == 0,"Check - return code (user role info)");
 			}	            
 	}    
-	
+
 	@AfterClass(description="Cleanup the trash we did.", alwaysRun=true, groups = {"headpin-cli"}, enabled=true)
 	public void eraseRoles(){
 		Object[][] roles = KatelloCliDataProvider.user_role_create();

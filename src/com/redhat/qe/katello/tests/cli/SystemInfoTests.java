@@ -13,9 +13,10 @@ import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.common.KatelloUtils;
+import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups={"cfse-cli","headpin-cli"})
+@Test(groups={"cfse-cli","headpin-cli",TngRunGroups.TNG_KATELLO_System_Consumer})
 public class SystemInfoTests extends KatelloCliTestScript{	
 	protected static Logger log = Logger.getLogger(SystemTests.class.getName());
 	

@@ -12,6 +12,7 @@ import com.redhat.qe.katello.base.obj.KatelloHardwareModel;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
+@Test(groups="foreman")
 public class HardwareModelTests extends KatelloCliTestScript {
 	
 	private String name;
