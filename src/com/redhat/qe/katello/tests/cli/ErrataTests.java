@@ -16,10 +16,11 @@ import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.common.KatelloUtils;
+import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.katello.tests.e2e.PromoteErrata;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups={"cfse-cli"})
+@Test(groups={"cfse-cli",TngRunGroups.TNG_KATELLO_Errata})
 public class ErrataTests extends KatelloCliTestScript {
 
 	protected static Logger log = Logger.getLogger(ErrataTests.class.getName());

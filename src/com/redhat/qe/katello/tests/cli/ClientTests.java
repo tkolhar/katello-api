@@ -6,8 +6,9 @@ import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.KatelloClient;
 import com.redhat.qe.katello.common.KatelloUtils;
+import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
-@Test(groups={"headpin-cli"})
+@Test(groups={"headpin-cli",TngRunGroups.TNG_KATELLO_Install_Configuration})
 public class ClientTests extends KatelloCliTestScript{
 	
 	private SSHCommandResult exec_result;
@@ -37,9 +38,7 @@ public class ClientTests extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(exec_result).contains(
  				String.format(KatelloClient.OUT_FORGET,option)), 
  				"Check - returned output string ("+KatelloClient.CMD_FORGET+")");		
-		
 	}
-	
 	
 	
 	@Test(description="Client Remember", groups = {"headpin-cli"}, 

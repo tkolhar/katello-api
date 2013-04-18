@@ -14,9 +14,10 @@ import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloUser;
 import com.redhat.qe.katello.base.obj.KatelloUserRole;
 import com.redhat.qe.katello.common.KatelloUtils;
+import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups={"cfse-cli","headpin-cli"})
+@Test(groups={"cfse-cli","headpin-cli",TngRunGroups.TNG_KATELLO_Users_Roles})
 public class UserTests extends KatelloCliTestScript{
 	
 	List<KatelloUser> users;

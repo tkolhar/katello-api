@@ -13,9 +13,10 @@ import com.redhat.qe.katello.base.obj.KatelloSystemGroup;
 import com.redhat.qe.katello.base.obj.KatelloUser;
 import com.redhat.qe.katello.base.obj.KatelloUserRole;
 import com.redhat.qe.katello.common.KatelloUtils;
+import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups={"cfse-cli"})
+@Test(groups={"cfse-cli",TngRunGroups.TNG_KATELLO_Users_Roles})
 public class UserPermissionTests extends KatelloCliTestScript {
 	
 	private String org;

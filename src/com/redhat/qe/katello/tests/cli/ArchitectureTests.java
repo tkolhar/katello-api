@@ -9,6 +9,7 @@ import com.redhat.qe.katello.base.obj.KatelloArchitecture;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
+@Test(groups={"foreman"})
 public class ArchitectureTests extends KatelloCliTestScript {
 	
 	private String name;

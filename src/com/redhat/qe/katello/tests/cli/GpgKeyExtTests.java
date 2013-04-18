@@ -12,6 +12,7 @@ import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.common.KatelloConstants;
 import com.redhat.qe.katello.common.KatelloUtils;
+import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
 /**
@@ -20,7 +21,7 @@ import com.redhat.qe.tools.SSHCommandResult;
  *
  */
 //@ TODO bug 918452 
-@Test(groups={KatelloConstants.TNG_CFSE_CLI})
+@Test(groups={KatelloConstants.TNG_CFSE_CLI,TngRunGroups.TNG_KATELLO_Providers_Repos})
 public class GpgKeyExtTests extends KatelloCliTestScript{
 	private String uid;
 	private String org;

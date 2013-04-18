@@ -9,7 +9,10 @@ import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.common.KatelloUtils;
+import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
+
+@Test(groups=TngRunGroups.TNG_KATELLO_Environment)
 public class EnvironmentTests extends KatelloCliTestScript{
 	   
 	    private String organization;
@@ -80,34 +83,31 @@ public class EnvironmentTests extends KatelloCliTestScript{
 			 
 		}
 		
-		
 		@Test(description="delete a environment", groups = {"headpin-cli"},enabled=true)
 		public void test_delete_environment(){
-		            String uid = KatelloUtils.getUniqueID();
-		            String envName="env-delete_act_key-"+ uid; 
-		            SSHCommandResult res;
-		            KatelloEnvironment env = new KatelloEnvironment(envName, "Environment created", this.organization, KatelloEnvironment.LIBRARY);
-		            res = env.cli_create();
-		            Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (environment create)");
-		            Assert.assertTrue(getOutput(res).contains(
-		    				String.format(KatelloEnvironment.OUT_CREATE,envName)), 
-		    				"Check - returned output string ("+KatelloEnvironment.CMD_CREATE+")");
-		            res = env.cli_delete();
-		            Assert.assertTrue(res.getExitCode().intValue() == 0,"Check - return code (environment delete)");
-		            Assert.assertTrue(getOutput(res).contains(
-		    				String.format(KatelloEnvironment.OUT_DELETE,envName)), 
-		    				"Check - returned output string ("+KatelloEnvironment.CMD_DELETE+")");
-		           
-		            res = env.cli_info();
-		            Assert.assertTrue(res.getExitCode().intValue() == 65,"Check - return code (environment delete)");
-		            Assert.assertTrue(getOutput(res).contains(
-		    				String.format(KatelloEnvironment.ERROR_INFO,envName,this.organization)), 
-		    				"Check - returned output string ("+KatelloEnvironment.CMD_INFO+")");	
-		            res = env.cli_list();
-		            Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (environment list)");
-		            
+			String uid = KatelloUtils.getUniqueID();
+			String envName="env-delete_act_key-"+ uid; 
+			SSHCommandResult res;
+			KatelloEnvironment env = new KatelloEnvironment(envName, "Environment created", this.organization, KatelloEnvironment.LIBRARY);
+			res = env.cli_create();
+			Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (environment create)");
+			Assert.assertTrue(getOutput(res).contains(
+					String.format(KatelloEnvironment.OUT_CREATE,envName)), 
+					"Check - returned output string ("+KatelloEnvironment.CMD_CREATE+")");
+			res = env.cli_delete();
+			Assert.assertTrue(res.getExitCode().intValue() == 0,"Check - return code (environment delete)");
+			Assert.assertTrue(getOutput(res).contains(
+					String.format(KatelloEnvironment.OUT_DELETE,envName)), 
+					"Check - returned output string ("+KatelloEnvironment.CMD_DELETE+")");
+
+			res = env.cli_info();
+			Assert.assertTrue(res.getExitCode().intValue() == 65,"Check - return code (environment delete)");
+			Assert.assertTrue(getOutput(res).contains(
+					String.format(KatelloEnvironment.ERROR_INFO,envName,this.organization)), 
+					"Check - returned output string ("+KatelloEnvironment.CMD_INFO+")");	
+			res = env.cli_list();
+			Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (environment list)");
 		}    
-		
 		
 		@Test(description="Environment update",groups = {"headpin-cli"})
 		public void testEnv_update()

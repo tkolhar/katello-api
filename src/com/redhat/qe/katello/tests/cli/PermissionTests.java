@@ -9,7 +9,10 @@ import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloPermission;
 import com.redhat.qe.katello.base.obj.KatelloUserRole;
 import com.redhat.qe.katello.common.KatelloUtils;
+import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
+
+@Test(groups=TngRunGroups.TNG_KATELLO_Users_Roles)
 public class PermissionTests extends KatelloCliTestScript{
 	private String organization;
 	private String usr_role;

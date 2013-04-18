@@ -19,9 +19,11 @@ import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.base.obj.KatelloSystemGroup;
 import com.redhat.qe.katello.common.KatelloUtils;
+import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.katello.tests.e2e.PromoteErrata;
 import com.redhat.qe.tools.SSHCommandResult;
 
+@Test(groups=TngRunGroups.TNG_KATELLO_Content)
 public class ContentViewTests extends KatelloCliTestScript{
 	
 	public static final String ERRATA_ZOO_SEA = "RHEA-2012:0002";

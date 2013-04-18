@@ -16,15 +16,16 @@ import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.base.obj.KatelloSystemGroup;
 import com.redhat.qe.katello.common.KatelloUtils;
+import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
-//@Test(groups={"cfse-cli","headpin-cli"})
+@Test(groups={TngRunGroups.TNG_KATELLO_Activation_Key})
 public class ActivationKeyTests extends KatelloCliTestScript{
 	private String organization;
 	private String env;
 	private String systemgroup;
 	
-	@BeforeClass(description="init: create org stuff", groups = {"cli-activationkey","headpin-cli"})
+	@BeforeClass(description="init: create org stuff", groups = {"headpin-cli"})
 	public void setUp(){
 		SSHCommandResult res;
 		String uid = KatelloUtils.getUniqueID();
@@ -40,7 +41,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 	}
 	
 	
-	@Test(description="create AK", groups = {"cli-activationkey","headpin-cli"}, 
+	@Test(description="create AK", groups = {"headpin-cli"}, 
 			dataProvider="activationkey_create", dataProviderClass = KatelloCliDataProvider.class, enabled=true)
 	public void test_create(String name, String descr, Integer exitCode, String output){
 		SSHCommandResult res;
@@ -56,7 +57,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 		}
 	} 
 	    
-	@Test(description="create AK - same name, diff. orgs", groups = {"cli-activationkey","headpin-cli"}, enabled=true)
+	@Test(description="create AK - same name, diff. orgs", groups = {"headpin-cli"}, enabled=true)
 	public void test_create_diffOrgsSameName(){
 		SSHCommandResult res;
 		String uid = KatelloUtils.getUniqueID();
@@ -86,7 +87,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 	}
 		
 	// @ TODO enable test when bug 909612 is fixed.
-    @Test(description="add subscription to ak, verify that it is shown in info, remove it, verify that is is not shown", groups = {"cli-activationkey"},enabled=false)
+    @Test(description="add subscription to ak, verify that it is shown in info, remove it, verify that is is not shown", enabled=false)
     public void test_update_addremoveSubscription(){
     	String uid = KatelloUtils.getUniqueID();
     	String akName="ak-subscription-zoo3-"+uid;
@@ -261,7 +262,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
     }
     
-    @Test(description="add system group to activationkey", groups = {"cli-activationkey"}, enabled=true)
+    @Test(description="add system group to activationkey",  enabled=true)
     public void test_addSystemGroup() {
     	String uid = KatelloUtils.getUniqueID();
 		this.systemgroup = "systemgroup"+uid;
@@ -281,10 +282,9 @@ public class ActivationKeyTests extends KatelloCliTestScript{
     	Assert.assertTrue(getOutput(res).contains(
 				String.format(KatelloActivationKey.OUT_ADD_SYSTEMGROUP, akName)), 
 				"Check - returned output string (activation_key add_system_group)");
-    	
     }
     
-    @Test(description="remove system group from activationkey", groups = {"cli-activationkey"}, enabled=true)
+    @Test(description="remove system group from activationkey", enabled=true)
     public void test_removeSystemGroup() {
     	String uid = KatelloUtils.getUniqueID();
 		this.systemgroup = "systemgroup"+uid;
@@ -307,8 +307,6 @@ public class ActivationKeyTests extends KatelloCliTestScript{
     	Assert.assertTrue(getOutput(res).contains(
 				String.format(KatelloActivationKey.OUT_REMOVE_SYSTEMGROUP, akName)), 
 				"Check - returned output string (activation_key remove_system_group)");
-    	
-    	
     }
     
     @Test(description="As a user, I would like to use more than one activation keys.", groups = {"cfse-cli","headpin-cli"}, enabled=true)
@@ -337,11 +335,6 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 		Assert.assertTrue(KatelloCliTestScript.sgetOutput(res).contains(akName1 +", "+akName2), 
 				          String.format("Activationkeys [%s] found in system [%s] info",act_list,systemName));		
-		
-	
-		
-
-		
     }
     
     @Test(description="As an admin, I'd like to see which activation key used it for registering the system", groups = {"cfse-cli","headpin-cli"}, enabled=true)

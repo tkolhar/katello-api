@@ -15,10 +15,12 @@ import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.common.KatelloUtils;
+import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SCPTools;
 import com.redhat.qe.tools.SSHCommandResult;
 import java.io.File;
 
+@Test(groups=TngRunGroups.TNG_KATELLO_Organizations)
 public class OrgTests extends KatelloCliTestScript{
 	List<KatelloOrg> orgs = Collections.synchronizedList(new ArrayList<KatelloOrg>());
 	String uid = KatelloUtils.getUniqueID();
@@ -367,25 +369,24 @@ public class OrgTests extends KatelloCliTestScript{
 		Assert.assertTrue(scp.sendFile("data"+File.separator+"stack-manifest.zip", "/tmp"),
 				"stack-manifest.zip sent successfully");			
 		try {
-		exec_result = provider.import_manifest("/tmp"+File.separator+"stack-manifest.zip", new Boolean(true));
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		exec_result = provider.delete_manifest();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		diff_org = new KatelloOrg(diff_org_name,null);
-		exec_result = diff_org.cli_create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		provider = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT,diff_org_name,null,null);
-		exec_result = provider.import_manifest("/tmp"+File.separator+"stack-manifest.zip", new Boolean(true));
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		} finally {
-		exec_result	= org.delete();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		if (diff_org != null) {
-			exec_result = diff_org.delete();
+			exec_result = provider.import_manifest("/tmp"+File.separator+"stack-manifest.zip", new Boolean(true));
 			Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+			exec_result = provider.delete_manifest();
+			Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+			diff_org = new KatelloOrg(diff_org_name,null);
+			exec_result = diff_org.cli_create();
+			Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+			provider = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT,diff_org_name,null,null);
+			exec_result = provider.import_manifest("/tmp"+File.separator+"stack-manifest.zip", new Boolean(true));
+			Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		} finally {
+			exec_result	= org.delete();
+			Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+			if (diff_org != null) {
+				exec_result = diff_org.delete();
+				Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+			}
 		}
-		}
-
 	}
 	
 	private void assert_orgInfo(KatelloOrg org){

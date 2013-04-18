@@ -15,10 +15,11 @@ import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.base.obj.KatelloUser;
 import com.redhat.qe.katello.base.obj.KatelloUserRole;
 import com.redhat.qe.katello.common.KatelloUtils;
+import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
 	
-@Test(groups={"cfse-cli"})
+@Test(groups={"cfse-cli",TngRunGroups.TNG_KATELLO_Content})
 public class ContentDefAccessTests extends KatelloCliTestScript{
 
 	private SSHCommandResult exec_result;

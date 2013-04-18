@@ -3,13 +3,14 @@ import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.KatelloPing;
+import com.redhat.qe.katello.common.TngRunGroups;
 
 import com.redhat.qe.tools.SSHCommandResult;
-@Test(groups={"headpin-cli"})
-public class PingTest extends KatelloCliTestScript{
 
-	
+@Test(groups={"headpin-cli",TngRunGroups.TNG_KATELLO_Install_Configuration})
+public class PingTest extends KatelloCliTestScript{
 	private SSHCommandResult exec_result;
+
 	@Test(description = "Ping - get the status of the katello server")
 	public void test_Ping(){
 		KatelloPing ping_obj= new KatelloPing();
