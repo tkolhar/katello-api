@@ -85,7 +85,6 @@ public class PackageGroupTests extends KatelloCliTestScript {
 		cs.apply();
 	}
 	
-	//@ TODO bug 918452
 	@Test(description="packagegroup list", groups = {"cli-packagegroup"}, enabled=true)
 	public void test_packageGroupList() {
 		KatelloRepo repo = new KatelloRepo(repo_name, org_name, product_name, REPO_INECAS_ZOO3, null, null);

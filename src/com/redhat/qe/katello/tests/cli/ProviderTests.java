@@ -427,7 +427,6 @@ public class ProviderTests extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(res).equals(String.format(KatelloProvider.OUT_SYNCHRONIZE, provName)), "Check - returned output string");
 	}
 
-	//@ TODO bug 918452
 	@Test(description="Synchronize provider - single product", groups = {"cli-providers"},enabled=true)
 	public void test_syncProvider_singleProduct(){
 		SSHCommandResult res;
@@ -453,10 +452,10 @@ public class ProviderTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		Assert.assertTrue(getOutput(res).contains(String.format(KatelloProvider.OUT_SYNCHRONIZE, provName)), "Check - returned output string");
 		
+		waitfor_repodata(repo, 1);
 		assert_repoSynced(repo);
 	}
 	
-	//@ TODO bug 918452
 	@Test(description="Synchronize provider - multiple products", groups = {"cli-providers"},enabled=true)
 	public void test_syncProvider_multiProducts(){
 		SSHCommandResult res;
@@ -490,6 +489,8 @@ public class ProviderTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		Assert.assertTrue(getOutput(res).contains(String.format(KatelloProvider.OUT_SYNCHRONIZE, provName)), "Check - returned output string");
 		
+		waitfor_repodata(repo1, 1);
+		waitfor_repodata(repo2, 1);
 		assert_repoSynced(repo1);
 		assert_repoSynced(repo2);
 	}

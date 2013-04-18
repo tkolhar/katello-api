@@ -163,7 +163,7 @@ public class RepoTests extends KatelloCliTestScript {
 		assert_repoStatus(repo);
 	}
 	
-	//@ TODO bug 918452 
+	//@ TODO bug 953524 
 	@Test(description = "Synchronize repository", groups = { "cli-repo" })
 	public void test_syncRepo() {
 
