@@ -83,40 +83,34 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 		client_name3 = client3.getHostName();
 		
 		System.setProperty("katello.server.hostname", server_name);
-		System.setProperty("katello.client.hostname", client_name);
+		System.setProperty("katello.client.hostname", server_name);
 		
 		// Create org:
 		KatelloOrg org = new KatelloOrg(org_name, "Package tests");
-		org.runOn(client_name);
 		exec_result = org.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
 		// Create provider:
 		KatelloProvider prov = new KatelloProvider(provider_name, org_name,
 				"Package provider", null);
-		prov.runOn(client_name);
 		exec_result = prov.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
 		// Create product:
 		KatelloProduct prod = new KatelloProduct(product_name, org_name,
 				provider_name, null, null, null, null, null);
-		prod.runOn(client_name);
 		exec_result = prod.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
 		KatelloRepo repo = new KatelloRepo(repo_name, org_name, product_name, REPO_INECAS_ZOO3, null, null);
-		repo.runOn(client_name);
 		exec_result = repo.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		KatelloEnvironment env = new KatelloEnvironment(env_name, null, org_name, KatelloEnvironment.LIBRARY);
-		env.runOn(client_name);
 		exec_result = env.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (env create)");
 		
 		env = new KatelloEnvironment(env_name2, null, org_name, KatelloEnvironment.LIBRARY);
-		env.runOn(client_name);
 		exec_result = env.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (env create)");
 		
@@ -131,7 +125,6 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		KatelloChangeset cs = new KatelloChangeset(changeset_name, org_name, env_name);
-		cs.runOn(client_name);
 		exec_result = cs.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset create)");
 		
@@ -153,7 +146,6 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 		prov.runOn(server_name);
 		SSHCommandResult res = prov.import_manifest("/tmp"+File.separator+MANIFEST_12SUBSCRIPTIONS, new Boolean(true));
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (provider import_manifest)");
-		Assert.assertTrue(getOutput(res).contains("Manifest imported"),"Message - (provider import_manifest)");
 		
 		prod = new KatelloProduct(KatelloProduct.RHEL_SERVER,org_name, KatelloProvider.PROVIDER_REDHAT, null, null, null,null, null);
 		res = prod.repository_set_enable(KatelloProduct.REPO_SET_NAME,KatelloProduct.RHEL_SERVER);
@@ -175,6 +167,7 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 		
 		res = repo.synchronize();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo synchronize)");
+		waitfor_repodata(repo, 2);
 		res = repo.info();
 		int pkgCount = Integer.parseInt(KatelloCli.grepCLIOutput("Package Count", res.getStdout()));
 		String progress = KatelloCli.grepCLIOutput("Progress", res.getStdout());
@@ -236,7 +229,6 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		KatelloSystemGroup group = new KatelloSystemGroup(group_name, org_name);
-		group.runOn(client_name);
 		exec_result = group.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
@@ -250,7 +242,6 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		group = new KatelloSystemGroup(group_name2, org_name);
-		group.runOn(client_name);
 		exec_result = group.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		

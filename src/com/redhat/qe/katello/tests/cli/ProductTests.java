@@ -103,7 +103,6 @@ public class ProductTests  extends KatelloCliTestScript{
 				"Repo list should contain info about just created repo (requested by: org, product)");
 	}
 	
-	//@ TODO bug 918452
 	@Test(description="create product - with multiple repos", groups = {"cli-products"}, enabled=true)
 	public void test_createProduct_urlMultipleRepo(){
 		String uid = KatelloUtils.getUniqueID();
@@ -134,6 +133,7 @@ public class ProductTests  extends KatelloCliTestScript{
 		match_info = String.format(KatelloRepo.REG_PACKAGE_CNT, "0").replaceAll("\"", "");	
 		repoName = KatelloCli.grepCLIOutput("Name", getOutput(resRepos),1); // 1st repo
 		KatelloRepo repoWithName = new KatelloRepo(repoName, this.org_name, prodName, null, null, null);
+		waitfor_repodata(repoWithName, 1);
 		res = repoWithName.info();
 		// output to analyze - should contain: 0
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info),"Repo list of the product - should contain package count 0");
@@ -141,6 +141,7 @@ public class ProductTests  extends KatelloCliTestScript{
 		repoName = KatelloCli.grepCLIOutput("Name", getOutput(resRepos),2); // 2nd repo
 		repoWithName = new KatelloRepo(repoName, this.org_name, prodName, null, null, null);
 		match_info = String.format(KatelloRepo.REG_PACKAGE_CNT, "0").replaceAll("\"", "");
+		waitfor_repodata(repoWithName, 1);
 		res = repoWithName.info();
 		// output to analyze - should contain: 0
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info),"Repo list of the product - should contain package count 0");
@@ -474,12 +475,17 @@ public class ProductTests  extends KatelloCliTestScript{
 		// sync product
 		res = prod.synchronize();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product synchronize)");
-		Assert.assertTrue(getOutput(res).contains(String.format(KatelloProduct.OUT_SYNCHRONIZED,prodName)), "Check - returned output string (product synchronize)");
-		try{Thread.sleep(10000);}catch (Exception e){}
+		Assert.assertTrue(getOutput(res).contains(String.format(KatelloProduct.OUT_SYNCHRONIZED,prodName)), "Check - returned output string (product synchronize)");		
 		
-		// get packages count for the repo - !=0
 		KatelloRepo repo = new KatelloRepo(null,this.org_name,prodName,null,null,null);
 		res = repo.list();
+		String repoName = KatelloCli.grepCLIOutput("Name", res.getStdout(),1); // 1st repo
+		repo = new KatelloRepo(repoName,this.org_name,prodName,null,null,null);
+		
+		waitfor_repodata(repo, 1);
+		
+		// get packages count for the repo - !=0
+		res = repo.info();
 		String match_info = String.format(KatelloRepo.REG_PACKAGE_CNT, "0").replaceAll("\"", "");
 		Assert.assertFalse(getOutput(res).replaceAll("\n", "").matches(match_info),
 				"Repo list of the product - should not contain package count 0 (after product synchronize)");
@@ -510,12 +516,14 @@ public class ProductTests  extends KatelloCliTestScript{
 		
 		repoName = KatelloCli.grepCLIOutput("Name", resRepos.getStdout(),1); // 1st repo
 		repo = new KatelloRepo(repoName,this.org_name,prodName,null,null,null);
+		waitfor_repodata(repo, 1);
 		res = repo.info();
 		// our line to analyze - should not contain: 0
 		Assert.assertFalse(getOutput(res).matches(match_info),"Repo list of the product - should not contain package count 0 (after product synchronize)");
 
 		repoName = KatelloCli.grepCLIOutput("Name", resRepos.getStdout(),2); // 2nd repo
 		repo = new KatelloRepo(repoName,this.org_name,prodName,null,null,null);
+		waitfor_repodata(repo, 1);
 		res = repo.info();
 		// our line to analyze - should not contain: 0
 		Assert.assertFalse(getOutput(res).matches(match_info),"Repo list of the product - should not contain package count 0 (after product synchronize)");
@@ -593,7 +601,8 @@ public class ProductTests  extends KatelloCliTestScript{
 		// Assertions - repo list by env.
 		repo = new KatelloRepo(null,this.org_name,prodName,null,null,null);
 		res = repo.list(envName_dev);
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo list --environment)");
+		Assert.assertTrue(res.getExitCode().intValue()==65, "Check - return code (repo list --environment)");
+		Assert.assertTrue(getOutput(res).equals(String.format(KatelloProduct.ERR_COULD_NOT_FIND_PRODUCT, prodName,org_name)), "Check - `repo list --environment` output string");
 		match_info = String.format(KatelloRepo.REG_REPO_LIST_ARCH, prodName, "x86_64").replaceAll("\"", "");
 		Assert.assertFalse(getOutput(res).replaceAll("\n", "").matches(match_info), "Check - `repo list --environment` output string");
 		

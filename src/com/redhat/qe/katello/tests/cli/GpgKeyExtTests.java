@@ -20,7 +20,6 @@ import com.redhat.qe.tools.SSHCommandResult;
  * @author gkhachik
  *
  */
-//@ TODO bug 918452 
 @Test(groups={KatelloConstants.TNG_CFSE_CLI,TngRunGroups.TNG_KATELLO_Providers_Repos})
 public class GpgKeyExtTests extends KatelloCliTestScript{
 	private String uid;

@@ -81,7 +81,6 @@ public class ProductRepoTests extends KatelloCliTestScript {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
 
-	//@ TODO bug 918452
 	@Test(description = "Create repo", groups = { "cli-repo" })
 	public void test_createRepo() {
 
@@ -102,7 +101,6 @@ public class ProductRepoTests extends KatelloCliTestScript {
 		//Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloRepo.ERR_REPO_EXISTS, repo.name, product_name));
 	}
 	
-	//@ TODO bug 918452
 	@Test(description = "Discover repo", groups = { "cli-repo" })
 	public void test_discoverRepo() {
 
@@ -137,7 +135,6 @@ public class ProductRepoTests extends KatelloCliTestScript {
 		assert_repoList(getOutput(exec_result).replaceAll("\n", " "), repo1);
 	}
 	
-	//@ TODO bug 918452
 	@Test(description = "Update repo gpg key", groups = { "cli-repo" })
 	public void test_updateRepo() {
 
@@ -150,7 +147,7 @@ public class ProductRepoTests extends KatelloCliTestScript {
 		assert_repoStatus(repo);
 	}
 	
-	//@ TODO bug 918452
+	//@ TODO bug 953524
 	@Test(description = "Synchronize repository", groups = { "cli-repo" })
 	public void test_syncRepo() {
 

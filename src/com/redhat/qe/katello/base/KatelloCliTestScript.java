@@ -113,6 +113,38 @@ implements KatelloConstants {
 		else
 			log.warning("Repo sync did not finished after: ["+String.valueOf(maxWaitSec - start)+"] sec");
 	}
+
+	protected void waitfor_repodata(KatelloRepo repo, int timeoutMinutes){
+		SSHCommandResult res;
+		long now = Calendar.getInstance().getTimeInMillis() / 1000;
+		long start = now;
+		long maxWaitSec = start + (timeoutMinutes * 60);
+		StringBuilder path = new StringBuilder();
+		path.append("/var/lib/pulp/working/repos/");
+		path.append(repo.org);
+		path.append("-");
+		path.append(repo.product);
+		path.append("-");
+		path.append(repo.name);
+		path.append("/importers/yum_importer/");
+		path.append(repo.org);
+		path.append("-");
+		path.append(repo.product);
+		path.append("-");
+		path.append(repo.name);
+		path.append("/repodata");
+		while(now<maxWaitSec){
+			try{Thread.sleep(10000);}catch (Exception e){}
+			res = KatelloUtils.sshOnServer("ls -la " + path.toString());
+			now = Calendar.getInstance().getTimeInMillis() / 1000;
+			if(getOutput(res).replaceAll("\n", "").contains("repomd.xml"))
+				break;			
+		}
+		if(now<=maxWaitSec)
+			log.fine("Repodata is available in: ["+String.valueOf((Calendar.getInstance().getTimeInMillis() / 1000) - start)+"] sec");
+		else
+			log.warning("Repodata is not available after: ["+String.valueOf(maxWaitSec - start)+"] sec");
+	}
 	
 	/**
 	 * Returns list of org names that have imported a manifest that has subscriptions for:<BR>

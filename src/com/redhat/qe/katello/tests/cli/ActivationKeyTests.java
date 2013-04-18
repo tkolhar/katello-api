@@ -113,7 +113,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
     	KatelloOrg org = new KatelloOrg(this.organization, null);
     	res = org.subscriptions();
   
-		String poolId1 = KatelloCli.grepCLIOutput("Id", getOutput(res).trim(),1);
+		String poolId1 = KatelloCli.grepCLIOutput("ID", getOutput(res).trim(),1);
 		Assert.assertNotNull(poolId1, "Check - pool Id is not null");
 		
 		res = ak.update_add_subscription(poolId1);

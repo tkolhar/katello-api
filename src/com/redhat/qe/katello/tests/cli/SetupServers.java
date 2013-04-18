@@ -30,11 +30,7 @@ public class SetupServers extends KatelloCliTestScript {
 			client_name = client.getHostName();
 			
 			System.setProperty("katello.server.hostname", server.getHostName());
-			if (System.getProperty("katello.product", "katello").equals("sam") || System.getProperty("katello.product", "katello").equals("headpin")) {
-				System.setProperty("katello.client.hostname", server.getHostName());
-			} else {
-				System.setProperty("katello.client.hostname", client.getHostName());
-			}
+			System.setProperty("katello.client.hostname", server.getHostName());
 		}
 	}
 	

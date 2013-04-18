@@ -28,7 +28,6 @@ public class SystemErratas extends BaseDeltacloudTest {
 		setUpErratas();
 		
 		KatelloSystem system = new KatelloSystem(system_name, org_name, env_name);
-		system.runOn(client_name);
 		exec_result = system.list_errata_count("RHBA");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertFalse(getOutput(exec_result).replaceAll("\n", "").trim().equals("0"), "Check - erratas are not empty");
@@ -47,7 +46,6 @@ public class SystemErratas extends BaseDeltacloudTest {
 		setUpErratas();
 		
 		KatelloSystem system = new KatelloSystem(system_name, org_name, env_name);
-		system.runOn(client_name);
 		exec_result = system.list_errata_details_count("RHBA");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertFalse(getOutput(exec_result).replaceAll("\n", "").trim().equals("0"), "Check - erratas are not empty");
