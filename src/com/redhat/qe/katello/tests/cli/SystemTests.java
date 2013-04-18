@@ -304,6 +304,7 @@ public class SystemTests extends KatelloCliTestScript{
 				"Check - output (error)");
 	}
 
+	// TODO - bz#896074 failing due to this
 	@Test(description = "delete registered system by user who has not permissions", enabled=true,groups={"cfse-cli"})
 	public void test_deleteSystemInvalidAccess(){
 		String uid = KatelloUtils.getUniqueID();
@@ -421,7 +422,6 @@ public class SystemTests extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(res).contains(String.format("Successfully removed Custom Information from System [ %s ]",sys_name)),"Check - return string");
 		res = org.delete();
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
-
 	}
 
 
@@ -514,17 +514,13 @@ public class SystemTests extends KatelloCliTestScript{
 			KatelloSystem sys = new KatelloSystem(sys_name, org_name, env_name);
 			res = sys.rhsm_registerForce();
 			Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
-			res = sys.rhsm_subscribe_auto();
-			Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 			res = sys.report("pdf");
 			Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 		} finally {
 			res = org.delete();
 			Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 		}
-
 	}
-
 
 	@Test(description = "List all the releases for an Organisation",groups={"cfse-cli","headpin-cli"})
 	public void test_Release_System(){
@@ -631,8 +627,6 @@ public class SystemTests extends KatelloCliTestScript{
 			Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 			KatelloSystem sys = new KatelloSystem(sys_name, org_name, env_name);
 			res = sys.rhsm_registerForce();
-			Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
-			res = sys.rhsm_subscribe_auto();
 			Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 			res = sys.report(null);
 			Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
