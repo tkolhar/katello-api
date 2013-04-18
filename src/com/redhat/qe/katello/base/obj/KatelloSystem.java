@@ -564,4 +564,13 @@ public class KatelloSystem extends _KatelloObject{
 
 		return run(CMD_REMOVE_CUSTOM_INFO);
 	}	
+
+	public SSHCommandResult update_content_view(String view) {
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("content_view", view));
+
+		return run(CMD_UPDATE);
+	}
 }
