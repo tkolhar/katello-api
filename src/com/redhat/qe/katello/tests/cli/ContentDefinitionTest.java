@@ -121,6 +121,7 @@ public class ContentDefinitionTest extends KatelloCliTestScript{
 		KatelloContentView content2 = createContentDefinition();
 		
 		String id2 = assert_ContentViewDefinitionInfo(content2);
+		content2.setLabel(null); // if we want to delete by Id, then we HAVE TO set the label to null.
 		content2.setId(Long.valueOf(id2));
 		
 		exec_result = content2.definition_delete();

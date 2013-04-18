@@ -10,7 +10,7 @@ package com.redhat.qe.katello.common;
 public interface TngRunGroups {
 
 	public static final String TNG_KATELLO_Activation_Key = "Activation Key";
-	public static final String TNG_KATELLO_System_Template = "System Template";
+//	public static final String TNG_KATELLO_System_Template = "System Template"; // removed from Katello
 	public static final String TNG_KATELLO_Errata = "Errata";
 	public static final String TNG_KATELLO_Environment = "Environment";
 	public static final String TNG_KATELLO_Generic = "Generic";

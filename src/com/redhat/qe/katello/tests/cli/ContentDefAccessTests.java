@@ -12,6 +12,7 @@ import com.redhat.qe.katello.base.obj.KatelloPermission;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
+import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.base.obj.KatelloUser;
 import com.redhat.qe.katello.base.obj.KatelloUserRole;
 import com.redhat.qe.katello.common.KatelloUtils;
@@ -66,7 +67,14 @@ public class ContentDefAccessTests extends KatelloCliTestScript{
 	private String perm_prom_o;
 	private String view_pub1;
 	private String view_pub2;
-
+	private String sys_name;
+	private String subscr_view1;
+	private String subscr_view2;
+	private String perm_subscr_o;
+	private String perm_subscr_v1;
+	private String perm_subscr_v2;
+	private String subscr_user;
+	private String subscr_role;
 
 	@BeforeClass(description="init: create initial stuff")
 	public void setUp() {
@@ -118,6 +126,15 @@ public class ContentDefAccessTests extends KatelloCliTestScript{
 		view_pub1=  "view1";
 		view_pub2=  "view2";
 		
+		sys_name = "sys1";
+		subscr_view1 = "viewsubscr1";
+		subscr_view2 = "viewsubscr2";
+		perm_subscr_o = "permo";
+		perm_subscr_v1 = "permc1";
+		perm_subscr_v2 = "permc2";
+		subscr_user = "usersubsc"+uid;
+		subscr_role = "rolesubscr"+uid;
+
 		// Create org:
 		KatelloOrg org = new KatelloOrg(this.org_name, "Permission tests");
 		exec_result = org.cli_create();
@@ -315,6 +332,42 @@ public class ContentDefAccessTests extends KatelloCliTestScript{
 
 		exec_result = user.assign_role(role_rpub);
 		Assert.assertTrue(exec_result.getExitCode()==0, "Check - exit code (assign role)");
+
+		// subscribe access stuff
+		KatelloContentView view = new KatelloContentView(subscr_view1, "description", org_name, subscr_view1);
+		exec_result = view.create_definition();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check - exit code (definition create)");
+		exec_result = view.publish(subscr_view1, subscr_view1, "description");
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check - exit code (definition publish)");
+		exec_result = view.promote_view(subscr_view1, env_name);
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check - exit code (view promote)");
+		exec_result = view.publish(subscr_view2, subscr_view2, "description");
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check - exit code (definition publish");
+		exec_result = view.promote_view(subscr_view2, env_name);
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check - exit code (view promote)");
+
+		role = new KatelloUserRole(subscr_role, "subscribe content view");
+		exec_result = role.create();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check - exit code (create role)");
+		perm = new KatelloPermission(perm_subscr_o, org_name, "organizations", null, "update_systems,read,read_systems", subscr_role);
+		exec_result = perm.create();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check - exit code (permition create)");
+		perm = new KatelloPermission(perm_subscr_v1, org_name, "content_views", subscr_view1, "read,subscribe", subscr_role);
+		exec_result = perm.create();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check - exit code (permition create)");
+		perm = new KatelloPermission(perm_subscr_v2, org_name, "content_views", subscr_view2, "read", subscr_role);
+		exec_result = perm.create();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check - exit code (permition create)");
+
+		user = new KatelloUser(subscr_user, KatelloUser.DEFAULT_USER_EMAIL, KatelloUser.DEFAULT_USER_PASS, false);
+		exec_result = user.cli_create();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check - exit code (user create)");
+		exec_result = user.assign_role(subscr_role);
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check - exit code (assign role)");
+
+		KatelloSystem sys = new KatelloSystem(sys_name, org_name, env_name);
+		exec_result = sys.rhsm_registerForce();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check - exit code (register system)");
 	}
 	
 	@Test(description = "check access in creating new content definition")
@@ -489,4 +542,24 @@ public class ContentDefAccessTests extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentView.ERR_PROMOTE_DENIED, user_prom)), "Check - output message");		
 	}
 
+	@Test(description="subscribe access to content view")
+	public void test_SubscribeAccess() {
+		KatelloUser user = new KatelloUser(subscr_user, KatelloUser.DEFAULT_USER_EMAIL, KatelloUser.DEFAULT_USER_PASS, false);
+		KatelloSystem sys = new KatelloSystem(sys_name, org_name, env_name);
+		sys.runAs(user);
+		exec_result = sys.update_content_view(subscr_view1);
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check - exit code");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloSystem.OUT_UPDATE, sys_name)), "Check - output message");
+	}
+
+	//@ TODO bug 953444
+	@Test(description="no subscribe access to content view")
+	public void test_SubscribeNoAccess() {
+		KatelloUser user = new KatelloUser(subscr_user, KatelloUser.DEFAULT_USER_EMAIL, KatelloUser.DEFAULT_USER_PASS, false);
+		KatelloSystem sys = new KatelloSystem(sys_name, org_name, env_name);
+		sys.runAs(user);
+		exec_result = sys.update_content_view(subscr_view2);
+		Assert.assertTrue(exec_result.getExitCode()==147, "Check - exit code");
+		// TODO check error message
+	}
 }

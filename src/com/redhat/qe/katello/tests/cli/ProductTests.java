@@ -19,7 +19,7 @@ import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups={TngRunGroups.TNG_KATELLO_Content})
+@Test(groups={TngRunGroups.TNG_KATELLO_Providers_Repos})
 public class ProductTests  extends KatelloCliTestScript{
 	private String org_name;
 	private String prov_name;
