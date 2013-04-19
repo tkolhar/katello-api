@@ -9,6 +9,7 @@ import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.KatelloActivationKey;
 import com.redhat.qe.katello.base.obj.KatelloChangeset;
+import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
 import com.redhat.qe.katello.base.obj.KatelloContentView;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
@@ -40,7 +41,8 @@ public class ContentViewRefreshTests extends KatelloCliTestScript{
 	KatelloOrg org2;
 	KatelloEnvironment env2;
 	KatelloChangeset del_changeset;
-	KatelloContentView condef1;
+	KatelloContentDefinition condef1;
+	KatelloContentView conview1;
 	KatelloActivationKey act_key2;
 	KatelloSystem sys2;
 	
@@ -59,8 +61,8 @@ public class ContentViewRefreshTests extends KatelloCliTestScript{
 		// create repos and content definition in second organization for composite content view tests 
 		createLocalRepo1();
 		
-		condef1 = new KatelloContentView(condef_name1,null,org_name2,null);
-		exec_result = condef1.create_definition();
+		condef1 = new KatelloContentDefinition(condef_name1,null,org_name2,null);
+		exec_result = condef1.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		exec_result = condef1.add_product(prod_local1_name);
@@ -76,7 +78,8 @@ public class ContentViewRefreshTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		condef1.repos = repo_local1_name;
-		assert_ContentViewInfo(condef1, pubview_name1_2, "Publish Content", "Library", "1");
+		conview1 = new KatelloContentView(pubview_name1_2, org_name2);
+		assert_ContentViewInfo(condef1, conview1, "Publish Content", "Library", "1");
 		
 		KatelloUtils.sshOnClient("sed -i -e \"s/certFrequency.*/certFrequency = 1/\" /etc/rhsm/rhsm.conf");
 		KatelloUtils.sshOnClient("service rhsmcertd restart");
@@ -88,7 +91,7 @@ public class ContentViewRefreshTests extends KatelloCliTestScript{
 	
 	@Test(description = "Adding a published content view to an activation key",groups={"cfse-cli"})
 	public void test_addContentView() {
-		exec_result = condef1.promote_view(pubview_name1_2, env_name2);
+		exec_result = conview1.promote_view(env_name2);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		act_key2 = new KatelloActivationKey(org_name2, env_name2, act_key_name2, "Act key created");
 		exec_result = act_key2.create();
@@ -117,14 +120,14 @@ public class ContentViewRefreshTests extends KatelloCliTestScript{
 	public void test_refreshContentView() {
 		updateLocalRepo1();
 		
-		exec_result = condef1.refresh_view(pubview_name1_2);
+		exec_result = conview1.refresh_view();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");		
 		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentView.OUT_REFRESH, this.pubview_name1_2)), "Content view refresh output.");
 		
-		exec_result = condef1.promote_view(pubview_name1_2, env_name2);
+		exec_result = conview1.promote_view(env_name2);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		assert_ContentViewInfo(condef1, pubview_name1_1, "Publish Content", env_name2, "2");
+		assert_ContentViewInfo(condef1, conview1, "Publish Content", env_name2, "2");
 	}	
 	
 	@Test(description="Consume content from refreshed content view definition", dependsOnMethods={"test_refreshContentView"})
@@ -183,11 +186,11 @@ public class ContentViewRefreshTests extends KatelloCliTestScript{
 		KatelloUtils.sshOnServer("createrepo " + repo_path1);
 	}
 
-	private String assert_ContentViewInfo(KatelloContentView content, String view, String description, String env, String version) {
+	private String assert_ContentViewInfo(KatelloContentDefinition content, KatelloContentView view, String description, String env, String version) {
 		SSHCommandResult res;
 		if (content.description == null) content.description = "";
-		res = content.view_info(view);
-		String match_info = String.format(KatelloContentView.REG_VIEW_INFO, view, view, description, content.org,
+		res = view.view_info();
+		String match_info = String.format(KatelloContentView.REG_VIEW_INFO, view.getName(), view.getName(), description, content.org,
 				content.name, env, version, content.repos).replaceAll("\"", "");
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 		log.finest(String.format("Content view (info) match regex: [%s]",match_info));
