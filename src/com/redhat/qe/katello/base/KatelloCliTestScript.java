@@ -121,17 +121,17 @@ implements KatelloConstants {
 		long maxWaitSec = start + (timeoutMinutes * 60);
 		StringBuilder path = new StringBuilder();
 		path.append("/var/lib/pulp/working/repos/");
-		path.append(repo.org);
+		path.append(repo.org.trim().replaceAll(" ", "_"));
 		path.append("-");
-		path.append(repo.product);
+		path.append(repo.product.trim().replaceAll(" ", "_"));
 		path.append("-");
-		path.append(repo.name);
+		path.append(repo.name.trim().replaceAll(" ", "_"));
 		path.append("/importers/yum_importer/");
-		path.append(repo.org);
+		path.append(repo.org.trim().replaceAll(" ", "_"));
 		path.append("-");
-		path.append(repo.product);
+		path.append(repo.product.trim().replaceAll(" ", "_"));
 		path.append("-");
-		path.append(repo.name);
+		path.append(repo.name.trim().replaceAll(" ", "_"));
 		path.append("/repodata");
 		while(now<maxWaitSec){
 			try{Thread.sleep(10000);}catch (Exception e){}
