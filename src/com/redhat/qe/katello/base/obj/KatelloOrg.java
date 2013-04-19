@@ -39,7 +39,7 @@ public class KatelloOrg extends _KatelloObject{
 	public static final String OUT_APPLY_SYS_INFO = 
 			"Successfully applied default custom info keys to [ %s ] systems in Org [ %s ]";
 	public static final String OUT_REMOVE_SYS_INFO = 
-			"Successfully removed default custom info key [ %s ] for Org [ %s ]";
+			"Successfully removed [ System ] default custom info [ %s ] for Org [ %s ]";
 	
 	public static final String ERR_NAME_INVALID = 
 			"Validation failed: Name cannot contain characters >, <, or /";
