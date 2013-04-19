@@ -9,6 +9,7 @@ import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.KatelloActivationKey;
 import com.redhat.qe.katello.base.obj.KatelloChangeset;
+import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
 import com.redhat.qe.katello.base.obj.KatelloContentView;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
@@ -57,9 +58,10 @@ public class CompositeContentViewTests extends KatelloCliTestScript{
 	KatelloOrg org2;
 	KatelloEnvironment env2;
 	KatelloChangeset del_changeset;
-	KatelloContentView condef1;
-	KatelloContentView condef2;
-	KatelloContentView compcondef;
+	KatelloContentDefinition condef1;
+	KatelloContentDefinition condef2;
+	KatelloContentDefinition compcondef;
+	KatelloContentView compconview;
 	KatelloActivationKey act_key2;
 	KatelloSystem sys2;
 	
@@ -82,8 +84,8 @@ public class CompositeContentViewTests extends KatelloCliTestScript{
 		
 		createLocalRepo3();
 		
-		condef1 = new KatelloContentView(condef_name1,null,org_name2,null);
-		exec_result = condef1.create_definition();
+		condef1 = new KatelloContentDefinition(condef_name1,null,org_name2,null);
+		exec_result = condef1.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		exec_result = condef1.add_product(prod_local1_name);
@@ -98,8 +100,8 @@ public class CompositeContentViewTests extends KatelloCliTestScript{
 		exec_result = condef1.publish(pubview_name1_2, pubview_name1_2, "Publish Content");
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		condef2 = new KatelloContentView(condef_name2,null,org_name2,null);
-		exec_result = condef2.create_definition();
+		condef2 = new KatelloContentDefinition(condef_name2,null,org_name2,null);
+		exec_result = condef2.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		exec_result = condef2.add_product(prod_local2_name);
@@ -122,8 +124,8 @@ public class CompositeContentViewTests extends KatelloCliTestScript{
 
 	@Test(description="Create composite content view definition")
 	public void test_createComposite() {
-		compcondef = new KatelloContentView(condef_composite_name,null,org_name2,null);
-		exec_result = compcondef.create_definition(true);
+		compcondef = new KatelloContentDefinition(condef_composite_name,null,org_name2,null);
+		exec_result = compcondef.create(true);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		exec_result = compcondef.add_view(pubview_name1_2);
@@ -151,28 +153,28 @@ public class CompositeContentViewTests extends KatelloCliTestScript{
 		exec_result = compcondef.remove_view(pubview_name1_2);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		exec_result = compcondef.definition_info();
+		exec_result = compcondef.info();
 		Assert.assertFalse(getOutput(exec_result).contains(pubview_name1_2), "Not contains view");
 		Assert.assertTrue(getOutput(exec_result).contains(pubview_name2_2), "Contains view");
 		
 		exec_result = compcondef.remove_view(pubview_name2_2);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		exec_result = compcondef.definition_info();
+		exec_result = compcondef.info();
 		Assert.assertFalse(getOutput(exec_result).contains(pubview_name1_2), "Not contains view");
 		Assert.assertFalse(getOutput(exec_result).contains(pubview_name2_2), "Not contains view");
 		
 		exec_result = compcondef.add_view(pubview_name1_2);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
 
-		exec_result = compcondef.definition_info();
+		exec_result = compcondef.info();
 		Assert.assertTrue(getOutput(exec_result).contains(pubview_name1_2), "Contains view");
 		Assert.assertFalse(getOutput(exec_result).contains(pubview_name2_2), "Not contains view");
 		
 		exec_result = compcondef.add_view(pubview_name2_2);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		exec_result = compcondef.definition_info();
+		exec_result = compcondef.info();
 		Assert.assertTrue(getOutput(exec_result).contains(pubview_name1_2), "Contains view");
 		Assert.assertTrue(getOutput(exec_result).contains(pubview_name2_2), "Contains view");
 	}
@@ -187,8 +189,8 @@ public class CompositeContentViewTests extends KatelloCliTestScript{
 		exec_result = KatelloUtils.sshOnClient("yum erase -y cheetah");
 		Assert.assertTrue(exec_result.getExitCode() == 1, "Check - return code");
 		
-		compcondef = new KatelloContentView(condef_composite_name,null,org_name2,null);
-		exec_result = compcondef.promote_view(pubcompview_name1, env_name2);
+		compconview = new KatelloContentView(pubcompview_name1, org_name2);
+		exec_result = compconview.promote_view(env_name2);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentView.OUT_PROMOTE, this.pubcompview_name1, env_name2)), "Content view promote output.");
 		
@@ -260,8 +262,8 @@ public class CompositeContentViewTests extends KatelloCliTestScript{
 	public void test_RePromoteContentViewPart() {
 		KatelloUtils.sshOnClient("yum erase -y walrus");
 		
-		compcondef = new KatelloContentView(condef_composite_name,null,org_name2,null);
-		exec_result = compcondef.promote_view(pubview_name1_2, env_name2);
+		compconview = new KatelloContentView(pubview_name1_2, org_name2);
+		exec_result = compconview.promote_view(env_name2);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentView.OUT_PROMOTE, this.pubview_name1_1, env_name2)), "Content view promote output.");
 		

@@ -9,6 +9,7 @@ import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.KatelloActivationKey;
 import com.redhat.qe.katello.base.obj.KatelloChangeset;
+import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
 import com.redhat.qe.katello.base.obj.KatelloContentView;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloErrata;
@@ -56,7 +57,8 @@ public class ContentViewTests extends KatelloCliTestScript{
 	KatelloProduct prod2;
 	KatelloRepo repo2;
 	KatelloChangeset changeset2;
-	KatelloContentView condef;
+	KatelloContentDefinition condef;
+	KatelloContentView conview;
 	KatelloActivationKey act_key;
 	KatelloSystem sys;
 	KatelloSystemGroup group;
@@ -101,8 +103,8 @@ public class ContentViewTests extends KatelloCliTestScript{
 		exec_result = repo.synchronize();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		condef = new KatelloContentView(condef_name,null,org_name,null);
-		exec_result = condef.create_definition();
+		condef = new KatelloContentDefinition(condef_name,null,org_name,null);
+		exec_result = condef.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		exec_result = condef.add_product(prod_name);
@@ -128,8 +130,8 @@ public class ContentViewTests extends KatelloCliTestScript{
 
 	@Test(description="promote content view to environment",groups={"cfse-cli"})
 	public void test_promoteContentView() {
-		condef = new KatelloContentView(condef_name,null,org_name,null);
-		exec_result = condef.promote_view(pubview_name, env_name);
+		conview = new KatelloContentView(pubview_name, org_name);
+		exec_result = conview.promote_view(env_name);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentView.OUT_PROMOTE, this.pubview_name, env_name)), "Content view promote output.");
 	}
@@ -211,7 +213,7 @@ public class ContentViewTests extends KatelloCliTestScript{
 	public void test_RePromoteContentView() {
 		KatelloUtils.sshOnClient("yum erase -y walrus");
 		
-		exec_result = condef.promote_view(pubview_name, env_name);
+		exec_result = conview.promote_view(env_name);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentView.OUT_PROMOTE, this.pubview_name, env_name)), "Content view promote output.");
 		

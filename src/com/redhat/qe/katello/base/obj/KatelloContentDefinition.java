@@ -23,9 +23,49 @@ public class KatelloContentDefinition extends _KatelloObject{
 	public static final String CMD_DEFINITION_REMOVE_VIEW = "content definition remove_view";
 	public static final String CMD_CLONE = "content definition clone";
     
+	public static final String OUT_CREATE_DEFINITION = 
+			"Successfully created content view definition [ %s ]";
+	public static final String OUT_DELETE_DEFINITION = 
+			"Successfully deleted definition [ %s ]";
+	public static final String OUT_ADD_SYS_INFO = 
+			"Successfully added default custom info key [ %s ] to Org [ %s ]";
+	public static final String OUT_ADD_PRODUCT = 
+			"Added product [ %s ] to definition [ %s ]";
+	public static final String OUT_REMOVE_PRODUCT = 
+			"Removed product [ %s ] to definition [ %s ]";
+	public static final String OUT_ADD_REPO = 
+			"Added repository [ %s ] to definition [ %s ]";
+	public static final String OUT_REMOVE_REPO = 
+			"Removed repository [ %s ] to definition [ %s ]";
+	public static final String OUT_APPLY_SYS_INFO = 
+			"Successfully applied default custom info keys to [ %s ] systems in Org [ %s ]";
+	public static final String OUT_REMOVE_SYS_INFO = 
+			"Successfully removed default custom info key [ %s ] for Org [ %s ]";
 	public static final String OUT_CLONE_SUCCESSFUL = 
 			"Successfully created cloned definition [ %s ]";
 
+	
+	public static final String ERR_DEFINITION_EXISTS = 
+			"Validation failed: Label has already been taken, Name has already been taken";
+	public static final String ERR_NAME_INVALID = 
+			"Validation failed: Name cannot contain characters other than alpha numerals, space,'_', '-'.";
+	public static final String ERR_NAME_EMPTY = 
+			"Name can't be blank, Name must contain at least 1 character";
+	public static final String ERR_NAME_LONG = 
+			"Validation failed: Name cannot contain more than 128 characters, Label cannot contain more than 128 characters";
+	public static final String ERR_ORG_NOTFOUND = 
+			"Couldn't find organization '%s'";
+	public static final String ERR_CREATE_DENIED = 
+			"User %s is not allowed to access api/content_view_definitions/create";
+	public static final String ERR_PUBLISH_DENIED =
+			"User %s is not allowed to access api/content_view_definitions/publish";
+	public static final String ERR_DELETE_DENIED =
+			"User %s is not allowed to access api/content_view_definitions/destroy";
+	
+	public static final String REG_DEF_INFO = ".*ID\\s*:\\s+\\d+.*Name\\s*:\\s+%sLabel\\s*:\\s+%s.*Description\\s*:\\s+%s.*Org\\s*:\\s+%s.*Published Views\\s*:\\s+%s.*Component Views\\s*:\\s+%s.*Products\\s*:\\s+%s.*Repos\\s*:\\s*%s.*";
+	public static final String REG_DEF_LIST = ".*\\s+\\d+.*\\s+%s.*\\s+%s.*\\s+%s.*\\s+%s.*";
+
+	
 	// ** ** ** ** ** ** ** Class members
 	public String name;
 	public String description;
@@ -55,6 +95,23 @@ public class KatelloContentDefinition extends _KatelloObject{
 	public void setId(Long id) {
 	    this.id = id;
 	}
+	
+	public String getName() {
+	    return name;
+	}
+	
+	public void setName(String name) {
+	    this.name = name;
+	}
+	
+	public String getLabel() {
+	    return label;
+	}
+	
+	public void setLabel(String label) {
+	    this.label = label;
+	}
+
 	
 // ** ** ** public CLI methods	
 	public SSHCommandResult create(){		
@@ -143,7 +200,7 @@ public class KatelloContentDefinition extends _KatelloObject{
 		opts.clear();
 		opts.add(new Attribute("name", this.name));
 		opts.add(new Attribute("org", this.org));
-		opts.add(new Attribute("content_view", view));
+		opts.add(new Attribute("view_name", view));
 		return run(CMD_DEFINITION_ADD_VIEW);
 	}
 	
@@ -151,7 +208,7 @@ public class KatelloContentDefinition extends _KatelloObject{
 		opts.clear();
 		opts.add(new Attribute("name", this.name));
 		opts.add(new Attribute("org", this.org));
-		opts.add(new Attribute("content_view", view));
+		opts.add(new Attribute("view_name", view));
 		return run(CMD_DEFINITION_REMOVE_VIEW);
 	}
 

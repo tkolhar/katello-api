@@ -3,14 +3,15 @@ package com.redhat.qe.katello.tests.cli;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
-import com.redhat.qe.katello.base.obj.KatelloContentView;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
@@ -90,58 +91,58 @@ public class ContentDefinitionTest extends KatelloCliTestScript{
 	@Test(description = "Create new content definition")
 	public void test_Create() {
 		
-		KatelloContentView content = createContentDefinition();
+		KatelloContentDefinition content = createContentDefinition();
 		assert_ContentViewDefinitionInfo(content);
-		assert_contentList(Arrays.asList(content), new ArrayList<KatelloContentView>());
+		assert_contentList(Arrays.asList(content), new ArrayList<KatelloContentDefinition>());
 	}
 	
 	@Test(description = "Create Content Def with empty name, verify error")
 	public void test_createContentDefEmptyName() {
-		KatelloContentView content = new KatelloContentView("", null, org_name, null);
-		exec_result = content.create_definition();
+		KatelloContentDefinition content = new KatelloContentDefinition("", null, org_name, null);
+		exec_result = content.create();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 166, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).contains(KatelloContentView.ERR_NAME_EMPTY), "Check - error string (content create)");
+		Assert.assertTrue(getOutput(exec_result).contains(KatelloContentDefinition.ERR_NAME_EMPTY), "Check - error string (content create)");
 	}
 	
 	@Test(description = "Create Content Def with long name, verify error")
 	public void test_createContentDefLongName() {
 		String name = KatelloCliDataProvider.strRepeat("Lorem ipsum dolor sit amet", 14);
 		
-		KatelloContentView content = new KatelloContentView(name, null, org_name, null);
-		exec_result = content.create_definition();
+		KatelloContentDefinition content = new KatelloContentDefinition(name, null, org_name, null);
+		exec_result = content.create();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 166, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).equals(KatelloContentView.ERR_NAME_LONG), "Check - error string (content create)");
+		Assert.assertTrue(getOutput(exec_result).equals(KatelloContentDefinition.ERR_NAME_LONG), "Check - error string (content create)");
 	}
 	
 	//@ TODO bug 924253
 	@Test(description = "Create 2 new content definitions, delete one of them")
 	public void test_delete() {
 		
-		KatelloContentView content = createContentDefinition();
-		KatelloContentView content2 = createContentDefinition();
+		KatelloContentDefinition content = createContentDefinition();
+		KatelloContentDefinition content2 = createContentDefinition();
 		
 		String id2 = assert_ContentViewDefinitionInfo(content2);
 		content2.setLabel(null); // if we want to delete by Id, then we HAVE TO set the label to null.
 		content2.setId(Long.valueOf(id2));
 		
-		exec_result = content2.definition_delete();
+		exec_result = content2.delete();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentView.OUT_DELETE_DEFINITION, content_name)), "Check - error string (content delete)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentDefinition.OUT_DELETE_DEFINITION, content_name)), "Check - error string (content delete)");
 		
 		assert_contentList(Arrays.asList(content), Arrays.asList(content2));
 	}
 	
 	@Test(description = "Create new content definition, add product into it")
 	public void test_addProduct() {
-		KatelloContentView content = createContentDefinition();
+		KatelloContentDefinition content = createContentDefinition();
 		content_name_prod = content.name;
 		exec_result = content.add_product(product_name);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentView.OUT_ADD_PRODUCT, product_name, content.getName())), "Check - output string (add product)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentDefinition.OUT_ADD_PRODUCT, product_name, content.getName())), "Check - output string (add product)");
 
 		exec_result = content.add_product(product_name2);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentView.OUT_ADD_PRODUCT, product_name2, content.getName())), "Check - output string (add product)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentDefinition.OUT_ADD_PRODUCT, product_name2, content.getName())), "Check - output string (add product)");
 
 		content.products = product_name+"\\s+"+product_name2;
 		assert_ContentViewDefinitionInfo(content);
@@ -149,11 +150,11 @@ public class ContentDefinitionTest extends KatelloCliTestScript{
 
 	@Test(description = "remove product from definition", dependsOnMethods={"test_addProduct"})
 	public void test_removeProduct() {
-		KatelloContentView content = new KatelloContentView(content_name_prod, "descritpion", org_name, content_name_prod);
+		KatelloContentDefinition content = new KatelloContentDefinition(content_name_prod, "descritpion", org_name, content_name_prod);
 		
 		exec_result = content.remove_product(product_name2);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentView.OUT_REMOVE_PRODUCT, product_name2, content.getName())), "Check - output string (remove product)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentDefinition.OUT_REMOVE_PRODUCT, product_name2, content.getName())), "Check - output string (remove product)");
 
 		content.products = product_name;
 		assert_ContentViewDefinitionInfo(content);
@@ -161,15 +162,15 @@ public class ContentDefinitionTest extends KatelloCliTestScript{
 
 	@Test(description = "Create new content definition, add repo into it")
 	public void test_addRepo() {
-		KatelloContentView content = createContentDefinition();
+		KatelloContentDefinition content = createContentDefinition();
 		content_name_repo = content.name;
 		exec_result = content.add_repo(product_name, repo_name);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentView.OUT_ADD_REPO, repo_name, content.getName())), "Check - output string (add repo)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentDefinition.OUT_ADD_REPO, repo_name, content.getName())), "Check - output string (add repo)");
 
 		exec_result = content.add_repo(product_name2, repo_name2);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentView.OUT_ADD_REPO, repo_name2, content.getName())), "Check - output string (add repo)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentDefinition.OUT_ADD_REPO, repo_name2, content.getName())), "Check - output string (add repo)");
 
 		content.repos = repo_name+"\\s+"+repo_name2;
 		assert_ContentViewDefinitionInfo(content);
@@ -177,11 +178,11 @@ public class ContentDefinitionTest extends KatelloCliTestScript{
 
 	@Test(description = "remove repo from definition", dependsOnMethods={"test_addRepo"})
 	public void test_removeRepo() {
-		KatelloContentView content = new KatelloContentView(content_name_repo, "descritpion", org_name, content_name_repo);
+		KatelloContentDefinition content = new KatelloContentDefinition(content_name_repo, "descritpion", org_name, content_name_repo);
 		
 		exec_result = content.remove_repo(product_name2, repo_name2);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentView.OUT_REMOVE_REPO, repo_name2, content.getName())), "Check - output string (remove repo)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentDefinition.OUT_REMOVE_REPO, repo_name2, content.getName())), "Check - output string (remove repo)");
 
 		content.repos = repo_name;
 		assert_ContentViewDefinitionInfo(content);
@@ -223,32 +224,32 @@ public class ContentDefinitionTest extends KatelloCliTestScript{
 		Assert.assertTrue(KatelloCli.grepCLIOutput("Org",getOutput(exec_result)).equals(this.org_name), "Check - stdout (content definition info: Org)");
 	}
 	
-	private void assert_contentList(List<KatelloContentView> contents, List<KatelloContentView> excludeContents) {
+	private void assert_contentList(List<KatelloContentDefinition> contents, List<KatelloContentDefinition> excludeContents) {
 
-		SSHCommandResult res = new KatelloContentView(null, null, org_name, null).definition_list();
+		SSHCommandResult res = new KatelloContentDefinition(null, null, org_name, null).list();
 
 		//contents that exist in list
-		for(KatelloContentView cont : contents){
+		for(KatelloContentDefinition cont : contents){
 			if (cont.description == null) cont.description = "None";
 			
-			String match_info = String.format(KatelloContentView.REG_DEF_LIST, cont.name, cont.label, cont.description, cont.org).replaceAll("\"", "");
+			String match_info = String.format(KatelloContentDefinition.REG_DEF_LIST, cont.name, cont.label, cont.description, cont.org).replaceAll("\"", "");
 			Assert.assertTrue(getOutput(res).replaceAll("\n", " ").matches(match_info), String.format("Content Definition [%s] should be found in the result list", cont.name));
 		}
 		
 		//contents that should not exist in list
-		for(KatelloContentView cont : excludeContents){
+		for(KatelloContentDefinition cont : excludeContents){
 			if (cont.description == null) cont.description = "None";
 			
-			String match_info = String.format(KatelloContentView.REG_DEF_LIST, cont.name, cont.label, cont.description, cont.org).replaceAll("\"", "");
+			String match_info = String.format(KatelloContentDefinition.REG_DEF_LIST, cont.name, cont.label, cont.description, cont.org).replaceAll("\"", "");
 			Assert.assertFalse(getOutput(res).replaceAll("\n", " ").matches(match_info), String.format("Content definition [%s] should not be found in the result list", cont.name));
 		}
 	}
 	
-	private String assert_ContentViewDefinitionInfo(KatelloContentView content) {
+	private String assert_ContentViewDefinitionInfo(KatelloContentDefinition content) {
 		SSHCommandResult res;
 		if (content.description == null) content.description = "None";
-		res = content.definition_info();
-		String match_info = String.format(KatelloContentView.REG_DEF_INFO, content.name, content.label, content.description, content.org,
+		res = content.info();
+		String match_info = String.format(KatelloContentDefinition.REG_DEF_INFO, content.name, content.label, content.description, content.org,
 				content.publishedViews, content.componentViews, content.products, content.repos).replaceAll("\"", "");
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 		log.finest(String.format("Org (info) match regex: [%s]",match_info));
@@ -258,12 +259,12 @@ public class ContentDefinitionTest extends KatelloCliTestScript{
 		return KatelloCli.grepCLIOutput("ID", getOutput(res));
 	}
 	
-	private KatelloContentView createContentDefinition() {
+	private KatelloContentDefinition createContentDefinition() {
 		content_name = "content"+KatelloUtils.getUniqueID();
-		KatelloContentView content = new KatelloContentView(content_name, "descritpion", org_name, content_name);
-		exec_result = content.create_definition();
+		KatelloContentDefinition content = new KatelloContentDefinition(content_name, "descritpion", org_name, content_name);
+		exec_result = content.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentView.OUT_CREATE_DEFINITION, content_name)), "Check - out string (content create)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentDefinition.OUT_CREATE_DEFINITION, content_name)), "Check - out string (content create)");
 		
 		return content;
 	}
