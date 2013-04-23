@@ -169,9 +169,7 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo synchronize)");
 		waitfor_repodata(repo, 2);
 		res = repo.info();
-		int pkgCount = Integer.parseInt(KatelloCli.grepCLIOutput("Package Count", res.getStdout()));
 		String progress = KatelloCli.grepCLIOutput("Progress", res.getStdout());
-		Assert.assertTrue(pkgCount>0, "Check - Packages >0");
 		Assert.assertTrue(progress.equals("Finished"), "Check: status of repo sync - Finished");
 		
 		cs = new KatelloChangeset(changeset_name2, org_name, env_name);
