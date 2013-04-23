@@ -16,7 +16,8 @@ import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups={"cfse-cli","headpin-cli",TngRunGroups.TNG_KATELLO_System_Consumer})
+@Test(
+		groups={"SystemInfoTests","cfse-cli","headpin-cli",TngRunGroups.TNG_KATELLO_System_Consumer})
 public class SystemInfoTests extends KatelloCliTestScript{	
 	protected static Logger log = Logger.getLogger(SystemTests.class.getName());
 	
@@ -56,8 +57,6 @@ public class SystemInfoTests extends KatelloCliTestScript{
 		KatelloSystem sys = new KatelloSystem(this.system, this.org, this.environment);
 		exec_result = sys.list();
 		Assert.assertTrue(getOutput(exec_result).trim().contains(this.system), "System should be contained");
-		
-		
 	}
 
 	@Test(dependsOnMethods={"checkSystemList"})

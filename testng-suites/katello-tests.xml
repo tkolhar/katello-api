@@ -11,7 +11,15 @@
 		</classes>
 	</test>
 
-	<test name="CLI_Tests">
+	<test name="CLI_Tests" preserve-order="true">
+		<groups>
+			<!-- System* related tests are special. 
+			     In order not to allo TestNG to mix scenarios from different classes 
+`			     I had to give such a solution here (gkhachik). -->
+			<dependencies>
+				<group name="SystemTests" depends-on="SystemInfoTests"/>
+			</dependencies>
+		</groups>
 		<packages>
 			<package name="com.redhat.qe.katello.tests.cli"/>
 		</packages>
