@@ -166,10 +166,10 @@ public class ContentViewTests extends KatelloCliTestScript{
 		String poolId2 = KatelloCli.grepCLIOutput("ID", getOutput(exec_result).trim(),2);
 		Assert.assertNotNull(poolId2, "Check - pool Id is not null");
 		
-		exec_result = sys.rhsm_subscribe(poolId1);
+		exec_result = sys.subscribe(poolId1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		exec_result = sys.rhsm_subscribe(poolId2);
+		exec_result = sys.subscribe(poolId2);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
 	

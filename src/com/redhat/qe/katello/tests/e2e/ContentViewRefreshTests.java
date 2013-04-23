@@ -111,7 +111,7 @@ public class ContentViewRefreshTests extends KatelloCliTestScript{
 		String poolId1 = KatelloCli.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
 		Assert.assertNotNull(poolId1, "Check - pool Id is not null");
 		
-		exec_result = sys2.rhsm_subscribe(poolId1);
+		exec_result = sys2.subscribe(poolId1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
 
