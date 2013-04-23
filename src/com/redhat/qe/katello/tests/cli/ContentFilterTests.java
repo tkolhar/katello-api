@@ -58,7 +58,7 @@ public class ContentFilterTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		repo = new KatelloRepo(repo_name,org_name,prod_name,REPO_INECAS_ZOO3, null, null);
-		exec_result = repo.create();
+		exec_result = repo.create(true);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		exec_result = prod.promote(env_name);

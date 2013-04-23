@@ -171,7 +171,7 @@ public class ContentViewRefreshTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	
 		KatelloRepo repo = new KatelloRepo(repo_local1_name, org_name2, prod_local1_name, repo_url1, null, null);
-		exec_result = repo.create();
+		exec_result = repo.create(true);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		prod.promote(env_name2);

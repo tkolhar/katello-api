@@ -152,7 +152,7 @@ public class ContentDefAccessTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		KatelloRepo repo = new KatelloRepo(repo_name, org_name, product_name, PULP_RHEL6_x86_64_REPO, null, null);
-		exec_result = repo.create();
+		exec_result = repo.create(true);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
 		KatelloEnvironment env = new KatelloEnvironment(env_name, "description", org_name, "Library");

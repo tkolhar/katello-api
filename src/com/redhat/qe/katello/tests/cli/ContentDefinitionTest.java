@@ -66,7 +66,7 @@ public class ContentDefinitionTest extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		KatelloRepo repo = new KatelloRepo(repo_name, org_name, product_name, PULP_RHEL6_x86_64_REPO, null, null);
-		exec_result = repo.create();
+		exec_result = repo.create(true);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		// Create second provider:
@@ -80,7 +80,7 @@ public class ContentDefinitionTest extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		repo = new KatelloRepo(repo_name2, org_name, product_name2, REPO_INECAS_ZOO3, null, null);
-		exec_result = repo.create();
+		exec_result = repo.create(true);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		// init-s
@@ -280,10 +280,10 @@ public class ContentDefinitionTest extends KatelloCliTestScript{
 		exec_result = new KatelloProduct(this._cvdClone, this.org_name, this._cvdClone, null, null, null, null, null).create();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		// create repo zoo
-		exec_result = new KatelloRepo(this._cvdClone+"-zoo", this.org_name, this._cvdClone, REPO_INECAS_ZOO3, null, null).create();
+		exec_result = new KatelloRepo(this._cvdClone+"-zoo", this.org_name, this._cvdClone, REPO_INECAS_ZOO3, null, null).create(true);
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		// create repo pulp
-		exec_result = new KatelloRepo(this._cvdClone+"-pulp", this.org_name, this._cvdClone, PULP_RHEL6_x86_64_REPO, null, null).create();
+		exec_result = new KatelloRepo(this._cvdClone+"-pulp", this.org_name, this._cvdClone, PULP_RHEL6_x86_64_REPO, null, null).create(true);
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		// sync the provider
 		exec_result = new KatelloProvider(this._cvdClone, this.org_name, null, null).synchronize();
