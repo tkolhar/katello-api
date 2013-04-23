@@ -109,8 +109,9 @@ public class CRLRegen extends KatelloCliTestScript{
 		String poolId1 = KatelloCli.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
 		Assert.assertNotNull(poolId1, "Check - pool Id is not null");
 		
-		exec_result = sys.rhsm_subscribe(poolId1);
+		exec_result = sys.subscribe(poolId1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		sys.rhsm_refresh();
 		
 		KatelloUtils.sshOnClient("service goferd restart;");
 		
@@ -138,8 +139,9 @@ public class CRLRegen extends KatelloCliTestScript{
 		exec_result = KatelloUtils.sshOnClient("yum -y install zebra --nogpgcheck");
 		Assert.assertTrue(exec_result.getExitCode().intValue()==1, "Check - return code (install zebra)");
 		
-		exec_result = sys.rhsm_subscribe(poolId1);
+		exec_result = sys.subscribe(poolId1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		sys.rhsm_refresh();
 		
 		yum_clean();
 		exec_result = KatelloUtils.sshOnClient("yum -y install zebra --nogpgcheck");

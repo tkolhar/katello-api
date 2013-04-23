@@ -39,6 +39,7 @@ public class KatelloSystem extends _KatelloObject{
 	public static final String RHSM_REGISTER_BYKEY = "subscription-manager register ";
 	public static final String RHSM_UNREGISTER = "subscription-manager unregister";
 	public static final String RHSM_LIST_CONSUMED = "subscription-manager list --consumed";
+	public static final String RHSM_REFRESH = "subscription-manager refresh";
 	
 	public static final String OUT_CREATE = 
 			"The system has been registered with id:";
@@ -277,11 +278,17 @@ public class KatelloSystem extends _KatelloObject{
 		
 		return KatelloUtils.sshOnClient(getHostName(), cmd);		
 	}
+	
 	public SSHCommandResult rhsm_clean(){
 		String cmd = RHSM_CLEAN;		
 		return KatelloUtils.sshOnClient(getHostName(), cmd);		
 	}
 
+	public SSHCommandResult rhsm_refresh(){
+		String cmd = RHSM_REFRESH;
+		return KatelloUtils.sshOnClient(getHostName(), cmd);
+	}
+	
 	public SSHCommandResult list(){
 		opts.clear();
 		opts.add(new Attribute("org", org));

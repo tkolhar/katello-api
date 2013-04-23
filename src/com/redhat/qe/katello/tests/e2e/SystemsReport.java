@@ -98,7 +98,7 @@ public class SystemsReport extends KatelloCliTestScript{
 		KatelloProvider prov = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, this.org, null, null);
 		SSHCommandResult res = prov.import_manifest("/tmp"+File.separator+MANIFEST_2SUBSCRIPTIONS, new Boolean(true));
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (provider import_manifest)");
-		Assert.assertTrue(getOutput(res).contains("Manifest imported"),"Message - (provider import_manifest)");
+		Assert.assertTrue(getOutput(res).contains(KatelloProvider.OUT_MANIFEST_IMPORTED),"Message - (provider import_manifest)");
 		
 		log.finest("put in socket.facts \"1\" - scenario here considers having one CPU socket");
 		KatelloUtils.sshOnClient("echo '{\"cpu.cpu_socket(s)\":\"1\"}' > /etc/rhsm/facts/sockets.facts");

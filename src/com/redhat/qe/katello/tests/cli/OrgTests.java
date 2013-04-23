@@ -319,8 +319,8 @@ public class OrgTests extends KatelloCliTestScript{
 			}
 		}
 	}
-
-	@Test(description = "Attempt to upload an already imported manifest in the same ORG",groups={"cfse-cli","headpin-cli"})
+	
+	@Test(description = "Attempt to upload an already imported manifest in the same org",groups={"cfse-cli","headpin-cli"})
 	public void test_UploadManifestSameOrg(){
 
 		String uniqueID = KatelloUtils.getUniqueID();
@@ -337,19 +337,18 @@ public class OrgTests extends KatelloCliTestScript{
 		Assert.assertTrue(scp.sendFile("data"+File.separator+"stack-manifest.zip", "/tmp"),
 				"stack-manifest.zip sent successfully");	
 		try {
-		exec_result = provider.import_manifest("/tmp"+File.separator+"stack-manifest.zip", new Boolean(true));
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).contains(String.format("Manifest imported")),"Check - return string");
-		exec_result = provider.import_manifest("/tmp"+File.separator+"stack-manifest.zip", new Boolean(true));
-		Assert.assertTrue(exec_result.getExitCode().intValue() == 144, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).contains(String.format("Import is the same as existing data")),"Check - return string");
+			exec_result = provider.import_manifest("/tmp"+File.separator+"stack-manifest.zip", new Boolean(true));
+			Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+			Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloProvider.OUT_MANIFEST_IMPORTED)),"Check - return string");
+			exec_result = provider.import_manifest("/tmp"+File.separator+"stack-manifest.zip", new Boolean(true));
+			Assert.assertTrue(exec_result.getExitCode().intValue() == 144, "Check - return code");
+			Assert.assertTrue(getOutput(exec_result).contains(String.format("Provider [ Red Hat ] failed to import manifest: Import is the same as existing data")),"Check - return string");
 		} finally {
-		exec_result  = org.delete();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+			exec_result  = org.delete();
+			Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		}
 	}
-	
-	
+		
 	@Test(description = "Delete a manifest from an ORG and upload the same to an other ORG",groups={"headpin-cli", "cfse-ignore"})
 	public void test_ReUploadManifestDiffOrg(){
 		

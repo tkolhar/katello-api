@@ -103,9 +103,9 @@ public class PackagesWithGPGKey extends KatelloCliTestScript{
 	public void test_subscribeClient(){
 		SSHCommandResult res;
 		this.system = "system-PackagesWithGPGKey-"+KatelloUtils.getUniqueID();
+		rhsm_clean();
 		
 		log.info("E2E - Subscribe client system");
-		KatelloUtils.sshOnClient("subscription-manager clean");
 		KatelloSystem sys = new KatelloSystem(this.system, this.org, this.env);
 		res = sys.rhsm_register();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (rhsm register)");
@@ -113,7 +113,7 @@ public class PackagesWithGPGKey extends KatelloCliTestScript{
 		KatelloOrg org = new KatelloOrg(this.org, null);
 		String poolID = KatelloCli.grepCLIOutput("ID",org.subscriptions().getStdout());
 		String poolName = KatelloCli.grepCLIOutput("Subscription",org.subscriptions().getStdout());
-		res = KatelloUtils.sshOnClient(String.format("subscription-manager subscribe --pool=%s",poolID));
+		res = sys.rhsm_subscribe(poolID);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (rhsm subscribe)");
 		Assert.assertTrue(getOutput(res).startsWith("Successfully"), 
 				"Check - return message starts with word \"Successfully\" (rhsm subscribe)");

@@ -139,8 +139,7 @@ public class RhsmOnlyPermissions extends KatelloCliTestScript{
 		SSHCommandResult res = sys.subscriptions_available();
 		String pool = KatelloCli.grepCLIOutput("ID", getOutput(res).trim(),1);
 
-		String cmd = "subscription-manager subscribe --pool "+pool;
-		res = KatelloUtils.sshOnClient(cmd);
+		res = sys.rhsm_subscribe(pool);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (rhsm subscribe)");
 		String MATCH_SUBSCRIBED = "Successfully.*";
 		Assert.assertTrue(getOutput(res).matches(MATCH_SUBSCRIBED), "Check - message (subscribed)");
