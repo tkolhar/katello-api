@@ -173,7 +173,19 @@ public class ContentViewTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
 	
-	@Test(description = "consume Errata content",groups={"cfse-cli"}, dependsOnMethods={"test_registerClient"})
+	@Test(description = "Consuming content using an activation key that has a content view definition",groups={"cfse-cli"}, dependsOnMethods={"test_registerClient"})
+	public void test_consumeContent()
+	{
+		exec_result = KatelloUtils.sshOnClient("yum repolist");
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
+		exec_result=KatelloUtils.sshOnClient("yum install -y zsh");
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		exec_result = KatelloUtils.sshOnClient("rpm -qa | grep zsh");
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+	}
+	
+	@Test(description = "consume Errata content",groups={"cfse-cli"}, dependsOnMethods={"test_consumeContent"})
 	public void test_ConsumeErrata(){
 		KatelloUtils.sshOnClient("yum erase -y walrus");
 		exec_result = KatelloUtils.sshOnClient("yum install -y walrus-0.71-1.noarch");
