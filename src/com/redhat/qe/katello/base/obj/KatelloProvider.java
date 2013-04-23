@@ -32,6 +32,8 @@ public class KatelloProvider extends _KatelloObject{
 			"Validation failed: the following attributes can not be updated for the Red Hat provider: [ name ]";
 	public static final String OUT_UPDATE = 
 			"Successfully updated provider [ %s ]";
+	public static final String OUT_MANIFEST_IMPORTED = 
+			"Provider [ Red Hat ] manifest import complete";
 	
 	public static final String ERR_PROVIDER_DELETE = 
 			"Provider cannot be deleted since one of its products or repositories has already been promoted. Using a changeset, please delete the repository from existing environments before deleting it.";

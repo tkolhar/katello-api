@@ -42,7 +42,7 @@ public class KatelloSystem extends _KatelloObject{
 	
 	public static final String OUT_CREATE = 
 			"The system has been registered with id:";
-	public static final String ERR_RHSM_LOCKER_ONLY = 
+	public static final String ERR_RHSM_LOBRARY_ONLY = 
 			"Organization %s has the '%s' environment only. Please create an environment for system registration.";
 	public static final String ERR_RHSM_REG_ALREADY_FORCE_NEEDED = 
 			"This system is already registered. Use --force to override";

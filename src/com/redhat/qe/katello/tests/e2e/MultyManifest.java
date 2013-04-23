@@ -51,7 +51,7 @@ public class MultyManifest extends KatelloCliTestScript{
 		KatelloProvider prov = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, this.org, null, null);
 		SSHCommandResult res = prov.import_manifest("/tmp"+File.separator+MANIFEST_MULTY, new Boolean(true));
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (provider import_manifest)");
-		Assert.assertTrue(getOutput(res).contains("Manifest imported"),"Message - (provider import_manifest)");
+		Assert.assertTrue(getOutput(res).contains(KatelloProvider.OUT_MANIFEST_IMPORTED),"Message - (provider import_manifest)");
 	}
 	
 	@Test(description="Add system to dev environment", dependsOnMethods={"test_importMultyManifest"}, enabled=true)
@@ -73,7 +73,6 @@ public class MultyManifest extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(res).trim().contains("Red Hat Enterprise Linux Server for HPC Compute Node, Self-support (8 sockets) (Up to 1 guest)"), "Contains all pools from manifest");
 		Assert.assertTrue(getOutput(res).trim().contains("CloudForms Employee Subscription"), "Contains all pools from manifest");
 		Assert.assertTrue(getOutput(res).trim().contains("OpenShift Employee Subscription"), "Contains all pools from manifest");
-		Assert.assertTrue(getOutput(res).trim().contains("Scalable File System for HPC Compute Node (1-2 sockets)"), "Contains all pools from manifest");		
 	}
 	
 	@AfterClass(description="Cleanup the org - allow others to reuse the manifest", alwaysRun=true)
