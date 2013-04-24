@@ -177,6 +177,7 @@ public class ContentViewTests extends KatelloCliTestScript{
 	public void test_consumeContent()
 	{
 		yum_clean();
+		KatelloUtils.sshOnClient("yum erase -y lion");
 		exec_result=KatelloUtils.sshOnClient("yum install -y lion");
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		exec_result = KatelloUtils.sshOnClient("rpm -qa | grep lion");
