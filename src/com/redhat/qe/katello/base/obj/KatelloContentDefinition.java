@@ -61,6 +61,8 @@ public class KatelloContentDefinition extends _KatelloObject{
 			"User %s is not allowed to access api/content_view_definitions/publish";
 	public static final String ERR_DELETE_DENIED =
 			"User %s is not allowed to access api/content_view_definitions/destroy";
+	public static final String ERR_ADDVIEW =
+			"Definition cannot contain views with the same repositories.";
 	
 	public static final String REG_DEF_INFO = ".*ID\\s*:\\s+\\d+.*Name\\s*:\\s+%sLabel\\s*:\\s+%s.*Description\\s*:\\s+%s.*Org\\s*:\\s+%s.*Published Views\\s*:\\s+%s.*Component Views\\s*:\\s+%s.*Products\\s*:\\s+%s.*Repos\\s*:\\s*%s.*";
 	public static final String REG_DEF_LIST = ".*\\s+\\d+.*\\s+%s.*\\s+%s.*\\s+%s.*\\s+%s.*";
@@ -200,7 +202,7 @@ public class KatelloContentDefinition extends _KatelloObject{
 		opts.clear();
 		opts.add(new Attribute("name", this.name));
 		opts.add(new Attribute("org", this.org));
-		opts.add(new Attribute("view_name", view));
+		opts.add(new Attribute("content_view", view));
 		return run(CMD_DEFINITION_ADD_VIEW);
 	}
 	
@@ -208,7 +210,7 @@ public class KatelloContentDefinition extends _KatelloObject{
 		opts.clear();
 		opts.add(new Attribute("name", this.name));
 		opts.add(new Attribute("org", this.org));
-		opts.add(new Attribute("view_name", view));
+		opts.add(new Attribute("content_view", view));
 		return run(CMD_DEFINITION_REMOVE_VIEW);
 	}
 

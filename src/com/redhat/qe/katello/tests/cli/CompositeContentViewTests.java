@@ -138,14 +138,15 @@ public class CompositeContentViewTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");		
 	}
 	
-	//@ TODO fails 952249
 	@Test(description="Check adding old views into composite content view definition", dependsOnMethods={"test_createComposite"})
 	public void test_checkOldViewsIntoComposite() {
 		exec_result = compcondef.add_view(pubview_name1_1);
-		Assert.assertTrue(exec_result.getExitCode() == 147, "Check - return code");	
+		Assert.assertTrue(exec_result.getExitCode() == 244, "Check - return code");	
+		Assert.assertTrue(getOutput(exec_result).contains(KatelloContentDefinition.ERR_ADDVIEW), "Error in adding older view");
 		
 		exec_result = compcondef.add_view(pubview_name2_1);
-		Assert.assertTrue(exec_result.getExitCode() == 147, "Check - return code");
+		Assert.assertTrue(exec_result.getExitCode() == 244, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).contains(KatelloContentDefinition.ERR_ADDVIEW), "Error in adding older view");
 	}
 
 	@Test(description="add/remove views into composite content view definition", dependsOnMethods={"test_checkOldViewsIntoComposite"})
@@ -179,6 +180,7 @@ public class CompositeContentViewTests extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(exec_result).contains(pubview_name2_2), "Contains view");
 	}
 	
+	// @ TODO bug 956266
 	@Test(description="Consume content from composite content view definition", dependsOnMethods={"test_addRemoveViewsIntoComposite"})
 	public void test_consumeCompositeContent() {
 		// erase packages
@@ -187,7 +189,7 @@ public class CompositeContentViewTests extends KatelloCliTestScript{
 		exec_result = KatelloUtils.sshOnClient("yum erase -y shark");
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		exec_result = KatelloUtils.sshOnClient("yum erase -y cheetah");
-		Assert.assertTrue(exec_result.getExitCode() == 1, "Check - return code");
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		compconview = new KatelloContentView(pubcompview_name1, org_name2);
 		exec_result = compconview.promote_view(env_name2);
@@ -237,7 +239,7 @@ public class CompositeContentViewTests extends KatelloCliTestScript{
 		
 		//package should not be available to install
 		exec_result = KatelloUtils.sshOnClient("yum install -y cheetah");
-		Assert.assertTrue(exec_result.getExitCode() == 1, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).trim().contains("No package cheetah available."));
 	}
 
 	@Test(description = "part of promoted composite content view delete by changeset from environment, verify that packages are not availble anymore",

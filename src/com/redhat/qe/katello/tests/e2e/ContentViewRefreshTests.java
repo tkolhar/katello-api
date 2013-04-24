@@ -57,7 +57,6 @@ public class ContentViewRefreshTests extends KatelloCliTestScript{
 		exec_result = env2.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
 		
-		
 		// create repos and content definition in second organization for composite content view tests 
 		createLocalRepo1();
 		
@@ -80,13 +79,6 @@ public class ContentViewRefreshTests extends KatelloCliTestScript{
 		condef1.repos = repo_local1_name;
 		conview1 = new KatelloContentView(pubview_name1_2, org_name2);
 		assert_ContentViewInfo(condef1, conview1, "Publish Content", "Library", "1");
-		
-		KatelloUtils.sshOnClient("sed -i -e \"s/certFrequency.*/certFrequency = 1/\" /etc/rhsm/rhsm.conf");
-		KatelloUtils.sshOnClient("service rhsmcertd restart");
-		yum_clean();
-		KatelloUtils.sshOnClient("service goferd restart;");
-		
-		
 	}
 	
 	@Test(description = "Adding a published content view to an activation key",groups={"cfse-cli"})
@@ -115,9 +107,14 @@ public class ContentViewRefreshTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
 
-	//@ TODO fails because of 951599
 	@Test(description = "refesh content view, verify version is changed", groups={"cfse-cli"}, dependsOnMethods={"test_registerClient"})
 	public void test_refreshContentView() {
+		//install non available package from composite content view
+		exec_result = KatelloUtils.sshOnClient("yum erase -y lion");
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		exec_result = KatelloUtils.sshOnClient("yum install -y lion");
+		Assert.assertTrue(getOutput(exec_result).trim().contains("No package lion available."));
+		
 		updateLocalRepo1();
 		
 		exec_result = conview1.refresh_view();
@@ -127,22 +124,30 @@ public class ContentViewRefreshTests extends KatelloCliTestScript{
 		exec_result = conview1.promote_view(env_name2);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		assert_ContentViewInfo(condef1, conview1, "Publish Content", env_name2, "2");
+		assert_ContentViewInfo(condef1, conview1, "Publish Content", "Library, " + env_name2, "2");
 	}	
 	
 	@Test(description="Consume content from refreshed content view definition", dependsOnMethods={"test_refreshContentView"})
 	public void test_consumeRefreshedContent() {
+		yum_clean();
+		
 		// erase packages
 		exec_result = KatelloUtils.sshOnClient("yum erase -y wolf");
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		exec_result = KatelloUtils.sshOnClient("yum erase -y shark");
+		exec_result = KatelloUtils.sshOnClient("yum erase -y lion");
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		exec_result = KatelloUtils.sshOnClient("yum erase -y cheetah");
-		Assert.assertTrue(exec_result.getExitCode() == 1, "Check - return code");	
+		exec_result = KatelloUtils.sshOnClient("yum erase -y walrus");
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
 		
 		//install package from refreshed composite content view
 		exec_result = KatelloUtils.sshOnClient("yum install -y lion");
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");		
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		exec_result = KatelloUtils.sshOnClient("rpm -q lion");
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).trim().contains("lion-"));
+		
+		exec_result = KatelloUtils.sshOnClient("yum install -y walrus");
+		Assert.assertTrue(getOutput(exec_result).trim().contains("No package walrus available."));
 	}
 	
 	/**
@@ -154,7 +159,6 @@ public class ContentViewRefreshTests extends KatelloCliTestScript{
 		repo_url1 = "http://localhost/" + uid;
 		
 		KatelloUtils.sshOnServer("yum -y install createrepo");
-		KatelloUtils.sshOnServer("mkdir /tmp/"+uid);
 		KatelloUtils.sshOnServer("createrepo " + repo_path1);
 		KatelloUtils.sshOnServer("wget " + REPO_INECAS_ZOO3 + "wolf-9.4-2.noarch.rpm -P "+repo_path1);
 		KatelloUtils.sshOnServer("wget " + REPO_INECAS_ZOO3 + "walrus-0.71-1.noarch.rpm -P "+repo_path1);
@@ -184,6 +188,9 @@ public class ContentViewRefreshTests extends KatelloCliTestScript{
 		KatelloUtils.sshOnServer("wget " + REPO_INECAS_ZOO3 + "lion-0.4-1.noarch.rpm  -P " + repo_path1);
 		KatelloUtils.sshOnServer("rm " + repo_path1 + "/walrus-0.71-1.noarch.rpm -f");
 		KatelloUtils.sshOnServer("createrepo " + repo_path1);
+		KatelloRepo repo = new KatelloRepo(repo_local1_name, org_name2, prod_local1_name, repo_url1, null, null);
+		exec_result = repo.synchronize();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
 
 	private String assert_ContentViewInfo(KatelloContentDefinition content, KatelloContentView view, String description, String env, String version) {
