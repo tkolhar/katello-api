@@ -44,7 +44,7 @@ public class SystemTests extends KatelloCliTestScript{
 	
 	private String user;
 	
-	@BeforeClass(description="Generate unique names",groups={"cfse-cli"})
+	@BeforeClass(description="Generate unique names",groups={"cfse-cli","headpin-cli"})
 	public void setUp(){
 		String uid = KatelloUtils.getUniqueID();
 		this.orgNameRhsms = "orgMain-"+uid;
