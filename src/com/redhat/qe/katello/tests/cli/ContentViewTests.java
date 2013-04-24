@@ -182,9 +182,14 @@ public class ContentViewTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		exec_result = KatelloUtils.sshOnClient("rpm -qa | grep lion");
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).trim().contains("lion-"));
 		
+		// chack that packages from other repos not in content view are not available
+		exec_result = KatelloUtils.sshOnClient("yum install pulp-agent --disablerepo '*pulp*'");
+		Assert.assertTrue(getOutput(exec_result).trim().contains("No package pulp-agent available."));
 	}
 	
+	//@ TODO bug 955706
 	@Test(description = "consume Errata content",groups={"cfse-cli"}, dependsOnMethods={"test_consumeContent"})
 	public void test_ConsumeErrata(){
 		KatelloUtils.sshOnClient("yum erase -y walrus");
