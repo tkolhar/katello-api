@@ -80,7 +80,11 @@ public class KatelloRepo extends _KatelloObject{
 		this.product_id = product_id;
 	}
 
-	public SSHCommandResult create(){
+	public SSHCommandResult create(){		
+		return create(false);
+	}
+
+	public SSHCommandResult create(boolean unprotected){
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
@@ -90,9 +94,11 @@ public class KatelloRepo extends _KatelloObject{
 		opts.add(new Attribute("product_label", product_label));
 		opts.add(new Attribute("product_id", product_id));
 		if(nogpgkey)
-			opts.add(new Attribute("nogpgkey", ""));		
+			opts.add(new Attribute("nogpgkey", ""));	
+		if (unprotected)
+			opts.add(new Attribute("unprotected", "true"));
 		return run(CMD_CREATE);
-	}	
+	}
 
 	public SSHCommandResult delete(){
 		opts.clear();

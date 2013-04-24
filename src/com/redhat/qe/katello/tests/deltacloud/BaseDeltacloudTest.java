@@ -103,7 +103,7 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
 		KatelloRepo repo = new KatelloRepo(repo_name, org_name, product_name, REPO_INECAS_ZOO3, null, null);
-		exec_result = repo.create();
+		exec_result = repo.create(true);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		KatelloEnvironment env = new KatelloEnvironment(env_name, null, org_name, KatelloEnvironment.LIBRARY);
@@ -192,10 +192,10 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 		String poolId2 = KatelloCli.grepCLIOutput("Id", getOutput(exec_result).trim(),2);
 		Assert.assertNotNull(poolId1, "Check - pool Id is not null");
 		
-		exec_result = sys.rhsm_subscribe(poolId1);
+		exec_result = sys.subscribe(poolId1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		exec_result = sys.rhsm_subscribe(poolId2);
+		exec_result = sys.subscribe(poolId2);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		sys = new KatelloSystem(system_name2, org_name, env_name);
@@ -206,10 +206,10 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 		exec_result = sys.rhsm_identity();
 		system_uuid2 = KatelloCli.grepCLIOutput("Current identity is", exec_result.getStdout());
 		
-		exec_result = sys.rhsm_subscribe(poolId1);
+		exec_result = sys.subscribe(poolId1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
-		exec_result = sys.rhsm_subscribe(poolId2);
+		exec_result = sys.subscribe(poolId2);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		sys = new KatelloSystem(system_name3, org_name, env_name);
@@ -220,10 +220,10 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 		exec_result = sys.rhsm_identity();
 		system_uuid3 = KatelloCli.grepCLIOutput("Current identity is", exec_result.getStdout());
 		
-		exec_result = sys.rhsm_subscribe(poolId1);
+		exec_result = sys.subscribe(poolId1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		exec_result = sys.rhsm_subscribe(poolId2);
+		exec_result = sys.subscribe(poolId2);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		KatelloSystemGroup group = new KatelloSystemGroup(group_name, org_name);

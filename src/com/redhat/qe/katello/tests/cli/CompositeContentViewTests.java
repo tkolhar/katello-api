@@ -218,13 +218,13 @@ public class CompositeContentViewTests extends KatelloCliTestScript{
 		String poolId3 = KatelloCli.grepCLIOutput("ID", getOutput(exec_result).trim(),3);
 		Assert.assertNotNull(poolId3, "Check - pool Id is not null");
 		
-		exec_result = sys2.rhsm_subscribe(poolId1);
+		exec_result = sys2.subscribe(poolId1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		exec_result = sys2.rhsm_subscribe(poolId2);
+		exec_result = sys2.subscribe(poolId2);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
-		exec_result = sys2.rhsm_subscribe(poolId3);
+		exec_result = sys2.subscribe(poolId3);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		//install package from content view 1
@@ -297,7 +297,7 @@ public class CompositeContentViewTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	
 		KatelloRepo repo = new KatelloRepo(repo_local1_name, org_name2, prod_local1_name, repo_url1, null, null);
-		exec_result = repo.create();
+		exec_result = repo.create(true);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		prod.promote(env_name2);
@@ -332,7 +332,7 @@ public class CompositeContentViewTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	
 		KatelloRepo repo = new KatelloRepo(repo_local2_name, org_name2, prod_local2_name, repo_url2, null, null);
-		exec_result = repo.create();
+		exec_result = repo.create(true);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		prod.promote(env_name2);
@@ -367,7 +367,7 @@ public class CompositeContentViewTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	
 		KatelloRepo repo = new KatelloRepo(repo_local3_name, org_name2, prod_local3_name, repo_url3, null, null);
-		exec_result = repo.create();
+		exec_result = repo.create(true);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		prod.promote(env_name2);

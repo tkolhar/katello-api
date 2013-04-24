@@ -83,7 +83,7 @@ public class ContentViewTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		repo = new KatelloRepo(repo_name,org_name,prod_name,REPO_INECAS_ZOO3, null, null);
-		exec_result = repo.create();
+		exec_result = repo.create(true);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		exec_result = prod.promote(env_name);
@@ -94,7 +94,7 @@ public class ContentViewTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		repo2 = new KatelloRepo(repo_name2,org_name,prod_name2,PULP_RHEL6_x86_64_REPO, null, null);
-		exec_result = repo2.create();
+		exec_result = repo2.create(true);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		exec_result = repo2.synchronize();
@@ -166,21 +166,21 @@ public class ContentViewTests extends KatelloCliTestScript{
 		String poolId2 = KatelloCli.grepCLIOutput("ID", getOutput(exec_result).trim(),2);
 		Assert.assertNotNull(poolId2, "Check - pool Id is not null");
 		
-		exec_result = sys.rhsm_subscribe(poolId1);
+		exec_result = sys.subscribe(poolId1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		exec_result = sys.rhsm_subscribe(poolId2);
+		exec_result = sys.subscribe(poolId2);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
 	
 	@Test(description = "Consuming content using an activation key that has a content view definition",groups={"cfse-cli"}, dependsOnMethods={"test_registerClient"})
 	public void test_consumeContent()
 	{
-		exec_result = KatelloUtils.sshOnClient("yum repolist");
-		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
-		exec_result=KatelloUtils.sshOnClient("yum install -y zsh");
+		yum_clean();
+		KatelloUtils.sshOnClient("yum erase -y lion");
+		exec_result=KatelloUtils.sshOnClient("yum install -y lion");
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		exec_result = KatelloUtils.sshOnClient("rpm -qa | grep zsh");
+		exec_result = KatelloUtils.sshOnClient("rpm -qa | grep lion");
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 	}
