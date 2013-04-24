@@ -178,13 +178,13 @@ public class ChangesetMultyRepoDelete extends KatelloCliTestScript {
 		exec_result = sys.subscriptions_available();
 		String poolId1 = KatelloCli.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
 		
-		exec_result = sys.rhsm_subscribe(poolId1);
+		exec_result = sys.subscribe(poolId1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		exec_result = sys.subscriptions_available();
 		String poolId2 = KatelloCli.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
 		
-		exec_result = sys.rhsm_subscribe(poolId2);
+		exec_result = sys.subscribe(poolId2);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		yum_clean();

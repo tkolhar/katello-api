@@ -54,7 +54,7 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 		KatelloProvider prov = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, this.org_name, null, null);
 		exec_result = prov.import_manifest("/tmp"+File.separator+"stack-manifest.zip", new Boolean(true));
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (provider import_manifest)");
-		Assert.assertTrue(getOutput(exec_result).contains("Manifest imported"),"Message - (provider import_manifest)");
+		Assert.assertTrue(getOutput(exec_result).contains(KatelloProvider.OUT_MANIFEST_IMPORTED),"Message - (provider import_manifest)");
 
 		KatelloEnvironment env = new KatelloEnvironment(this.env_name, null, this.org_name, KatelloEnvironment.LIBRARY);
 		env.cli_create();

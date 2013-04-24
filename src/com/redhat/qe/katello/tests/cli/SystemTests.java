@@ -83,7 +83,7 @@ public class SystemTests extends KatelloCliTestScript{
 	}
 
 	@Test(description = "RHSM register - org have no environment but Locker only", 
-			groups={"cfse-cli","rhsmRegs"})
+			groups={"cfse-cli","headpin-cli","rhsmRegs"})
 	public void test_rhsm_RegLibraryOnly(){
 		rhsm_clean();
 		KatelloSystem sys = new KatelloSystem(this.systemNameNoEnvReg, this.orgNameNoEnvs, null);
@@ -95,7 +95,7 @@ public class SystemTests extends KatelloCliTestScript{
 	}
 
 	@Test(description = "RHSM register - one environment only", 
-			groups={"cfse-cli","rhsmRegs"}, dependsOnMethods = {"test_rhsm_RegLibraryOnly"})
+			groups={"cfse-cli","headpin-cli","rhsmRegs"}, dependsOnMethods = {"test_rhsm_RegLibraryOnly"})
 	public void test_rhsm_RegOneEnvOnly(){
 		rhsm_clean();
 		// Create the 1st env.
@@ -111,7 +111,7 @@ public class SystemTests extends KatelloCliTestScript{
 	}
 
 	@Test(description = "RHSM register - already registered", 
-			groups={"cfse-cli","rhsmRegs"})
+			groups={"cfse-cli","headpin-cli","rhsmRegs"})
 	public void test_rhsm_AlreadyReg(){
 		rhsm_clean();
 		KatelloSystem sys = new KatelloSystem(this.systemNameRegOnly+"-asdf", this.orgNameRhsms, this.envName_Dev);
@@ -125,7 +125,7 @@ public class SystemTests extends KatelloCliTestScript{
 	}
 
 	@Test(description = "RHSM force register", 
-			groups={"cfse-cli","rhsmRegs"}, dependsOnMethods = {"test_rhsm_AlreadyReg"})
+			groups={"cfse-cli","headpin-cli","rhsmRegs"}, dependsOnMethods = {"test_rhsm_AlreadyReg"})
 	public void test_rhsm_ForceReg(){
 		KatelloSystem sys = new KatelloSystem(this.systemNameRegOnly, this.orgNameRhsms, this.envName_Dev);
 		//re-register with --force option
@@ -138,7 +138,7 @@ public class SystemTests extends KatelloCliTestScript{
 	}
 
 	@Test(description = "RHSM register - more than one environment (no env. specified)", 
-			groups={"cfse-cli","rhsmRegs"}, dependsOnMethods = {"test_rhsm_ForceReg"})
+			groups={"cfse-cli","headpin-cli","rhsmRegs"}, dependsOnMethods = {"test_rhsm_ForceReg"})
 	public void test_rhsm_RegMultiEnv(){
 		String uid = KatelloUtils.getUniqueID();
 		String system = "rhsm-regMultiEnv-"+uid;
@@ -155,7 +155,7 @@ public class SystemTests extends KatelloCliTestScript{
 	}
 
 	@Test(description = "RHSM register - env specified", 
-			dependsOnMethods = {"test_rhsm_RegMultiEnv"}, groups={"cfse-cli","rhsmRegs"})
+			dependsOnMethods = {"test_rhsm_RegMultiEnv"}, groups={"cfse-cli","headpin-cli","rhsmRegs"})
 	public void test_rhsm_RegWithEnv(){
 		String uid = KatelloUtils.getUniqueID();
 		String system = "rhsm-env-"+uid;
@@ -169,7 +169,7 @@ public class SystemTests extends KatelloCliTestScript{
 	}
 
 	@Test(description = "RHSM register - same name for 2 environments", 
-			dependsOnMethods = {"test_rhsm_RegMultiEnv"}, groups={"cfse-cli","rhsmRegs"})
+			dependsOnMethods = {"test_rhsm_RegMultiEnv"}, groups={"cfse-cli","headpin-cli","rhsmRegs"})
 	public void test_rhsm_RegSameNameTwoEnvs(){
 		String uid = KatelloUtils.getUniqueID();
 		String system = "localhost-"+uid;

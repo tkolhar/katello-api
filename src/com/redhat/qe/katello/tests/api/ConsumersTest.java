@@ -15,6 +15,7 @@ import com.redhat.qe.katello.base.obj.KatelloEntitlement;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloPool;
+import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.common.KatelloUtils;
 
@@ -147,7 +148,7 @@ public class ConsumersTest extends KatelloTestScript {
             	int prods_before = servertasks.getProductsByOrg(org_name).size();
                 String ret = servertasks.uploadManifest(provider_id, EXPORT_ZIP_PATH);
                 int prods_after = servertasks.getProductsByOrg(org_name).size();
-                Assert.assertEquals(ret, "Manifest imported","Output should be: \"Manifest imported\"");
+                Assert.assertEquals(ret, KatelloProvider.OUT_MANIFEST_IMPORTED,"Output should be: \"Manifest imported\"");
                 Assert.assertTrue((prods_after-prods_before)>=PRODUCTS_IN_EXPORT_ZIP, "Check imported products: >=["+PRODUCTS_IN_EXPORT_ZIP+"]");
             }else{
             	log.warning("Skip running of the test: test_importManifest. Cleanup DBs for this test run." );
