@@ -114,18 +114,24 @@ public class KatelloContentFilter extends _KatelloObject{
 
 	public SSHCommandResult add_rule_errata(String type, String[] ids) {
 		String rule;
+		// no ids given => empty rule
+		if(ids == null || ids.length == 0)
+			return add_rule("{}", CONTENT_ERRATUM, type);
+		// formats JSON rule {"units":<["id"]*>}
 		rule = "{\\\"units\\\": [";
 		for(String id: ids) {
 			rule += "{\\\"id\\\" : \\\"" + id + "\\\"}, ";
 		}
-		rule = rule.substring(0, rule.length()-2);
+		rule = rule.substring(0, rule.length()-2); // hack - remove last comma separator
 		rule += "]}";
 		return add_rule(rule, CONTENT_ERRATUM, type);
 	}
 
 	public SSHCommandResult add_rule_errata(String type, String start, String end, String[] errata_types) {
 		String rule;
+		// formats JSON rule {"date_range": {"start": "YYYY-MM-DD", "end": "YYYY-MM-DD"}} | {"errata_type" : [< "enhancement", "security", "bugfix">*]}
 		rule = "{";
+		// add date_range if set
 		if(start != null || end != null) {
 			rule += "\\\"date_range\\\": {";
 			if(start != null)
@@ -134,16 +140,47 @@ public class KatelloContentFilter extends _KatelloObject{
 				rule += (start != null?",":"") + "\\\"end\\\": \\\"" + end + "\\\"";
 			rule += "}";
 		}
-		if(errata_types != null) {
+		// add errata_type if set
+		if(errata_types != null && errata_types.length != 0) {
 			rule += (start != null || end != null ? ", " : "") + "\\\"errata_type\\\": [";
 			for(String err_type : errata_types) {
 				rule += "\\\"" + err_type + "\\\", ";
 			}
-			rule = rule.substring(0, rule.length()-2);
+			rule = rule.substring(0, rule.length()-2); // hack - remove last comma separator
 			rule += "]";
 		}
 		rule += "}";
 		return add_rule(rule, CONTENT_ERRATUM, type);
+	}
+
+	public SSHCommandResult add_rule_package_group(String type, String[] groups) {
+		String rule;
+		// no groups => empty rule
+		if(groups == null || groups.length == 0)
+			return add_rule("{}", CONTENT_PACKAGE_GROUP, type);
+		// formats JSON rule {"units" : [{"name" : "groups[0]"}, {"name" : "groups[1]"}, ... ]}
+		rule = "{ \\\"units\\\": [  ";
+		for(String group : groups) {
+			rule += "{\\\"name\\\": \\\"" + group + "\\\"}, ";
+		}
+		rule = rule.substring(0, rule.length()-2); // hack - remove last comma separator
+		rule += "]}";
+		return add_rule(rule, CONTENT_PACKAGE_GROUP, type);
+	}
+
+	public SSHCommandResult add_rule_package(String type, String []packages) {
+		String rule;
+		// no packages => empty rule
+		if(packages == null || packages.length == 0)
+			return add_rule("{}", CONTENT_PACKAGE, type);
+		// formats JSON rule {"units":<["name", "version", "min_version", "max_version"]*>}
+		rule = "{ \\\"units\\\": [";
+		for(String pack : packages) {
+			rule += "{" + pack + "}, ";
+		}
+		rule = rule.substring(0, rule.length()-2); // hack - remove last comma separator
+		rule += "]}";
+		return add_rule(rule, CONTENT_PACKAGE, type);
 	}
 
 	public SSHCommandResult remove_rule(String rule_id) {
