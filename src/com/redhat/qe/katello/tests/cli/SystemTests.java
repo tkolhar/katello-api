@@ -125,9 +125,13 @@ public class SystemTests extends KatelloCliTestScript{
 	}
 
 	@Test(description = "RHSM force register", 
-			groups={"cfse-cli","headpin-cli","rhsmRegs"}, dependsOnMethods = {"test_rhsm_AlreadyReg"})
+			groups={"cfse-cli","headpin-cli","rhsmRegs"})
 	public void test_rhsm_ForceReg(){
-		KatelloSystem sys = new KatelloSystem(this.systemNameRegOnly+"-alreadyReg", this.orgNameRhsms, this.envName_Dev);
+		rhsm_clean();
+		KatelloSystem sys = new KatelloSystem("sys-ForceReg-"+KatelloUtils.getUniqueID(), this.orgNameRhsms, this.envName_Dev);
+		exec_result = sys.rhsm_register();
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code (register - 1st attempt pass)");
+		
 		//re-register with --force option
 		exec_result = sys.rhsm_registerForce();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code (register --force)");
