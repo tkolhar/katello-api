@@ -135,7 +135,6 @@ public class ContentFilterTests extends KatelloCliTestScript{
 	}
 
 
-	//@ TODO bug 955612
 	@Test(description="create errata include filter rule with date and type")
 	public void test_includeErrataFilterDayType() {
 		String [] errata_types = {KatelloContentFilter.ERRATA_TYPE_BUGFIX};
@@ -147,9 +146,9 @@ public class ContentFilterTests extends KatelloCliTestScript{
 		exec_result = filter.add_rule_errata(KatelloContentFilter.TYPE_INCLUDES, "2013-04-15", "2014-04-16", errata_types);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
-		// TODO test start_date > end_date
 		exec_result = filter.add_rule_errata(KatelloContentFilter.TYPE_INCLUDES, "2013-04-15", "2012-04-15", null);
 		Assert.assertFalse(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).equals(KatelloContentFilter.ERR_ERRATA_DATE), "Check - error message");
 	}
 
 	@Test(description="create errata include filter rule with errata ids")
@@ -164,7 +163,6 @@ public class ContentFilterTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
 
-	//@ TODO bug 955612
 	@Test(description="create errata exclude filter rule with date and type")
 	public void test_excludeErrataFilterDayType() {
 		String [] errata_types = {KatelloContentFilter.ERRATA_TYPE_BUGFIX};
@@ -176,9 +174,9 @@ public class ContentFilterTests extends KatelloCliTestScript{
 		exec_result = filter.add_rule_errata(KatelloContentFilter.TYPE_EXCLUDES, "2013-04-15", "2014-04-16", errata_types);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
-		// TODO test start_date > end_date
 		exec_result = filter.add_rule_errata(KatelloContentFilter.TYPE_EXCLUDES, "2013-04-15", "2012-04-15", null);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertTrue(exec_result.getExitCode() != 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).equals(KatelloContentFilter.ERR_ERRATA_DATE), "Check - error message");
 	}
 
 	@Test(description="create errata exclude filter rule")
@@ -214,6 +212,68 @@ public class ContentFilterTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		// TODO check output message after bugfix^
 		Assert.assertFalse(getOutput(exec_result).equals(""), "Check - output ");
+	}
+
+	@Test(description="add include package_groups filter rules")
+	public void test_includePackageGroupFilter() {
+		KatelloContentFilter filter = new KatelloContentFilter(filter_name, org_name, condef_name);
+
+		String [] groups = { "group1", "group2", "group3" };
+		exec_result = filter.add_rule_package_group(KatelloContentFilter.TYPE_INCLUDES, groups);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+
+		exec_result = filter.add_rule_package_group(KatelloContentFilter.TYPE_INCLUDES, null);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+	}
+
+	@Test(description="add exclude package_groups filter rules")
+	public void test_excludePackageGroupFilter() {
+		KatelloContentFilter filter = new KatelloContentFilter(filter_name, org_name, condef_name);
+
+		String [] groups = { "group4", "group5", "group6" };
+		exec_result = filter.add_rule_package_group(KatelloContentFilter.TYPE_EXCLUDES, groups);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+
+		exec_result = filter.add_rule_package_group(KatelloContentFilter.TYPE_EXCLUDES, null);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+	}
+
+	@Test(description="add include package filter rules")
+	public void test_includePackageFilter() {
+		KatelloContentFilter filter = new KatelloContentFilter(filter_name, org_name, condef_name);
+
+		String [] packages = {
+			"\\\"name\\\" : \\\"camel\\\"",
+			"\\\"name\\\" : \\\"zebra\\\", \\\"version\\\" : \\\"0.1.0\\\"",
+			"\\\"name\\\" : \\\"lion\\\", \\\"min_version\\\" : \\\"1.2.0\\\"",
+			"\\\"name\\\" : \\\"tiger\\\", \\\"max_version\\\" : \\\"3.3.0\\\"",
+			"\\\"name\\\" : \\\"walrus\\\", \\\"min_version\\\" : \\\"2.5.0\\\", \\\"max_version\\\" : \\\"4.2.0\\\"",
+		};
+
+		exec_result = filter.add_rule_package(KatelloContentFilter.TYPE_INCLUDES, packages);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+
+		exec_result = filter.add_rule_package(KatelloContentFilter.TYPE_INCLUDES, null);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+	}
+
+	@Test(description="add exclude package filter rules")
+	public void test_excludePackageFilter() {
+		KatelloContentFilter filter = new KatelloContentFilter(filter_name, org_name, condef_name);
+
+		String [] packages = {
+			"\\\"name\\\" : \\\"elephant\\\"",
+			"\\\"name\\\" : \\\"penguin\\\", \\\"version\\\" : \\\"1.2.0\\\"",
+			"\\\"name\\\" : \\\"bear\\\", \\\"min_version\\\" : \\\"1.6.0\\\"",
+			"\\\"name\\\" : \\\"cow\\\", \\\"max_version\\\" : \\\"4.1.0\\\"",
+			"\\\"name\\\" : \\\"fox\\\", \\\"min_version\\\" : \\\"2.2.0\\\", \\\"max_version\\\" : \\\"2.4.0\\\"",
+		};
+
+		exec_result = filter.add_rule_package(KatelloContentFilter.TYPE_EXCLUDES, packages);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+
+		exec_result = filter.add_rule_package(KatelloContentFilter.TYPE_EXCLUDES, null);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
 	
 	@AfterClass
