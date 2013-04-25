@@ -27,6 +27,8 @@ public class KatelloContentFilter extends _KatelloObject{
 	public static final String OUT_REMOVE_PRODUCT  = "Removed product [ %s ] from filter [ %s ]";
 	public static final String OUT_REMOVE_REPO = "Removed repository [ %s ] from filter [ %s ]";
 
+	public static final String ERR_ERRATA_DATE = "Validation failed: Parameters Invalid date range. The erratum rule start date must come before the end date";
+
 	public static final String TYPE_EXCLUDES = "excludes";
 	public static final String TYPE_INCLUDES = "includes";
 	public static final String CONTENT_PACKAGE = "rpm";
@@ -125,12 +127,12 @@ public class KatelloContentFilter extends _KatelloObject{
 		String rule;
 		rule = "{";
 		if(start != null || end != null) {
-			rule += "\\\"date_range\\\": [";
+			rule += "\\\"date_range\\\": {";
 			if(start != null)
-				rule += "{\\\"start\\\": \\\"" + start + "\\\"}";
+				rule += "\\\"start\\\": \\\"" + start + "\\\"";
 			if(end != null)
-				rule += (start != null?",":"") + "{\\\"end\\\": \\\"" + end + "\\\"}";
-			rule += "]";
+				rule += (start != null?",":"") + "\\\"end\\\": \\\"" + end + "\\\"";
+			rule += "}";
 		}
 		if(errata_types != null) {
 			rule += (start != null || end != null ? ", " : "") + "\\\"errata_type\\\": [";

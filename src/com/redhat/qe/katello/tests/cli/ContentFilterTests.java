@@ -135,7 +135,6 @@ public class ContentFilterTests extends KatelloCliTestScript{
 	}
 
 
-	//@ TODO bug 955612
 	@Test(description="create errata include filter rule with date and type")
 	public void test_includeErrataFilterDayType() {
 		String [] errata_types = {KatelloContentFilter.ERRATA_TYPE_BUGFIX};
@@ -147,9 +146,9 @@ public class ContentFilterTests extends KatelloCliTestScript{
 		exec_result = filter.add_rule_errata(KatelloContentFilter.TYPE_INCLUDES, "2013-04-15", "2014-04-16", errata_types);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
-		// TODO test start_date > end_date
 		exec_result = filter.add_rule_errata(KatelloContentFilter.TYPE_INCLUDES, "2013-04-15", "2012-04-15", null);
 		Assert.assertFalse(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).equals(KatelloContentFilter.ERR_ERRATA_DATE), "Check - error message");
 	}
 
 	@Test(description="create errata include filter rule with errata ids")
@@ -164,7 +163,6 @@ public class ContentFilterTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
 
-	//@ TODO bug 955612
 	@Test(description="create errata exclude filter rule with date and type")
 	public void test_excludeErrataFilterDayType() {
 		String [] errata_types = {KatelloContentFilter.ERRATA_TYPE_BUGFIX};
@@ -176,9 +174,9 @@ public class ContentFilterTests extends KatelloCliTestScript{
 		exec_result = filter.add_rule_errata(KatelloContentFilter.TYPE_EXCLUDES, "2013-04-15", "2014-04-16", errata_types);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
-		// TODO test start_date > end_date
 		exec_result = filter.add_rule_errata(KatelloContentFilter.TYPE_EXCLUDES, "2013-04-15", "2012-04-15", null);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertTrue(exec_result.getExitCode() != 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).equals(KatelloContentFilter.ERR_ERRATA_DATE), "Check - error message");
 	}
 
 	@Test(description="create errata exclude filter rule")
