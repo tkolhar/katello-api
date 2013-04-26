@@ -38,8 +38,7 @@ public class KatelloContentFilter extends _KatelloObject{
 	public static final String ERRATA_TYPE_SECURITY = "security";
 	public static final String ERRATA_TYPE_BUGFIX = "bugfix";
 	
-	public static final String REG_VIEW_INFO = ".*ID\\s*:\\s*\\d+.*Name\\s*:\\s*%sLabel\\s*:\\s*%s.*Description\\s*:\\s*%s.*Org\\s*:\\s*%s.*Definition\\s*:\\s*%s.*Environments\\s*:\\s*%s.*Versions\\s*:\\s*%s.*Repos\\s*:\\s*%s.*";
-	
+
 	// ** ** ** ** ** ** ** Class members
 	public String name;
 	public String definition;
