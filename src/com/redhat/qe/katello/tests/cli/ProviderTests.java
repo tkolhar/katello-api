@@ -602,4 +602,23 @@ public class ProviderTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue()==2, "Check - return code");
 		Assert.assertTrue(getOutput(res).contains("headpin: error: invalid action: please see --help"),"Check - returned error string");
 	}
+	
+	
+	@Test(description="sam only : command should not contain create or delete options", groups = {"headpin-cli", "cfse-ignore"}, enabled=true)
+	public void test_Check_createdel_Provider(){
+		
+		SSHCommandResult res;
+		String uid = KatelloUtils.getUniqueID();
+		String org_name = "org-create-del" + uid;
+		KatelloOrg org=new KatelloOrg(org_name,null);
+		res= org.cli_create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		KatelloProvider prov = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, org_name, null, null);
+		res=prov.create();
+		Assert.assertTrue(res.getExitCode().intValue()==2, "Check - return code");
+		Assert.assertTrue(getOutput(res).contains("headpin: error: invalid action: please see --help"),"Check - returned error string");
+		res=prov.delete();
+		Assert.assertTrue(res.getExitCode().intValue()==2, "Check - return code");
+		Assert.assertTrue(getOutput(res).contains("headpin: error: invalid action: please see --help"),"Check - returned error string");
+	}
 }
