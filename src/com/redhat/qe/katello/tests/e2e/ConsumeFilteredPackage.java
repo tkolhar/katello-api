@@ -1,6 +1,5 @@
 package com.redhat.qe.katello.tests.e2e;
 
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -22,9 +21,7 @@ import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups=TngRunGroups.TNG_KATELLO_Content)
-public class ConsumeFilteredPackageGroup extends KatelloCliTestScript {
-	
-	public static final String ERRATA_ZOO_SEA = "RHEA-2012:0002";
+public class ConsumeFilteredPackage extends KatelloCliTestScript {
 	
 	String uid = KatelloUtils.getUniqueID();
 	String org_name = "orgcon-"+ uid;
@@ -33,7 +30,7 @@ public class ConsumeFilteredPackageGroup extends KatelloCliTestScript {
 	String prod_name = "prodcon-"+ uid;
 	String repo_name = "repocon-" + uid;
 	String condef_name = "condef-" + uid;
-	String packageGroup_filter = "packagegroup_filter1";
+	String package_filter = "package_filter1";
 	String pubview_name = "pubview-" + uid;
 	String system_name1 = "system-" + uid;
 	String act_key_name = "act_key-" + uid;
@@ -52,6 +49,8 @@ public class ConsumeFilteredPackageGroup extends KatelloCliTestScript {
 	
 	@BeforeClass(description="Generate unique objects")
 	public void setUp() {
+		KatelloUtils.sshOnClient("yum erase -y fox cow dog dolphin duck walrus elephant horse kangaroo pike lion");
+		
 		org = new KatelloOrg(org_name,null);
 		exec_result = org.cli_create();		              
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
@@ -89,11 +88,10 @@ public class ConsumeFilteredPackageGroup extends KatelloCliTestScript {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
     
-	// @ TODO fails because of bug 957057
-	@Test(description="Consume content from filtered package group")
-	public void test_consumePackageGroupContent() {
+	@Test(description="Consume content from filtered package")
+	public void test_consumePackageContent() {
 
-		KatelloContentFilter filter = new KatelloContentFilter(packageGroup_filter, org_name, condef_name);
+		KatelloContentFilter filter = new KatelloContentFilter(package_filter, org_name, condef_name);
 
 		exec_result = filter.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
@@ -102,14 +100,12 @@ public class ConsumeFilteredPackageGroup extends KatelloCliTestScript {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		exec_result = filter.add_repo(prod_name, repo_name);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentFilter.OUT_ADD_REPO, repo_name, packageGroup_filter)), "Check output");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentFilter.OUT_ADD_REPO, repo_name, package_filter)), "Check output");
 		
-		exec_result = filter.add_rule_package_group(KatelloContentFilter.TYPE_INCLUDES, new String[] {"mammals"});
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-
-		exec_result = filter.add_rule_package_group(KatelloContentFilter.TYPE_EXCLUDES, new String[] {"birds"});
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-
+		// add package rules there
+		// @ TODO - Tazim
+		
+		
 		condef.publish(pubview_name,pubview_name,null);
 
 		conview = new KatelloContentView(pubview_name, org_name);
@@ -143,33 +139,14 @@ public class ConsumeFilteredPackageGroup extends KatelloCliTestScript {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
 
-		yum_clean();
-		KatelloUtils.sshOnClient("yum erase -y lion");
-		KatelloUtils.sshOnClient("yum erase -y zebra");
-		KatelloUtils.sshOnClient("yum erase -y stork");
-		KatelloUtils.sshOnClient("yum erase -y cockateel");
+		yum_clean();			
 		
 		
-		// consume packages from group mammals, verify that they are available
-		exec_result=KatelloUtils.sshOnClient("yum install -y lion");
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		exec_result = KatelloUtils.sshOnClient("rpm -q lion");
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).trim().contains("lion-"));
+		// consume packages from include filter, verify that they are available
+		// TODO - Tazim
 		
-		exec_result=KatelloUtils.sshOnClient("yum install -y zebra");
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		exec_result = KatelloUtils.sshOnClient("rpm -q zebra");
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).trim().contains("zebra-"));
-		
-		
-		// consume packages from group birds, verify that they are NOT available
-		exec_result=KatelloUtils.sshOnClient("yum install -y stork");
-		Assert.assertTrue(getOutput(exec_result).trim().contains("No package stork available."));
-		
-		exec_result=KatelloUtils.sshOnClient("yum install -y cockateel");
-		Assert.assertTrue(getOutput(exec_result).trim().contains("No package cockateel available."));
+		// consume packages from exclude filter, verify that they are NOT available
+		// TODO - Tazim
 	}
-
+	
 }
