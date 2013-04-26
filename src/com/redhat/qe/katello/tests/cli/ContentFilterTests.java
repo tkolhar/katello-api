@@ -22,7 +22,7 @@ import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups=TngRunGroups.TNG_KATELLO_Content)
-public class ContentFilterTests extends KatelloCliTestScript{
+public class ContentFilterTests extends KatelloCliTestScript {
 	
 	public static final String ERRATA_ZOO_SEA = "RHEA-2012:0002";
 	
@@ -34,6 +34,7 @@ public class ContentFilterTests extends KatelloCliTestScript{
 	String repo_name = "repocon-" + uid;
 	String condef_name = "condef-" + uid;
 	String filter_name = "filter";
+	String filter_delete = "filter to delete";
 	String pubview_name = "pubview-" + uid;
 	String system_name1 = "system-" + uid;
 	String act_key_name = "act_key-" + uid;
@@ -89,14 +90,12 @@ public class ContentFilterTests extends KatelloCliTestScript{
 		exec_result = filter.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
-		exec_result = filter.add_rule("{}", KatelloContentFilter.CONTENT_ERRATUM, KatelloContentFilter.TYPE_INCLUDES);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
 
 
 	@Test(description="create content definition filter")
 	void test_filterCreate() {
-		KatelloContentFilter filter = new KatelloContentFilter("testfilter", org_name, condef_name);
+		KatelloContentFilter filter = new KatelloContentFilter(filter_delete, org_name, condef_name);
 		exec_result = filter.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentFilter.OUT_CREATED, "testfilter")), "Check output");
@@ -104,7 +103,7 @@ public class ContentFilterTests extends KatelloCliTestScript{
 
 	@Test(description="delete content definition filter",dependsOnMethods={"test_filterCreate"})
 	void test_filterDelete() {
-		KatelloContentFilter filter = new KatelloContentFilter("testfilter", org_name, condef_name);
+		KatelloContentFilter filter = new KatelloContentFilter(filter_delete, org_name, condef_name);
 		exec_result = filter.delete();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentFilter.OUT_DELETED, "testfilter")), "Check output");
@@ -142,7 +141,6 @@ public class ContentFilterTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentFilter.OUT_REMOVE_REPO, repo_name, filter_name)), "Check output");
 	}
-
 
 	@Test(description="create errata include filter rule with date and type")
 	public void test_includeErrataFilterDayType() {
@@ -246,74 +244,7 @@ public class ContentFilterTests extends KatelloCliTestScript{
 		exec_result = filter.add_rule_package_group(KatelloContentFilter.TYPE_EXCLUDES, null);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
-    
-	@Test(description="Consume content from filtered package group")
-	public void test_consumeContent() {
 
-		filter_name = "consume-content-filter" + uid;
-		KatelloContentFilter filter = new KatelloContentFilter(filter_name, org_name, condef_name);
-
-
-		exec_result = filter.create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-
-		exec_result = filter.info();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		exec_result = filter.add_product(prod_name);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentFilter.OUT_ADD_PRODUCT, prod_name, filter_name)), "Check output");
-		exec_result = filter.add_repo(prod_name, repo_name);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentFilter.OUT_ADD_REPO, repo_name, filter_name)), "Check output");
-		exec_result = filter.add_rule("{\\\"units\\\": [{\\\"name\\\": \\\"mammals\\\"}]}", KatelloContentFilter.CONTENT_PACKAGE_GROUP, KatelloContentFilter.TYPE_INCLUDES);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-
-		exec_result = filter.add_rule("{\\\"units\\\": [{\\\"name\\\": \\\"birds\\\"}]}", KatelloContentFilter.CONTENT_PACKAGE_GROUP, KatelloContentFilter.TYPE_EXCLUDES);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-
-
-		condef = new KatelloContentDefinition(condef_name,null,org_name,null);
-		condef.publish(pubview_name,pubview_name,null);// it is done in other places
-
-		conview = new KatelloContentView(pubview_name, org_name);
-		exec_result = conview.promote_view(env_name);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentView.OUT_PROMOTE, this.pubview_name, env_name)), "Content view promote output.");
-		act_key = new KatelloActivationKey(org_name,env_name,act_key_name,"Act key created");
-		exec_result = act_key.create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");      
-		exec_result = act_key.update_add_content_view(pubview_name);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");      
-		exec_result = act_key.info();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");      
-		Assert.assertTrue(getOutput(exec_result).contains(this.pubview_name), "Content view name is in output.");
-
-		//register client, subscribe to pool
-		KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);
-		sys = new KatelloSystem(system_name1, this.org_name, null);
-		exec_result = sys.rhsm_registerForce(act_key_name);
-		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
-
-		exec_result = sys.rhsm_identity();
-		system_uuid1 = KatelloCli.grepCLIOutput("Current identity is", exec_result.getStdout());
-
-		exec_result = sys.subscriptions_available();
-		String poolId1 = KatelloCli.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
-		Assert.assertNotNull(poolId1, "Check - pool Id is not null");
-
-		exec_result = sys.subscribe(poolId1);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-
-
-		yum_clean();
-		KatelloUtils.sshOnClient("yum erase -y lion");
-		exec_result=KatelloUtils.sshOnClient("yum install -y lion");
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		exec_result = KatelloUtils.sshOnClient("rpm -qa | grep lion");
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).trim().contains("lion-"));
-	}
-	
 	@Test(description="add include package filter rules")
 	public void test_includePackageFilter() {
 		KatelloContentFilter filter = new KatelloContentFilter(filter_name, org_name, condef_name);

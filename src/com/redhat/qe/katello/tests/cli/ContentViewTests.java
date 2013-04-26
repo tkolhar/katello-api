@@ -149,7 +149,27 @@ public class ContentViewTests extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(exec_result).contains(this.pubview_name), "Content view name is in output.");
 	}
 	
-	@Test(description = "register client via activation key",groups={"cfse-cli"}, dependsOnMethods={"test_addContentView"})
+	@Test(description = "Remove a published content view to an activation key",groups={"cfse-cli"}, dependsOnMethods={"test_addContentView"})
+	public void test_removeContentViewFromKey() {
+		
+		exec_result = act_key.update_remove_content_view();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
+		exec_result = act_key.info();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
+		Assert.assertFalse(getOutput(exec_result).contains(this.pubview_name), "Content view name is not in output.");
+	}
+
+	@Test(description = "Re Add a published content view to an activation key",groups={"cfse-cli"}, dependsOnMethods={"test_removeContentViewFromKey"})
+	public void test_reAddContentViewToKey() {
+		
+		exec_result = act_key.update_add_content_view(pubview_name);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
+		exec_result = act_key.info();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
+		Assert.assertTrue(getOutput(exec_result).contains(this.pubview_name), "Content view name is in output.");
+	}
+	
+	@Test(description = "register client via activation key",groups={"cfse-cli"}, dependsOnMethods={"test_reAddContentViewToKey"})
 	public void test_registerClient(){
 		KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);
 		sys = new KatelloSystem(system_name1, this.org_name, null);
@@ -180,7 +200,7 @@ public class ContentViewTests extends KatelloCliTestScript{
 		KatelloUtils.sshOnClient("yum erase -y lion");
 		exec_result=KatelloUtils.sshOnClient("yum install -y lion");
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		exec_result = KatelloUtils.sshOnClient("rpm -qa | grep lion");
+		exec_result = KatelloUtils.sshOnClient("rpm -q lion");
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("lion-"));
 		
@@ -220,11 +240,12 @@ public class ContentViewTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");		
 		exec_result = changeset2.apply();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
+		yum_clean();
 		exec_result = KatelloUtils.sshOnClient("yum install -y walrus");
-		Assert.assertTrue(exec_result.getExitCode() == 147, "Check - error code");
+		Assert.assertFalse(exec_result.getExitCode() == 0, "Check - return code");
 	}
 
+	//@ TODO bug 956690
 	@Test(description = "removed content view on previous scenario promote back by changeset to environment, verify that packages are already availble",
 			groups={"cfse-cli"}, dependsOnMethods={"test_deletePromotedContentView"})
 	public void test_RePromoteContentView() {
@@ -233,20 +254,12 @@ public class ContentViewTests extends KatelloCliTestScript{
 		exec_result = conview.promote_view(env_name);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentView.OUT_PROMOTE, this.pubview_name, env_name)), "Content view promote output.");
-		
+		yum_clean();
 		exec_result = KatelloUtils.sshOnClient("yum install -y walrus");
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - error code");
-	}
-	
-	//@ TODO will fail because of 947859
-	@Test(description = "Remove a published content view to an activation key",groups={"cfse-cli"}, dependsOnMethods={"test_deletePromotedContentView"})
-	public void test_removeContentViewFromKey() {
-		
-		exec_result = act_key.update_remove_content_view();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
-		exec_result = act_key.info();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
-		Assert.assertFalse(getOutput(exec_result).contains(this.pubview_name), "Content view name is not in output.");
+		exec_result = KatelloUtils.sshOnClient("rpm -q walrus");
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).trim().contains("walrus-"));
 	}
 	
 	@AfterClass
