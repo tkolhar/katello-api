@@ -1,6 +1,5 @@
 package com.redhat.qe.katello.tests.e2e;
 
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -50,6 +49,8 @@ public class ConsumeFilteredPackage extends KatelloCliTestScript {
 	
 	@BeforeClass(description="Generate unique objects")
 	public void setUp() {
+		KatelloUtils.sshOnClient("yum erase -y fox cow dog dolphin duck walrus elephant horse kangaroo pike lion");
+		
 		org = new KatelloOrg(org_name,null);
 		exec_result = org.cli_create();		              
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
@@ -101,8 +102,8 @@ public class ConsumeFilteredPackage extends KatelloCliTestScript {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentFilter.OUT_ADD_REPO, repo_name, package_filter)), "Check output");
 		
-		// @ TODO add package rules there
-		//
+		// add package rules there
+		// @ TODO - Tazim
 		
 		
 		condef.publish(pubview_name,pubview_name,null);
@@ -138,31 +139,14 @@ public class ConsumeFilteredPackage extends KatelloCliTestScript {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
 
-		yum_clean();
-		KatelloUtils.sshOnClient("yum erase -y fox");
-		KatelloUtils.sshOnClient("yum erase -y cow");
-		KatelloUtils.sshOnClient("yum erase -y dog");
-		KatelloUtils.sshOnClient("yum erase -y dolphin");
-		KatelloUtils.sshOnClient("yum erase -y duck");
-		KatelloUtils.sshOnClient("yum erase -y walrus");
-		KatelloUtils.sshOnClient("yum erase -y elephant");
-		KatelloUtils.sshOnClient("yum erase -y horse");
-		KatelloUtils.sshOnClient("yum erase -y kangaroo");
-		KatelloUtils.sshOnClient("yum erase -y pike");
-		KatelloUtils.sshOnClient("yum erase -y lion");
+		yum_clean();			
 		
 		
 		// consume packages from include filter, verify that they are available
-		// TODO
+		// TODO - Tazim
 		
 		// consume packages from exclude filter, verify that they are NOT available
-		// TODO
+		// TODO - Tazim
 	}
 	
-	@AfterClass
-	public void tearDown() {
-		exec_result = org.delete();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-	}
-
 }

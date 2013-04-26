@@ -171,11 +171,5 @@ public class ConsumeFilteredPackageGroup extends KatelloCliTestScript {
 		exec_result=KatelloUtils.sshOnClient("yum install -y cockateel");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("No package cockateel available."));
 	}
-	
-	@AfterClass
-	public void tearDown() {
-		exec_result = org.delete();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-	}
 
 }
