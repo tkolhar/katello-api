@@ -101,18 +101,48 @@ public class ConsumeFilteredPackage extends KatelloCliTestScript {
 		exec_result = filter.add_repo(prod_name, repo_name);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentFilter.OUT_ADD_REPO, repo_name, package_filter)), "Check output");
-		
-		// add package rules there
-		// @ TODO - Tazim
-		
-		
+
+		// add package rules there     
+		String [] include_packages = {
+				"\\\"name\\\" : \\\"fox\\\"",
+				"\\\"name\\\" : \\\"tiger\\\"",
+				"\\\"name\\\" : \\\"lion\\\"",
+				"\\\"name\\\" : \\\"bear\\\"",
+				"\\\"name\\\" : \\\"cockateel\\\"",
+				"\\\"name\\\" : \\\"cow\\\", \\\"version\\\" : \\\"2.2-3\\\"",
+				"\\\"name\\\" : \\\"dog\\\", \\\"min_version\\\" : \\\"4.20\\\"",
+				"\\\"name\\\" : \\\"dolphin\\\", \\\"max_version\\\" : \\\"3.11\\\"",
+				"\\\"name\\\" : \\\"duck\\\", \\\"min_version\\\" : \\\"0.6\\\", \\\"max_version\\\" : \\\"0.7\\\"",
+		};
+
+		exec_result = filter.add_rule_package(KatelloContentFilter.TYPE_INCLUDES, include_packages);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+
+		exec_result = filter.add_rule_package(KatelloContentFilter.TYPE_INCLUDES, null);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+
+
+		String [] exclude_packages = {
+				"\\\"name\\\" : \\\"elephant\\\"",
+				"\\\"name\\\" : \\\"walrus\\\", \\\"version\\\" : \\\"5.21-1\\\"",
+				"\\\"name\\\" : \\\"horse\\\", \\\"min_version\\\" : \\\"0.21\\\"",
+				"\\\"name\\\" : \\\"kangaroo\\\", \\\"max_version\\\" : \\\"0.3\\\"",
+				"\\\"name\\\" : \\\"pike\\\", \\\"min_version\\\" : \\\"2.1\\\", \\\"max_version\\\" : \\\"2.3\\\"",
+		};
+
+		exec_result = filter.add_rule_package(KatelloContentFilter.TYPE_EXCLUDES, exclude_packages);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+
+		exec_result = filter.add_rule_package(KatelloContentFilter.TYPE_EXCLUDES, null);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+
 		condef.publish(pubview_name,pubview_name,null);
 
 		conview = new KatelloContentView(pubview_name, org_name);
 		exec_result = conview.promote_view(env_name);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentView.OUT_PROMOTE, this.pubview_name, env_name)), "Content view promote output.");
-		
+
 		act_key = new KatelloActivationKey(org_name,env_name,act_key_name,"Act key created");
 		exec_result = act_key.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");      
@@ -139,14 +169,17 @@ public class ConsumeFilteredPackage extends KatelloCliTestScript {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
 
-		yum_clean();			
-		
-		
+		yum_clean();                   
+
+
 		// consume packages from include filter, verify that they are available
-		// TODO - Tazim
-		
+		exec_result = KatelloUtils.sshOnClient("yum install -y fox cow-2.2-3 dog-4.23-1 dolphin-3.10.232-1 duck-0.6-1 walrus-0.71-1");
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
+
 		// consume packages from exclude filter, verify that they are NOT available
-		// TODO - Tazim
+		exec_result = KatelloUtils.sshOnClient("yum install -y elephant-8.3-1 walrus-5.21-1 horse-0.22-2 kangaroo-0.2-1 pike-2.2-1");
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
 	}
+
 	
 }
