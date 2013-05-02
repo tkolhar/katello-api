@@ -1,5 +1,8 @@
 package com.redhat.qe.katello.tests.cli;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -89,7 +92,6 @@ public class ContentFilterTests extends KatelloCliTestScript {
 		KatelloContentFilter filter = new KatelloContentFilter(filter_name, org_name, condef_name);
 		exec_result = filter.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-
 	}
 
 
@@ -98,7 +100,7 @@ public class ContentFilterTests extends KatelloCliTestScript {
 		KatelloContentFilter filter = new KatelloContentFilter(filter_delete, org_name, condef_name);
 		exec_result = filter.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentFilter.OUT_CREATED, "testfilter")), "Check output");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentFilter.OUT_CREATED, filter_delete)), "Check output");
 	}
 
 	@Test(description="delete content definition filter",dependsOnMethods={"test_filterCreate"})
@@ -106,7 +108,7 @@ public class ContentFilterTests extends KatelloCliTestScript {
 		KatelloContentFilter filter = new KatelloContentFilter(filter_delete, org_name, condef_name);
 		exec_result = filter.delete();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentFilter.OUT_DELETED, "testfilter")), "Check output");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentFilter.OUT_DELETED, filter_delete)), "Check output");
 	}
 
 
@@ -156,6 +158,10 @@ public class ContentFilterTests extends KatelloCliTestScript {
 		exec_result = filter.add_rule_errata(KatelloContentFilter.TYPE_INCLUDES, "2013-04-15", "2012-04-15", null);
 		Assert.assertFalse(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).equals(KatelloContentFilter.ERR_ERRATA_DATE), "Check - error message");
+
+		assert_filterInfo(filter_name, KatelloContentFilter.CONTENT_ERRATUM, KatelloContentFilter.TYPE_INCLUDES, "errata_type : bugfix");
+		assert_filterInfo(filter_name, KatelloContentFilter.CONTENT_ERRATUM, KatelloContentFilter.TYPE_INCLUDES,
+				"date_range : end : "+KatelloContentFilter.REG_DATE+", start : "+KatelloContentFilter.REG_DATE+", errata_type : bugfix");
 	}
 
 	@Test(description="create errata include filter rule with errata ids")
@@ -168,6 +174,9 @@ public class ContentFilterTests extends KatelloCliTestScript {
 
 		exec_result = filter.add_rule("{}", KatelloContentFilter.CONTENT_ERRATUM, KatelloContentFilter.TYPE_INCLUDES);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+
+		assert_filterInfo(filter_name, KatelloContentFilter.CONTENT_ERRATUM, KatelloContentFilter.TYPE_INCLUDES, "units : id : RHEA-2012:0002, id : RHEA-2012:0003");
+		assert_filterInfo(filter_name, KatelloContentFilter.CONTENT_ERRATUM, KatelloContentFilter.TYPE_INCLUDES, "");
 	}
 
 	@Test(description="create errata exclude filter rule with date and type")
@@ -184,6 +193,10 @@ public class ContentFilterTests extends KatelloCliTestScript {
 		exec_result = filter.add_rule_errata(KatelloContentFilter.TYPE_EXCLUDES, "2013-04-15", "2012-04-15", null);
 		Assert.assertTrue(exec_result.getExitCode() != 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).equals(KatelloContentFilter.ERR_ERRATA_DATE), "Check - error message");
+
+		assert_filterInfo(filter_name, KatelloContentFilter.CONTENT_ERRATUM, KatelloContentFilter.TYPE_EXCLUDES, "errata_type : bugfix");
+		assert_filterInfo(filter_name, KatelloContentFilter.CONTENT_ERRATUM, KatelloContentFilter.TYPE_EXCLUDES,
+				"date_range : end : "+KatelloContentFilter.REG_DATE+", start : "+KatelloContentFilter.REG_DATE+", errata_type : bugfix");
 	}
 
 	@Test(description="create errata exclude filter rule")
@@ -196,6 +209,9 @@ public class ContentFilterTests extends KatelloCliTestScript {
 
 		exec_result = filter.add_rule("{}", KatelloContentFilter.CONTENT_ERRATUM, KatelloContentFilter.TYPE_EXCLUDES);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+
+		assert_filterInfo(filter_name, KatelloContentFilter.CONTENT_ERRATUM, KatelloContentFilter.TYPE_EXCLUDES, "units: id : RHEA-2012:0002, id: RHEA-2012:0003");
+		assert_filterInfo(filter_name, KatelloContentFilter.CONTENT_ERRATUM, KatelloContentFilter.TYPE_EXCLUDES, "");
 	}
 
 	//@ TODO bug 956151
@@ -231,6 +247,9 @@ public class ContentFilterTests extends KatelloCliTestScript {
 
 		exec_result = filter.add_rule_package_group(KatelloContentFilter.TYPE_INCLUDES, null);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+
+		assert_filterInfo(filter_name, KatelloContentFilter.CONTENT_PACKAGE_GROUP, KatelloContentFilter.TYPE_INCLUDES, "units : name:group1, name:group2, name:group3");
+		assert_filterInfo(filter_name, KatelloContentFilter.CONTENT_PACKAGE_GROUP, KatelloContentFilter.TYPE_INCLUDES, "");
 	}
 
 	@Test(description="add exclude package_groups filter rules")
@@ -243,6 +262,9 @@ public class ContentFilterTests extends KatelloCliTestScript {
 
 		exec_result = filter.add_rule_package_group(KatelloContentFilter.TYPE_EXCLUDES, null);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+
+		assert_filterInfo(filter_name, KatelloContentFilter.CONTENT_PACKAGE_GROUP, KatelloContentFilter.TYPE_EXCLUDES, "units:name:group4,name:group5,name:group6");
+		assert_filterInfo(filter_name, KatelloContentFilter.CONTENT_PACKAGE_GROUP, KatelloContentFilter.TYPE_EXCLUDES, "");
 	}
 
 	@Test(description="add include package filter rules")
@@ -262,6 +284,10 @@ public class ContentFilterTests extends KatelloCliTestScript {
 
 		exec_result = filter.add_rule_package(KatelloContentFilter.TYPE_INCLUDES, null);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+
+		assert_filterInfo(filter_name, KatelloContentFilter.CONTENT_PACKAGE, KatelloContentFilter.TYPE_INCLUDES, "");
+		assert_filterInfo(filter_name, KatelloContentFilter.CONTENT_PACKAGE, KatelloContentFilter.TYPE_INCLUDES,
+				"units: name:camel, name:zebra,version:0.1.0, min_version:1.2.0,name:lion, max_version:3.3.0,name:tiger, max_version:4.2.0,min_version:2.5.0,name:walrus");
 	}
 
 	@Test(description="add exclude package filter rules")
@@ -281,12 +307,39 @@ public class ContentFilterTests extends KatelloCliTestScript {
 
 		exec_result = filter.add_rule_package(KatelloContentFilter.TYPE_EXCLUDES, null);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+
+		assert_filterInfo(filter_name, KatelloContentFilter.CONTENT_PACKAGE, KatelloContentFilter.TYPE_EXCLUDES, "");
+		assert_filterInfo(filter_name, KatelloContentFilter.CONTENT_PACKAGE, KatelloContentFilter.TYPE_EXCLUDES,
+				"units: name:elephant, name:penguin,version:1.2.0, min_version:1.6.0,name:bear, max_version:4.1.0,name:cow, max_version:2.4.0,min_version:2.2.0,name:fox");
 	}
-	
+
 	@AfterClass
 	public void tearDown() {
 		exec_result = org.delete();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+	}
+
+
+	// checks whether filter contains rule of given type and content
+	private void assert_filterInfo(String filter_name, String filter_content, String rule_type, String rule_given) {
+		KatelloContentFilter filter = new KatelloContentFilter(filter_name, org_name, condef_name);
+		SSHCommandResult res = filter.info();
+		String output = getOutput(res).replaceAll("\n", " ");
+		Pattern regexp = Pattern.compile(String.format(KatelloContentFilter.REG_FILTER_INFO, filter_content, rule_type));
+		Matcher matcher = regexp.matcher(output);
+		boolean found = false;
+		rule_given = " *" + rule_given.replaceAll(" ", " *").replaceAll("([,:])", " *$1 *") + " *";
+		// for all found rules
+		while(matcher.find()) {
+			String rule_found = matcher.group(1).replaceAll("(u'|[\\{\\}\\[\\]'])", " "); // remove u' ' [ ] { } from found rule
+			log.finest("{"+rule_found + "} =~ {" + rule_given + "}");
+			// rule_found matches rule_given ?
+			if(rule_found.matches(rule_given)) {
+				found = true;
+				break;
+			}
+		}
+		Assert.assertTrue(found, "Check - filter contains given rule");
 	}
 
 }
