@@ -4,11 +4,11 @@
 		
 	<!-- Test group that could be run on SAM server(s) as well -->
 	<test name="SAM_Tests" preserve-order="true">
-	     <groups>
-    			<run>
+		<groups>
+			<run>
       				<include name="headpin-cli"/>
-    			</run>
-  		</groups>
+			</run>
+		</groups>
 		<classes>
 			<class name="com.redhat.qe.katello.tests.cli.ActivationKeyTests"/>  	
 			<class name="com.redhat.qe.katello.tests.cli.ProductTests"/>  
@@ -33,7 +33,7 @@
     			</run>
  		</groups>
 		<classes>
-		    <class name="com.redhat.qe.katello.tests.installation.SetupServers"/>
+			<class name="com.redhat.qe.katello.tests.installation.SetupServers"/>
 			<class name="com.redhat.qe.katello.tests.installation.AnswerfileTests"/>
 			<class name="com.redhat.qe.katello.tests.installation.DifferentProductDeployment"/>
 		</classes>
@@ -44,9 +44,9 @@
 			<run>
 				<include name="headpin-api"/>
 			</run>
-        </groups>	
+		</groups>
 		<classes>
-		    <class name="com.redhat.qe.katello.tests.api.SetupServers"/>
+			<class name="com.redhat.qe.katello.tests.api.SetupServers"/>
 			<class name="com.redhat.qe.katello.tests.api.EnvironmentsTest"/>
 			<class name="com.redhat.qe.katello.tests.api.UsersTest"/>
 		</classes>
