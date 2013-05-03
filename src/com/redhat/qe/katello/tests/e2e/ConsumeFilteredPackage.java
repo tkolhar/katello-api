@@ -16,6 +16,7 @@ import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
+import com.redhat.qe.katello.base.obj.helpers.FilterRulePackage;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
@@ -103,37 +104,37 @@ public class ConsumeFilteredPackage extends KatelloCliTestScript {
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentFilter.OUT_ADD_REPO, repo_name, package_filter)), "Check output");
 
 		// add package rules there     
-		String [] include_packages = {
-				"\\\"name\\\" : \\\"fox\\\"",
-				"\\\"name\\\" : \\\"tiger\\\"",
-				"\\\"name\\\" : \\\"lion\\\"",
-				"\\\"name\\\" : \\\"bear\\\"",
-				"\\\"name\\\" : \\\"cockateel\\\"",
-				"\\\"name\\\" : \\\"cow\\\", \\\"version\\\" : \\\"2.2-3\\\"",
-				"\\\"name\\\" : \\\"dog\\\", \\\"min_version\\\" : \\\"4.20\\\"",
-				"\\\"name\\\" : \\\"dolphin\\\", \\\"max_version\\\" : \\\"3.11\\\"",
-				"\\\"name\\\" : \\\"duck\\\", \\\"min_version\\\" : \\\"0.6\\\", \\\"max_version\\\" : \\\"0.7\\\"",
+		FilterRulePackage [] include_packages = {
+				new FilterRulePackage("fox"),
+				new FilterRulePackage("tiger"),
+				new FilterRulePackage("lion"),
+				new FilterRulePackage("bear"),
+				new FilterRulePackage("cockateel"),
+				new FilterRulePackage("cow", "2.2-3", null, null),
+				new FilterRulePackage("dog", null, "4.20", null),
+				new FilterRulePackage("dolphin", null, null, "3.11"),
+				new FilterRulePackage("duck", null, "0.6", "0.7"),
 		};
 
-		exec_result = filter.add_rule_package(KatelloContentFilter.TYPE_INCLUDES, include_packages);
+		exec_result = filter.add_rule(KatelloContentFilter.TYPE_INCLUDES, include_packages);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
-		exec_result = filter.add_rule_package(KatelloContentFilter.TYPE_INCLUDES, null);
+		exec_result = filter.add_rule(KatelloContentFilter.TYPE_INCLUDES, new FilterRulePackage []{});
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
 
-		String [] exclude_packages = {
-				"\\\"name\\\" : \\\"elephant\\\"",
-				"\\\"name\\\" : \\\"walrus\\\", \\\"version\\\" : \\\"5.21-1\\\"",
-				"\\\"name\\\" : \\\"horse\\\", \\\"min_version\\\" : \\\"0.21\\\"",
-				"\\\"name\\\" : \\\"kangaroo\\\", \\\"max_version\\\" : \\\"0.3\\\"",
-				"\\\"name\\\" : \\\"pike\\\", \\\"min_version\\\" : \\\"2.1\\\", \\\"max_version\\\" : \\\"2.3\\\"",
+		FilterRulePackage [] exclude_packages = {
+				new FilterRulePackage("elephant"),
+				new FilterRulePackage("walrus", "5.21-1", null, null),
+				new FilterRulePackage("horse", null, "0.21", null),
+				new FilterRulePackage("kangaroo", null, null, "0.3"),
+				new FilterRulePackage("pike", null, "2.1", "2.3"),
 		};
 
-		exec_result = filter.add_rule_package(KatelloContentFilter.TYPE_EXCLUDES, exclude_packages);
+		exec_result = filter.add_rule(KatelloContentFilter.TYPE_EXCLUDES, exclude_packages);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
-		exec_result = filter.add_rule_package(KatelloContentFilter.TYPE_EXCLUDES, null);
+		exec_result = filter.add_rule(KatelloContentFilter.TYPE_EXCLUDES, new FilterRulePackage []{});
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
 		condef.publish(pubview_name,pubview_name,null);
