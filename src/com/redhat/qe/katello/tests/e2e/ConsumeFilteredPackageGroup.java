@@ -17,6 +17,7 @@ import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
+import com.redhat.qe.katello.base.obj.helpers.FilterRulePackageGroups;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
@@ -104,10 +105,10 @@ public class ConsumeFilteredPackageGroup extends KatelloCliTestScript {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentFilter.OUT_ADD_REPO, repo_name, packageGroup_filter)), "Check output");
 		
-		exec_result = filter.add_rule_package_group(KatelloContentFilter.TYPE_INCLUDES, new String[] {"mammals"});
+		exec_result = filter.add_rule(KatelloContentFilter.TYPE_INCLUDES, new FilterRulePackageGroups("mammals"));
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
-		exec_result = filter.add_rule_package_group(KatelloContentFilter.TYPE_EXCLUDES, new String[] {"birds"});
+		exec_result = filter.add_rule(KatelloContentFilter.TYPE_EXCLUDES, new FilterRulePackageGroups("birds"));
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
 		condef.publish(pubview_name,pubview_name,null);
