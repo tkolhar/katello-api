@@ -109,7 +109,7 @@ public class SystemsReport extends KatelloCliTestScript{
 		log.info("Enable repo: ["+KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT+"]");
 		
 		KatelloProduct prod=new KatelloProduct(KatelloProduct.RHEL_SERVER, this.org, KatelloProvider.PROVIDER_REDHAT, null, null, null,null, null);
-		SSHCommandResult res = prod.repository_set_enable(KatelloProduct.REPO_SET_NAME,KatelloProduct.RHEL_SERVER);
+		SSHCommandResult res = prod.repository_set_enable(KatelloProduct.REPOSET_RHEL6_RPMS);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo set enable)");
 		KatelloRepo repo = new KatelloRepo(KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, this.org, KatelloProduct.RHEL_SERVER, null, null, null);
 		res = repo.enable();

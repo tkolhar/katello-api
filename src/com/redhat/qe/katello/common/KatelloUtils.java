@@ -1,5 +1,6 @@
 package com.redhat.qe.katello.common;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Calendar;
@@ -16,6 +17,7 @@ import com.redhat.qe.katello.base.obj.DeltaCloudInstance;
 import com.redhat.qe.katello.base.obj.KatelloPing;
 import com.redhat.qe.katello.deltacloud.DeltaCloudAPI;
 import com.redhat.qe.tools.ExecCommands;
+import com.redhat.qe.tools.SCPTools;
 import com.redhat.qe.tools.SSHCommandResult;
 import com.redhat.qe.tools.SSHCommandRunner;
 
@@ -361,6 +363,16 @@ public class KatelloUtils implements KatelloConstants {
 			configureDDNS(machine, machine.getConfigs());
 			installServer(machine);
 		}
+	}
+	
+	public static void scpOnClient(String filename, String destinationDir){
+		SCPTools scp = new SCPTools(
+				System.getProperty("katello.client.hostname", "localhost"), 
+				System.getProperty("katello.client.ssh.user", "root"), 
+				System.getProperty("katello.client.sshkey.private", ".ssh/id_hudson_dsa"), 
+				System.getProperty("katello.client.sshkey.passphrase", "null"));
+		Assert.assertTrue(scp.sendFile(filename, destinationDir),
+				filename+" sent successfully");
 	}
 	
 	private static String[] getMachineConfigs(boolean isServer) {

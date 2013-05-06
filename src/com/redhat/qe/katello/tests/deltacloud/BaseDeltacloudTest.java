@@ -148,7 +148,7 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (provider import_manifest)");
 		
 		prod = new KatelloProduct(KatelloProduct.RHEL_SERVER,org_name, KatelloProvider.PROVIDER_REDHAT, null, null, null,null, null);
-		res = prod.repository_set_enable(KatelloProduct.REPO_SET_NAME,KatelloProduct.RHEL_SERVER);
+		res = prod.repository_set_enable(KatelloProduct.REPOSET_RHEL6_RPMS);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo set enable)");
 		
 		log.info("Enable repo: ["

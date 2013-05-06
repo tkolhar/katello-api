@@ -1,7 +1,9 @@
 package com.redhat.qe.katello.tests.cli;
 
+import java.util.StringTokenizer;
+import java.util.Vector;
 import java.util.logging.Logger;
-import org.testng.annotations.AfterTest;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
@@ -9,6 +11,7 @@ import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.KatelloChangeset;
+import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
@@ -44,6 +47,10 @@ public class SystemTests extends KatelloCliTestScript{
 	
 	private String user;
 	
+	private String orgNameAwesome;
+	private String contentViewRhel6;
+	private String systemNameAwesome;
+	
 	@BeforeClass(description="Generate unique names",groups={"cfse-cli","headpin-cli"})
 	public void setUp(){
 		String uid = KatelloUtils.getUniqueID();
@@ -58,6 +65,10 @@ public class SystemTests extends KatelloCliTestScript{
 		this.systemNameRegOnly = "sys-RegOnly-"+uid;
 		this.systemNameCustomInfo = "sys-CustomInfo-"+uid;
 		this.systemNameNoEnvReg = "sys-NoEnvReg-"+uid;
+		
+		this.orgNameAwesome = "AwesomeOrg-"+uid;
+		this.contentViewRhel6 = "rhel6-x86_64-"+uid;
+		this.systemNameAwesome = "awesome-system-"+uid;
 		
 		KatelloOrg org = new KatelloOrg(this.orgNameRhsms, null);
 		exec_result = org.cli_create();
@@ -467,6 +478,94 @@ public class SystemTests extends KatelloCliTestScript{
 		exec_result = sys.report("pdf");
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 	}
+	
+	/**
+	 * @see automation request: https://github.com/gkhachik/katello-api/issues/349
+	 * @author gkhachik
+	 * @since: 06.May.2013
+	 * List releases for the system - RHEL6 64 bit repos getting enabled.
+	 */
+	@Test(description = "list system releases for RHEL6 64bit repos", 
+			groups={"cfse-cli","headpin-cli","manifestImported"})
+	public void test_listReleasesAllRhel6(){
+		KatelloUtils.scpOnClient("data/"+KatelloProvider.MANIFEST_2SUBSCRIPTIONS, "/tmp"); // send manifest zip to the client's /tmp dir.
+		
+		exec_result = new KatelloOrg(this.orgNameAwesome,null).cli_create();
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		exec_result = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, this.orgNameAwesome, null, null).import_manifest(
+				"/tmp/"+KatelloProvider.MANIFEST_2SUBSCRIPTIONS, false); // import manifest
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		exec_result = new KatelloProduct(KatelloProduct.RHEL_SERVER,this.orgNameAwesome,KatelloProvider.PROVIDER_REDHAT,
+				null,null,null,null,null).repository_set_enable(KatelloProduct.REPOSET_RHEL6_RPMS);
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		exec_result = new KatelloEnvironment("Testing", null, this.orgNameAwesome, KatelloEnvironment.LIBRARY).cli_create();
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		exec_result = new KatelloRepo(null,this.orgNameAwesome,KatelloProduct.RHEL_SERVER,
+				null,null,null).custom_repoListByRegexp("^Name.*x86_64.*", true);
+		// parse repos to be enabled and used
+		StringTokenizer toks = new StringTokenizer(getOutput(exec_result),"\n");
+		Vector<String> repos64bit = new Vector<String>();
+		while(toks.hasMoreTokens()){
+			repos64bit.addElement(toks.nextToken().trim());
+		} // now we have the repos. Let's enable it and add to content view definition.
+
+		KatelloChangeset cs1 = new KatelloChangeset("cs1", this.orgNameAwesome, "Testing");
+		exec_result = cs1.create();// changeset is unique within Org - I hope so :D
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		KatelloContentDefinition contDef1 = new KatelloContentDefinition("cvd1", null, orgNameAwesome, null);
+		exec_result = contDef1.create();
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");		
+		for(String repo: repos64bit){
+			exec_result = new KatelloRepo(repo, orgNameAwesome, KatelloProduct.RHEL_SERVER, null, null, null).enable();
+			Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code"); // enable
+			exec_result = contDef1.add_repo(KatelloProduct.RHEL_SERVER, repo);
+			Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code"); // add to content definition
+		}
+		exec_result = contDef1.publish(this.contentViewRhel6, null, null);
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		exec_result = cs1.update_addView(contentViewRhel6);
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		exec_result = cs1.apply();
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		
+		// RHSM register the system
+		KatelloSystem sys =  new KatelloSystem(systemNameAwesome, this.orgNameAwesome, "Testing");
+		exec_result = sys.rhsm_registerForce();
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		exec_result = sys.releases();
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).contains("6.1"), "Check - stdout contains system release 6.1");
+		Assert.assertTrue(getOutput(exec_result).contains("6.2"), "Check - stdout contains system release 6.2");
+		Assert.assertTrue(getOutput(exec_result).contains("6.3"), "Check - stdout contains system release 6.3");
+		Assert.assertTrue(getOutput(exec_result).contains("6.4"), "Check - stdout contains system release 6.4");
+		Assert.assertTrue(getOutput(exec_result).contains("6Server"), "Check - stdout contains system release 6Server");
+	}
+	
+	/**
+	 * @see automation request: https://github.com/gkhachik/katello-api/issues/374
+	 * @author gkhachik
+	 * @since: 06.May.2013
+	 * RHSM register system the a specific RHEL6 release - 6.4 for our case. 
+	 */
+	@Test(description = "list system releases for RHEL6 64bit repos", 
+			groups={"cfse-cli","headpin-cli","manifestImported"}, dependsOnMethods={"test_listReleasesAllRhel6"})
+	public void test_rhsmRegWithOptionRelease(){
+		String release = "6.4";
+		
+		KatelloSystem sys =  new KatelloSystem(systemNameAwesome, this.orgNameAwesome, "Testing");
+		exec_result = sys.rhsm_registerForce_release(release, true, true); // forced - as the system most probably will be registered - previous scenario.
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		exec_result = sys.info();
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		// check release field of the system in Katello
+		Assert.assertTrue(KatelloCli.grepCLIOutput("OS Release", getOutput(exec_result)).equals(release), "Check - stdout contains system's OS Release == "+release);
+		// Check that systems gets subscribed (--autosubscribe option) - another check would not hurt ;)
+		sys.setEnvironmentName(null); // does not work with --environment option (either name or environment)
+		exec_result = sys.subscriptions();
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		Assert.assertTrue(KatelloCli.grepCLIOutput("Pool Name", getOutput(exec_result)).contains(KatelloProduct.RHEL_SERVER), 
+				"Check - stdout contains pool name == '"+KatelloProduct.RHEL_SERVER+"'");
+	}
 
 	private void assert_systemInfo(KatelloSystem system) {
 		if (system.description == null) system.description = "Initial Registration Params";
@@ -479,7 +578,6 @@ public class SystemTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 		log.finest(String.format("System (info) match regex: [%s]", match_info));
 		Assert.assertTrue(getOutput(res).replaceAll("\n", " ").matches(match_info), String.format("System [%s] should be found in the result info", system.name));
-
 	}
 	
 	private void promoteContent(String orgName, String env){
@@ -523,8 +621,12 @@ public class SystemTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset promote)");
 	}
 
-	@AfterTest(description="erase registration made; cleanup",alwaysRun=true)
+	@AfterClass(description="erase registration made; cleanup",alwaysRun=true)
 	public void tearDown(){
 		rhsm_clean();
+		exec_result = new KatelloOrg(this.orgNameAwesome, null).cli_info();
+		if(exec_result.getExitCode().intValue()==0){
+			new KatelloOrg(this.orgNameAwesome, null).delete(); // remove the org with that manifest - enable the manifest to be reused.
+		}
 	}
 }
