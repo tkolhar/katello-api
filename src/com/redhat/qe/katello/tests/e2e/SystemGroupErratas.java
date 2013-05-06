@@ -6,7 +6,6 @@ import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
-import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
@@ -28,7 +27,6 @@ public class SystemGroupErratas extends KatelloCliTestScript {
 	private String product_name;
 	private String repo_name;
 	private String env_name;
-	private String changeset_name;
 	private String system_name;
 	private String group_name;
 	private String system_uuid;
@@ -41,7 +39,6 @@ public class SystemGroupErratas extends KatelloCliTestScript {
 		product_name = "product_"+uid;
 		repo_name = "repo_name_"+uid;
 		env_name = "env_Dev_"+uid;
-		changeset_name = "changeset_"+uid;
 		system_name = "system_"+uid;
 		group_name = "group_"+uid;
 		
@@ -73,21 +70,13 @@ public class SystemGroupErratas extends KatelloCliTestScript {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (env create)");
 		
 		// promote product to the env dev.
-		exec_result = prod.promote(env_name);
-		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (product promote)");
+//		exec_result = prod.promote(env_name);
+//		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (product promote)");
 
 		exec_result = repo.synchronize();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		KatelloChangeset cs = new KatelloChangeset(changeset_name, org_name, env_name);
-		exec_result = cs.create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset create)");
-		
-		exec_result = cs.update_addProduct(product_name);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset update add product)");
-		
-		exec_result = cs.apply();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset promote)");
+	
+		KatelloUtils.promoteProductToEnvironment(org_name, product_name, env_name);
 		
 		KatelloSystem sys = new KatelloSystem(system_name, this.org_name, this.env_name);
 		exec_result = sys.rhsm_registerForce(); 

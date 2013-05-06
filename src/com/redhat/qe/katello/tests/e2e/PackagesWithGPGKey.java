@@ -9,7 +9,6 @@ import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
-import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloGpgKey;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
@@ -88,15 +87,9 @@ public class PackagesWithGPGKey extends KatelloCliTestScript{
 	
 	@Test(description="Promote product content to the environment", dependsOnMethods={"test_syncRepo"}, enabled=true)
 	public void test_promoteRepoToEnv(){
-		SSHCommandResult res;
 		
-		log.info("E2E - Promote product to the environment");
-		String changeset_dev = "cs_"+this.env;
-		KatelloChangeset cs_dev = new KatelloChangeset(changeset_dev, this.org, this.env);
-		cs_dev.create(); // create changeset
-		cs_dev.update_addProduct(this.product); // add product
-		res = cs_dev.apply(); // promote
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset promote)");
+		log.info("E2E - Promote product to the environment");		
+		KatelloUtils.promoteProductToEnvironment(org, product, env);
 	}
 	
 	@Test(description="Subscribe client system to the product", dependsOnMethods={"test_promoteRepoToEnv"}, enabled=true)

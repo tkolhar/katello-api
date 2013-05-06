@@ -190,6 +190,14 @@ public class KatelloContentDefinition extends _KatelloObject{
 		return run(CMD_DEFINITION_ADD_PRODUCT);
 	}
 	
+	public SSHCommandResult add_productID(String product_id){
+		opts.clear();
+		opts.add(new Attribute("name", this.name));
+		opts.add(new Attribute("org", this.org));
+		opts.add(new Attribute("product_id", product_id));
+		return run(CMD_DEFINITION_ADD_PRODUCT);
+	}
+	
 	public SSHCommandResult remove_product(String product){
 		opts.clear();
 		opts.add(new Attribute("name", this.name));

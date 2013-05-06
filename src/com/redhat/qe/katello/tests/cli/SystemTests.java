@@ -1,14 +1,15 @@
 package com.redhat.qe.katello.tests.cli;
 
 import java.util.logging.Logger;
+
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
-import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
@@ -487,7 +488,6 @@ public class SystemTests extends KatelloCliTestScript{
 		String provider_name = "zooProv-"+uid;
 		String product_name = "zooProd-"+uid;
 		String repo_name = "zooRepo-"+uid;
-		String changeset_name = "zooCS-"+uid;
 		
 		// Create provider:
 		KatelloProvider prov = new KatelloProvider(provider_name, orgNameMain,
@@ -506,21 +506,12 @@ public class SystemTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
 		// promote product to the env prod.
-		exec_result = prod.promote(envName_Prod);
-		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (product promote)");
+		KatelloUtils.promoteProductToEnvironment(orgNameMain, product_name, envName_Prod);
 
 		exec_result = repo.synchronize();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
-		KatelloChangeset cs = new KatelloChangeset(changeset_name, orgNameMain, envName_Prod);
-		exec_result = cs.create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset create)");
-
-		exec_result = cs.update_addProduct(product_name);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset update add product)");
-
-		exec_result = cs.apply();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset promote)");
+		KatelloUtils.promoteProductToEnvironment(orgNameMain, product_name, envName_Prod);
 	}
 
 	@AfterTest(description="erase registration made; cleanup",alwaysRun=true)

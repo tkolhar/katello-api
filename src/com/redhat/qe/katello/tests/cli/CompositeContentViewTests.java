@@ -301,8 +301,8 @@ public class CompositeContentViewTests extends KatelloCliTestScript{
 		KatelloRepo repo = new KatelloRepo(repo_local1_name, org_name2, prod_local1_name, repo_url1, null, null);
 		exec_result = repo.create(true);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		prod.promote(env_name2);
+//		
+//		prod.promote(env_name2);
 		
 		exec_result = repo.synchronize();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
@@ -337,7 +337,7 @@ public class CompositeContentViewTests extends KatelloCliTestScript{
 		exec_result = repo.create(true);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		prod.promote(env_name2);
+//		prod.promote(env_name2);
 		
 		exec_result = repo.synchronize();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
@@ -372,7 +372,7 @@ public class CompositeContentViewTests extends KatelloCliTestScript{
 		exec_result = repo.create(true);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		prod.promote(env_name2);
+//		prod.promote(env_name2);
 		
 		exec_result = repo.synchronize();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");

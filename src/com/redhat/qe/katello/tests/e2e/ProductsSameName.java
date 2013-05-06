@@ -5,10 +5,10 @@ import java.util.logging.Logger;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
-import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloPackage;
@@ -33,7 +33,6 @@ public class ProductsSameName extends KatelloCliTestScript {
 	private String provider_name;
 	private String product_name;
 	private String product_name2;
-	private String changeset_name;
 	private String system_name;
 	private String product_id, product_id2;
 	
@@ -47,7 +46,6 @@ public class ProductsSameName extends KatelloCliTestScript {
 		repo_name = "repo1"+uid;
 		repo_name2 = "repo2"+uid;
 		env_name = "env"+uid;
-		changeset_name = "changeset"+uid;
 		system_name = "system"+uid;
 		
 		// Create org:
@@ -86,16 +84,10 @@ public class ProductsSameName extends KatelloCliTestScript {
 		exec_result = env.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		KatelloChangeset cs = new KatelloChangeset(changeset_name, org_name, env_name);
-		exec_result = cs.create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-
 		repo.synchronize();		
-		repo2.synchronize();
+		repo2.synchronize();		
 		
-		cs.update_addProductId(product_id);		
-		cs.update_addProductId(product_id2);
-		cs.promote();	
+		KatelloUtils.promoteProductIDsToEnvironment(org_name, new String[] {product_id, product_id2}, env_name);
 		
 		KatelloUtils.sshOnClient("yum -y erase pulp-consumer-client lion || true");
 		rhsm_clean();

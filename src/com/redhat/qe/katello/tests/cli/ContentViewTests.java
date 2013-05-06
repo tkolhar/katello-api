@@ -85,9 +85,9 @@ public class ContentViewTests extends KatelloCliTestScript{
 		repo = new KatelloRepo(repo_name,org_name,prod_name,REPO_INECAS_ZOO3, null, null);
 		exec_result = repo.create(true);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		exec_result = prod.promote(env_name);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
+//		
+//		exec_result = prod.promote(env_name);
+//		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
 		
 		prod2 = new KatelloProduct(prod_name2,org_name,prov_name,null, null, null,null, null);
 		exec_result = prod2.create();
@@ -106,9 +106,6 @@ public class ContentViewTests extends KatelloCliTestScript{
 		condef = new KatelloContentDefinition(condef_name,null,org_name,null);
 		exec_result = condef.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		exec_result = condef.add_product(prod_name);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
 		
 		exec_result = condef.add_repo(prod_name, repo_name);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	

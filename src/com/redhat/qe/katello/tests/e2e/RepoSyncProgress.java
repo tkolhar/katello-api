@@ -5,13 +5,14 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.logging.Logger;
+
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
-import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
@@ -120,13 +121,8 @@ public class RepoSyncProgress extends KatelloCliTestScript{
 				"http://"+System.getProperty("katello.server.hostname","localhost")+"/pub/aeolus-f17", 
 				null, null).synchronize();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: repo.synchronize");
-		KatelloChangeset cs1 = new KatelloChangeset("csRound1-"+uid, orgName, envTesting);
-		res = cs1.create();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: changeset.create");
-		res = cs1.update_addProduct(productName);
-		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: changeset.update-add_product");
-		res = cs1.promote();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: changeset.promote");
+		
+		KatelloUtils.promoteProductToEnvironment(orgName, productName, envTesting);
 	}
 	
 	@Test(description="subscribe and check packages", dependsOnMethods={"test_syncRepoRound1"})
@@ -198,13 +194,7 @@ public class RepoSyncProgress extends KatelloCliTestScript{
 		try{Thread.sleep(120000);}catch(InterruptedException iex){};
 		res = KatelloUtils.sshOnServer("hwclock --hctosys"); // // < --- UNSET back server's date/time !!!
 		
-		KatelloChangeset cs1 = new KatelloChangeset("csRound2-"+uid, orgName, envTesting);
-		res = cs1.create();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: changeset.create");
-		res = cs1.update_addProduct(productName);
-		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: changeset.update-add_product");
-		res = cs1.promote();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: changeset.promote");
+		KatelloUtils.promoteProductToEnvironment(orgName, productName, envTesting);
 	}
 	
 	@Test(description="list packages count via `yum list available` in the subscribed repo - 4",
@@ -247,13 +237,7 @@ public class RepoSyncProgress extends KatelloCliTestScript{
 		try{Thread.sleep(120000);}catch(InterruptedException iex){};
 		res = KatelloUtils.sshOnServer("hwclock --hctosys"); // // < --- UNSET back server's date/time !!!
 		
-		KatelloChangeset cs1 = new KatelloChangeset("csRound3-"+uid, orgName, envTesting);
-		res = cs1.create();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: changeset.create");
-		res = cs1.update_addProduct(productName);
-		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: changeset.update-add_product");
-		res = cs1.promote();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: changeset.promote");
+		KatelloUtils.promoteProductToEnvironment(orgName, productName, envTesting);
 	}
 
 	@Test(description="list packages count via `yum list available` in the subscribed repo - 6",

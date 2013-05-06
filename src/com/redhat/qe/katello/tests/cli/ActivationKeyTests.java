@@ -107,8 +107,8 @@ public class ActivationKeyTests extends KatelloCliTestScript{
     	KatelloRepo repo = new KatelloRepo(repoName, this.organization, productName, REPO_INECAS_ZOO3, null, null);
     	res = repo.create();
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
-		res = prod.promote(this.env);
-		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
+//		res = prod.promote(this.env);
+//		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 		
     	KatelloOrg org = new KatelloOrg(this.organization, null);
     	res = org.subscriptions();

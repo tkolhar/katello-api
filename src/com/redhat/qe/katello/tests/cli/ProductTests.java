@@ -9,7 +9,6 @@ import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
-import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
@@ -216,8 +215,8 @@ public class ProductTests  extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product synchronize)");
 		
 		// promote product to the env.
-		res = prod1.promote(envName1);
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product promote)");
+//		res = prod1.promote(envName1);
+//		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product promote)");
 		prod1.syncState = "Finished";
 
 		KatelloProduct prod2 = new KatelloProduct(prodName2, this.org_name, this.prov_name3, null, null, null, null, true);
@@ -285,8 +284,8 @@ public class ProductTests  extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product synchronize)");
 		
 		// promote product to the env.
-		res = prod1.promote(envName1);
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product promote)");
+//		res = prod1.promote(envName1);
+//		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product promote)");
 
 		// create product
 		KatelloProduct prod2 = new KatelloProduct(prodName2, this.org_name, this.prov_name, null, null, REPO_INECAS_ZOO3, null, true);
@@ -307,8 +306,8 @@ public class ProductTests  extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product synchronize)");
 		
 		// promote product to the env.
-		res = prod2.promote(envName2);
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product promote)");
+//		res = prod2.promote(envName2);
+//		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product promote)");
 
 		KatelloProduct prod3 = new KatelloProduct(prodName3, this.org_name, this.prov_name3, null, null, null, null, true);
 		res = prod3.create();
@@ -355,10 +354,7 @@ public class ProductTests  extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product synchronize)");
 		
 		// promote product to the env.
-		res = prod.promote(envName);
-    	Assert.assertTrue(res.getExitCode().intValue()==65, "Check - return code (product promote)");
-    	Assert.assertTrue(getOutput(res).equals(String.format(KatelloProduct.ERR_HAS_NO_REPO, prodName)), 
-    			"Check - stderr (no repo for the product)");
+		KatelloUtils.promoteProductToEnvironment(org_name, prodName, envName);
 	}
 	
 	@Test(description="promote product", groups = {"cli-products"}, enabled=true)
@@ -385,10 +381,8 @@ public class ProductTests  extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product synchronize)");
 		
 		// promote product to the env.
-		res = prod.promote(envName);
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product promote)");
-		Assert.assertTrue(getOutput(res).contains(String.format(KatelloProduct.OUT_PROMOTED,prodName,envName)), "Check - returned output string (product promote)");
-		
+		KatelloUtils.promoteProductToEnvironment(org_name, prodName, envName);
+
 		// product list --environment (1 result - just the product promoted)
 		res = prod.cli_list(envName);
 		if (prod.syncPlanName == null) prod.syncPlanName = "None";
@@ -433,10 +427,8 @@ public class ProductTests  extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product synchronize)");
 		
 		// promote product to the env.
-		res = prod.promote(envName);
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product promote)");
-		Assert.assertTrue(getOutput(res).contains(String.format(KatelloProduct.OUT_PROMOTED,prodName,envName)), "Check - returned output string (product promote)");
-		
+		KatelloUtils.promoteProductToEnvironment(org_name, prodName, envName);
+
 		// product list --environment (1 result - just the product promoted)
 		res = prod.cli_list(envName);
 		if (prod.syncPlanName == null) prod.syncPlanName = "None";
@@ -534,7 +526,6 @@ public class ProductTests  extends KatelloCliTestScript{
 		String uid = KatelloUtils.getUniqueID();
 		String prodName = "delProd1-"+uid;
 		String envName_dev = "dev-"+uid;
-		String csName = "cs-"+uid;
 		SSHCommandResult res;
 		
 		// create product
@@ -548,16 +539,8 @@ public class ProductTests  extends KatelloCliTestScript{
 		KatelloEnvironment env = new KatelloEnvironment(envName_dev, null, this.org_name, KatelloEnvironment.LIBRARY);
 		res = env.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (environment create)");
-		// create changeset
-		KatelloChangeset cs = new KatelloChangeset(csName, this.org_name, envName_dev);
-		res = cs.create();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset create)");
-		// add product to the changeset
-		res = cs.update_addProduct(prodName);
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset update --add_product)");
-		// promote changeset (dev)
-		res = cs.apply();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset promote)");
+		
+		KatelloUtils.promoteProductToEnvironment(org_name, prodName, envName_dev);
 		
 		// Assertions - repo list by env
 		KatelloRepo repo = new KatelloRepo(null,this.org_name,prodName,null,null,null);
