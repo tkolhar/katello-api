@@ -94,38 +94,28 @@ public class ConsumeCombineContent extends KatelloCliTestScript{
 	@Test(description="Consume content from combined filtered package and groups")
 	public void test_consumecombinePackageandGroup() 
 	{
-		KatelloContentFilter filter = new KatelloContentFilter(packageGroup_filter, org_name, condef_name);
 
+		KatelloContentFilter filter = new KatelloContentFilter(packageGroup_filter, org_name, condef_name);
 		exec_result = filter.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-
 		exec_result = filter.info();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		exec_result = filter.add_repo(prod_name, repo_name);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentFilter.OUT_ADD_REPO, repo_name, packageGroup_filter)), "Check output");
-
 		exec_result = filter.add_rule(KatelloContentFilter.TYPE_INCLUDES, new FilterRulePackageGroups("mammals"));
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-
-
 		FilterRulePackage [] exclude_packages = {
 				new FilterRulePackage("elephant"),
 				new FilterRulePackage("walrus"),
-
 		};
-
 		exec_result = filter.add_rule(KatelloContentFilter.TYPE_EXCLUDES, exclude_packages);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-
-
 		condef.publish(pubview_name,pubview_name,null);
-
 		conview = new KatelloContentView(pubview_name, org_name);
 		exec_result = conview.promote_view(env_name);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentView.OUT_PROMOTE, this.pubview_name, env_name)), "Content view promote output.");
-
 		act_key = new KatelloActivationKey(org_name,env_name,act_key_name,"Act key created");
 		exec_result = act_key.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");      
@@ -150,16 +140,9 @@ public class ConsumeCombineContent extends KatelloCliTestScript{
 
 		exec_result = sys.subscribe(poolId1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-
 		yum_clean();    
-
-		KatelloUtils.sshOnClient("yum erase -y fox");
-		KatelloUtils.sshOnClient("yum erase -y cow");
-		KatelloUtils.sshOnClient("yum erase -y dog");
-		KatelloUtils.sshOnClient("yum erase -y dolphin");
-		KatelloUtils.sshOnClient("yum erase -y wolf");
-		KatelloUtils.sshOnClient("yum erase -y elephant");
-		KatelloUtils.sshOnClient("yum erase -y walrus");
+		exec_result = KatelloUtils.sshOnClient("yum erase -y fox cow dog dolphin wolf elephant walrus");
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
 		// consume packages from group mammals, verify that they are available
 		install_Package("fox");
@@ -182,7 +165,6 @@ public class ConsumeCombineContent extends KatelloCliTestScript{
 		exec_result = KatelloUtils.sshOnClient("rpm -q "+ pkgName);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).trim().contains(pkgName+"-"));
-
 	}
 
 }
