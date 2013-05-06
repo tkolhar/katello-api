@@ -39,7 +39,7 @@ public class ConsumersTest extends KatelloTestScript {
 		uid = KatelloUtils.getUniqueID();
 		env_name = "auto-env-"+uid; 
 		String env_descr = "Test Environment "+uid;
-		servertasks.createEnvironment(org.getCpKey(), env_name, env_descr, KatelloEnvironment.LIBRARY);
+		servertasks.createEnvironment(org_name, env_name, env_descr, KatelloEnvironment.LIBRARY);
 	}
 
 	
