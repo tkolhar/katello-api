@@ -40,8 +40,8 @@ public class KatelloRepo extends _KatelloObject{
 			"Added filter [ %s ] to repository [ %s ]";
 	public static final String OUT_REPO_SYNCHED = "Repo [ %s ] synchronized";
 	
-	public static final String REG_REPO_INFO = ".*ID\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*URL\\s*:\\s+%s.*Last Sync\\s*:\\s+%s.*Progress\\s*:\\s+%s.*GPG Key\\s*:\\s*+%s.*";
-	public static final String REG_REPO_STATUS = ".*Package Count\\s*:\\s+\\d+.*Last Sync\\s*:\\s+%s.*Sync State\\s*:\\s+%s.*";
+	public static final String REG_REPO_INFO = ".*ID\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*URL\\s*:\\s+%s.*Last Sync\\s*:\\s+%s.*GPG Key\\s*:\\s*+%s.*";
+	public static final String REG_REPO_STATUS = ".*Package Count\\s*:\\s+\\d+.*Last Sync\\s*:\\s+%s.*";
 	public static final String REG_FILTER_LIST = ".*\\s*%s.*\\s+%s.*";
 	public static final String REG_REPO_LIST = ".*ID\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Package Count\\s*:\\s+\\d+.*Last Sync\\s*:\\s+%s.*";
 	public static final String REG_REPO_LIST_ARCH = ".*ID\\s*:\\s+\\d+.*Name\\s*:\\s+%s_.*_%s.*";
