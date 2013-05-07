@@ -88,10 +88,10 @@ public class SystemInfoTests extends KatelloCliTestScript{
 		
 		exec_result = org.apply_system_info();
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
-		// @ TODO uncomment after bug 903179 is fixed
-//		Assert.assertEquals(exec_result.getStdout().trim(), 
-//				String.format(KatelloOrg.OUT_APPLY_SYS_INFO, keyname, org.name),
-//				"Check - apply system info output.");
+
+		Assert.assertEquals(exec_result.getStdout().trim(), 
+				String.format(KatelloOrg.OUT_APPLY_SYS_INFO, "1 System", org.name),
+				"Check - apply system info output.");
 		
 		List<String[]> sysparamsList = new LinkedList<String[]>();
 		sysparamsList.add(new String[] {this.keyname, "None"});
