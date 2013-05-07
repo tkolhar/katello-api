@@ -31,12 +31,12 @@ public class KatelloSystem extends _KatelloObject{
 	public static final String CMD_LIST_ERRATAS = "errata system";
 	public static final String CMD_LIST_ERRATA_DETAILS = "errata system -v";
 	
-	public static final String RHSM_CREATE ="subscription-manager register --username %s --password %s";
+	public static final String RHSM_REGISTER ="subscription-manager register --username %s --password %s";
 	public static final String RHSM_CLEAN = "subscription-manager clean";
 	public static final String RHSM_SUBSCRIBE = "subscription-manager subscribe";
 	public static final String RHSM_UNSUBSCRIBE = "subscription-manager unsubscribe";
 	public static final String RHSM_IDENTITY = "subscription-manager identity";
-	public static final String RHSM_REGISTER_BYKEY = "subscription-manager register ";
+	public static final String RHSM_REGISTER_BY_AK = "subscription-manager register ";
 	public static final String RHSM_UNREGISTER = "subscription-manager unregister";
 	public static final String RHSM_LIST_CONSUMED = "subscription-manager list --consumed";
 	public static final String RHSM_REFRESH = "subscription-manager refresh";
@@ -212,13 +212,13 @@ public class KatelloSystem extends _KatelloObject{
 	// ** ** ** ** ** ** **
 	
     public SSHCommandResult rhsm_register(){
-		String cmd = RHSM_CREATE;
+		String cmd = RHSM_REGISTER;
 		if(this.user==null)
-			cmd = String.format(RHSM_CREATE,
+			cmd = String.format(RHSM_REGISTER,
 					System.getProperty("katello.admin.user", KatelloUser.DEFAULT_ADMIN_USER),
 					System.getProperty("katello.admin.password", KatelloUser.DEFAULT_ADMIN_PASS));
 		else
-			cmd = String.format(RHSM_CREATE,user.username,user.password);
+			cmd = String.format(RHSM_REGISTER,user.username,user.password);
 			
 		if(this.name != null)
 			cmd += " --name \""+this.name+"\"";
@@ -231,13 +231,13 @@ public class KatelloSystem extends _KatelloObject{
 	}
 	
 	public SSHCommandResult rhsm_registerForce(){
-		String cmd = RHSM_CREATE;
+		String cmd = RHSM_REGISTER;
 		if(this.user==null)
-			cmd = String.format(RHSM_CREATE,
+			cmd = String.format(RHSM_REGISTER,
 					System.getProperty("katello.admin.user", KatelloUser.DEFAULT_ADMIN_USER),
 					System.getProperty("katello.admin.password", KatelloUser.DEFAULT_ADMIN_PASS));
 		else
-			cmd = String.format(RHSM_CREATE,user.username,user.password);
+			cmd = String.format(RHSM_REGISTER,user.username,user.password);
 		
 		if(this.name != null)
 			cmd += " --name \""+this.name+"\"";
@@ -251,7 +251,7 @@ public class KatelloSystem extends _KatelloObject{
 	}
 
 	public SSHCommandResult rhsm_registerForce(String activationkey){
-		String cmd = RHSM_REGISTER_BYKEY;
+		String cmd = RHSM_REGISTER_BY_AK;
 		
 		if(this.name != null)
 			cmd += " --name \""+this.name+"\"";
@@ -266,7 +266,7 @@ public class KatelloSystem extends _KatelloObject{
 	
 	
 	public SSHCommandResult rhsm_registerForce_multiplekeys(String act_list){
-		String cmd = RHSM_REGISTER_BYKEY;
+		String cmd = RHSM_REGISTER_BY_AK;
 		
 		if(this.name != null)
 			cmd += " --name \""+this.name+"\"";
@@ -275,6 +275,31 @@ public class KatelloSystem extends _KatelloObject{
 		if(act_list != null)
 			cmd += " --activationkey \"" + act_list +"\"";
 		cmd += " --force";
+		
+		return KatelloUtils.sshOnClient(getHostName(), cmd);		
+	}
+	
+	public SSHCommandResult rhsm_registerForce_release(String release, boolean autosubscribe, boolean force){
+		String cmd = RHSM_REGISTER;
+		if(this.user==null)
+			cmd = String.format(RHSM_REGISTER,
+					System.getProperty("katello.admin.user", KatelloUser.DEFAULT_ADMIN_USER),
+					System.getProperty("katello.admin.password", KatelloUser.DEFAULT_ADMIN_PASS));
+		else
+			cmd = String.format(RHSM_REGISTER,user.username,user.password);
+		
+		if(this.name != null)
+			cmd += " --name \""+this.name+"\"";
+		if(this.org != null)
+			cmd += " --org \""+this.org+"\"";
+		if(this.env != null)
+			cmd += " --environment \""+this.env+"\"";
+		if(release != null)
+			cmd += " --release \""+release+"\"";
+		if(force)
+			cmd += " --force";
+		if(autosubscribe)
+			cmd += " --autosubscribe";
 		
 		return KatelloUtils.sshOnClient(getHostName(), cmd);		
 	}

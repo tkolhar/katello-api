@@ -48,7 +48,7 @@ public class ContentTest extends KatelloCliTestScript{
 		res = provider.import_manifest("/tmp"+File.separator+"manifest.zip", new Boolean(true));
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 		KatelloProduct prod=new KatelloProduct(KatelloProduct.RHEL_SERVER,org_name, KatelloProvider.PROVIDER_REDHAT, null, null, null,null, null);
-		res = prod.repository_set_enable(KatelloProduct.REPO_SET_NAME,KatelloProduct.RHEL_SERVER);
+		res = prod.repository_set_enable(KatelloProduct.REPOSET_RHEL6_RPMS);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo set enable)");
 		KatelloRepo repo = new KatelloRepo(KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT,org_name, KatelloProduct.RHEL_SERVER, null, null, null);
 		SSHCommandResult res = repo.enable();

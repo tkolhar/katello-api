@@ -17,6 +17,8 @@ import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.base.obj.KatelloSystemGroup;
+import com.redhat.qe.katello.base.obj.helpers.FilterRuleErrataDayType;
+import com.redhat.qe.katello.base.obj.helpers.FilterRuleErrataIds;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
@@ -133,26 +135,26 @@ public class ConsumeFilteredErrata extends KatelloCliTestScript {
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentFilter.OUT_ADD_REPO, repo_name, errata_filter)), "Check output");
 		
 		
-		exec_result = filter.add_rule_errata(KatelloContentFilter.TYPE_INCLUDES, new String[] {KANGAROO_ERRATA, FISH_ERRATA});
+		exec_result = filter.add_rule(KatelloContentFilter.TYPE_INCLUDES, new FilterRuleErrataIds(KANGAROO_ERRATA, FISH_ERRATA));
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
-		exec_result = filter.add_rule_errata(KatelloContentFilter.TYPE_INCLUDES, "2012-09-01", "2012-09-31", null);// RABBIT_ERRATA, SHEEP_ERRATA
+		exec_result = filter.add_rule(KatelloContentFilter.TYPE_INCLUDES, new FilterRuleErrataDayType("2012-09-01", "2012-09-31", null));// RABBIT_ERRATA, SHEEP_ERRATA
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");		
 
-		exec_result = filter.add_rule_errata(KatelloContentFilter.TYPE_INCLUDES, "2012-08-01", "2012-08-30", new String[] {KatelloContentFilter.ERRATA_TYPE_ENHANCEMENT}  );// FERRET_ERRATA
+		exec_result = filter.add_rule(KatelloContentFilter.TYPE_INCLUDES, new FilterRuleErrataDayType("2012-08-01", "2012-08-30", new String[] {KatelloContentFilter.ERRATA_TYPE_ENHANCEMENT})  );// FERRET_ERRATA
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
 
-		exec_result = filter.add_rule_errata(KatelloContentFilter.TYPE_EXCLUDES, new String[] {BAT_ERRATA, BIRD_ERRATA});
+		exec_result = filter.add_rule(KatelloContentFilter.TYPE_EXCLUDES, new FilterRuleErrataIds(BAT_ERRATA, BIRD_ERRATA));
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		exec_result = filter.add_rule_errata(KatelloContentFilter.TYPE_EXCLUDES, null, "2012-01-30", new String[] {KatelloContentFilter.ERRATA_TYPE_SECURITY} );//RAT_ERRATA, FOX_ERRATA
+		exec_result = filter.add_rule(KatelloContentFilter.TYPE_EXCLUDES, new FilterRuleErrataDayType(null, "2012-01-30", new String[] {KatelloContentFilter.ERRATA_TYPE_SECURITY}) );//RAT_ERRATA, FOX_ERRATA
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");		
 
-		exec_result = filter.add_rule_errata(KatelloContentFilter.TYPE_EXCLUDES, "2012-12-01", null, new String[] {KatelloContentFilter.ERRATA_TYPE_BUGFIX} );// CRAB_ERRATA
+		exec_result = filter.add_rule(KatelloContentFilter.TYPE_EXCLUDES, new FilterRuleErrataDayType("2012-12-01", null, new String[] {KatelloContentFilter.ERRATA_TYPE_BUGFIX}) );// CRAB_ERRATA
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");		
 
-		exec_result = filter.add_rule_errata(KatelloContentFilter.TYPE_EXCLUDES, "2012-04-01", "2012-05-01", null );// MONKEY_ERRATA, EAGLE_ERRATA
+		exec_result = filter.add_rule(KatelloContentFilter.TYPE_EXCLUDES, new FilterRuleErrataDayType("2012-04-01", "2012-05-01", null) );// MONKEY_ERRATA, EAGLE_ERRATA
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		condef.publish(pubview_name,pubview_name,null);

@@ -39,12 +39,8 @@ public class KatelloProvider extends _KatelloObject{
 			"Provider cannot be deleted since one of its products or repositories has already been promoted. Using a changeset, please delete the repository from existing environments before deleting it.";
 	
 	public static final String API_CMD_LIST = "/organizations/%s/providers";
-	
-	public static final String MANIFEST_12SUBSCRIPTIONS = "manifest-automation-CLI-12subscriptions.zip";
-	
+		
 	public static final String CDN_URL = "https://cdn.redhat.com";
-
-	public static final String MANIFEST_2SUBSCRIPTIONS  = "manifest-automation-CLI-2subscriptions.zip";
 
 	public static final String REG_REDHAT_LIST = ".*ID\\s*:\\s+\\d+.*Name\\s*:\\s+"+KatelloProvider.PROVIDER_REDHAT+".*Type\\s*:\\s+Red\\sHat.*URL\\s*:\\s+%s.*";
 	
@@ -53,7 +49,10 @@ public class KatelloProvider extends _KatelloObject{
 	public static final String REG_REDHAT_INFO = ".*ID\\s*:\\s+\\d+.*Name\\s*:\\s+"+KatelloProvider.PROVIDER_REDHAT+".*Type\\s*:\\s+Red Hat.*URL\\s*:\\s+%s.*Org ID\\s*:\\s+%s.*Description\\s*:\\s+%s.*";
 	
 	public static final String REG_PROVIDER_LIST = ".*ID\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Type\\s*:\\s+Custom.*URL\\s*:\\s+%s.*Description\\s*:\\s+%s.*";
-	
+		
+	public static final String MANIFEST_12SUBSCRIPTIONS = "manifest-automation-CLI-12subscriptions.zip";
+	public static final String MANIFEST_2SUBSCRIPTIONS  = "manifest-automation-CLI-2subscriptions.zip";
+
 	// ** ** ** ** ** ** ** Class members
 	public String name;
 	public String org;
