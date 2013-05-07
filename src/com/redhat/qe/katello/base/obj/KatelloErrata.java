@@ -20,6 +20,9 @@ public class KatelloErrata extends _KatelloObject{
 	String environment;
 	String product_id;
 	String type;
+	public String content_view;
+	public String content_view_label;
+	public String content_view_id;
 	
 	public KatelloErrata(String pId, String pOrg, String pProd, String pRepo, String pEnv){
 		this(pId, pOrg, pProd, pRepo, pEnv, null);
@@ -32,6 +35,13 @@ public class KatelloErrata extends _KatelloObject{
 		this.repo = pRepo;
 		this.environment = pEnv;
 		this.type = pType;
+	}
+	
+	public KatelloErrata(String pOrg, String pProd, String pRepo, String pContnetView) {
+		this.org = pOrg;
+		this.product = pProd;
+		this.repo = pRepo;
+		this.content_view = pContnetView;
 	}
 	
 	public void setProductId(String productId) {
@@ -64,6 +74,9 @@ public class KatelloErrata extends _KatelloObject{
 		opts.add(new Attribute("repo", repo));
 		opts.add(new Attribute("environment", environment));
 		opts.add(new Attribute("type", type));
+		opts.add(new Attribute("content_view", content_view));
+		opts.add(new Attribute("content_view_label", content_view_label));
+		opts.add(new Attribute("content_view_id", content_view_id));
 		return run(CMD_LIST);
 	}
 	

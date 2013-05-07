@@ -14,6 +14,7 @@ import com.redhat.qe.katello.base.obj.KatelloContentView;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloErrata;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
+import com.redhat.qe.katello.base.obj.KatelloPackage;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
@@ -193,7 +194,20 @@ public class ContentViewTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
 	
-	@Test(description = "Consuming content using an activation key that has a content view definition",groups={"cfse-cli"}, dependsOnMethods={"test_registerClient"})
+	//@ TODO 950539
+	@Test(description = "List the packages of content view",groups={"cfse-cli"}, dependsOnMethods={"test_registerClient"})
+	public void test_packageList() {
+		KatelloPackage pack = new KatelloPackage(org_name, prod_name, repo_name, pubview_name);
+		
+		exec_result = pack.cli_list();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		Assert.assertTrue(getOutput(exec_result).contains("lion"),"is package in the list: zebra");
+		Assert.assertTrue(getOutput(exec_result).contains("wolf"),"is package in the list: wolf");
+		Assert.assertTrue(getOutput(exec_result).contains("zebra"),"is package in the list: zebra");
+	}
+	
+	@Test(description = "Consuming content using an activation key that has a content view definition",groups={"cfse-cli"}, dependsOnMethods={"test_packageList"})
 	public void test_consumeContent()
 	{
 		yum_clean();
@@ -209,8 +223,18 @@ public class ContentViewTests extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(exec_result).trim().contains("No package pulp-agent available."));
 	}
 	
+	@Test(description = "List the erratas of content view",groups={"cfse-cli"}, dependsOnMethods={"test_consumeContent"})
+	public void test_errataList() {
+		KatelloErrata errata = new KatelloErrata(org_name, prod_name, repo_name, pubview_name);
+		
+		exec_result = errata.cli_list();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		Assert.assertTrue(getOutput(exec_result).contains(ERRATA_ZOO_SEA),"is package in the list: " + ERRATA_ZOO_SEA);
+	}
+	
 	//@ TODO bug 955706
-	@Test(description = "consume Errata content",groups={"cfse-cli"}, dependsOnMethods={"test_consumeContent"})
+	@Test(description = "consume Errata content",groups={"cfse-cli"}, dependsOnMethods={"test_errataList"})
 	public void test_ConsumeErrata(){
 		KatelloUtils.sshOnClient("yum erase -y walrus");
 		exec_result = KatelloUtils.sshOnClient("yum install -y walrus-0.71-1.noarch");

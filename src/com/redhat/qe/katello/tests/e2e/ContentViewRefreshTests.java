@@ -207,6 +207,7 @@ public class ContentViewRefreshTests extends KatelloCliTestScript{
 		return KatelloCli.grepCLIOutput("ID", getOutput(res));
 	}
 	
+	//@ TODO https://bugzilla.redhat.com/show_bug.cgi?id=960587
 	@AfterClass
 	public void tearDown() {
 		exec_result = org2.delete();

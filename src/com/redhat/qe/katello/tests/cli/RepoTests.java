@@ -93,7 +93,6 @@ public class RepoTests extends KatelloCliTestScript {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
 
-	//@ TODO bug 918452
 	@Test(description = "Create repo", groups = { "cli-repo" })
 	public void test_createRepo() {
 
@@ -115,7 +114,6 @@ public class RepoTests extends KatelloCliTestScript {
 		//Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloRepo.ERR_REPO_EXISTS, repo.name, repo.product));
 	}
 	
-	//@ TODO bug 918452
 	@Test(description = "Discover repo", groups = { "cli-repo" })
 	public void test_discoverRepo() {
 
@@ -150,7 +148,6 @@ public class RepoTests extends KatelloCliTestScript {
 		assert_repoList(getOutput(exec_result).replaceAll("\n", " "), repo1);
 	}
 	
-	//@ TODO bug 918452 
 	@Test(description = "Update repo gpg key", groups = { "cli-repo" })
 	public void test_updateRepo() {
 
@@ -163,7 +160,6 @@ public class RepoTests extends KatelloCliTestScript {
 		assert_repoStatus(repo);
 	}
 	
-	//@ TODO bug 953524 
 	@Test(description = "Synchronize repository", groups = { "cli-repo" })
 	public void test_syncRepo() {
 
@@ -418,13 +414,12 @@ public class RepoTests extends KatelloCliTestScript {
 			
 	private void assert_repoInfo(KatelloRepo repo) {
 		if (repo.gpgkey == null) repo.gpgkey = "";
-		if (repo.progress == null) repo.progress = "Not synced";
 		if (repo.lastSync == null) repo.lastSync = "never";
 
 		SSHCommandResult res;
 		res = repo.info();
 
-		String match_info = String.format(KatelloRepo.REG_REPO_INFO, repo.name, repo.url, repo.lastSync, repo.progress, repo.gpgkey).replaceAll("\"", "");
+		String match_info = String.format(KatelloRepo.REG_REPO_INFO, repo.name, repo.url, repo.lastSync, repo.gpgkey).replaceAll("\"", "");
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 		log.finest(String.format("Repo (info) match regex: [%s]", match_info));
 		Assert.assertTrue(getOutput(res).replaceAll("\n", " ").matches(match_info), String.format("Repo [%s] should be found in the result info", repo.name));
@@ -432,13 +427,12 @@ public class RepoTests extends KatelloCliTestScript {
 	}
 	
 	private void assert_repoStatus(KatelloRepo repo) {
-		if (repo.progress == null) repo.progress = "Not synced";
 		if (repo.lastSync == null) repo.lastSync = "never";
 
 		SSHCommandResult res;
 		res = repo.status();
 
-		String match_info = String.format(KatelloRepo.REG_REPO_STATUS, repo.lastSync, repo.progress).replaceAll("\"", "");
+		String match_info = String.format(KatelloRepo.REG_REPO_STATUS, repo.lastSync).replaceAll("\"", "");
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 		log.finest(String.format("Repo (status) match regex: [%s]", match_info));
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info), String.format("Repo [%s] should be found in the result", repo.name));

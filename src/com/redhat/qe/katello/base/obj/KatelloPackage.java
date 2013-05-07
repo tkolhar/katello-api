@@ -24,6 +24,9 @@ public class KatelloPackage extends _KatelloObject{
 	public String repo;
 	public String environment;
 	public String name;
+	public String content_view;
+	public String content_view_label;
+	public String content_view_id;
 	
 	public KatelloPackage(String pId, String pName, String pOrg, String pProd, String pRepo, String pEnv){
 		this.id = pId;
@@ -32,6 +35,13 @@ public class KatelloPackage extends _KatelloObject{
 		this.product = pProd;
 		this.repo = pRepo;
 		this.environment = pEnv;
+	}
+
+	public KatelloPackage(String pOrg, String pProd, String pRepo, String pContnetView){
+		this.org = pOrg;
+		this.product = pProd;
+		this.repo = pRepo;
+		this.content_view = pContnetView;
 	}
 	
 	public void setProductId(String productId) {
@@ -64,6 +74,9 @@ public class KatelloPackage extends _KatelloObject{
 		opts.add(new Attribute("environment", environment));
 		opts.add(new Attribute("product_label", product_label));
 		opts.add(new Attribute("product_id", product_id));
+		opts.add(new Attribute("content_view", content_view));
+		opts.add(new Attribute("content_view_label", content_view_label));
+		opts.add(new Attribute("content_view_id", content_view_id));
 		return run(CMD_LIST);
 	}
 	
