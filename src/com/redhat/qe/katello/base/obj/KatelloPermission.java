@@ -49,6 +49,22 @@ public class KatelloPermission extends _KatelloObject{
 			return run(CMD_CREATE);
 	}
 
+	public SSHCommandResult create(boolean all_tags, boolean all_verbs){
+		String cmd = CMD_CREATE;
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("scope", scope));
+		opts.add(new Attribute("tags", tags));
+		opts.add(new Attribute("verbs", verbs));
+		opts.add(new Attribute("user_role", user_role));
+		if(all_tags)
+			cmd += " --all_tags";
+		if(all_verbs)
+			cmd += " --all_verbs";
+		return run(cmd);
+	}
+
 	public SSHCommandResult available_verbs(String orgName,String scopeName){
 		opts.clear();
 		opts.add(new Attribute("org", orgName));

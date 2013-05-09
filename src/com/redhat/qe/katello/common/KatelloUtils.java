@@ -520,32 +520,32 @@ public class KatelloUtils implements KatelloConstants {
 		KatelloUtils.sshOnClient(hostname, cmds);
 	}
 
-	public static void promoteReposToEnvironment(String org_name, String[] product_names, String[] repo_names, String env_name) {
-		promoteToEnvironment(org_name, product_names, null, repo_names, new String[] {env_name}, true);
+	public static String promoteReposToEnvironment(String org_name, String[] product_names, String[] repo_names, String env_name) {
+		return promoteToEnvironment(org_name, product_names, null, repo_names, new String[] {env_name}, true);
 	}
 
-	public static void promoteReposToEnvironments(String org_name, String[] product_names, String[] repo_names, String[] env_names) {
-		promoteToEnvironment(org_name, product_names, null, repo_names, env_names, true);
+	public static String promoteReposToEnvironments(String org_name, String[] product_names, String[] repo_names, String[] env_names) {
+		return promoteToEnvironment(org_name, product_names, null, repo_names, env_names, true);
 	}
 	
-	public static void promoteRepoToEnvironment(String org_name, String product_name, String repo_name, String env_name) {
-		promoteToEnvironment(org_name, new String[] {product_name}, null, new String[] {repo_name}, new String[] {env_name}, true);
+	public static String promoteRepoToEnvironment(String org_name, String product_name, String repo_name, String env_name) {
+		return promoteToEnvironment(org_name, new String[] {product_name}, null, new String[] {repo_name}, new String[] {env_name}, true);
 	}
 
-	public static void promoteProductToEnvironment(String org_name, String product_name, String env_name) {
-		promoteToEnvironment(org_name, new String[] {product_name}, null, null, new String[] {env_name}, true);
+	public static String promoteProductToEnvironment(String org_name, String product_name, String env_name) {
+		return promoteToEnvironment(org_name, new String[] {product_name}, null, null, new String[] {env_name}, true);
 	}
 
-	public static void promoteProductsToEnvironment(String org_name, String[] product_names, String env_name) {
-		promoteToEnvironment(org_name, product_names, null, null, new String[] {env_name}, true);
+	public static String promoteProductsToEnvironment(String org_name, String[] product_names, String env_name) {
+		return promoteToEnvironment(org_name, product_names, null, null, new String[] {env_name}, true);
 	}
 
-	public static void promoteProductsToEnvironments(String org_name, String[] product_names, String[] env_names) {
-		promoteToEnvironment(org_name, product_names, null, null, env_names, true);
+	public static String promoteProductsToEnvironments(String org_name, String[] product_names, String[] env_names) {
+		return promoteToEnvironment(org_name, product_names, null, null, env_names, true);
 	}
 	
-	public static void promoteProductIDsToEnvironment(String org_name, String[] product_IDs, String env_name) {
-		promoteToEnvironment(org_name, null, product_IDs, null, new String[] {env_name}, true);
+	public static String promoteProductIDsToEnvironment(String org_name, String[] product_IDs, String env_name) {
+		return promoteToEnvironment(org_name, null, product_IDs, null, new String[] {env_name}, true);
 	}
 
 	public static void removeRepoFromEnvironment(String org_name, String product_name, String repo_name, String env_name) {
@@ -564,7 +564,7 @@ public class KatelloUtils implements KatelloConstants {
 		promoteToEnvironment(org_name, null, product_IDs, null, new String[] {env_name}, false);
 	}
 
-	private static void promoteToEnvironment(String org_name, String[] product_names, String[] product_IDs, String[] repo_names, String[] env_names, boolean promote) {
+	private static String promoteToEnvironment(String org_name, String[] product_names, String[] product_IDs, String[] repo_names, String[] env_names, boolean promote) {
 
 		String uid = KatelloUtils.getUniqueID();
 		String pubview_name = "pubview"+uid;		
@@ -614,25 +614,26 @@ public class KatelloUtils implements KatelloConstants {
 				Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 			}
 		}
+		return pubview_name;
 	}
 
-	public static void promotePackagesToEnvironment(String org_name, String product_name, String repo_name, String[] packages, String env_name) {
-		promoteToEnvironment(org_name, product_name, repo_name, packages, null, env_name, true);
+	public static String promotePackagesToEnvironment(String org_name, String product_name, String repo_name, String[] packages, String env_name) {
+		return promoteToEnvironment(org_name, product_name, repo_name, packages, null, env_name, true);
     }
 
-	public static void promoteErratasToEnvironment(String org_name, String product_name, String repo_name, String[] erratas, String env_name) {
-		promoteToEnvironment(org_name, product_name, repo_name, null, erratas, env_name, true);
+	public static String promoteErratasToEnvironment(String org_name, String product_name, String repo_name, String[] erratas, String env_name) {
+		return promoteToEnvironment(org_name, product_name, repo_name, null, erratas, env_name, true);
     }
 
-	public static void removePackagesFromEnvironment(String org_name, String product_name, String repo_name, String[] packages, String env_name) {
-		promoteToEnvironment(org_name, product_name, repo_name, packages, null, env_name, false);
+	public static String removePackagesFromEnvironment(String org_name, String product_name, String repo_name, String[] packages, String env_name) {
+		return promoteToEnvironment(org_name, product_name, repo_name, packages, null, env_name, false);
     }
 
-	public static void removeErratasFromEnvironment(String org_name, String product_name, String repo_name, String[] erratas, String env_name) {
-		promoteToEnvironment(org_name, product_name, repo_name, null, erratas, env_name, false);
+	public static String removeErratasFromEnvironment(String org_name, String product_name, String repo_name, String[] erratas, String env_name) {
+		return promoteToEnvironment(org_name, product_name, repo_name, null, erratas, env_name, false);
     }
 	
-	private static void promoteToEnvironment(String org_name, String product_name, String repo_name, String[] package_names, String[] erratas, String env_name, boolean promote) {
+	private static String promoteToEnvironment(String org_name, String product_name, String repo_name, String[] package_names, String[] erratas, String env_name, boolean promote) {
 
 		String uid = KatelloUtils.getUniqueID();
 		String pubview_name = "pubview"+uid;		
@@ -672,5 +673,6 @@ public class KatelloUtils implements KatelloConstants {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		exec_result = cs.apply();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		return pubview_name;
 	}
 }
