@@ -7,12 +7,13 @@ import java.text.SimpleDateFormat;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
-import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloGpgKey;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
@@ -330,13 +331,8 @@ public class RepoTests extends KatelloCliTestScript {
 		res = prodZoo5.synchronize();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check  -return code");
 		
-		KatelloChangeset csTwoProds = new KatelloChangeset("cs-"+productAutoDiscoverHttpPulpV2, this.org_name, env_testing);
-		csTwoProds.create();
-		csTwoProds.update_addProduct(productAutoDiscoverHttpPulpV2);
-		csTwoProds.update_addProduct(productAutoDiscoverFileZoo5);
-		res = csTwoProds.apply();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check  -return code");
-		Assert.assertTrue(getOutput(res).contains(String.format(KatelloChangeset.OUT_APPLIED,csTwoProds.name)), "Check - stdout successfully applied");
+		KatelloUtils.promoteProductToEnvironment(org_name, productAutoDiscoverHttpPulpV2, env_testing);
+		KatelloUtils.promoteProductToEnvironment(org_name, productAutoDiscoverFileZoo5, env_testing);
 		
 		// HTTP. Check - packages synced and promoted too.
 		assert_allRepoPackagesSynced(this.org_name, this.productAutoDiscoverHttpPulpV2, env_testing, 10);

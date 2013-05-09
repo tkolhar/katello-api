@@ -1,15 +1,12 @@
 package com.redhat.qe.katello.tests.e2e;
 
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
-import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloErrata;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
@@ -36,8 +33,6 @@ public class PromoteErrata extends KatelloCliTestScript{
 	private String provider;
 	private String product;
 	private String repo;
-	private String cs1;
-	private String cs2;
 	
 	@BeforeClass(description="Init unique names", alwaysRun=true)
 	public void setUp(){
@@ -46,8 +41,7 @@ public class PromoteErrata extends KatelloCliTestScript{
 		this.provider = "ZooProv"+uniqueID;
 		this.product = "ZooProd"+uniqueID;
 		this.repo = "ZooRepo"+uniqueID;
-		this.cs1 = "ZooDev1"+uniqueID;
-		this.cs2 = "ZooDev2"+uniqueID;
+
 		
 		log.info("E2E - Create org");
 		KatelloOrg org = new KatelloOrg(this.org, null);
@@ -75,10 +69,7 @@ public class PromoteErrata extends KatelloCliTestScript{
 	@Test(description="Promote empty product/repo structure to Dev", dependsOnMethods={"test_prepareRepo","test_prepareEnv"}, enabled=true)
 	public void test_promoteToDevNoSync(){
 		log.info("E2E - Promote to Dev - not synced");
-		KatelloChangeset cs = new KatelloChangeset(this.cs1, this.org, this.env);
-		cs.create();
-		cs.update_addProduct(this.product);
-		cs.apply();
+		KatelloUtils.promoteProductToEnvironment(this.org, this.product, this.env);
 	}
 		
 	@Test(description="Synchronize repository", dependsOnMethods={"test_promoteToDevNoSync"}, enabled=true)
@@ -93,19 +84,8 @@ public class PromoteErrata extends KatelloCliTestScript{
 	public void test_addErrataAndPromote(){
 		SSHCommandResult res;
 		log.info("E2E - Add errata (only) and promote again");
-		KatelloChangeset cs = new KatelloChangeset(this.cs2, this.org, this.env);
-		cs.create();
-		res = cs.update_fromProduct_addErrata(this.product, ERRATA_ZOO_SEA);
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset --add_erratum)");
-		res = cs.info();
-		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
-		String match_info = String.format(KatelloChangeset.REG_CHST_ERRATA, ERRATA_ZOO_SEA).replaceAll("\"", "");
-		Pattern pattern = Pattern.compile(match_info);
-		Matcher matcher = pattern.matcher(getOutput(res).replaceAll("\n", " "));
-		Assert.assertTrue(matcher.find(), "Check - Errata should exist in changeset info");
+		KatelloUtils.promoteErratasToEnvironment(this.org, this.product, this.repo, new String[] {ERRATA_ZOO_SEA}, this.env);
 		
-		res = cs.apply();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset promote)");
 		KatelloErrata ert = new KatelloErrata(ERRATA_ZOO_SEA, this.org, this.product, this.repo, this.env);
 		res = ert.info();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (errata info --environment Dev)");

@@ -247,18 +247,6 @@ public class KatelloProduct extends _KatelloObject{
 		}
 		return run(CMD_SYNC);
 	}
-	
-	public SSHCommandResult promote(String environment){
-		opts.clear();
-		opts.add(new Attribute("org", org));
-		if (this.id != null) {
-			opts.add(new Attribute("id", id));
-		} else {
-			opts.add(new Attribute("name", this.name));
-		}
-		opts.add(new Attribute("environment", environment));
-		return run(CMD_PROMOTE);
-	}
 
 	public SSHCommandResult delete(){
 		opts.clear();

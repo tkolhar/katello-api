@@ -91,10 +91,7 @@ public class ConsumeFilteredErrata extends KatelloCliTestScript {
 		repo = new KatelloRepo(repo_name,org_name,prod_name, "http://hhovsepy.fedorapeople.org/fakerepos/zoo4/", null, null);
 		exec_result = repo.create(true);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		exec_result = prod.promote(env_name);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
-		
+
 		exec_result = repo.synchronize();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		

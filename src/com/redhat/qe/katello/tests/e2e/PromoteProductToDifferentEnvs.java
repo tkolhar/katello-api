@@ -7,7 +7,6 @@ import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
-import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
@@ -30,7 +29,6 @@ public class PromoteProductToDifferentEnvs extends KatelloCliTestScript {
 	private String repo_name;
 	private String env_name;
 	private String env_name2;
-	private String chst_name;
 	
 	@BeforeClass(description="Generate unique objects")
 	public void setUp() {
@@ -42,7 +40,6 @@ public class PromoteProductToDifferentEnvs extends KatelloCliTestScript {
 		repo_name = "repo"+uid;
 		env_name = "env1"+uid;	
 		env_name2 = "env2"+uid;
-		chst_name = "changeset"+uid;
 		
 		// Create org:
 		KatelloOrg org = new KatelloOrg(this.org_name,"Package tests");
@@ -75,26 +72,15 @@ public class PromoteProductToDifferentEnvs extends KatelloCliTestScript {
 		exec_result = env.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
-		exec_result = prod.promote(env_name);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
+		KatelloUtils.promoteProductToEnvironment(org_name, product_name, env_name);
+
 		env = new KatelloEnvironment(env_name2, null, org_name, KatelloEnvironment.LIBRARY);
 		exec_result = env.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
 	
-	@Test(description = "Create changeset, than add product to changeset and promote it", groups = { "cli-changeset" })
+	@Test(description = "Promote product to second environment", groups = { "cli-changeset" })
 	public void test_promoteProduct() {
-		// create Changeset
-		KatelloChangeset cs = new KatelloChangeset(chst_name, org_name, env_name2);
-		exec_result = cs.create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset create)");
-		
-		exec_result = cs.update_addProduct(product_name);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloChangeset.OUT_UPDATE, chst_name)), "Check - output string (changeset update)");
-		
-		exec_result = cs.apply();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		KatelloUtils.promoteProductToEnvironment(org_name, product_name, env_name2);
 	}
 }

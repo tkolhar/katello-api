@@ -6,11 +6,10 @@ import java.util.logging.Logger;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
-import com.redhat.qe.katello.base.obj.KatelloChangeset;
-import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
@@ -128,23 +127,9 @@ public class SystemsReport extends KatelloCliTestScript{
 	@Test(description="Promote RHEL Server to both environments", enabled=true, dependsOnMethods={"test_disableenableRHELRepo"})
 	public void test_promoteToEnvs(){		
 		
-		KatelloEnvironment env = new KatelloEnvironment(this.env_dev, null, this.org, KatelloEnvironment.LIBRARY);
-		env.cli_create();
-		KatelloChangeset cs = new KatelloChangeset("csDev_"+KatelloUtils.getUniqueID(), this.org, this.env_dev);
-		cs.create();
-		cs.update_addProduct(KatelloProduct.RHEL_SERVER);
-		SSHCommandResult res = cs.apply();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset promote)");
-		Assert.assertTrue(getOutput(res).endsWith("applied"),"Message - (changeset promote)");
+		KatelloUtils.promoteProductToEnvironment(org, KatelloProduct.RHEL_SERVER, env_dev);
 		
-		env = new KatelloEnvironment(this.env_test, null, this.org, this.env_dev);
-		env.cli_create();
-		cs = new KatelloChangeset("csTest_"+KatelloUtils.getUniqueID(), this.org, this.env_test);
-		cs.create();
-		cs.update_addProduct(KatelloProduct.RHEL_SERVER);
-		res = cs.apply();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset promote)");
-		Assert.assertTrue(getOutput(res).endsWith("applied"),"Message - (changeset promote)");		 
+		KatelloUtils.promoteProductToEnvironment(org, KatelloProduct.RHEL_SERVER, env_test);
 	}
 	
 	@Test(description="Add 2 system to env: Dev and 1 systems to: Test", dependsOnMethods={"test_promoteToEnvs"}, enabled=true)

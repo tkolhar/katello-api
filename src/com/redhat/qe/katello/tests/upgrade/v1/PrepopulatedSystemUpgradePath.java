@@ -109,12 +109,12 @@ public class PrepopulatedSystemUpgradePath implements KatelloConstants{
 			res = repo.synchronize();
 			Assert.assertTrue(res.getExitCode()==0, "Check - exit code (repo synchronize)");
 
-			pushRepoFullCycle(this._orgs[i], _envs[i], "Repo "+_uid, repo_links[i]);
+			pushRepoFullCycle(this._orgs[i], _envs[i]);
 			if(i==2){ // create the <envName>2 bucket
 				String[] org2Envs2={"","",""};
 				for(int k=0;k<3;k++)
 					org2Envs2[k] = _envs[i][k].replace('1', '2');
-				pushRepoFullCycle(this._orgs[i], org2Envs2, "Repo "+_uid, repo_links[i]);
+				pushRepoFullCycle(this._orgs[i], org2Envs2);
 			}
 		}
 		
@@ -123,18 +123,11 @@ public class PrepopulatedSystemUpgradePath implements KatelloConstants{
 	/**
 	 * promote the content from Library to the whole env set/
 	 */
-	private void pushRepoFullCycle(String org, String[] envs, String reponame, String url){
+	private void pushRepoFullCycle(String org, String[] envs){
 		KatelloChangeset cs; 
 		SSHCommandResult res;
 
 		log.info("promote repo to all environments for the org: ["+org+"]");
-		for(int i=0;i<envs.length;i++){
-			cs = new KatelloChangeset("cs_"+envs[i], org, envs[i]);
-			res = cs.create();
-			Assert.assertTrue(res.getExitCode()==0, "Check - exit code (changeset create)");
-			cs.update_addProduct("Product "+_uid);
-			res = cs.promote();
-			Assert.assertTrue(res.getExitCode()==0, "Check - exit code (changeset apply)");
-		}
+		KatelloUtils.promoteProductsToEnvironments(org, new String[] {"Product "+_uid}, envs);
 	}
 }

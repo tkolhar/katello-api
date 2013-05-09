@@ -8,7 +8,6 @@ import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
-import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloGpgKey;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
@@ -35,10 +34,6 @@ public class ChangesetMultyPackageDelete extends KatelloCliTestScript {
 	private String provider_name2;
 	private String product_name2;
 	private String repo_name2;
-	private String chst_name;
-	private String delchst_name;
-	private String readdchst_name;
-	private String readdchst_name2;
 	private String package_name1 = "lion";
 	private String package_name2 = "google-chrome-stable";
 	
@@ -61,10 +56,9 @@ public class ChangesetMultyPackageDelete extends KatelloCliTestScript {
 		gpg_key.cli_create();
 	}
 	
-	// @ TODO enable when bug 903520 is fixed
 	@Test(description = "Create changeset of deletion type," +
 			" then add already promoted packages to changeset and promote it," +
-			" verify that packages does not exist in environment anymore", enabled=false)
+			" verify that packages does not exist in environment anymore", enabled=true)
 	public void test_deletionChangesetRemovePackages() {
 		setupRepos();
 		KatelloUtils.sshOnClient("yum -y erase " + package_name1);
@@ -80,18 +74,9 @@ public class ChangesetMultyPackageDelete extends KatelloCliTestScript {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(package_name2));
 		
-		KatelloChangeset chst = new KatelloChangeset(delchst_name, org_name, env_name, true);
-		exec_result = chst.create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset create)");
+		KatelloUtils.removePackagesFromEnvironment(org_name, product_name, repo_name, new String[] {package_name1}, env_name);
 		
-		exec_result = chst.update_add_package(product_name, package_name1);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset update)");
-		
-		exec_result = chst.update_add_package(product_name2, package_name2);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset update)");
-		
-		exec_result = chst.apply();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset apply)");		
+		KatelloUtils.removePackagesFromEnvironment(org_name, product_name2, repo_name2, new String[] {package_name2}, env_name);
 
 		exec_result = package1.cli_list();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
@@ -112,36 +97,19 @@ public class ChangesetMultyPackageDelete extends KatelloCliTestScript {
 		Assert.assertFalse(exec_result.getExitCode().intValue()==0, "Check - return code (install package)");
 	}
 
-	// @ TODO enable when bug 903520 is fixed
 	@Test(description = "Create changeset of promotion type," +
 			" then add already reomved packages to changeset and promote it," +
-			" verify that packages exist in environment", dependsOnMethods = {"test_deletionChangesetRemovePackages"}, enabled=false)
+			" verify that packages exist in environment", dependsOnMethods = {"test_deletionChangesetRemovePackages"}, enabled=true)
 	public void test_promoteChangesetReAddPackages() {
 		
 		KatelloPackage package1 = new KatelloPackage(null, null, org_name, product_name, repo_name, env_name);
 
 		KatelloPackage package2 = new KatelloPackage(null, null, org_name, product_name2, repo_name2, env_name);
-		
-		KatelloChangeset chst = new KatelloChangeset(readdchst_name, org_name, env_name);
-		exec_result = chst.create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset create)");
-		
-		exec_result = chst.update_add_package(product_name, package_name1);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset update)");
-		
-		exec_result = chst.apply();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset apply)");		
 
-		KatelloChangeset chst2 = new KatelloChangeset(readdchst_name2, org_name, env_name);
-		exec_result = chst2.create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset create)");
+		KatelloUtils.promotePackagesToEnvironment(org_name, product_name, repo_name, new String[] {package_name1}, env_name);
 		
-		exec_result = chst2.update_add_package(product_name2, package_name2);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset update)");
+		KatelloUtils.promotePackagesToEnvironment(org_name, product_name2, repo_name2, new String[] {package_name2}, env_name);
 		
-		exec_result = chst2.apply();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset apply)");		
-
 		exec_result = package1.cli_list();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(package_name1));
@@ -176,11 +144,7 @@ public class ChangesetMultyPackageDelete extends KatelloCliTestScript {
 		provider_name2 = "provider"+uid2;
 		product_name2 = "product"+uid2;
 		repo_name2 = "repo"+uid2;
-		chst_name = "changeset"+uid;		
-		delchst_name = "deletion_chst" +uid;
 		system_name = "system" +uid;
-		readdchst_name = "readd_chst" + uid;
-		readdchst_name2 = "readd_chst" + uid2;
 		
 		// Create provider:
 		KatelloProvider prov = new KatelloProvider(provider_name, org_name, "Package provider", null);
@@ -214,34 +178,16 @@ public class ChangesetMultyPackageDelete extends KatelloCliTestScript {
 		KatelloEnvironment env = new KatelloEnvironment(env_name, null, org_name, KatelloEnvironment.LIBRARY);
 		exec_result = env.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (env create)");
-		
-		// promote product to the env.
-		exec_result = prod.promote(env_name);
-		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (product promote)");
-				
+
 		exec_result = repo.synchronize();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		// promote second product to the env.
-		exec_result = prod2.promote(env_name);
-		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (product promote)");
 				
 		exec_result = repo2.synchronize();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		// create Changeset
-		KatelloChangeset cs = new KatelloChangeset(chst_name, org_name, env_name);
-		exec_result = cs.create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset create)");
+		KatelloUtils.promotePackagesToEnvironment(org_name, product_name, repo_name, new String[] {package_name1}, env_name);
 		
-		exec_result = cs.update_add_package(product_name, package_name1);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset update)");
-
-		exec_result = cs.update_add_package(product_name2, package_name2);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset update)");
-		
-		exec_result = cs.apply();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset apply)");
+		KatelloUtils.promotePackagesToEnvironment(org_name, product_name2, repo_name2, new String[] {package_name2}, env_name);
 		
 		rhsm_clean();
 		
@@ -252,13 +198,13 @@ public class ChangesetMultyPackageDelete extends KatelloCliTestScript {
 		exec_result = sys.subscriptions_available();
 		String poolId1 = KatelloCli.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
 		
-		exec_result = sys.rhsm_subscribe(poolId1);
+		exec_result = sys.subscribe(poolId1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		exec_result = sys.subscriptions_available();
 		String poolId2 = KatelloCli.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
 		
-		exec_result = sys.rhsm_subscribe(poolId2);
+		exec_result = sys.subscribe(poolId2);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		yum_clean();

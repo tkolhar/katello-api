@@ -11,7 +11,6 @@ import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
-import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloPackage;
@@ -36,7 +35,6 @@ public class RepoSyncByPlan extends KatelloCliTestScript{
 	private String product_name;
 	private String repo_name;
 	private String env_name;
-	private String changeset_name;
 	private String repo_path;
 	private String repo_url;
 	private String uid;
@@ -152,7 +150,6 @@ public class RepoSyncByPlan extends KatelloCliTestScript{
 		product_name = "product"+uid;
 		repo_name = "repo"+uid;
 		env_name = "env"+uid;
-		changeset_name = "changeset"+uid;		
 		
 		// Create org:
 		KatelloOrg org = new KatelloOrg(this.org_name,"Package tests");
@@ -180,11 +177,7 @@ public class RepoSyncByPlan extends KatelloCliTestScript{
 		
 		KatelloEnvironment env = new KatelloEnvironment(env_name, null, org_name, KatelloEnvironment.LIBRARY);
 		exec_result = env.cli_create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		KatelloChangeset cs = new KatelloChangeset(changeset_name, org_name, env_name);
-		exec_result = cs.create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");		
 	}
 
 	/**
@@ -197,8 +190,7 @@ public class RepoSyncByPlan extends KatelloCliTestScript{
 		provider_name = "provider"+uid;
 		product_name = "product"+uid;
 		repo_name = "repo"+uid;
-		env_name = "env"+uid;
-		changeset_name = "changeset"+uid;	
+		env_name = "env"+uid;	
 		repo_path = "/var/www/html/"+uid;
 		repo_url = "http://localhost/" + uid;
 		
@@ -243,19 +235,7 @@ public class RepoSyncByPlan extends KatelloCliTestScript{
 		exec_result = env.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		KatelloChangeset cs = new KatelloChangeset(changeset_name, org_name, env_name);
-		exec_result = cs.create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		exec_result = prov.synchronize();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		exec_result = prod.synchronize();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		exec_result = repo.synchronize();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		cs.update_addProduct(product_name); // add product
-		exec_result = cs.apply();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		KatelloUtils.promoteProductToEnvironment(org_name, product_name, env_name);
 	}
 	
 	private void updateLocalRepo() {

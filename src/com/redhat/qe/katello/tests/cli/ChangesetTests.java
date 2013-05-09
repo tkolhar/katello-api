@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -81,11 +79,7 @@ public class ChangesetTests extends KatelloCliTestScript{
 		KatelloEnvironment env = new KatelloEnvironment(env_name, null, org_name, KatelloEnvironment.LIBRARY);
 		exec_result = env.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (env create)");
-		
-		// promote product to the env.
-		exec_result = prod.promote(env_name);
-		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (product promote)");
-				
+
 		exec_result = repo.synchronize();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
@@ -167,91 +161,6 @@ public class ChangesetTests extends KatelloCliTestScript{
 		exec_result = chst.info();
 		Assert.assertTrue(exec_result.getExitCode() == 65, "Check - return code");
 		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloChangeset.ERR_NOT_FOUND, chst.name, chst.environment));
-	}
-	
-	@Test(description = "Create changeset, than add product to changeset", groups = { "cli-changeset" })
-	public void test_updateChangesetAddProduct() {
-		KatelloChangeset chst = createChangeset();
-		
-		exec_result = chst.update_addProduct(product_name);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloChangeset.OUT_UPDATE, chst_name)), "Check - output string (changeset update)");
-		
-		exec_result = chst.info();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		String match_info = String.format(KatelloChangeset.REG_CHST_PRODUCTS, product_name).replaceAll("\"", "");
-		Pattern pattern = Pattern.compile(match_info);
-		Matcher matcher = pattern.matcher(getOutput(exec_result).replaceAll("\n", " "));
-		Assert.assertTrue(matcher.find(), "Check - Product should exist in changeset info");
-	}
-
-	@Test(description = "Create changeset, add product to changeset and then remove product", groups = { "cli-changeset" })
-	public void test_updateChangesetRemoveProduct() {
-		KatelloChangeset chst = createChangeset();
-		
-		exec_result = chst.update_addProduct(product_name);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		exec_result = chst.update_removeProduct(product_name);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloChangeset.OUT_UPDATE, chst_name)), "Check - output string (changeset update)");
-		
-		exec_result = chst.info();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		String match_info = String.format(KatelloChangeset.REG_CHST_PRODUCTS, product_name).replaceAll("\"", "");
-		Pattern pattern = Pattern.compile(match_info);
-		Matcher matcher = pattern.matcher(getOutput(exec_result).replaceAll("\n", " "));
-		Assert.assertFalse(matcher.find(), "Check - Product should not exist in changeset info");
-	}
-	
-	@Test(description = "Create changeset, than add repo to changeset", groups = { "cli-changeset" })
-	public void test_updateChangesetAddRepo() {
-		KatelloChangeset chst = createChangeset();
-		
-		exec_result = chst.update_fromProduct_addRepo(product_name, repo_name);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloChangeset.OUT_UPDATE, chst_name)), "Check - output string (changeset update)");
-		
-		exec_result = chst.info();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		String match_info = String.format(KatelloChangeset.REG_CHST_REPOS, repo_name).replaceAll("\"", "");
-		Pattern pattern = Pattern.compile(match_info);
-		Matcher matcher = pattern.matcher(getOutput(exec_result).replaceAll("\n", " "));
-		Assert.assertTrue(matcher.find(), "Check - Repository should exist in changeset info");
-	}
-
-	@Test(description = "Create changeset, add repo to changeset, then delete it", groups = { "cli-changeset" })
-	public void test_updateChangesetRemoveRepo() {
-		KatelloChangeset chst = createChangeset();
-		
-		exec_result = chst.update_fromProduct_addRepo(product_name, repo_name);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		exec_result = chst.update_fromProduct_removeRepo(product_name, repo_name);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloChangeset.OUT_UPDATE, chst_name)), "Check - output string (changeset update)");
-		
-		exec_result = chst.info();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		String match_info = String.format(KatelloChangeset.REG_CHST_REPOS, repo_name).replaceAll("\"", "");
-		Pattern pattern = Pattern.compile(match_info);
-		Matcher matcher = pattern.matcher(getOutput(exec_result).replaceAll("\n", " "));
-		Assert.assertFalse(matcher.find(), "Check - Repository should not exist in changeset info");
-	}
-	
-	@Test(description = "Create changeset, than add package to changeset", groups = { "cli-changeset" })
-	public void test_updateChangesetAddPackage() {
-		KatelloChangeset chst = createChangeset();
-		
-		exec_result = chst.update_add_package(product_name, "lion");
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloChangeset.OUT_UPDATE, chst_name)), "Check - output string (changeset update)");
-		
-		exec_result = chst.apply();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		chst.state = "promoted";
-		assert_changesetInfo(chst);
 	}
 	
 	private KatelloChangeset createChangeset() {

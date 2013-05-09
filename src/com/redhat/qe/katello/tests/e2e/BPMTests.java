@@ -9,7 +9,6 @@ import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
-import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
@@ -50,7 +49,6 @@ public class BPMTests extends KatelloCliTestScript{
 	private String product_name;
 	private String repo_name_pulpRHEL6;
 	private String env_name_Dev, env_name_Prod;
-	private String changeset_name;
 	private String consumer_name;
 	private String rhsm_pool_id;
 	
@@ -64,7 +62,6 @@ public class BPMTests extends KatelloCliTestScript{
 		repo_name_pulpRHEL6 = "repoBPM_pulpRHEL6_"+uid;
 		env_name_Dev = "envBPM_Dev_"+uid;
 		env_name_Prod = "envBPM_Prod_"+uid;
-		changeset_name = "changesetBPM_"+uid;
 		consumer_name = uid+"-`hostname`";
 		rhsm_pool_id = null; // going to be set after listing avail. subscriptions.
 	}
@@ -130,19 +127,8 @@ public class BPMTests extends KatelloCliTestScript{
 		exec_result = env.cli_create();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertEquals(getOutput(exec_result).trim(), "Successfully created environment [ "+env_name_Prod+" ]");
-		// Changeset create: for Dev
-		KatelloChangeset cs = new KatelloChangeset(changeset_name, org_name, env_name_Dev);
-		exec_result = cs.create();
-		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
-		Assert.assertEquals(getOutput(exec_result).trim(), "Successfully created changeset [ "+changeset_name+" ] for environment [ "+env_name_Dev+" ]");
-		// Changeset update: add_product
-		exec_result = cs.update_addProduct(product_name);
-		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
-		Assert.assertEquals(getOutput(exec_result).trim(), "Successfully updated changeset [ "+changeset_name+" ]");
-		// Changeset promote:
-		exec_result = cs.apply();
-		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).endsWith("applied"));
+		
+		KatelloUtils.promoteProductToEnvironment(org_name, product_name, env_name_Dev);
 	}
 	
 	@Test(description="From both a RH and Fedora machine, register the machine using subscription manager.",

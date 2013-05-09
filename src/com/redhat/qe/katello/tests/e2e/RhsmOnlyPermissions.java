@@ -8,7 +8,6 @@ import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
-import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloPermission;
@@ -122,11 +121,8 @@ public class RhsmOnlyPermissions extends KatelloCliTestScript{
 		KatelloRepo repo = new KatelloRepo(this.repo, this.org, this.prod, REPO_INECAS_ZOO3, null, null);
 		repo.create();
 		repo.synchronize();
-		KatelloChangeset cs1 = new KatelloChangeset("cs"+uid, this.org, this.env_dev);
-		cs1.create();
-		cs1.update_addProduct(this.prod);
-		SSHCommandResult res = cs1.apply();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset promote)");
+		
+		KatelloUtils.promoteProductToEnvironment(this.org, this.prod, this.env_dev);
 	}
 	
 	@Test(description="Subscribe system to Zoo3", dependsOnMethods={"test_syncZoo3"}, enabled=true)

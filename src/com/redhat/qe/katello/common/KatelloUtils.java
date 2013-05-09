@@ -14,7 +14,14 @@ import java.util.logging.Logger;
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.DeltaCloudInstance;
+import com.redhat.qe.katello.base.obj.KatelloChangeset;
+import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
+import com.redhat.qe.katello.base.obj.KatelloContentFilter;
+import com.redhat.qe.katello.base.obj.KatelloContentView;
 import com.redhat.qe.katello.base.obj.KatelloPing;
+import com.redhat.qe.katello.base.obj.helpers.FilterRuleErrataDayType;
+import com.redhat.qe.katello.base.obj.helpers.FilterRuleErrataIds;
+import com.redhat.qe.katello.base.obj.helpers.FilterRulePackage;
 import com.redhat.qe.katello.deltacloud.DeltaCloudAPI;
 import com.redhat.qe.tools.ExecCommands;
 import com.redhat.qe.tools.SCPTools;
@@ -515,5 +522,158 @@ public class KatelloUtils implements KatelloConstants {
 				"chmod a+x ~/.beaker_client/config";
 		KatelloUtils.sshOnClient(hostname, cmds);
 	}
+
+	public static void promoteReposToEnvironment(String org_name, String[] product_names, String[] repo_names, String env_name) {
+		promoteToEnvironment(org_name, product_names, null, repo_names, new String[] {env_name}, true);
+	}
+
+	public static void promoteReposToEnvironments(String org_name, String[] product_names, String[] repo_names, String[] env_names) {
+		promoteToEnvironment(org_name, product_names, null, repo_names, env_names, true);
+	}
 	
+	public static void promoteRepoToEnvironment(String org_name, String product_name, String repo_name, String env_name) {
+		promoteToEnvironment(org_name, new String[] {product_name}, null, new String[] {repo_name}, new String[] {env_name}, true);
+	}
+
+	public static void promoteProductToEnvironment(String org_name, String product_name, String env_name) {
+		promoteToEnvironment(org_name, new String[] {product_name}, null, null, new String[] {env_name}, true);
+	}
+
+	public static void promoteProductsToEnvironment(String org_name, String[] product_names, String env_name) {
+		promoteToEnvironment(org_name, product_names, null, null, new String[] {env_name}, true);
+	}
+
+	public static void promoteProductsToEnvironments(String org_name, String[] product_names, String[] env_names) {
+		promoteToEnvironment(org_name, product_names, null, null, env_names, true);
+	}
+	
+	public static void promoteProductIDsToEnvironment(String org_name, String[] product_IDs, String env_name) {
+		promoteToEnvironment(org_name, null, product_IDs, null, new String[] {env_name}, true);
+	}
+
+	public static void removeRepoFromEnvironment(String org_name, String product_name, String repo_name, String env_name) {
+		promoteToEnvironment(org_name, new String[] {product_name}, null, new String[] {repo_name}, new String[] {env_name}, false);
+	}
+	
+	public static void removeReposFromEnvironment(String org_name, String[] product_names, String[] repo_names, String env_name) {
+		promoteToEnvironment(org_name, product_names, null, repo_names, new String[] {env_name}, false);
+	}
+
+	public static void removeProductFromEnvironment(String org_name, String product_name, String env_name) {
+		promoteToEnvironment(org_name, new String[] {product_name}, null, null, new String[] {env_name}, false);
+	}
+
+	public static void removeProductIDsFromEnvironment(String org_name, String[] product_IDs, String env_name) {
+		promoteToEnvironment(org_name, null, product_IDs, null, new String[] {env_name}, false);
+	}
+
+	private static void promoteToEnvironment(String org_name, String[] product_names, String[] product_IDs, String[] repo_names, String[] env_names, boolean promote) {
+
+		String uid = KatelloUtils.getUniqueID();
+		String pubview_name = "pubview"+uid;		
+
+		KatelloContentDefinition condef = new KatelloContentDefinition("content_definition" + uid, null, org_name, null);
+		SSHCommandResult exec_result = condef.create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");				
+		
+		int i = 0;
+		if (product_names != null && product_names.length > 0) {
+			for (String prod_name : product_names) {
+				if (repo_names != null && repo_names.length > 0) {
+					if (repo_names.length > i) {
+						exec_result = condef.add_repo(prod_name, repo_names[i]);
+						Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
+					} else {
+						exec_result = condef.add_repo(prod_name, repo_names[0]);
+						Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+					}
+				} else {
+					exec_result = condef.add_product(prod_name);
+					Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+				}
+				i++;
+			}
+		}
+		
+		if (product_IDs != null && product_IDs.length > 0) {
+			for (String product_id : product_IDs) {
+				exec_result = condef.add_productID(product_id);
+				Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
+			}
+		}
+		
+		exec_result = condef.publish(pubview_name, pubview_name,"Publish Content");
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");		
+	
+		if (env_names != null && env_names.length > 0) {
+			for (String env_name : env_names) {
+				String changeset_name = "changeset"+getUniqueID();
+				KatelloChangeset cs = new KatelloChangeset(changeset_name, org_name, env_name);
+				exec_result = cs.create();
+				Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+				exec_result = cs.update_addView(pubview_name);
+				Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+				exec_result = cs.apply();
+				Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+			}
+		}
+	}
+
+	public static void promotePackagesToEnvironment(String org_name, String product_name, String repo_name, String[] packages, String env_name) {
+		promoteToEnvironment(org_name, product_name, repo_name, packages, null, env_name, true);
+    }
+
+	public static void promoteErratasToEnvironment(String org_name, String product_name, String repo_name, String[] erratas, String env_name) {
+		promoteToEnvironment(org_name, product_name, repo_name, null, erratas, env_name, true);
+    }
+
+	public static void removePackagesFromEnvironment(String org_name, String product_name, String repo_name, String[] packages, String env_name) {
+		promoteToEnvironment(org_name, product_name, repo_name, packages, null, env_name, false);
+    }
+
+	public static void removeErratasFromEnvironment(String org_name, String product_name, String repo_name, String[] erratas, String env_name) {
+		promoteToEnvironment(org_name, product_name, repo_name, null, erratas, env_name, false);
+    }
+	
+	private static void promoteToEnvironment(String org_name, String product_name, String repo_name, String[] package_names, String[] erratas, String env_name, boolean promote) {
+
+		String uid = KatelloUtils.getUniqueID();
+		String pubview_name = "pubview"+uid;		
+
+		KatelloContentDefinition condef = new KatelloContentDefinition("content_definition" + uid, null, org_name, null);
+		SSHCommandResult exec_result = condef.create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		exec_result = condef.add_repo(product_name, repo_name);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		KatelloContentFilter filter = new KatelloContentFilter("Filter"+uid, org_name, condef.name);
+		filter.add_repo(product_name, repo_name);
+		exec_result = filter.create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		if (erratas != null) {
+			FilterRuleErrataIds errata1 = new FilterRuleErrataIds(erratas);
+			exec_result = filter.add_rule(( promote ? KatelloContentFilter.TYPE_INCLUDES : KatelloContentFilter.TYPE_EXCLUDES), errata1);
+			Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		}
+		if (package_names != null) {
+			FilterRulePackage [] packages = new FilterRulePackage[package_names.length];
+			for (int i = 0; i < package_names.length; i ++) {
+				packages[i] = new FilterRulePackage("package_names[i]");
+			}
+			
+			exec_result = filter.add_rule(( promote ? KatelloContentFilter.TYPE_INCLUDES : KatelloContentFilter.TYPE_EXCLUDES), packages);
+			Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");		
+		}
+		exec_result = condef.publish(pubview_name, pubview_name,"Publish Content");
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");		
+
+		String changeset_name = "changeset"+uid;
+		KatelloChangeset cs = new KatelloChangeset(changeset_name, org_name, env_name);
+		exec_result = cs.create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		exec_result = cs.update_addView(pubview_name);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		exec_result = cs.apply();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+	}
 }

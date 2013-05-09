@@ -18,15 +18,7 @@ public class RepoTests extends BaseDeltacloudTest {
 	
 	@Test(description="promote rhel packages")
 	public void test_promoteRHELPackages() {
-		KatelloChangeset cs = new KatelloChangeset("package-promote"+KatelloUtils.getUniqueID(), org_name, env_name2);
-		exec_result = cs.create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset create)");
-		
-		exec_result = cs.update_add_package(KatelloProduct.RHEL_SERVER, "zsh");
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset update add package)");
-		
-		exec_result = cs.apply();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset promote)");		
+		KatelloUtils.promotePackagesToEnvironment(org_name, KatelloProduct.RHEL_SERVER, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, new String[] {"zsh"}, env_name2);
 	}
 	
 	@Test(description="list rhel repo packages promoted to test environment", dependsOnMethods={"test_promoteRHELPackages"})
@@ -39,15 +31,7 @@ public class RepoTests extends BaseDeltacloudTest {
 
 	@Test(description="delete promoted rhel packages", dependsOnMethods={"test_listRHELRepoPackages"})
 	public void test_deleteRHELPackages() {
-		KatelloChangeset cs = new KatelloChangeset("package-delete"+KatelloUtils.getUniqueID(), org_name, env_name2, true);
-		exec_result = cs.create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset create)");
-		
-		exec_result = cs.update_add_package(KatelloProduct.RHEL_SERVER, "zsh");
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset update add package)");
-		
-		exec_result = cs.apply();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset promote)");
+		KatelloUtils.removePackagesFromEnvironment(org_name, KatelloProduct.RHEL_SERVER, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, new String[] {"zsh"}, env_name2);
 	}
 	
 	//@ TODO enable when bug 918093 is fixed
@@ -90,16 +74,8 @@ public class RepoTests extends BaseDeltacloudTest {
 		KatelloSystem sys = new KatelloSystem(system_name, org_name, null);
 		exec_result = sys.list_errata_names("RHBA");
 		ert1 = getOutput(exec_result).replaceAll("\n", ",").split(",")[0];
-		
-		KatelloChangeset cs = new KatelloChangeset("errata-promote"+KatelloUtils.getUniqueID(), org_name, env_name2);
-		exec_result = cs.create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset create)");
-		
-		exec_result = cs.update_fromProduct_addErrata(KatelloProduct.RHEL_SERVER, ert1);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset update add errata)");
-		
-		exec_result = cs.apply();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset promote)");	
+	
+		KatelloUtils.promoteErratasToEnvironment(org_name, KatelloProduct.RHEL_SERVER, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, new String[] {ert1}, env_name2);
 	}
 	
 	@Test(description="list rhel repo errata promoted to test environment", dependsOnMethods={"test_promoteRHELErrata"})
@@ -112,15 +88,7 @@ public class RepoTests extends BaseDeltacloudTest {
 
 	@Test(description="delete promoted rhel ettata", dependsOnMethods={"test_listRHELRepoErrata"})
 	public void test_deleteRHELErrata() {
-		KatelloChangeset cs = new KatelloChangeset("errata-delete"+KatelloUtils.getUniqueID(), org_name, env_name2, true);
-		exec_result = cs.create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset create)");
-		
-		exec_result = cs.update_fromProduct_addErrata(KatelloProduct.RHEL_SERVER, ert1);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset update add errata)");
-		
-		exec_result = cs.apply();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset promote)");
+		KatelloUtils.removeErratasFromEnvironment(org_name, KatelloProduct.RHEL_SERVER, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, new String[] {ert1}, env_name2);
 	}
 	
 	@Test(description="list rhel repo errata deleted to test environment", dependsOnMethods={"test_deleteRHELErrata"})

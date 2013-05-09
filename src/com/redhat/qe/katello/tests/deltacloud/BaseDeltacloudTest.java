@@ -6,7 +6,6 @@ import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.DeltaCloudInstance;
-import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
@@ -31,9 +30,6 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 	protected static String repo_name;
 	protected static String env_name;
 	protected static String env_name2;
-	protected static String changeset_name;
-	protected static String changeset_name2;
-	protected static String changeset_name3;
 	protected static String system_name;
 	protected static String system_name2;
 	protected static String system_name3;
@@ -61,9 +57,6 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 		repo_name = "repo_name_"+uid;
 		env_name = "env_Dev_"+uid;
 		env_name2 = "env_Test_"+uid;
-		changeset_name = "changeset_"+uid;
-		changeset_name2 = "chsrhel_"+uid;
-		changeset_name3 = "chsrhel3_"+uid;
 		system_name = "system_"+uid;
 		system_name2 = "system2_"+uid;
 		system_name3 = "system3_"+uid;
@@ -114,25 +107,13 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 		exec_result = env.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (env create)");
 		
-		// promote product to the env dev.
-		exec_result = prod.promote(env_name);
-		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (product promote)");
-
-		exec_result = prod.promote(env_name2);
-		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (product promote)");
+		// promote product to environments
+		KatelloUtils.promoteProductsToEnvironments(org_name, new String[] {product_name}, new String[] {env_name, env_name2});
 		
 		exec_result = repo.synchronize();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		KatelloChangeset cs = new KatelloChangeset(changeset_name, org_name, env_name);
-		exec_result = cs.create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset create)");
-		
-		exec_result = cs.update_addProduct(product_name);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset update add product)");
-		
-		exec_result = cs.apply();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset promote)");
+		KatelloUtils.promoteProductToEnvironment(org_name, product_name, env_name);
 		
 		SCPTools scp = new SCPTools(
 		System.getProperty("katello.server.hostname", "localhost"), 
@@ -158,12 +139,7 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo enable)");
 		Assert.assertTrue(getOutput(res).contains("enabled."),"Message - (repo enable)");
 		
-		cs = new KatelloChangeset(changeset_name3, org_name, env_name2);
-		cs.create();
-		res = cs.update_addProduct(KatelloProduct.RHEL_SERVER);
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset add_product)");
-		res = cs.apply();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset promote)");
+		KatelloUtils.promoteProductToEnvironment(org_name, KatelloProduct.RHEL_SERVER, env_name2);
 		
 		res = repo.synchronize();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo synchronize)");
@@ -172,12 +148,7 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 		String progress = KatelloCli.grepCLIOutput("Progress", res.getStdout());
 		Assert.assertTrue(progress.equals("Finished"), "Check: status of repo sync - Finished");
 		
-		cs = new KatelloChangeset(changeset_name2, org_name, env_name);
-		cs.create();
-		res = cs.update_addProduct(KatelloProduct.RHEL_SERVER);
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset add_product)");
-		res = cs.apply();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset promote)");
+		KatelloUtils.promoteProductToEnvironment(org_name, KatelloProduct.RHEL_SERVER, env_name);
 		
 		KatelloSystem sys = new KatelloSystem(system_name, org_name, env_name);
 		sys.runOn(client_name);
