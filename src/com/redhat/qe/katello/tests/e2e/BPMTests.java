@@ -1,14 +1,14 @@
 package com.redhat.qe.katello.tests.e2e;
 
 import java.util.logging.Logger;
-
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.obj.KatelloChangeset;
+import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloPermission;
@@ -52,6 +52,8 @@ public class BPMTests extends KatelloCliTestScript{
 	private String rhsmPoolId;
 	private String contentViewDev;
 	
+	private KatelloUser ktlOrgAdmin;
+	
 	@BeforeClass(description="Generate unique names")
 	public void setUp(){
 		String uid = KatelloUtils.getUniqueID();
@@ -62,6 +64,7 @@ public class BPMTests extends KatelloCliTestScript{
 		repoPulp64Bit = "repoPulp-"+uid;
 		envDev = "Development";
 		awesomeSystem = "awesomeSystem-"+uid;
+		contentViewDev = "contView-"+uid;
 		rhsmPoolId = null; // going to be set after listing avail. subscriptions.
 	}
 	
@@ -103,22 +106,28 @@ public class BPMTests extends KatelloCliTestScript{
 		
 		exec_result = new KatelloUser(awesomeAdmin, null, null, false).assign_role(roleOrgAdmin.name);
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
+		
+		this.ktlOrgAdmin = new KatelloUser(awesomeAdmin, null, KatelloUser.DEFAULT_USER_PASS, false, null, null); // set the KatelloUser object to be used later on. 
 	}
 	
 	@Test(description="Create a Custom Provider, Product and Repo",
 			dependsOnMethods={"test_orgAdminRolesPermissions"})
 	public void test_createProviderProductRepo(){		
 		// Create provider
-		exec_result = new KatelloProvider(providerPulp, awesomeOrg, "Pulp provider", null).create();
+		KatelloProvider prov = new KatelloProvider(providerPulp, awesomeOrg, "Pulp provider", null);
+		prov.runAs(ktlOrgAdmin);
+		exec_result = prov.create();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		
 		// Create product
 		KatelloProduct prod = new KatelloProduct(productPulp64Bit, awesomeOrg, providerPulp, null, null, null, null, null);
+		prod.runAs(ktlOrgAdmin);
 		exec_result = prod.create();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 
 		// Create repo
 		KatelloRepo repo = new KatelloRepo(repoPulp64Bit, awesomeOrg, productPulp64Bit, PULP_RHEL6_x86_64_REPO, null, null);
+		repo.runAs(ktlOrgAdmin);
 		exec_result = repo.create();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 	}
@@ -126,14 +135,31 @@ public class BPMTests extends KatelloCliTestScript{
 	@Test(description="Sync the content.", dependsOnMethods={"test_createProviderProductRepo"})
 	public void test_syncRepo(){
 		// Repo synchronize:
-		exec_result = new KatelloRepo(repoPulp64Bit, awesomeOrg, productPulp64Bit, PULP_RHEL6_x86_64_REPO, null, null).synchronize();
+		KatelloRepo repo = new KatelloRepo(repoPulp64Bit, awesomeOrg, productPulp64Bit, PULP_RHEL6_x86_64_REPO, null, null);
+		repo.runAs(ktlOrgAdmin);
+		exec_result = repo.synchronize();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 	}
 	
 	@Test(description="Promote the content to the new environment.", dependsOnMethods={"test_syncRepo"})
 	public void test_promoteContent(){
-		contentViewDev = KatelloUtils.promoteProductToEnvironment(awesomeOrg, productPulp64Bit, envDev);
-		System.out.println(contentViewDev);
+		String uid = KatelloUtils.getUniqueID();
+		KatelloContentDefinition contDef = new KatelloContentDefinition("cd-"+uid, null, awesomeOrg, null);
+		contDef.runAs(ktlOrgAdmin);
+		exec_result = contDef.create();
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
+		exec_result = contDef.add_product(productPulp64Bit);
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
+		exec_result = contDef.publish(this.contentViewDev, null, null);
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
+		KatelloChangeset cs = new KatelloChangeset("cs-"+uid, awesomeOrg, envDev);
+		cs.runAs(ktlOrgAdmin);
+		exec_result = cs.create();
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
+		exec_result = cs.update_addView(contentViewDev);
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
+		exec_result = cs.apply();
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 	}
 	
 	@Test(description="From a client machine RHSM register to Katello.", dependsOnMethods={"test_promoteContent"})
@@ -141,7 +167,8 @@ public class BPMTests extends KatelloCliTestScript{
 		log.info("Clean RHSM registration");
 		rhsm_clean();
 		
-		KatelloSystem sys = new KatelloSystem(this.awesomeSystem, this.awesomeOrg, this.envDev);
+		KatelloSystem sys = new KatelloSystem(this.awesomeSystem, this.awesomeOrg, this.envDev+"/"+this.contentViewDev);
+		sys.runAs(new KatelloUser(awesomeAdmin, null, KatelloUser.DEFAULT_USER_PASS, false));
 		exec_result = sys.rhsm_register(); 
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		log.finest("Sleeping 3 sec. giving chance system to recognize the registration.");
@@ -151,6 +178,7 @@ public class BPMTests extends KatelloCliTestScript{
 	@Test(description="List available subscriptions", dependsOnMethods={"test_rhsmRegister"})
 	public void test_rhsm_listAvailableSubscriptions(){
 		KatelloSystem sys = new KatelloSystem(this.awesomeSystem, this.awesomeOrg, this.envDev);
+		sys.runAs(ktlOrgAdmin);
 		exec_result = sys.subscriptions_available();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");		
 		Assert.assertTrue(getOutput(exec_result).contains(productPulp64Bit), "Check - subscription.ProductName");
@@ -163,8 +191,9 @@ public class BPMTests extends KatelloCliTestScript{
 	
 	@Test(description="Subscribe to pool", dependsOnMethods={"test_rhsm_listAvailableSubscriptions"})
 	public void test_rhsm_subscribeToPool(){
-		Assert.assertNotNull(rhsmPoolId, "Check - pool id is set");
-		exec_result = KatelloUtils.sshOnClient("subscription-manager subscribe --pool "+rhsmPoolId);
+		KatelloSystem sys = new KatelloSystem(this.awesomeSystem, this.awesomeOrg, this.envDev);
+		sys.runAs(ktlOrgAdmin);
+		exec_result = sys.rhsm_subscribe(rhsmPoolId);
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).trim().startsWith("Successfully"), 
 				"Check - returned message (Successfully)");
@@ -189,6 +218,6 @@ public class BPMTests extends KatelloCliTestScript{
 	
 	@AfterTest(description="erase registration made; cleanup",alwaysRun=true)
 	public void tearDown(){
-		KatelloUtils.sshOnClient("subscription-manager clean");
+		rhsm_clean();
 	}
 }
