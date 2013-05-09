@@ -1,9 +1,16 @@
 package com.redhat.qe.katello.tests.upgrade.v1;
 
-import com.redhat.qe.katello.base.obj.*;
 import java.util.logging.Logger;
+
 import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
+import com.redhat.qe.katello.base.obj.KatelloEnvironment;
+import com.redhat.qe.katello.base.obj.KatelloOrg;
+import com.redhat.qe.katello.base.obj.KatelloProduct;
+import com.redhat.qe.katello.base.obj.KatelloProvider;
+import com.redhat.qe.katello.base.obj.KatelloRepo;
+import com.redhat.qe.katello.base.obj.KatelloUser;
 import com.redhat.qe.katello.common.KatelloConstants;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
@@ -124,9 +131,6 @@ public class PrepopulatedSystemUpgradePath implements KatelloConstants{
 	 * promote the content from Library to the whole env set/
 	 */
 	private void pushRepoFullCycle(String org, String[] envs){
-		KatelloChangeset cs; 
-		SSHCommandResult res;
-
 		log.info("promote repo to all environments for the org: ["+org+"]");
 		KatelloUtils.promoteProductsToEnvironments(org, new String[] {"Product "+_uid}, envs);
 	}

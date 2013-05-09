@@ -1,6 +1,5 @@
 package com.redhat.qe.katello.tests.e2e;
 
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
