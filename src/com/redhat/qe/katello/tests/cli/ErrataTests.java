@@ -8,7 +8,6 @@ import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
-import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloErrata;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
@@ -33,8 +32,6 @@ public class ErrataTests extends KatelloCliTestScript {
 	private String product_Id;
 	private String repo_name;
 	private String env_name;
-	private String changeset_name;
-
 	
 	@BeforeClass(description="Generate unique objects")
 	public void setUp() {
@@ -44,7 +41,6 @@ public class ErrataTests extends KatelloCliTestScript {
 		product_name = "product"+uid;
 		repo_name = "repo"+uid;
 		env_name = "env"+uid;
-		changeset_name = "changeset"+uid;		
 		
 		// Create org:
 		KatelloOrg org = new KatelloOrg(this.org_name,"Package tests");
@@ -71,15 +67,10 @@ public class ErrataTests extends KatelloCliTestScript {
 		KatelloEnvironment env = new KatelloEnvironment(env_name, null, org_name, KatelloEnvironment.LIBRARY);
 		exec_result = env.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		KatelloChangeset cs = new KatelloChangeset(changeset_name, org_name, env_name);
-		exec_result = cs.create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
+				
 		prov.synchronize();
 
-		cs.update_addProductId(this.product_Id);
-		cs.apply();
+		KatelloUtils.promoteRepoToEnvironment(org_name, product_name, repo_name, env_name);
 	}
 	
 	//@ TODO bug 918157

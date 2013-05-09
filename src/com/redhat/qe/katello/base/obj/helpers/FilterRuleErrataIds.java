@@ -8,7 +8,7 @@ public class FilterRuleErrataIds {
 	public FilterRuleErrataIds(String ... ids) {
 		this.ids = ids;
 	}
-
+	
 	public String filterRule() {
 		if(ids.length == 0)
 			return "{}";

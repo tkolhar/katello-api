@@ -1,12 +1,13 @@
 package com.redhat.qe.katello.tests.e2e;
 
 import java.util.logging.Logger;
+
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
-import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
@@ -45,9 +46,6 @@ public class PromoteWithFilters extends KatelloCliTestScript{
 	private String provider;
 	private String product;
 	private String repo;
-	private String cs1;
-	private String cs2;
-	private String cs3;
 	
 	@BeforeClass(description="Init unique names", alwaysRun=true)
 	public void setUp(){
@@ -56,9 +54,6 @@ public class PromoteWithFilters extends KatelloCliTestScript{
 		this.provider = "ZooProv"+uniqueID;
 		this.product = "ZooProd"+uniqueID;
 		this.repo = "ZooRepo"+uniqueID;
-		this.cs1 = "cs1-"+uniqueID;
-		this.cs2 = "cs2-"+uniqueID;
-		this.cs3 = "cs3-"+uniqueID;
 		
 		log.info("E2E - Create org/env");
 		KatelloOrg org = new KatelloOrg(this.org, null);
@@ -81,10 +76,7 @@ public class PromoteWithFilters extends KatelloCliTestScript{
 	@Test(description="Promote empty product/repo structure to Dev", dependsOnMethods={"test_prepareRepo"}, enabled=true)
 	public void test_promoteToDevNoSync(){
 		log.info("E2E - Promote to Dev - not synced");
-		KatelloChangeset cs = new KatelloChangeset(this.cs1, this.org, this.env);
-		cs.create();
-		cs.update_addProduct(this.product);
-		cs.apply();
+		KatelloUtils.promoteProductToEnvironment(this.org, this.product, this.env);
 	}
 
 	@Test(description="Synchronize repository", dependsOnMethods={"test_promoteToDevNoSync"}, enabled=true)
@@ -98,18 +90,9 @@ public class PromoteWithFilters extends KatelloCliTestScript{
 	@Test(description="Promote repo again: remove some packages", dependsOnMethods={"test_syncRepo"}, enabled=true)
 	public void test_promoteToDeSynced(){
 		log.info("E2E - Promote to Dev - synced on repo");
-		KatelloChangeset cs = new KatelloChangeset(this.cs2, this.org, this.env);
-		cs.create();
-		cs.update_fromProduct_addRepo(this.product, this.repo);
-		SSHCommandResult res = cs.apply();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset promote - synced)");
-		
-		cs = new KatelloChangeset(this.cs3, this.org, this.env, true);
-		cs.create();
-		cs.update_add_package(this.product, "bear");
-		cs.update_add_package(this.product, "frog");
-		res = cs.apply();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset promote - synced)");
+		KatelloUtils.promoteRepoToEnvironment(this.org, this.product, this.repo, this.env);
+
+		KatelloUtils.removePackagesFromEnvironment(this.org, this.product, this.repo, new String[] {"bear", "frog"}, this.env);
 	}
 	
 	@Test(description="Check packages: bear,frog - (absent); lion - (present)", dependsOnMethods={"test_promoteToDeSynced"}, enabled=true)

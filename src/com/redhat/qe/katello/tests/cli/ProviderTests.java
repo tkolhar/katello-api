@@ -271,8 +271,7 @@ public class ProviderTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product synchronize)");
 		
 		// promote product to the env.
-		res = prod1.promote(envName1);
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product promote)");
+		KatelloUtils.promoteProductToEnvironment(org_name, prodName1, envName1);
 		prod1.syncState = "Finished";
 
 		KatelloProduct prod2 = new KatelloProduct(prodName2, this.org_name, provName, REPO_INECAS_ZOO3, null, null, null, true);

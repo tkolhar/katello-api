@@ -72,9 +72,6 @@ public class ConsumeFilteredPackage extends KatelloCliTestScript {
 		exec_result = repo.create(true);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		exec_result = prod.promote(env_name);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
-		
 		exec_result = repo.synchronize();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		

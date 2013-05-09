@@ -7,7 +7,6 @@ import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
-import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloErrata;
 import com.redhat.qe.katello.base.obj.KatelloGpgKey;
@@ -41,9 +40,6 @@ public class MultyOrgManifest implements KatelloConstants {
 	String _env1_1;
 	String _env1_2;
 	String _env1_3;
-	String _changeset1_1;
-	String _changeset1_2;
-	String _changeset1_3;
 	String _perm1_1;
 	String _perm1_2;
 	String _perm1_3;	
@@ -57,9 +53,6 @@ public class MultyOrgManifest implements KatelloConstants {
 	String _env2_1;
 	String _env2_2;
 	String _env2_3;
-	String _changeset2_1;
-	String _changeset2_2;
-	String _changeset2_3;
 	String _perm2_1;
 	String _perm2_2;
 	String _perm2_3;;
@@ -76,12 +69,6 @@ public class MultyOrgManifest implements KatelloConstants {
 	String _env3_4;
 	String _env3_5;
 	String _env3_6;
-	String _changeset3_1;
-	String _changeset3_2;
-	String _changeset3_3;
-	String _changeset3_4;
-	String _changeset3_5;
-	String _changeset3_6;
 	String _perm3_1;
 	String _perm3_2;
 	String _perm3_3;
@@ -96,9 +83,6 @@ public class MultyOrgManifest implements KatelloConstants {
 	String _env4_1;
 	String _env4_2;
 	String _env4_3;
-	String _changeset4_1;
-	String _changeset4_2;
-	String _changeset4_3;
 	String _perm4_1;
 	String _perm4_2;
 	String _perm4_3;
@@ -129,9 +113,6 @@ public class MultyOrgManifest implements KatelloConstants {
 		_env1_1 = "Dev_" + _uid;
 		_env1_2 = "QA_" + _uid;
 		_env1_3 = "Release_" + _uid;
-		_changeset1_1 = "toDev_" + _uid;
-		_changeset1_2 = "toQA_" + _uid;
-		_changeset1_3 = "toRelease_" + _uid;
 		_perm1_1 = "Perm1_" + _uid;
 		_perm1_2 = "Perm2_" + _uid;
 		_perm1_3 = "Perm3_" + _uid;
@@ -147,9 +128,6 @@ public class MultyOrgManifest implements KatelloConstants {
 		_env2_1 = "Desenvolvimento_" + _uid;
 		_env2_2 = "ControleQualidade_" + _uid;
 		_env2_3 = "Final_" + _uid;
-		_changeset2_1 = "toDesenvolvimento_" + _uid;
-		_changeset2_2 = "toControleQualidade_" + _uid;
-		_changeset2_3 = "toFinal_" + _uid;
 		_perm2_1 = "Perm1_" + _uid;
 		_perm2_2 = "Perm2_" + _uid;
 		_perm2_3 = "Perm3_" + _uid;
@@ -168,12 +146,6 @@ public class MultyOrgManifest implements KatelloConstants {
 		_env3_4 = "Dev2_" + _uid;
 		_env3_5 = "QA2_" + _uid;
 		_env3_6 = "Release2_" + _uid;
-		_changeset3_1 = "toDev1_" + _uid;
-		_changeset3_2 = "toQA1_" + _uid;
-		_changeset3_3 = "toRelease1 and Library_" + _uid;
-		_changeset3_4 = "toDev2_" + _uid;
-		_changeset3_5 = "toQA2_" + _uid;
-		_changeset3_6 = "toRelease2_" + _uid;
 		_perm3_1 = "Perm1_" + _uid;
 		_perm3_2 = "Perm2_" + _uid;
 		_perm3_3 = "Perm3_" + _uid;
@@ -187,9 +159,6 @@ public class MultyOrgManifest implements KatelloConstants {
 		_env4_1 = "Dev_" + _uid;
 		_env4_2 = "QA_" + _uid;
 		_env4_3 = "GA_" + _uid;
-		_changeset4_1 = "toDev_" + _uid;
-		_changeset4_2 = "toQA_" + _uid;
-		_changeset4_3 = "toGA_" + _uid;
 		_perm4_1 = "Perm1_" + _uid;
 		_perm4_2 = "Perm2_" + _uid;
 		_perm4_3 = "Perm3_" + _uid;
@@ -251,9 +220,6 @@ public class MultyOrgManifest implements KatelloConstants {
 		KatelloEnvironment env1 = new KatelloEnvironment(_env1_1, null, _org1, KatelloEnvironment.LIBRARY);
 		KatelloEnvironment env2 = new KatelloEnvironment(_env1_2, null, _org1, _env1_1);
 		KatelloEnvironment env3 = new KatelloEnvironment(_env1_3, null, _org1, _env1_2);    	
-		KatelloChangeset cs1 = new KatelloChangeset(_changeset1_1, _org1, _env1_1);
-		KatelloChangeset cs2 = new KatelloChangeset(_changeset1_2, _org1, _env1_2);
-		KatelloChangeset cs3 = new KatelloChangeset(_changeset1_3, _org1, _env1_3);
 		KatelloPermission perm1 = new KatelloPermission(_perm1_1, _org1, "environments", _env1_1, _perm_actions, _role1);
 		KatelloPermission perm2 = new KatelloPermission(_perm1_2, _org1, "environments", _env1_2, _perm_actions, _role2);
 		KatelloPermission perm3 = new KatelloPermission(_perm1_3, _org1, "environments", _env1_3, _perm_actions, _role3);
@@ -269,18 +235,7 @@ public class MultyOrgManifest implements KatelloConstants {
 		repo2.create();
 		repo1.synchronize();
 		repo2.synchronize();
-		cs1.create();
-		cs1.update_addProduct(_product1_1);
-		cs1.update_addProduct(_product1_2);
-		cs1.promote();
-		cs2.create();
-		cs2.update_addProduct(_product1_1);
-		cs2.update_addProduct(_product1_2);
-		cs2.promote();
-		cs3.create();
-		cs3.update_addProduct(_product1_1);
-		cs3.update_addProduct(_product1_2);
-		cs3.promote();		
+		KatelloUtils.promoteProductsToEnvironments(_org1, new String [] {_product1_1, _product1_2}, new String[] {_env1_1, _env1_2, _env1_3});
         perm1.create();
         perm2.create();
         perm3.create();
@@ -296,9 +251,6 @@ public class MultyOrgManifest implements KatelloConstants {
 		env1 = new KatelloEnvironment(_env2_1, null, _org2, KatelloEnvironment.LIBRARY);
 		env2 = new KatelloEnvironment(_env2_2, null, _org2, _env2_1);
 		env3 = new KatelloEnvironment(_env2_3, null, _org2, _env2_2);
-		cs1 = new KatelloChangeset(_changeset2_1, _org2, _env2_1);
-		cs2 = new KatelloChangeset(_changeset2_2, _org2, _env2_2);
-		cs3 = new KatelloChangeset(_changeset2_3, _org2, _env2_3);
 		perm1 = new KatelloPermission(_perm2_1, _org2, "environments", _env2_1, _perm_actions, _role1);
 		perm2 = new KatelloPermission(_perm2_2, _org2, "environments", _env2_2, _perm_actions, _role2);
 		perm3 = new KatelloPermission(_perm2_3, _org2, "environments", _env2_3, _perm_actions, _role3);
@@ -314,18 +266,7 @@ public class MultyOrgManifest implements KatelloConstants {
 		repo2.create();
 		repo1.synchronize();
 		repo2.synchronize();
-		cs1.create();
-		cs1.update_addProduct(_product2_1);
-		cs1.update_addProduct(_product2_2);
-		cs1.promote();
-		cs2.create();
-		cs2.update_addProduct(_product2_1);
-		cs2.update_addProduct(_product2_2);
-		cs2.promote();
-		cs3.create();
-		cs3.update_addProduct(_product2_1);
-		cs3.update_addProduct(_product2_2);
-		cs3.promote();	
+		KatelloUtils.promoteProductsToEnvironments(_org2, new String [] {_product2_1, _product2_2}, new String[] {_env2_1, _env2_2, _env2_3});
 		perm1.create();
         perm2.create();
         perm3.create();
@@ -344,12 +285,6 @@ public class MultyOrgManifest implements KatelloConstants {
 		KatelloEnvironment env4 = new KatelloEnvironment(_env3_4, null, _org3, _env3_3);
 		KatelloEnvironment env5 = new KatelloEnvironment(_env3_5, null, _org3, _env3_4);
 		KatelloEnvironment env6 = new KatelloEnvironment(_env3_6, null, _org3, _env3_5);
-		cs1 = new KatelloChangeset(_changeset3_1, _org3, _env3_1);
-		cs2 = new KatelloChangeset(_changeset3_2, _org3, _env3_2);
-		cs3 = new KatelloChangeset(_changeset3_3, _org3, _env3_3);
-		KatelloChangeset cs4 = new KatelloChangeset(_changeset3_4, _org3, _env3_4);
-		KatelloChangeset cs5 = new KatelloChangeset(_changeset3_5, _org3, _env3_5);
-		KatelloChangeset cs6 = new KatelloChangeset(_changeset3_6, _org3, _env3_6);
 		perm1 = new KatelloPermission(_perm3_1, _org3, "environments", _env3_1, _perm_actions, _role1);
 		perm2 = new KatelloPermission(_perm3_2, _org3, "environments", _env3_2, _perm_actions, _role2);
 		perm3 = new KatelloPermission(_perm3_3, _org3, "environments", _env3_3, _perm_actions, _role3);
@@ -371,30 +306,8 @@ public class MultyOrgManifest implements KatelloConstants {
 		repo2.create();
 		repo1.synchronize();
 		repo2.synchronize();
-		cs1.create();
-		cs1.update_addProduct(_product3_1);
-		cs1.update_addProduct(_product3_2);
-		cs1.promote();
-		cs2.create();
-		cs2.update_addProduct(_product3_1);
-		cs2.update_addProduct(_product3_2);
-		cs2.promote();
-		cs3.create();
-		cs3.update_addProduct(_product3_1);
-		cs3.update_addProduct(_product3_2);
-		cs3.promote();
-		cs4.create();
-		cs4.update_addProduct(_product3_1);
-		cs4.update_addProduct(_product3_2);
-		cs4.promote();
-		cs5.create();
-		cs5.update_addProduct(_product3_1);
-		cs5.update_addProduct(_product3_2);
-		cs5.promote();
-		cs6.create();
-		cs6.update_addProduct(_product3_1);
-		cs6.update_addProduct(_product3_2);
-		cs6.promote();
+		KatelloUtils.promoteProductsToEnvironments(_org3, new String [] {_product3_1, _product3_2}, 
+				new String[] {_env3_1, _env3_2, _env3_3, _env3_4, _env3_5, _env3_6});
 		perm1.create();
         perm2.create();
         perm3.create();
@@ -441,28 +354,8 @@ public class MultyOrgManifest implements KatelloConstants {
 		res = repo.synchronize();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo sync)");
 
-		
-		cs1 = new KatelloChangeset(_changeset4_1, _org4, _env4_1);
-		cs2 = new KatelloChangeset(_changeset4_2, _org4, _env4_2);
-		cs3 = new KatelloChangeset(_changeset4_3, _org4, _env4_3);
-		cs1.create();
-		cs2.create();
-		cs3.create();
-		
-		res = cs1.update_addProduct(KatelloProduct.RHEL_SERVER);
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset add_product)");
-		res = cs1.promote();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset apply)");
-		
-		res = cs2.update_addProduct(KatelloProduct.RHEL_SERVER);
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset add_product)");
-		res = cs2.promote();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset apply)");
-		
-		res = cs3.update_addProduct(KatelloProduct.RHEL_SERVER);
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset add_product)");
-		res = cs3.promote();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset apply)");
+		KatelloUtils.promoteProductsToEnvironments(_org4, new String [] {KatelloProduct.RHEL_SERVER}, 
+				new String[] {_env4_1, _env4_2, _env4_3});
 
 		KatelloSystem sys4 = new KatelloSystem(_system4, _org4, _env4_3);
         KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);

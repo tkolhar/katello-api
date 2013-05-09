@@ -1,6 +1,5 @@
 package com.redhat.qe.katello.tests.e2e;
 
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -72,9 +71,6 @@ public class ConsumeFilteredPackageGroup extends KatelloCliTestScript {
 		repo = new KatelloRepo(repo_name,org_name,prod_name,REPO_INECAS_ZOO3, null, null);
 		exec_result = repo.create(true);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		exec_result = prod.promote(env_name);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
 		
 		exec_result = repo.synchronize();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");

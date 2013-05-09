@@ -6,12 +6,28 @@ import java.util.logging.Logger;
 import org.testng.SkipException;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
+import com.redhat.qe.katello.base.KatelloCli;
+import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.obj.KatelloActivationKey;
+import com.redhat.qe.katello.base.obj.KatelloChangeset;
+import com.redhat.qe.katello.base.obj.KatelloDistribution;
+import com.redhat.qe.katello.base.obj.KatelloEnvironment;
+import com.redhat.qe.katello.base.obj.KatelloGpgKey;
+import com.redhat.qe.katello.base.obj.KatelloOrg;
+import com.redhat.qe.katello.base.obj.KatelloPermission;
+import com.redhat.qe.katello.base.obj.KatelloProduct;
+import com.redhat.qe.katello.base.obj.KatelloProvider;
+import com.redhat.qe.katello.base.obj.KatelloRepo;
+import com.redhat.qe.katello.base.obj.KatelloSystem;
+import com.redhat.qe.katello.base.obj.KatelloSystemGroup;
+import com.redhat.qe.katello.base.obj.KatelloUser;
+import com.redhat.qe.katello.base.obj.KatelloUserRole;
+import com.redhat.qe.katello.common.KatelloConstants;
+import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SCPTools;
 import com.redhat.qe.tools.SSHCommandResult;
-import com.redhat.qe.katello.base.*;
-import com.redhat.qe.katello.base.obj.*;
-import com.redhat.qe.katello.common.*;
 
 /**
  * current list of katello CLI calls:
@@ -344,21 +360,9 @@ public class FillDB implements KatelloConstants{
 		res = repo.synchronize();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: repo.synchronize");
 		
-		KatelloChangeset csTesting = new KatelloChangeset(envNameTesting, orgName, envNameTesting);
-		csTesting.runAs(orgAdmin);
-		res = csTesting.create();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: changeset.create");
-		res = csTesting.update_addProduct(KatelloProduct.RHEL_SERVER);
-		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: changeset.update_addProduct");
-		res = csTesting.promote();
+		KatelloUtils.promoteProductToEnvironment(orgName, KatelloProduct.RHEL_SERVER, envNameTesting);
 		
-		KatelloChangeset csDEvelopment = new KatelloChangeset(envNameDevelopment, orgName, envNameDevelopment);
-		csDEvelopment.runAs(orgAdmin);
-		res = csDEvelopment.create();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: changeset.create");
-		res = csDEvelopment.update_addProduct(KatelloProduct.RHEL_SERVER);
-		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: changeset.update_addProduct");
-		res = csDEvelopment.promote();
+		KatelloUtils.promoteProductToEnvironment(orgName, KatelloProduct.RHEL_SERVER, envNameDevelopment);
 	}
 
 	@Test(groups={TNG_POST_UPGRADE}, dependsOnMethods={"check_permissionsRoles"},
@@ -539,14 +543,8 @@ public class FillDB implements KatelloConstants{
 		String distroF16 = KatelloCli.grepCLIOutput("ID", res.getStdout());
 		Assert.assertTrue(!distroF16.isEmpty(), "Check - distribution exists in repo");
 		
-		KatelloChangeset cs1 = new KatelloChangeset("cs-fedoraZoo-"+uid, orgName, envNameTesting);
-		res = cs1.create();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: changeset.create");
-		res = cs1.update_addProduct(productFedora);
-		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: changeset.add_product");
-		res = cs1.update_addProduct(productZoo);
-		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: changeset.add_product");
-		res = cs1.promote();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: changeset.promote");
+		KatelloUtils.promoteProductToEnvironment(orgName, productFedora, envNameTesting);
+		
+		KatelloUtils.promoteProductToEnvironment(orgName, productZoo, envNameTesting);
 	}
 }

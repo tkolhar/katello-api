@@ -7,7 +7,6 @@ import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
-import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloGpgKey;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
@@ -85,7 +84,6 @@ public class ScenCustomRepo implements KatelloConstants{
 		KatelloRepo repo = new KatelloRepo(_repo, _org, _product, REPO_INECAS_ZOO3, _gpg_key, null);
 		
 		KatelloEnvironment env = new KatelloEnvironment(_env, null, _org, KatelloEnvironment.LIBRARY);
-		KatelloChangeset cs = new KatelloChangeset(_changeset, _org, _env);
 		KatelloUser user1 = new KatelloUser(_user1, _user1+"@redhat.com", "redhat", false);
 		KatelloUserRole role1 = new KatelloUserRole(_role1, null);
 		
@@ -109,12 +107,8 @@ public class ScenCustomRepo implements KatelloConstants{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		res = repo.synchronize();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		res = cs.create();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		res = cs.update_addProduct(_product);
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		res = cs.promote();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		
+		KatelloUtils.promoteProductToEnvironment(_org, _product, _env);
 
 		KatelloSystem sys = new KatelloSystem(_system, _org, _env);
 		sys.runOn(clients[0]);

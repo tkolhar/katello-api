@@ -8,7 +8,6 @@ import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
-import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
@@ -31,7 +30,6 @@ public class CRLRegen extends KatelloCliTestScript{
 	private String repo_name;
 	private String provider_name;
 	private String product_name;
-	private String changeset_name;
 	
 	@BeforeClass(description="Generate unique names")
 	public void setUp(){
@@ -42,7 +40,6 @@ public class CRLRegen extends KatelloCliTestScript{
 		repo_name = "repo"+uid;
 		provider_name = "provider"+uid;
 		product_name = "product"+uid;
-		changeset_name = "changeset"+uid;
 		
 		KatelloUtils.sshOnClient("yum -y erase wolf lion zebra stork mouse tiger || true");
 		rhsm_clean();
@@ -71,19 +68,13 @@ public class CRLRegen extends KatelloCliTestScript{
 		exec_result = env.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		KatelloChangeset cs = new KatelloChangeset(changeset_name, org_name, env_name);
-		exec_result = cs.create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
 		exec_result = prov.synchronize();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		exec_result = prod.synchronize();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		exec_result = repo.synchronize();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		cs.update_addProduct(product_name); // add product
-		exec_result = cs.apply();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		KatelloUtils.promoteProductToEnvironment(org_name, product_name, env_name);
 	}
 	
 	/**

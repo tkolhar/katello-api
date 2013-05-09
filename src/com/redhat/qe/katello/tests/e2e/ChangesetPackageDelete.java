@@ -8,7 +8,6 @@ import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
-import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloPackage;
@@ -30,9 +29,6 @@ public class ChangesetPackageDelete extends KatelloCliTestScript {
 	private String provider_name;
 	private String product_name;
 	private String repo_name;
-	private String chst_name;
-	private String delchst_name;
-	private String readdchst_name;
 	private String package_name1 = "lion";
 	
 	SSHCommandResult exec_result;
@@ -61,15 +57,7 @@ public class ChangesetPackageDelete extends KatelloCliTestScript {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(package_name1));
 		
-		KatelloChangeset chst = new KatelloChangeset(delchst_name, org_name, env_name, true);
-		exec_result = chst.create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset create)");
-		
-		exec_result = chst.update_add_package(product_name, package_name1);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset update)");
-		
-		exec_result = chst.apply();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset apply)");			
+		KatelloUtils.removePackagesFromEnvironment(org_name, product_name, repo_name, new String[] {package_name1}, env_name);
 
 		exec_result = package1.cli_list();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
@@ -90,15 +78,7 @@ public class ChangesetPackageDelete extends KatelloCliTestScript {
 		
 		KatelloPackage package1 = new KatelloPackage(null, null, org_name, product_name, repo_name, env_name);
 		
-		KatelloChangeset chst = new KatelloChangeset(readdchst_name, org_name, env_name);
-		exec_result = chst.create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset create)");
-		
-		exec_result = chst.update_add_package(product_name, package_name1);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset update)");
-		
-		exec_result = chst.apply();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset apply)");		
+		KatelloUtils.promotePackagesToEnvironment(org_name, product_name, repo_name, new String[] {package_name1}, env_name);
 
 		exec_result = package1.cli_list();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
@@ -121,10 +101,7 @@ public class ChangesetPackageDelete extends KatelloCliTestScript {
 		provider_name = "provider"+uid;
 		product_name = "product"+uid;
 		repo_name = "repo"+uid;
-		chst_name = "MotleyCruechangeset"+uid;		
-		delchst_name = "deletion_chst" +uid;
 		system_name = "system" +uid;
-		readdchst_name = "readd_chst" + uid;
 		
 		// Create provider:
 		KatelloProvider prov = new KatelloProvider(provider_name, org_name, "Package provider", null);
@@ -143,26 +120,13 @@ public class ChangesetPackageDelete extends KatelloCliTestScript {
 		KatelloEnvironment env = new KatelloEnvironment(env_name, null, org_name, KatelloEnvironment.LIBRARY);
 		exec_result = env.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (env create)");
-		
-		// promote product to the env.
-		exec_result = prod.promote(env_name);
-		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (product promote)");
-				
+
 		exec_result = repo.synchronize();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
 		waitfor_reposync(repo, 1);
 		
-		// create Changeset
-		KatelloChangeset cs = new KatelloChangeset(chst_name, org_name, env_name);
-		exec_result = cs.create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset create)");
-		
-		exec_result = cs.update_add_package(product_name, package_name1);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset update)");
-		
-		exec_result = cs.apply();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset apply)");
+		KatelloUtils.promotePackagesToEnvironment(org_name, product_name, repo_name, new String[] {package_name1}, env_name);
 
 		rhsm_clean();
 		
