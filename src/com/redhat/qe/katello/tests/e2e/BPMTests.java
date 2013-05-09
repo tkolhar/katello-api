@@ -174,10 +174,10 @@ public class BPMTests extends KatelloCliTestScript{
 	}
 	
 	//@ TODO bug 896600
-	@Test(description="Yum should work - yum info pulp-admin", 
+	@Test(description="Yum should work - yum info pulp-admin-client", 
 			dependsOnMethods={"test_rhsm_subscribeToPool"})
 	public void test_yuminfo(){
-		String pkg_pulp_consumer = "pulp-admin";
+		String pkg_pulp_consumer = "pulp-admin-client";
 		exec_result = KatelloUtils.sshOnClient("yum info "+pkg_pulp_consumer+" --disablerepo=* --enablerepo=*"+repo_name_pulpRHEL6+"*");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		String YUM_INFO_PULP_CONSUMER = 
