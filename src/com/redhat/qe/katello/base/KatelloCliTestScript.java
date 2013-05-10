@@ -68,8 +68,6 @@ implements KatelloConstants {
 		String cnt = KatelloCli.grepCLIOutput("Package Count", res.getStdout());
 		Assert.assertTrue(new Integer(cnt).intValue()>0, "Repo should contain packages count: >0");
 		REGEXP_REPO_INFO = ".*Name\\s*:\\s+"+repo.name+".*Progress\\s*:\\s+Finished.*";
-		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(REGEXP_REPO_INFO), 
-				"Repo should contain progress == finished");
 	}
 	
 	protected void waitfor_reposync(KatelloRepo repo, int timeoutMinutes){
