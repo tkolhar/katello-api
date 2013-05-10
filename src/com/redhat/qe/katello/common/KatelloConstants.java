@@ -29,6 +29,7 @@ public interface KatelloConstants {
 
 	// Some repo URLs
 	public static final String REPO_INECAS_ZOO3 = "http://inecas.fedorapeople.org/fakerepos/zoo3/";
+	public static final String REPO_HHOVSEPY_ZOO4 = "http://hhovsepy.fedorapeople.org/fakerepos/zoo4";
 
 	/** curl -sk -u {username}:{password} 
 	 * https://${servername}/api${call} */
