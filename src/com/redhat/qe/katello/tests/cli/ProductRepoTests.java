@@ -171,7 +171,6 @@ public class ProductRepoTests extends KatelloCliTestScript {
 			Assert.fail("Invalid date is returned");
 		}
 		
-		repo.progress = "Finished";
 		repo.lastSync = dateString;
 		
 		assert_repoInfo(repo);
