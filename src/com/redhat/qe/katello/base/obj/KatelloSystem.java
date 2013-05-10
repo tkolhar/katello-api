@@ -413,6 +413,16 @@ public class KatelloSystem extends _KatelloObject{
 		return run(CMD_PACKAGES);
 	}
 	
+	
+	public SSHCommandResult packages_install_group(String packagegroupName){
+		opts.clear();
+		opts.add(new Attribute("install_groups", packagegroupName));
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		return run(CMD_PACKAGES);
+	}
+	
+	
 	public SSHCommandResult rhsm_subscribe(String poolid){
 		String cmd = RHSM_SUBSCRIBE;
 		
