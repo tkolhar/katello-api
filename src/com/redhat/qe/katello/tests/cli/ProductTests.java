@@ -188,7 +188,7 @@ public class ProductTests  extends KatelloCliTestScript{
 	// TODO - product creation failflows + the cases with "Description" variations.
 	
 	
-	@Test(description="product status output check", groups = {"cli-products"}, enabled=true)
+	@Test(description="product status output check", groups = {"cli-products"}, enabled=false) //TODO - gkhachik via content views
 	public void test_productStatus() {
 		String prodName1 = "prod1-"+KatelloUtils.getUniqueID();
 		String prodName2 = "prod2-"+KatelloUtils.getUniqueID();
@@ -255,7 +255,7 @@ public class ProductTests  extends KatelloCliTestScript{
 		assert_productList(exec_result, Arrays.asList(prod1, prod2), Arrays.asList(prod3));
 	}
 
-	@Test(description="list the products by environment", groups = {"cli-products"}, enabled=true)
+	@Test(description="list the products by environment", groups = {"cli-products"}, enabled=false) //TODO - gkhachik via content views
 	public void test_listProduct_environment() {
 		String prodName1 = "prod1-"+KatelloUtils.getUniqueID();
 		String prodName2 = "prod2-"+KatelloUtils.getUniqueID();
@@ -521,7 +521,7 @@ public class ProductTests  extends KatelloCliTestScript{
 		Assert.assertFalse(getOutput(res).matches(match_info),"Repo list of the product - should not contain package count 0 (after product synchronize)");
 	}
 	
-	@Test(description="delete product - included in some changeset", groups = {"cli-products"}, enabled=true)
+	@Test(description="delete product - included in some changeset", groups = {"cli-products"}, enabled=false) // TODO - gkhachik via content views
 	public void test_deleteProduct_InChangeset(){
 		String uid = KatelloUtils.getUniqueID();
 		String prodName = "delProd1-"+uid;
