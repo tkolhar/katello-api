@@ -32,6 +32,7 @@ public class ErrataTests extends KatelloCliTestScript {
 	private String product_Id;
 	private String repo_name;
 	private String env_name;
+	private String content_view;
 	
 	@BeforeClass(description="Generate unique objects")
 	public void setUp() {
@@ -70,28 +71,28 @@ public class ErrataTests extends KatelloCliTestScript {
 				
 		prov.synchronize();
 
-		KatelloUtils.promoteRepoToEnvironment(org_name, product_name, repo_name, env_name);
+		content_view = KatelloUtils.promoteRepoToEnvironment(org_name, product_name, repo_name, env_name);
 	}
 	
-	//@ TODO bug 918157
 	@Test(description="errata list")
 	public void test_errataList() {
-		KatelloErrata errata = new KatelloErrata(null, org_name, product_name, repo_name, env_name);
+		KatelloErrata errata = new KatelloErrata(org_name, product_name, repo_name, content_view);
 		errata.setProductId(product_Id);
 		
 		exec_result = errata.cli_list();
-		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (errata list --environment Dev)");
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (errata list)");
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains(PromoteErrata.ERRATA_ZOO_SEA), "Check - errata list output");
 	}
 
-	//@ TODO bug 918157
+	// @ TODO
 	@Test(description="errata info")
 	public void test_errataInfo() {
-		KatelloErrata errata = new KatelloErrata(PromoteErrata.ERRATA_ZOO_SEA, org_name, product_name, repo_name, env_name);
+		KatelloErrata errata = new KatelloErrata(org_name, product_name, repo_name, content_view);
+		errata.setId(PromoteErrata.ERRATA_ZOO_SEA);
 		errata.setProductId(product_Id);
 		
 		exec_result = errata.info();
-		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (errata info --environment Dev)");
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (errata info)");
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains(PromoteErrata.ERRATA_ZOO_SEA), "Check - errata info output");
 	}
 }

@@ -188,7 +188,6 @@ public class ContentViewTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
 	
-	//@ TODO 950539
 	@Test(description = "List the packages of content view",groups={"cfse-cli"}, dependsOnMethods={"test_registerClient"})
 	public void test_packageList() {
 		KatelloPackage pack = new KatelloPackage(org_name, prod_name, repo_name, pubview_name);

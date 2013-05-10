@@ -38,15 +38,15 @@ public class CompositeContentViewTests extends KatelloCliTestScript{
 	String pubcompview_name1 = "pubcompview1" + uid;
 	String act_key_name2 = "act_key2" + uid;
 	String system_name2 = "system2" + uid;
-	String prov_local1_name = "provlocal1-" + uid;
-	String prod_local1_name = "prodlocal1-"+ uid;
-	String repo_local1_name = "repolocal1-" + uid;
-	String prov_local2_name = "provlocal2-" + uid;
-	String prod_local2_name = "prodlocal2-"+ uid;
-	String repo_local2_name = "repolocal2-" + uid;
-	String prov_local3_name = "provlocal3-" + uid;
-	String prod_local3_name = "prodlocal3-"+ uid;
-	String repo_local3_name = "repolocal3-" + uid;
+	String prov1_name = "prov1-" + uid;
+	String prod1_name = "prod1-"+ uid;
+	String repo1_name = "repo1-" + uid;
+	String prov2_name = "prov2-" + uid;
+	String prod2_name = "prod2-"+ uid;
+	String repo2_name = "repo2-" + uid;
+	String prov3_name = "prov3-" + uid;
+	String prod3_name = "prod3-"+ uid;
+	String repo3_name = "repo3-" + uid;
 	String repo_path1;
 	String repo_url1;
 	String repo_path2;
@@ -62,6 +62,8 @@ public class CompositeContentViewTests extends KatelloCliTestScript{
 	KatelloContentDefinition condef2;
 	KatelloContentDefinition compcondef;
 	KatelloContentView compconview;
+	KatelloContentView conview1;
+	KatelloContentView conview2;
 	KatelloActivationKey act_key2;
 	KatelloSystem sys2;
 	
@@ -78,20 +80,20 @@ public class CompositeContentViewTests extends KatelloCliTestScript{
 		
 		
 		// create repos and content definition in second organization for composite content view tests 
-		createLocalRepo1();
+		createRepo1();
 		
-		createLocalRepo2();
+		createRepo2();
 		
-		createLocalRepo3();
+		createRepo3();
 		
 		condef1 = new KatelloContentDefinition(condef_name1,null,org_name2,null);
 		exec_result = condef1.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		exec_result = condef1.add_product(prod_local1_name);
+		exec_result = condef1.add_product(prod1_name);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
 		
-		exec_result = condef1.add_repo(prod_local1_name, repo_local1_name);
+		exec_result = condef1.add_repo(prod1_name, repo1_name);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
 				
 		exec_result = condef1.publish(pubview_name1_1, pubview_name1_1, "Publish Content");
@@ -104,16 +106,24 @@ public class CompositeContentViewTests extends KatelloCliTestScript{
 		exec_result = condef2.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		exec_result = condef2.add_product(prod_local2_name);
+		exec_result = condef2.add_product(prod2_name);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
 		
-		exec_result = condef2.add_repo(prod_local2_name, repo_local2_name);
+		exec_result = condef2.add_repo(prod2_name, repo2_name);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
 				
 		exec_result = condef2.publish(pubview_name2_1, pubview_name2_1, "Publish Content");
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		exec_result = condef2.publish(pubview_name2_2, pubview_name2_2, "Publish Content");
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+
+		conview1 = new KatelloContentView(pubview_name1_2, org_name2);
+		exec_result = conview1.promote_view(env_name2);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		conview2 = new KatelloContentView(pubview_name2_2, org_name2);
+		exec_result = conview2.promote_view(env_name2);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 			
 		KatelloUtils.sshOnClient("sed -i -e \"s/certFrequency.*/certFrequency = 1/\" /etc/rhsm/rhsm.conf");
@@ -133,9 +143,6 @@ public class CompositeContentViewTests extends KatelloCliTestScript{
 		
 		exec_result = compcondef.add_view(pubview_name2_2);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		exec_result = compcondef.publish(pubcompview_name1, pubcompview_name1, "Publish Content");
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");		
 	}
 	
 	@Test(description="Check adding old views into composite content view definition", dependsOnMethods={"test_createComposite"})
@@ -180,7 +187,7 @@ public class CompositeContentViewTests extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(exec_result).contains(pubview_name2_2), "Contains view");
 	}
 	
-	// @ TODO bug 956266
+	// @ TODO bug 961696
 	@Test(description="Consume content from composite content view definition", dependsOnMethods={"test_addRemoveViewsIntoComposite"})
 	public void test_consumeCompositeContent() {
 		// erase packages
@@ -190,6 +197,9 @@ public class CompositeContentViewTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		exec_result = KatelloUtils.sshOnClient("yum erase -y cheetah");
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		exec_result = compcondef.publish(pubcompview_name1, pubcompview_name1, "Publish Content");
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");		
 		
 		compconview = new KatelloContentView(pubcompview_name1, org_name2);
 		exec_result = compconview.promote_view(env_name2);
@@ -229,17 +239,19 @@ public class CompositeContentViewTests extends KatelloCliTestScript{
 		exec_result = sys2.subscribe(poolId3);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
+		yum_clean();
+		
 		//install package from content view 1
-		exec_result = KatelloUtils.sshOnClient("yum install -y wolf");
+		exec_result = KatelloUtils.sshOnClient("yum install -y lion");
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		//install package from content view 2
-		exec_result = KatelloUtils.sshOnClient("yum install -y shark");
+		exec_result = KatelloUtils.sshOnClient("yum install -y crab");
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		//package should not be available to install
-		exec_result = KatelloUtils.sshOnClient("yum install -y cheetah");
-		Assert.assertTrue(getOutput(exec_result).trim().contains("No package cheetah available."));
+		exec_result = KatelloUtils.sshOnClient("yum install pulp-agent --disablerepo '*pulp*'");
+		Assert.assertTrue(getOutput(exec_result).trim().contains("No package pulp-agent available."));
 	}
 
 	@Test(description = "part of promoted composite content view delete by changeset from environment, verify that packages are not availble anymore",
@@ -274,31 +286,21 @@ public class CompositeContentViewTests extends KatelloCliTestScript{
 	}	
 
 	/**
-	 * Creates local repo 1 which packages are from REPO_INECAS_ZOO3.
+	 * Creates repo 1 which is from REPO_INECAS_ZOO3.
 	 */
-	private void createLocalRepo1() {
-		String uid = KatelloUtils.getUniqueID();
-		repo_path1 = "/var/www/html/"+uid;
-		repo_url1 = "http://localhost/" + uid;
-		
-		KatelloUtils.sshOnServer("yum -y install createrepo");
-		KatelloUtils.sshOnServer("mkdir /tmp/"+uid);
-		KatelloUtils.sshOnServer("createrepo " + repo_path1);
-		KatelloUtils.sshOnServer("wget " + REPO_INECAS_ZOO3 + "wolf-9.4-2.noarch.rpm -P "+repo_path1);
-		KatelloUtils.sshOnServer("wget " + REPO_INECAS_ZOO3 + "walrus-0.71-1.noarch.rpm -P "+repo_path1);
-		KatelloUtils.sshOnServer("createrepo "+repo_path1);
-		
+	private void createRepo1() {
+
 		// Create provider:
-		KatelloProvider prov = new KatelloProvider(prov_local1_name, org_name2, "Package provider", null);
+		KatelloProvider prov = new KatelloProvider(prov1_name, org_name2, "Package provider", null);
 		exec_result = prov.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		// Create product:
-		KatelloProduct prod = new KatelloProduct(prod_local1_name, org_name2, prov_local1_name, null, null, null, null, null);
+		KatelloProduct prod = new KatelloProduct(prod1_name, org_name2, prov1_name, null, null, null, null, null);
 		exec_result = prod.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	
-		KatelloRepo repo = new KatelloRepo(repo_local1_name, org_name2, prod_local1_name, repo_url1, null, null);
+		KatelloRepo repo = new KatelloRepo(repo1_name, org_name2, prod1_name, REPO_INECAS_ZOO3, null, null);
 		exec_result = repo.create(true);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
@@ -307,31 +309,21 @@ public class CompositeContentViewTests extends KatelloCliTestScript{
 	}
 
 	/**
-	 * Creates local repo 2 which packages are from REPO_INECAS_ZOO3.
+	 * Creates repo 2 which is from REPO_HHOVSEPY_ZOO4.
 	 */
-	private void createLocalRepo2() {
-		String uid = KatelloUtils.getUniqueID();
-		repo_path2 = "/var/www/html/"+uid;
-		repo_url2 = "http://localhost/" + uid;
-		
-		KatelloUtils.sshOnServer("yum -y install createrepo");
-		KatelloUtils.sshOnServer("mkdir /tmp/"+uid);
-		KatelloUtils.sshOnServer("createrepo " + repo_path2);
-		KatelloUtils.sshOnServer("wget " + REPO_INECAS_ZOO3 + "shark-0.1-1.noarch.rpm -P "+repo_path2);
-		KatelloUtils.sshOnServer("wget " + REPO_INECAS_ZOO3 + "squirrel-0.1-1.noarch.rpm -P "+repo_path2);
-		KatelloUtils.sshOnServer("createrepo "+repo_path2);
+	private void createRepo2() {
 		
 		// Create provider:
-		KatelloProvider prov = new KatelloProvider(prov_local2_name, org_name2, "Package provider", null);
+		KatelloProvider prov = new KatelloProvider(prov2_name, org_name2, "Package provider", null);
 		exec_result = prov.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		// Create product:
-		KatelloProduct prod = new KatelloProduct(prod_local2_name, org_name2, prov_local2_name, null, null, null, null, null);
+		KatelloProduct prod = new KatelloProduct(prod2_name, org_name2, prov2_name, null, null, null, null, null);
 		exec_result = prod.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	
-		KatelloRepo repo = new KatelloRepo(repo_local2_name, org_name2, prod_local2_name, repo_url2, null, null);
+		KatelloRepo repo = new KatelloRepo(repo2_name, org_name2, prod2_name, REPO_HHOVSEPY_ZOO4, null, null);
 		exec_result = repo.create(true);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
@@ -340,31 +332,20 @@ public class CompositeContentViewTests extends KatelloCliTestScript{
 	}
 
 	/**
-	 * Creates local repo 3 which packages are from REPO_INECAS_ZOO3.
+	 * repo 3 from PULP_RHEL6_x86_64_REPO
 	 */
-	private void createLocalRepo3() {
-		String uid = KatelloUtils.getUniqueID();
-		repo_path3 = "/var/www/html/"+uid;
-		repo_url3 = "http://localhost/" + uid;
-		
-		KatelloUtils.sshOnServer("yum -y install createrepo");
-		KatelloUtils.sshOnServer("mkdir /tmp/"+uid);
-		KatelloUtils.sshOnServer("createrepo " + repo_path3);
-		KatelloUtils.sshOnServer("wget " + REPO_INECAS_ZOO3 + "cockateel-3.1-1.noarch.rpm -P "+repo_path3);
-		KatelloUtils.sshOnServer("wget " + REPO_INECAS_ZOO3 + "cheetah-1.25.3-5.noarch.rpm -P "+repo_path3);
-		KatelloUtils.sshOnServer("createrepo "+repo_path3);
-		
+	private void createRepo3() {
 		// Create provider:
-		KatelloProvider prov = new KatelloProvider(prov_local3_name, org_name2, "Package provider", null);
+		KatelloProvider prov = new KatelloProvider(prov3_name, org_name2, "Package provider", null);
 		exec_result = prov.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		// Create product:
-		KatelloProduct prod = new KatelloProduct(prod_local3_name, org_name2, prov_local3_name, null, null, null, null, null);
+		KatelloProduct prod = new KatelloProduct(prod3_name, org_name2, prov3_name, null, null, null, null, null);
 		exec_result = prod.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	
-		KatelloRepo repo = new KatelloRepo(repo_local3_name, org_name2, prod_local3_name, repo_url3, null, null);
+		KatelloRepo repo = new KatelloRepo(repo3_name, org_name2, prod3_name, PULP_RHEL6_x86_64_REPO, null, null);
 		exec_result = repo.create(true);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		

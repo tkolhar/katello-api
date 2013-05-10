@@ -114,7 +114,6 @@ public class ContentDefinitionTest extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(exec_result).equals(KatelloContentDefinition.ERR_NAME_LONG), "Check - error string (content create)");
 	}
 	
-	//@ TODO bug 924253
 	@Test(description = "Create 2 new content definitions, delete one of them")
 	public void test_delete() {
 		
@@ -194,6 +193,7 @@ public class ContentDefinitionTest extends KatelloCliTestScript{
 	 * @author gkhachik
 	 * @since 15.April.2013
 	 */
+	//@ TODO 961293
 	@Test(description="Clone content definition")
 	public void test_clone(){
 		String sCvdOrigin = this._cvdClone+"-origin";

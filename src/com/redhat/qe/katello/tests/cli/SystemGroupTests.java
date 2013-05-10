@@ -80,6 +80,7 @@ public class SystemGroupTests extends KatelloCliTestScript{
 		
 		systemGroup.name = newName;
 		systemGroup.description = newdescr;
+		systemGroup.maxSystems = 1;
 		assert_SystemGroupInfo(systemGroup);
 		
 		systemGroup.name = oldName;
@@ -440,10 +441,11 @@ public class SystemGroupTests extends KatelloCliTestScript{
 	
 	private String assert_SystemGroupInfo(KatelloSystemGroup systemGroup) {
 		if (systemGroup.description == null) systemGroup.description = "None";
+		if (systemGroup.maxSystems == null) systemGroup.maxSystems = -1;
 
 		exec_result = systemGroup.info();
 
-		String match_info = String.format(KatelloSystemGroup.REG_SYSTEMGROUP_INFO, systemGroup.name, systemGroup.description, systemGroup.totalSystems).replaceAll("\"", "");
+		String match_info = String.format(KatelloSystemGroup.REG_SYSTEMGROUP_INFO, systemGroup.name, systemGroup.description, systemGroup.maxSystems).replaceAll("\"", "");
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		log.finest(String.format("System Group (info) match regex: [%s]", match_info));
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", " ").matches(match_info), String.format("System Group [%s] should be found in the result info", systemGroup.name));
