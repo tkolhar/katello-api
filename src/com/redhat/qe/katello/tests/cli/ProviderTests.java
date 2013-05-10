@@ -105,7 +105,7 @@ public class ProviderTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue()==147, "Check - return code");
 		//Assert.assertEquals(getOutput(res).trim(), "Error while deleting provider [ Red Hat ]: Red Hat provider can not be deleted,","Check - returned error string");
 		// see BZ#: https://bugzilla.redhat.com/show_bug.cgi?id=754934
-		Assert.assertEquals(getOutput(res).trim(), "User admin is not allowed to access api/providers/destroy","Check - returned error string");
+		Assert.assertEquals(getOutput(res).trim(), "User admin is not allowed to access api/v1/providers/destroy","Check - returned error string");
 
 		// get the provider info - should be there
 		res = prov.info();

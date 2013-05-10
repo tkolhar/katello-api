@@ -216,7 +216,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
     }
 
-    
+    //@ TODO 927215
     @Test(description="create activationkey with usage limit 2, register two systems, and try to register third, it will fail, unreister last one, register third one", groups = {"headpin-cli"}, enabled=true)
     public void test_unregisterRegister() {
     	String uid = KatelloUtils.getUniqueID();

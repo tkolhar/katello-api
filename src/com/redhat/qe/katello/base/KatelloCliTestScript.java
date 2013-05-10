@@ -59,15 +59,10 @@ implements KatelloConstants {
 		REGEXP_REPO_INFO = ".*Name\\s*:\\s+"+repo.name+".*Last Sync\\s*:\\s+never.*";
 		Assert.assertFalse(getOutput(res).replaceAll("\n", "").matches(REGEXP_REPO_INFO), 
 				"Repo should not contain last_sync == never");
-		// progress != Not synced
-		REGEXP_REPO_INFO = ".*Name\\s*:\\s+"+repo.name+".*Progress\\s*:\\s+Not synced.*";
-		Assert.assertFalse(getOutput(res).replaceAll("\n", "").matches(REGEXP_REPO_INFO), 
-				"Repo should not contain progress == not synced");
 		
 		// package_count >0; url, progress, last_sync
 		String cnt = KatelloCli.grepCLIOutput("Package Count", res.getStdout());
 		Assert.assertTrue(new Integer(cnt).intValue()>0, "Repo should contain packages count: >0");
-		REGEXP_REPO_INFO = ".*Name\\s*:\\s+"+repo.name+".*Progress\\s*:\\s+Finished.*";
 	}
 	
 	protected void waitfor_reposync(KatelloRepo repo, int timeoutMinutes){

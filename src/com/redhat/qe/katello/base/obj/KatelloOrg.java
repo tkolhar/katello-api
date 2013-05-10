@@ -37,7 +37,7 @@ public class KatelloOrg extends _KatelloObject{
 	public static final String OUT_ADD_SYS_INFO = 
 			"Successfully added [ System ] default custom info [ %s ] to Org [ %s ]";
 	public static final String OUT_APPLY_SYS_INFO = 
-			"Applied [ %s ] default custom info in Org [ %s ]";
+			"Organization [ %s ] completed applying default info";
 	public static final String OUT_REMOVE_SYS_INFO = 
 			"Successfully removed [ System ] default custom info [ %s ] for Org [ %s ]";
 	

@@ -44,6 +44,10 @@ public class KatelloErrata extends _KatelloObject{
 		this.content_view = pContnetView;
 	}
 	
+	public void setId(String pId) {
+		this.id = pId;
+	}
+	
 	public void setProductId(String productId) {
 		this.product_id = productId;
 		this.product = null;
@@ -60,6 +64,9 @@ public class KatelloErrata extends _KatelloObject{
 		}
 		opts.add(new Attribute("repo", repo));
 		opts.add(new Attribute("environment", environment));
+		opts.add(new Attribute("content_view", content_view));
+		opts.add(new Attribute("content_view_label", content_view_label));
+		opts.add(new Attribute("content_view_id", content_view_id));
 		return run(CMD_INFO);
 	}
 	

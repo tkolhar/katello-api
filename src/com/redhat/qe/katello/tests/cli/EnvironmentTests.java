@@ -82,7 +82,8 @@ public class EnvironmentTests extends KatelloCliTestScript{
 			
 			 
 		}
-		
+
+		// @ TODO 961112
 		@Test(description="delete a environment", groups = {"headpin-cli"},enabled=true)
 		public void test_delete_environment(){
 			String uid = KatelloUtils.getUniqueID();

@@ -255,7 +255,12 @@ public class ProductTests  extends KatelloCliTestScript{
 		assert_productList(exec_result, Arrays.asList(prod1, prod2), Arrays.asList(prod3));
 	}
 
+<<<<<<< HEAD
 	@Test(description="list the products by environment", groups = {"cli-products"}, enabled=false) //TODO - gkhachik via content views
+=======
+	//@ TODO 961780  repo list should be changed to accept option --content_view
+	@Test(description="list the products by environment", groups = {"cli-products"}, enabled=true)
+>>>>>>> 87e495d5fec9ae6cdfc1ab5ce545fb129dce5b78
 	public void test_listProduct_environment() {
 		String prodName1 = "prod1-"+KatelloUtils.getUniqueID();
 		String prodName2 = "prod2-"+KatelloUtils.getUniqueID();
@@ -357,6 +362,7 @@ public class ProductTests  extends KatelloCliTestScript{
 		KatelloUtils.promoteProductToEnvironment(org_name, prodName, envName);
 	}
 	
+	//@ TODO 961780  repo list should be changed to accept option --content_view
 	@Test(description="promote product", groups = {"cli-products"}, enabled=true)
 	public void test_promoteProduct_OneRepo(){
 		String uid = KatelloUtils.getUniqueID();
@@ -403,6 +409,7 @@ public class ProductTests  extends KatelloCliTestScript{
 				"Repo list should contain info about just created repo (requested by: org, environment)");
 	}
 	
+	//@ TODO 961780  repo list should be changed to accept option --content_view
 	@Test(description="promote product", groups = {"cli-products"}, enabled=true)
 	public void test_promoteProduct_MultipleRepos(){
 		String uid = KatelloUtils.getUniqueID();
@@ -521,7 +528,12 @@ public class ProductTests  extends KatelloCliTestScript{
 		Assert.assertFalse(getOutput(res).matches(match_info),"Repo list of the product - should not contain package count 0 (after product synchronize)");
 	}
 	
+<<<<<<< HEAD
 	@Test(description="delete product - included in some changeset", groups = {"cli-products"}, enabled=false) // TODO - gkhachik via content views
+=======
+	//@ TODO 961780  repo list should be changed to accept option --content_view
+	@Test(description="delete product - included in some changeset", groups = {"cli-products"}, enabled=true)
+>>>>>>> 87e495d5fec9ae6cdfc1ab5ce545fb129dce5b78
 	public void test_deleteProduct_InChangeset(){
 		String uid = KatelloUtils.getUniqueID();
 		String prodName = "delProd1-"+uid;
