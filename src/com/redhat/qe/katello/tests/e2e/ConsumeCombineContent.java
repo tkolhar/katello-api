@@ -1,5 +1,6 @@
 package com.redhat.qe.katello.tests.e2e;
 
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
@@ -87,11 +88,9 @@ public class ConsumeCombineContent extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
 
-
 	@Test(description="Consume content from combined filtered package and groups")
 	public void test_consumecombinePackageandGroup() 
 	{
-
 		KatelloContentFilter filter = new KatelloContentFilter(packageGroup_filter, org_name, condef_name);
 		exec_result = filter.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
@@ -118,25 +117,30 @@ public class ConsumeCombineContent extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");      
 		exec_result = act_key.update_add_content_view(pubview_name);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");      
+		
+		/* 
+		 * gkhachik - adding the poolid of zoo3 to the activation_key so 
+		 * system would get automatically also subscribed to the pool. 
+		 * Got this workflow from Brad B. and Justin S. 
+		 * Confirm: it is working for me at katello version: 1.4.2-1.git.296.fb52d4c.el6
+		 * 
+		 */
+		exec_result = new KatelloOrg(this.org_name,null).subscriptions();
+		String zoo3PoolId = KatelloCli.grepCLIOutput("ID", getOutput(exec_result), 1);
+		exec_result = act_key.update_add_subscription(zoo3PoolId);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
 		exec_result = act_key.info();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");      
 		Assert.assertTrue(getOutput(exec_result).contains(this.pubview_name), "Content view name is in output.");
+		Assert.assertTrue(getOutput(exec_result).contains(zoo3PoolId), "Subscription is in output.");
 
 		//register client, subscribe to pool
-		KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);
+		rhsm_clean();
 		sys = new KatelloSystem(system_name1, this.org_name, null);
 		exec_result = sys.rhsm_registerForce(act_key_name);
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 
-		exec_result = sys.rhsm_identity();
-		system_uuid1 = KatelloCli.grepCLIOutput("Current identity is", exec_result.getStdout());
-
-		exec_result = sys.subscriptions_available();
-		String poolId1 = KatelloCli.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
-		Assert.assertNotNull(poolId1, "Check - pool Id is not null");
-
-		exec_result = sys.subscribe(poolId1);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		yum_clean();    
 		exec_result = KatelloUtils.sshOnClient("yum erase -y fox cow dog dolphin wolf elephant walrus");
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
@@ -151,9 +155,7 @@ public class ConsumeCombineContent extends KatelloCliTestScript{
 		// consume packages from exclude filter, verify that they are NOT available
 		exec_result = KatelloUtils.sshOnClient("yum install -y elephant walrus");
 		Assert.assertFalse(exec_result.getExitCode().intValue()==0, "Check - return code");
-
 	}
-
 
 	private void install_Package(String pkgName)
 	{
@@ -162,6 +164,12 @@ public class ConsumeCombineContent extends KatelloCliTestScript{
 		exec_result = KatelloUtils.sshOnClient("rpm -q "+ pkgName);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).trim().contains(pkgName+"-"));
+	}
+	
+	@AfterClass(description="unregister the system, cleanup packages installed", alwaysRun=true)
+	public void tearDown(){
+		KatelloUtils.sshOnClient("yum erase -y fox cow dog dolphin duck walrus elephant horse kangaroo pike lion || true");
+		rhsm_clean();// does RHSM unsubscribe --all; unregister; clean
 	}
 
 }
