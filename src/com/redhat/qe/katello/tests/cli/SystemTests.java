@@ -289,7 +289,7 @@ public class SystemTests extends KatelloCliTestScript{
 
 		sys.runAs(user);
 		exec_result = sys.remove();
-		Assert.assertEquals(exec_result.getExitCode().intValue(), 147, "Check - return code");
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 145, "Check - return code");
 		Assert.assertTrue(exec_result.getStderr().trim().contains(String.format(KatelloSystem.ERR_DELETE_ACCESS, user.username)),
 				"Check - output (error)");
 	}
