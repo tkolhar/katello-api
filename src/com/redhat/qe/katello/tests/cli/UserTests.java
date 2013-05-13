@@ -30,10 +30,10 @@ public class UserTests extends KatelloCliTestScript{
 	public void setUp(){
 		SSHCommandResult res;
 		String uid = KatelloUtils.getUniqueID();
-		this.organization = "ak-"+uid;
-		this.env = "ak-"+uid;
-		this.organization2 = "ak2-"+uid;
-		this.env2 = "ak2-"+uid;
+		this.organization = "org-"+uid;
+		this.env = "env-"+uid;
+		this.organization2 = "org2-"+uid;
+		this.env2 = "env2-"+uid;
 		KatelloOrg org = new KatelloOrg(this.organization, null);
 		res = org.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
