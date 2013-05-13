@@ -122,7 +122,7 @@ public class PackagesWithGPGKey extends KatelloCliTestScript{
 
 		log.info("E2E - check repo, install package");
 		KatelloUtils.sshOnClient("yum -y erase wolf lion || true");
-		KatelloUtils.sshOnClient("yum repolist"); // refresh repos
+		yum_clean();
 		res = KatelloUtils.sshOnClient("cat /etc/yum.repos.d/redhat.repo");// out redhat.repo
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (out redhat.repo)");
 		String REPO_STRUCT = String.format(".*name = %s.*enabled = 1.*gpgcheck = 1.*",this.repo);
