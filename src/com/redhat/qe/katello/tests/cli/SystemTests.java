@@ -264,8 +264,7 @@ public class SystemTests extends KatelloCliTestScript{
 		sys.runAs(invaliduser);
 		exec_result = sys.remove();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 145, "Check - return code");
-		Assert.assertTrue(exec_result.getStderr().trim().contains("Invalid credentials"),
-				"Check - output (error)");
+		Assert.assertTrue(getOutput(exec_result).contains("Invalid credentials"), "Check - output (error)");
 	}
 
 	// TODO - bz#896074 failing due to this
@@ -289,8 +288,8 @@ public class SystemTests extends KatelloCliTestScript{
 
 		sys.runAs(user);
 		exec_result = sys.remove();
-		Assert.assertEquals(exec_result.getExitCode().intValue(), 147, "Check - return code");
-		Assert.assertTrue(exec_result.getStderr().trim().contains(String.format(KatelloSystem.ERR_DELETE_ACCESS, user.username)),
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 145, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloSystem.ERR_DELETE_ACCESS, user.username)),
 				"Check - output (error)");
 	}
 
