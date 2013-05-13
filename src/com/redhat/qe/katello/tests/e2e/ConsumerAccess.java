@@ -92,7 +92,7 @@ public class ConsumerAccess extends KatelloCliTestScript{
 		
 		exec_result = KatelloUtils.sshOnClient(
 				String.format(serverApiCurlTemplate, user_name,KatelloUser.DEFAULT_USER_PASS)+"/consumers/"+uuid);
-		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains("User " + user_name + " is not allowed to access api/systems/show"), "Check - access denied output");
+		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains("User " + user_name + " is not allowed to access api/v1/systems/show"), "Check - access denied output");
 		
 		exec_result = KatelloUtils.sshOnClient(
 				String.format(serverApiCurlTemplate, 
