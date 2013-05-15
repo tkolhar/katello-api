@@ -197,6 +197,7 @@ public class KatelloCliDataProvider {
 				{ "env-1a", null, new Integer(0), "Successfully created environment [ env-1a ]"},
 				{ "env-a1", null, new Integer(0), "Successfully created environment [ env-a1 ]"},
 				{ strRepeat("0123456789", 12)+"abcdefgh", null, new Integer(0), "Successfully created environment [ "+strRepeat("0123456789", 12)+"abcdefgh"+" ]"},
+				{ strRepeat("0123456789", 12)+"abcdefg", null, new Integer(0), "Successfully created environment [ "+strRepeat("0123456789", 12)+"abcdefg"+" ]"},
 				{ "env-"+uid, null, new Integer(0), "Successfully created environment [ env-"+uid+" ]"},
 				{ "env "+uid, "Provider with space in name", new Integer(0), "Successfully created environment [ env "+uid+" ]"},
 				{ " ", null, new Integer(166), "Name can't be blank"},
