@@ -184,7 +184,7 @@ public class SystemGroupTests extends KatelloCliTestScript{
 		KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);
 		
 		this.systemName = "localhost-"+KatelloUtils.getUniqueID();
-		sys = new KatelloSystem(systemName, this.orgName, null);
+		sys = new KatelloSystem(systemName, this.orgName, this.envName);
 		exec_result = sys.rhsm_registerForce(); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		
@@ -227,7 +227,7 @@ public class SystemGroupTests extends KatelloCliTestScript{
 		KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);
 		
 		this.systemName = "localhost-"+KatelloUtils.getUniqueID();
-		sys = new KatelloSystem(systemName, this.orgName, null);
+		sys = new KatelloSystem(systemName, this.orgName, this.envName);
 		exec_result = sys.rhsm_registerForce(); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		
