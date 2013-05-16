@@ -4,6 +4,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.StringTokenizer;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 import org.testng.annotations.AfterClass;
@@ -13,6 +15,10 @@ import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloTestScript;
+import com.redhat.qe.katello.base.obj.KatelloChangeset;
+import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
+import com.redhat.qe.katello.base.obj.KatelloContentView;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
@@ -61,7 +67,11 @@ public class RepoSyncProgress extends KatelloCliTestScript{
 	private String uid;
 	private String systemName;
 	private String syncPlanName;
-	private long syncDate;
+	private String[] syncPlanDateTime; // form of [0] - date; [1] - time; [2] - timezone
+	
+	private String contentView;
+	private String contDef;
+	private static final String localRepoPath = "/var/www/html/pub/aeolus-f17/";
 	
 	public static final String AEOLUS_F17_REPO = "http://repos.fedorapeople.org/repos/aeolus/conductor/latest-release/fedora-17/x86_64/";
 
@@ -70,10 +80,13 @@ public class RepoSyncProgress extends KatelloCliTestScript{
 		SSHCommandResult res;
 		uid = KatelloUtils.getUniqueID();
 		this.envTesting = "Testing";
-		this.orgName = "Syncing Aeolus "+uid;
-		this.productName = "Aeolus "+uid;
+		this.orgName = "Aeolus-"+uid;
+		this.productName = "Aeolus-"+uid;
 		this.repoName = "aeolus-f17-rhel6-x86_64-"+uid;
 		this.systemName = System.getProperty("katello.server.hostname","localhost")+"-"+uid;
+		
+		this.contentView = null; // to identify first-time creation.
+		this.contDef = "contDef-"+uid;
 		
 		res = KatelloUtils.sshOnServer("hwclock --hctosys"); // do make a sync to hardware clock before the scenario start
 		
@@ -104,13 +117,13 @@ public class RepoSyncProgress extends KatelloCliTestScript{
 	public void test_createrepo1(){
 		SSHCommandResult res;
 		Assert.assertTrue(rpms.length>5, "Check - at least 5 rpms are fetched");
-		res = KatelloUtils.sshOnServer("rm -rf /var/www/html/pub/aeolus-f17/ && mkdir /var/www/html/pub/aeolus-f17/");
+		res = KatelloUtils.sshOnServer(String.format("rm -rf %s && mkdir %s",localRepoPath,localRepoPath));
 		Assert.assertTrue(res.getExitCode().intValue()==0, "directory should be created");
-		KatelloUtils.sshOnServer("wget "+AEOLUS_F17_REPO+rpms[0]+" -O /var/www/html/pub/aeolus-f17/"+rpms[0]);
-		KatelloUtils.sshOnServer("wget "+AEOLUS_F17_REPO+rpms[1]+" -O /var/www/html/pub/aeolus-f17/"+rpms[1]);
-		res = KatelloUtils.sshOnServer("ls /var/www/html/pub/aeolus-f17/*.rpm | wc -l");
+		KatelloUtils.sshOnServer("wget "+AEOLUS_F17_REPO+rpms[0]+" -O "+localRepoPath+rpms[0]);
+		KatelloUtils.sshOnServer("wget "+AEOLUS_F17_REPO+rpms[1]+" -O "+localRepoPath+rpms[1]);
+		res = KatelloUtils.sshOnServer(String.format("ls %s*.rpm | wc -l",localRepoPath));
 		Assert.assertTrue(getOutput(res).equals("2"), "Check - packages downloaded");
-		res = KatelloUtils.sshOnServer("createrepo /var/www/html/pub/aeolus-f17/");
+		res = KatelloUtils.sshOnServer("createrepo "+localRepoPath);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: $? 0");
 	}
 	
@@ -122,22 +135,22 @@ public class RepoSyncProgress extends KatelloCliTestScript{
 				null, null).synchronize();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: repo.synchronize");
 		
-		KatelloUtils.promoteProductToEnvironment(orgName, productName, envTesting);
+		promoteToEnv();
 	}
 	
 	@Test(description="subscribe and check packages", dependsOnMethods={"test_syncRepoRound1"})
 	public void test_subscribeToRepo(){
 		SSHCommandResult res;
-		
 		rhsm_clean();
-		res = rhsm_register(orgName, envTesting, systemName, false);
+
+		res = rhsm_register(orgName, envTesting+"/"+contentView, systemName, false);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: rhsm.register");
-		KatelloSystem sys = new KatelloSystem(systemName, orgName, envTesting, null, null, null, null, null, null);
-		res = sys.subscriptions_available();
+		try{Thread.sleep(3000);}catch(InterruptedException iex){}
+		res = new KatelloOrg(orgName, null).subscriptions();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: system.subscriptions-available");
-		String poolId = KatelloCli.grepCLIOutput("ID", getOutput(res));
+		String poolId = KatelloCli.grepCLIOutput("ID", getOutput(res),1);
 		Assert.assertTrue(poolId!=null, "Check poolID is returned");
-		res = sys.rhsm_subscribe(poolId);
+		res = new KatelloSystem(systemName, orgName, null, null, null, null, null, null, null).rhsm_subscribe(poolId);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: rhsm.subscribe");
 	}
 	
@@ -157,11 +170,11 @@ public class RepoSyncProgress extends KatelloCliTestScript{
 			dependsOnMethods={"test_packagesCountRound1"})
 	public void test_addMorePackages(){
 		SSHCommandResult res;
-		KatelloUtils.sshOnServer("wget "+AEOLUS_F17_REPO+rpms[2]+" -O /var/www/html/pub/aeolus-f17/"+rpms[2]);
-		KatelloUtils.sshOnServer("wget "+AEOLUS_F17_REPO+rpms[3]+" -O /var/www/html/pub/aeolus-f17/"+rpms[3]);
-		res = KatelloUtils.sshOnServer("ls /var/www/html/pub/aeolus-f17/*.rpm | wc -l");
+		KatelloUtils.sshOnServer("wget "+AEOLUS_F17_REPO+rpms[2]+" -O "+localRepoPath+rpms[2]);
+		KatelloUtils.sshOnServer("wget "+AEOLUS_F17_REPO+rpms[3]+" -O "+localRepoPath+rpms[3]);
+		res = KatelloUtils.sshOnServer(String.format("ls %s*.rpm | wc -l",localRepoPath));
 		Assert.assertTrue(getOutput(res).equals("4"), "Check - packages downloaded");
-		res = KatelloUtils.sshOnServer("createrepo /var/www/html/pub/aeolus-f17/");
+		res = KatelloUtils.sshOnServer("createrepo "+localRepoPath);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: $? 0");
 	}
 	
@@ -170,31 +183,30 @@ public class RepoSyncProgress extends KatelloCliTestScript{
 	public void test_makeSyncPlanWaitForSync(){
 		SSHCommandResult res;
 		syncPlanName = "hourly-Aeolus-sync-"+uid;
-		DateFormat dformat = new SimpleDateFormat("yyyy-MM-dd");
-		DateFormat tformat = new SimpleDateFormat("HH:mm:ss");
 		
+		res = KatelloUtils.sshOnServer("hwclock --hctosys && echo \"$(date +%Y-%m-%d) $(date +%T' '%z)\"");
+		syncPlanDateTime = constructTimeForServer(getOutput(res), 2*60);
+		log.info(String.format("Now server time is: [%s]",getOutput(res)));
 		
-		long now = Calendar.getInstance().getTimeInMillis();
-		syncDate = Calendar.getInstance().getTimeInMillis() + 60000;
-		
-		// date +%T -s "HH:MM:SS"
-		KatelloUtils.sshOnServer("date +%T -s \""+tformat.format(new Date(now))+"\""); // < --- SET server's date/time !!!
-		res = KatelloUtils.sshOnServer("date");
-		log.info(String.format("Date on server side now is set: [%s]",getOutput(res)));
+		try{
+			// date +%T -s "HH:MM:SS"
+			KatelloUtils.sshOnServer("date +%T -s \""+syncPlanDateTime[1]+"\""); // < --- SET server's date/time !!!
+			res = KatelloUtils.sshOnServer("date");
+			log.info(String.format("Date on server side now is set: [%s]",getOutput(res)));
 
-		KatelloSyncPlan sync = new KatelloSyncPlan(syncPlanName, orgName, null, 
-				dformat.format(Calendar.getInstance().getTime()), 
-				tformat.format(new Date(syncDate)), 
-				SyncPlanInterval.hourly);
-		res = sync.create();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: sync_plan.create");
-		res = new KatelloProduct(productName, orgName, null, null, null, null, null, null).cli_set_plan(syncPlanName);
-		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: product.set_plan");
-		log.info("Sleep 2min and wakeup having product synced with 4 packages :)");
-		try{Thread.sleep(120000);}catch(InterruptedException iex){};
-		res = KatelloUtils.sshOnServer("hwclock --hctosys"); // // < --- UNSET back server's date/time !!!
+			KatelloSyncPlan sync = new KatelloSyncPlan(syncPlanName, orgName, null, 
+					syncPlanDateTime[0], syncPlanDateTime[1], SyncPlanInterval.hourly);
+			res = sync.create();
+			Assert.assertTrue(res.getExitCode().intValue()==0, "exit: sync_plan.create");
+			res = new KatelloProduct(productName, orgName, null, null, null, null, null, null).cli_set_plan(syncPlanName);
+			Assert.assertTrue(res.getExitCode().intValue()==0, "exit: product.set_plan");
+			log.info("Sleep 3min and wakeup having product synced with 4 packages :)");
+			waitfor_reposync(new KatelloRepo(repoName, orgName, productName,null, null,null),3);
+		}finally{
+			res = KatelloUtils.sshOnServer("hwclock --hctosys"); // // < --- UNSET back server's date/time !!!
+		}
 		
-		KatelloUtils.promoteProductToEnvironment(orgName, productName, envTesting);
+		promoteToEnv();
 	}
 	
 	@Test(description="list packages count via `yum list available` in the subscribed repo - 4",
@@ -213,11 +225,11 @@ public class RepoSyncProgress extends KatelloCliTestScript{
 			dependsOnMethods={"test_packagesCountRound2"})
 	public void test_addThirdPackagePortion(){
 		SSHCommandResult res;
-		KatelloUtils.sshOnServer("wget "+AEOLUS_F17_REPO+rpms[4]+" -O /var/www/html/pub/aeolus-f17/"+rpms[4]);
-		KatelloUtils.sshOnServer("wget "+AEOLUS_F17_REPO+rpms[5]+" -O /var/www/html/pub/aeolus-f17/"+rpms[5]);
-		res = KatelloUtils.sshOnServer("ls /var/www/html/pub/aeolus-f17/*.rpm | wc -l");
+		KatelloUtils.sshOnServer("wget "+AEOLUS_F17_REPO+rpms[4]+" -O "+localRepoPath+rpms[4]);
+		KatelloUtils.sshOnServer("wget "+AEOLUS_F17_REPO+rpms[5]+" -O "+localRepoPath+rpms[5]);
+		res = KatelloUtils.sshOnServer(String.format("ls %s*.rpm | wc -l",localRepoPath));
 		Assert.assertTrue(getOutput(res).equals("6"), "Check - packages downloaded");
-		res = KatelloUtils.sshOnServer("createrepo /var/www/html/pub/aeolus-f17/");
+		res = KatelloUtils.sshOnServer("createrepo "+localRepoPath);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: $? 0");
 	}
 	
@@ -226,18 +238,26 @@ public class RepoSyncProgress extends KatelloCliTestScript{
 	public void test_makeSyncPlanOneHourPassed(){
 		SSHCommandResult res;
 		
-		DateFormat tformat = new SimpleDateFormat("HH:mm:ss");
-		long makeSystemToDate = syncDate + (59 * 60000); // like 58 min already passed.
+		String[] hrPassed = constructTimeForServer(
+				syncPlanDateTime[0]+" "+
+				syncPlanDateTime[1]+" "+
+				syncPlanDateTime[2], 58*60);
+		try{
+			// date +%T -s "HH:MM:SS"
+			KatelloUtils.sshOnServer("date +%T -s \""+hrPassed[1]+"\""); // < --- SET server's date/time !!!
+			res = KatelloUtils.sshOnServer("date");
+			log.info(String.format("Simulate like 58 min passed and set: [%s]",getOutput(res)));
+			log.info("Sleep 3min and wakeup having product synced with 6 packages :)");
+			res = new KatelloRepo(repoName, orgName, productName,null, null,null).info();
+			String lastSynced = KatelloCli.grepCLIOutput("Last Synced", getOutput(res));
+			res = KatelloUtils.sshOnServer("service katello-jobs restart");
+			Assert.assertTrue(res.getExitCode().intValue()==0, "exit: $? 0");
+			waitfor_reposync(new KatelloRepo(repoName, orgName, productName,null, null,null), lastSynced, 3);
+		}finally{
+			res = KatelloUtils.sshOnServer("hwclock --hctosys"); // // < --- UNSET back server's date/time !!!
+		}
 		
-		// date +%T -s "HH:MM:SS"
-		KatelloUtils.sshOnServer("date +%T -s \""+tformat.format(new Date(makeSystemToDate))+"\""); // < --- SET server's date/time !!!
-		res = KatelloUtils.sshOnServer("date");
-		log.info(String.format("Simulate like 59 min passed and set: [%s]",getOutput(res)));
-		log.info("Sleep 2min and wakeup having product synced with 6 packages :)");
-		try{Thread.sleep(120000);}catch(InterruptedException iex){};
-		res = KatelloUtils.sshOnServer("hwclock --hctosys"); // // < --- UNSET back server's date/time !!!
-		
-		KatelloUtils.promoteProductToEnvironment(orgName, productName, envTesting);
+		promoteToEnv();
 	}
 
 	@Test(description="list packages count via `yum list available` in the subscribed repo - 6",
@@ -249,7 +269,7 @@ public class RepoSyncProgress extends KatelloCliTestScript{
 		res = KatelloUtils.sshOnClient(String.format(
 				"yum list available --disablerepo \\* --enablerepo \\*%s\\* | grep \"%s\" | wc -l",
 				repoName,repoName)); // disablerepo just for speed up the yum list 
-		Assert.assertTrue(getOutput(res).equals("6"),"Check yum list alvailable returns 4 packages");
+		Assert.assertTrue(getOutput(res).equals("6"),"Check yum list alvailable returns 6 packages");
 	}
 	
 	@AfterClass(description="cleanup the stuff", alwaysRun=true)
@@ -259,5 +279,58 @@ public class RepoSyncProgress extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check restored system date to hardware clock");
 		res = new KatelloOrg(this.orgName, null).delete();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: org.delete");
+	}
+	
+	private void promoteToEnv(){
+		SSHCommandResult res;
+		
+		KatelloContentDefinition _contDef = new KatelloContentDefinition(contDef, null, this.orgName, null);
+		if(this.contentView==null){//first time, let's create the objects
+			this.contentView = "contView-"+productName;
+			res = _contDef.create();
+			Assert.assertTrue(res.getExitCode().intValue()==0, "Check - exit code");
+			_contDef.add_product(productName);
+			res = _contDef.publish(this.contentView, null, null);
+			Assert.assertTrue(res.getExitCode().intValue()==0, "Check - exit code");
+			KatelloChangeset cs1 = new KatelloChangeset("cs-"+KatelloUtils.getUniqueID(), orgName, envTesting);
+			res = cs1.create();
+			Assert.assertTrue(res.getExitCode().intValue()==0, "Check - exit code");
+			cs1.update_addView(contentView);
+			res = cs1.apply();
+			Assert.assertTrue(res.getExitCode().intValue()==0, "Check - exit code");
+		}else{
+			res = new KatelloContentView(contentView, orgName).refresh_view();
+			Assert.assertTrue(res.getExitCode().intValue()==0, "Check - exit code");
+			KatelloChangeset cs1 = new KatelloChangeset("cs-"+KatelloUtils.getUniqueID(), orgName, envTesting);
+			res = cs1.create();
+			Assert.assertTrue(res.getExitCode().intValue()==0, "Check - exit code");
+			cs1.update_addView(contentView);
+			res = cs1.apply();
+			Assert.assertTrue(res.getExitCode().intValue()==0, "Check - exit code");
+		}
+	}
+	
+	/**
+	 * <b>Always</b> bring your dateOutput as stdout of:<br>
+	 * echo "$(date +%Y-%m-%d) $(date +%T' '%z)"
+	 */
+	private String[] constructTimeForServer(String dateOutput,long shiftInSec){
+		String[] _ret = new String[3];
+		
+		StringTokenizer tok = new StringTokenizer(dateOutput," ");
+		tok.nextToken(); tok.nextToken(); //pass 2 tokens, we need the last one.
+		String sTz = tok.nextToken();
+		try{
+			DateFormat serverTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
+			serverTime.setTimeZone(TimeZone.getTimeZone("GMT"+sTz));
+			long milis = serverTime.parse(dateOutput).getTime()+shiftInSec*1000;
+			String newTime = serverTime.format(new Date(milis));
+			tok = new StringTokenizer(newTime, " ");
+			_ret[0] = tok.nextToken();
+			_ret[1] = tok.nextToken();
+			_ret[2] = tok.nextToken();
+		}catch(Exception ex){}// we will return null-s then
+		
+		return _ret;
 	}
 }
