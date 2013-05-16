@@ -417,6 +417,10 @@ public class KatelloUtils implements KatelloConstants {
 		sshOnClient(machine.getIpAddress(), "hostname " + configs[0] + "." + configs[1]);
 		sshOnClientNoWait(machine.getIpAddress(), "service network restart");
 		
+		sshOnClientNoWait(machine.getIpAddress(), "rpm -q ntp || yum -y install ntp");
+		sshOnClientNoWait(machine.getIpAddress(), "service ntpd restart");
+		sshOnClientNoWait(machine.getIpAddress(), "chkconfig --add ntpd; chkconfig ntpd on");
+		
 		try { Thread.sleep(5000); } catch (Exception e) {}
 		
 		machine.setHostName(configs[0] + "." + configs[1]);
