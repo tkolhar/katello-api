@@ -227,14 +227,14 @@ public class ActivationKeyTests extends KatelloCliTestScript{
     	Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key create)");
     	ak.asserts_create();
     	
-    	KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);
+    	rhsm_clean();
     	
     	String systemName = "localhost-"+KatelloUtils.getUniqueID();
 		KatelloSystem sys = new KatelloSystem(systemName, this.organization, null);
 		res = sys.rhsm_registerForce(akName); 
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 		
-		KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);
+		rhsm_clean_only();
 		
 		systemName = "localhost-"+KatelloUtils.getUniqueID();
 		sys = new KatelloSystem(systemName, this.organization, null);
@@ -243,7 +243,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 		res = sys.rhsm_identity();
 		String system_uuid = KatelloCli.grepCLIOutput("Current identity is", res.getStdout());
 		
-		KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);
+		rhsm_clean_only();
 		
 		// third system should not register
 		systemName = "localhost-"+KatelloUtils.getUniqueID();
