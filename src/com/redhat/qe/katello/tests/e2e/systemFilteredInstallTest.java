@@ -107,7 +107,6 @@ public class systemFilteredInstallTest extends KatelloCliTestScript{
 		exec_result = conview.promote_view(env_name);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentView.OUT_PROMOTE, this.pubview_name, env_name)), "Content view promote output.");
-
 		act_key = new KatelloActivationKey(org_name,env_name,act_key_name,"Act key created");
 		exec_result = act_key.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");      
@@ -118,22 +117,17 @@ public class systemFilteredInstallTest extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(exec_result).contains(this.pubview_name), "Content view name is in output.");
 
 		//register client, subscribe to pool
-		KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);
+		rhsm_clean();
 		sys = new KatelloSystem(system_name1, this.org_name, null);
 		exec_result = sys.rhsm_registerForce(act_key_name);
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
-
 		exec_result = sys.rhsm_identity();
 		system_uuid1 = KatelloCli.grepCLIOutput("Current identity is", exec_result.getStdout());
-
 		exec_result = sys.subscriptions_available();
 		String poolId1 = KatelloCli.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
 		Assert.assertNotNull(poolId1, "Check - pool Id is not null");
-
 		exec_result = sys.subscribe(poolId1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-
-
 		yum_clean();
 		KatelloUtils.sshOnClient("yum erase -y lion zebra stork cockateel");
 
