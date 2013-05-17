@@ -49,7 +49,7 @@ public class SystemsReport extends KatelloCliTestScript{
 		org.cli_create();
 	}
 	
-	@Test(description="Import hacked manifest", enabled=true)
+	@Test(description="Import hacked manifest")
 	public void test_importHackedManifest() {
 		
 		SCPTools scp = new SCPTools(
@@ -62,11 +62,11 @@ public class SystemsReport extends KatelloCliTestScript{
 		
 		KatelloProvider prov = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, this.org, null, null);
 		SSHCommandResult res = prov.import_manifest("/tmp"+File.separator+MANIFEST_HACKED, new Boolean(true));
-		Assert.assertEquals(res.getExitCode().intValue(), 144, "Check - error code (provider import_manifest)");
-		Assert.assertTrue(getOutput(res).contains("is not a properly compressed file or is empty"),"Message - (provider import_manifest)");
+		Assert.assertEquals(res.getExitCode().intValue(), 65, "Check - error code (provider import_manifest)");
+		Assert.assertTrue(getOutput(res).contains("Provider [ "+KatelloProvider.PROVIDER_REDHAT+" ] failed to import manifest"),"Message - (provider import_manifest)");
 	}
 
-	@Test(description="Import empty manifest", enabled=true)
+	@Test(description="Import empty manifest")
 	public void test_importEmptyManifest() {
 		
 		SCPTools scp = new SCPTools(
@@ -79,11 +79,11 @@ public class SystemsReport extends KatelloCliTestScript{
 		
 		KatelloProvider prov = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, this.org, null, null);
 		SSHCommandResult res = prov.import_manifest("/tmp"+File.separator+EMPTY_HACKED, new Boolean(true));
-		Assert.assertEquals(res.getExitCode().intValue(), 144, "Check - error code (provider import_manifest)");
-		Assert.assertTrue(getOutput(res).contains("is not a properly compressed file or is empty"),"Message - (provider import_manifes)");
+		Assert.assertEquals(res.getExitCode().intValue(), 65, "Check - error code (provider import_manifest)");
+		Assert.assertTrue(getOutput(res).contains("Provider [ "+KatelloProvider.PROVIDER_REDHAT+" ] failed to import manifest"),"Message - (provider import_manifes)");
 	}
 	
-	@Test(description="Import correct manifest", enabled=true, dependsOnMethods={"test_importHackedManifest", "test_importEmptyManifest"})
+	@Test(description="Import correct manifest", dependsOnMethods={"test_importHackedManifest", "test_importEmptyManifest"})
 	public void test_importManifest() {
 
 		SCPTools scp = new SCPTools(
@@ -103,7 +103,7 @@ public class SystemsReport extends KatelloCliTestScript{
 		KatelloUtils.sshOnClient("echo '{\"cpu.cpu_socket(s)\":\"1\"}' > /etc/rhsm/facts/sockets.facts");
 	}
 	
-	@Test(description="Promote RHEL Server to both environments", enabled=true, dependsOnMethods={"test_importManifest"})
+	@Test(description="Promote RHEL Server to both environments", dependsOnMethods={"test_importManifest"})
 	public void test_disableenableRHELRepo() {
 		log.info("Enable repo: ["+KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT+"]");
 		
@@ -124,7 +124,7 @@ public class SystemsReport extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(res).contains("enabled."),"Message - (repo enable)");
 	}
 	
-	@Test(description="Promote RHEL Server to both environments", enabled=true, dependsOnMethods={"test_disableenableRHELRepo"})
+	@Test(description="Promote RHEL Server to both environments", dependsOnMethods={"test_disableenableRHELRepo"})
 	public void test_promoteToEnvs(){		
 		
 		KatelloUtils.promoteProductToEnvironment(org, KatelloProduct.RHEL_SERVER, env_dev);
@@ -132,7 +132,7 @@ public class SystemsReport extends KatelloCliTestScript{
 		KatelloUtils.promoteProductToEnvironment(org, KatelloProduct.RHEL_SERVER, env_test);
 	}
 	
-	@Test(description="Add 2 system to env: Dev and 1 systems to: Test", dependsOnMethods={"test_promoteToEnvs"}, enabled=true)
+	@Test(description="Add 2 system to env: Dev and 1 systems to: Test", dependsOnMethods={"test_promoteToEnvs"})
 	public void test_addSystemsToEnvs(){
 		String sys = "localhost"+KatelloUtils.getUniqueID();
 		sys_name1= sys;
@@ -149,21 +149,21 @@ public class SystemsReport extends KatelloCliTestScript{
 		Assert.assertTrue(subscriptionStatus.trim().equals("Not Subscribed"),"Check - system should not be subscribed (3rd registration)");		
 	}
 	
-	@Test(description="Check red systems >= 1", dependsOnMethods={"test_addSystemsToEnvs"}, enabled=true)
+	@Test(description="Check red systems >= 1", dependsOnMethods={"test_addSystemsToEnvs"})
 	public void test_redSystemsCount(){
 		SSHCommandResult res = new KatelloCli("system report --org \""+this.org+"\" --format csv | grep \",red,\" | wc -l", null).run();
 		int redCnt = Integer.parseInt(getOutput(res).trim());
 		Assert.assertTrue((redCnt>=1), "Check - red systems cound >=1");
 	}
 	
-	@Test(description="Check green systems >= 2", dependsOnMethods={"test_addSystemsToEnvs"}, enabled=true)
+	@Test(description="Check green systems >= 2", dependsOnMethods={"test_addSystemsToEnvs"})
 	public void test_greenSystemsCount(){
 		SSHCommandResult res = new KatelloCli("system report --org \""+this.org+"\" --format csv | grep \",green,\" | wc -l", null).run();
 		int redCnt = Integer.parseInt(getOutput(res).trim());
 		Assert.assertTrue((redCnt>=2), "Check - green systems cound >=2");
 	}
 	
-	@Test(description="Check report headers - compliance", dependsOnMethods={"test_addSystemsToEnvs"}, enabled=true)
+	@Test(description="Check report headers - compliance", dependsOnMethods={"test_addSystemsToEnvs"})
 	public void test_reportHeaders_compliance(){
 		SSHCommandResult res = new KatelloCli("system report --org "+this.org+" | grep \"| compliance |\" | wc -l", null).run();
 		int hdrCnt = Integer.parseInt(getOutput(res).trim());

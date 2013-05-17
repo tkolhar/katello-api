@@ -38,7 +38,6 @@
 			<class name="com.redhat.qe.katello.tests.e2e.ProductsSameName"/>
 			<class name="com.redhat.qe.katello.tests.e2e.StackedSubscriptions"/>
 
-
 <!-- 
 	SECTION OF BROKEN TESTS
 			<class name="com.redhat.qe.katello.tests.e2e.OrgDeletion"/>
@@ -51,10 +50,6 @@
 			<class name="com.redhat.qe.katello.tests.e2e.PromoteWithFilters"/>
 			<class name="com.redhat.qe.katello.tests.e2e.RepoSyncByPlan"/>
 			<class name="com.redhat.qe.katello.tests.e2e.RepoSyncProgress"/>
-
--->
-
-<!--
 			<class name="com.redhat.qe.katello.tests.e2e.SystemsReport"/>
 -->
 		</classes>
