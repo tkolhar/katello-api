@@ -41,6 +41,14 @@ public class BeakerUtils {
 		return KatelloUtils.sshOnClient(hostname, cmds);
 	}
 	
+	public static SSHCommandResult Katello_Installation_KatelloWithLdap(String hostname, String ldap_type) {
+		String cmds = 
+				"yum install -y Katello-Katello-Installation-KatelloWithLdap --disablerepo=* --enablerepo=beaker*; " +
+				"cd /mnt/tests/Katello/Installation/KatelloWithLdap/; " +
+				"export LDAP_SERVER_TYPE=" + ldap_type + "; make run";
+		return KatelloUtils.sshOnClient(hostname, cmds);
+	}
+	
 	public static SSHCommandResult Katello_Installation_SystemEngineLatest(String hostname, String releaseVersion){
 		String cmds = 
 				"yum install -y Katello-Katello-Installation-SystemEngineLatest --disablerepo=* --enablerepo=beaker*; " +

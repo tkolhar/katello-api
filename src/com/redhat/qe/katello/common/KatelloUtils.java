@@ -434,6 +434,7 @@ public class KatelloUtils implements KatelloConstants {
 		String hostIP = machine.getIpAddress();
 		String version = System.getProperty("katello.product.version", "1.1");
 		String product = System.getProperty("katello.product", "katello");
+		String ldap = System.getProperty("ldap.server.type", "");
 		
 		setupBeakerRepo(hostIP);
 		configureBeaker(hostIP);
@@ -444,7 +445,11 @@ public class KatelloUtils implements KatelloConstants {
 		// Install the product
 		if (product.equals("katello")) {
 			BeakerUtils.Katello_Installation_ConfigureRepos(hostIP);
-			BeakerUtils.Katello_Installation_KatelloNightly(hostIP);
+			if (ldap.isEmpty()) {
+				BeakerUtils.Katello_Installation_KatelloNightly(hostIP);	
+			} else{
+				BeakerUtils.Katello_Installation_KatelloWithLdap(hostIP, ldap);
+			}
 		} else if (product.equals("cfse")) {
 			BeakerUtils.Katello_Installation_SystemEngineLatest(hostIP, version);
 		} else if (product.equals("sam")) {
