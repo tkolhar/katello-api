@@ -404,21 +404,22 @@ public class KatelloUtils implements KatelloConstants {
 	 * @param configs configuration array which should be from KatelloConstants.DELTACLOUD_SERVERS or KatelloConstants.DELTACLOUD_CLIENTS
 	 */
 	private static void configureDDNS(DeltaCloudInstance machine, String[] configs) {
-		sshOnClient(machine.getIpAddress(), "rm -f /etc/yum.repos.d/rhevm.repo");
-		
+		sshOnClient(machine.getIpAddress(), "rm -f /etc/yum.repos.d/rhevm.repo");		
 		sshOnClient(machine.getIpAddress(), "wget http://hdn.corp.redhat.com/rhel6-csb/RPMS/noarch/redhat-ddns-client-1.3-4.noarch.rpm");
-		
-		sshOnClient(machine.getIpAddress(), "yum -y localinstall redhat-ddns-client-1.3-4.noarch.rpm --nogpgcheck --disablerepo=*");
-		
+		sshOnClient(machine.getIpAddress(), "yum -y localinstall redhat-ddns-client-1.3-4.noarch.rpm --nogpgcheck --disablerepo=*");		
 		sshOnClient(machine.getIpAddress(), "echo \"" + configs[0] + " " + configs[1] + " " + configs[2] + "\" >> /etc/redhat-ddns/hosts");
 		
 		sshOnClient(machine.getIpAddress(), "redhat-ddns-client enable");
 		sshOnClient(machine.getIpAddress(), "redhat-ddns-client update");
 		sshOnClient(machine.getIpAddress(), "redhat-ddns-client update");
 		
+		sshOnClient(machine.getIpAddress(), String.format("sed -i \"s/^HOSTNAME=.*/HOSTNAME=%s.%s/\" /etc/sysconfig/network",configs[0],configs[1]));
 		sshOnClient(machine.getIpAddress(), "hostname " + configs[0] + "." + configs[1]);
-		sshOnClient(machine.getIpAddress(), "echo \"" + configs[0] + "." + configs[1] + "\" >> /etc/sysconfig/network");
-		sshOnClientNoWait(machine.getIpAddress(), "service network restart");
+		sshOnClient(machine.getIpAddress(), "service network restart");
+		
+		sshOnClient(machine.getIpAddress(), "rpm -q ntp || yum -y install ntp");
+		sshOnClient(machine.getIpAddress(), "service ntpd restart");
+		sshOnClient(machine.getIpAddress(), "chkconfig --add ntpd; chkconfig ntpd on");
 		
 		try { Thread.sleep(5000); } catch (Exception e) {}
 		

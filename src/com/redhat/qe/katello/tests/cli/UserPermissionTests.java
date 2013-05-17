@@ -40,8 +40,8 @@ public class UserPermissionTests extends KatelloCliTestScript {
 		this.group = "LDAP-group-"+uid;
 		
 		this.users = new String[2];
-		this.users[0] = "ramesh-test";
-		this.users[1] = "test-user";
+		this.users[0] = "ramesh-test"+uid;
+		this.users[1] = "test-user"+uid;
 		
 		this.roles = new String[2];
 		this.roles[0] = "LDAProle1" + uid;

@@ -99,10 +99,11 @@ public class SystemTests extends KatelloCliTestScript{
 		rhsm_clean();
 		KatelloSystem sys = new KatelloSystem(this.systemNameNoEnvReg, this.orgNameNoEnvs, null);
 		exec_result = sys.rhsm_register(); 
-		Assert.assertTrue(exec_result.getExitCode().intValue() == 255, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).contains(
-				String.format(KatelloSystem.ERR_RHSM_LOBRARY_ONLY,this.orgNameNoEnvs, KatelloEnvironment.LIBRARY)),
-				"Check - please create an env.");
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		Assert.assertTrue(exec_result.getStdout().trim().contains(KatelloSystem.OUT_CREATE),
+				"Check - output (success)");
+		assert_systemInfo(sys);
+		rhsm_clean();
 	}
 
 	@Test(description = "RHSM register - one environment only", 
@@ -264,8 +265,7 @@ public class SystemTests extends KatelloCliTestScript{
 		sys.runAs(invaliduser);
 		exec_result = sys.remove();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 145, "Check - return code");
-		Assert.assertTrue(exec_result.getStderr().trim().contains("Invalid credentials"),
-				"Check - output (error)");
+		Assert.assertTrue(getOutput(exec_result).contains("Invalid credentials"), "Check - output (error)");
 	}
 
 	// TODO - bz#896074 failing due to this
@@ -289,8 +289,8 @@ public class SystemTests extends KatelloCliTestScript{
 
 		sys.runAs(user);
 		exec_result = sys.remove();
-		Assert.assertEquals(exec_result.getExitCode().intValue(), 147, "Check - return code");
-		Assert.assertTrue(exec_result.getStderr().trim().contains(String.format(KatelloSystem.ERR_DELETE_ACCESS, user.username)),
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 145, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloSystem.ERR_DELETE_ACCESS, user.username)),
 				"Check - output (error)");
 	}
 

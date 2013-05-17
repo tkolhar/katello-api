@@ -56,7 +56,6 @@ public class KatelloRepo extends _KatelloObject{
 	public String product_id;
 	public String url;
 	public String gpgkey;
-	public String progress;
 	public String lastSync;
 	public boolean nogpgkey = false;
 	
