@@ -194,12 +194,12 @@ implements KatelloConstants {
 	
 	protected void yum_clean() {
 		KatelloUtils.sshOnClient("yum clean all");
-		KatelloUtils.sshOnClient("yum repolist");
+		KatelloUtils.sshOnClient("yum repolist --disablerepo \\*beaker\\*");
 	}
 
 	protected void yum_clean(String client) {
 		KatelloUtils.sshOnClient(client, "yum clean all");
-		KatelloUtils.sshOnClient(client, "yum repolist");
+		KatelloUtils.sshOnClient(client, "yum repolist --disablerepo \\*beaker\\*");
 	}
 	
 	/**

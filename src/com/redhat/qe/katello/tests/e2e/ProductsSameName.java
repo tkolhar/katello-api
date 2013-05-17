@@ -24,6 +24,8 @@ public class ProductsSameName extends KatelloCliTestScript {
 	protected static Logger log = Logger.getLogger(ProductsSameName.class.getName());
 	
 	private SSHCommandResult exec_result;
+	private static final String package1 = "pulp-admin-client";
+	private static final String package2 = "lion";
 
 	// Katello objects below
 	private String org_name;
@@ -36,6 +38,8 @@ public class ProductsSameName extends KatelloCliTestScript {
 	private String system_name;
 	private String product_id, product_id2;
 	
+	private String contentView;
+	
 	@BeforeClass(description="Generate unique objects")
 	public void setUp(){
 		String uid = KatelloUtils.getUniqueID();
@@ -43,8 +47,8 @@ public class ProductsSameName extends KatelloCliTestScript {
 		provider_name = "provider"+uid;
 		product_name = "product"+uid;
 		product_name2 = product_name;
-		repo_name = "repo1"+uid;
-		repo_name2 = "repo2"+uid;
+		repo_name = "repo-1-"+uid;
+		repo_name2 = "repo-2-"+uid;
 		env_name = "env"+uid;
 		system_name = "system"+uid;
 		
@@ -84,25 +88,26 @@ public class ProductsSameName extends KatelloCliTestScript {
 		exec_result = env.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		repo.synchronize();		
-		repo2.synchronize();		
 		
-		KatelloUtils.promoteProductIDsToEnvironment(org_name, new String[] {product_id, product_id2}, env_name);
+		exec_result = prov.synchronize();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code"); // provider sync will do sync both repos
 		
-		KatelloUtils.sshOnClient("yum -y erase pulp-consumer-client lion || true");
-		rhsm_clean();
+		this.contentView = KatelloUtils.promoteProductIDsToEnvironment(org_name, new String[] {product_id, product_id2}, env_name);
+		
+		KatelloUtils.sshOnClient(String.format("yum -y erase %s %s || true",package1,package2));
 	}
 	
 	@Test(description="package list of two repos")
 	public void test_packageList() {
 		
 		KatelloPackage pack = new KatelloPackage(null, null, org_name, null, repo_name, null);
-		pack.setProductId(product_id); 
+		pack.setProductId(product_id);
+		pack.content_view = this.contentView;
 		
 		exec_result = pack.cli_list();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		Assert.assertTrue(getOutput(exec_result).contains("pulp-admin-client"), "found package: pulp-admin-client");
+		Assert.assertTrue(getOutput(exec_result).contains(package1), "found package: pulp-admin-client");
 		Assert.assertTrue(getOutput(exec_result).contains("pulp-server"), "found package: pulp-server");
 		Assert.assertTrue(getOutput(exec_result).contains("python-gofer"), "found package: python-gofer");
 		Assert.assertTrue(getOutput(exec_result).contains("python-qpid"), "found package: python-qpid");
@@ -111,11 +116,12 @@ public class ProductsSameName extends KatelloCliTestScript {
 				
 		KatelloPackage pack2 = new KatelloPackage(null, null, org_name, null, repo_name2, null);
 		pack2.setProductId(product_id2);
+		pack2.content_view = this.contentView;
 		
 		exec_result = pack2.cli_list();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		Assert.assertTrue(getOutput(exec_result).contains("lion"), "found package: lion");
+		Assert.assertTrue(getOutput(exec_result).contains(package2), "found package: lion");
 		Assert.assertTrue(getOutput(exec_result).contains("wolf"), "found package: wolf");
 		Assert.assertTrue(getOutput(exec_result).contains("zebra"), "found package: zebra");
 		Assert.assertTrue(getOutput(exec_result).contains("stork"), "found package: stork");
@@ -125,37 +131,26 @@ public class ProductsSameName extends KatelloCliTestScript {
 	@Test(description="package info of two repos")
 	public void test_packageInfo() {
 		
-		KatelloCli cli = new KatelloCli("package list --org " + org_name + " --repo " + repo_name + " --product_id " + product_id + " | grep \"pulp-admin-client\" | awk '{print $1}'", null);
-		exec_result = cli.run();
-		
-		String package1 = exec_result.getStdout().trim();
-		
 		KatelloPackage pack = new KatelloPackage(package1, null, org_name, null, repo_name, null);
 		pack.setProductId(product_id); 
-		
+		pack.content_view = this.contentView;
 		exec_result = pack.cli_info();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).contains("pulp-admin-client"));
+		Assert.assertTrue(getOutput(exec_result).contains(package1));
 
-		cli = new KatelloCli("package list --org " + org_name + " --repo " + repo_name2 + " --product_id " + product_id2 + " | grep \"lion\" | awk '{print $1}'", null);
-		exec_result = cli.run();
-		
-		String package2 = exec_result.getStdout().trim();
-		
 		KatelloPackage pack2 = new KatelloPackage(package2, null, org_name, null, repo_name2, null);
 		pack2.setProductId(product_id2);
-		
+		pack2.content_view = this.contentView;
 		exec_result = pack2.cli_info();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).contains("lion"));	
+		Assert.assertTrue(getOutput(exec_result).contains(package2));	
 	}
 	
 	@Test(description="install packages of two repos")
 	public void testInstallPackage() {
-		
 		rhsm_clean();
 		
-		KatelloSystem sys = new KatelloSystem(this.system_name, this.org_name, this.env_name);
+		KatelloSystem sys = new KatelloSystem(this.system_name, this.org_name, this.env_name+"/"+this.contentView);
 		exec_result = sys.rhsm_registerForce(); 
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
@@ -173,17 +168,17 @@ public class ProductsSameName extends KatelloCliTestScript {
 		
 		sys.rhsm_refresh();
 		
-		exec_result = KatelloUtils.sshOnClient("yum -y install lion");
-		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (install lion)");
+		exec_result = KatelloUtils.sshOnClient("yum -y install "+package2);
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (install "+package2+")");
 
-		exec_result = KatelloUtils.sshOnClient("yum -y install pulp-consumer-client");
-		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (install pulp-consumer-client)");
+		exec_result = KatelloUtils.sshOnClient("yum -y install "+package1);
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (install "+package1+")");
 	}
 	
 	@AfterClass(description="uninstall rpm-s, cleanup the rhsm registration", alwaysRun=true)
 	public void destroy(){
 		log.info("cleanup previousely installed rpm-s");
-		KatelloUtils.sshOnClient("yum -y erase pulp-consumer-client lion");
+		KatelloUtils.sshOnClient(String.format("yum -y erase %s %s || true",package1,package2));
 		rhsm_clean();
 	}
 

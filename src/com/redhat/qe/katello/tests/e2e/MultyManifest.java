@@ -69,7 +69,7 @@ public class MultyManifest extends KatelloCliTestScript{
 	public void test_subscriptionList() {
 		SSHCommandResult res = KatelloUtils.sshOnClient("subscription-manager list --available --all | sed  -e 's/^ \\{1,\\}//'");
 		Assert.assertTrue(getOutput(res).trim().contains("JBoss Enterprise Application Platform ELS Program, 64 Core Standard"), "Contains all pools from manifest");
-		Assert.assertTrue(getOutput(res).trim().contains("High Performance Network (8 sockets) for IBM POWER"), "Contains all pools from manifest");
+//		Assert.assertTrue(getOutput(res).trim().contains("High Performance Network (8 sockets) for IBM POWER"), "Contains all pools from manifest");
 		Assert.assertTrue(getOutput(res).trim().contains("Red Hat Enterprise Linux Server for HPC Compute Node, Self-support (8 sockets) (Up to 1 guest)"), "Contains all pools from manifest");
 		Assert.assertTrue(getOutput(res).trim().contains("CloudForms Employee Subscription"), "Contains all pools from manifest");
 		Assert.assertTrue(getOutput(res).trim().contains("OpenShift Employee Subscription"), "Contains all pools from manifest");
