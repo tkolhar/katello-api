@@ -116,9 +116,8 @@ public class SystemTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		KatelloSystem sys = new KatelloSystem(this.systemNameNoEnvReg, this.orgNameNoEnvs, null);
 		exec_result = sys.rhsm_register(); 
-		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
-		Assert.assertTrue(exec_result.getStdout().trim().contains(KatelloSystem.OUT_CREATE),
-				"Check - output (success)");
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 255, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).contains(KatelloSystem.ERR_RHSM_REG_MULTI_ENV));
 		assert_systemInfo(sys);
 	}
 
