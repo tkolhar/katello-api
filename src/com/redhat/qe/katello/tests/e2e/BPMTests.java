@@ -1,7 +1,7 @@
 package com.redhat.qe.katello.tests.e2e;
 
 import java.util.logging.Logger;
-import org.testng.annotations.AfterTest;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
@@ -216,7 +216,7 @@ public class BPMTests extends KatelloCliTestScript{
 				"package "+pkg_pulp_consumer+" should be returned in yum info");
 	}
 	
-	@AfterTest(description="erase registration made; cleanup",alwaysRun=true)
+	@AfterClass(description="erase registration made; cleanup",alwaysRun=true)
 	public void tearDown(){
 		rhsm_clean();
 	}
