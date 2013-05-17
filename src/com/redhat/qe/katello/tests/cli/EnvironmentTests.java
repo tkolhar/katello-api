@@ -17,7 +17,7 @@ public class EnvironmentTests extends KatelloCliTestScript{
 	   
 	    private String organization;
 
-		@BeforeClass(description="init: create org stuff", groups = {"headpin-cli"})
+		@BeforeClass(description="init: create org stuff")
 		public void setUp(){
 			SSHCommandResult res;
 			String uid = KatelloUtils.getUniqueID();
@@ -32,7 +32,7 @@ public class EnvironmentTests extends KatelloCliTestScript{
 		}
 		
 		
-		@Test(description="create Environment", groups = {"headpin-cli"}, 
+		@Test(description="create Environment",  
 				dataProvider="environment_create", dataProviderClass = KatelloCliDataProvider.class, enabled=true)
 		public void testEnv_create(String name, String descr, Integer exitCode, String output){
 			SSHCommandResult res;
@@ -48,7 +48,7 @@ public class EnvironmentTests extends KatelloCliTestScript{
 			}
 		} 
 	
-		@Test(description="create Environment which name is Library, verify error es shown", groups = {"headpin-cli"})
+		@Test(description="create Environment which name is Library, verify error es shown")
 		public void testCreateEnvironmentError() {
 			SSHCommandResult res;
 			String output = "Validation failed: Name : 'Library' is a built-in environment, Name of environment must be unique within one organization, Label : 'Library' is a built-in environment, Label of environment must be unique within one organization";
@@ -64,7 +64,7 @@ public class EnvironmentTests extends KatelloCliTestScript{
 			Assert.assertTrue(getOutput(res).contains(output),"Check - returned error string");
 		}
 		
-		@Test(description="Environment info",groups = {"headpin-cli"})
+		@Test(description="Environment info")
 		public void testEnv_info()
 		{
 			SSHCommandResult res;
@@ -84,7 +84,7 @@ public class EnvironmentTests extends KatelloCliTestScript{
 		}
 
 		// @ TODO 961112
-		@Test(description="delete a environment", groups = {"headpin-cli"},enabled=true)
+		@Test(description="delete a environment",enabled=true)
 		public void test_delete_environment(){
 			String uid = KatelloUtils.getUniqueID();
 			String envName="env-delete_act_key-"+ uid; 
@@ -110,7 +110,7 @@ public class EnvironmentTests extends KatelloCliTestScript{
 			Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (environment list)");
 		}    
 		
-		@Test(description="Environment update",groups = {"headpin-cli"})
+		@Test(description="Environment update")
 		public void testEnv_update()
 		{
 			SSHCommandResult res;
@@ -136,7 +136,7 @@ public class EnvironmentTests extends KatelloCliTestScript{
 		}
 		
 	  	   
-		@Test(description="Register same system to different environments",groups = {"headpin-cli"})
+		@Test(description="Register same system to different environments")
 		public void testEnv_Regsystem()
 		{
 
