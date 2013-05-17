@@ -196,7 +196,7 @@ public class ContentViewRefreshTests extends KatelloCliTestScript{
 		if (content.description == null) content.description = "";
 		res = view.view_info();
 		String match_info = String.format(KatelloContentView.REG_VIEW_INFO, view.getName(), view.getName(), description, content.org,
-				content.name, env, version, content.repos).replaceAll("\"", "");
+				content.name, env, version).replaceAll("\"", "");
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 		log.finest(String.format("Content view (info) match regex: [%s]",match_info));
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info), 
