@@ -129,7 +129,8 @@ public interface KatelloConstants {
 	
 	public static final String KATELLO_DEFAULT_LOCALE = "en_US";
 
-	public static final String[][] DELTACLOUD_CLIENTS = new String[][]{{"cfseclient1", "usersys.redhat.com", "335f800994d9adc5947b49728b14d527"}, 
+	public static final String[][] DELTACLOUD_CLIENTS = new String[][]{{
+		"cfseclient1", "usersys.redhat.com", "335f800994d9adc5947b49728b14d527"}, 
 		{"cfseclient2", "usersys.redhat.com", "c9c0395f0730624541d8d26f7eb11be8"}, 
 		{"cfseclient3", "usersys.redhat.com", "edcf8c472ca601e33326f50f5d46ba8e"},
 		{"cfseclient4", "usersys.redhat.com", "948e04c477cbbe239860c67eefe8e9c8"},
@@ -144,14 +145,24 @@ public interface KatelloConstants {
 		{"cfseclient13", "usersys.redhat.com", "76f4bb9fd5f56b5bb70fdf530c659e30"},
 		{"cfseclient14", "usersys.redhat.com", "47c46ba4e4d2da0cf6cfcc8c8d4b1258"},
 		{"cfseclient15", "usersys.redhat.com", "ac53b538a98d386e5d8959cd2937c533"},
-		{"cfseclient16", "usersys.redhat.com", "80195d5a9af29e541281cff016871546"}};
+		{"cfseclient16", "usersys.redhat.com", "80195d5a9af29e541281cff016871546"}
+	};
 	
-	public static final String[][] DELTACLOUD_SERVERS = new String[][]{{"cfseserver1", "usersys.redhat.com", "502f89b3921dcff92ccdfcf91a6e7db9", "10.16.120.72", "00:1a:4a:10:78:36"},
+	public static final String[][] DELTACLOUD_SERVERS = new String[][]{{
+		"cfseserver1", "usersys.redhat.com", "502f89b3921dcff92ccdfcf91a6e7db9", "10.16.120.72", "00:1a:4a:10:78:36"},
 		{"cfseserver2", "usersys.redhat.com", "b948f4f5b2c262f8a1ba508389e51998", "10.16.120.72", "00:1a:4a:10:78:36"},
 		{"cfseserver3", "usersys.redhat.com", "1b97363ff962d8602af1124226da25d8", "10.16.120.72", "00:1a:4a:10:78:36"},
 		{"cfseserver4", "usersys.redhat.com", "33b9babe86485c6a0c63ff013552933d", "10.16.120.72", "00:1a:4a:10:78:36"},
 		{"cfseserver5", "usersys.redhat.com", "a70017101d57379c611a30cea1f76182", "10.16.120.72", "00:1a:4a:10:78:36"},
-		{"cfseserver6", "usersys.redhat.com", "08d568db541879e2f684bcf637cf1375", "10.16.120.72", "00:1a:4a:10:78:36"}};
+		{"cfseserver6", "usersys.redhat.com", "08d568db541879e2f684bcf637cf1375", "10.16.120.72", "00:1a:4a:10:78:36"},
+		// adding more below: gkhachik
+		{"surya", "usersys.redhat.com", "08d568db541879e2f684bcf637cf1375", "", ""},
+		{"budha", "usersys.redhat.com", "08d568db541879e2f684bcf637cf1375", "", ""},
+		{"sukra", "usersys.redhat.com", "08d568db541879e2f684bcf637cf1375", "", ""},
+		{"dhara", "usersys.redhat.com", "08d568db541879e2f684bcf637cf1375", "", ""},
+		{"chandra", "usersys.redhat.com", "08d568db541879e2f684bcf637cf1375", "", ""},
+		{"mangala", "usersys.redhat.com", "08d568db541879e2f684bcf637cf1375", "", ""}
+	};
 
 	public static final String REDHAT_RELEASE_RHEL5X = "Red Hat Enterprise Linux Server release 5.";
 	public static final String REDHAT_RELEASE_RHEL6X = "Red Hat Enterprise Linux Server release 6.";
