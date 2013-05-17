@@ -27,6 +27,7 @@ public class SystemEnvironments extends KatelloCliTestScript {
 	private String repo_name;
 	private String env_name_Dev, env_name_Prod;
 	private String system_name;
+	private String contentView_name;
 	
 	@BeforeClass(description="Generate unique names")
 	public void setUp(){
@@ -70,14 +71,10 @@ public class SystemEnvironments extends KatelloCliTestScript {
 		exec_result = env.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (env create)");
 		
-		// promote product to the env dev.
-//		exec_result = prod.promote(env_name_Dev);
-//		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (product promote)");
-
 		exec_result = repo.synchronize();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		KatelloUtils.promoteProductToEnvironment(uid, product_name, env_name_Dev);
+		this.contentView_name = KatelloUtils.promoteProductToEnvironment(this.org_name, product_name, env_name_Dev);
 		
 		KatelloSystem sys = new KatelloSystem(system_name, this.org_name, this.env_name_Dev);
 		exec_result = sys.rhsm_registerForce(); 

@@ -2,20 +2,16 @@ package com.redhat.qe.katello.tests.e2e;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.logging.Logger;
-
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
-import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
 import com.redhat.qe.katello.base.obj.KatelloContentView;
@@ -29,6 +25,8 @@ import com.redhat.qe.katello.base.obj.KatelloSyncPlan.SyncPlanInterval;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
+
+// TODO [gkhachik] - I am giving up here for now: too hard for debugging to see why the sync plan not works as expected.
 
 /**
  * Implementation of following E2E scenario:<BR>
@@ -159,7 +157,7 @@ public class RepoSyncProgress extends KatelloCliTestScript{
 	public void test_packagesCountRound1(){
 		SSHCommandResult res;
 		
-		KatelloUtils.sshOnClient("yum clean all");
+		yum_clean();
 		res = KatelloUtils.sshOnClient(String.format(
 				"yum list available --disablerepo \\* --enablerepo \\*%s\\* | grep \"%s\" | wc -l",
 				repoName,repoName)); // disablerepo just for speed up the yum list 
@@ -184,15 +182,14 @@ public class RepoSyncProgress extends KatelloCliTestScript{
 		SSHCommandResult res;
 		syncPlanName = "hourly-Aeolus-sync-"+uid;
 		
-		res = KatelloUtils.sshOnServer("hwclock --hctosys && echo \"$(date +%Y-%m-%d) $(date +%T' '%z)\"");
-		syncPlanDateTime = constructTimeForServer(getOutput(res), 2*60);
+		res = KatelloUtils.sshOnServer("echo \"$(date +%Y-%m-%d) $(date +%T' '%z)\"");
+		syncPlanDateTime = constructTimeForServer(getOutput(res), 3*60);
 		log.info(String.format("Now server time is: [%s]",getOutput(res)));
 		
 		try{
 			// date +%T -s "HH:MM:SS"
-			KatelloUtils.sshOnServer("date +%T -s \""+syncPlanDateTime[1]+"\""); // < --- SET server's date/time !!!
 			res = KatelloUtils.sshOnServer("date");
-			log.info(String.format("Date on server side now is set: [%s]",getOutput(res)));
+			log.info(String.format("Round2: date on server side now is: [%s]",getOutput(res)));
 
 			KatelloSyncPlan sync = new KatelloSyncPlan(syncPlanName, orgName, null, 
 					syncPlanDateTime[0], syncPlanDateTime[1], SyncPlanInterval.hourly);
@@ -201,6 +198,7 @@ public class RepoSyncProgress extends KatelloCliTestScript{
 			res = new KatelloProduct(productName, orgName, null, null, null, null, null, null).cli_set_plan(syncPlanName);
 			Assert.assertTrue(res.getExitCode().intValue()==0, "exit: product.set_plan");
 			log.info("Sleep 3min and wakeup having product synced with 4 packages :)");
+			Assert.assertTrue(res.getExitCode().intValue()==0, "exit: katello jobs restart");
 			waitfor_reposync(new KatelloRepo(repoName, orgName, productName,null, null,null),3);
 		}finally{
 			res = KatelloUtils.sshOnServer("hwclock --hctosys"); // // < --- UNSET back server's date/time !!!

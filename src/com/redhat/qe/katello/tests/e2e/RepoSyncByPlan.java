@@ -20,6 +20,8 @@ import com.redhat.qe.katello.base.obj.KatelloSyncPlan.SyncPlanInterval;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
+//TODO [gkhachik] - I am giving up here for now: too hard for debugging to see why the sync plan not works as expected.
+
 @Test(groups={"cfse-e2e"})
 public class RepoSyncByPlan extends KatelloCliTestScript{
 	protected static Logger log = Logger.getLogger(RepoSyncByPlan.class.getName());
@@ -36,7 +38,6 @@ public class RepoSyncByPlan extends KatelloCliTestScript{
 	private String uid;
 	private KatelloProduct prod; 
 	private KatelloRepo repo;
-	private long syncDate;
 	
 	@Test(description="sync never synced repo by syncplan")
 	public void test_syncNotSyncedRepo() {

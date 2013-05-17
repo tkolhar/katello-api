@@ -134,7 +134,6 @@ public class ProductsSameName extends KatelloCliTestScript {
 		KatelloPackage pack = new KatelloPackage(package1, null, org_name, null, repo_name, null);
 		pack.setProductId(product_id); 
 		pack.content_view = this.contentView;
-		pack.environment = this.env_name;
 		exec_result = pack.cli_info();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(package1));
@@ -142,7 +141,6 @@ public class ProductsSameName extends KatelloCliTestScript {
 		KatelloPackage pack2 = new KatelloPackage(package2, null, org_name, null, repo_name2, null);
 		pack2.setProductId(product_id2);
 		pack2.content_view = this.contentView;
-		pack2.environment = this.env_name;
 		exec_result = pack2.cli_info();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(package2));	
