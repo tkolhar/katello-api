@@ -676,4 +676,17 @@ public class KatelloUtils implements KatelloConstants {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		return pubview_name;
 	}
+	
+	public static void disableYumRepo(String repoPattern){
+		log.info("Disabling yum repos: [*"+repoPattern+"*]");
+		configureYumRepo(repoPattern, true);
+	}
+	public static void enableYumRepo(String repoPattern){
+		log.info("Enabling back yum repos: [*"+repoPattern+"*]");
+		configureYumRepo(repoPattern, false);
+	}
+	private static void configureYumRepo(String repoPattern, boolean disable){
+		int enabled = (disable ? 0: 1);
+		sshOnClient("sed -i \"s/^enabled=.*/enabled="+enabled+"/\" /etc/yum.repos.d/*"+repoPattern+"*");
+	}
 }

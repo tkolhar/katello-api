@@ -17,7 +17,7 @@ public class SetupServers extends KatelloCliTestScript {
 	protected String client_name;
 	protected static boolean isDeltacloud = false;
 	
-	@BeforeSuite(description = "setup Deltacloud Server and client")
+	@BeforeSuite(description = "setup Deltacloud Server and client", alwaysRun=true)
 	public void setUp() {
 		
 		isDeltacloud = Boolean.parseBoolean(System.getProperty("runondeltacloud", "false"));
@@ -32,6 +32,8 @@ public class SetupServers extends KatelloCliTestScript {
 			System.setProperty("katello.server.hostname", server_name);
 			System.setProperty("katello.client.hostname", server_name);
 		}
+		KatelloUtils.disableYumRepo("beaker");
+		KatelloUtils.disableYumRepo("epel");
 	}
 	
 	@AfterSuite(alwaysRun=true)
@@ -40,6 +42,7 @@ public class SetupServers extends KatelloCliTestScript {
 			KatelloUtils.destroyDeltaCloudMachine(server);
 			KatelloUtils.destroyDeltaCloudMachine(client);
 		}
+		KatelloUtils.enableYumRepo("beaker");
+		KatelloUtils.enableYumRepo("epel");
 	}
-
 }
