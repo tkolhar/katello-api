@@ -25,7 +25,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 	private String env;
 	private String systemgroup;
 	
-	@BeforeClass(description="init: create org stuff", groups = {"headpin-cli"})
+	@BeforeClass(description="init: create org stuff")
 	public void setUp(){
 		SSHCommandResult res;
 		String uid = KatelloUtils.getUniqueID();
@@ -41,8 +41,8 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 	}
 	
 	
-	@Test(description="create AK", groups = {"headpin-cli"}, 
-			dataProvider="activationkey_create", dataProviderClass = KatelloCliDataProvider.class, enabled=true)
+	@Test(description="create AK", dataProvider="activationkey_create", 
+			dataProviderClass = KatelloCliDataProvider.class, enabled=true)
 	public void test_create(String name, String descr, Integer exitCode, String output){
 		SSHCommandResult res;
 		
@@ -57,7 +57,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 		}
 	} 
 	    
-	@Test(description="create AK - same name, diff. orgs", groups = {"headpin-cli"}, enabled=true)
+	@Test(description="create AK - same name, diff. orgs")
 	public void test_create_diffOrgsSameName(){
 		SSHCommandResult res;
 		String uid = KatelloUtils.getUniqueID();
@@ -131,7 +131,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
     }
     
 	
-    @Test(description="delete a activationkey", groups = {"headpin-cli"},enabled=true)
+    @Test(description="delete a activationkey")
     public void test_delete_activation_key(){
     	String uid = KatelloUtils.getUniqueID();
     	String akName="ak-delete_act_key-"+ uid; 
@@ -156,7 +156,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
     	Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key list)");
     }
     
-    @Test(description="create activationkey with usage limit 1, register one system, and try to register second one, it will fail", groups = {"headpin-cli"}, enabled=true)
+    @Test(description="create activationkey with usage limit 1, register one system, and try to register second one, it will fail")
     public void test_createWithLimit() {
     	String uid = KatelloUtils.getUniqueID();
     	String akName="act_key-"+ uid; 
@@ -184,7 +184,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
     			"Check - returned output string for registering by activation key");	
     }
 
-    @Test(description="create activationkey with usage limit 1, register one system, and try to register second one, it will fail, increase the limit, it will allow", groups = {"headpin-cli"}, enabled=true)
+    @Test(description="create activationkey with usage limit 1, register one system, and try to register second one, it will fail, increase the limit, it will allow")
     public void test_updateTheLimit() {
     	String uid = KatelloUtils.getUniqueID();
     	String akName="act_key-"+ uid; 
@@ -217,7 +217,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
     }
 
     //@ TODO 927215
-    @Test(description="create activationkey with usage limit 2, register two systems, and try to register third, it will fail, unreister last one, register third one", groups = {"headpin-cli"}, enabled=true)
+    @Test(description="create activationkey with usage limit 2, register two systems, and try to register third, it will fail, unreister last one, register third one")
     public void test_unregisterRegister() {
     	String uid = KatelloUtils.getUniqueID();
     	String akName="act_key-"+ uid; 
@@ -309,7 +309,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 				"Check - returned output string (activation_key remove_system_group)");
     }
     
-    @Test(description="As a user, I would like to use more than one activation keys.", groups = {"cfse-cli","headpin-cli"}, enabled=true)
+    @Test(description="As a user, I would like to use more than one activation keys.", groups = {"cfse-cli"})
     public void test_regTwokeys() {
     	String uid = KatelloUtils.getUniqueID();
     	String act_list = "";
@@ -337,7 +337,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 				          String.format("Activationkeys [%s] found in system [%s] info",act_list,systemName));		
     }
     
-    @Test(description="As an admin, I'd like to see which activation key used it for registering the system", groups = {"cfse-cli","headpin-cli"}, enabled=true)
+    @Test(description="As an admin, I'd like to see which activation key used it for registering the system")
     public void test_Viewregkey() {
     	String uid = KatelloUtils.getUniqueID();
     	String akName="act_key-"+ uid;    
