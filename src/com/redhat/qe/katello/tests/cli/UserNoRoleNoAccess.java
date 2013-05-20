@@ -12,7 +12,7 @@ import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups={"headpin-cli",TngRunGroups.TNG_KATELLO_Users_Roles})
+@Test(groups={TngRunGroups.TNG_KATELLO_Users_Roles})
 public class UserNoRoleNoAccess extends KatelloCliTestScript {
 	
 	private String users;	
@@ -25,19 +25,23 @@ public class UserNoRoleNoAccess extends KatelloCliTestScript {
 	private KatelloEnvironment environment;
 	private KatelloUser user;
 	private KatelloUserRole user_role;
-	@BeforeClass(description="init: create initial stuff")
+	@BeforeClass(description="init: create initial stuff", groups={"headpin-cli"})
 	public void setUp()
 	{
-		
 		String uid = KatelloUtils.getUniqueID();
 		this.organization = "org-"+uid;
-		this.env = "env-"+uid;
 		this.users = "user-" +uid;
 		this.user_email = "user-"+ uid + "@redhat.com";
 		this.user_role_name = "user-role-" + uid;
 		org = new KatelloOrg(this.organization, null);
 		res = org.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+	}
+	
+	@BeforeClass(description="init: katello specific, no headpin", dependsOnMethods={"setUp"})
+	public void setUp_katelloOnly(){
+		String uid = KatelloUtils.getUniqueID();
+		this.env = "env-"+uid;
 		environment = new KatelloEnvironment(this.env, "test environment",this.organization, "Library");
 		res = environment.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
@@ -47,12 +51,20 @@ public class UserNoRoleNoAccess extends KatelloCliTestScript {
 		user_role = new KatelloUserRole(this.user_role_name,"test role");
 		res = user_role.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-
-
+	}
+  	
+	@BeforeClass(description="init: headpin specific, no katello", dependsOnMethods={"setUp"}, groups={"headpin-cli","cfse-ignore"})
+	public void setUp_headpinOnly(){
+		this.env = KatelloEnvironment.LIBRARY;
+		user = new KatelloUser(this.users,this.user_email,"password",false,this.organization,this.env);
+		res =  user.cli_create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		user_role = new KatelloUserRole(this.user_role_name,"test role");
+		res = user_role.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 	}
 	
-  	
-	@Test(description="check for organizations command", enabled=true)
+	@Test(description="check for organizations command", groups={"headpin-cli"})
 	public void test_User_Org_Commands()
 	{
 		
@@ -73,7 +85,7 @@ public class UserNoRoleNoAccess extends KatelloCliTestScript {
 	}
 
 	  
-	@Test(description="check for users command", enabled=true)
+	@Test(description="check for users command", groups={"headpin-cli"})
 	public void test_User_Commands()
 	{
 		
@@ -90,7 +102,7 @@ public class UserNoRoleNoAccess extends KatelloCliTestScript {
 	}
 	
 	
-	@Test(description="check for users roles command", enabled=true)
+	@Test(description="check for users roles command", groups={"headpin-cli"})
 	public void test_UserRole_Commands()
 	{
 		
