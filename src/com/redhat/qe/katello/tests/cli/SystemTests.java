@@ -117,7 +117,7 @@ public class SystemTests extends KatelloCliTestScript{
 		KatelloSystem sys = new KatelloSystem(this.systemNameNoEnvReg, this.orgNameNoEnvs, null);
 		exec_result = sys.rhsm_register(); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 255, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).contains(KatelloSystem.ERR_RHSM_REG_MULTI_ENV));
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloSystem.ERR_RHSM_REG_MULTI_ENV,this.orgNameNoEnvs)));
 		assert_systemInfo(sys);
 	}
 
