@@ -452,6 +452,8 @@ public class KatelloUtils implements KatelloConstants {
 		} else if (product.equals("headpin")) {
 			BeakerUtils.Katello_Installation_ConfigureRepos(hostIP);
 			BeakerUtils.Katello_Installation_HeadpinNightly(hostIP);
+		} else if (product.equals("sat6")) {
+			BeakerUtils.Katello_Installation_Satellite6Latest(hostIP, version);
 		}
 		
 		// Configure the server as a self-client
