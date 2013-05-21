@@ -51,7 +51,7 @@ public class BeakerUtils {
 	
 	public static SSHCommandResult Katello_Installation_Satellite6Latest(String hostname, String releaseVersion){
 		String cmds = 
-				"yum install -y Katello-Katello-Installation-SystemEngineLatest --disablerepo=\\* --enablerepo=\\*beaker\\*; " +
+				"yum install -y Katello-Katello-Installation-Satellite6Latest --disablerepo=\\* --enablerepo=\\*beaker\\*; " +
 				"cd /mnt/tests/Katello/Installation/Satellite6Latest/; " +
 				"export SAT6_RELEASE=" + releaseVersion + "; make run";
 		return KatelloUtils.sshOnClient(hostname, cmds);

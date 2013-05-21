@@ -417,10 +417,6 @@ public class KatelloUtils implements KatelloConstants {
 		sshOnClient(machine.getIpAddress(), "hostname " + configs[0] + "." + configs[1]);
 		sshOnClient(machine.getIpAddress(), "service network restart");
 		
-		sshOnClient(machine.getIpAddress(), "rpm -q ntp || yum -y install ntp");
-		sshOnClient(machine.getIpAddress(), "service ntpd restart");
-		sshOnClient(machine.getIpAddress(), "chkconfig --add ntpd; chkconfig ntpd on");
-		
 		try { Thread.sleep(5000); } catch (Exception e) {}
 		
 		machine.setHostName(configs[0] + "." + configs[1]);
@@ -440,6 +436,8 @@ public class KatelloUtils implements KatelloConstants {
 				
 		BeakerUtils.Katello_Sanity_ImportKeys(hostIP);
 		BeakerUtils.Katello_Installation_RegisterRHNClassic(hostIP);
+		
+		configureNtp(hostIP);
 		
 		// Install the product
 		if (product.equals("katello")) {
@@ -521,6 +519,12 @@ public class KatelloUtils implements KatelloConstants {
 				"echo \"AUTH_METHOD = \"password\"\" >> ~/.beaker_client/config; " +
 				"chmod a+x ~/.beaker_client/config";
 		KatelloUtils.sshOnClient(hostname, cmds);
+	}
+	
+	private static void configureNtp(String hostname){
+		sshOnClient(hostname, "rpm -q ntp || yum -y install ntp");
+		sshOnClient(hostname, "service ntpd restart");
+		sshOnClient(hostname, "chkconfig --add ntpd; chkconfig ntpd on");
 	}
 
 	public static String promoteReposToEnvironment(String org_name, String[] product_names, String[] repo_names, String env_name) {
