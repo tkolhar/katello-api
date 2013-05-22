@@ -20,9 +20,9 @@ public class KatelloContentView extends _KatelloObject{
 			"Content view [ %s ] was successfully refreshed.";
 		
 	public static final String ERR_VIEW_READ =
-			"User %s is not allowed to access api/content_views/index";
+			"User %s is not allowed to access api/v1/content_views/index";
 	public static final String ERR_PROMOTE_DENIED =
-			"User %s is not allowed to access api/content_views/promote";
+			"User %s is not allowed to access api/v1/content_views/promote";
 	
 	public static final String REG_VIEW_INFO = ".*ID\\s*:\\s*\\d+.*Name\\s*:\\s*%sLabel\\s*:\\s*%s.*Description\\s*:\\s*%s.*Org\\s*:\\s*%s.*Definition\\s*:\\s*%s.*Environments\\s*:\\s*%s.*Versions\\s*:\\s*%s.*";
 	
