@@ -17,21 +17,21 @@ import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups={"cfse-cli","headpin-cli",TngRunGroups.TNG_KATELLO_Users_Roles})
+@Test(groups={"cfse-cli",TngRunGroups.TNG_KATELLO_Users_Roles})
 public class UserTests extends KatelloCliTestScript{
 	
 	List<KatelloUser> users;
+	private String uid = KatelloUtils.getUniqueID();
 	private String organization;
 	private String organization2;
 	private String env;
 	private String env2;
 	
-	@BeforeClass(description="init: create org stuff")
+	@BeforeClass(description="init: create org stuff", groups={"cfse-cli","headpin-cli"})
 	public void setUp(){
 		SSHCommandResult res;
-		String uid = KatelloUtils.getUniqueID();
 		this.organization = "ak-"+uid;
-		this.env = "ak-"+uid;
+		this.env = "Library"; // initially - for headpin
 		this.organization2 = "ak2-"+uid;
 		this.env2 = "ak2-"+uid;
 		KatelloOrg org = new KatelloOrg(this.organization, null);
@@ -45,9 +45,15 @@ public class UserTests extends KatelloCliTestScript{
 		env = new KatelloEnvironment(this.env2, null, this.organization2, KatelloEnvironment.LIBRARY);
 		res = env.cli_create();
 	}
-		
 
-	@Test(description="create user - for default org", enabled=true)
+	@BeforeClass(description="init: katello specific, no headpin", dependsOnMethods={"setUp"}, groups={"cfse-cli"})
+	public void setUp_katelloOnly(){
+		this.env = "ak-"+uid;
+		SSHCommandResult exec_result = new KatelloEnvironment(this.env, null, organization, KatelloEnvironment.LIBRARY).cli_create();
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+	}
+
+	@Test(description="create user - for default org", groups={"headpin-cli"})
 	public void test_create_DefaultOrg(){
 		SSHCommandResult res;
 		String uniqueID = KatelloUtils.getUniqueID();
@@ -71,7 +77,7 @@ public class UserTests extends KatelloCliTestScript{
 	
 	// TODO - with dataProvider provide more variations of user names in create action.
 
-	@Test(description="create user - for default org (disabled)", enabled=true)
+	@Test(description="create user - for default org (disabled)", groups={"headpin-cli"})
 	public void test_createDisabled_DefaultOrg(){
 		SSHCommandResult res;
 		String uniqueID = KatelloUtils.getUniqueID();
@@ -90,7 +96,7 @@ public class UserTests extends KatelloCliTestScript{
 	}
 	
 
-	@Test(description = "List all users - admin should be there")
+	@Test(description = "List all users - admin should be there", groups={"headpin-cli"})
 	public void test_listUsers_admin(){
 		KatelloUser list_user = new KatelloUser(null,null, null, false);
 		SSHCommandResult res = list_user.cli_list();
@@ -99,7 +105,7 @@ public class UserTests extends KatelloCliTestScript{
 	}
 	
 	@Test(description = "List users - created", 
-			dependsOnMethods={"test_create_DefaultOrg"})
+			dependsOnMethods={"test_create_DefaultOrg"}, groups={"headpin-cli"})
 	public void test_infoListUser(){
 		KatelloUser list_user = createUser();
 		users.add(list_user);
@@ -114,7 +120,7 @@ public class UserTests extends KatelloCliTestScript{
 		}
 	}
 	
-	@Test(description = "delete users - for some org provided", enabled = true)
+	@Test(description = "delete users - for some org provided", groups={"headpin-cli"})
 	public void test_DeleteUserOrg() {
 		SSHCommandResult res;
 		String uniqueID = KatelloUtils.getUniqueID();
@@ -145,7 +151,7 @@ public class UserTests extends KatelloCliTestScript{
 
 	}
 
-	@Test(description="delete users - for default org ", enabled=true)
+	@Test(description="delete users - for default org ", groups={"headpin-cli"})
 	public void test_DeleteUserDefaultOrg(){
 		SSHCommandResult res;
 		String uniqueID = KatelloUtils.getUniqueID();
@@ -164,14 +170,12 @@ public class UserTests extends KatelloCliTestScript{
 		res = usr.delete();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+KatelloUser.CMD_DELETE_USER+")");
 		Assert.assertTrue(getOutput(res).contains(String.format(KatelloUser.OUT_DELETE, username)),
-				                                  "Checked - returned output string ("+KatelloUser.CMD_DELETE_USER+")");
+				"Checked - returned output string ("+KatelloUser.CMD_DELETE_USER+")");
 		usr.asserts_delete();
-	
 	}
 	
 	
-	
-	@Test(description="Generates User Report - pdf format", enabled=true)
+	@Test(description="Generates User Report - pdf format", groups={"headpin-cli"})
 	public void test_UserReport_pdf(){
 		KatelloUtils.sshOnClient("rm -f katello_users_report.pdf");
 		SSHCommandResult res;
@@ -184,38 +188,31 @@ public class UserTests extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(res).contains("katello_users_report.pdf"));
 	}
 	
-	@Test(description="Generates User Report - html format", enabled=true)
+	@Test(description="Generates User Report - html format", groups={"headpin-cli"})
 	public void test_UserReport_html(){
 		SSHCommandResult res;
 		String format = "html";
 		res = new KatelloUser().report(format);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+KatelloUser.CMD_REPORT+")");
-		
-	
 	}
 	
-	@Test(description="Generates User Report - default format", enabled=true)
+	@Test(description="Generates User Report - default format", groups={"headpin-cli"})
 	public void test_UserReport(){
 		SSHCommandResult res;
 		String format = "";
 		res = new KatelloUser().report(format);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+KatelloUser.CMD_REPORT+")");
-		
-	
 	}
 	
-	
-	@Test(description="Generates User Report - csv format", enabled=true)
+	@Test(description="Generates User Report - csv format", groups={"headpin-cli"})
 	public void test_UserReport_csv(){
 		SSHCommandResult res;
 		String format = "csv";
 		res = new KatelloUser().report(format);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+KatelloUser.CMD_REPORT+")");
-		
-	
 	} 
 	
-	@Test(description="assign roles to users", enabled=true)
+	@Test(description="assign roles to users", groups={"headpin-cli"})
 	public void test_AssignUserRoles(){
 		
 		SSHCommandResult res;
@@ -238,21 +235,18 @@ public class UserTests extends KatelloCliTestScript{
         res = usr_role.create();
         Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+KatelloUserRole.CMD_CREATE+")");
         Assert.assertTrue(getOutput(res).contains(String.format(KatelloUserRole.OUT_CREATE, user_role_name)),
-        		                                 "Check - returned output string ("+KatelloUserRole.CMD_CREATE+")");
+        		"Check - returned output string ("+KatelloUserRole.CMD_CREATE+")");
 
         res = usr.assign_role(usr_role.name);
         Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+KatelloUser.CMD_ASSIGN_ROLE+")");
         Assert.assertTrue(getOutput(res).contains(String.format(KatelloUser.OUT_ASSIGN_ROLE, username,user_role_name)), 
-        		                                  "Check - returned output string ("+KatelloUser.CMD_ASSIGN_ROLE+")");
-	
+        		"Check - returned output string ("+KatelloUser.CMD_ASSIGN_ROLE+")");
 	}
 	
 	
-	@Test(description = "Create User and Role, assign role to user")
+	@Test(description = "Create User and Role, assign role to user", groups={"headpin-cli"})
 	public void test_assignRole(){
-		
 		KatelloUser user = createUser();
-
 		KatelloUserRole role = createRole();
 		
 		SSHCommandResult res = user.assign_role(role.name);
@@ -261,11 +255,10 @@ public class UserTests extends KatelloCliTestScript{
 				String.format(KatelloUser.OUT_ASSIGN_ROLE, user.username, role.name));
 	}
 	
-	@Test(description = "Create User and 2 Roles, assign roles to user and then unassign one of them. Verify that only one role is unassigned")
+	@Test(description = "Create User and 2 Roles, assign roles to user and then unassign one of them. " +
+			"Verify that only one role is unassigned", groups={"headpin-cli"})
 	public void test_unassignRole(){
-		
 		KatelloUser user = createUser();
-
 		KatelloUserRole role = createRole();
 		user.assign_role(role.name);
 		
@@ -285,7 +278,7 @@ public class UserTests extends KatelloCliTestScript{
 		Assert.assertTrue(out.matches(match_list), "Check - user role matches ["+role2.name+"]");
 	}
 	
-	@Test(description = "Create User and Roles, assign roles to user, verify list_roles shows them")
+	@Test(description = "Create User and Roles, assign roles to user, verify list_roles shows them", groups={"headpin-cli"})
 	public void test_listRoles(){
 		
 		KatelloUser user = createUser();
@@ -321,7 +314,7 @@ public class UserTests extends KatelloCliTestScript{
 	}
 	
 	//@ TODO 961836
-	@Test(description="Delete a user", enabled=true)
+	@Test(description="Delete a user", groups={"headpin-cli"})
 	public void test_deleteUser(){
 		KatelloUser user = createUser();
 		
@@ -335,7 +328,7 @@ public class UserTests extends KatelloCliTestScript{
 				String.format(KatelloUser.OUT_FIND_USER_ERROR,user.username));
 	}
 	
-	@Test(description="Create a user with default org and environment", enabled=true)
+	@Test(description="Create a user with default org and environment", groups={"headpin-cli"})
 	public void test_createUserDefaultValues() {
 		SSHCommandResult res;
 		String uniqueID = KatelloUtils.getUniqueID();
@@ -356,7 +349,7 @@ public class UserTests extends KatelloCliTestScript{
 		usr.asserts_create();
 	}
 
-	@Test(description="Create a user with default org and environment from other org, verify error", enabled=true)
+	@Test(description="Create a user with default org and environment from other org, verify error", groups={"headpin-cli"})
 	public void test_createUserDefaultValuesWrong() {
 		SSHCommandResult res;
 		String uniqueID = KatelloUtils.getUniqueID();
@@ -373,7 +366,7 @@ public class UserTests extends KatelloCliTestScript{
 	}
 	
 	
-	@Test(description="access to cli calls by providing an empty password", enabled=false) // TODO - try to find out why it fails on group running - TODO for gkhachik
+	@Test(description="access to cli calls by providing an empty password", groups={"headpin-cli"}, enabled=false) // TODO - try to find out why it fails on group running - TODO for gkhachik
 	public void test_getAccessWithEmptyPassword(){
 		KatelloUser userAdmin = new KatelloUser(System.getProperty("katello.admin.user"), 
 				null,"", false);
@@ -386,7 +379,7 @@ public class UserTests extends KatelloCliTestScript{
 				"Check - error string (invalid credentials)");
 	}
 	
-	@Test(description="Login incorrect username", enabled=false) // TODO - try to find out why it fails on group running - TODO for gkhachik
+	@Test(description="Login incorrect username", groups={"headpin-cli"}, enabled=false) // TODO - try to find out why it fails on group running - TODO for gkhachik
 	public void test_loginIncorrectUsername() {
 		KatelloUser userAdmin = new KatelloUser("wrong", 
 				null, System.getProperty("katello.admin.password"), false);
@@ -399,7 +392,7 @@ public class UserTests extends KatelloCliTestScript{
 				"Check - error string (invalid credentials)");
 	}
 
-	@Test(description="Login incorrect password", enabled=false) // TODO - try to find out why it fails on group running - TODO for gkhachik
+	@Test(description="Login incorrect password", groups={"headpin-cli"}, enabled=false) // TODO - try to find out why it fails on group running - TODO for gkhachik
 	public void test_loginIncorrectPassword() {
 		KatelloUser userAdmin = new KatelloUser(System.getProperty("katello.admin.user"), 
 				null, "wrong", false);
@@ -412,7 +405,7 @@ public class UserTests extends KatelloCliTestScript{
 				"Check - error string (invalid credentials)");
 	}
 
-	@Test(description="Login incorrect credentials")
+	@Test(description="Login incorrect credentials", groups={"headpin-cli"})
 	public void test_loginIncorrectCredentials() {
 		KatelloUser userAdmin = new KatelloUser("wrong", 
 				null, "wrong", false);
@@ -425,7 +418,7 @@ public class UserTests extends KatelloCliTestScript{
 				"Check - error string (invalid credentials)");
 	}
 	
-	@Test(description="Read-only user for an organization can only view information but cannot modify it")
+	@Test(description="Read-only user for an organization can only view information but cannot modify it", groups={"headpin-cli"})
 	public void test_ReadonlyUser(){
 
 		SSHCommandResult res;
