@@ -30,6 +30,8 @@ public class KatelloContentFilter extends _KatelloObject{
 	public static final String OUT_ADD_REPO = "Added repository [ %s ] to filter [ %s ]";
 	public static final String OUT_REMOVE_PRODUCT  = "Removed product [ %s ] from filter [ %s ]";
 	public static final String OUT_REMOVE_REPO = "Removed repository [ %s ] from filter [ %s ]";
+	public static final String OUT_ADD_RULE = "Successfully created rule [ %s ]";
+	public static final String OUT_REMOVE_RULE = "Successfully removed rule [ %s ]";
 
 	public static final String ERR_ERRATA_DATE = "Validation failed: Parameters Invalid date range. The erratum rule start date must come before the end date";
 
