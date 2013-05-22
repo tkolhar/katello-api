@@ -406,7 +406,6 @@ public class ContentDefAccessTests extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentDefinition.ERR_CREATE_DENIED, this.user_create)), "Check - error string (content create)");
 	}
 
-	//@ TODO bug 950420
 	@Test(description="try to delete content definition without permissions", dependsOnMethods={"test_CreateAccess"})
 	public void test_DeleteNoAccess() {
 		KatelloUser user = new KatelloUser(user_read, "root@localhost", KatelloUser.DEFAULT_USER_PASS, false);
@@ -419,10 +418,9 @@ public class ContentDefAccessTests extends KatelloCliTestScript{
 		content.runAs(user);
 		exec_result = content.delete();
 		Assert.assertTrue(exec_result.getExitCode()==147, "Check = error code (delete content definition)");
-		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentDefinition.ERR_DELETE_DENIED, this.user_read)), "Check - error string (content delete)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentDefinition.ERR_DELETE_DENIED, this.user_publish)), "Check - error string (content delete)");
 	}
 
-	//@ TODO bug 950420
 	@Test(description="check permissions to delete content definition")
 	public void test_DeleteAccess() {
 		KatelloUser user = new KatelloUser(user_delete, "root@localhost", KatelloUser.DEFAULT_USER_PASS, false);
@@ -479,7 +477,6 @@ public class ContentDefAccessTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode()==147, "Check - return code (content list)");
 	}
 
-	//@ TODO bug 948733
 	@Test(description="modify access to content view definition")
 	public void test_modifyAccess() {
 		KatelloUser user = new KatelloUser(user_modify, "root@localhost", KatelloUser.DEFAULT_USER_PASS, false);
@@ -487,10 +484,9 @@ public class ContentDefAccessTests extends KatelloCliTestScript{
 		content.runAs(user);
 		exec_result = content.update("new description");
 		Assert.assertTrue(exec_result.getExitCode()==0, "Check - exit code (update content)");
-		// TODO check output message
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentDefinition.OUT_UPDATE, content_name4)), "Check output");
 	}
 
-	//@ TODO bug 948733
 	@Test(description="no modify access to content view definition")
 	public void test_modifyNoAccess() {
 		KatelloUser user = new KatelloUser(user_read, "root@localhost", KatelloUser.DEFAULT_USER_PASS, false);
@@ -498,7 +494,7 @@ public class ContentDefAccessTests extends KatelloCliTestScript{
 		content.runAs(user);
 		exec_result = content.update("new description II");
 		Assert.assertTrue(exec_result.getExitCode()==147, "Check - exit code (update content)");
-		// TODO check error message
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentDefinition.ERR_UPDATE, user_read)), "Check output");
 	}
 
 	@Test(description="test read permission to content view")
@@ -527,6 +523,7 @@ public class ContentDefAccessTests extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentView.ERR_VIEW_READ, this.user_read)), "Check - error string (view read)");
 	}
 
+	// TODO BUG  966035
 	@Test(description="access to promote content views")
 	public void test_PromoteAccess() {
 		KatelloUser user = new KatelloUser(user_prom, KatelloUser.DEFAULT_USER_EMAIL, KatelloUser.DEFAULT_USER_PASS, false);
@@ -539,7 +536,6 @@ public class ContentDefAccessTests extends KatelloCliTestScript{
 
 	@Test(description="promote no access")
 	public void test_PromoteNoAccess() {
-		// TODO maybe use existing content views
 		KatelloUser user = new KatelloUser(user_prom, KatelloUser.DEFAULT_USER_EMAIL, KatelloUser.DEFAULT_USER_PASS, false);
 		KatelloContentView content = new KatelloContentView(view_pub2, "description", org_name, view_pub2);
 		content.runAs(user);
@@ -558,7 +554,6 @@ public class ContentDefAccessTests extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloSystem.OUT_UPDATE, sys_name)), "Check - output message");
 	}
 
-	//@ TODO bug 953444
 	@Test(description="no subscribe access to content view")
 	public void test_SubscribeNoAccess() {
 		KatelloUser user = new KatelloUser(subscr_user, KatelloUser.DEFAULT_USER_EMAIL, KatelloUser.DEFAULT_USER_PASS, false);
@@ -566,6 +561,6 @@ public class ContentDefAccessTests extends KatelloCliTestScript{
 		sys.runAs(user);
 		exec_result = sys.update_content_view(subscr_view2);
 		Assert.assertTrue(exec_result.getExitCode()==147, "Check - exit code");
-		// TODO check error message
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloSystem.ERR_UPDATE, subscr_user)), "Check - output message");
 	}
 }

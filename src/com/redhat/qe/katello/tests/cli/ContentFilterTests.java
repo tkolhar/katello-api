@@ -227,17 +227,14 @@ public class ContentFilterTests extends KatelloCliTestScript {
 		assert_filterInfo(filter_name, KatelloContentFilter.CONTENT_ERRATUM, KatelloContentFilter.TYPE_EXCLUDES, REG_EMPTY_RULE);
 	}
 
-	//@ TODO bug 956151
 	@Test(description="filter add_rule - check output message")
 	public void test_filterAddRuleOutput() {
 		KatelloContentFilter filter = new KatelloContentFilter(filter_name, org_name, condef_name);
 		exec_result = filter.add_rule("{}", KatelloContentFilter.CONTENT_ERRATUM, KatelloContentFilter.TYPE_INCLUDES);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		// TODO check output message after bugfix^
-		Assert.assertFalse(getOutput(exec_result).equals(""), "Check - output ");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentFilter.OUT_ADD_RULE, "{}")), "Check - output ");
 	}
 
-	//@ TODO bug 956151
 	@Test(description="remove rule from filter")
 	public void test_removeRule() {
 		KatelloContentFilter filter = new KatelloContentFilter(filter_name, org_name, condef_name);
@@ -246,8 +243,7 @@ public class ContentFilterTests extends KatelloCliTestScript {
 		String rule_id = KatelloCli.grepCLIOutput("    Id", getOutput(exec_result).trim(),1);
 		exec_result = filter.remove_rule(rule_id);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		// TODO check output message after bugfix^
-		Assert.assertFalse(getOutput(exec_result).equals(""), "Check - output ");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentFilter.OUT_REMOVE_RULE, rule_id)), "Check - output ");
 	}
 
 	@Test(description="add include package_groups filter rules")

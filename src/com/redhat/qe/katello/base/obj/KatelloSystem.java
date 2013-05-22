@@ -53,6 +53,7 @@ public class KatelloSystem extends _KatelloObject{
 			"Guest's host does not match owner of pool: '%s'.";
 	public static final String ERR_DELETE_ACCESS = 
 			"Invalid credentials";
+	public static final String ERR_UPDATE = "User %s is not allowed to access api/v1/systems/update";
 	
 	public static final String OUT_REMOTE_ACTION_DONE = "Remote action finished:";
 	public static final String OUT_RHSM_SUBSCRIBED_OK = 
