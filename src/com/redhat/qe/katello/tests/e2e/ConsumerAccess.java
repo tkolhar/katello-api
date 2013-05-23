@@ -77,7 +77,7 @@ public class ConsumerAccess extends KatelloCliTestScript{
 	 */
 	@Test(description="Retrieve consumer")
 	public void test_consumerRetrieve() {
-		KatelloSystem sys = new KatelloSystem(this.system_name, this.org_name, null);
+		KatelloSystem sys = new KatelloSystem(this.system_name, this.org_name, this.env_name);
 		exec_result = sys.rhsm_register(); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		

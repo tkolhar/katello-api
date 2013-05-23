@@ -1,9 +1,7 @@
 package com.redhat.qe.katello.tests.e2e;
 
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
@@ -150,6 +148,13 @@ public class ContentViewRefreshTests extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(exec_result).trim().contains("No package walrus available."));
 	}
 	
+	@Test(description="Remove the org - while ago there was a bug: https://bugzilla.redhat.com/show_bug.cgi?id=960587",
+			dependsOnMethods={"test_consumeRefreshedContent"})
+	public void test_deleteOrg(){
+		exec_result = org2.delete();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+	}
+	
 	/**
 	 * Creates local repo 1 which packages are from REPO_INECAS_ZOO3.
 	 */
@@ -203,13 +208,6 @@ public class ContentViewRefreshTests extends KatelloCliTestScript{
 				String.format("Content view [%s] should be found in the result info", content.org));	
 		
 		return KatelloCli.grepCLIOutput("ID", getOutput(res));
-	}
-	
-	//@ TODO https://bugzilla.redhat.com/show_bug.cgi?id=960587
-	@AfterClass
-	public void tearDown() {
-		exec_result = org2.delete();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
 
 }

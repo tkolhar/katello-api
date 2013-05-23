@@ -10,6 +10,7 @@ import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
+import com.redhat.qe.katello.base.obj.KatelloPackage;
 import com.redhat.qe.katello.base.obj.KatelloPermission;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
@@ -34,7 +35,7 @@ import com.redhat.qe.tools.SSHCommandResult;
 public class RhsmOnlyPermissions extends KatelloCliTestScript{
 	private static Logger log = Logger.getLogger(RhsmOnlyPermissions.class.getName());
 
-	String org;
+	private String org;
 	private String env_dev;
 	private String env_test;
 	private String user;
@@ -42,6 +43,7 @@ public class RhsmOnlyPermissions extends KatelloCliTestScript{
 	private String system;
 	private String prod;
 	private String repo;
+	private String contentView;
 
 	@BeforeClass(description="Init org/env", alwaysRun=true)
 	public void setUp(){
@@ -93,20 +95,7 @@ public class RhsmOnlyPermissions extends KatelloCliTestScript{
 				"Check - return code (user assign_role)");
 	}
 	
-	@Test(description="Register user", dependsOnMethods={"test_permissionAssign"}, enabled=true)
-	public void test_rhsmRegisterSystem(){
-		
-		log.info("Register the system");
-		rhsm_clean_only();
-		String cmd = String.format(
-				"subscription-manager register --username %s --password %s --org \"%s\" --environment \"%s\" --name \"%s\" --force",
-				this.user,KatelloUser.DEFAULT_USER_PASS,org,this.env_dev,this.system);
-		SSHCommandResult res = KatelloUtils.sshOnClient(cmd);
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (rhsm register)");
-		Assert.assertTrue(getOutput(res).contains("The system has been registered"), "Check - message (registered)");
-	}
-	
-	@Test(description="Sync Zoo3 repo", dependsOnMethods={"test_rhsmRegisterSystem"}, enabled=true)
+	@Test(description="Sync Zoo3 repo", dependsOnMethods={"test_permissionAssign"}, enabled=true)
 	public void test_syncZoo3(){
 		String uid = KatelloUtils.getUniqueID();
 		String providerName = "Zoo3_"+uid; 
@@ -122,17 +111,32 @@ public class RhsmOnlyPermissions extends KatelloCliTestScript{
 		repo.create();
 		repo.synchronize();
 		
-		KatelloUtils.promoteProductToEnvironment(this.org, this.prod, this.env_dev);
+		this.contentView = KatelloUtils.promoteProductToEnvironment(this.org, this.prod, this.env_dev);
+	}
+
+	@Test(description="Register user", dependsOnMethods={"test_syncZoo3"}, enabled=true)
+	public void test_rhsmRegisterSystem(){
+		SSHCommandResult res;
+		
+		log.info("Register the system");
+		rhsm_clean();
+		
+		KatelloSystem sys = new KatelloSystem(this.system, this.org, this.env_dev+"/"+this.contentView);
+		sys.runAs(new KatelloUser(user, null, KatelloUser.DEFAULT_USER_PASS, false));
+		res = sys.rhsm_register();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (rhsm register)");
+		Assert.assertTrue(getOutput(res).contains("The system has been registered"), "Check - message (registered)");
+		try{Thread.sleep(3000);}catch(InterruptedException iex){}
 	}
 	
-	@Test(description="Subscribe system to Zoo3", dependsOnMethods={"test_syncZoo3"}, enabled=true)
+	@Test(description="Subscribe system to Zoo3", dependsOnMethods={"test_rhsmRegisterSystem"}, enabled=true)
 	public void test_subscribeSystemToZoo3(){
 		
 		log.info("Subscribing system to the pool of: Zoo3");
 		KatelloSystem sys = new KatelloSystem(this.system, this.org, null);
 		KatelloUser user = new KatelloUser(this.user, null, KatelloUser.DEFAULT_USER_PASS, false);
 		sys.runAs(user);
-		SSHCommandResult res = sys.subscriptions_available();
+		SSHCommandResult res = new KatelloOrg(this.org, null).subscriptions();
 		String pool = KatelloCli.grepCLIOutput("ID", getOutput(res).trim(),1);
 
 		res = sys.rhsm_subscribe(pool);
@@ -141,21 +145,20 @@ public class RhsmOnlyPermissions extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(res).matches(MATCH_SUBSCRIBED), "Check - message (subscribed)");
 	}
 	
-	//@ TODO bug 896600
 	@Test(description="Yum operations", dependsOnMethods={"test_subscribeSystemToZoo3"}, enabled=true)
 	public void test_yumOperations(){
 		
 		log.info("Checks on: yum repolist, packages count");
-		SSHCommandResult res = KatelloUtils.sshOnClient("yum repolist | grep \""+this.repo+"\"");
-		Assert.assertFalse(getOutput(res).equals(""), "Yum repolist contains the repo just subscribed");
+		SSHCommandResult res = KatelloUtils.sshOnClient("yum clean all; yum repolist --disablerepo \\* --enablerepo \\*\""+this.repo+"\"\\* | grep "+this.repo);
+		Assert.assertFalse(getOutput(res).equals("repolist: 0"), "Yum repolist contains the repo just subscribed");
 		
 		String sRev = new StringBuffer(getOutput(res).trim()).reverse().toString();
 		String pkgCountRev = sRev.substring(0, sRev.indexOf(" ")+1);
 		int pkgFromYum = Integer.parseInt(new StringBuffer(pkgCountRev).reverse().toString().trim());
 		
-		KatelloRepo repo = new KatelloRepo(this.repo, this.org, this.prod, null, null, null);
-		res = repo.info(this.env_dev);
-		int pkgFromKatello = Integer.parseInt(KatelloCli.grepCLIOutput("Package Count", getOutput(res).trim()));
+		KatelloPackage pkgs = new KatelloPackage(this.org, this.prod, this.repo, this.contentView);
+		res = pkgs.custom_packagesCount(null); // we specified the contentView already.
+		int pkgFromKatello = Integer.parseInt(getOutput(res));
 		
 		Assert.assertTrue((pkgFromYum==pkgFromKatello), "Check: package counts for both yum and katello repo");
 	}

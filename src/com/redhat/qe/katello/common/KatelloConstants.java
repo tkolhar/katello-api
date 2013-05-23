@@ -156,12 +156,12 @@ public interface KatelloConstants {
 		{"cfseserver5", "usersys.redhat.com", "a70017101d57379c611a30cea1f76182", "10.16.120.72", "00:1a:4a:10:78:36"},
 		{"cfseserver6", "usersys.redhat.com", "08d568db541879e2f684bcf637cf1375", "10.16.120.72", "00:1a:4a:10:78:36"},
 		// adding more below: gkhachik
-		{"surya", "usersys.redhat.com", "08d568db541879e2f684bcf637cf1375", "", ""},
-		{"budha", "usersys.redhat.com", "08d568db541879e2f684bcf637cf1375", "", ""},
-		{"sukra", "usersys.redhat.com", "08d568db541879e2f684bcf637cf1375", "", ""},
-		{"dhara", "usersys.redhat.com", "08d568db541879e2f684bcf637cf1375", "", ""},
-		{"chandra", "usersys.redhat.com", "08d568db541879e2f684bcf637cf1375", "", ""},
-		{"mangala", "usersys.redhat.com", "08d568db541879e2f684bcf637cf1375", "", ""}
+		{"surya", "usersys.redhat.com", "9e546ec429ac34ec15532353e423e9e1", "", ""},
+		{"budha", "usersys.redhat.com", "fec210404083b85a07ba800dca7ae8b1", "", ""},
+		{"sukra", "usersys.redhat.com", "9581e7b17e3a2f6a45670f9883b52fb8", "", ""},
+		{"dhara", "usersys.redhat.com", "8a701607877b5ec8f9ba7b3c8932c471", "", ""},
+		{"chandra", "usersys.redhat.com", "66a69fa255f01040f2bc9506a4e0b65d", "", ""},
+		{"mangala", "usersys.redhat.com", "e8a3af226d9ee02ff43e6f674eace8b2", "", ""}
 	};
 
 	public static final String REDHAT_RELEASE_RHEL5X = "Red Hat Enterprise Linux Server release 5.";

@@ -53,6 +53,7 @@ public class KatelloSystem extends _KatelloObject{
 			"Guest's host does not match owner of pool: '%s'.";
 	public static final String ERR_DELETE_ACCESS = 
 			"Invalid credentials";
+	public static final String ERR_UPDATE = "User %s is not allowed to access api/v1/systems/update";
 	
 	public static final String OUT_REMOTE_ACTION_DONE = "Remote action finished:";
 	public static final String OUT_RHSM_SUBSCRIBED_OK = 
@@ -412,6 +413,16 @@ public class KatelloSystem extends _KatelloObject{
 		opts.add(new Attribute("name", name));
 		return run(CMD_PACKAGES);
 	}
+	
+	
+	public SSHCommandResult packages_install_group(String packagegroupName){
+		opts.clear();
+		opts.add(new Attribute("install_groups", packagegroupName));
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		return run(CMD_PACKAGES);
+	}
+	
 	
 	public SSHCommandResult rhsm_subscribe(String poolid){
 		String cmd = RHSM_SUBSCRIBE;

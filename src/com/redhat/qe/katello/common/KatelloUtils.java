@@ -417,10 +417,6 @@ public class KatelloUtils implements KatelloConstants {
 		sshOnClient(machine.getIpAddress(), "hostname " + configs[0] + "." + configs[1]);
 		sshOnClient(machine.getIpAddress(), "service network restart");
 		
-		sshOnClient(machine.getIpAddress(), "rpm -q ntp || yum -y install ntp");
-		sshOnClient(machine.getIpAddress(), "service ntpd restart");
-		sshOnClient(machine.getIpAddress(), "chkconfig --add ntpd; chkconfig ntpd on");
-		
 		try { Thread.sleep(5000); } catch (Exception e) {}
 		
 		machine.setHostName(configs[0] + "." + configs[1]);
@@ -442,6 +438,8 @@ public class KatelloUtils implements KatelloConstants {
 		BeakerUtils.Katello_Sanity_ImportKeys(hostIP);
 		BeakerUtils.Katello_Installation_RegisterRHNClassic(hostIP);
 		
+		configureNtp(hostIP);
+		
 		// Install the product
 		if (product.equals("katello")) {
 			BeakerUtils.Katello_Installation_ConfigureRepos(hostIP);
@@ -457,6 +455,8 @@ public class KatelloUtils implements KatelloConstants {
 		} else if (product.equals("headpin")) {
 			BeakerUtils.Katello_Installation_ConfigureRepos(hostIP);
 			BeakerUtils.Katello_Installation_HeadpinNightly(hostIP);
+		} else if (product.equals("sat6")) {
+			BeakerUtils.Katello_Installation_Satellite6Latest(hostIP, version);
 		}
 		
 		// Configure the server as a self-client
@@ -524,6 +524,12 @@ public class KatelloUtils implements KatelloConstants {
 				"echo \"AUTH_METHOD = \"password\"\" >> ~/.beaker_client/config; " +
 				"chmod a+x ~/.beaker_client/config";
 		KatelloUtils.sshOnClient(hostname, cmds);
+	}
+	
+	private static void configureNtp(String hostname){
+		sshOnClient(hostname, "rpm -q ntp || yum -y install ntp");
+		sshOnClient(hostname, "service ntpd restart");
+		sshOnClient(hostname, "chkconfig --add ntpd; chkconfig ntpd on");
 	}
 
 	public static String promoteReposToEnvironment(String org_name, String[] product_names, String[] repo_names, String env_name) {
@@ -680,5 +686,18 @@ public class KatelloUtils implements KatelloConstants {
 		exec_result = cs.apply();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		return pubview_name;
+	}
+	
+	public static void disableYumRepo(String repoPattern){
+		log.info("Disabling yum repos: [*"+repoPattern+"*]");
+		configureYumRepo(repoPattern, true);
+	}
+	public static void enableYumRepo(String repoPattern){
+		log.info("Enabling back yum repos: [*"+repoPattern+"*]");
+		configureYumRepo(repoPattern, false);
+	}
+	private static void configureYumRepo(String repoPattern, boolean disable){
+		int enabled = (disable ? 0: 1);
+		sshOnClient("sed -i \"s/^enabled=.*/enabled="+enabled+"/\" /etc/yum.repos.d/*"+repoPattern+"*");
 	}
 }

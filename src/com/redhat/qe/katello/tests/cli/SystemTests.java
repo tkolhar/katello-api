@@ -58,9 +58,6 @@ public class SystemTests extends KatelloCliTestScript{
 		this.orgNameMain = "org-sys-"+uid;
 		this.orgNameNoEnvs = "orgNoEnv-"+uid;
 		
-		this.envName_Dev = "Dev-"+uid;
-		this.envName_Test = "Test-"+uid;
-		this.envName_Prod = "Prod-"+uid;
 		this.user = "usr"+uid;
 		this.systemNameRegOnly = "sys-RegOnly-"+uid;
 		this.systemNameCustomInfo = "sys-CustomInfo-"+uid;
@@ -73,24 +70,39 @@ public class SystemTests extends KatelloCliTestScript{
 		KatelloOrg org = new KatelloOrg(this.orgNameRhsms, null);
 		exec_result = org.cli_create();
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
-		exec_result = new KatelloEnvironment(envName_Dev, null, this.orgNameRhsms, KatelloEnvironment.LIBRARY).cli_create();
-		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
 
 		org = new KatelloOrg(this.orgNameMain, null);
 		exec_result = org.cli_create();
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
 
+		exec_result = new KatelloOrg(this.orgNameNoEnvs, null).cli_create();
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
+
+		exec_result = new KatelloOrg(this.orgNameAwesome,null).cli_create();
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+
+		rhsm_clean(); // clean - in case of it registered
+		
+		this.envName_Dev = null;
+		this.envName_Test = null;
+		this.envName_Prod = null;
+	}
+	
+	@BeforeClass(description="init: katello specific, no headpin", dependsOnMethods={"setUp"})
+	public void setUp_katelloOnly(){
+		String uid = KatelloUtils.getUniqueID();
+		this.envName_Dev = "Dev-"+uid;
+		this.envName_Test = "Test-"+uid;
+		this.envName_Prod = "Prod-"+uid;
+		
+		exec_result = new KatelloEnvironment(envName_Dev, null, this.orgNameRhsms, KatelloEnvironment.LIBRARY).cli_create();
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
 		exec_result = new KatelloEnvironment(envName_Dev, null, orgNameMain, KatelloEnvironment.LIBRARY).cli_create();
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
 		exec_result = new KatelloEnvironment(envName_Test, null, orgNameMain, KatelloEnvironment.LIBRARY).cli_create();
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
 		exec_result = new KatelloEnvironment(envName_Prod, null, orgNameMain, KatelloEnvironment.LIBRARY).cli_create();
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
-
-		exec_result = new KatelloOrg(this.orgNameNoEnvs, null).cli_create();
-		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
-
-		rhsm_clean(); // clean - in case of it registered
 	}
 
 	@Test(description = "RHSM register - org have no environment but Locker only", 
@@ -107,7 +119,7 @@ public class SystemTests extends KatelloCliTestScript{
 	}
 
 	@Test(description = "RHSM register - one environment only", 
-			groups={"cfse-cli","headpin-cli","rhsmRegs"}, dependsOnMethods = {"test_rhsm_RegLibraryOnly"})
+			groups={"cfse-cli","rhsmRegs"}, dependsOnMethods = {"test_rhsm_RegLibraryOnly"})
 	public void test_rhsm_RegOneEnvOnly(){
 		rhsm_clean();
 		// Create the 1st env.
@@ -116,10 +128,8 @@ public class SystemTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		KatelloSystem sys = new KatelloSystem(this.systemNameNoEnvReg, this.orgNameNoEnvs, null);
 		exec_result = sys.rhsm_register(); 
-		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
-		Assert.assertTrue(exec_result.getStdout().trim().contains(KatelloSystem.OUT_CREATE),
-				"Check - output (success)");
-		assert_systemInfo(sys);
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 255, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloSystem.ERR_RHSM_REG_MULTI_ENV,this.orgNameNoEnvs)));
 	}
 
 	@Test(description = "RHSM register - already registered", 
@@ -154,7 +164,7 @@ public class SystemTests extends KatelloCliTestScript{
 	}
 
 	@Test(description = "RHSM register - more than one environment (no env. specified)", 
-			groups={"cfse-cli","headpin-cli","rhsmRegs"}, dependsOnMethods = {"test_rhsm_ForceReg"})
+			groups={"cfse-cli","rhsmRegs"}, dependsOnMethods = {"test_rhsm_ForceReg"})
 	public void test_rhsm_RegMultiEnv(){
 		String uid = KatelloUtils.getUniqueID();
 		String system = "rhsm-regMultiEnv-"+uid;
@@ -171,7 +181,7 @@ public class SystemTests extends KatelloCliTestScript{
 	}
 
 	@Test(description = "RHSM register - env specified", 
-			dependsOnMethods = {"test_rhsm_RegMultiEnv"}, groups={"cfse-cli","headpin-cli","rhsmRegs"})
+			dependsOnMethods = {"test_rhsm_RegMultiEnv"}, groups={"cfse-cli","rhsmRegs"})
 	public void test_rhsm_RegWithEnv(){
 		String uid = KatelloUtils.getUniqueID();
 		String system = "rhsm-env-"+uid;
@@ -185,7 +195,7 @@ public class SystemTests extends KatelloCliTestScript{
 	}
 
 	@Test(description = "RHSM register - same name for 2 environments", 
-			dependsOnMethods = {"test_rhsm_RegMultiEnv"}, groups={"cfse-cli","headpin-cli","rhsmRegs"})
+			dependsOnMethods = {"test_rhsm_RegMultiEnv"}, groups={"cfse-cli","rhsmRegs"})
 	public void test_rhsm_RegSameNameTwoEnvs(){
 		String uid = KatelloUtils.getUniqueID();
 		String system = "localhost-"+uid;
@@ -486,12 +496,10 @@ public class SystemTests extends KatelloCliTestScript{
 	 * List releases for the system - RHEL6 64 bit repos getting enabled.
 	 */
 	@Test(description = "list system releases for RHEL6 64bit repos", 
-			groups={"cfse-cli","headpin-cli","manifestImported"})
+			groups={"cfse-cli","manifestImported"})
 	public void test_listReleasesAllRhel6(){
 		KatelloUtils.scpOnClient("data/"+KatelloProvider.MANIFEST_2SUBSCRIPTIONS, "/tmp"); // send manifest zip to the client's /tmp dir.
 		
-		exec_result = new KatelloOrg(this.orgNameAwesome,null).cli_create();
-		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		exec_result = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, this.orgNameAwesome, null, null).import_manifest(
 				"/tmp/"+KatelloProvider.MANIFEST_2SUBSCRIPTIONS, false); // import manifest
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
@@ -548,7 +556,7 @@ public class SystemTests extends KatelloCliTestScript{
 	 * RHSM register system the a specific RHEL6 release - 6.4 for our case. 
 	 */
 	@Test(description = "list system releases for RHEL6 64bit repos", 
-			groups={"cfse-cli","headpin-cli","manifestImported"}, dependsOnMethods={"test_listReleasesAllRhel6"})
+			groups={"cfse-cli","manifestImported"}, dependsOnMethods={"test_listReleasesAllRhel6"})
 	public void test_rhsmRegWithOptionRelease(){
 		String release = "6.4";
 		

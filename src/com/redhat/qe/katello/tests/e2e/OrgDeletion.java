@@ -28,7 +28,7 @@ public class OrgDeletion extends KatelloCliTestScript{
 	private String provider_name;
 	private String product_name;
 
-	
+	// TODO - seems there is right now a GLOBAL bug: all kinds of delete operations are busted.
 	@Test(description="Create a new Org, add repo, sync it, delete the org")
 	public void test_deleteOrg(){
 		

@@ -27,22 +27,28 @@ public class OrgTests extends KatelloCliTestScript{
 	SSHCommandResult exec_result;
 	String orgName_Exists = "EXIST-"+uid;
 	String orgLabel_Exists = "LBL"+uid;
+	
+	String org_system_name = "org_system-"+uid;
+	String env_system_name = "Library"; // initially - for headpin
 
-	@BeforeClass(description="Generate unique objects")
+	@BeforeClass(description="Generate unique objects", groups={"cfse-cli","headpin-cli"})
 	public void setUp() {
 		KatelloOrg org = new KatelloOrg("FOO"+uid,"Package tests", "BAR"+uid);
 		exec_result = org.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		orgs.add(org);
+		
+		new KatelloOrg(org_system_name, null).cli_create();
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 	}
 	
-        @AfterClass(description="Remove org objects", alwaysRun=true)
-	public void tearDown() {
-		for (KatelloOrg org : orgs) {
-			org.delete();
-		}
-	}	
-	
+	@BeforeClass(description="init: katello specific, no headpin", dependsOnMethods={"setUp"})
+	public void setUp_katelloOnly(){
+		this.env_system_name = "env_system-"+uid;
+		exec_result = new KatelloEnvironment(env_system_name, null, org_system_name, KatelloEnvironment.LIBRARY).cli_create();
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+	}
+
 	@Test(description = "List all orgs - default org should be there",groups={"cfse-cli","headpin-cli"})
 	public void test_listOrgs_DefaultOrg(){
 		KatelloOrg list_org = new KatelloOrg(null,null);
@@ -247,30 +253,18 @@ public class OrgTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode() == 166, "Check - return code [166]");
 		Assert.assertEquals(getOutput(exec_result).trim(), KatelloOrg.ERR_ORG_EXISTS_MUST_BE_UNIQUE);
 	}	
-
 	   
 	@Test(description = "Delete Organization with Systems ",groups={"cfse-cli","headpin-cli"})
-	public void test_Delete_OrgWithSystems(){
-		
+	public void test_deleteOrgWithSystems(){
 		String uniqueID = KatelloUtils.getUniqueID();
-	    String org_system_name = "org_system-" + uniqueID;
-	    String env_system_name = "env_system-" + uniqueID;
 	    String sys_del_name = "system_del-" + uniqueID;
-	    KatelloOrg org_system = new KatelloOrg(org_system_name, null);
-	    exec_result = org_system.cli_create();
-	    Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-	    KatelloEnvironment env_system = new KatelloEnvironment(env_system_name,null,org_system_name,KatelloEnvironment.LIBRARY);
-	    exec_result = env_system.cli_create();
-	    Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	    KatelloSystem system_del = new KatelloSystem(sys_del_name,org_system_name, env_system_name);
 	    exec_result = system_del.rhsm_registerForce();
 	    exec_result = system_del.list();
 	    Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-	    exec_result = org_system.delete();
+	    exec_result = new KatelloOrg(org_system_name, null).delete();
 	    Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-
 	}
-	
 	
 	@Test(description = "Attempt to upload an already imported manifest in a different ORG",groups={"cfse-cli","headpin-cli"}, enabled=false)// TODO - gkhachik there is some problem, stays on progress. to investigate.
 	public void test_UploadManifestDiffOrg(){
@@ -388,6 +382,13 @@ public class OrgTests extends KatelloCliTestScript{
 		}
 	}
 	
+	@AfterClass(description="Remove org objects", alwaysRun=true)
+	public void tearDown() {
+		for (KatelloOrg org : orgs) {
+			org.delete();
+		}
+	}	
+
 	private void assert_orgInfo(KatelloOrg org){
 		
 		SSHCommandResult res;

@@ -36,6 +36,8 @@ public class PackagesWithGPGKey extends KatelloCliTestScript{
 	private String gpg_key;
 	private String system;
 	
+	private String contentView;
+	
 	@BeforeClass(description="Init unique names", alwaysRun=true)
 	public void setUp(){
 		String uniqueID = KatelloUtils.getUniqueID();
@@ -89,7 +91,7 @@ public class PackagesWithGPGKey extends KatelloCliTestScript{
 	public void test_promoteRepoToEnv(){
 		
 		log.info("E2E - Promote product to the environment");		
-		KatelloUtils.promoteProductToEnvironment(org, product, env);
+		this.contentView = KatelloUtils.promoteProductToEnvironment(org, product, env);
 	}
 	
 	@Test(description="Subscribe client system to the product", dependsOnMethods={"test_promoteRepoToEnv"}, enabled=true)
@@ -99,7 +101,7 @@ public class PackagesWithGPGKey extends KatelloCliTestScript{
 		rhsm_clean();
 		
 		log.info("E2E - Subscribe client system");
-		KatelloSystem sys = new KatelloSystem(this.system, this.org, this.env);
+		KatelloSystem sys = new KatelloSystem(this.system, this.org, this.env+"/"+this.contentView);
 		res = sys.rhsm_register();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (rhsm register)");
 		
@@ -122,7 +124,7 @@ public class PackagesWithGPGKey extends KatelloCliTestScript{
 
 		log.info("E2E - check repo, install package");
 		KatelloUtils.sshOnClient("yum -y erase wolf lion || true");
-		KatelloUtils.sshOnClient("yum repolist"); // refresh repos
+		yum_clean();
 		res = KatelloUtils.sshOnClient("cat /etc/yum.repos.d/redhat.repo");// out redhat.repo
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (out redhat.repo)");
 		String REPO_STRUCT = String.format(".*name = %s.*enabled = 1.*gpgcheck = 1.*",this.repo);
@@ -157,7 +159,7 @@ public class PackagesWithGPGKey extends KatelloCliTestScript{
 	@AfterTest(description="unregister system", alwaysRun=true)
 	public void tearDown(){
 		log.info("E2E - RHSM unregister system");
-		KatelloUtils.sshOnClient("subscription-manager unregister || true");
+		rhsm_clean();
 	}
 	
 }

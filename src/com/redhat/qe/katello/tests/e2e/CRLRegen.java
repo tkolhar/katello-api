@@ -31,6 +31,8 @@ public class CRLRegen extends KatelloCliTestScript{
 	private String provider_name;
 	private String product_name;
 	
+	private String contentView;
+	
 	@BeforeClass(description="Generate unique names")
 	public void setUp(){
 		String uid = KatelloUtils.getUniqueID();
@@ -74,7 +76,7 @@ public class CRLRegen extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		exec_result = repo.synchronize();
 		
-		KatelloUtils.promoteProductToEnvironment(org_name, product_name, env_name);
+		this.contentView = KatelloUtils.promoteProductToEnvironment(org_name, product_name, env_name);
 	}
 	
 	/**
@@ -92,7 +94,7 @@ public class CRLRegen extends KatelloCliTestScript{
 	@Test(description="CRL Regeneration")
 	public void test_crl_regen() {
 		
-		KatelloSystem sys = new KatelloSystem(system_name, this.org_name, this.env_name);
+		KatelloSystem sys = new KatelloSystem(system_name, this.org_name, this.env_name+"/"+this.contentView);
 		exec_result = sys.rhsm_registerForce(); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		

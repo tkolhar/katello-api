@@ -16,7 +16,7 @@ import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.common.KatelloUtils;
 
-@Test(groups={"cfse-api","headpin-api"})
+@Test(groups={"cfse-api"})
 public class EnvironmentsTest extends KatelloTestScript{
     private String org_name;
 	private String env_name;
