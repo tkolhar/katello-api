@@ -273,6 +273,10 @@ public class ContentDefAccessTests extends KatelloCliTestScript{
 		exec_result = perm.create();
 		Assert.assertTrue(exec_result.getExitCode()==0, "Check - exit code (create perm)");
 
+		perm = new KatelloPermission(perm_prom_v+"-envs", org_name, "environments", null, "promote_changesets", role_prom);
+		exec_result = perm.create(true); // with --all_tags
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check - exit code (create perm)");
+
 		exec_result = user.assign_role(role_prom);
 		Assert.assertTrue(exec_result.getExitCode()==0, "Check - exit code (assign role)");
 
