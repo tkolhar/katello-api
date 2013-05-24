@@ -74,7 +74,7 @@ public class ErrataTests extends KatelloCliTestScript {
 		content_view = KatelloUtils.promoteRepoToEnvironment(org_name, product_name, repo_name, env_name);
 	}
 	
-	@Test(description="errata list")
+	@Test(description="8782a6e0-f41a-48d5-8599-bfe7f24078f6")
 	public void test_errataList() {
 		KatelloErrata errata = new KatelloErrata(org_name, product_name, repo_name, content_view);
 		errata.setProductId(product_Id);
@@ -84,8 +84,7 @@ public class ErrataTests extends KatelloCliTestScript {
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains(PromoteErrata.ERRATA_ZOO_SEA), "Check - errata list output");
 	}
 
-	// @ TODO
-	@Test(description="errata info")
+	@Test(description="2542ae61-8de6-40ce-866f-999c39fa9018")
 	public void test_errataInfo() {
 		KatelloErrata errata = new KatelloErrata(org_name, product_name, repo_name, content_view);
 		errata.setId(PromoteErrata.ERRATA_ZOO_SEA);
