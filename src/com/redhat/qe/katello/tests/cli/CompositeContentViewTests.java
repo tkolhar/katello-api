@@ -148,11 +148,11 @@ public class CompositeContentViewTests extends KatelloCliTestScript{
 	@Test(description="Check adding old views into composite content view definition", dependsOnMethods={"test_createComposite"})
 	public void test_checkOldViewsIntoComposite() {
 		exec_result = compcondef.add_view(pubview_name1_1);
-		Assert.assertTrue(exec_result.getExitCode() == 244, "Check - return code");	
+		Assert.assertTrue(exec_result.getExitCode() == 144, "Check - return code");	
 		Assert.assertTrue(getOutput(exec_result).contains(KatelloContentDefinition.ERR_ADDVIEW), "Error in adding older view");
 		
 		exec_result = compcondef.add_view(pubview_name2_1);
-		Assert.assertTrue(exec_result.getExitCode() == 244, "Check - return code");
+		Assert.assertTrue(exec_result.getExitCode() == 144, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(KatelloContentDefinition.ERR_ADDVIEW), "Error in adding older view");
 	}
 
