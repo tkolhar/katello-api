@@ -40,6 +40,7 @@ public class KatelloSystem extends _KatelloObject{
 	public static final String RHSM_UNREGISTER = "subscription-manager unregister";
 	public static final String RHSM_LIST_CONSUMED = "subscription-manager list --consumed";
 	public static final String RHSM_REFRESH = "subscription-manager refresh";
+	public static final String RHSM_ENVIRONMENTS ="subscription-manager environments --username %s --password %s";
 	
 	public static final String OUT_CREATE = 
 			"The system has been registered with id:";
@@ -72,6 +73,8 @@ public class KatelloSystem extends _KatelloObject{
 			"Successfully updated Custom Information [ %s ] for System [ %s ]";
 	public static final String OUT_REMOVE_CUSTOM_INFO =
 			"Successfully removed Custom Information from System [ %s ]";
+	public static final String OUT_RHSM_REGISTERED_OK = 
+			"The system has been registered with id:";
 	
 	public static final String API_CMD_INFO = "/consumers/%s";
 	public static final String API_CMD_GET_SERIALS = "/consumers/%s/certificates/serials";
@@ -469,6 +472,20 @@ public class KatelloSystem extends _KatelloObject{
 		String cmd = RHSM_UNREGISTER;
 		
 		return KatelloUtils.sshOnClient(getHostName(), cmd);		
+	}
+	
+	public SSHCommandResult rhsm_environments(){
+		String cmd = RHSM_ENVIRONMENTS;
+		if(org != null)
+			cmd += " --org \""+org+"\"";
+		if(this.user==null)
+			cmd = String.format(cmd,
+					System.getProperty("katello.admin.user", KatelloUser.DEFAULT_ADMIN_USER),
+					System.getProperty("katello.admin.password", KatelloUser.DEFAULT_ADMIN_PASS));
+		else
+			cmd = String.format(cmd,user.username,user.password);
+		
+		return KatelloUtils.sshOnClient(getHostName(), cmd);
 	}
 	
 	public SSHCommandResult system_uuids(){

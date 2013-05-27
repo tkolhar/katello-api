@@ -13,6 +13,7 @@ public class KatelloActivationKey extends _KatelloObject{
 	String name;
 	String description;
 	String limit;
+	String content_view;
 	
 	private String id;
 	private String environment_id;
@@ -49,8 +50,11 @@ public class KatelloActivationKey extends _KatelloObject{
 		this.description = pDesc;
 		this.limit = pLimit;
 	}
-		
-
+	
+	public KatelloActivationKey(String pOrg, String pEnv, String pName, String pDesc, String pLimit, String pContentView){
+		this(pOrg,pEnv,pName,pDesc,pLimit);
+		this.content_view = pContentView;
+	}
 	
 	public SSHCommandResult create(){
 		opts.clear();
@@ -59,6 +63,7 @@ public class KatelloActivationKey extends _KatelloObject{
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("description", description));
 		opts.add(new Attribute("limit", limit));
+		opts.add(new Attribute("content_view", content_view));
 		return run(CMD_CREATE);
 	}
 	
