@@ -158,6 +158,13 @@ public class KatelloOrg extends _KatelloObject{
 		return run(CMD_UPDATE);
 	}
 
+	public SSHCommandResult update_servicelevel(String servicelevel){
+		opts.clear();
+		opts.add(new Attribute("name", this.name));
+		opts.add(new Attribute("servicelevel", servicelevel));
+		return run(CMD_UPDATE);
+	}
+	
 	public SSHCommandResult add_system_info(String keyname){
 		opts.clear();
 		opts.add(new Attribute("name", this.name));
