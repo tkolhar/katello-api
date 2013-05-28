@@ -266,7 +266,7 @@ public class OrgTests extends KatelloCliTestScript{
 	    Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
 	
-	@Test(description = "Attempt to upload an already imported manifest in a different ORG",groups={"cfse-cli","headpin-cli"}, enabled=false)// TODO - gkhachik there is some problem, stays on progress. to investigate.
+	@Test(description = "Attempt to upload an already imported manifest in a different ORG",groups={"cfse-cli","headpin-cli"})
 	public void test_UploadManifestDiffOrg(){
 
 		KatelloProvider providerRH;
@@ -302,8 +302,8 @@ public class OrgTests extends KatelloCliTestScript{
 			// now try to import the _same_ manifest for another org. 
 			providerRH = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT,diff_org_name,null,null);
 			exec_result = providerRH.import_manifest("/tmp"+File.separator+"stack-manifest.zip", new Boolean(true));
-			Assert.assertTrue(exec_result.getExitCode().intValue() == 144, "Check - return code");
-			Assert.assertTrue(getOutput(exec_result).contains("This subscription management application has already been imported by another owner."),"Check - return string");
+			Assert.assertTrue(exec_result.getExitCode().intValue() == 65, "Check - return code");
+			Assert.assertTrue(getOutput(exec_result).contains("Provider [ Red Hat ] failed to import manifest:"),"Check - return string");
 		} finally {
 			exec_result  = org.delete();
 			Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
@@ -314,7 +314,7 @@ public class OrgTests extends KatelloCliTestScript{
 		}
 	}
 	
-	@Test(description = "Attempt to upload an already imported manifest in the same org",groups={"cfse-cli","headpin-cli"}, enabled=false)// TODO - gkhachik there is some problem, stays on progress. to investigate.
+	@Test(description = "Attempt to upload an already imported manifest in the same org",groups={"cfse-cli","headpin-cli"})
 	public void test_UploadManifestSameOrg(){
 
 		String uniqueID = KatelloUtils.getUniqueID();
@@ -335,8 +335,8 @@ public class OrgTests extends KatelloCliTestScript{
 			Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 			Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloProvider.OUT_MANIFEST_IMPORTED)),"Check - return string");
 			exec_result = provider.import_manifest("/tmp"+File.separator+"stack-manifest.zip", new Boolean(true));
-			Assert.assertTrue(exec_result.getExitCode().intValue() == 144, "Check - return code");
-			Assert.assertTrue(getOutput(exec_result).contains(String.format("Provider [ Red Hat ] failed to import manifest: Import is the same as existing data")),"Check - return string");
+			Assert.assertTrue(exec_result.getExitCode().intValue() == 65, "Check - return code");
+			Assert.assertTrue(getOutput(exec_result).contains(String.format("Provider [ Red Hat ] failed to import manifest:")),"Check - return string");
 		} finally {
 			exec_result  = org.delete();
 			Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");

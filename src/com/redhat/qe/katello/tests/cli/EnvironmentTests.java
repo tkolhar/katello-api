@@ -171,4 +171,20 @@ public class EnvironmentTests extends KatelloCliTestScript{
 	  	    Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 
 		}
+
+		// TODO bug 966901
+		@Test(description="it should not be possible to delete Library environment")
+		public void testDeleteLibrary() {
+			SSHCommandResult res;
+			String uid = KatelloUtils.getUniqueID();
+			String orgname = "org-"+uid;
+
+			KatelloOrg org = new KatelloOrg(orgname, null);
+			res = org.cli_create();
+			Assert.assertTrue(res.getExitCode() == 0, "check exit code (create org)");
+
+			KatelloEnvironment env = new KatelloEnvironment(KatelloEnvironment.LIBRARY, null, orgname, null);
+			res = env.cli_delete();
+			Assert.assertTrue(res.getExitCode() != 0, "check exit code (delete Library)");
+		}
 }
