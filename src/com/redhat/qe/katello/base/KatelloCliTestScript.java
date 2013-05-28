@@ -261,4 +261,38 @@ implements KatelloConstants {
 		}
 	}
 	
+	/**
+	 * Installs array of packages on client system and verifies that they are installed.  
+	 * @param pkgNames
+	 */
+	protected void install_Packages(String[] pkgNames) {
+		StringBuffer install = new StringBuffer();
+		for (String pkg : pkgNames) {
+	        install.append(pkg);
+	        install.append(" ");
+		}
+		SSHCommandResult res = KatelloUtils.sshOnClient("yum install -y "+ install.toString());
+		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
+		res = KatelloUtils.sshOnClient("rpm -qa");
+		for (String pkg : pkgNames) {
+			Assert.assertTrue(getOutput(res).contains(pkg), "Package " + pkg + " should be installed");
+		}
+	}
+	
+	/**
+	 * Check that packages are not available to install on client.
+	 * @param pkgNames
+	 */
+	protected void verify_PackagesNotAvailable(String[] pkgNames) {
+		StringBuffer install = new StringBuffer();
+		for (String pkg : pkgNames) {
+	        install.append(pkg);
+	        install.append(" ");
+		}
+		SSHCommandResult res = KatelloUtils.sshOnClient("yum install -y "+ install.toString());
+		for (String pkg : pkgNames) {
+			Assert.assertTrue(getOutput(res).trim().contains("No package " + pkg + " available."), "Package " + pkg + " should not be available to install.");
+		}
+	}
+	
 }

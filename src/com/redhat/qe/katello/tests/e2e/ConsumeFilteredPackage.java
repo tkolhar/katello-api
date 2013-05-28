@@ -162,34 +162,13 @@ public class ConsumeFilteredPackage extends KatelloCliTestScript {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
 
-		yum_clean();                   
+		yum_clean();
 
 
 		// consume packages from include filter, verify that they are available
-		install_Package("fox");
-		install_Package("cow-2.2-3");
-		install_Package("dog-4.23-1");
-		install_Package("dolphin-3.10.232-1");
-		install_Package("duck-0.6-1");
-		install_Package("walrus-0.71-1");
+		install_Packages(new String[] {"fox", "cow-2.2-3", "dog-4.23-1", "dolphin-3.10.232-1", "duck-0.6-1", "walrus-0.71-1"});
 
 		// consume packages from exclude filter, verify that they are NOT available
-		verify_PackageNotAvailable("elephant-8.3-1");
-		verify_PackageNotAvailable("walrus-5.21-1");
-		verify_PackageNotAvailable("horse-0.22-2");
-		verify_PackageNotAvailable("kangaroo-0.2-1");
-		verify_PackageNotAvailable("pike-2.2-1");
-	}
-
-	private void install_Package(String pkgName) {
-		exec_result=KatelloUtils.sshOnClient("yum install -y "+ pkgName);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		exec_result = KatelloUtils.sshOnClient("rpm -q "+ pkgName);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-	}
-	
-	private void verify_PackageNotAvailable(String pkgName) {
-		exec_result=KatelloUtils.sshOnClient("yum install -y "+ pkgName);
-		Assert.assertTrue(getOutput(exec_result).trim().contains("No package " + pkgName + " available."));
+		verify_PackagesNotAvailable(new String[] {"elephant-8.3-1", "walrus-5.21-1", "horse-0.22-2", "kangaroo-0.2-1", "pike-2.2-1"});
 	}
 }
