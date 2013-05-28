@@ -273,7 +273,7 @@ implements KatelloConstants {
 		}
 		SSHCommandResult res = KatelloUtils.sshOnClient("yum install -y "+ install.toString());
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
-		res = KatelloUtils.sshOnClient("rpm -qa");
+		res = KatelloUtils.sshOnClient("rpm -qa | grep -E \"" + install.toString().trim().replace(" ", "|") + "\"");
 		for (String pkg : pkgNames) {
 			Assert.assertTrue(getOutput(res).contains(pkg), "Package " + pkg + " should be installed");
 		}
