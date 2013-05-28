@@ -454,7 +454,11 @@ public class KatelloUtils implements KatelloConstants {
 			BeakerUtils.Katello_Installation_SAMLatest(hostIP, version);
 		} else if (product.equals("headpin")) {
 			BeakerUtils.Katello_Installation_ConfigureRepos(hostIP);
-			BeakerUtils.Katello_Installation_HeadpinNightly(hostIP);
+			if (ldap.isEmpty()) {
+				BeakerUtils.Katello_Installation_HeadpinNightly(hostIP);	
+			} else{
+				BeakerUtils.Katello_Installation_HeadpinWithLdap(hostIP, ldap);
+			}
 		} else if (product.equals("sat6")) {
 			BeakerUtils.Katello_Installation_Satellite6Latest(hostIP, version);
 		}
