@@ -146,24 +146,11 @@ public class ConsumeCombineContent extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
 		// consume packages from group mammals, verify that they are available
-		install_Package("fox");
-		install_Package("cow");
-		install_Package("dog");
-		install_Package("dolphin");
-		install_Package("wolf");
+		install_Packages(new String[] {"fox", "cow", "dog", "dolphin", "wolf"});
 
 		// consume packages from exclude filter, verify that they are NOT available
 		exec_result = KatelloUtils.sshOnClient("yum install -y elephant walrus");
 		Assert.assertFalse(exec_result.getExitCode().intValue()==0, "Check - return code");
-	}
-
-	private void install_Package(String pkgName)
-	{
-		exec_result=KatelloUtils.sshOnClient("yum install -y "+ pkgName);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		exec_result = KatelloUtils.sshOnClient("rpm -q "+ pkgName);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).trim().contains(pkgName+"-"));
 	}
 	
 	@AfterClass(description="unregister the system, cleanup packages installed", alwaysRun=true)

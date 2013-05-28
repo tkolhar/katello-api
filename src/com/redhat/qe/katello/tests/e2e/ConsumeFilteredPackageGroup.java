@@ -52,6 +52,8 @@ public class ConsumeFilteredPackageGroup extends KatelloCliTestScript {
 	
 	@BeforeClass(description="Generate unique objects")
 	public void setUp() {
+		KatelloUtils.sshOnClient("yum erase -y lion zebra stork cockateel");
+		
 		org = new KatelloOrg(org_name,null);
 		exec_result = org.cli_create();		              
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
@@ -140,33 +142,13 @@ public class ConsumeFilteredPackageGroup extends KatelloCliTestScript {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
 
-		yum_clean();
-		KatelloUtils.sshOnClient("yum erase -y lion");
-		KatelloUtils.sshOnClient("yum erase -y zebra");
-		KatelloUtils.sshOnClient("yum erase -y stork");
-		KatelloUtils.sshOnClient("yum erase -y cockateel");
-		
+		yum_clean();		
 		
 		// consume packages from group mammals, verify that they are available
-		exec_result=KatelloUtils.sshOnClient("yum install -y lion");
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		exec_result = KatelloUtils.sshOnClient("rpm -q lion");
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).trim().contains("lion-"));
-		
-		exec_result=KatelloUtils.sshOnClient("yum install -y zebra");
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		exec_result = KatelloUtils.sshOnClient("rpm -q zebra");
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).trim().contains("zebra-"));
-		
+		install_Packages(new String[] {"lion", "zebra"});
 		
 		// consume packages from group birds, verify that they are NOT available
-		exec_result=KatelloUtils.sshOnClient("yum install -y stork");
-		Assert.assertTrue(getOutput(exec_result).trim().contains("No package stork available."));
-		
-		exec_result=KatelloUtils.sshOnClient("yum install -y cockateel");
-		Assert.assertTrue(getOutput(exec_result).trim().contains("No package cockateel available."));
+		verify_PackagesNotAvailable(new String[] {"stork", "cockateel"});
 	}
 
 }

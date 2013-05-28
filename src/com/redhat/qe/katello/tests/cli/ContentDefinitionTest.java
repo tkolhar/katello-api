@@ -32,6 +32,7 @@ public class ContentDefinitionTest extends KatelloCliTestScript{
 	private String product_name2;
 	private String repo_name2;
 	private String content_name;
+	private String content_name_edit;
 	private String content_name_prod;
 	private String content_name_repo;
 	
@@ -94,6 +95,15 @@ public class ContentDefinitionTest extends KatelloCliTestScript{
 		KatelloContentDefinition content = createContentDefinition();
 		assert_ContentViewDefinitionInfo(content);
 		assert_contentList(Arrays.asList(content), new ArrayList<KatelloContentDefinition>());
+		content_name_edit = content.name;
+	}
+	
+	@Test(description = "Edit content definition", dependsOnMethods={"test_Create"})
+	public void test_Edit() {
+		KatelloContentDefinition content = new KatelloContentDefinition(content_name_edit, "descritpion", org_name, content_name_edit);
+		content.update("edited description");
+		content.description = "edited description";
+		assert_ContentViewDefinitionInfo(content);
 	}
 	
 	@Test(description = "Create Content Def with empty name, verify error")
@@ -114,7 +124,7 @@ public class ContentDefinitionTest extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(exec_result).equals(KatelloContentDefinition.ERR_NAME_LONG), "Check - error string (content create)");
 	}
 	
-	@Test(description = "Create 2 new content definitions, delete one of them")
+	@Test(description = "Create 2 new content definitions, delete one of them", dependsOnMethods={"test_Create"})
 	public void test_delete() {
 		
 		KatelloContentDefinition content = createContentDefinition();
@@ -129,6 +139,14 @@ public class ContentDefinitionTest extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentDefinition.OUT_DELETE_DEFINITION, content_name)), "Check - error string (content delete)");
 		
 		assert_contentList(Arrays.asList(content), Arrays.asList(content2));
+	}
+	
+	@Test(description = "Edit content definition second time", dependsOnMethods={"test_delete"})
+	public void test_Edit2() {
+		KatelloContentDefinition content = new KatelloContentDefinition(content_name_edit, "descritpion", org_name, content_name_edit);
+		content.update("edited descr 2");
+		content.description = "edited descr 2";
+		assert_ContentViewDefinitionInfo(content);
 	}
 	
 	@Test(description = "Create new content definition, add product into it")

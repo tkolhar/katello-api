@@ -313,7 +313,6 @@ public class UserTests extends KatelloCliTestScript{
 		Assert.assertTrue(out.matches(match_list), "Check - user role matches ["+role3.name+"]");
 	}
 	
-	//@ TODO 961836
 	@Test(description="Delete a user", groups={"headpin-cli"})
 	public void test_deleteUser(){
 		KatelloUser user = createUser();
