@@ -423,6 +423,12 @@ public class ContentDefAccessTests extends KatelloCliTestScript{
 		exec_result = content.delete();
 		Assert.assertTrue(exec_result.getExitCode()==147, "Check = error code (delete content definition)");
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentDefinition.ERR_DELETE_DENIED, this.user_publish)), "Check - error string (content delete)");
+		
+		user = new KatelloUser(user_modify, "root@localhost", KatelloUser.DEFAULT_USER_PASS, false);
+		content.runAs(user);
+		exec_result = content.delete();
+		Assert.assertTrue(exec_result.getExitCode()==147, "Check = error code (delete content definition)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentDefinition.ERR_DELETE_DENIED, this.user_modify)), "Check - error string (content delete)");
 	}
 
 	@Test(description="check permissions to delete content definition")
