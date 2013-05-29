@@ -410,6 +410,8 @@ public class OrgTests extends KatelloCliTestScript{
 		Assert.assertTrue(DefaultInfoStr.contains("Self-support"), "Check - stdout contains updated service level");
 
 		KatelloSystem sys = new KatelloSystem(sys_name+"-subscribed",org_name,KatelloEnvironment.LIBRARY);
+		if(System.getProperty("katello.engine", "katello").equals("headpin"))
+			sys.setEnvironmentName(null); // Seems to me there is really no better way to make environment == null (just for this case).
 		exec_result = sys.rhsm_registerForce(); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 
