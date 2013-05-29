@@ -19,45 +19,46 @@ import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups={"cfse-cli","headpin-cli",TngRunGroups.TNG_KATELLO_System_Groups})
-public class SystemGroupTests extends KatelloCliTestScript{	
+@Test(groups={TngRunGroups.TNG_KATELLO_System_Groups})
+public class SystemGroupTests extends KatelloCliTestScript {
 	protected static Logger log = Logger.getLogger(SystemGroupTests.class.getName());
 	
+	String uid = KatelloUtils.getUniqueID();
 	private SSHCommandResult exec_result;
-	private String orgName;
+	private String orgName= "org-"+uid;
 	private String systemGroupName;
-	private String envName;
+	private String envName = null; // initially - for headpin
 	private String systemName;
 	private String system_uuid;
 
-	@BeforeClass(description="Generate unique names")
-	public void setUp(){
-		String uid = KatelloUtils.getUniqueID();
-		this.orgName = "org-"+uid;
-		this.envName = "Dev-"+uid;
-		
+	@BeforeClass(description="Generate unique objects", groups={"cfse-cli","headpin-cli"})
+	public void setUp() {
 		KatelloOrg org = new KatelloOrg(this.orgName, null);
 		exec_result = org.cli_create();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code (org create)");
 		Assert.assertTrue(exec_result.getStdout().trim().equals(String.format(KatelloOrg.OUT_CREATE,this.orgName)),
 				"Check - returned message");
-
-		// Create the env.
-		KatelloEnvironment env = new KatelloEnvironment(this.envName, null, this.orgName, KatelloEnvironment.LIBRARY);
-		exec_result = env.cli_create();	
-		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code (env create)");
 		
 		KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);
 	}
 	
-	@Test(description = "Create system group", groups = { "cli-systemgroup" })
+	@BeforeClass(description="init: katello specific, no headpin", dependsOnMethods={"setUp"})
+	public void setUp_katelloOnly(){
+		this.envName = "Dev-"+uid;
+		// Create the env.
+		KatelloEnvironment env = new KatelloEnvironment(this.envName, null, this.orgName, KatelloEnvironment.LIBRARY);
+		exec_result = env.cli_create();	
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code (env create)");
+	}
+	
+	@Test(description = "Create system group", groups = { "cli-systemgroup", "cfse-cli", "headpin-cli" })
 	public void test_createSystemGroup() {
 		KatelloSystemGroup systemGroup = createSystemGroup();
 		
 		assert_SystemGroupInfo(systemGroup);
 	}
 	
-	@Test(description = "Create system group which already exists, verify error", groups = { "cli-systemgroup" })
+	@Test(description = "Create system group which already exists, verify error", groups = { "cli-systemgroup", "cfse-cli", "headpin-cli" })
 	public void test_createSystemGroupExists() {
 		KatelloSystemGroup systemGroup = createSystemGroup();
 		
@@ -67,7 +68,7 @@ public class SystemGroupTests extends KatelloCliTestScript{
 		Assert.assertEquals(getOutput(exec_result).trim(), "Validation failed: Name must be unique within one organization");
 	}
 	
-	@Test(description = "Create system group, than update it's name, description and max systems", groups = { "cli-systemgroup" })
+	@Test(description = "Create system group, than update it's name, description and max systems", groups = { "cli-systemgroup", "cfse-cli", "headpin-cli" })
 	public void test_updateSystemGroup() {
 		KatelloSystemGroup systemGroup = createSystemGroup();
 		
@@ -89,7 +90,7 @@ public class SystemGroupTests extends KatelloCliTestScript{
 		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloSystemGroup.ERR_SYSTEMGROUP_NOTFOUND, systemGroup.name, orgName));
 	}
 	
-	@Test(description = "Create system group, than copy it by specifying new name, description and max systems", groups = { "cli-systemgroup" })
+	@Test(description = "Create system group, than copy it by specifying new name, description and max systems", groups = { "cli-systemgroup", "cfse-cli", "headpin-cli" })
 	public void test_copySystemGroup() {
 		KatelloSystemGroup systemGroup = createSystemGroup();
 		
@@ -106,7 +107,7 @@ public class SystemGroupTests extends KatelloCliTestScript{
 		assert_systemGroupList(Arrays.asList(systemGroup, systemGroup2), new ArrayList<KatelloSystemGroup>());		
 	}
 
-	@Test(description = "Update cloned system group max systems", groups = { "cli-systemgroup" })
+	@Test(description = "Update cloned system group max systems", groups = { "cli-systemgroup", "cfse-cli", "headpin-cli" })
 	public void test_updateCopiedSystemGroup() {
 		KatelloSystemGroup systemGroup = createSystemGroup();
 		
@@ -129,7 +130,7 @@ public class SystemGroupTests extends KatelloCliTestScript{
 		addSystemToSystemGroup(systemGroup);
 	}
 	
-	@Test(description = "Create system group, add system to it", groups = { "cli-systemgroup" })
+	@Test(description = "Create system group, add system to it", groups = { "cli-systemgroup", "cfse-cli", "headpin-cli" })
 	public void test_addSystemToSystemGroup() {
 		
 		KatelloSystem sys = addSystemToSystemGroup();
@@ -141,7 +142,7 @@ public class SystemGroupTests extends KatelloCliTestScript{
 		assert_systemList(Arrays.asList(sys), new ArrayList<KatelloSystem>());
 	}
 
-	@Test(description = "Remove system group", groups = { "cli-systemgroup" })
+	@Test(description = "Remove system group", groups = { "cli-systemgroup", "cfse-cli", "headpin-cli" })
 	public void test_removeSystemFromSystemGroup() {
 		KatelloSystem sys = addSystemToSystemGroup();
 		
@@ -157,7 +158,7 @@ public class SystemGroupTests extends KatelloCliTestScript{
 		assert_systemList(new ArrayList<KatelloSystem>(), Arrays.asList(sys));
 	}
 	
-	@Test(description = "Add 2 systems to system group which has max systems 1, verify the error", groups = { "cli-systemgroup" })
+	@Test(description = "Add 2 systems to system group which has max systems 1, verify the error", groups = { "cli-systemgroup", "cfse-cli", "headpin-cli" })
 	public void test_addSystemToLimitedSystemGroup() {
 		systemGroupName = "system_group"+KatelloUtils.getUniqueID();
 		
@@ -197,7 +198,7 @@ public class SystemGroupTests extends KatelloCliTestScript{
 		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloSystemGroup.ERR_SYSTEMGROUP_EXCEED, "1", systemGroupName));
 	}
 
-	@Test(description = "Add 1 system to system group which has max systems 1, then remove it and add another one", groups = { "cli-systemgroup" })
+	@Test(description = "Add 1 system to system group which has max systems 1, then remove it and add another one", groups = { "cli-systemgroup", "cfse-cli", "headpin-cli" })
 	public void test_addSystemToLimitedSystemGroupAfterRemoving() {
 		systemGroupName = "system_group"+KatelloUtils.getUniqueID();
 		
@@ -240,7 +241,7 @@ public class SystemGroupTests extends KatelloCliTestScript{
 		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloSystemGroup.OUT_ADD_SYSTEMS, systemGroupName));
 	}
 	
-	@Test(description = "Copy system group with system", groups = { "cli-systemgroup" })
+	@Test(description = "Copy system group with system", groups = { "cli-systemgroup", "cfse-cli", "headpin-cli" })
 	public void test_copySystemGroupWithSystem() {
 		KatelloSystem sys = addSystemToSystemGroup();
 		
@@ -259,7 +260,7 @@ public class SystemGroupTests extends KatelloCliTestScript{
 		assert_systemList(Arrays.asList(sys), new ArrayList<KatelloSystem>());
 	}
 	
-	@Test(description = "List system groups", groups = { "cli-systemgroup" })
+	@Test(description = "List system groups", groups = { "cli-systemgroup", "cfse-cli", "headpin-cli" })
 	public void test_listSystemGroup() {
 		KatelloSystemGroup systemGroup = createSystemGroup();
 		
@@ -271,7 +272,7 @@ public class SystemGroupTests extends KatelloCliTestScript{
 		assert_systemGroupList(Arrays.asList(systemGroup, systemGroup2), new ArrayList<KatelloSystemGroup>());
 	}
 
-	@Test(description = "Delete created system group and verify that it is not shown in list", groups = { "cli-systemgroup" })
+	@Test(description = "Delete created system group and verify that it is not shown in list", groups = { "cli-systemgroup", "cfse-cli", "headpin-cli" })
 	public void test_deleteSystemGroup() {
 		KatelloSystemGroup systemGroup = createSystemGroup();
 		
@@ -294,7 +295,7 @@ public class SystemGroupTests extends KatelloCliTestScript{
 		assert_systemGroupList(Arrays.asList(systemGroup), Arrays.asList(systemGroup2));
 	}
 
-	@Test(description = "Delete system group with systems and verify that systems are also deleted", groups = { "cli-systemgroup" })
+	@Test(description = "Delete system group with systems and verify that systems are also deleted", groups = { "cli-systemgroup", "cfse-cli", "headpin-cli" })
 	public void test_deleteSystemGroupWithSystems() {
 		KatelloSystemGroup systemGroup = createSystemGroup();
 		
@@ -313,7 +314,7 @@ public class SystemGroupTests extends KatelloCliTestScript{
 		Assert.assertFalse(getOutput(exec_result).trim().contains(system.name), "System should not be in list");
 	}
 	
-	@Test(description = "Delete clonned system group with systems and verify that systems are also deleted", groups = { "cli-systemgroup" })
+	@Test(description = "Delete clonned system group with systems and verify that systems are also deleted", groups = { "cli-systemgroup", "cfse-cli", "headpin-cli" })
 	public void test_deleteClonedSystemGroupWithSystems() {
 		KatelloSystemGroup systemGroup = createSystemGroup();
 		
@@ -340,7 +341,7 @@ public class SystemGroupTests extends KatelloCliTestScript{
 		Assert.assertFalse(getOutput(exec_result).trim().contains(system.name), "System should not be in list");
 	}
 
-	@Test(description = "Add/Delete system from cloned system group", groups = { "cli-systemgroup" })
+	@Test(description = "Add/Delete system from cloned system group", groups = { "cli-systemgroup", "cfse-cli", "headpin-cli" })
 	public void test_addDeleteSystemsFromClonedSystemGroup() {
 		KatelloSystemGroup systemGroup = createSystemGroup();
 		

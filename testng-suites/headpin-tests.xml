@@ -21,7 +21,8 @@
 			<class name="com.redhat.qe.katello.tests.cli.ClientTests"/> 
 			<class name="com.redhat.qe.katello.tests.cli.ProviderTests"/>	
 			<class name="com.redhat.qe.katello.tests.cli.UserNoRoleNoAccess"/>				
-			<class name="com.redhat.qe.katello.tests.cli.SystemTests"/>		
+			<class name="com.redhat.qe.katello.tests.cli.SystemTests"/>
+			<class name="com.redhat.qe.katello.tests.cli.SystemGroupTests"/>			
 		</classes>		
 	</test>
 	
