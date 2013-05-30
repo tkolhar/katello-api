@@ -34,6 +34,7 @@ public class SetupServers extends KatelloCliTestScript {
 		}
 		KatelloUtils.disableYumRepo("beaker");
 		KatelloUtils.disableYumRepo("epel");
+		KatelloUtils.disableYumRepo("katello-tools");
 	}
 	
 	@AfterSuite(alwaysRun=true)
@@ -44,5 +45,6 @@ public class SetupServers extends KatelloCliTestScript {
 		}
 		KatelloUtils.enableYumRepo("beaker");
 		KatelloUtils.enableYumRepo("epel");
+		KatelloUtils.enableYumRepo("katello-tools");
 	}
 }

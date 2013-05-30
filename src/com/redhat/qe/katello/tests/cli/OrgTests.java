@@ -7,6 +7,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
+import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
@@ -380,6 +381,67 @@ public class OrgTests extends KatelloCliTestScript{
 				Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 			}
 		}
+	}
+	
+	
+	@Test(description = "Set or Get SLA for an ORG",groups={"cfse-cli","headpin-cli"})
+	public void test_SLAOrg() {
+		String uniqueID = KatelloUtils.getUniqueID();
+		String org_name = "sla-org-" + uniqueID;
+		String sys_name = "sys-sla-org";
+		String org_no_import_manifest = "sla-org-no-import" + uniqueID;
+		KatelloOrg org = new KatelloOrg(org_name,null);
+		exec_result = org.cli_create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		SCPTools scp = new SCPTools(
+				System.getProperty("katello.server.hostname", "localhost"), 
+				System.getProperty("katello.server.ssh.user", "root"), 
+				System.getProperty("katello.server.sshkey.private", ".ssh/id_hudson_dsa"), 
+				System.getProperty("katello.server.sshkey.passphrase", "null"));
+		Assert.assertTrue(scp.sendFile("data"+File.separator+"manifest_org_sla.zip", "/tmp"),
+				"manifest_org_sla.zip sent successfully");	
+		KatelloProvider prov = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT,org_name,null,null);
+		exec_result = prov.import_manifest("/tmp"+File.separator+"manifest_org_sla.zip", new Boolean(true));
+		exec_result = org.update_servicelevel("Self-support");
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		exec_result = org.cli_info();
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		String DefaultInfoStr = KatelloCli.grepCLIOutput("Default Service Level", getOutput(exec_result));
+		Assert.assertTrue(DefaultInfoStr.contains("Self-support"), "Check - stdout contains updated service level");
+
+		KatelloSystem sys = new KatelloSystem(sys_name+"-subscribed",org_name,KatelloEnvironment.LIBRARY);
+		if(System.getProperty("katello.engine", "katello").equals("headpin"))
+			sys.setEnvironmentName(null); // Seems to me there is really no better way to make environment == null (just for this case).
+		exec_result = sys.rhsm_registerForce(); 
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+
+		exec_result = sys.subscriptions_available();
+		String poolId1 = KatelloCli.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
+		Assert.assertNotNull(poolId1, "Check - pool Id is not null");
+
+		exec_result = sys.subscribe(poolId1);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertEquals(exec_result.getStdout().trim(), 
+				String.format(KatelloSystem.OUT_SUBSCRIBE, sys_name +"-subscribed"),
+				"Check - subscribe system output.");
+
+		exec_result = sys.info();
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		String Servicelevel = KatelloCli.grepCLIOutput("Service Level", getOutput(exec_result));
+		Assert.assertTrue(Servicelevel.contains("Self-support"), "Check - stdout contains updated service level");
+
+		KatelloOrg org_no = new KatelloOrg(org_no_import_manifest,null);
+		exec_result = org_no.cli_create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		exec_result = org_no.cli_info();
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		String DefaultInfo = KatelloCli.grepCLIOutput("Default Service Level", getOutput(exec_result));
+		Assert.assertTrue(DefaultInfo.contains("None"), "Check - stdout contains default service level as None");
+
+		exec_result=org.delete();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+
+
 	}
 	
 	@AfterClass(description="Remove org objects", alwaysRun=true)

@@ -254,10 +254,12 @@ public class KatelloRepo extends _KatelloObject{
 		return run(CMD_LIST);
 	}
 	
-	public SSHCommandResult custom_reposCount(String environment){
+	public SSHCommandResult custom_reposCount(String environment, Boolean includeDisabled){
 		opts.clear();
 		if(environment == null) 
 			environment = KatelloEnvironment.LIBRARY;
+		if(includeDisabled.booleanValue())
+			opts.add(new Attribute("include_disabled", ""));
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("environment", environment));
 		opts.add(new Attribute("product", product));

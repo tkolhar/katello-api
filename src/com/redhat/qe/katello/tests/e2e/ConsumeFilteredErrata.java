@@ -161,7 +161,7 @@ public class ConsumeFilteredErrata extends KatelloCliTestScript {
 		exec_result = conview.promote_view(env_name);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentView.OUT_PROMOTE, this.pubview_name, env_name)), "Content view promote output.");
-		// TODO - maybe needs a way of: changeset promote??? to check - gkhachik
+		// promoting content view is the same as create changeset, add content view and promote, it is completely legal
 		
 		act_key = new KatelloActivationKey(org_name,env_name,act_key_name,"Act key created");
 		exec_result = act_key.create();
@@ -195,9 +195,8 @@ public class ConsumeFilteredErrata extends KatelloCliTestScript {
 		yum_clean();			
 		
 		// consume older packages of erratas
-		exec_result = KatelloUtils.sshOnClient("yum install -y kangaroo-3.6.6-1 sheep-1.3.6-1 zebra-10.0.7-1 bird-5.1.10-1 rat-7.7.0-1" +
-				" ferret-1.2.0-1 crab-5.5.1-1 rabbit-9.8.8-1 eagle-9.8.9-1 fish-4.10.2-1 monkey-2.8.9-1 polecat-9.4.6-1 fox-10.8.0-1 seal-3.10.0-1 bat-3.10.6-1");
-        Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
+		install_Packages(new String[] {"kangaroo-3.6.6-1", "sheep-1.3.6-1", "zebra-10.0.7-1", "bird-5.1.10-1", "rat-7.7.0-1", "ferret-1.2.0-1", "crab-5.5.1-1", 
+				"rabbit-9.8.8-1", "eagle-9.8.9-1", "fish-4.10.2-1", "monkey-2.8.9-1", "polecat-9.4.6-1", "fox-10.8.0-1", "seal-3.10.0-1", "bat-3.10.6-1"});
 		
         StringBuffer installOK = new StringBuffer();
         installOK.append(KANGAROO_ERRATA);

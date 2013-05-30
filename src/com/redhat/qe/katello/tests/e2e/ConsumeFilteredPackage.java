@@ -86,6 +86,7 @@ public class ConsumeFilteredPackage extends KatelloCliTestScript {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
     
+	//@ TODO bug 953655
 	@Test(description="Consume content from filtered package")
 	public void test_consumePackageContent() {
 
@@ -108,17 +109,14 @@ public class ConsumeFilteredPackage extends KatelloCliTestScript {
 				new FilterRulePackage("bear"),
 				new FilterRulePackage("cockateel"),
 				new FilterRulePackage("cow", "2.2-3", null, null),
+				new FilterRulePackage("walrus", "0.71-1", null, null),
 				new FilterRulePackage("dog", null, "4.20", null),
 				new FilterRulePackage("dolphin", null, null, "3.11"),
-				new FilterRulePackage("duck", null, "0.6", "0.7"),
+				new FilterRulePackage("duck", null, "0.6", "0.7")
 		};
 
 		exec_result = filter.add_rule(KatelloContentFilter.TYPE_INCLUDES, include_packages);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-
-		exec_result = filter.add_rule(KatelloContentFilter.TYPE_INCLUDES, new FilterRulePackage []{});
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-
 
 		FilterRulePackage [] exclude_packages = {
 				new FilterRulePackage("elephant"),
@@ -129,9 +127,6 @@ public class ConsumeFilteredPackage extends KatelloCliTestScript {
 		};
 
 		exec_result = filter.add_rule(KatelloContentFilter.TYPE_EXCLUDES, exclude_packages);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-
-		exec_result = filter.add_rule(KatelloContentFilter.TYPE_EXCLUDES, new FilterRulePackage []{});
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
 		condef.publish(pubview_name,pubview_name,null);
@@ -167,17 +162,13 @@ public class ConsumeFilteredPackage extends KatelloCliTestScript {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
 
-		yum_clean();                   
+		yum_clean();
 
 
 		// consume packages from include filter, verify that they are available
-		exec_result = KatelloUtils.sshOnClient("yum install -y fox cow-2.2-3 dog-4.23-1 dolphin-3.10.232-1 duck-0.6-1 walrus-0.71-1");
-		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
+		install_Packages(new String[] {"fox", "cow-2.2-3", "dog-4.23-1", "dolphin-3.10.232-1", "duck-0.6-1", "walrus-0.71-1"});
 
 		// consume packages from exclude filter, verify that they are NOT available
-		exec_result = KatelloUtils.sshOnClient("yum install -y elephant-8.3-1 walrus-5.21-1 horse-0.22-2 kangaroo-0.2-1 pike-2.2-1");
-		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
+		verify_PackagesNotAvailable(new String[] {"elephant-8.3-1", "walrus-5.21-1", "horse-0.22-2", "kangaroo-0.2-1", "pike-2.2-1"});
 	}
-
-	
 }

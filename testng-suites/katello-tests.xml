@@ -32,6 +32,9 @@
 			<class name="com.redhat.qe.katello.tests.e2e.BPMTests"/>
 			<class name="com.redhat.qe.katello.tests.e2e.RhsmOnlyPermissions"/>
 			<class name="com.redhat.qe.katello.tests.e2e.ConsumeCombineContent"/>
+			<class name="com.redhat.qe.katello.tests.e2e.ConsumeFilteredPackage"/>
+		    <class name="com.redhat.qe.katello.tests.e2e.ConsumeFilteredErrata"/>
+		    <class name="com.redhat.qe.katello.tests.e2e.ConsumeFilteredPackageGroup"/>
 			<class name="com.redhat.qe.katello.tests.e2e.CRLRegen"/>
 			<class name="com.redhat.qe.katello.tests.e2e.MultyManifest"/>
 			<class name="com.redhat.qe.katello.tests.e2e.ConsumerAccess"/>
@@ -142,4 +145,16 @@
                         <class name="com.redhat.qe.katello.tests.deltacloud.setup.PrepareDCEnvironment"/>
                 </classes>
         </test>	
+    <test name="Katello_LDAP_Tests">
+		<groups>
+    			<run>
+      				<include name="cfse-cli"/>
+    			</run>
+ 		</groups>
+		<classes>
+		    <class name="com.redhat.qe.katello.tests.installation.SetupServers"/>
+			<class name="com.redhat.qe.katello.tests.installation.GroupTests"/>
+			<class name="com.redhat.qe.katello.tests.installation.UserTests"/>
+		</classes>
+	</test>
 </suite>
