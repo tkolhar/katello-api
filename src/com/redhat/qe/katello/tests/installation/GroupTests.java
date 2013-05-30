@@ -38,6 +38,7 @@ public class GroupTests extends KatelloCliTestScript {
 		Assert.assertTrue(getOutput(res).contains(LDAP_GROUP), LDAP_GROUP + " is in role.");
 	}
 
+	//@ TODO bug 966921
 	@Test(description="Add a invalid ldap group name to the new role. Verify that group is not added and error is shown.")
 	public void test_addInvalidGroup() {
 		KatelloUserRole role = new KatelloUserRole(role_name, "test role");

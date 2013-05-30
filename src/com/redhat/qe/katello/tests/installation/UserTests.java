@@ -21,6 +21,7 @@ public class UserTests extends KatelloCliTestScript {
 		this.username = "user"+uid;
 	}
 	
+	//@ TODO bug 966263
 	@Test(description="Create user with correct username, verify that it is created, login by that user")
 	public void test_createUser() {
 		
@@ -40,7 +41,8 @@ public class UserTests extends KatelloCliTestScript {
 		res = ping.cli_ping();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check services up");
 	}
-	
+
+	//@ TODO bug 966263
 	@Test(description="Create user with invalid username, verify that it is not created, login by that user and verify that error is shown")
 	public void test_createUserInvalid() {
 		
@@ -62,6 +64,7 @@ public class UserTests extends KatelloCliTestScript {
 				"Check - error string (invalid credentials)");
 	}
 	
+	//@ TODO bug 966263
 	@Test(description="Create user with wrong parameters, verify that it is not created, login by that user and verify that error is shown")
 	public void test_createUserWrongParams() {
 		
