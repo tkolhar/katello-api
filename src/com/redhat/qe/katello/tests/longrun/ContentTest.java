@@ -1,5 +1,7 @@
 package com.redhat.qe.katello.tests.longrun;
 
+import java.util.ArrayList;
+
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 import org.testng.annotations.BeforeClass;
@@ -17,6 +19,7 @@ import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.base.obj.KatelloUser;
 import com.redhat.qe.tools.SSHCommandResult;
+import com.sun.org.apache.xpath.internal.FoundIndex;
 
 /**
  * Consuming content from the synced RHEL6Server.	
@@ -36,32 +39,35 @@ public class ContentTest extends KatelloCliTestScript{
 	@BeforeClass(description="init: create initial stuff")
 	public void setUp(){
 		String manifestZip = "manifest.zip";
-		
 		this.org = "Awesome Org "+uid;
-		this.envTesting = "Testing";
-		this.contView = "RHEL6";
+		this.envTesting = "Testing-"+uid;
+		this.contView = "RHEL6-"+uid;
 		this.sysName = "awesomeSystem-"+uid;
 		
-		res = new KatelloOrg(org, null).cli_create();
-		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - exit.Code");
+		if(!findSyncedRhelToUse()){
+			res = new KatelloOrg(org, null).cli_create();
+			Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - exit.Code");
+			KatelloUtils.scpOnClient("data/"+manifestZip, "/tmp");
+			res = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, org, null, null).import_manifest("/tmp/"+manifestZip, new Boolean(true));
+			Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
+			KatelloProduct prod=new KatelloProduct(KatelloProduct.RHEL_SERVER,org, KatelloProvider.PROVIDER_REDHAT, null, null, null,null, null);
+			res = prod.repository_set_enable(KatelloProduct.REPOSET_RHEL6_RPMS);
+			Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo set enable)");
+			KatelloRepo repo = new KatelloRepo(KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT,org, KatelloProduct.RHEL_SERVER, null, null, null);
+			SSHCommandResult res = repo.enable();
+			Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo enable)");
+			Assert.assertTrue(getOutput(res).contains("enabled."),"Message - (repo enable)");
+		}
+		
 		res = new KatelloEnvironment(envTesting, null, org, KatelloEnvironment.LIBRARY).cli_create();
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - exit.Code");
-		KatelloUtils.scpOnClient("data/"+manifestZip, "/tmp");
-		res = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, org, null, null).import_manifest("/tmp/"+manifestZip, new Boolean(true));
-		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
-		KatelloProduct prod=new KatelloProduct(KatelloProduct.RHEL_SERVER,org, KatelloProvider.PROVIDER_REDHAT, null, null, null,null, null);
-		res = prod.repository_set_enable(KatelloProduct.REPOSET_RHEL6_RPMS);
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo set enable)");
-		KatelloRepo repo = new KatelloRepo(KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT,org, KatelloProduct.RHEL_SERVER, null, null, null);
-		SSHCommandResult res = repo.enable();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo enable)");
-		Assert.assertTrue(getOutput(res).contains("enabled."),"Message - (repo enable)");
 	}
 
 	@Test(description="Sync RHEL6Server content and promote to Testing env.")
-	public void syncAndPromoteRhel6(){
+	public void test_syncAndPromoteRhel6(){
 		// sync
 		KatelloRepo repo = new KatelloRepo(KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT,org, KatelloProduct.RHEL_SERVER, null, null, null);
+		
 		res = repo.synchronize();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo synchronize)");
 		
@@ -76,14 +82,27 @@ public class ContentTest extends KatelloCliTestScript{
 		KatelloContentView cont = new KatelloContentView(contView, org);
 		res = cont.promote_view(envTesting);
 	}
+	
+	@Test(description="Check product status after the sync", dependsOnMethods={"test_syncAndPromoteRhel6"})
+	public void test_productStatusSynced(){
+		res = new KatelloProduct(KatelloProduct.RHEL_SERVER,org, KatelloProvider.PROVIDER_REDHAT, null, null, null,null, null).status();
+		Assert.assertTrue(res.getExitCode().intValue() == 1, "Check - exit.Code"); // TODO - bz#968959
+		Assert.assertFalse(KatelloCli.grepCLIOutput("Last Sync", getOutput(res)).equals("never"), "Check - output DOES'NT equal last_sync == never");
+		Assert.assertFalse(KatelloCli.grepCLIOutput("Sync State", getOutput(res)).equals("Not synced"), "Check - output DOES'NT equal sync_state == Not synced");
+	}
 
-	@Test(description = "register consumer with --servicelevel and --release arguments", dependsOnMethods={"syncAndPromoteRhel6"})
+	@Test(description = "register consumer with --servicelevel and --release arguments", dependsOnMethods={"test_productStatusSynced"})
 	public void test_regConsumer(){
 		KatelloSystem sys = new KatelloSystem(sysName, org, envTesting+"/"+contView);
 		res = sys.rhsm_registerForceWithReleaseSLA("6Server", "Self-support", true, true);
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - exit.Code");
-		// TODO - make output assertions
-		// TODO - check also that it gets automatically subscribed.
+		String output = getOutput(res);
+		String regExp = ".*The system has been registered with id:.*" +
+				"Service level set to:\\s+ Self-support.*" +
+				"Installed Product Current Status:.*" +
+				"Product Name:\\s+"+KatelloProduct.RHEL_SERVER+".*" +
+				"Status:\\s+Subscribed.*";
+		Assert.assertTrue(output.matches(regExp), "Check - output matches to regexp");
 		
 //		
 //		
@@ -105,7 +124,27 @@ public class ContentTest extends KatelloCliTestScript{
 //		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 //
 	}
-	
+
+	private boolean findSyncedRhelToUse(){
+		ArrayList<String> orgs = new KatelloOrg().custom_listNames();
+		ArrayList<String> products;
+		SSHCommandResult res;
+		for(String org: orgs){
+			products = new KatelloProduct(null, org, KatelloProvider.PROVIDER_REDHAT, null, null, null, null, null).custom_listNames();
+			for(String product: products){
+				if(product.equals(KatelloProduct.RHEL_SERVER)){
+					res = new KatelloProduct(product, org, KatelloProvider.PROVIDER_REDHAT, null, null, null, null, null).status();
+					if(!KatelloCli.grepCLIOutput("Sync State", getOutput(res)).equals("Not synced") && 
+							!KatelloCli.grepCLIOutput("Last Sync", getOutput(res)).equals("never")){
+						// We found an org that has a synced RHEL_SERVER content. Let's re-use it.
+						this.org = org;
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
 	@AfterClass(description="cleanup the stuff", alwaysRun=true)
 	public void tearDown(){
 		// TODO - enable org.delete();

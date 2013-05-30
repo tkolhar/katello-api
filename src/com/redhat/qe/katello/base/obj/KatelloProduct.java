@@ -1,5 +1,7 @@
 package com.redhat.qe.katello.base.obj;
 
+import java.util.ArrayList;
+import java.util.StringTokenizer;
 import java.util.logging.Logger;
 import javax.management.Attribute;
 import org.testng.Assert;
@@ -275,6 +277,19 @@ public class KatelloProduct extends _KatelloObject{
 		if(recursive)
 			opts.add(new Attribute("recursive",""));
 		return run(CMD_UPDATE);
+	}
+
+	public ArrayList<String> custom_listNames(){
+		ArrayList<String> _ret = new ArrayList<String>();
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("provider", provider));
+		SSHCommandResult res = runExt(CLI_CMD_LIST+" -v","| grep -e \"^Name\" |cut -f2 -d:");
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - exit.Code==0");
+		StringTokenizer toks = new StringTokenizer(KatelloCliTestScript.sgetOutput(res), "\n");
+		while(toks.hasMoreTokens()) 
+			_ret.add(toks.nextToken().trim());
+		return _ret;
 	}
 
 	// ** ** ** ** ** ** **
