@@ -756,8 +756,7 @@ public class KatelloUtils implements KatelloConstants {
 	            }
 	        }
 	    }
-	    KatelloCli.log.severe("ERROR: Output can not be extracted for the property: [" + property
-	            + "]");
+	    log.severe("ERROR: Output can not be extracted for the property: ["+property+"]");
 	    return null;
 	}
 }
