@@ -493,7 +493,6 @@ public class RepoTests extends KatelloCliTestScript {
 
 	@AfterClass(description="remove the org(s) with manifests", alwaysRun=true)
 	public void tearDown(){
-		exec_result = new KatelloOrg(this.orgWithManifest, null).delete();
-		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check  -return code");
+		exec_result = new KatelloOrg(this.orgWithManifest, null).delete(); // we don't care with the result.
 	}
 }
