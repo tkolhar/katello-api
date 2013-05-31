@@ -25,6 +25,7 @@ public class GroupTests extends KatelloCliTestScript {
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 	}
 	
+	//@ TODO bug 969394
 	@Test(description="Add a valid ldap group name to the new role. Verify that group is added successfully.")
 	public void test_addGroup() {
 		KatelloUserRole role = new KatelloUserRole(role_name, "test role");
