@@ -57,6 +57,7 @@ public class RepoTests extends KatelloCliTestScript {
 		file_name = "/tmp/RPM-GPG-KEY-dummy-packages-generator";
 		gpg_key = "gpgkey-"+uid;
 
+		this.orgWithManifest = "OrgWithManifest-"+KatelloUtils.getUniqueID();
 
 		// Create org:
 		KatelloOrg org = new KatelloOrg(this.org_name, "Package tests");
@@ -406,7 +407,6 @@ public class RepoTests extends KatelloCliTestScript {
 	@Test(description="95fd7f1c-711d-4e47-a5fb-76cf04caeb71")
 	public void test_listRedHatProductRepos(){
 		String manifest = "manifest.zip";
-		this.orgWithManifest = "OrgWithManifest-"+KatelloUtils.getUniqueID();
 		exec_result = new KatelloOrg(this.orgWithManifest, null).cli_create();
 		KatelloUtils.scpOnClient("data/"+manifest, "/tmp");
 		exec_result = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, this.orgWithManifest, null, null).import_manifest("/tmp/"+manifest, true);

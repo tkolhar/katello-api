@@ -257,7 +257,7 @@ public class KatelloRepo extends _KatelloObject{
 		opts.clear();
 		if(environment == null) 
 			environment = KatelloEnvironment.LIBRARY;
-		if(includeDisabled.booleanValue())
+		if(includeDisabled!=null && includeDisabled)
 			opts.add(new Attribute("include_disabled", ""));
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("environment", environment));
