@@ -8,7 +8,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.KatelloActivationKey;
 import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
@@ -248,7 +247,7 @@ public class ContentFilterTests extends KatelloCliTestScript {
 		KatelloContentFilter filter = new KatelloContentFilter(filter_name, org_name, condef_name);
 		exec_result = filter.info();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		String rule_id = KatelloCli.grepCLIOutput("    Id", getOutput(exec_result).trim(),1);
+		String rule_id = KatelloUtils.grepCLIOutput("    Id", getOutput(exec_result).trim(),1);
 		exec_result = filter.remove_rule(rule_id);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentFilter.OUT_REMOVE_RULE, rule_id)), "Check - output ");

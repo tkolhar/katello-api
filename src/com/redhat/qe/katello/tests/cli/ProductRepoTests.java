@@ -9,7 +9,6 @@ import java.util.regex.Pattern;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.KatelloGpgKey;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
@@ -64,7 +63,7 @@ public class ProductRepoTests extends KatelloCliTestScript {
 		exec_result = prod.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		exec_result = prod.cli_list();
-		product_id = KatelloCli.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
+		product_id = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
 
 		prod = new KatelloProduct(product_name, org_name,
 				provider_name, null, null, null, null, null);

@@ -236,7 +236,7 @@ public class SystemTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 
 		exec_result = sys.info();
-		String uuid = KatelloCli.grepCLIOutput("UUID", getOutput(exec_result).trim(),1);
+		String uuid = KatelloUtils.grepCLIOutput("UUID", getOutput(exec_result).trim(),1);
 		sys.setUuid(uuid);
 
 		sys.rhsm_unregister();
@@ -267,7 +267,7 @@ public class SystemTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 
 		exec_result = sys.info();
-		String uuid = KatelloCli.grepCLIOutput("UUID", getOutput(exec_result).trim(),1);
+		String uuid = KatelloUtils.grepCLIOutput("UUID", getOutput(exec_result).trim(),1);
 		sys.setUuid(uuid);
 
 		sys.rhsm_unregister();
@@ -292,7 +292,7 @@ public class SystemTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 
 		exec_result = sys.info();
-		String uuid = KatelloCli.grepCLIOutput("UUID", getOutput(exec_result).trim(),1);
+		String uuid = KatelloUtils.grepCLIOutput("UUID", getOutput(exec_result).trim(),1);
 		sys.setUuid(uuid);
 
 		sys.rhsm_unregister();
@@ -315,7 +315,7 @@ public class SystemTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 
 		exec_result = sys.subscriptions_available();
-		String poolId1 = KatelloCli.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
+		String poolId1 = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
 		Assert.assertNotNull(poolId1, "Check - pool Id is not null");
 
 		exec_result = sys.subscribe(poolId1);
@@ -378,7 +378,7 @@ public class SystemTests extends KatelloCliTestScript{
 				"Check - returned output string");
 		exec_result = sys.info();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
-		String customInfoStr = KatelloCli.grepCLIOutput("Custom Info", getOutput(exec_result));
+		String customInfoStr = KatelloUtils.grepCLIOutput("Custom Info", getOutput(exec_result));
 		Assert.assertTrue(customInfoStr.contains("custom-key"), "Check - stdout contains [custom-key]");
 		Assert.assertTrue(customInfoStr.contains("custom-value"), "Check - stdout contains [custom-value]");
 	}
@@ -395,7 +395,7 @@ public class SystemTests extends KatelloCliTestScript{
 				"Check - return string");
 		exec_result = sys.info();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
-		String customInfoStr = KatelloCli.grepCLIOutput("Custom Info", getOutput(exec_result));
+		String customInfoStr = KatelloUtils.grepCLIOutput("Custom Info", getOutput(exec_result));
 		Assert.assertTrue(customInfoStr.contains("custom-key"), "Check - stdout contains [custom-key]");
 		Assert.assertTrue(customInfoStr.contains("updated-value"), "Check - stdout contains [updated-value]");
 	}
@@ -409,7 +409,7 @@ public class SystemTests extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(exec_result).contains(
 				String.format("Successfully removed Custom Information from System [ %s ]",sys.name)),
 				"Check - return string");
-		String customInfoStr = KatelloCli.grepCLIOutput("Custom Info", getOutput(exec_result));
+		String customInfoStr = KatelloUtils.grepCLIOutput("Custom Info", getOutput(exec_result));
 		Assert.assertNull(customInfoStr, "Check - output can not be extracted");
 	}
 	
@@ -566,12 +566,12 @@ public class SystemTests extends KatelloCliTestScript{
 		exec_result = sys.info();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		// check release field of the system in Katello
-		Assert.assertTrue(KatelloCli.grepCLIOutput("OS Release", getOutput(exec_result)).equals(release), "Check - stdout contains system's OS Release == "+release);
+		Assert.assertTrue(KatelloUtils.grepCLIOutput("OS Release", getOutput(exec_result)).equals(release), "Check - stdout contains system's OS Release == "+release);
 		// Check that systems gets subscribed (--autosubscribe option) - another check would not hurt ;)
 		sys.setEnvironmentName(null); // does not work with --environment option (either name or environment)
 		exec_result = sys.subscriptions();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
-		Assert.assertTrue(KatelloCli.grepCLIOutput("Pool Name", getOutput(exec_result)).contains(KatelloProduct.RHEL_SERVER), 
+		Assert.assertTrue(KatelloUtils.grepCLIOutput("Pool Name", getOutput(exec_result)).contains(KatelloProduct.RHEL_SERVER), 
 				"Check - stdout contains pool name == '"+KatelloProduct.RHEL_SERVER+"'");
 	}
 

@@ -10,7 +10,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
@@ -146,7 +145,7 @@ public class RepoSyncProgress extends KatelloCliTestScript{
 		try{Thread.sleep(3000);}catch(InterruptedException iex){}
 		res = new KatelloOrg(orgName, null).subscriptions();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: system.subscriptions-available");
-		String poolId = KatelloCli.grepCLIOutput("ID", getOutput(res),1);
+		String poolId = KatelloUtils.grepCLIOutput("ID", getOutput(res),1);
 		Assert.assertTrue(poolId!=null, "Check poolID is returned");
 		res = new KatelloSystem(systemName, orgName, null, null, null, null, null, null, null).rhsm_subscribe(poolId);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: rhsm.subscribe");
@@ -247,7 +246,7 @@ public class RepoSyncProgress extends KatelloCliTestScript{
 			log.info(String.format("Simulate like 58 min passed and set: [%s]",getOutput(res)));
 			log.info("Sleep 3min and wakeup having product synced with 6 packages :)");
 			res = new KatelloRepo(repoName, orgName, productName,null, null,null).info();
-			String lastSynced = KatelloCli.grepCLIOutput("Last Synced", getOutput(res));
+			String lastSynced = KatelloUtils.grepCLIOutput("Last Synced", getOutput(res));
 			res = KatelloUtils.sshOnServer("service katello-jobs restart");
 			Assert.assertTrue(res.getExitCode().intValue()==0, "exit: $? 0");
 			waitfor_reposync(new KatelloRepo(repoName, orgName, productName,null, null,null), lastSynced, 3);

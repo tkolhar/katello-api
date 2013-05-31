@@ -7,7 +7,6 @@ import java.util.Date;
 import java.util.logging.Logger;
 import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
@@ -52,7 +51,7 @@ public class RepoSyncByPlan extends KatelloCliTestScript{
 		cal.add(Calendar.MINUTE, 59);
 		
 		exec_result = repo.info();
-		String lastSync = KatelloCli.grepCLIOutput("Last Sync", getOutput(exec_result).trim(),1);
+		String lastSync = KatelloUtils.grepCLIOutput("Last Sync", getOutput(exec_result).trim(),1);
 		Assert.assertEquals(lastSync, "never", "Repo is synced, but should not");
 		
 		try {
@@ -204,7 +203,7 @@ public class RepoSyncByPlan extends KatelloCliTestScript{
 		cal.add(Calendar.MINUTE, (hoursAhead*60 - 1));
 		
 		exec_result = repo.info();
-		String lastSync = KatelloCli.grepCLIOutput("Last Sync", getOutput(exec_result).trim(),1);
+		String lastSync = KatelloUtils.grepCLIOutput("Last Sync", getOutput(exec_result).trim(),1);
 		
 		try {
 			KatelloUtils.sshOnServer("date -s " + tformat.format(new Date(cal.getTimeInMillis())));

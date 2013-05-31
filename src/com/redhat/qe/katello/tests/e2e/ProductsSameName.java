@@ -7,7 +7,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
@@ -67,14 +66,14 @@ public class ProductsSameName extends KatelloCliTestScript {
 		exec_result = prod.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		exec_result = prod.cli_list();
-		product_id = KatelloCli.grepCLIOutput("ID", getOutput(exec_result), 1);
+		product_id = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result), 1);
 	
 		// Create product 2:
 		KatelloProduct prod2 = new KatelloProduct(product_name2, org_name, provider_name, null, null, null, null, null);
 		exec_result = prod2.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		exec_result = prod.cli_list();
-		product_id2 = KatelloCli.grepCLIOutput("ID", getOutput(exec_result), 1);
+		product_id2 = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result), 1);
 				
 		KatelloRepo repo = new KatelloRepo(repo_name, org_name, null, PULP_RHEL6_x86_64_REPO, null, null,null,product_id);
 		exec_result = repo.create();
@@ -155,13 +154,13 @@ public class ProductsSameName extends KatelloCliTestScript {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		exec_result = sys.subscriptions_available();
-		String poolId1 = KatelloCli.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
+		String poolId1 = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
 		
 		exec_result = sys.subscribe(poolId1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		exec_result = sys.subscriptions_available();
-		String poolId2 = KatelloCli.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
+		String poolId2 = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
 		
 		exec_result = sys.subscribe(poolId2);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");

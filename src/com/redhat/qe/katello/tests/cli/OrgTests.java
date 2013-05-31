@@ -7,7 +7,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
@@ -406,7 +405,7 @@ public class OrgTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		exec_result = org.cli_info();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
-		String DefaultInfoStr = KatelloCli.grepCLIOutput("Default Service Level", getOutput(exec_result));
+		String DefaultInfoStr = KatelloUtils.grepCLIOutput("Default Service Level", getOutput(exec_result));
 		Assert.assertTrue(DefaultInfoStr.contains("Self-support"), "Check - stdout contains updated service level");
 
 		KatelloSystem sys = new KatelloSystem(sys_name+"-subscribed",org_name,KatelloEnvironment.LIBRARY);
@@ -416,7 +415,7 @@ public class OrgTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 
 		exec_result = sys.subscriptions_available();
-		String poolId1 = KatelloCli.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
+		String poolId1 = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
 		Assert.assertNotNull(poolId1, "Check - pool Id is not null");
 
 		exec_result = sys.subscribe(poolId1);
@@ -427,7 +426,7 @@ public class OrgTests extends KatelloCliTestScript{
 
 		exec_result = sys.info();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
-		String Servicelevel = KatelloCli.grepCLIOutput("Service Level", getOutput(exec_result));
+		String Servicelevel = KatelloUtils.grepCLIOutput("Service Level", getOutput(exec_result));
 		Assert.assertTrue(Servicelevel.contains("Self-support"), "Check - stdout contains updated service level");
 
 		KatelloOrg org_no = new KatelloOrg(org_no_import_manifest,null);
@@ -435,7 +434,7 @@ public class OrgTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		exec_result = org_no.cli_info();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
-		String DefaultInfo = KatelloCli.grepCLIOutput("Default Service Level", getOutput(exec_result));
+		String DefaultInfo = KatelloUtils.grepCLIOutput("Default Service Level", getOutput(exec_result));
 		Assert.assertTrue(DefaultInfo.contains("None"), "Check - stdout contains default service level as None");
 
 		exec_result=org.delete();

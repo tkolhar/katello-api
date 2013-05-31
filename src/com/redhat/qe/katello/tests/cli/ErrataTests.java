@@ -6,7 +6,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloErrata;
@@ -59,7 +58,7 @@ public class ErrataTests extends KatelloCliTestScript {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		exec_result = prod.cli_list();
-		product_Id = KatelloCli.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
+		product_Id = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
 	
 		KatelloRepo repo = new KatelloRepo(repo_name, org_name, product_name, REPO_INECAS_ZOO3, null, null);
 		exec_result = repo.create();

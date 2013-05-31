@@ -7,7 +7,6 @@ import org.testng.annotations.Test;
 import org.testng.annotations.BeforeClass;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
 import com.redhat.qe.katello.base.obj.KatelloContentView;
@@ -68,6 +67,8 @@ public class ContentTest extends KatelloCliTestScript{
 		
 		res = repo.synchronize();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo synchronize)");
+		res = repo.info();
+		Assert.assertFalse(KatelloUtils.grepCLIOutput("Package Count", getOutput(res)).equals("0"), "Check - package count is NOT 0");
 		
 		// promote
 		KatelloContentDefinition cd = new KatelloContentDefinition("cd"+uid, null, org, null);
@@ -85,8 +86,8 @@ public class ContentTest extends KatelloCliTestScript{
 	public void test_productStatusSynced(){
 		res = new KatelloProduct(KatelloProduct.RHEL_SERVER,org, KatelloProvider.PROVIDER_REDHAT, null, null, null,null, null).status();
 		Assert.assertTrue(res.getExitCode().intValue() == 1, "Check - exit.Code"); // TODO - bz#968959
-		Assert.assertFalse(KatelloCli.grepCLIOutput("Last Sync", getOutput(res)).equals("never"), "Check - output DOES'NT equal last_sync == never");
-		Assert.assertFalse(KatelloCli.grepCLIOutput("Sync State", getOutput(res)).equals("Not synced"), "Check - output DOES'NT equal sync_state == Not synced");
+		Assert.assertFalse(KatelloUtils.grepCLIOutput("Last Sync", getOutput(res)).equals("never"), "Check - output DOES'NT equal last_sync == never");
+		Assert.assertFalse(KatelloUtils.grepCLIOutput("Sync State", getOutput(res)).equals("Not synced"), "Check - output DOES'NT equal sync_state == Not synced");
 	}
 
 	@Test(description = "register consumer with --servicelevel and --release arguments", dependsOnMethods={"test_productStatusSynced"})
@@ -132,7 +133,7 @@ public class ContentTest extends KatelloCliTestScript{
 			for(String product: products){
 				if(product.equals(KatelloProduct.RHEL_SERVER)){
 					res = new KatelloProduct(product, org, KatelloProvider.PROVIDER_REDHAT, null, null, null, null, null).status();
-					if(!KatelloCli.grepCLIOutput("Last Sync", getOutput(res)).equals("never")){
+					if(!KatelloUtils.grepCLIOutput("Last Sync", getOutput(res)).equals("never")){
 						// We found an org that has a synced RHEL_SERVER content. Let's re-use it.
 						this.org = org;
 						return true;

@@ -10,7 +10,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloGpgKey;
@@ -472,7 +471,7 @@ public class RepoTests extends KatelloCliTestScript {
 		Assert.assertTrue(repoCnt==repoCount, "Assert - all repos are promoted");
 		String repoName; int pkgCount;
 		for(int i=0;i<repoCnt;i++){
-			repoName = KatelloCli.grepCLIOutput("Name", getOutput(res), (i+1));
+			repoName = KatelloUtils.grepCLIOutput("Name", getOutput(res), (i+1));
 			pkgCount = new Integer(getOutput(new KatelloPackage(null, null, orgname, 
 					productname, repoName, envname).custom_packagesCount(null))).intValue();
 			Assert.assertTrue(pkgCount>0, "Check - packages are synced for: "+repoName);
@@ -485,9 +484,9 @@ public class RepoTests extends KatelloCliTestScript {
 		SSHCommandResult resRepoList = repo.list();
 		int repoCount = new Integer(getOutput(repo.custom_reposCount(null,null))).intValue();
 		for(int i=0;i<repoCount;i++){
-			repoName = KatelloCli.grepCLIOutput("Name", getOutput(resRepoList), (i+1));
+			repoName = KatelloUtils.grepCLIOutput("Name", getOutput(resRepoList), (i+1));
 			res = new KatelloRepo(repoName, orgname, productname, null, null, null).info();
-			String __gpg = KatelloCli.grepCLIOutput("GPG Key", getOutput(res));
+			String __gpg = KatelloUtils.grepCLIOutput("GPG Key", getOutput(res));
 			Assert.assertTrue(gpgName.equals(__gpg), "Check - gpg is assigned for: "+repoName);
 		}
 	}

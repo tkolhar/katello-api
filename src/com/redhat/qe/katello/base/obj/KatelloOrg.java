@@ -7,7 +7,6 @@ import javax.management.Attribute;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.testng.Assert;
 
-import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
@@ -214,9 +213,9 @@ public class KatelloOrg extends _KatelloObject{
 	
 	public static String getPoolId(String orgName, String productName){
 		SSHCommandResult res = new KatelloOrg(orgName, null).subscriptions(); // all subscriptions
-		String outBlock = KatelloCli.grepOutBlock(
+		String outBlock = KatelloUtils.grepOutBlock(
 				"Subscription", productName, KatelloCliTestScript.sgetOutput(res)); // filter our product's output block
-		return KatelloCli.grepCLIOutput("ID", outBlock); // grep poolid
+		return KatelloUtils.grepCLIOutput("ID", outBlock); // grep poolid
 	}
 
 	// ** ** ** ** ** ** **
