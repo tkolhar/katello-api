@@ -80,13 +80,13 @@ public class SystemInfoTests extends KatelloCliTestScript{
 	@Test(description="added a parameter to org, verifies that it exists in system as well", dependsOnMethods={"checkOrgInfo"})
 	public void addOrgInfo() {
 		KatelloOrg org = new KatelloOrg(this.org, "Default org");
-		exec_result = org.add_system_info(keyname);
+		exec_result = org.default_info_add(keyname,"system");
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
 		Assert.assertEquals(exec_result.getStdout().trim(), 
 				String.format(KatelloOrg.OUT_ADD_SYS_INFO, keyname, org.name),
 				"Check - add system info output.");
 		
-		exec_result = org.apply_system_info();
+		exec_result = org.default_info_apply("system");
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
 
 		Assert.assertTrue(exec_result.getStdout().trim().contains( 
@@ -107,7 +107,7 @@ public class SystemInfoTests extends KatelloCliTestScript{
 	@Test(description="remove existing parameter from org, verifies that it still exists in system", dependsOnMethods={"addOrgInfo"})
 	public void removeOrgInfo() {
 		KatelloOrg org = new KatelloOrg(this.org, "Default org");
-		exec_result = org.remove_system_info(keyname);
+		exec_result = org.default_info_remove(keyname,"system");
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
 		Assert.assertEquals(exec_result.getStdout().trim(), 
 				String.format(KatelloOrg.OUT_REMOVE_SYS_INFO, keyname, org.name),

@@ -454,10 +454,10 @@ public class OrgTests extends KatelloCliTestScript{
 		KatelloOrg org_rm_info = new KatelloOrg(org_rm_name,"Remove default info for distributor");
 		exec_result = org_rm_info.cli_create();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
-		exec_result = org_rm_info.add_distributor_info(keyname);
+		exec_result = org_rm_info.default_info_add(keyname,"distributor");
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains("Successfully added [ Distributor ] default custom info [ " + keyname + " ] to Org [ "+ org_rm_name +" ]"),"Check - returned string");
-		exec_result = org_rm_info.apply_distributor_info();
+		exec_result = org_rm_info.default_info_apply("distributor");
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains("Organization [ " + org_rm_name + " ] completed applying default info"),"Check - returned string");
 		KatelloDistributor distributor = new KatelloDistributor(org_rm_name,distributor_name);
@@ -468,7 +468,7 @@ public class OrgTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		String dInfo = KatelloCli.grepCLIOutput("Custom Info", getOutput(exec_result));
 		Assert.assertTrue(dInfo.contains("[ "+keyname+":  ]"), "Check - stdout contains default info added at organisation level");
-		exec_result = org_rm_info.remove_distributor_info(keyname); 
+		exec_result = org_rm_info.default_info_remove(keyname,"distributor"); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains("Successfully removed [ Distributor ] default custom info [ "+ keyname +" ] for Org [ "+ org_rm_name +" ]"), "Check - stdout removed distributor default info");
 		exec_result = org_rm_info.delete();
