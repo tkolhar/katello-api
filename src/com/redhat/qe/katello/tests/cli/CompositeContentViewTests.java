@@ -187,16 +187,10 @@ public class CompositeContentViewTests extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(exec_result).contains(pubview_name2_2), "Contains view");
 	}
 	
-	// @ TODO bug 961696
 	@Test(description="Consume content from composite content view definition", dependsOnMethods={"test_addRemoveViewsIntoComposite"})
 	public void test_consumeCompositeContent() {
 		// erase packages
-		exec_result = KatelloUtils.sshOnClient("yum erase -y wolf");
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		exec_result = KatelloUtils.sshOnClient("yum erase -y shark");
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		exec_result = KatelloUtils.sshOnClient("yum erase -y cheetah");
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		KatelloUtils.sshOnClient("yum erase -y wolf lion crab walrus shark cheetah");
 		
 		exec_result = compcondef.publish(pubcompview_name1, pubcompview_name1, "Publish Content");
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");		
@@ -241,23 +235,18 @@ public class CompositeContentViewTests extends KatelloCliTestScript{
 		
 		yum_clean();
 		
-		//install package from content view 1
-		exec_result = KatelloUtils.sshOnClient("yum install -y lion");
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		//install package from content view 2
-		exec_result = KatelloUtils.sshOnClient("yum install -y crab");
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		//install packages from content view 1 and 2
+		install_Packages(new String[] {"lion", "crab"});
 		
 		//package should not be available to install
 		exec_result = KatelloUtils.sshOnClient("yum install pulp-agent --disablerepo '*pulp*'");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("No package pulp-agent available."));
 	}
 
-	@Test(description = "part of promoted composite content view delete by changeset from environment, verify that packages are not availble anymore",
+	@Test(description = "part of promoted composite content view delete by changeset from environment, then repromote composite view, verify that packages are still availble",
 			groups={"cfse-cli"}, dependsOnMethods={"test_consumeCompositeContent"})
 	public void test_deletePromotedContentViewPart() {
-		KatelloUtils.sshOnClient("yum erase -y walrus");
+		KatelloUtils.sshOnClient("yum erase -y zebra");
 		
 		del_changeset = new KatelloChangeset(del_changeset_name,org_name2,env_name2, true);
 		exec_result = del_changeset.create();
@@ -266,23 +255,23 @@ public class CompositeContentViewTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");		
 		exec_result = del_changeset.apply();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		yum_clean();
 		
-		exec_result = KatelloUtils.sshOnClient("yum install -y walrus");
-		Assert.assertTrue(exec_result.getExitCode() == 147, "Check - error code");
+		install_Packages(new String[] {"zebra"});
 	}
 
-	@Test(description = "removed content view on previous scenario promote back by changeset to environment, verify that packages are already availble",
+	@Test(description = "removed content view on previous scenario promote back by changeset to environment, verify that packages are availble",
 			groups={"cfse-cli"}, dependsOnMethods={"test_deletePromotedContentViewPart"})
 	public void test_RePromoteContentViewPart() {
-		KatelloUtils.sshOnClient("yum erase -y walrus");
+		KatelloUtils.sshOnClient("yum erase -y tiger");
 		
 		compconview = new KatelloContentView(pubview_name1_2, org_name2);
 		exec_result = compconview.promote_view(env_name2);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentView.OUT_PROMOTE, this.pubview_name1_1, env_name2)), "Content view promote output.");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentView.OUT_PROMOTE, this.pubview_name1_2, env_name2)), "Content view promote output.");
+		yum_clean();
 		
-		exec_result = KatelloUtils.sshOnClient("yum install -y walrus");
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - error code");
+		install_Packages(new String [] {"tiger"});
 	}	
 
 	/**
