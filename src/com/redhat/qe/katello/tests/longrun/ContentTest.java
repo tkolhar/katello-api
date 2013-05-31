@@ -17,9 +17,7 @@ import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
-import com.redhat.qe.katello.base.obj.KatelloUser;
 import com.redhat.qe.tools.SSHCommandResult;
-import com.sun.org.apache.xpath.internal.FoundIndex;
 
 /**
  * Consuming content from the synced RHEL6Server.	
@@ -134,8 +132,7 @@ public class ContentTest extends KatelloCliTestScript{
 			for(String product: products){
 				if(product.equals(KatelloProduct.RHEL_SERVER)){
 					res = new KatelloProduct(product, org, KatelloProvider.PROVIDER_REDHAT, null, null, null, null, null).status();
-					if(!KatelloCli.grepCLIOutput("Sync State", getOutput(res)).equals("Not synced") && 
-							!KatelloCli.grepCLIOutput("Last Sync", getOutput(res)).equals("never")){
+					if(!KatelloCli.grepCLIOutput("Last Sync", getOutput(res)).equals("never")){
 						// We found an org that has a synced RHEL_SERVER content. Let's re-use it.
 						this.org = org;
 						return true;
