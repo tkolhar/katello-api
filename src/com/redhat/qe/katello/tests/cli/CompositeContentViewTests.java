@@ -5,7 +5,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.KatelloActivationKey;
 import com.redhat.qe.katello.base.obj.KatelloChangeset;
@@ -215,13 +214,13 @@ public class CompositeContentViewTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		
 		exec_result = sys2.subscriptions_available();
-		String poolId1 = KatelloCli.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
+		String poolId1 = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
 		Assert.assertNotNull(poolId1, "Check - pool Id is not null");
 		
-		String poolId2 = KatelloCli.grepCLIOutput("ID", getOutput(exec_result).trim(),2);
+		String poolId2 = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result).trim(),2);
 		Assert.assertNotNull(poolId2, "Check - pool Id is not null");
 		
-		String poolId3 = KatelloCli.grepCLIOutput("ID", getOutput(exec_result).trim(),3);
+		String poolId3 = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result).trim(),3);
 		Assert.assertNotNull(poolId3, "Check - pool Id is not null");
 		
 		exec_result = sys2.subscribe(poolId1);

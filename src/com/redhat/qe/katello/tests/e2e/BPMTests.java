@@ -5,7 +5,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
@@ -183,7 +182,7 @@ public class BPMTests extends KatelloCliTestScript{
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");		
 		Assert.assertTrue(getOutput(exec_result).contains(productPulp64Bit), "Check - subscription.ProductName");
 		Assert.assertTrue(getOutput(exec_result).contains("Unlimited"), "Check - subscription.Quantity");
-		rhsmPoolId = KatelloCli.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
+		rhsmPoolId = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
 		Assert.assertNotNull(rhsmPoolId, "Check Pool Id is retrieved.");
 		log.fine(String.format("Subscription is available for product: [%s] with poolid: [%s]",
 				productPulp64Bit,rhsmPoolId));

@@ -4,7 +4,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.KatelloActivationKey;
 import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
@@ -126,7 +125,7 @@ public class ConsumeCombineContent extends KatelloCliTestScript{
 		 * 
 		 */
 		exec_result = new KatelloOrg(this.org_name,null).subscriptions();
-		String zoo3PoolId = KatelloCli.grepCLIOutput("ID", getOutput(exec_result), 1);
+		String zoo3PoolId = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result), 1);
 		exec_result = act_key.update_add_subscription(zoo3PoolId);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		

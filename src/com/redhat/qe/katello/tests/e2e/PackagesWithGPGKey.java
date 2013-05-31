@@ -7,7 +7,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloGpgKey;
@@ -106,8 +105,8 @@ public class PackagesWithGPGKey extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (rhsm register)");
 		
 		KatelloOrg org = new KatelloOrg(this.org, null);
-		String poolID = KatelloCli.grepCLIOutput("ID",org.subscriptions().getStdout());
-		String poolName = KatelloCli.grepCLIOutput("Subscription",org.subscriptions().getStdout());
+		String poolID = KatelloUtils.grepCLIOutput("ID",org.subscriptions().getStdout());
+		String poolName = KatelloUtils.grepCLIOutput("Subscription",org.subscriptions().getStdout());
 		res = sys.rhsm_subscribe(poolID);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (rhsm subscribe)");
 		Assert.assertTrue(getOutput(res).startsWith("Successfully"), 

@@ -6,7 +6,6 @@ import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloGpgKey;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
@@ -113,7 +112,7 @@ public class ScenCustomRepo implements KatelloConstants{
 		KatelloSystem sys = new KatelloSystem(_system, _org, _env);
 		sys.runOn(clients[0]);
 		sys.rhsm_registerForce();
-		String pool = KatelloCli.grepCLIOutput("PoolId", sys.subscriptions_available().getStdout().trim(),1);
+		String pool = KatelloUtils.grepCLIOutput("PoolId", sys.subscriptions_available().getStdout().trim(),1);
 		Assert.assertNotNull(pool);
 		sys.rhsm_subscribe(pool);
 		

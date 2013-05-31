@@ -61,7 +61,7 @@ implements KatelloConstants {
 				"Repo should not contain last_sync == never");
 		
 		// package_count >0; url, progress, last_sync
-		String cnt = KatelloCli.grepCLIOutput("Package Count", res.getStdout());
+		String cnt = KatelloUtils.grepCLIOutput("Package Count", res.getStdout());
 		Assert.assertTrue(new Integer(cnt).intValue()>0, "Repo should contain packages count: >0");
 	}
 	
@@ -96,7 +96,7 @@ implements KatelloConstants {
 		while(now<maxWaitSec){
 			res = repo.info();
 			now = Calendar.getInstance().getTimeInMillis() / 1000;
-			String newsync = KatelloCli.grepCLIOutput("Last Sync", getOutput(res).trim(),1);
+			String newsync = KatelloUtils.grepCLIOutput("Last Sync", getOutput(res).trim(),1);
 			if(!lastsynced.equals(newsync))
 				break;
 			try{Thread.sleep(60000);}catch (Exception e){}

@@ -3,7 +3,6 @@ package com.redhat.qe.katello.tests.deltacloud;
 import java.io.File;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.DeltaCloudInstance;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
@@ -145,7 +144,7 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo synchronize)");
 		waitfor_repodata(repo, 2);
 		res = repo.info();
-		String progress = KatelloCli.grepCLIOutput("Progress", res.getStdout());
+		String progress = KatelloUtils.grepCLIOutput("Progress", res.getStdout());
 		Assert.assertTrue(progress.equals("Finished"), "Check: status of repo sync - Finished");
 		
 		KatelloUtils.promoteProductToEnvironment(org_name, KatelloProduct.RHEL_SERVER, env_name);
@@ -156,11 +155,11 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		
 		exec_result = sys.rhsm_identity();
-		system_uuid = KatelloCli.grepCLIOutput("Current identity is", exec_result.getStdout());
+		system_uuid = KatelloUtils.grepCLIOutput("Current identity is", exec_result.getStdout());
 		
 		exec_result = sys.subscriptions_available();
-		String poolId1 = KatelloCli.grepCLIOutput("Id", getOutput(exec_result).trim(),1);
-		String poolId2 = KatelloCli.grepCLIOutput("Id", getOutput(exec_result).trim(),2);
+		String poolId1 = KatelloUtils.grepCLIOutput("Id", getOutput(exec_result).trim(),1);
+		String poolId2 = KatelloUtils.grepCLIOutput("Id", getOutput(exec_result).trim(),2);
 		Assert.assertNotNull(poolId1, "Check - pool Id is not null");
 		
 		exec_result = sys.subscribe(poolId1);
@@ -175,7 +174,7 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		
 		exec_result = sys.rhsm_identity();
-		system_uuid2 = KatelloCli.grepCLIOutput("Current identity is", exec_result.getStdout());
+		system_uuid2 = KatelloUtils.grepCLIOutput("Current identity is", exec_result.getStdout());
 		
 		exec_result = sys.subscribe(poolId1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
@@ -189,7 +188,7 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		
 		exec_result = sys.rhsm_identity();
-		system_uuid3 = KatelloCli.grepCLIOutput("Current identity is", exec_result.getStdout());
+		system_uuid3 = KatelloUtils.grepCLIOutput("Current identity is", exec_result.getStdout());
 		
 		exec_result = sys.subscribe(poolId1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");

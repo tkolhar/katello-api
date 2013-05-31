@@ -6,7 +6,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
@@ -49,10 +48,10 @@ public class ProviderTests extends KatelloCliTestScript {
 		String provider_name = getText("provider.create.name")+" "+uid;
 		KatelloProvider prov = new KatelloProvider(provider_name, org_name, null, null);
 		SSHCommandResult res = prov.info();
-		String grepName = KatelloCli.grepCLIOutput(
+		String grepName = KatelloUtils.grepCLIOutput(
 				getText("provider.list.stdout.property.name"), 
 				getOutput(res));
-		String grepDescription = KatelloCli.grepCLIOutput("Description", getOutput(res));
+		String grepDescription = KatelloUtils.grepCLIOutput("Description", getOutput(res));
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(provider_name.equals(grepName), 
 				"Check - stdout (provider info: name)");
@@ -89,9 +88,9 @@ public class ProviderTests extends KatelloCliTestScript {
 		KatelloProvider prov = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT,org_name,null,null);
 		SSHCommandResult res = prov.status();
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
-		Assert.assertTrue(outSyncState.equals(KatelloCli.grepCLIOutput("Sync State", getOutput(res))), 
+		Assert.assertTrue(outSyncState.equals(KatelloUtils.grepCLIOutput("Sync State", getOutput(res))), 
 				"Check - stdout.'Sync State' (provider status: --name Red Hat)");
-		Assert.assertTrue(outLastSync.equals(KatelloCli.grepCLIOutput("Last Sync", getOutput(res))), 
+		Assert.assertTrue(outLastSync.equals(KatelloUtils.grepCLIOutput("Last Sync", getOutput(res))), 
 				"Check - stdout.'Last Sync' (provider status: --name Red Hat)");
 	}
 
@@ -103,9 +102,9 @@ public class ProviderTests extends KatelloCliTestScript {
 		KatelloProvider prov = new KatelloProvider(provider_name,org_name,null,null);
 		SSHCommandResult res = prov.status();
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
-		Assert.assertTrue(outSyncState.equals(KatelloCli.grepCLIOutput("Sync State", getOutput(res))), 
+		Assert.assertTrue(outSyncState.equals(KatelloUtils.grepCLIOutput("Sync State", getOutput(res))), 
 				"Check - stdout.'Sync State' (provider status: --name Red Hat)");
-		Assert.assertTrue(outLastSync.equals(KatelloCli.grepCLIOutput("Last Sync", getOutput(res))), 
+		Assert.assertTrue(outLastSync.equals(KatelloUtils.grepCLIOutput("Last Sync", getOutput(res))), 
 				"Check - stdout.'Last Sync' (provider status: --name Red Hat)");
 	}
 

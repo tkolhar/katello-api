@@ -4,7 +4,6 @@ import java.util.logging.Logger;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
@@ -94,7 +93,7 @@ public class RepoTests extends KatelloCliTestScript {
 		Assert.assertTrue(getOutput(exec_result).contains(getText("repo.discover.stdout", repo_name2)), "Check - output string (repo discover)");
 		
 		exec_result = repo.list();
-		repo_id2 = KatelloCli.grepCLIOutput("ID", getOutput(exec_result), 2);
+		repo_id2 = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result), 2);
 	}
 	
 	@Test(description = "List repos", dependsOnMethods = {"test_discoverRepo", "test_createRepo"})

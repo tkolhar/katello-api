@@ -4,7 +4,6 @@ import java.util.logging.Logger;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
@@ -131,7 +130,7 @@ public class RhsmOnlyPermissions extends KatelloCliTestScript{
 		KatelloUser user = new KatelloUser(this.user, null, KatelloUser.DEFAULT_USER_PASS, false);
 		sys.runAs(user);
 		SSHCommandResult res = new KatelloOrg(this.org, null).subscriptions();
-		String pool = KatelloCli.grepCLIOutput("ID", getOutput(res).trim(),1);
+		String pool = KatelloUtils.grepCLIOutput("ID", getOutput(res).trim(),1);
 
 		res = sys.rhsm_subscribe(pool);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (rhsm subscribe)");
