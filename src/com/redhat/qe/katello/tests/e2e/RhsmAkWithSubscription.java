@@ -3,7 +3,6 @@ package com.redhat.qe.katello.tests.e2e;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.KatelloActivationKey;
 import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
@@ -86,15 +85,15 @@ public class RhsmAkWithSubscription extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - exitCode");
 		exec_result = new KatelloOrg(org, null).subscriptions();
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - exitCode");
-		poolid = KatelloCli.grepCLIOutput("ID", getOutput(exec_result));
+		poolid = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result));
 		Assert.assertNotNull(poolid, "Check - poolid can be extracted");
 		exec_result = _ak.update_add_subscription(poolid);
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - exitCode");
 		exec_result = _ak.info();
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - exitCode");
-		Assert.assertTrue(KatelloCli.grepCLIOutput("Usage Limit", getOutput(exec_result)).equals("10"), "Check - ak info('Usage Limit')");
-		Assert.assertTrue(KatelloCli.grepCLIOutput("Content View", getOutput(exec_result)).contains(contentView), "Check - ak info('Content View')");
-		Assert.assertTrue(KatelloCli.grepCLIOutput("Pools", getOutput(exec_result)).contains(poolid), "Check - ak info('Pools')");
+		Assert.assertTrue(KatelloUtils.grepCLIOutput("Usage Limit", getOutput(exec_result)).equals("10"), "Check - ak info('Usage Limit')");
+		Assert.assertTrue(KatelloUtils.grepCLIOutput("Content View", getOutput(exec_result)).contains(contentView), "Check - ak info('Content View')");
+		Assert.assertTrue(KatelloUtils.grepCLIOutput("Pools", getOutput(exec_result)).contains(poolid), "Check - ak info('Pools')");
 	}
 	
 	@Test(description="register with AK", dependsOnMethods={"test_prepareAk"})

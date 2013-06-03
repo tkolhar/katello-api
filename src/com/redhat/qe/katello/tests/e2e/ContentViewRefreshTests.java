@@ -2,8 +2,8 @@ package com.redhat.qe.katello.tests.e2e;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.KatelloActivationKey;
 import com.redhat.qe.katello.base.obj.KatelloChangeset;
@@ -84,7 +84,7 @@ public class ContentViewRefreshTests extends KatelloCliTestScript{
 		exec_result = act_key2.update_add_content_view(pubview_name);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
 		exec_result = org2.subscriptions();
-		String poolId1 = KatelloCli.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
+		String poolId1 = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
 		Assert.assertNotNull(poolId1, "Check - pool Id is not null");
 		exec_result = act_key2.update_add_subscription(poolId1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
@@ -191,7 +191,7 @@ public class ContentViewRefreshTests extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info), 
 				String.format("Content view [%s] should be found in the result info", content.org));	
 		
-		return KatelloCli.grepCLIOutput("ID", getOutput(res));
+		return KatelloUtils.grepCLIOutput("ID", getOutput(res));
 	}
 
 }

@@ -8,7 +8,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
@@ -237,9 +236,9 @@ public class ContentDefinitionTest extends KatelloCliTestScript{
 		
 		exec_result = cvdClone.info();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
-		Assert.assertTrue(KatelloCli.grepCLIOutput("Name",getOutput(exec_result)).equals(sCvdClone), "Check - stdout (content definition info: Name)");
-		Assert.assertTrue(KatelloCli.grepCLIOutput("Composite",getOutput(exec_result)).equals("False"), "Check - stdout (content definition info: Composite)");
-		Assert.assertTrue(KatelloCli.grepCLIOutput("Org",getOutput(exec_result)).equals(this.org_name), "Check - stdout (content definition info: Org)");
+		Assert.assertTrue(KatelloUtils.grepCLIOutput("Name",getOutput(exec_result)).equals(sCvdClone), "Check - stdout (content definition info: Name)");
+		Assert.assertTrue(KatelloUtils.grepCLIOutput("Composite",getOutput(exec_result)).equals("False"), "Check - stdout (content definition info: Composite)");
+		Assert.assertTrue(KatelloUtils.grepCLIOutput("Org",getOutput(exec_result)).equals(this.org_name), "Check - stdout (content definition info: Org)");
 	}
 	
 	private void assert_contentList(List<KatelloContentDefinition> contents, List<KatelloContentDefinition> excludeContents) {
@@ -274,7 +273,7 @@ public class ContentDefinitionTest extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info), 
 				String.format("Org [%s] should be found in the result info", org_name));	
 		
-		return KatelloCli.grepCLIOutput("ID", getOutput(res));
+		return KatelloUtils.grepCLIOutput("ID", getOutput(res));
 	}
 	
 	private KatelloContentDefinition createContentDefinition() {

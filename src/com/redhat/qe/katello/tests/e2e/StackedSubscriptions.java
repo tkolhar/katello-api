@@ -8,7 +8,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloMisc;
@@ -234,9 +233,9 @@ public class StackedSubscriptions extends KatelloCliTestScript {
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains("green"), "Check - compliance is green");
 		
 		exec_result = sys.subscriptions();
-		String serialId = KatelloCli.grepCLIOutput("Serial Id", exec_result.getStdout());
+		String serialId = KatelloUtils.grepCLIOutput("Serial Id", exec_result.getStdout());
 		if (serialId == null || serialId.isEmpty()) {
-			serialId = KatelloCli.grepCLIOutput("Serial ID", exec_result.getStdout());
+			serialId = KatelloUtils.grepCLIOutput("Serial ID", exec_result.getStdout());
 		}
 		
 		exec_result = sys.rhsm_unsubscribe(serialId);

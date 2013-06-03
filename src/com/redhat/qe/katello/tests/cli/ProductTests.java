@@ -7,7 +7,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
@@ -130,14 +129,14 @@ public class ProductTests  extends KatelloCliTestScript{
 		repo = new KatelloRepo(null, this.org_name, prodName, null, null, null);
 		resRepos = repo.list();
 		match_info = String.format(KatelloRepo.REG_PACKAGE_CNT, "0").replaceAll("\"", "");	
-		repoName = KatelloCli.grepCLIOutput("Name", getOutput(resRepos),1); // 1st repo
+		repoName = KatelloUtils.grepCLIOutput("Name", getOutput(resRepos),1); // 1st repo
 		KatelloRepo repoWithName = new KatelloRepo(repoName, this.org_name, prodName, null, null, null);
 		waitfor_repodata(repoWithName, 1);
 		res = repoWithName.info();
 		// output to analyze - should contain: 0
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info),"Repo list of the product - should contain package count 0");
 
-		repoName = KatelloCli.grepCLIOutput("Name", getOutput(resRepos),2); // 2nd repo
+		repoName = KatelloUtils.grepCLIOutput("Name", getOutput(resRepos),2); // 2nd repo
 		repoWithName = new KatelloRepo(repoName, this.org_name, prodName, null, null, null);
 		match_info = String.format(KatelloRepo.REG_PACKAGE_CNT, "0").replaceAll("\"", "");
 		waitfor_repodata(repoWithName, 1);
@@ -162,7 +161,7 @@ public class ProductTests  extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
 		
 		res = prod.cli_list();
-		String _prod2 = KatelloCli.grepCLIOutput("Name", getOutput(res), 2);
+		String _prod2 = KatelloUtils.grepCLIOutput("Name", getOutput(res), 2);
 		Assert.assertTrue(_prod2.equals(prodName), "Check - there are 2 products with same name");
 	}
 	
@@ -315,11 +314,11 @@ public class ProductTests  extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
 		
 		res = prod1.status();
-		String lastSync1 = KatelloCli.grepCLIOutput("Last Sync", getOutput(res).trim(),1);
+		String lastSync1 = KatelloUtils.grepCLIOutput("Last Sync", getOutput(res).trim(),1);
 		prod1.lastSync = lastSync1;
 		
 		res = prod2.status();
-		String lastSync2 = KatelloCli.grepCLIOutput("Last Sync", getOutput(res).trim(),1);
+		String lastSync2 = KatelloUtils.grepCLIOutput("Last Sync", getOutput(res).trim(),1);
 		prod2.lastSync = lastSync2;
 		
 		res = prod1.cli_list(envName1);
@@ -474,7 +473,7 @@ public class ProductTests  extends KatelloCliTestScript{
 		
 		KatelloRepo repo = new KatelloRepo(null,this.org_name,prodName,null,null,null);
 		res = repo.list();
-		String repoName = KatelloCli.grepCLIOutput("Name", res.getStdout(),1); // 1st repo
+		String repoName = KatelloUtils.grepCLIOutput("Name", res.getStdout(),1); // 1st repo
 		repo = new KatelloRepo(repoName,this.org_name,prodName,null,null,null);
 		
 		waitfor_repodata(repo, 1);
@@ -509,14 +508,14 @@ public class ProductTests  extends KatelloCliTestScript{
 		resRepos = repo.list();
 		String match_info = String.format(KatelloRepo.REG_PACKAGE_CNT, "0").replaceAll("\"", "");	
 		
-		repoName = KatelloCli.grepCLIOutput("Name", resRepos.getStdout(),1); // 1st repo
+		repoName = KatelloUtils.grepCLIOutput("Name", resRepos.getStdout(),1); // 1st repo
 		repo = new KatelloRepo(repoName,this.org_name,prodName,null,null,null);
 		waitfor_repodata(repo, 1);
 		res = repo.info();
 		// our line to analyze - should not contain: 0
 		Assert.assertFalse(getOutput(res).matches(match_info),"Repo list of the product - should not contain package count 0 (after product synchronize)");
 
-		repoName = KatelloCli.grepCLIOutput("Name", resRepos.getStdout(),2); // 2nd repo
+		repoName = KatelloUtils.grepCLIOutput("Name", resRepos.getStdout(),2); // 2nd repo
 		repo = new KatelloRepo(repoName,this.org_name,prodName,null,null,null);
 		waitfor_repodata(repo, 1);
 		res = repo.info();
@@ -567,7 +566,7 @@ public class ProductTests  extends KatelloCliTestScript{
 		// Final action - DELETE the product
 		// ... but get its id first. To check the output string.
 		res = prod.status();
-		String prodId = KatelloCli.grepCLIOutput("ID", res.getStdout());
+		String prodId = KatelloUtils.grepCLIOutput("ID", res.getStdout());
 		res = prod.delete();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
 		Assert.assertTrue(getOutput(res).contains(String.format(KatelloProduct.OUT_DELETED,prodId)), "Check - returned output string (product delete)");
@@ -634,11 +633,11 @@ public class ProductTests  extends KatelloCliTestScript{
 		log.finest(String.format("Product (status) match regex: [%s]", match_info));
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info), String.format("Product [%s] should be found in the result", product.name));
 
-		String lastSync = KatelloCli.grepCLIOutput("Last Sync", getOutput(res).trim(),1);
+		String lastSync = KatelloUtils.grepCLIOutput("Last Sync", getOutput(res).trim(),1);
 		if (product.syncState.equals("Not synced")) Assert.assertEquals(lastSync, "never");
 		else Assert.assertMatch(lastSync, KatelloProduct.REG_PROD_LASTSYNC);
 		
-		return KatelloCli.grepCLIOutput("ID", getOutput(res).trim(),1);
+		return KatelloUtils.grepCLIOutput("ID", getOutput(res).trim(),1);
 	}
 	
 }

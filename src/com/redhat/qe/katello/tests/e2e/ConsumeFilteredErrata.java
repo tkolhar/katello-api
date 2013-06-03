@@ -5,7 +5,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.KatelloActivationKey;
 import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
@@ -169,7 +168,7 @@ public class ConsumeFilteredErrata extends KatelloCliTestScript {
 		exec_result = act_key.update_add_content_view(pubview_name);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");      
 		exec_result = new KatelloOrg(this.org_name,null).subscriptions();
-		String zoo4PoolId = KatelloCli.grepCLIOutput("ID", getOutput(exec_result), 1);
+		String zoo4PoolId = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result), 1);
 		exec_result = act_key.update_add_subscription(zoo4PoolId);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
@@ -187,7 +186,7 @@ public class ConsumeFilteredErrata extends KatelloCliTestScript {
 		sys.setEnvironmentName(this.env_name);
 		exec_result = sys.list();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
-		system_uuid1 = KatelloCli.grepCLIOutput("UUID", getOutput(exec_result));
+		system_uuid1 = KatelloUtils.grepCLIOutput("UUID", getOutput(exec_result));
 		
 		exec_result = group.add_systems(system_uuid1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");

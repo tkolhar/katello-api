@@ -4,7 +4,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
@@ -79,7 +78,7 @@ public class SystemErratas extends KatelloCliTestScript {
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		
 		exec_result = sys.subscriptions_available();
-		String poolId1 = KatelloCli.grepCLIOutput("Id", getOutput(exec_result).trim(),1);
+		String poolId1 = KatelloUtils.grepCLIOutput("Id", getOutput(exec_result).trim(),1);
 		Assert.assertNotNull(poolId1, "Check - pool Id is not null");
 		
 		exec_result = sys.rhsm_subscribe(poolId1);

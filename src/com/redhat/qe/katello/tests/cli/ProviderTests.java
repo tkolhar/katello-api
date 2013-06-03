@@ -4,7 +4,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
@@ -60,7 +59,7 @@ public class ProviderTests extends KatelloCliTestScript{
 		// get info of "Red Hat" provider
 		res = new KatelloOrg(org_name, null).cli_info();
 		
-		String orgId = KatelloCli.grepCLIOutput("ID", getOutput(res));
+		String orgId = KatelloUtils.grepCLIOutput("ID", getOutput(res));
 		prov = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, org_name, null, null);
 		res = prov.info();
 		match_info = String.format(KatelloProvider.REG_REDHAT_INFO, KatelloProvider.CDN_URL, orgId, "").replaceAll("\"", "");
@@ -517,7 +516,7 @@ public class ProviderTests extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(res).contains(String.format(KatelloProvider.OUT_UPDATE,KatelloProvider.PROVIDER_REDHAT)), 
 				"Check - returned error string (provider update)");
 		res = new KatelloOrg(org_name, null).cli_info();
-		String orgId = KatelloCli.grepCLIOutput("ID", getOutput(res));
+		String orgId = KatelloUtils.grepCLIOutput("ID", getOutput(res));
 		// Info
 		res = prov.info();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");

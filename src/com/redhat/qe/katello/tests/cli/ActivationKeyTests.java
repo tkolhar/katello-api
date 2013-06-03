@@ -4,7 +4,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.KatelloActivationKey;
@@ -113,7 +112,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
     	KatelloOrg org = new KatelloOrg(this.organization, null);
     	res = org.subscriptions();
   
-		String poolId1 = KatelloCli.grepCLIOutput("ID", getOutput(res).trim(),1);
+		String poolId1 = KatelloUtils.grepCLIOutput("ID", getOutput(res).trim(),1);
 		Assert.assertNotNull(poolId1, "Check - pool Id is not null");
 		
 		res = ak.update_add_subscription(poolId1);
@@ -241,7 +240,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 		res = sys.rhsm_registerForce(akName); 
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 		res = sys.rhsm_identity();
-		String system_uuid = KatelloCli.grepCLIOutput("Current identity is", res.getStdout());
+		String system_uuid = KatelloUtils.grepCLIOutput("Current identity is", res.getStdout());
 		
 		rhsm_clean_only();
 		

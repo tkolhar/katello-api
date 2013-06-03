@@ -1,9 +1,12 @@
 package com.redhat.qe.katello.base.obj;
 
+import java.util.ArrayList;
+import java.util.StringTokenizer;
 import java.util.logging.Logger;
 import javax.management.Attribute;
 import org.codehaus.jackson.annotate.JsonProperty;
-import com.redhat.qe.katello.base.KatelloCli;
+import org.testng.Assert;
+
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
@@ -158,6 +161,13 @@ public class KatelloOrg extends _KatelloObject{
 		return run(CMD_UPDATE);
 	}
 
+	public SSHCommandResult update_servicelevel(String servicelevel){
+		opts.clear();
+		opts.add(new Attribute("name", this.name));
+		opts.add(new Attribute("servicelevel", servicelevel));
+		return run(CMD_UPDATE);
+	}
+	
 	public SSHCommandResult add_system_info(String keyname){
 		opts.clear();
 		opts.add(new Attribute("name", this.name));
@@ -179,6 +189,17 @@ public class KatelloOrg extends _KatelloObject{
 		opts.add(new Attribute("keyname", keyname));
 		return run(CMD_REMOVE_SYS_INFO);
 	}
+
+	public ArrayList<String> custom_listNames(){
+		ArrayList<String> _ret = new ArrayList<String>();
+		opts.clear();
+		SSHCommandResult res = runExt(CLI_CMD_LIST+" -v","| grep -e \"^Name\" |cut -f2 -d:");
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - exit.Code==0");
+		StringTokenizer toks = new StringTokenizer(KatelloCliTestScript.sgetOutput(res), "\n");
+		while(toks.hasMoreTokens()) 
+			_ret.add(toks.nextToken().trim());
+		return _ret;
+	}
 	
 	public static String getDefaultOrg(){
 		if(defaultOrg!=null) 
@@ -191,10 +212,10 @@ public class KatelloOrg extends _KatelloObject{
 	}
 	
 	public static String getPoolId(String orgName, String productName){
-		SSHCommandResult res = new KatelloOrg(orgName, null).subscriptions(); // all subscriptinos
-		String outBlock = KatelloCli.grepOutBlock(
+		SSHCommandResult res = new KatelloOrg(orgName, null).subscriptions(); // all subscriptions
+		String outBlock = KatelloUtils.grepOutBlock(
 				"Subscription", productName, KatelloCliTestScript.sgetOutput(res)); // filter our product's output block
-		return KatelloCli.grepCLIOutput("ID", outBlock); // grep poolid
+		return KatelloUtils.grepCLIOutput("ID", outBlock); // grep poolid
 	}
 
 	// ** ** ** ** ** ** **

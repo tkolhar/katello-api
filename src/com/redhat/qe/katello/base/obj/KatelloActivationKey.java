@@ -2,8 +2,8 @@ package com.redhat.qe.katello.base.obj;
 
 import javax.management.Attribute;
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class KatelloActivationKey extends _KatelloObject{
@@ -191,13 +191,13 @@ public class KatelloActivationKey extends _KatelloObject{
 			KatelloEnvironment env = new KatelloEnvironment(this.environment, null, this.org, KatelloEnvironment.LIBRARY);
 			res = env.cli_info();
 			Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (environment info)");
-			this.environment_id = KatelloCli.grepCLIOutput("ID", res.getStdout());				
+			this.environment_id = KatelloUtils.grepCLIOutput("ID", res.getStdout());				
 		}
 		
 		// retrieve id
 		if(this.name != null){
 			res = info();
-			this.id = KatelloCli.grepCLIOutput("ID", res.getStdout());
+			this.id = KatelloUtils.grepCLIOutput("ID", res.getStdout());
 		}
 	}
 }

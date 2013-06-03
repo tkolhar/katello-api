@@ -308,6 +308,33 @@ public class KatelloSystem extends _KatelloObject{
 		return KatelloUtils.sshOnClient(getHostName(), cmd);		
 	}
 	
+	public SSHCommandResult rhsm_registerForceWithReleaseSLA(String release, String sla, boolean autosubscribe, boolean force){
+		String cmd = RHSM_REGISTER;
+		if(this.user==null)
+			cmd = String.format(RHSM_REGISTER,
+					System.getProperty("katello.admin.user", KatelloUser.DEFAULT_ADMIN_USER),
+					System.getProperty("katello.admin.password", KatelloUser.DEFAULT_ADMIN_PASS));
+		else
+			cmd = String.format(RHSM_REGISTER,user.username,user.password);
+		
+		if(this.name != null)
+			cmd += " --name \""+this.name+"\"";
+		if(this.org != null)
+			cmd += " --org \""+this.org+"\"";
+		if(this.env != null)
+			cmd += " --environment \""+this.env+"\"";
+		if(release != null)
+			cmd += " --release \""+release+"\"";
+		if(sla != null)
+			cmd += " --servicelevel \""+sla+"\" --auto-attach";
+		if(force)
+			cmd += " --force";
+		if(autosubscribe)
+			cmd += " --autosubscribe";
+		
+		return KatelloUtils.sshOnClient(getHostName(), cmd);		
+	}
+
 	public SSHCommandResult rhsm_clean(){
 		String cmd = RHSM_CLEAN;		
 		return KatelloUtils.sshOnClient(getHostName(), cmd);		

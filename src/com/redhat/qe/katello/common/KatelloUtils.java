@@ -708,4 +708,55 @@ public class KatelloUtils implements KatelloConstants {
 		int enabled = (disable ? 0: 1);
 		sshOnClient("sed -i \"s/^enabled=.*/enabled="+enabled+"/\" /etc/yum.repos.d/*"+repoPattern+"*");
 	}
+
+	/**
+	 * Returns katello cli output block (usually: [command] list -v options) that has: <BR>
+	 * [Property]:  [Value] in its block.<br>
+	 * As an example would be getting a pool information for:<BR> 
+	 * ("ProductName","High-Availability (8 sockets)",org.subscriptions())
+	 * @param property
+	 * @param value
+	 * @param output
+	 * @return
+	 */
+	public static String grepOutBlock(String property, String value, String output){
+		String _return = null;
+		String[] lines = output.split("\\n\\n");
+		
+		for(String line:lines ){
+			if(line.startsWith("---") || line.trim().equals("")) continue; // skip it.
+			if(KatelloUtils.grepCLIOutput(property, line).equals(value)){
+				_return = line.trim();
+				break;
+			}
+		}
+		return _return;
+	}
+
+	public static String grepCLIOutput(String property, String output) {
+	    return grepCLIOutput(property, output, 1);
+	}
+
+	public static String grepCLIOutput(String property, String output, int occurence) {
+	    int meet_cnt = 0;
+	    String[] lines = output.split("\\n");
+	    for (int i = 0; i < lines.length; i++) {
+	        if (lines[i].startsWith(property)) { // our line
+	            meet_cnt++;
+	            if (meet_cnt == occurence) {
+	                String[] split = lines[i].split(":\\s+");
+	                if (split.length < 2) {
+	                    if(i==lines.length-1) 
+	                    	return "";//last line and has empty value.
+	                    else 
+	                    	return lines[i + 1].trim(); // regular one (like Description:). return next line.
+	                } else {
+	                    return split[1].trim(); // the one with "property: Value" format.
+	                }
+	            }
+	        }
+	    }
+	    log.severe("ERROR: Output can not be extracted for the property: ["+property+"]");
+	    return null;
+	}
 }
