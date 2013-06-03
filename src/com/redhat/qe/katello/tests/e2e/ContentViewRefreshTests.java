@@ -25,8 +25,7 @@ public class ContentViewRefreshTests extends KatelloCliTestScript{
 	String env_name2 = "envcon2-"+ uid;
 	String del_changeset_name = "del_changeset-" + uid;
 	String condef_name1 = "condef1-" + uid;
-	String pubview_name1_1 = "pubview1-1" + uid;
-	String pubview_name1_2 = "pubview1-2" + uid;
+	String pubview_name = "pubview" + uid;
 	String act_key_name2 = "act_key2" + uid;
 	String system_name2 = "system2" + uid;
 	String prov_local1_name = "provlocal1-" + uid;
@@ -46,7 +45,9 @@ public class ContentViewRefreshTests extends KatelloCliTestScript{
 	
 	@BeforeClass(description="Generate unique objects")
 	public void setUp() {
-
+		// erase packages
+		KatelloUtils.sshOnClient("yum erase -y wolf lion walrus");
+		
 		org2 = new KatelloOrg(org_name2,null);
 		exec_result = org2.cli_create();		              
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
@@ -62,20 +63,14 @@ public class ContentViewRefreshTests extends KatelloCliTestScript{
 		exec_result = condef1.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		exec_result = condef1.add_product(prod_local1_name);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
-		
 		exec_result = condef1.add_repo(prod_local1_name, repo_local1_name);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
 				
-		exec_result = condef1.publish(pubview_name1_1, pubview_name1_1, "Publish Content");
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		exec_result = condef1.publish(pubview_name1_2, pubview_name1_2, "Publish Content");
+		exec_result = condef1.publish(pubview_name, pubview_name, "Publish Content");
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		condef1.repos = repo_local1_name;
-		conview1 = new KatelloContentView(pubview_name1_2, org_name2);
+		conview1 = new KatelloContentView(pubview_name, org_name2);
 		assert_ContentViewInfo(condef1, conview1, "Publish Content", "Library", "1");
 	}
 	
@@ -86,38 +81,37 @@ public class ContentViewRefreshTests extends KatelloCliTestScript{
 		act_key2 = new KatelloActivationKey(org_name2, env_name2, act_key_name2, "Act key created");
 		exec_result = act_key2.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
-		exec_result = act_key2.update_add_content_view(pubview_name1_2);
+		exec_result = act_key2.update_add_content_view(pubview_name);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
+		exec_result = org2.subscriptions();
+		String poolId1 = KatelloCli.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
+		Assert.assertNotNull(poolId1, "Check - pool Id is not null");
+		exec_result = act_key2.update_add_subscription(poolId1);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
 	
 	@Test(description = "register client via activation key",groups={"cfse-cli"}, dependsOnMethods={"test_addContentView"})
-	public void test_registerClient(){
-		KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);
+	public void test_registerClient() {
+		rhsm_clean();
 		sys2 = new KatelloSystem(system_name2, this.org_name2, null);
 		exec_result = sys2.rhsm_registerForce(act_key_name2);
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		
-		exec_result = sys2.subscriptions_available();
-		String poolId1 = KatelloCli.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
-		Assert.assertNotNull(poolId1, "Check - pool Id is not null");
+		yum_clean();
 		
-		exec_result = sys2.subscribe(poolId1);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		install_Packages(new String[] {"wolf"});
 	}
 
 	@Test(description = "refesh content view, verify version is changed", groups={"cfse-cli"}, dependsOnMethods={"test_registerClient"})
 	public void test_refreshContentView() {
 		//install non available package from composite content view
-		exec_result = KatelloUtils.sshOnClient("yum erase -y lion");
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		exec_result = KatelloUtils.sshOnClient("yum install -y lion");
-		Assert.assertTrue(getOutput(exec_result).trim().contains("No package lion available."));
+		verify_PackagesNotAvailable(new String [] {"lion"});
 		
 		updateLocalRepo1();
 		
 		exec_result = conview1.refresh_view();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");		
-		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentView.OUT_REFRESH, this.pubview_name1_2)), "Content view refresh output.");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentView.OUT_REFRESH, this.pubview_name)), "Content view refresh output.");
 		
 		exec_result = conview1.promote_view(env_name2);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
@@ -130,25 +124,15 @@ public class ContentViewRefreshTests extends KatelloCliTestScript{
 		yum_clean();
 		
 		// erase packages
-		exec_result = KatelloUtils.sshOnClient("yum erase -y wolf");
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		exec_result = KatelloUtils.sshOnClient("yum erase -y lion");
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		exec_result = KatelloUtils.sshOnClient("yum erase -y walrus");
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
+		exec_result = KatelloUtils.sshOnClient("yum erase -y wolf lion walrus");
 		
-		//install package from refreshed composite content view
-		exec_result = KatelloUtils.sshOnClient("yum install -y lion");
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		exec_result = KatelloUtils.sshOnClient("rpm -q lion");
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).trim().contains("lion-"));
+		//install package from refreshed content view
+		install_Packages(new String[] {"lion"});
 		
-		exec_result = KatelloUtils.sshOnClient("yum install -y walrus");
-		Assert.assertTrue(getOutput(exec_result).trim().contains("No package walrus available."));
+		verify_PackagesNotAvailable(new String [] {"walrus"});
 	}
 	
-	@Test(description="Remove the org - while ago there was a bug: https://bugzilla.redhat.com/show_bug.cgi?id=960587",
+	@Test(description="Remove the org",
 			dependsOnMethods={"test_consumeRefreshedContent"})
 	public void test_deleteOrg(){
 		exec_result = org2.delete();
