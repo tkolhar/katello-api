@@ -451,12 +451,24 @@ public class KatelloUtils implements KatelloConstants {
 		} else if (product.equals("cfse")) {
 			BeakerUtils.Katello_Installation_SystemEngineLatest(hostIP, version);
 		} else if (product.equals("sam")) {
-			BeakerUtils.Katello_Installation_SAMLatest(hostIP, version);
+			if (ldap.isEmpty()) {
+				BeakerUtils.Katello_Installation_SAMLatest(hostIP, version);
+			} else {
+				BeakerUtils.Katello_Installation_SAMLatestWithLdap(hostIP, version, ldap);
+			}
 		} else if (product.equals("headpin")) {
 			BeakerUtils.Katello_Installation_ConfigureRepos(hostIP);
-			BeakerUtils.Katello_Installation_HeadpinNightly(hostIP);
+			if (ldap.isEmpty()) {
+				BeakerUtils.Katello_Installation_HeadpinNightly(hostIP);	
+			} else{
+				BeakerUtils.Katello_Installation_HeadpinWithLdap(hostIP, ldap);
+			}
 		} else if (product.equals("sat6")) {
-			BeakerUtils.Katello_Installation_Satellite6Latest(hostIP, version);
+			if (ldap.isEmpty()) {
+				BeakerUtils.Katello_Installation_Satellite6Latest(hostIP, version);	
+			} else{
+				BeakerUtils.Katello_Installation_Satellite6WithLdap(hostIP, version, ldap);
+			}
 		}
 		
 		// Configure the server as a self-client
