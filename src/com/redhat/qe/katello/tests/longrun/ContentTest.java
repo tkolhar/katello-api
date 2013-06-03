@@ -102,26 +102,6 @@ public class ContentTest extends KatelloCliTestScript{
 				"Product Name:\\s+"+KatelloProduct.RHEL_SERVER+".*" +
 				"Status:\\s+Subscribed.*";
 		Assert.assertTrue(output.matches(regExp), "Check - output matches to regexp");
-		
-//		
-//		
-//		res = KatelloUtils.sshOnClient("rpm -qa | grep yum-utils");
-//		int exitCode = res.getExitCode().intValue();
-//		if(exitCode == 1)
-//		{
-//			res = KatelloUtils.sshOnClient("yum install -y yum-utils");
-//			Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-//
-//		}
-//		res = KatelloUtils.sshOnClient("yum-config-manager --enable beaker-HighAvailability beaker-LoadBalancer beaker-ResilientStorage beaker-ScalableFileSystem beaker-Server beaker-debuginfo beaker-harness beaker-optional beaker-tasks");
-//		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-//		res = KatelloUtils.sshOnClient("subscription-manager register --user admin --password admin --org "+ this.org +" --environment "+this.envTesting +" --force");
-//		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-//		res = KatelloUtils.sshOnClient("yum repolist");
-//		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-//		res = KatelloUtils.sshOnClient("yum install -y zsh");
-//		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-//
 	}
 
 	private boolean findSyncedRhelToUse(){
@@ -145,8 +125,7 @@ public class ContentTest extends KatelloCliTestScript{
 	}
 	@AfterClass(description="cleanup the stuff", alwaysRun=true)
 	public void tearDown(){
-		// TODO - enable org.delete();
-//		res = new KatelloOrg(org,null).delete();
-//		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - exit.Code");
+		rhsm_clean();
+		// TODO - do clean rpm repos that has been installed.
 	}
 }
