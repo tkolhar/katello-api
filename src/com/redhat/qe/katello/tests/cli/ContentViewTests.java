@@ -202,13 +202,9 @@ public class ContentViewTests extends KatelloCliTestScript{
 	@Test(description = "Consuming content using an activation key that has a content view definition",groups={"cfse-cli"}, dependsOnMethods={"test_packageList"})
 	public void test_consumeContent()
 	{
-		yum_clean();
 		KatelloUtils.sshOnClient("yum erase -y lion");
-		exec_result=KatelloUtils.sshOnClient("yum install -y lion");
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		exec_result = KatelloUtils.sshOnClient("rpm -q lion");
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).trim().contains("lion-"));
+		yum_clean();
+		install_Packages(new String[] {"lion"});
 		
 		// chack that packages from other repos not in content view are not available
 		exec_result = KatelloUtils.sshOnClient("yum install pulp-agent --disablerepo '*pulp*'");
@@ -257,8 +253,8 @@ public class ContentViewTests extends KatelloCliTestScript{
 		exec_result = changeset2.apply();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		yum_clean();
-		exec_result = KatelloUtils.sshOnClient("yum install -y walrus");
-		Assert.assertFalse(exec_result.getExitCode() == 0, "Check - return code");
+		
+		verify_PackagesNotAvailable(new String[] {"walrus"});
 	}
 
 	//@ TODO bug 956690
@@ -271,11 +267,7 @@ public class ContentViewTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentView.OUT_PROMOTE, this.pubview_name, env_name)), "Content view promote output.");
 		yum_clean();
-		exec_result = KatelloUtils.sshOnClient("yum install -y walrus");
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - error code");
-		exec_result = KatelloUtils.sshOnClient("rpm -q walrus");
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).trim().contains("walrus-"));
+		install_Packages(new String[] {"walrus"});
 	}
 	
 	@AfterClass
