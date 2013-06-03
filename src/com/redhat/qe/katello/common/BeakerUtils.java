@@ -65,6 +65,21 @@ public class BeakerUtils {
 		return KatelloUtils.sshOnClient(hostname, cmds);
 	}
 
+	public static SSHCommandResult Katello_Installation_Satellite6WithLdap(String hostname, String releaseVersion, String ldap_type) {
+		String sat6Url = System.getProperty("SAT6_URL",null);
+		String sat6ToolsUrl = System.getProperty("SAT6_TOOLS_URL",null);
+		String cmds = 
+				"yum install -y Katello-Katello-Installation-Satellite6WithLdap --disablerepo=\\* --enablerepo=\\*beaker\\*; " +
+				"cd /mnt/tests/Katello/Installation/Satellite6WithLdap/";
+		if(sat6Url!=null)
+			cmds +="; export SAT6_URL="+sat6Url;
+		if(sat6ToolsUrl!=null)
+			cmds +="; export SAT6_TOOLS_URL="+sat6ToolsUrl;
+		cmds += "; export SAT6_RELEASE=" + releaseVersion + "; export LDAP_SERVER_TYPE=" + ldap_type + "; make run";
+
+		return KatelloUtils.sshOnClient(hostname, cmds);
+	}
+	
 	public static SSHCommandResult Katello_Installation_SAMLatest(String hostname, String releaseVersion){
 		String cmds = 
 				"yum install -y Katello-Katello-Installation-SAMLatest --disablerepo=* --enablerepo=beaker*; " +
@@ -73,10 +88,26 @@ public class BeakerUtils {
 		return KatelloUtils.sshOnClient(hostname, cmds);
 	}
 
+	public static SSHCommandResult Katello_Installation_SAMLatestWithLdap(String hostname, String releaseVersion, String ldap_type){
+		String cmds = 
+				"yum install -y Katello-Katello-Installation-SAMLatestWithLdap --disablerepo=* --enablerepo=beaker*; " +
+				"cd /mnt/tests/Katello/Installation/SAMLatestWithLdap/; " +
+				"export SAM_RELEASE=" + releaseVersion + "; export LDAP_SERVER_TYPE=" + ldap_type + "; make run";
+		return KatelloUtils.sshOnClient(hostname, cmds);
+	}
+	
 	public static SSHCommandResult Katello_Installation_HeadpinNightly(String hostname){
 		String cmds = 
 				"yum install -y Katello-Katello-Installation-HeadpinNightly --disablerepo=* --enablerepo=beaker*; " +
 				"cd /mnt/tests/Katello/Installation/HeadpinNightly/; make run";
+		return KatelloUtils.sshOnClient(hostname, cmds);
+	}
+	
+	public static SSHCommandResult Katello_Installation_HeadpinWithLdap(String hostname, String ldap_type) {
+		String cmds = 
+				"yum install -y Katello-Katello-Installation-HeadpinWithLdap --disablerepo=* --enablerepo=beaker*; " +
+				"cd /mnt/tests/Katello/Installation/HeadpinWithLdap/; " +
+				"export LDAP_SERVER_TYPE=" + ldap_type + "; make run";
 		return KatelloUtils.sshOnClient(hostname, cmds);
 	}
 }
