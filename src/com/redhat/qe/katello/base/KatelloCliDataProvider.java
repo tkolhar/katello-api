@@ -177,13 +177,14 @@ public class KatelloCliDataProvider {
 				{ "a ", null, new Integer(166), "Validation failed: Name must not contain leading or trailing white spaces."},
 				{ "a", null, new Integer(166), "Validation failed: Name must contain at least 3 character"},
 				{ "?1", null, new Integer(166), "Validation failed: Name must contain at least 3 character"},
-			    { strRepeat("0123456789", 12)+"abcdefghi", null, new Integer(166), "Validation failed: Name is too long (maximum is 128 characters)"},
+			    { strRepeat("0123456789", 12)+"abcdefghi", null, new Integer(0), "Successfully created user role [ 012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789abcdefghi ]"},
 //				// description
 				{ "desc-specChars"+uid, "\\!@%^&*(<_-~+=//\\||,.>)", new Integer(0), "Successfully created user role [ desc-specChars"+uid+" ]"},
 				
 				{ "desc-256Chars"+uid, strRepeat("0123456789", 25)+"abcdef", new Integer(166), "Validation failed: Description is too long (maximum is 250 characters)"},
 				// misc
 				{ "duplicate"+uid, null, new Integer(0), "Successfully created user role [ duplicate"+uid+" ]"},
+				
  				
 		};
 	}
