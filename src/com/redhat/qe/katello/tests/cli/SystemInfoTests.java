@@ -235,8 +235,6 @@ public class SystemInfoTests extends KatelloCliTestScript{
 				String.format(KatelloOrg.OUT_APPLY_SYS_INFO, org.name)),
 				"Check - apply system info output.");
 		
-		//TODO: verify that the sync process of org does not override the custom info keys of the system. Test what is the console output
-		
 	}
 
 	@Test(description="update a parameter in system", dependsOnMethods={"addSystemInfo"})
