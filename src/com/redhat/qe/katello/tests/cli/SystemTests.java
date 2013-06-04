@@ -14,11 +14,13 @@ import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
+import com.redhat.qe.katello.base.obj.KatelloPermission;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.base.obj.KatelloUser;
+import com.redhat.qe.katello.base.obj.KatelloUserRole;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
@@ -46,6 +48,8 @@ public class SystemTests extends KatelloCliTestScript{
 	private String systemNameNoEnvReg;
 	
 	private String user;
+	private String user_role;
+	private String perm_name;
 	
 	private String orgNameAwesome;
 	private String contentViewRhel6;
@@ -59,6 +63,8 @@ public class SystemTests extends KatelloCliTestScript{
 		this.orgNameNoEnvs = "orgNoEnv-"+uid;
 		
 		this.user = "usr"+uid;
+		this.user_role = "Full RHSM "+uid;
+		this.perm_name = "perm-notdelete-"+ uid; 
 		this.systemNameRegOnly = "sys-RegOnly-"+uid;
 		this.systemNameCustomInfo = "sys-CustomInfo-"+uid;
 		this.systemNameNoEnvReg = "sys-NoEnvReg-"+uid;
@@ -81,6 +87,19 @@ public class SystemTests extends KatelloCliTestScript{
 		exec_result = new KatelloOrg(this.orgNameAwesome,null).cli_create();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 
+		KatelloUser user = new KatelloUser(this.user, "root@localhost", KatelloUser.DEFAULT_USER_PASS, false);
+		exec_result = user.cli_create();
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (user create)");
+		KatelloUserRole role = new KatelloUserRole(this.user_role, "not delete to system");
+		exec_result = role.create();
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (user_role create)");
+		KatelloPermission perm = new KatelloPermission(perm_name, this.orgNameMain, "environments", null,
+				"update_systems,read_contents,read_systems,register_systems", this.user_role);
+		exec_result = perm.create();
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (perm create)");
+		exec_result = user.assign_role(this.user_role);
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (user assign_role)");
+		
 		rhsm_clean(); // clean - in case of it registered
 		
 		this.envName_Dev = null;
@@ -223,7 +242,6 @@ public class SystemTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getStdout().replaceAll("\n", "").trim().equals("2"), "Check - 2 systems are registered with the same name");
 	}
 
-	//@ TODO fails because of bug https://bugzilla.redhat.com/show_bug.cgi?id=896074
 	@Test(description = "delete registered system and verifies that it is removed successfully",
 			groups={"cfse-cli"})
 	public void test_deleteSystem(){
