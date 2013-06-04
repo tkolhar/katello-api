@@ -16,7 +16,7 @@ import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(
+@Test( 
 		groups={"SystemInfoTests","cfse-cli","headpin-cli",TngRunGroups.TNG_KATELLO_System_Consumer})
 public class SystemInfoTests extends KatelloCliTestScript{	
 	protected static Logger log = Logger.getLogger(SystemTests.class.getName());
@@ -31,7 +31,12 @@ public class SystemInfoTests extends KatelloCliTestScript{
 	private String value2_edit = "edit2";
 	private String keyname3 = "secret location";
 	private String value3 = "secret place";
-
+	private String keyInvalid = "invalid key";
+	private String keyDefault1 = "default key 1";
+	private String valueDefault1 = "value1";
+	private String keyDefault2 = "default key 2";
+	private String valueDefault2 = "value2";
+	
 	@BeforeClass(description="Generate unique names")
 	public void setUp(){
 		String uid = KatelloUtils.getUniqueID();
@@ -114,7 +119,48 @@ public class SystemInfoTests extends KatelloCliTestScript{
 				"Check - remove system info output.");
 		
 		List<String[]> sysparamsList = new LinkedList<String[]>();
+		sysparamsList.add(new String[]{this.keyname, "none"});
+		assert_systemInfo(new KatelloSystem(this.system, this.org, this.environment), sysparamsList);
 		
+		List<String> orgparamsList = new LinkedList<String>();
+		//orgparamsList.add(this.keyname);
+		
+		assert_orgInfo(org, orgparamsList);
+	}
+	
+	@Test(description="Sync the systems, the removed default parameters should also be removed from the system", dependsOnMethods={"removeOrgInfo"})
+	public void syncRemovedInfo()
+	{
+		KatelloOrg org = new KatelloOrg(this.org, "Default org");
+		exec_result = org.apply_system_info();
+		
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
+
+		Assert.assertTrue(exec_result.getStdout().trim().contains( 
+				String.format(KatelloOrg.OUT_APPLY_SYS_INFO, org.name)),
+				"Check - apply system info output.");
+		
+		List<String[]> sysparamsList = new LinkedList<String[]>();
+
+		assert_systemInfo(new KatelloSystem(this.system, this.org, this.environment), sysparamsList);
+		
+	}
+	
+	@Test(description="trying to remove an invalid parameter from org, verifies the error message", dependsOnMethods={"addOrgInfo"})
+	public void removeOrgInvalidInfo() {
+		KatelloOrg org = new KatelloOrg(this.org, "Default org");
+		exec_result = org.remove_system_info(keyInvalid);
+		
+		//TODO: AssertTrue for the exact exitCode
+		Assert.assertFalse(exec_result.getExitCode().intValue()==0, "Check - return code");
+		
+		//TODO: Assert for the correct Error Message. Feature yet to be added
+		Assert.assertEquals(exec_result.getStdout().trim(), 
+				String.format(KatelloOrg.OUT_REMOVE_SYS_INFO, keyname, org.name),
+				"Check - remove system info output.");
+		
+		List<String[]> sysparamsList = new LinkedList<String[]>();
+		sysparamsList.add(new String[] {this.keyname, "None"});
 		assert_systemInfo(new KatelloSystem(this.system, this.org, this.environment), sysparamsList);
 		
 		List<String> orgparamsList = new LinkedList<String>();
@@ -122,8 +168,37 @@ public class SystemInfoTests extends KatelloCliTestScript{
 		
 		assert_orgInfo(org, orgparamsList);
 	}
+	
+	@Test(description="Adding multiple default org parameters without syncing the systems, verify that they do not exist in the system yet", dependsOnMethods={"syncRemovedInfo"})
+	public void addMultipleOrgInfo()
+	{
+		KatelloOrg org = new KatelloOrg(this.org, "Default org");
+		exec_result = org.add_system_info(keyname2);
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
+		Assert.assertEquals(exec_result.getStdout().trim(), 
+				String.format(KatelloOrg.OUT_ADD_SYS_INFO, keyname2, org.name),
+				"Check - add system info output.");
+		
+		exec_result = org.add_system_info(keyname3);
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
+		Assert.assertEquals(exec_result.getStdout().trim(), 
+				String.format(KatelloOrg.OUT_ADD_SYS_INFO, keyname3, org.name),
+				"Check - add system info output.");
+		
+		
+		List<String[]> sysparamsList = new LinkedList<String[]>();
 
-	@Test(description="adding 2 parameters to system", dependsOnMethods={"removeOrgInfo"})
+		assert_systemInfo(new KatelloSystem(this.system, this.org, this.environment), sysparamsList);
+		
+		List<String> orgparamsList = new LinkedList<String>();
+		orgparamsList.add(this.keyname2);
+		orgparamsList.add(this.keyname3);
+		
+		assert_orgInfo(org, orgparamsList);
+		
+	}
+
+	@Test(description="adding the same 2 parameters as the default ones to system", dependsOnMethods={"addMultipleOrgInfo"})
 	public void addSystemInfo() {
 		KatelloSystem sys = new KatelloSystem(this.system, this.org, this.environment);
 		exec_result = sys.add_custom_info(keyname2, value2);
@@ -133,7 +208,6 @@ public class SystemInfoTests extends KatelloCliTestScript{
 				"Check - add custom info output.");
 		
 		List<String[]> sysparamsList = new LinkedList<String[]>();
-		sysparamsList.add(new String[] {this.keyname, "None"});
 		sysparamsList.add(new String[] {this.keyname2, value2});
 		
 		assert_systemInfo(new KatelloSystem(this.system, this.org, this.environment), sysparamsList);
@@ -147,6 +221,22 @@ public class SystemInfoTests extends KatelloCliTestScript{
 		sysparamsList.add(new String[] {this.keyname3, value3});
 		
 		assert_systemInfo(new KatelloSystem(this.system, this.org, this.environment), sysparamsList);
+	}
+	
+	@Test(description="Sync the added default parameters, verify that the sync process of org does not override the custom info keys of the system", dependsOnMethods={"addSystemInfo"})
+	public void syncAddedInfo()
+	{
+		KatelloOrg org = new KatelloOrg(this.org, "Default org");
+		exec_result = org.apply_system_info();
+		
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
+
+		Assert.assertTrue(exec_result.getStdout().trim().contains( 
+				String.format(KatelloOrg.OUT_APPLY_SYS_INFO, org.name)),
+				"Check - apply system info output.");
+		
+		//TODO: verify that the sync process of org does not override the custom info keys of the system. Test what is the console output
+		
 	}
 
 	@Test(description="update a parameter in system", dependsOnMethods={"addSystemInfo"})
@@ -182,6 +272,48 @@ public class SystemInfoTests extends KatelloCliTestScript{
 		assert_systemInfo(new KatelloSystem(this.system, this.org, this.environment), sysparamsList);
 	}
 	
+	@Test(description="remove all existing default parameters and sync, verify that the info still exists for the system", dependsOnMethods={"updateSystemInfo"})
+	public void removeAllDefaultInfo() {
+		
+		KatelloOrg org = new KatelloOrg(this.org, "Default org");
+		exec_result = org.remove_system_info(keyname);
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
+		Assert.assertEquals(exec_result.getStdout().trim(), 
+				String.format(KatelloOrg.OUT_REMOVE_SYS_INFO, keyname, org.name),
+				"Check - remove system info output.");
+				
+		exec_result = org.remove_system_info(keyname2);
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
+		Assert.assertEquals(exec_result.getStdout().trim(), 
+				String.format(KatelloOrg.OUT_REMOVE_SYS_INFO, keyname2, org.name),
+				"Check - remove system info output.");
+		
+		exec_result = org.remove_system_info(keyname3);
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
+		Assert.assertEquals(exec_result.getStdout().trim(), 
+				String.format(KatelloOrg.OUT_REMOVE_SYS_INFO, keyname3, org.name),
+				"Check - remove system info output.");
+		
+		exec_result = org.apply_system_info();
+		
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
+
+		Assert.assertTrue(exec_result.getStdout().trim().contains( 
+				String.format(KatelloOrg.OUT_APPLY_SYS_INFO, org.name)),
+				"Check - apply system info output.");
+		
+		List<String[]> sysparamsList = new LinkedList<String[]>();
+		sysparamsList.add(new String[] {this.keyname, "None"});
+		sysparamsList.add(new String[] {this.keyname2, value2});
+		sysparamsList.add(new String[] {this.keyname3, value3});
+		
+		assert_systemInfo(new KatelloSystem(this.system, this.org, this.environment), sysparamsList);
+		
+		List<String> orgparamsList = new LinkedList<String>();
+	
+		assert_orgInfo(org, orgparamsList);
+	}
+
 	private void assert_systemInfo(KatelloSystem system, List<String[]> paramsList) {
 
 		SSHCommandResult res;
