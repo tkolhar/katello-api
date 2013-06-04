@@ -22,9 +22,9 @@ public class KatelloOrg extends _KatelloObject{
 	public static final String CMD_UEBERCERT = "org uebercert";
 	public static final String CMD_DELETE = "org delete";
 	public static final String CMD_UPDATE = "org update";
-	public static final String CMD_ADD_SYS_INFO = "org default_info add";
-	public static final String CMD_APPLY_SYS_INFO = "org default_info apply";
-	public static final String CMD_REMOVE_SYS_INFO = "org default_info remove --type system";
+	public static final String CMD_DEFAULT_INFO_ADD = "org default_info add";
+	public static final String CMD_DEFAULT_INFO_APPLY = "org default_info apply";
+	public static final String CMD_DEFAULT_INFO_REMOVE = "org default_info remove";
 	
 	public static final String API_CMD_INFO = "/organizations/%s";
 	
@@ -165,26 +165,27 @@ public class KatelloOrg extends _KatelloObject{
 		return run(CMD_UPDATE);
 	}
 	
-	public SSHCommandResult add_system_info(String keyname){
+	public SSHCommandResult default_info_add(String keyname, String type){
 		opts.clear();
 		opts.add(new Attribute("name", this.name));
 		opts.add(new Attribute("keyname", keyname));
-		opts.add(new Attribute("type", "system"));
-		return run(CMD_ADD_SYS_INFO);
+		opts.add(new Attribute("type", type));
+		return run(CMD_DEFAULT_INFO_ADD);
 	}
 
-	public SSHCommandResult apply_system_info(){
+	public SSHCommandResult default_info_apply(String type){
 		opts.clear();
 		opts.add(new Attribute("name", this.name));
-		opts.add(new Attribute("type", "system"));
-		return run(CMD_APPLY_SYS_INFO);
+		opts.add(new Attribute("type", type));
+		return run(CMD_DEFAULT_INFO_APPLY);
 	}
 	
-	public SSHCommandResult remove_system_info(String keyname){
+	public SSHCommandResult default_info_remove(String keyname, String type){
 		opts.clear();
 		opts.add(new Attribute("name", this.name));
 		opts.add(new Attribute("keyname", keyname));
-		return run(CMD_REMOVE_SYS_INFO);
+		opts.add(new Attribute("type", type));
+		return run(CMD_DEFAULT_INFO_REMOVE);
 	}
 	
 	public static String getDefaultOrg(){

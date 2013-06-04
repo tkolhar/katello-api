@@ -17,6 +17,7 @@ import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
 import com.redhat.qe.katello.base.obj.KatelloContentFilter;
 import com.redhat.qe.katello.base.obj.KatelloPing;
+import com.redhat.qe.katello.base.obj.KatelloUser;
 import com.redhat.qe.katello.base.obj.helpers.FilterRuleErrataIds;
 import com.redhat.qe.katello.base.obj.helpers.FilterRulePackage;
 import com.redhat.qe.katello.deltacloud.DeltaCloudAPI;
@@ -431,6 +432,8 @@ public class KatelloUtils implements KatelloConstants {
 		String version = System.getProperty("katello.product.version", "1.1");
 		String product = System.getProperty("katello.product", "katello");
 		String ldap = System.getProperty("ldap.server.type", "");
+		String user = System.getProperty("katello.admin.user", KatelloUser.DEFAULT_ADMIN_USER);
+		String password = System.getProperty("katello.admin.password", KatelloUser.DEFAULT_ADMIN_PASS);
 		
 		setupBeakerRepo(hostIP);
 		configureBeaker(hostIP);
@@ -446,17 +449,29 @@ public class KatelloUtils implements KatelloConstants {
 			if (ldap.isEmpty()) {
 				BeakerUtils.Katello_Installation_KatelloNightly(hostIP);	
 			} else{
-				BeakerUtils.Katello_Installation_KatelloWithLdap(hostIP, ldap);
+				BeakerUtils.Katello_Installation_KatelloWithLdap(hostIP, ldap, user, password);
 			}
 		} else if (product.equals("cfse")) {
 			BeakerUtils.Katello_Installation_SystemEngineLatest(hostIP, version);
 		} else if (product.equals("sam")) {
-			BeakerUtils.Katello_Installation_SAMLatest(hostIP, version);
+			if (ldap.isEmpty()) {
+				BeakerUtils.Katello_Installation_SAMLatest(hostIP, version);
+			} else {
+				BeakerUtils.Katello_Installation_SAMLatestWithLdap(hostIP, version, ldap, user, password);
+			}
 		} else if (product.equals("headpin")) {
 			BeakerUtils.Katello_Installation_ConfigureRepos(hostIP);
-			BeakerUtils.Katello_Installation_HeadpinNightly(hostIP);
+			if (ldap.isEmpty()) {
+				BeakerUtils.Katello_Installation_HeadpinNightly(hostIP);	
+			} else{
+				BeakerUtils.Katello_Installation_HeadpinWithLdap(hostIP, ldap, user, password);
+			}
 		} else if (product.equals("sat6")) {
-			BeakerUtils.Katello_Installation_Satellite6Latest(hostIP, version);
+			if (ldap.isEmpty()) {
+				BeakerUtils.Katello_Installation_Satellite6Latest(hostIP, version);	
+			} else{
+				BeakerUtils.Katello_Installation_Satellite6WithLdap(hostIP, version, ldap, user, password);
+			}
 		}
 		
 		// Configure the server as a self-client
