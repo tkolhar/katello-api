@@ -177,7 +177,7 @@ public class KatelloCliDataProvider {
 				{ "a ", null, new Integer(166), "Validation failed: Name must not contain leading or trailing white spaces."},
 				{ "a", null, new Integer(166), "Validation failed: Name must contain at least 3 character"},
 				{ "?1", null, new Integer(166), "Validation failed: Name must contain at least 3 character"},
-			    { strRepeat("0123456789", 12)+"abcdefghi", null, new Integer(0), "Successfully created user role [ 012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789abcdefghi ]"},
+			    { strRepeat("0123456789", 12)+"abcdefghi", null, new Integer(166), "Validation failed: Name is too long (maximum is 128 characters)"},
 //				// description
 				{ "desc-specChars"+uid, "\\!@%^&*(<_-~+=//\\||,.>)", new Integer(0), "Successfully created user role [ desc-specChars"+uid+" ]"},
 				
@@ -271,8 +271,8 @@ public class KatelloCliDataProvider {
 				{ strRepeat("0123456789", 12)+"abcdefgh",strRepeat("0123456789", 12)+"abcdefgh", new Integer(0),null},
 				{ " ", "value", new Integer(166),"Validation failed: Keyname can't be blank"},
 				{ "desc-specChars"+uid, "\\!@%^&*(<_-~+=//\\||,.>)", new Integer(0),null},
-				{"desc-256Chars"+uid, strRepeat("0123456789", 25)+"abcdef",new Integer(166), "Validation failed: Value is too long (maximum is 255 characters)"},
-				{strRepeat("0123456789", 25)+"abcdef", "desc-256Chars", new Integer(166), "Validation failed: Keyname is too long (maximum is 255 characters)"},
+				{"desc-256Chars"+uid, strRepeat("0123456789", 25)+"abcdef",new Integer(244), "PGError: ERROR: value too long for type character varying(255)"},
+				{strRepeat("0123456789", 25)+"abcdef", "desc-256Chars", new Integer(244), "PGError: ERROR: value too long for type character varying(255)"},
 
 		};
 	}
