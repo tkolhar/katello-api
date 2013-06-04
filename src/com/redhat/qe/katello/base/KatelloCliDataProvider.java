@@ -271,8 +271,8 @@ public class KatelloCliDataProvider {
 				{ strRepeat("0123456789", 12)+"abcdefgh",strRepeat("0123456789", 12)+"abcdefgh", new Integer(0),null},
 				{ " ", "value", new Integer(166),"Validation failed: Keyname can't be blank"},
 				{ "desc-specChars"+uid, "\\!@%^&*(<_-~+=//\\||,.>)", new Integer(0),null},
-				{"desc-256Chars"+uid, strRepeat("0123456789", 25)+"abcdef",new Integer(244), "PGError: ERROR: value too long for type character varying(255)"},
-				{strRepeat("0123456789", 25)+"abcdef", "desc-256Chars", new Integer(244), "PGError: ERROR: value too long for type character varying(255)"},
+				{"desc-256Chars"+uid, strRepeat("0123456789", 25)+"abcdef",new Integer(244), "PGError: ERROR:  value too long for type character varying(255)"},
+				{strRepeat("0123456789", 25)+"abcdef", "desc-256Chars", new Integer(244), "PGError: ERROR:  value too long for type character varying(255)"},
 
 		};
 	}
