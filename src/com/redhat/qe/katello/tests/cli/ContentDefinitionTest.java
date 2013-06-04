@@ -210,7 +210,6 @@ public class ContentDefinitionTest extends KatelloCliTestScript{
 	 * @author gkhachik
 	 * @since 15.April.2013
 	 */
-	//@ TODO 961293
 	@Test(description="Clone content definition")
 	public void test_clone(){
 		String sCvdOrigin = this._cvdClone+"-origin";
