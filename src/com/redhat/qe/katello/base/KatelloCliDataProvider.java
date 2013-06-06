@@ -276,4 +276,20 @@ public class KatelloCliDataProvider {
 
 		};
 	}
+	
+	@DataProvider(name="add_distributor_custom_info")
+	public static Object[][] add_distributor_custom_info()
+	{
+		String uid = KatelloUtils.getUniqueID();
+		return new Object[][]{
+				{"testkey-"+uid,"testvalue-"+uid,new Integer(0)},
+				{"","blank-key"+uid,new Integer(166)},
+				{"blank-value"+uid,"",new Integer(0)},
+				{strRepeat("0123456789",12)+uid,strRepeat("0134456789",12),new Integer(0)},
+				{strRepeat("013456789",30)+uid,strRepeat("013456789",30),new Integer(244)},
+				{"testkey-"+uid,"duplicate-key"+uid,new Integer(166)},
+				{"duplicate-key"+uid,"testvalue-"+uid,new Integer(0)},
+				{"$#%^&*!"+uid,"$#%^&*!"+uid,new Integer(0)},				
+		};		
+	}
 }
