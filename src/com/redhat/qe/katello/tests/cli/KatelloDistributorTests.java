@@ -30,9 +30,9 @@ public class KatelloDistributorTests extends KatelloCliTestScript{
 
 	@Test(description="distributor add custom info",  
 			dataProvider="add_distributor_custom_info", dataProviderClass = KatelloCliDataProvider.class, enabled=true,groups={"cfse-cli","headpin-cli"})
-	public void test_DistributoraddCustominfo(String keyname, String value, Integer exitCode){
+	public void test_distributorAddCustomInfo(String keyname, String value, Integer exitCode){
 		SSHCommandResult exec_result;
-		exec_result = distributor.distributor_add_info(keyname, value);
+		exec_result = distributor.add_info(keyname, value);
 		Assert.assertTrue(exec_result.getExitCode().intValue() == exitCode.intValue(), "Check - return code");		
 	} 
 }

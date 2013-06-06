@@ -34,7 +34,7 @@ public class KatelloDistributor extends _KatelloObject{
 		return run(CMD_INFO);
 	}
 	
-	public SSHCommandResult distributor_add_info(String keyname,String value){
+	public SSHCommandResult add_info(String keyname,String value){
 		opts.clear();
 		opts.add(new Attribute("org",this.org_name));
 		opts.add(new Attribute("name",this.dis_name));
