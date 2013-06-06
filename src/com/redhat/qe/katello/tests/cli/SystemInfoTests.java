@@ -165,7 +165,7 @@ public class SystemInfoTests extends KatelloCliTestScript{
 		assert_orgInfo(org, orgparamsList);
 	}
 
-	@Test(description="Adding multiple default org parameters without syncing the systems, verify that they do not exist in the system yet", dependsOnMethods={"syncRemovedInfo"})
+	@Test(description="Adding multiple default org parameters without syncing the systems, verify that they do not exist in the system yet", dependsOnMethods={"test_syncRemovedInfo"})
 	public void addMultipleOrgInfo()
 	{
 		KatelloOrg org = new KatelloOrg(this.org, "Default org");
