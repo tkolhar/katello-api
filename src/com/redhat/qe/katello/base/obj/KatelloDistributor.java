@@ -8,6 +8,8 @@ public class KatelloDistributor extends _KatelloObject{
 	// ** ** ** ** ** ** ** Public constants
 	public static final String CMD_CREATE = "distributor create";
 	public static final String CMD_INFO = "distributor info";
+	public static final String CMD_ADD_CUSTOM_INFO = "distributor add_custom_info";
+	public static final String OUT_CREATE = "Successfully createed distributor [ %s ]";
 
 	// ** ** ** ** ** ** ** Class members
 	String org_name;
@@ -30,6 +32,15 @@ public class KatelloDistributor extends _KatelloObject{
 		opts.add(new Attribute("org", this.org_name));
 		opts.add(new Attribute("name", this.dis_name));
 		return run(CMD_INFO);
+	}
+	
+	public SSHCommandResult distributor_add_info(String keyname,String value){
+		opts.clear();
+		opts.add(new Attribute("org",this.org_name));
+		opts.add(new Attribute("name",this.dis_name));
+		opts.add(new Attribute("keyname",keyname));
+		opts.add(new Attribute("value",value));
+		return run(CMD_ADD_CUSTOM_INFO);		
 	}
 }
 
