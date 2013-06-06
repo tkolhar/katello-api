@@ -124,7 +124,7 @@ public class SystemInfoTests extends KatelloCliTestScript{
 		assert_orgInfo(org, orgparamsList);
 	}
 
-	@Test(description="Sync the systems, the removed default parameters should also be removed from the system", dependsOnMethods={"removeOrgInfo"})
+	@Test(description="Sync the systems, the removed default parameters should also be removed from the system", dependsOnMethods={"test_removeOrgInfo"})
 	public void test_syncRemovedInfo()
 	{
 		KatelloOrg org = new KatelloOrg(this.org, "Default org");
@@ -219,7 +219,7 @@ public class SystemInfoTests extends KatelloCliTestScript{
 		assert_systemInfo(new KatelloSystem(this.system, this.org, this.environment), sysparamsList);
 	}
 
-	@Test(description="Sync the added default parameters, verify that the sync process of org does not override the custom info keys of the system", dependsOnMethods={"addSystemInfo"})
+	@Test(description="Sync the added default parameters, verify that the sync process of org does not override the custom info keys of the system", dependsOnMethods={"test_addSystemInfo"})
 	public void test_syncAddedInfo()
 	{
 		KatelloOrg org = new KatelloOrg(this.org, "Default org");
@@ -233,7 +233,7 @@ public class SystemInfoTests extends KatelloCliTestScript{
 
 	}
 
-	@Test(description="update a parameter in system", dependsOnMethods={"addSystemInfo"})
+	@Test(description="update a parameter in system", dependsOnMethods={"test_addSystemInfo"})
 	public void updateSystemInfo() {
 		KatelloSystem sys = new KatelloSystem(this.system, this.org, this.environment);
 		exec_result = sys.update_custom_info(keyname2, value2_edit);
