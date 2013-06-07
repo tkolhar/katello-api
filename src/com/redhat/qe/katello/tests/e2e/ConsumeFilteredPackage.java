@@ -85,7 +85,6 @@ public class ConsumeFilteredPackage extends KatelloCliTestScript {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
     
-	//@ TODO bug 953655
 	@Test(description="Consume content from filtered package")
 	public void test_consumePackageContent() {
 
@@ -107,8 +106,8 @@ public class ConsumeFilteredPackage extends KatelloCliTestScript {
 				new FilterRulePackage("lion"),
 				new FilterRulePackage("bear"),
 				new FilterRulePackage("cockateel"),
-				new FilterRulePackage("cow", "2.2-3", null, null),
-				new FilterRulePackage("walrus", "0.71-1", null, null),
+				new FilterRulePackage("cow", "2.2", null, null),
+				new FilterRulePackage("walrus", "0.71", null, null),
 				new FilterRulePackage("dog", null, "4.20", null),
 				new FilterRulePackage("dolphin", null, null, "3.11"),
 				new FilterRulePackage("duck", null, "0.6", "0.7")
@@ -119,7 +118,7 @@ public class ConsumeFilteredPackage extends KatelloCliTestScript {
 
 		FilterRulePackage [] exclude_packages = {
 				new FilterRulePackage("elephant"),
-				new FilterRulePackage("walrus", "5.21-1", null, null),
+				new FilterRulePackage("walrus", "5.21", null, null),
 				new FilterRulePackage("horse", null, "0.21", null),
 				new FilterRulePackage("kangaroo", null, null, "0.3"),
 				new FilterRulePackage("pike", null, "2.1", "2.3"),
