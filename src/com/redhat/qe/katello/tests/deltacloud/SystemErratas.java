@@ -1,5 +1,6 @@
 package com.redhat.qe.katello.tests.deltacloud;
 
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
@@ -9,7 +10,17 @@ import com.redhat.qe.katello.common.KatelloUtils;
 @Test(groups="cfse-dc-errata")
 public class SystemErratas extends BaseDeltacloudTest {
 	
-
+	@BeforeClass
+	public void setUp() {
+		KatelloSystem sys = new KatelloSystem(system_name, org_name, env_name);
+		sys.runOn(client_name);
+		exec_result = sys.rhsm_registerForce(rhel_act_key); 
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		
+		exec_result = sys.rhsm_identity();
+		system_uuid = KatelloUtils.grepCLIOutput("Current identity is", exec_result.getStdout());
+	}
+	
 	private void setUpErratas(){	
 		configureClient(client_name);
 		configureClient(client_name2);
@@ -27,7 +38,7 @@ public class SystemErratas extends BaseDeltacloudTest {
 	public void test_errataListOnSystem() {
 		setUpErratas();
 		
-		KatelloSystem system = new KatelloSystem(system_name, org_name, env_name);
+		KatelloSystem system = new KatelloSystem(system_name, org_name, null);
 		exec_result = system.list_errata_count("RHBA");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertFalse(getOutput(exec_result).replaceAll("\n", "").trim().equals("0"), "Check - erratas are not empty");
@@ -45,7 +56,7 @@ public class SystemErratas extends BaseDeltacloudTest {
 	public void test_errataDetailsOnSystemGroup() {
 		setUpErratas();
 		
-		KatelloSystem system = new KatelloSystem(system_name, org_name, env_name);
+		KatelloSystem system = new KatelloSystem(system_name, org_name, null);
 		exec_result = system.list_errata_details_count("RHBA");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertFalse(getOutput(exec_result).replaceAll("\n", "").trim().equals("0"), "Check - erratas are not empty");

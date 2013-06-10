@@ -16,6 +16,7 @@ import com.redhat.qe.katello.base.obj.DeltaCloudInstance;
 import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
 import com.redhat.qe.katello.base.obj.KatelloContentFilter;
+import com.redhat.qe.katello.base.obj.KatelloContentView;
 import com.redhat.qe.katello.base.obj.KatelloPing;
 import com.redhat.qe.katello.base.obj.KatelloUser;
 import com.redhat.qe.katello.base.obj.helpers.FilterRuleErrataIds;
@@ -627,17 +628,21 @@ public class KatelloUtils implements KatelloConstants {
 		}
 		
 		exec_result = condef.publish(pubview_name, pubview_name,"Publish Content");
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");		
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
+		
+		KatelloContentView view = new KatelloContentView(pubview_name, org_name);
 	
 		if (env_names != null && env_names.length > 0) {
 			for (String env_name : env_names) {
-				String changeset_name = "changeset"+getUniqueID();
-				KatelloChangeset cs = new KatelloChangeset(changeset_name, org_name, env_name);
-				exec_result = cs.create();
-				Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-				exec_result = cs.update_addView(pubview_name);
-				Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-				exec_result = cs.apply();
+//				String changeset_name = "changeset"+getUniqueID();
+//				KatelloChangeset cs = new KatelloChangeset(changeset_name, org_name, env_name);
+//				exec_result = cs.create();
+//				Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+//				exec_result = cs.update_addView(pubview_name);
+//				Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+//				exec_result = cs.apply();
+//				Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+				exec_result = view.promote_view(env_name);
 				Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 			}
 		}
@@ -692,13 +697,16 @@ public class KatelloUtils implements KatelloConstants {
 		exec_result = condef.publish(pubview_name, pubview_name,"Publish Content");
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");		
 
-		String changeset_name = "changeset"+uid;
-		KatelloChangeset cs = new KatelloChangeset(changeset_name, org_name, env_name);
-		exec_result = cs.create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		exec_result = cs.update_addView(pubview_name);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		exec_result = cs.apply();
+//		String changeset_name = "changeset"+uid;
+//		KatelloChangeset cs = new KatelloChangeset(changeset_name, org_name, env_name);
+//		exec_result = cs.create();
+//		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+//		exec_result = cs.update_addView(pubview_name);
+//		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+//		exec_result = cs.apply();
+//		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		KatelloContentView view = new KatelloContentView(pubview_name, org_name);
+		exec_result = view.promote_view(env_name);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		return pubview_name;
 	}
