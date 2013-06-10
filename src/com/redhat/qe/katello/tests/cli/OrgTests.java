@@ -499,8 +499,6 @@ public class OrgTests extends KatelloCliTestScript{
 		// Create Distributor
 		KatelloDistributor distributor = new KatelloDistributor(orgName,disName);
 		res = distributor.distributor_create();
-		System.out.println("TO GET THE EXIT CODE: "+res.getExitCode().intValue());
-		System.out.println("TO GET THE RETURN STRING: "+getOutput(res).trim());
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code (Distributor - create)");
 		Assert.assertTrue(getOutput(res).trim().contains("Successfully createed distributor [ " + disName + " ]"),"Check - returned string");
 		//Info
