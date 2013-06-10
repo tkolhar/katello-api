@@ -279,28 +279,28 @@ public class KatelloCliDataProvider {
 		};
 	}
 	
+	/**
+	 * 1. keyname<br>
+	 * 2. keyvalue<br>
+	 * 3. distributor name<br>
+	 * 4. return code<br>
+	 * 5. output/error string 
+	 * @return
+	 */
 	@DataProvider(name="add_distributor_custom_info")
 	public static Object[][] add_distributor_custom_info()
 	{
 		String uid = KatelloUtils.getUniqueID();
-		SSHCommandResult exec_result;
-		String org_name ="org_distributor_name-"+uid;
-		String dis_name = "dis_name-"+uid;
-		KatelloOrg org = new KatelloOrg(org_name,"Creating Org for a distributor");
-		exec_result = org.cli_create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		KatelloDistributor distributor=new KatelloDistributor(org_name,dis_name);
-		exec_result = distributor.distributor_create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		String dis_name = "distAddCustomInfo-"+uid;
 		return new Object[][]{
-				{"testkey-"+uid,"testvalue-"+uid,org_name,dis_name,new Integer(0),"Successfully added Custom Information [ "+ "testkey-" +uid +" : " +"testvalue-"+uid  +" ]" + " to Distributor [ " +dis_name +" ]"},
-				{"","blank-key"+uid,org_name,dis_name,new Integer(166),"Validation failed: Keyname can't be blank"},
-				{"blank-value"+uid,"",org_name,dis_name,new Integer(0),"Successfully added Custom Information [ "+ "blank-value"+uid +" :  ]" + " to Distributor [ " +dis_name +" ]"},
-				{strRepeat("0123456789",12)+uid,strRepeat("0134456789",12),org_name,dis_name,new Integer(0),"Successfully added Custom Information [ "+ strRepeat("0123456789",12)+uid +" : " +strRepeat("0134456789",12) +" ]" + " to Distributor [ " +dis_name +" ]"},
-				{strRepeat("013456789",30)+uid,strRepeat("013456789",30),org_name,dis_name,new Integer(244),""},
-				{"testkey-"+uid,"duplicate-key"+uid,org_name,dis_name,new Integer(166),"Validation failed: Keyname already exists for this object"},
-				{"duplicate-key"+uid,"testvalue-"+uid,org_name,dis_name,new Integer(0),"Successfully added Custom Information [ "+ "duplicate-key"+uid +" : " + "testvalue-"+uid+" ]" + " to Distributor [ " +dis_name +" ]"},
-				{"$#%^&*!"+uid,"$#%^&*!"+uid,org_name,dis_name,new Integer(0),"Successfully added Custom Information [ "+ "0%^&*!"+uid +" : " +"0%^&*!"+uid +" ]" + " to Distributor [ " +dis_name +" ]"},			
+				{"testkey-"+uid,"testvalue-"+uid,dis_name,new Integer(0), String.format(KatelloDistributor.OUT_INFO,"testkey-"+uid,"testvalue-"+uid,dis_name)},
+				{"","blank-key"+uid,dis_name,new Integer(166),"Validation failed: Keyname can't be blank"},
+				{"blank-value"+uid,"",dis_name,new Integer(0),String.format(KatelloDistributor.OUT_INFO,"blank-value"+uid,"",dis_name)},
+				{strRepeat("0123456789",12)+uid,strRepeat("0134456789",12),dis_name,new Integer(0),String.format(KatelloDistributor.OUT_INFO,strRepeat("0123456789",12)+uid,strRepeat("0134456789",12),dis_name)},
+				{strRepeat("013456789",30)+uid,strRepeat("013456789",30),dis_name,new Integer(244),""},
+				{"testkey-"+uid,"duplicate-key"+uid,dis_name,new Integer(166),"Validation failed: Keyname already exists for this object"},
+				{"duplicate-value"+uid,"testvalue-"+uid,dis_name,new Integer(0),String.format(KatelloDistributor.OUT_INFO,"duplicate-value"+uid,"testvalue-"+uid,dis_name)},
+				{"\\!@%^&*(<_-~+=//\\||,.>)"+uid,"\\!@%^&*(<_-~+=//\\||,.>)"+uid,dis_name,new Integer(0),String.format(KatelloDistributor.OUT_INFO,"\\!@%^&*(<_-~+=//\\||,.>)"+uid,"\\!@%^&*(<_-~+=//\\||,.>)"+uid,dis_name)}			
 		};		
 	}
 }
