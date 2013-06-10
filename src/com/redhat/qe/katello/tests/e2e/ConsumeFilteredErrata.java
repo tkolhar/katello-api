@@ -231,6 +231,8 @@ public class ConsumeFilteredErrata extends KatelloCliTestScript {
 		exec_result = group.erratas_install(installERROR.toString());
 		Assert.assertFalse(exec_result.getExitCode().intValue()==0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("Remote action failed"));
+		
+		verify_PackagesNotAvailable(new String[] {"bat-3.10.7-1", "bird-5.1.11-1", "rat-7.7.2-1", "fox-10.8.2-1", "crab-5.5.4-1", "monkey-2.8.10-1", "eagle-9.8.10-1"});
 	}
 	
 	@AfterClass(description="cleanup RHSM stuff, yum erase packages")
