@@ -34,6 +34,9 @@ public class SystemGroupPackages extends BaseDeltacloudTest {
 		exec_result = sys.rhsm_identity();
 		system_uuid3 = KatelloUtils.grepCLIOutput("Current identity is", exec_result.getStdout());
 		
+		String uid = KatelloUtils.getUniqueID();
+		group_name = "group_"+uid;
+		
 		KatelloSystemGroup group = new KatelloSystemGroup(group_name, org_name);
 		exec_result = group.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");

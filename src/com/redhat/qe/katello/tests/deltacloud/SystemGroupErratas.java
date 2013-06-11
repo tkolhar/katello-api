@@ -38,6 +38,10 @@ public class SystemGroupErratas extends BaseDeltacloudTest {
 		exec_result = sys.rhsm_identity();
 		system_uuid3 = KatelloUtils.grepCLIOutput("Current identity is", exec_result.getStdout());
 		
+		String uid = KatelloUtils.getUniqueID();
+		group_name = "group_"+uid;
+		group_name2 = "group2_"+uid;
+		
 		KatelloSystemGroup group = new KatelloSystemGroup(group_name, org_name);
 		exec_result = group.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
@@ -57,6 +61,10 @@ public class SystemGroupErratas extends BaseDeltacloudTest {
 		
 		exec_result = group.add_systems(system_uuid2);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		configureClient(client_name);
+		configureClient(client_name2);
+		configureClient(client_name3);
 	}
 
 	private void setUpErratas(){
@@ -67,10 +75,6 @@ public class SystemGroupErratas extends BaseDeltacloudTest {
 		KatelloUtils.sshOnClient(client_name2, "yum erase -y walrus");
 		exec_result = KatelloUtils.sshOnClient(client_name2, "yum install -y walrus-0.71-1.noarch");
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		configureClient(client_name);
-		configureClient(client_name2);
-		configureClient(client_name3);
 	}
 	
 	private void configureClient(String client) {

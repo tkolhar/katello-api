@@ -19,12 +19,8 @@ public class SystemErratas extends BaseDeltacloudTest {
 		
 		exec_result = sys.rhsm_identity();
 		system_uuid = KatelloUtils.grepCLIOutput("Current identity is", exec_result.getStdout());
-	}
-	
-	private void setUpErratas(){	
+		
 		configureClient(client_name);
-		configureClient(client_name2);
-		configureClient(client_name3);
 	}
 	
 	private void configureClient(String client) {
@@ -36,7 +32,6 @@ public class SystemErratas extends BaseDeltacloudTest {
 	
 	@Test(description = "List the errata on system")
 	public void test_errataListOnSystem() {
-		setUpErratas();
 		
 		KatelloSystem system = new KatelloSystem(system_name, org_name, null);
 		exec_result = system.list_errata_count("RHBA");
@@ -54,7 +49,6 @@ public class SystemErratas extends BaseDeltacloudTest {
 	
 	@Test(description = "List the errata details on system group", dependsOnMethods={"test_errataListOnSystem"})
 	public void test_errataDetailsOnSystemGroup() {
-		setUpErratas();
 		
 		KatelloSystem system = new KatelloSystem(system_name, org_name, null);
 		exec_result = system.list_errata_details_count("RHBA");

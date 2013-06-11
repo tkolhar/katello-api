@@ -11,8 +11,6 @@ import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
-import com.redhat.qe.katello.base.obj.KatelloSystem;
-import com.redhat.qe.katello.base.obj.KatelloSystemGroup;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SCPTools;
 import com.redhat.qe.tools.SSHCommandResult;
@@ -64,22 +62,20 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 		system_name = "system_"+uid;
 		system_name2 = "system2_"+uid;
 		system_name3 = "system3_"+uid;
-		group_name = "group_"+uid;
-		group_name2 = "group2_"+uid;
 		zoo_act_key = "zookey"+uid;
 		rhel_act_key = "rhelkey"+uid;
 		
-		server = KatelloUtils.getDeltaCloudServer();
-		server_name = server.getHostName();
+		//server = KatelloUtils.getDeltaCloudServer();
+		server_name = "cfseserver3.usersys.redhat.com";//server.getHostName();
 		
-		client = KatelloUtils.getDeltaCloudClient(server_name);
-		client_name = client.getHostName();
+		//client = KatelloUtils.getDeltaCloudClient(server_name);
+		client_name = "cfseclient1.usersys.redhat.com";//client.getHostName();
 		
-		client2 = KatelloUtils.getDeltaCloudClient(server_name);
-		client_name2 = client2.getHostName();
+		//client2 = KatelloUtils.getDeltaCloudClient(server_name);
+		client_name2 = "cfseclient2.usersys.redhat.com";//client2.getHostName();
 		
-		client3 = KatelloUtils.getDeltaCloudClient(server_name);
-		client_name3 = client3.getHostName();
+		//client3 = KatelloUtils.getDeltaCloudClient(server_name);
+		client_name3 = "cfseclient3.usersys.redhat.com";//client3.getHostName();
 		
 		System.setProperty("katello.server.hostname", server_name);
 		System.setProperty("katello.client.hostname", server_name);
@@ -169,6 +165,8 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");      
 		exec_result = act_key.update_add_subscription(poolId1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		exec_result = act_key.update_add_subscription(poolId2);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		act_key = new KatelloActivationKey(org_name,env_name,rhel_act_key,"Act key created");
 		exec_result = act_key.create();
@@ -176,6 +174,8 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 		exec_result = act_key.update_add_content_view(rhel_repo_view);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");      
 		exec_result = act_key.update_add_subscription(poolId1);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		exec_result = act_key.update_add_subscription(poolId2);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
 	
