@@ -22,6 +22,7 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 	protected SSHCommandResult exec_result;
 
 	// Katello objects below
+	protected String uid;
 	protected static String org_name;
 	protected static String provider_name;
 	protected static String product_name;
@@ -48,11 +49,13 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 	protected static String rhel_repo_view;
 	protected static String zoo_act_key;
 	protected static String rhel_act_key;
+	protected static String poolId1;
+	protected static String poolId2;
 
 	public void setUp(){
 		if (server != null) return;
 		
-		String uid = KatelloUtils.getUniqueID();
+		uid = KatelloUtils.getUniqueID();
 		org_name = "org_"+uid;
 		provider_name = "provider_"+uid;
 		product_name = "product_"+uid;
@@ -153,9 +156,9 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 		rhel_repo_view = KatelloUtils.promoteProductToEnvironment(org_name, KatelloProduct.RHEL_SERVER, env_name);
 		
 		exec_result = org.subscriptions();
-		String poolId1 = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
+		poolId1 = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
 		Assert.assertNotNull(poolId1, "Check - pool Id is not null");
-		String poolId2 = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result).trim(),2);
+		poolId2 = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result).trim(),2);
 		Assert.assertNotNull(poolId2, "Check - pool Id is not null");
 		
 		KatelloActivationKey act_key = new KatelloActivationKey(org_name,env_name,zoo_act_key,"Act key created");

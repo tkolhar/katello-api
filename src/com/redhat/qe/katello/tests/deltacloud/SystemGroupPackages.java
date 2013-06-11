@@ -13,6 +13,10 @@ public class SystemGroupPackages extends BaseDeltacloudTest {
 	
 	@BeforeClass
 	public void setUp() {
+		rhsm_clean(client_name);
+		rhsm_clean(client_name2);
+		rhsm_clean(client_name3);
+		
 		KatelloSystem sys = new KatelloSystem(system_name, org_name, env_name);
 		sys.runOn(client_name);
 		exec_result = sys.rhsm_registerForce(zoo_act_key); 

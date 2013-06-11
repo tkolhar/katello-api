@@ -12,6 +12,8 @@ public class SystemErratas extends BaseDeltacloudTest {
 	
 	@BeforeClass
 	public void setUp() {
+		rhsm_clean(client_name);
+		
 		KatelloSystem sys = new KatelloSystem(system_name, org_name, env_name);
 		sys.runOn(client_name);
 		exec_result = sys.rhsm_registerForce(rhel_act_key); 
