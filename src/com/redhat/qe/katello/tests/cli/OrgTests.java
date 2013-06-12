@@ -459,11 +459,11 @@ public class OrgTests extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(exec_result).contains("Successfully added [ Distributor ] default custom info [ " + keyname + " ] to Org [ "+ org_rm_name +" ]"),"Check - returned string");
 		exec_result = org_rm_info.default_info_apply("distributor");
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).contains("Organization [ " + org_rm_name + " ] completed applying default info"),"Check - returned string");
+		Assert.assertTrue(getOutput(exec_result).contains("Organization [ " + org_rm_name + " ] completed syncing default info"),"Check - returned string");
 		KatelloDistributor distributor = new KatelloDistributor(org_rm_name,distributor_name);
 		exec_result = distributor.distributor_create();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).contains("Successfully createed distributor [ " + distributor_name + " ]"),"Check - returned string");
+		Assert.assertTrue(getOutput(exec_result).contains("Successfully created distributor [ " + distributor_name + " ]"),"Check - returned string");
 		exec_result = distributor.distributor_info();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		String dInfo = KatelloCli.grepCLIOutput("Custom Info", getOutput(exec_result));
