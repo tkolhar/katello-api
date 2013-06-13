@@ -593,6 +593,16 @@ public class SystemTests extends KatelloCliTestScript{
 				"Check - stdout contains pool name == '"+KatelloProduct.RHEL_SERVER+"'");
 	}
 
+	@Test(description="list system packages")
+	public void test_listPackages() {
+		String sysname = "system-" + KatelloUtils.getUniqueID();
+		KatelloSystem sys =  new KatelloSystem(sysname, orgNameMain, envName_Prod);
+		exec_result = sys.rhsm_register();
+		exec_result = sys.list_packages();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - exit code (list packages)");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloSystem.OUT_LIST_PACKAGES, sysname, orgNameMain)), "Check output (list packages)");
+	}
+
 	private void assert_systemInfo(KatelloSystem system) {
 		if (system.description == null) system.description = "Initial Registration Params";
 		if (system.location == null) system.location = "None";
