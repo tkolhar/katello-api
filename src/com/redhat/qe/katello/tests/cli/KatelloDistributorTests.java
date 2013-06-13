@@ -113,7 +113,6 @@ public class KatelloDistributorTests extends KatelloCliTestScript{
 		Assert.assertEquals(getOutput(exec_result).trim(),String.format(KatelloDistributor.OUT_UPDATE_INFO,test_key,dis_uuid));		
 		exec_result = dis_update.distributor_info();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-	}
-
+	}	
 }
 
