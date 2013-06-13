@@ -77,5 +77,43 @@ public class KatelloDistributorTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertEquals(getOutput(exec_result).trim(),String.format(KatelloDistributor.OUT_INFO,test_key,test_val,dis_uuid));				
 	}
+	
+	@Test(description="distributor update custom info",enabled=true,groups={"cfse-cli","headpin-cli"})
+	public void test_distributorUpdateCustomInfo(){		
+		SSHCommandResult exec_result;
+		uid = KatelloUtils.getUniqueID();
+		String org_update_name="org_rm-" + uid;
+		String dis_update_name="dis_rm-" + uid;
+		String test_key = "test_key" + uid;
+		String test_val = "test_val" + uid;
+		String test_update_val = "test_update_val" + uid;
+		KatelloOrg org_update=new KatelloOrg(org_update_name,"Org for remove distributor");
+		exec_result = org_update.cli_create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertEquals(getOutput(exec_result).trim(),String.format(KatelloOrg.OUT_CREATE,org_update_name));
+		KatelloDistributor dis_update = new KatelloDistributor(org_update_name,dis_update_name);
+		exec_result = dis_update.distributor_create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertEquals(getOutput(exec_result).trim(),String.format(KatelloDistributor.OUT_CREATE,dis_update_name));
+		exec_result = dis_update.add_info(test_key, test_val,null);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertEquals(getOutput(exec_result).trim(),String.format(KatelloDistributor.OUT_INFO,test_key,test_val,dis_update_name));
+		exec_result = dis_update.distributor_info();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		String dis_uuid = KatelloCli.grepCLIOutput("UUID", getOutput(exec_result));
+		exec_result = dis_update.update_info(test_key,test_update_val,null);
+		Assert.assertTrue(exec_result.getExitCode() == 65, "Check - return code");
+		Assert.assertEquals(getOutput(exec_result).trim(),String.format(KatelloDistributor.OUT_UPDATE_INFO,test_key,dis_update_name));
+		exec_result = dis_update.distributor_info();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		dis_update_name=null;
+		test_val = "test_update_val_with_uuid" + uid;
+		exec_result = dis_update.update_info(test_key,test_val,dis_uuid);
+		Assert.assertTrue(exec_result.getExitCode() == 65, "Check - return code");
+		Assert.assertEquals(getOutput(exec_result).trim(),String.format(KatelloDistributor.OUT_UPDATE_INFO,test_key,dis_uuid));		
+		exec_result = dis_update.distributor_info();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+	}
+
 }
 
