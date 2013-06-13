@@ -15,7 +15,7 @@ public class KatelloDistributor extends _KatelloObject{
 	public static final String OUT_INFO = "Successfully added Custom Information [ %s : %s ] to Distributor [ %s ]";
 	public static final String OUT_REMOVE_INFO = "Could not remove Custom Information from Distributor [ %s ]";
 	public static final String OUT_REMOVE_INVALID_KEY = "Couldn't find custom info with keyname '%s'";
-	public static final String OUT_UPDATE_INFO ="Could not update Custom Information [ %s ] for Distributor [ %s ]";
+	public static final String ERR_COULD_NOT_UPDATE_INFO ="Could not update Custom Information [ %s ] for Distributor [ %s ]";
 
 	// ** ** ** ** ** ** ** Class members
 	String org;
