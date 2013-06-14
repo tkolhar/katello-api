@@ -5,11 +5,14 @@ import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.obj.KatelloActivationKey;
 import com.redhat.qe.katello.base.obj.KatelloChangeset;
+import com.redhat.qe.katello.base.obj.KatelloContentFilter;
+import com.redhat.qe.katello.base.obj.KatelloContentView;
 import com.redhat.qe.katello.base.obj.KatelloErrata;
 import com.redhat.qe.katello.base.obj.KatelloPackage;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
+import com.redhat.qe.katello.base.obj.helpers.FilterRuleErrataIds;
 import com.redhat.qe.katello.common.KatelloUtils;
 
 @Test(dependsOnGroups="cfse-pack")
@@ -19,7 +22,6 @@ public class RepoTests extends BaseDeltacloudTest {
 	private String content_view_promote_package;
 	private String content_view_remove_package;
 	private String content_view_promote_errata;
-	private String content_view_remove_errata;
 
 	private void configureClient(String activationKey, String contentView, String client, String systemName, String envName) {
 		rhsm_clean(client);
@@ -69,7 +71,6 @@ public class RepoTests extends BaseDeltacloudTest {
 		configureClient("actkeypackageremove" + uid, content_view_remove_package, client_name3, system_name3, env_name2);
 	}
 	
-	//@ TODO enable when bug 918093 is fixed
 	@Test(description="list rhel repo packages deleted to test environment", dependsOnMethods={"test_deleteRHELPackages"}, enabled=true)
 	public void test_listRHELRepoPackagesDeleted() {
 		KatelloPackage pack = new KatelloPackage(org_name, KatelloProduct.RHEL_SERVER, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, content_view_remove_package);
@@ -134,14 +135,37 @@ public class RepoTests extends BaseDeltacloudTest {
 
 	@Test(description="delete promoted rhel errata", dependsOnMethods={"test_listRHELRepoErrata"})
 	public void test_deleteRHELErrata() {
-		content_view_remove_errata = KatelloUtils.removeErratasFromEnvironment(org_name, KatelloProduct.RHEL_SERVER, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, new String[] {ert1}, env_name2);
+		String uid = KatelloUtils.getUniqueID();
 		
-		configureClient("actkeyerrataremove" + uid, content_view_remove_errata, client_name3, system_name3, env_name2);
+		KatelloContentView view = new KatelloContentView(rhel_repo_view, org_name);		
+		String def_name = KatelloUtils.grepCLIOutput("Definition", getOutput(view.view_info()).trim(),1);
+		
+		KatelloContentFilter filter = new KatelloContentFilter("Filter"+uid, org_name, def_name);
+		filter.add_repo(KatelloProduct.RHEL_SERVER, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT);
+		exec_result = filter.create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		FilterRuleErrataIds errata1 = new FilterRuleErrataIds(ert1);
+		exec_result = filter.add_rule(KatelloContentFilter.TYPE_EXCLUDES, errata1);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+
+		exec_result = view.refresh_view();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+
+		String changeset_name = "changeset"+uid;
+		KatelloChangeset cs = new KatelloChangeset(changeset_name, org_name, env_name);
+		exec_result = cs.create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		exec_result = cs.update_addView(rhel_repo_view);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		exec_result = cs.apply();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+
+		configureClient("actkeyerrataremove" + uid, rhel_repo_view, client_name3, system_name3, env_name2);
 	}
 	
 	@Test(description="list rhel repo errata deleted to test environment", dependsOnMethods={"test_deleteRHELErrata"})
 	public void test_listRHELRepoErrataDeleted() {
-		KatelloErrata errata = new KatelloErrata(org_name, KatelloProduct.RHEL_SERVER, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, content_view_remove_errata);
+		KatelloErrata errata = new KatelloErrata(org_name, KatelloProduct.RHEL_SERVER, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, rhel_repo_view);
 		exec_result = errata.cli_list();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertFalse(getOutput(exec_result).trim().contains(ert1), "Errata " + ert1 + " is not listed in environment errata list");
