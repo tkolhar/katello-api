@@ -82,7 +82,6 @@ public class KatelloCliDataProvider {
 				{ "^custom", new Integer(2), KTL_PROD+": error: option --type: invalid choice: '^custom' (choose from 'redhat', 'custom')"},
 				{ " custom", new Integer(2), KTL_PROD+": error: option --type: invalid choice: ' custom' (choose from 'redhat', 'custom')"},
 				{ "custom ", new Integer(2), KTL_PROD+": error: option --type: invalid choice: 'custom ' (choose from 'redhat', 'custom')"}
-				
 		};		
 	}
 
@@ -114,8 +113,6 @@ public class KatelloCliDataProvider {
 				{ strRepeat("0123456789", 12)+"abcdefgh-"+uid, "long-value", new Integer(0), "Successfully remembered option [ "+strRepeat("0123456789", 12)+"abcdefgh-"+ uid +" ]"},
 				{ "opt-"+uid, "val-"+uid, new Integer(0), "Successfully remembered option [ opt-"+uid+" ]"},
 				{ "opt "+uid, "Option with space in name", new Integer(0), "Successfully remembered option [ opt "+uid+" ]"},
-				
-				
 		};		
 	}
 	
@@ -126,7 +123,6 @@ public class KatelloCliDataProvider {
 				{ "organizations", new Integer(0)},
 				{ "providers", new Integer(0)},
 				{ "environments", new Integer(0)},
-				
 		};		
 	}
 	
@@ -154,9 +150,6 @@ public class KatelloCliDataProvider {
 				{ "perm-all-org"+uid, "organizations", null, "delete_systems,update,update_systems,read,read_systems,register_systems",user_role,new Integer(0),"Successfully created permission [ "+ "perm-all-org"+uid +" ] for user role [ "+ user_role +" ]"},
 				{ "perm-all-tags-verbs-"+uid, "environments", "Library", "read_contents,update_systems,delete_systems,read_systems,register_systems",user_role,new Integer(0),"Successfully created permission [ " + "perm-all-tags-verbs-"+uid + " ] for user role [ "+ user_role +" ]"},
 				{ "perm-some_verbs-org"+uid, "organizations", null, "update,update_systems,read,read_systems",user_role,new Integer(0),"Successfully created permission [ "+ "perm-some_verbs-org"+uid +" ] for user role [ "+ user_role +" ]"},
-				
-				
- 				
 		};
 	}
 	
@@ -212,7 +205,6 @@ public class KatelloCliDataProvider {
 				{ "desc-256Chars"+uid, strRepeat("0123456789", 25)+"abcdef", new Integer(166), "Validation failed: Description cannot contain more than 255 characters"},
 				// misc
 				{ "duplicate"+uid, null, new Integer(0), "Successfully created environment [ duplicate"+uid+" ]"},
- 				
 		};
 	}
 	
@@ -260,20 +252,16 @@ public class KatelloCliDataProvider {
 		};
 	}
 	
-	
 	@DataProvider(name="add_custom_info")
 	public static Object[][] add_custom_info(){
 		String uid = KatelloUtils.getUniqueID();
 		return new Object[][] {
-				// name
 				{ "env-aa", "env-aa", new Integer(0),null},
 				{ strRepeat("0123456789", 12)+"abcdefgh",strRepeat("0123456789", 12)+"abcdefgh", new Integer(0),null},
 				{ " ", "value", new Integer(166),"Validation failed: Keyname can't be blank"},
 				{ "desc-specChars"+uid, "\\!@%^&*(<_-~+=//\\||,.>)", new Integer(0),null},
-				{"desc-256Chars"+uid, strRepeat("0123456789", 25)+"abcdef",new Integer(244), "PGError: ERROR:  value too long for type character varying(255)"},
-				{strRepeat("0123456789", 25)+"abcdef", "desc-256Chars", new Integer(244), "PGError: ERROR:  value too long for type character varying(255)"},
-				
-								
+				{"desc-256Chars"+uid, strRepeat("0123456789", 25)+"abcdef",new Integer(166), "Validation failed: Value is too long (maximum is 255 characters)"},
+				{strRepeat("0123456789", 25)+"abcdef", "desc-256Chars", new Integer(166), "Validation failed: Keyname is too long (maximum is 255 characters)"},
 		};
 	}
 }

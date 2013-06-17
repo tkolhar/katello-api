@@ -23,7 +23,7 @@ public class ProductsSameName extends KatelloCliTestScript {
 	protected static Logger log = Logger.getLogger(ProductsSameName.class.getName());
 	
 	private SSHCommandResult exec_result;
-	private static final String package1 = "pulp-admin-client";
+	private static final String package1 = "acme-package";
 	private static final String package2 = "lion";
 
 	// Katello objects below
@@ -75,7 +75,7 @@ public class ProductsSameName extends KatelloCliTestScript {
 		exec_result = prod.cli_list();
 		product_id2 = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result), 1);
 				
-		KatelloRepo repo = new KatelloRepo(repo_name, org_name, null, PULP_RHEL6_x86_64_REPO, null, null,null,product_id);
+		KatelloRepo repo = new KatelloRepo(repo_name, org_name, null, REPO_HHOVSEPY_ZOO4, null, null,null,product_id);
 		exec_result = repo.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
@@ -106,12 +106,7 @@ public class ProductsSameName extends KatelloCliTestScript {
 		exec_result = pack.cli_list();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		Assert.assertTrue(getOutput(exec_result).contains(package1), "found package: pulp-admin-client");
-		Assert.assertTrue(getOutput(exec_result).contains("pulp-server"), "found package: pulp-server");
-		Assert.assertTrue(getOutput(exec_result).contains("python-gofer"), "found package: python-gofer");
-		Assert.assertTrue(getOutput(exec_result).contains("python-qpid"), "found package: python-qpid");
-		Assert.assertTrue(getOutput(exec_result).contains("pulp-agent"), "found package: pulp-agent");
-		Assert.assertTrue(getOutput(exec_result).contains("pulp-consumer-client"), "found package: pulp-consumer-client");
+		Assert.assertTrue(getOutput(exec_result).contains(package1), "found package: "+package1);
 				
 		KatelloPackage pack2 = new KatelloPackage(null, null, org_name, null, repo_name2, null);
 		pack2.setProductId(product_id2);
@@ -120,10 +115,7 @@ public class ProductsSameName extends KatelloCliTestScript {
 		exec_result = pack2.cli_list();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		Assert.assertTrue(getOutput(exec_result).contains(package2), "found package: lion");
-		Assert.assertTrue(getOutput(exec_result).contains("wolf"), "found package: wolf");
-		Assert.assertTrue(getOutput(exec_result).contains("zebra"), "found package: zebra");
-		Assert.assertTrue(getOutput(exec_result).contains("stork"), "found package: stork");
+		Assert.assertTrue(getOutput(exec_result).contains(package2), "found package: "+package2);
 	}
 
 	//@ TODO Bug 921103
