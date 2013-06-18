@@ -25,8 +25,11 @@ public class SetupServers extends KatelloCliTestScript {
 			server = KatelloUtils.getDeltaCloudServer();
 			server_name = server.getHostName();
 
-			System.setProperty("katello.server.hostname", server_name);
-			System.setProperty("katello.client.hostname", server_name);
+			if (Boolean.parseBoolean(System.getProperty(
+					"deltacloud.installserver", "true"))) {
+				System.setProperty("katello.server.hostname", server_name);
+				System.setProperty("katello.client.hostname", server_name);
+			}
 		}
 	}
 
