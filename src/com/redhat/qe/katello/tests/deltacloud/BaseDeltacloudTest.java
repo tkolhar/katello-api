@@ -68,17 +68,17 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 		zoo_act_key = "zookey"+uid;
 		rhel_act_key = "rhelkey"+uid;
 		
-		//server = KatelloUtils.getDeltaCloudServer();
-		server_name = "cfseserver3.usersys.redhat.com";//server.getHostName();
+		server = KatelloUtils.getDeltaCloudServer();
+		server_name = server.getHostName();
 		
-		//client = KatelloUtils.getDeltaCloudClient(server_name);
-		client_name = "cfseclient1.usersys.redhat.com";//client.getHostName();
+		client = KatelloUtils.getDeltaCloudClient(server_name);
+		client_name = client.getHostName();
 		
-		//client2 = KatelloUtils.getDeltaCloudClient(server_name);
-		client_name2 = "cfseclient2.usersys.redhat.com";//client2.getHostName();
+		client2 = KatelloUtils.getDeltaCloudClient(server_name);
+		client_name2 = client2.getHostName();
 		
-		//client3 = KatelloUtils.getDeltaCloudClient(server_name);
-		client_name3 = "cfseclient3.usersys.redhat.com";//client3.getHostName();
+		client3 = KatelloUtils.getDeltaCloudClient(server_name);
+		client_name3 = client3.getHostName();
 		
 		System.setProperty("katello.server.hostname", server_name);
 		System.setProperty("katello.client.hostname", server_name);
