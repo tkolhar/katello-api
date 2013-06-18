@@ -221,14 +221,14 @@ public class ContentViewTests extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(exec_result).contains(ERRATA_ZOO_SEA),"is package in the list: " + ERRATA_ZOO_SEA);
 	}
 	
-	//@ TODO bug 955706
 	@Test(description = "consume Errata content",groups={"cfse-cli"}, dependsOnMethods={"test_errataList"})
 	public void test_ConsumeErrata(){
 		KatelloUtils.sshOnClient("yum erase -y walrus");
 		exec_result = KatelloUtils.sshOnClient("yum install -y walrus-0.71-1.noarch");
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		KatelloErrata ert = new KatelloErrata(ERRATA_ZOO_SEA, this.org_name, this.prod_name, this.repo_name, this.env_name);
+		KatelloErrata ert = new KatelloErrata(ERRATA_ZOO_SEA, this.org_name, this.prod_name, this.repo_name, null);
+		ert.content_view = pubview_name;
 		exec_result = ert.info();
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (errata info --environment Dev)");
 		
