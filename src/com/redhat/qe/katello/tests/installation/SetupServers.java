@@ -36,7 +36,7 @@ public class SetupServers extends KatelloCliTestScript {
 	@AfterSuite(alwaysRun=true)
 	public void tearDown() {
 		if (isDeltacloud) {
-			KatelloUtils.destroyDeltaCloudMachine(server);
+			//KatelloUtils.destroyDeltaCloudMachine(server);
 		}
 	}
 
