@@ -26,6 +26,7 @@ public class SystemErratas extends KatelloCliTestScript {
 	private String repo_name;
 	private String env_name;
 	private String system_name;
+	private String cv_name;
 	
 	@BeforeClass(description="Generate unique names")
 	public void setUp(){
@@ -71,14 +72,14 @@ public class SystemErratas extends KatelloCliTestScript {
 		exec_result = repo.synchronize();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		KatelloUtils.promoteProductToEnvironment(org_name, product_name, env_name);
+		cv_name = KatelloUtils.promoteProductToEnvironment(org_name, product_name, env_name);
 		
-		KatelloSystem sys = new KatelloSystem(system_name, this.org_name, this.env_name);
+		KatelloSystem sys = new KatelloSystem(system_name, this.org_name, this.env_name+"/"+cv_name);
 		exec_result = sys.rhsm_registerForce(); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		
 		exec_result = sys.subscriptions_available();
-		String poolId1 = KatelloUtils.grepCLIOutput("Id", getOutput(exec_result).trim(),1);
+		String poolId1 = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
 		Assert.assertNotNull(poolId1, "Check - pool Id is not null");
 		
 		exec_result = sys.rhsm_subscribe(poolId1);
@@ -95,7 +96,7 @@ public class SystemErratas extends KatelloCliTestScript {
 	
 	@Test(description = "List the errata on system")
 	public void test_errataListOnSystem() {
-		KatelloSystem system = new KatelloSystem(system_name, this.org_name, this.env_name);
+		KatelloSystem system = new KatelloSystem(system_name, this.org_name, this.env_name+"/"+cv_name);
 		exec_result = system.list_erratas();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains(PromoteErrata.ERRATA_ZOO_SEA), "Check - errata list output");
@@ -103,7 +104,7 @@ public class SystemErratas extends KatelloCliTestScript {
 	
 	@Test(description = "List the errata details on system", dependsOnMethods={"test_errataListOnSystem"})
 	public void test_errataDetailsOnSystem() {
-		KatelloSystem system = new KatelloSystem(system_name, this.org_name, this.env_name);
+		KatelloSystem system = new KatelloSystem(system_name, this.org_name, this.env_name+"/"+cv_name);
 		exec_result = system.list_errata_details();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains(PromoteErrata.ERRATA_ZOO_SEA), "Check - errata list output");
@@ -112,7 +113,7 @@ public class SystemErratas extends KatelloCliTestScript {
 
 	@Test(description = "List the errata on system which is unsubscribed, verify that errata does not listed", dependsOnMethods={"test_errataDetailsOnSystem"})
 	public void test_errataListOnUnsubscribedSystem() {
-		KatelloSystem system = new KatelloSystem(system_name, this.org_name, this.env_name);
+		KatelloSystem system = new KatelloSystem(system_name, this.org_name, this.env_name+"/"+cv_name);
 		
 		exec_result = KatelloUtils.sshOnClient("subscription-manager unsubscribe --all");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");

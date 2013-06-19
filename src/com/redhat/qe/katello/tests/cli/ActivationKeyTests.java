@@ -155,7 +155,8 @@ public class ActivationKeyTests extends KatelloCliTestScript{
     	Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key list)");
     }
     
-    @Test(description="create activationkey with usage limit 1, register one system, and try to register second one, it will fail")
+    /** TCMS scenario is: <a href="https://tcms.engineering.redhat.com/case/221907/?from_plan=7793">here</a> */
+    @Test(description="5a47305b-52d0-47ea-9b23-74dffe16b4bf")
     public void test_createWithLimit() {
     	String uid = KatelloUtils.getUniqueID();
     	String akName="act_key-"+ uid; 
@@ -183,7 +184,8 @@ public class ActivationKeyTests extends KatelloCliTestScript{
     			"Check - returned output string for registering by activation key");	
     }
 
-    @Test(description="create activationkey with usage limit 1, register one system, and try to register second one, it will fail, increase the limit, it will allow")
+    /** TCMS scenario is: <a href="https://tcms.engineering.redhat.com/case/189165/?from_plan=7793">here</a> */
+    @Test(description="4495ea44-704d-4079-bd4d-7297f887d15f")
     public void test_updateTheLimit() {
     	String uid = KatelloUtils.getUniqueID();
     	String akName="act_key-"+ uid; 
@@ -216,7 +218,8 @@ public class ActivationKeyTests extends KatelloCliTestScript{
     }
 
     //@ TODO 927215
-    @Test(description="create activationkey with usage limit 2, register two systems, and try to register third, it will fail, unreister last one, register third one")
+    /** TCMS scenario is: <a href="https://tcms.engineering.redhat.com/case/189166/?from_plan=7793">here</a> */
+    @Test(description="fc228a30-c0e8-46d3-a254-681222993bd5")
     public void test_unregisterRegister() {
     	String uid = KatelloUtils.getUniqueID();
     	String akName="act_key-"+ uid; 
