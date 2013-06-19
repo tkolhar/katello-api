@@ -5,6 +5,7 @@ import java.util.Random;
 import org.testng.annotations.DataProvider;
 
 import com.redhat.qe.Assert;
+import com.redhat.qe.katello.base.obj.KatelloDistributor;
 import com.redhat.qe.katello.base.obj.KatelloUserRole;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
@@ -268,6 +269,31 @@ public class KatelloCliDataProvider {
 				{ "key1", "special char <", new Integer(166), "Validation failed: Value cannot contain characters >, <, or /"},
 				{ "key2", "special char >", new Integer(166), "Validation failed: Value cannot contain characters >, <, or /"},
 				{ "key3", "special char /", new Integer(166), "Validation failed: Value cannot contain characters >, <, or /"},
+		};
+	}
+
+	/**
+	 * 1. keyname<br>
+	 * 2. keyvalue<br>
+	 * 3. distributor name<br>
+	 * 4. return code<br>
+	 * 5. output/error string
+	 * @return
+	 */
+	@DataProvider(name="add_distributor_custom_info")
+	public static Object[][] add_distributor_custom_info()
+	{
+		String uid = KatelloUtils.getUniqueID();
+		String dis_name = "distAddCustomInfo-"+uid;
+		return new Object[][]{
+				{"testkey-"+uid,"testvalue-"+uid,dis_name,new Integer(0), String.format(KatelloDistributor.OUT_INFO,"testkey-"+uid,"testvalue-"+uid,dis_name)},
+				{"","blank-key"+uid,dis_name,new Integer(166),"Validation failed: Keyname can't be blank"},
+				{"blank-value"+uid,"",dis_name,new Integer(0),String.format(KatelloDistributor.OUT_INFO,"blank-value"+uid,"",dis_name)},
+				{strRepeat("0123456789",12)+uid,strRepeat("0134456789",12),dis_name,new Integer(0),String.format(KatelloDistributor.OUT_INFO,strRepeat("0123456789",12)+uid,strRepeat("0134456789",12),dis_name)},
+				{strRepeat("013456789",30)+uid,strRepeat("013456789",30),dis_name,new Integer(244),""},
+				{"testkey-"+uid,"duplicate-key"+uid,dis_name,new Integer(166),"Validation failed: Keyname already exists for this object"},
+				{"duplicate-value"+uid,"testvalue-"+uid,dis_name,new Integer(0),String.format(KatelloDistributor.OUT_INFO,"duplicate-value"+uid,"testvalue-"+uid,dis_name)},
+				{"\\!@%^&*(<_-~+=//\\||,.>)"+uid,"\\!@%^&*(<_-~+=//\\||,.>)"+uid,dis_name,new Integer(0),String.format(KatelloDistributor.OUT_INFO,"\\!@%^&*(<_-~+=//\\||,.>)"+uid,"\\!@%^&*(<_-~+=//\\||,.>)"+uid,dis_name)}			
 		};
 	}
 
