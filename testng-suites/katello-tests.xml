@@ -33,8 +33,8 @@
 			<class name="com.redhat.qe.katello.tests.e2e.RhsmOnlyPermissions"/>
 			<class name="com.redhat.qe.katello.tests.e2e.ConsumeCombineContent"/>
 			<class name="com.redhat.qe.katello.tests.e2e.ConsumeFilteredPackage"/>
-		    <class name="com.redhat.qe.katello.tests.e2e.ConsumeFilteredErrata"/>
-		    <class name="com.redhat.qe.katello.tests.e2e.ConsumeFilteredPackageGroup"/>
+			<class name="com.redhat.qe.katello.tests.e2e.ConsumeFilteredErrata"/>
+			<class name="com.redhat.qe.katello.tests.e2e.ConsumeFilteredPackageGroup"/>
 			<class name="com.redhat.qe.katello.tests.e2e.CRLRegen"/>
 			<class name="com.redhat.qe.katello.tests.e2e.MultyManifest"/>
 			<class name="com.redhat.qe.katello.tests.e2e.ConsumerAccess"/>
@@ -42,10 +42,9 @@
 			<class name="com.redhat.qe.katello.tests.e2e.ProductsSameName"/>
 			<class name="com.redhat.qe.katello.tests.e2e.StackedSubscriptions"/>
 			<class name="com.redhat.qe.katello.tests.e2e.RhsmAkWithSubscription"/>
-
+			<class name="com.redhat.qe.katello.tests.e2e.OrgDeletion"/>
 <!-- 
 	SECTION OF BROKEN TESTS
-			<class name="com.redhat.qe.katello.tests.e2e.OrgDeletion"/>
 			<class name="com.redhat.qe.katello.tests.e2e.OrgReCreate"/>
 			<class name="com.redhat.qe.katello.tests.e2e.PackagesWithGPGKey"/>
 			<class name="com.redhat.qe.katello.tests.e2e.PromoteErrata"/>
