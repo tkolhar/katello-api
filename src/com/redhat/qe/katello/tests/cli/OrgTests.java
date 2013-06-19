@@ -27,6 +27,7 @@ public class OrgTests extends KatelloCliTestScript{
 	SSHCommandResult exec_result;
 	String orgName_Exists = "EXIST-"+uid;
 	String orgLabel_Exists = "LBL"+uid;
+	String org_name = "org"+uid;
 	
 	String org_system_name = "org_system-"+uid;
 	String env_system_name = "Library"; // initially - for headpin
@@ -38,8 +39,11 @@ public class OrgTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		orgs.add(org);
 		
-		new KatelloOrg(org_system_name, null).cli_create();
+		exec_result = new KatelloOrg(org_system_name, null).cli_create();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+
+		exec_result = new KatelloOrg(org_name, null).cli_create();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check - return code (org create)");
 	}
 	
 	@BeforeClass(description="init: katello specific, no headpin", dependsOnMethods={"setUp"})
@@ -482,7 +486,33 @@ public class OrgTests extends KatelloCliTestScript{
 		// TODO - recently not possible to use special characters:
 		// Validation failed: Name cannot contain characters other than alpha numerals, space, '_', '-'
 	}
-	
+
+	// TODO bugs 975407, 951231
+	@Test(description="add system custom information key",
+		dataProviderClass=KatelloCliDataProvider.class, dataProvider="org_add_custom_info")
+	public void test_addSysCustomKey(String keyname, Integer exitCode, String output) {
+		KatelloOrg org = new KatelloOrg(org_name, null);
+		exec_result = org.add_system_info(keyname);
+		Assert.assertTrue(exec_result.getExitCode()==exitCode.intValue(), "Check exit code (add custom info)");
+		if(exec_result.getExitCode()==0)
+			Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloOrg.OUT_ADD_SYS_INFO, keyname, org_name)), "Check output (add custom info)");
+		else
+			Assert.assertTrue(getOutput(exec_result).contains(output), "Check error (add custom info)");
+	}
+
+	// TODO bugs 975407, 951231
+	@Test(description="add distributor custom information key",
+		dataProviderClass=KatelloCliDataProvider.class, dataProvider="org_add_custom_info")
+	public void test_addDistributorCustomKey(String keyname, Integer exitCode, String output) {
+		KatelloOrg org = new KatelloOrg(org_name, null);
+		exec_result = org.add_distributor_info(keyname);
+		Assert.assertTrue(exec_result.getExitCode()==exitCode.intValue(), "Check exit code (add custom info)");
+		if(exec_result.getExitCode()==0)
+			Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloOrg.OUT_ADD_DISTRIBUTOR_INFO, keyname, org_name)), "Check output (add custom info)");
+		else
+			Assert.assertTrue(getOutput(exec_result).contains(output), "Check error (add custom info)");
+	}
+
 	@AfterClass(description="Remove org objects", alwaysRun=true)
 	public void tearDown() {
 		for (KatelloOrg org : orgs) {
