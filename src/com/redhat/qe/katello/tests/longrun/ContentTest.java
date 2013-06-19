@@ -32,6 +32,8 @@ public class ContentTest extends KatelloCliTestScript{
 	private String uid = KatelloUtils.getUniqueID();
 	private String contView;
 	private String sysName;
+	
+	private boolean repoSynced = false;
 
 	@BeforeClass(description="init: create initial stuff")
 	public void setUp(){
@@ -64,12 +66,15 @@ public class ContentTest extends KatelloCliTestScript{
 	public void test_syncAndPromoteRhel6(){
 		// sync
 		KatelloRepo repo = new KatelloRepo(KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT,org, KatelloProduct.RHEL_SERVER, null, null, null);
-		
-		res = repo.synchronize();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo synchronize)");
+
+		res = repo.status();
+		this.repoSynced = !getOutput(res).equals("Not synced");
+		if(!repoSynced){
+			res = repo.synchronize();
+			Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo synchronize)");
+		}
 		res = repo.info();
-//		Assert.assertFalse(KatelloUtils.grepCLIOutput("Package Count", getOutput(res)).equals("0"), "Check - package count is NOT 0"); - TODO bz#969457
-		Assert.assertTrue(KatelloUtils.grepCLIOutput("Package Count", getOutput(res)).equals("0"), "Check - package count is 0");
+		Assert.assertFalse(KatelloUtils.grepCLIOutput("Package Count", getOutput(res)).equals("0"), "Check - package count is NOT 0");
 		
 		// promote
 		KatelloContentDefinition cd = new KatelloContentDefinition("cd"+uid, null, org, null);
@@ -86,7 +91,7 @@ public class ContentTest extends KatelloCliTestScript{
 	@Test(description="Check product status after the sync", dependsOnMethods={"test_syncAndPromoteRhel6"})
 	public void test_productStatusSynced(){
 		res = new KatelloProduct(KatelloProduct.RHEL_SERVER,org, KatelloProvider.PROVIDER_REDHAT, null, null, null,null, null).status();
-		Assert.assertTrue(res.getExitCode().intValue() == 1, "Check - exit.Code"); // TODO - bz#968959
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - exit.Code");
 		Assert.assertFalse(KatelloUtils.grepCLIOutput("Last Sync", getOutput(res)).equals("never"), "Check - output DOES'NT equal last_sync == never");
 		Assert.assertFalse(KatelloUtils.grepCLIOutput("Sync State", getOutput(res)).equals("Not synced"), "Check - output DOES'NT equal sync_state == Not synced");
 	}

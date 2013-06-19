@@ -69,8 +69,8 @@ public class OrgTests extends KatelloCliTestScript{
 		this.orgs.add(org);
 	}
 	
-	
-	@Test(description = "Create org - different variations", groups={"cfse-cli","headpin-cli"})
+	/** TCMS scenario is: <a href="https://tcms.engineering.redhat.com/case/243076/?from_plan=7791">here</a> */
+	@Test(description = "9fbfc747-c343-4c94-b76e-5c262db355c9", groups={"cfse-cli","headpin-cli"})
 	public void test_createOrgNonLatin(){		
 		String uniqueID = KatelloUtils.getUniqueID();
 		
@@ -131,7 +131,8 @@ public class OrgTests extends KatelloCliTestScript{
 		assert_orgInfo(org);
 	}
 	
-	@Test(description="Delete an organization",groups={"cfse-cli","headpin-cli"})
+	/** TCMS scenario is: <a href="https://tcms.engineering.redhat.com/case/243077/?from_plan=7791">here</a> */
+	@Test(description="dc5d228a-b998-4845-b050-f9d2fcfa5ec3",groups={"cfse-cli","headpin-cli"})
 	public void test_deleteOrg(){
 		String uniqueID = KatelloUtils.getUniqueID();
 		KatelloOrg org = new KatelloOrg("orgDel"+uniqueID, null);
@@ -188,7 +189,8 @@ public class OrgTests extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(String.format(KatelloOrg.OUT_ORG_SUBSCR, productName1)), "Check - Subscriptions contains " + productName1);
 	}
 	
-	@Test(description = "Create org - existing",groups={"cfse-cli","headpin-cli"})
+	/** TCMS scenario is: <a href="https://tcms.engineering.redhat.com/case/243073/?from_plan=7791">here</a> */
+	@Test(description = "5a63c8c1-3add-4269-86d7-9b3caac413db",groups={"cfse-cli","headpin-cli"})
 	public void test_createOrgExists(){
 		String uniqueID = KatelloUtils.getUniqueID();
 		KatelloOrg org = new KatelloOrg("orgCrt"+uniqueID, "Simple description");	
@@ -198,8 +200,7 @@ public class OrgTests extends KatelloCliTestScript{
 		SSHCommandResult res = org2.cli_create();
 		
 		Assert.assertTrue(res.getExitCode() == 166, "Check - return code [166]");
-		Assert.assertEquals(getOutput(res).trim(), 
-				KatelloOrg.ERR_ORG_EXISTS_MUST_BE_UNIQUE);
+		Assert.assertEquals(getOutput(res).trim(), KatelloOrg.ERR_ORG_EXISTS_MUST_BE_UNIQUE);
 	}
 	
 	@Test(description = "Create org - name is invalid",groups={"cfse-cli","headpin-cli"})
@@ -439,8 +440,47 @@ public class OrgTests extends KatelloCliTestScript{
 
 		exec_result=org.delete();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+	}
+	
+	/** TCMS scenario is: <a href="https://tcms.engineering.redhat.com/case/242174/?from_plan=7791">here</a> */
+	@Test(description="a7e5daa8-b235-47c1-b9c1-c0b05771ba0d")
+	public void test_updateOrgNonUtf8Chars(){
+		String orgName= "ブッチャーストリート"+uid;
+		String orgDescription = "ブッチャーテストの説明";
+		KatelloOrg org = new KatelloOrg(orgName,orgDescription);
+		exec_result = org.cli_create();
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check -return code");
+		exec_result = org.cli_info();
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check -return code");
+		Assert.assertTrue(KatelloUtils.grepCLIOutput("Description", getOutput(exec_result)).equals(orgDescription), "Check - stdout contains description");
+		Assert.assertTrue(KatelloUtils.grepCLIOutput("Name", getOutput(exec_result)).equals(orgName), "Check - stdout contains name");
+		
+		// update description now.
+		String upDesc = "=Über Sûdlüîëk Stérèô Übersetzung";
+		exec_result = org.update(upDesc);
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check -return code");
+		exec_result = org.cli_info();
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check -return code");
+		Assert.assertTrue(KatelloUtils.grepCLIOutput("Description", getOutput(exec_result)).equals(upDesc), "Check - stdout contains description");
+		
+//		// add new env.
+//		KatelloEnvironment env = new KatelloEnvironment("ブッチャ", "チャーテストの説", orgName, KatelloEnvironment.LIBRARY);
+//		exec_result = env.cli_create();
+//		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check -return code");
+//		exec_result = env.cli_info();
+//		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check -return code");
+//		Assert.assertTrue(KatelloUtils.grepCLIOutput("Description", getOutput(exec_result)).equals(env.getDescription()), "Check - stdout contains description");
+//		Assert.assertTrue(KatelloUtils.grepCLIOutput("Name", getOutput(exec_result)).equals(env.getName()), "Check - stdout contains name");
+//		
+//		// edit env. description
+//		exec_result = env.cli_update(upDesc);
+//		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check -return code");
+//		env.cli_info();
+//		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check -return code");
+//		Assert.assertTrue(KatelloUtils.grepCLIOutput("Description", getOutput(exec_result)).equals(upDesc), "Check - stdout contains description");
 
-
+		// TODO - recently not possible to use special characters:
+		// Validation failed: Name cannot contain characters other than alpha numerals, space, '_', '-'
 	}
 	
 	@AfterClass(description="Remove org objects", alwaysRun=true)
@@ -451,7 +491,6 @@ public class OrgTests extends KatelloCliTestScript{
 	}	
 
 	private void assert_orgInfo(KatelloOrg org){
-		
 		SSHCommandResult res;
 		res = org.cli_info();
 		String match_info = String.format(KatelloOrg.REG_ORG_INFO,org.name,org.description).replaceAll("\"", "");
