@@ -303,4 +303,18 @@ public class KatelloCliDataProvider {
 				{"\\!@%^&*(<_-~+=//\\||,.>)"+uid,"\\!@%^&*(<_-~+=//\\||,.>)"+uid,dis_name,new Integer(0),String.format(KatelloDistributor.OUT_INFO,"\\!@%^&*(<_-~+=//\\||,.>)"+uid,"\\!@%^&*(<_-~+=//\\||,.>)"+uid,dis_name)}			
 		};		
 	}
+	
+	@DataProvider(name="create_distributor")
+	public static Object[][] create_distributor()
+	{
+		String uid = KatelloUtils.getUniqueID();
+		return new Object[][]{
+				{"test_distributor"+uid,new Integer(0), String.format(KatelloDistributor.OUT_CREATE,"test_distributor"+uid)},		
+				{"",new Integer(166),"Validation failed: Name can't be blank"},
+				{strRepeat("0123456789",12)+uid,new Integer(0),String.format(KatelloDistributor.OUT_CREATE,strRepeat("0123456789",12)+uid)},
+				{strRepeat("0123456789",30)+uid,new Integer(166),"Validation failed: Name is too long (maximum is 250 characters)"},
+				{"\\!@%^&*(<_-~+=//\\||,.>)"+uid,new Integer(144),""},				
+				{"test_distributor"+uid,new Integer(166),"Validation failed: Name already taken"},	
+		};		
+	}
 }
