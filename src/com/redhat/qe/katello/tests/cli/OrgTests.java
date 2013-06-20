@@ -52,7 +52,8 @@ public class OrgTests extends KatelloCliTestScript{
 		exec_result = new KatelloEnvironment(env_system_name, null, org_system_name, KatelloEnvironment.LIBRARY).cli_create();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 	}
-
+//APURVA - HERE
+	/*
 	@Test(description = "List all orgs - default org should be there",groups={"cfse-cli","headpin-cli"})
 	public void test_listOrgs_DefaultOrg(){
 		KatelloOrg list_org = new KatelloOrg(null,null);
@@ -74,6 +75,8 @@ public class OrgTests extends KatelloCliTestScript{
 	}
 	
 	/** TCMS scenario is: <a href="https://tcms.engineering.redhat.com/case/243076/?from_plan=7791">here</a> */
+	//APURVA HERE
+	/*
 	@Test(description = "9fbfc747-c343-4c94-b76e-5c262db355c9", groups={"cfse-cli","headpin-cli"})
 	public void test_createOrgNonLatin(){		
 		String uniqueID = KatelloUtils.getUniqueID();
@@ -136,6 +139,8 @@ public class OrgTests extends KatelloCliTestScript{
 	}
 	
 	/** TCMS scenario is: <a href="https://tcms.engineering.redhat.com/case/243077/?from_plan=7791">here</a> */
+	//APURVA HERE
+	/*
 	@Test(description="dc5d228a-b998-4845-b050-f9d2fcfa5ec3",groups={"cfse-cli","headpin-cli"})
 	public void test_deleteOrg(){
 		String uniqueID = KatelloUtils.getUniqueID();
@@ -194,7 +199,9 @@ public class OrgTests extends KatelloCliTestScript{
 	}
 	
 	/** TCMS scenario is: <a href="https://tcms.engineering.redhat.com/case/243073/?from_plan=7791">here</a> */
-	@Test(description = "5a63c8c1-3add-4269-86d7-9b3caac413db",groups={"cfse-cli","headpin-cli"})
+	//APURVA HERE
+	/*
+	Test(description = "5a63c8c1-3add-4269-86d7-9b3caac413db",groups={"cfse-cli","headpin-cli"})
 	public void test_createOrgExists(){
 		String uniqueID = KatelloUtils.getUniqueID();
 		KatelloOrg org = new KatelloOrg("orgCrt"+uniqueID, "Simple description");	
@@ -447,6 +454,8 @@ public class OrgTests extends KatelloCliTestScript{
 	}
 	
 	/** TCMS scenario is: <a href="https://tcms.engineering.redhat.com/case/242174/?from_plan=7791">here</a> */
+	//APURVA HERE
+	/*
 	@Test(description="a7e5daa8-b235-47c1-b9c1-c0b05771ba0d")
 	public void test_updateOrgNonUtf8Chars(){
 		String orgName= "ブッチャーストリート"+uid;
@@ -511,6 +520,63 @@ public class OrgTests extends KatelloCliTestScript{
 			Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloOrg.OUT_ADD_DISTRIBUTOR_INFO, keyname, org_name)), "Check output (add custom info)");
 		else
 			Assert.assertTrue(getOutput(exec_result).contains(output), "Check error (add custom info)");
+	}
+	//APURVA - END
+	*/
+	
+	@Test(description = "Org name with a dot, verify that providers, product, environments are handled normally",groups={"katello-cli"})
+	public void test_OrgNameContainsDot(){
+
+		String uid = KatelloUtils.getUniqueID();
+		String provName = "listProv1-"+uid;
+		String envName = "listEnv-"+uid;
+		String prodName = "prod-"+uid;
+		String desc = "Simple description";
+		String orgName = "org."+uid;
+		String sysName = "Sys-"+uid;
+		SSHCommandResult res;
+
+		KatelloOrg org = new KatelloOrg(orgName, "Org name with a dot");
+		exec_result = org.cli_create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+	/*	
+		// Create Environment
+		KatelloEnvironment env = new KatelloEnvironment(envName, desc, orgName, KatelloEnvironment.LIBRARY);
+		res = env.cli_create();
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code (Enviornment - create)");
+		//List
+		res = env.cli_list();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (Environment - list)");
+	
+		//Create System
+		rhsm_clean();
+		KatelloSystem sys = new KatelloSystem(sysName, orgName, envName);
+		res = sys.rhsm_register();
+		System.out.println("OUT STRING: "+ getOutput(res));
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code (System - create)");
+		//list
+		res = sys.list();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (System - list)");
+	*/
+		// Create provider
+		KatelloProvider prov = new KatelloProvider(provName, orgName, desc, KATELLO_SMALL_REPO);
+		res = prov.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (Provider - create)");
+		//List
+		res = prov.cli_list();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (Provider - list)");
+		String match_info = String.format(KatelloProvider.REG_PROVIDER_LIST,provName,KATELLO_SMALL_REPO,desc).replaceAll("\"", "");
+		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info),
+				String.format("Provider [%s] should be found in the list",provName));
+		
+		// Create Product
+		KatelloProduct prod = new KatelloProduct(prodName, orgName, provName, desc, null, null, null, null);
+		res = prod.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (Product - create)");
+		//List
+		res = prod.cli_list();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (Provider - list)");
+
 	}
 
 	@AfterClass(description="Remove org objects", alwaysRun=true)
