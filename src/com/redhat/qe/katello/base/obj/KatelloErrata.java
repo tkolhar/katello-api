@@ -2,7 +2,6 @@ package com.redhat.qe.katello.base.obj;
 
 import javax.management.Attribute;
 
-import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class KatelloErrata extends _KatelloObject{
@@ -90,7 +89,7 @@ public class KatelloErrata extends _KatelloObject{
 		return run(CMD_LIST);
 	}
 
-	public SSHCommandResult list_errata_details(){
+	public SSHCommandResult custom_list_errata_names(String query) {
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		if (this.product_id != null) {
@@ -104,95 +103,26 @@ public class KatelloErrata extends _KatelloObject{
 		opts.add(new Attribute("content_view", content_view));
 		opts.add(new Attribute("content_view_label", content_view_label));
 		opts.add(new Attribute("content_view_id", content_view_id));
-		return run(CMD_LIST_DETAILS);
+
+		return runExt(CMD_LIST, " | grep \"" + query + "\" | awk '{print $1}'");
 	}
 	
-	public SSHCommandResult list_errata_count(String query) {
-		String cmd = CMD_LIST;
-		
-		if(this.org != null)
-			cmd += " --org \""+this.org+"\"";
+	public SSHCommandResult custom_list_errata_details_count(String query) {
+		opts.clear();
+		opts.add(new Attribute("org", org));
 		if (this.product_id != null) {
-			cmd += " --product_id \""+this.product_id+"\"";
+			opts.add(new Attribute("product_id", product_id));
 		} else {
-			cmd += " --product \""+this.product+"\"";
+			opts.add(new Attribute("product", product));
 		}
-		if(this.repo != null)
-		cmd += " --repo \""+this.repo+"\"";
-		if (this.content_view_id != null) {
-			cmd += " --content_view_id \""+this.content_view_id+"\"";
-		} else if (this.content_view_label != null) {
-			cmd += " --content_view_label \""+this.content_view_label+"\"";
-		} else {
-			cmd += " --content_view \""+this.content_view+"\"";
-		}
+		opts.add(new Attribute("repo", repo));
+		opts.add(new Attribute("environment", environment));
+		opts.add(new Attribute("type", type));
+		opts.add(new Attribute("content_view", content_view));
+		opts.add(new Attribute("content_view_label", content_view_label));
+		opts.add(new Attribute("content_view_id", content_view_id));
 		
-		if(this.environment != null)
-		cmd += " --environment \""+this.environment+"\"";
-
-
-		cmd += " | grep \"" + query + "\" | wc -l";
-		
-		KatelloCli cli = new KatelloCli(cmd, null);
-		return cli.run();	
-	}
-
-	public SSHCommandResult list_errata_names(String query) {
-		String cmd = CMD_LIST;
-		
-		if(this.org != null)
-			cmd += " --org \""+this.org+"\"";
-		if (this.product_id != null) {
-			cmd += " --product_id \""+this.product_id+"\"";
-		} else {
-			cmd += " --product \""+this.product+"\"";
-		}
-		if(this.repo != null)
-		cmd += " --repo \""+this.repo+"\"";
-		if (this.content_view_id != null) {
-			cmd += " --content_view_id \""+this.content_view_id+"\"";
-		} else if (this.content_view_label != null) {
-			cmd += " --content_view_label \""+this.content_view_label+"\"";
-		} else {
-			cmd += " --content_view \""+this.content_view+"\"";
-		}
-		
-		if(this.environment != null)
-		cmd += " --environment \""+this.environment+"\"";
-
-		cmd += " | grep \"" + query + "\" | awk '{print $1}'";
-		
-		KatelloCli cli = new KatelloCli(cmd, null);
-		return cli.run();	
-	}
-	
-	public SSHCommandResult list_errata_details_count(String query) {
-		String cmd = CMD_LIST_DETAILS;
-		
-		if(this.org != null)
-			cmd += " --org \""+this.org+"\"";
-		if (this.product_id != null) {
-			cmd += " --product_id \""+this.product_id+"\"";
-		} else {
-			cmd += " --product \""+this.product+"\"";
-		}
-		if(this.repo != null)
-		cmd += " --repo \""+this.repo+"\"";
-		if (this.content_view_id != null) {
-			cmd += " --content_view_id \""+this.content_view_id+"\"";
-		} else if (this.content_view_label != null) {
-			cmd += " --content_view_label \""+this.content_view_label+"\"";
-		} else {
-			cmd += " --content_view \""+this.content_view+"\"";
-		}
-		
-		if(this.environment != null)
-		cmd += " --environment \""+this.environment+"\"";
-
-		cmd += " | grep \"" + query + "\" | wc -l";
-		
-		KatelloCli cli = new KatelloCli(cmd, null);
-		return cli.run();	
+		return runExt(CMD_LIST_DETAILS, " | grep \"" + query + "\" | wc -l");
 	}
 
 	
