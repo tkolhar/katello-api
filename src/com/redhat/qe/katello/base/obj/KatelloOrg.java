@@ -28,6 +28,9 @@ public class KatelloOrg extends _KatelloObject{
 	public static final String CMD_ADD_SYS_INFO = "org default_info add";
 	public static final String CMD_APPLY_SYS_INFO = "org default_info apply";
 	public static final String CMD_REMOVE_SYS_INFO = "org default_info remove --type system";
+	public static final String CMD_ADD_DISTRIBUTOR_INFO = "org default_info add";
+	public static final String CMD_APPLY_DISTRIBUTOR_INFO = "org default_info apply";
+	public static final String CMD_REMOVE_DISTRIBUTOR_INFO = "org default_info remove";
 	
 	public static final String API_CMD_INFO = "/organizations/%s";
 	
@@ -39,6 +42,8 @@ public class KatelloOrg extends _KatelloObject{
 			"Validation failed: Name has already been taken, Label already exists (including organizations being deleted)";
 	public static final String OUT_ADD_SYS_INFO = 
 			"Successfully added [ System ] default custom info [ %s ] to Org [ %s ]";
+	public static final String OUT_ADD_DISTRIBUTOR_INFO =
+			"Successfully added [ Distributor ] default custom info [ %s ] to Org [ %s ]";
 	public static final String OUT_APPLY_SYS_INFO = 
 			"Organization [ %s ] completed applying default info";
 	public static final String OUT_REMOVE_SYS_INFO = 
@@ -188,6 +193,29 @@ public class KatelloOrg extends _KatelloObject{
 		opts.add(new Attribute("name", this.name));
 		opts.add(new Attribute("keyname", keyname));
 		return run(CMD_REMOVE_SYS_INFO);
+	}
+
+	public SSHCommandResult add_distributor_info(String keyname) {
+		opts.clear();
+		opts.add(new Attribute("name", this.name));
+		opts.add(new Attribute("keyname", keyname));
+		opts.add(new Attribute("type", "distributor"));
+		return run(CMD_ADD_DISTRIBUTOR_INFO);
+	}
+
+	public SSHCommandResult apply_distributor_info() {
+		opts.clear();
+		opts.add(new Attribute("name", this.name));
+		opts.add(new Attribute("type", "distributor"));
+		return run(CMD_APPLY_DISTRIBUTOR_INFO);
+	}
+
+	public SSHCommandResult remove_distributor_info(String keyname) {
+		opts.clear();
+		opts.add(new Attribute("name", this.name));
+		opts.add(new Attribute("keyname", keyname));
+		opts.add(new Attribute("type", "distributor"));
+		return run(CMD_REMOVE_DISTRIBUTOR_INFO);
 	}
 
 	public ArrayList<String> custom_listNames(){

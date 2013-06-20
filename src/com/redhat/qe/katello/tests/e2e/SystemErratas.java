@@ -12,9 +12,10 @@ import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.common.KatelloUtils;
+import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups={"cfse-e2e"})
+@Test(groups={"cfse-e2e",TngRunGroups.TNG_KATELLO_Errata})
 public class SystemErratas extends KatelloCliTestScript {
 	
 	private SSHCommandResult exec_result;
@@ -65,10 +66,6 @@ public class SystemErratas extends KatelloCliTestScript {
 		exec_result = env.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (env create)");
 		
-		// promote product to the env dev.
-//		exec_result = prod.promote(env_name);
-//		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (product promote)");
-
 		exec_result = repo.synchronize();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
@@ -94,7 +91,8 @@ public class SystemErratas extends KatelloCliTestScript {
 		KatelloUtils.sshOnClient("service goferd restart;");
 	}
 	
-	@Test(description = "List the errata on system")
+	/** TCMS scenario is: <a href="https://tcms.engineering.redhat.com/case/243044/?from_plan=7760">here</a> */
+	@Test(description = "4aeb7f5c-90f2-4def-b38a-433284d92fad")
 	public void test_errataListOnSystem() {
 		KatelloSystem system = new KatelloSystem(system_name, this.org_name, this.env_name+"/"+cv_name);
 		exec_result = system.list_erratas();
@@ -111,7 +109,8 @@ public class SystemErratas extends KatelloCliTestScript {
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains(this.system_name), "Check - errata list details output contains system name");
 	}
 
-	@Test(description = "List the errata on system which is unsubscribed, verify that errata does not listed", dependsOnMethods={"test_errataDetailsOnSystem"})
+	/** TCMS scenario is: <a href="https://tcms.engineering.redhat.com/case/134195/?from_plan=7760">here</a> */
+	@Test(description = "7cf9e3f5-f328-4225-b972-80e6a93b0a19", dependsOnMethods={"test_errataDetailsOnSystem"})
 	public void test_errataListOnUnsubscribedSystem() {
 		KatelloSystem system = new KatelloSystem(system_name, this.org_name, this.env_name+"/"+cv_name);
 		
