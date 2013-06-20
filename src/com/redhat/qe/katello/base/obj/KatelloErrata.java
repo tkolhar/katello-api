@@ -9,7 +9,6 @@ public class KatelloErrata extends _KatelloObject{
 	// ** ** ** ** ** ** ** Public constants
 	public static final String CMD_INFO = "errata info";
 	public static final String CMD_LIST = "errata list";
-	public static final String CMD_LIST_DETAILS = "errata list -v";
 	
 	public static final String REG_CHS_PROMOTE_ERROR = "Validation failed: Repository of the erratum '%s' has not been promoted into the target environment!";
 	public static final String REG_CHS_DEL_ERROR = "Erratum not found within this environment you want to promote from.";
@@ -107,7 +106,7 @@ public class KatelloErrata extends _KatelloObject{
 		return runExt(CMD_LIST, " | grep \"" + query + "\" | awk '{print $1}'");
 	}
 	
-	public SSHCommandResult custom_list_errata_details_count(String query) {
+	public SSHCommandResult custom_list_errata_count(String query) {
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		if (this.product_id != null) {
@@ -122,7 +121,7 @@ public class KatelloErrata extends _KatelloObject{
 		opts.add(new Attribute("content_view_label", content_view_label));
 		opts.add(new Attribute("content_view_id", content_view_id));
 		
-		return runExt(CMD_LIST_DETAILS, " | grep \"" + query + "\" | wc -l");
+		return runExt(CMD_LIST, " | grep \"" + query + "\" | wc -l");
 	}
 
 	

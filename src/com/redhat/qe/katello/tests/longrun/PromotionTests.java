@@ -179,21 +179,16 @@ public class PromotionTests extends KatelloCliLongrunBase {
 		exec_result = errata.cli_list();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertFalse(getOutput(exec_result).trim().contains(ert1), "Errata " + ert1 + " is not listed in environment errata list");
-	}
-	
-	@Test(description = "List the errata details on system", dependsOnMethods={"test_listRHELRepoErrataDeleted"})
-	public void test_errataDetailsOnSystem() {
-		
-		KatelloErrata err = new KatelloErrata(base_org_name, KatelloProduct.RHEL_SERVER, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, content_view_remove_errata);
-		exec_result = err.custom_list_errata_details_count("RHBA");
+
+		exec_result = errata.custom_list_errata_count("RHBA");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertFalse(getOutput(exec_result).replaceAll("\n", "").trim().equals("0"), "Check - erratas are not empty");
 		
-		exec_result = err.custom_list_errata_details_count("RHSA");
+		exec_result = errata.custom_list_errata_count("RHSA");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertFalse(getOutput(exec_result).replaceAll("\n", "").trim().equals("0"), "Check - erratas are not empty");
 		
-		exec_result = err.custom_list_errata_details_count("RHEA");
+		exec_result = errata.custom_list_errata_count("RHEA");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertFalse(getOutput(exec_result).replaceAll("\n", "").trim().equals("0"), "Check - erratas are not empty");
 	}
