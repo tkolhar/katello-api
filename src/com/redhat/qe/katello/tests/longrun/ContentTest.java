@@ -25,7 +25,6 @@ import com.redhat.qe.tools.SSHCommandResult;
 public class ContentTest extends KatelloCliLongrunBase{
 
 	private SSHCommandResult res;
-	private String org;
 	private String envTesting;
 	private String uid = KatelloUtils.getUniqueID();
 	private String contView;
@@ -36,12 +35,12 @@ public class ContentTest extends KatelloCliLongrunBase{
 	@BeforeClass(description="init: create initial stuff")
 	public void setUp(){
 		String manifestZip = "manifest.zip";
-		this.org = "Awesome Org "+uid;
 		this.envTesting = "Testing-"+uid;
 		this.contView = "RHEL6-"+uid;
 		this.sysName = "awesomeSystem-"+uid;
 		
 		if(!findSyncedRhelToUse()){
+			this.org = "Awesome Org "+uid;
 			res = new KatelloOrg(org, null).cli_create();
 			Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - exit.Code");
 			KatelloUtils.scpOnClient("data/"+manifestZip, "/tmp");
@@ -66,7 +65,7 @@ public class ContentTest extends KatelloCliLongrunBase{
 		KatelloRepo repo = new KatelloRepo(KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT,org, KatelloProduct.RHEL_SERVER, null, null, null);
 
 		res = repo.status();
-		this.repoSynced = !getOutput(res).equals("Not synced");
+		this.repoSynced = !KatelloUtils.grepCLIOutput("Last Sync", getOutput(res)).equals("never");
 		if(!repoSynced){
 			res = repo.synchronize();
 			Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo synchronize)");
