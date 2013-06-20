@@ -5,6 +5,7 @@ import java.util.Random;
 import org.testng.annotations.DataProvider;
 
 import com.redhat.qe.Assert;
+import com.redhat.qe.katello.base.obj.KatelloDistributor;
 import com.redhat.qe.katello.base.obj.KatelloUserRole;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
@@ -259,9 +260,50 @@ public class KatelloCliDataProvider {
 				{ "env-aa", "env-aa", new Integer(0),null},
 				{ strRepeat("0123456789", 12)+"abcdefgh",strRepeat("0123456789", 12)+"abcdefgh", new Integer(0),null},
 				{ " ", "value", new Integer(166),"Validation failed: Keyname can't be blank"},
-				{ "desc-specChars"+uid, "\\!@%^&*(<_-~+=//\\||,.>)", new Integer(0),null},
+				{ "desc-specChars"+uid, "\\!@%^&*(_-~+=\\||,.)", new Integer(0),null},
 				{"desc-256Chars"+uid, strRepeat("0123456789", 25)+"abcdef",new Integer(166), "Validation failed: Value is too long (maximum is 255 characters)"},
 				{strRepeat("0123456789", 25)+"abcdef", "desc-256Chars", new Integer(166), "Validation failed: Keyname is too long (maximum is 255 characters)"},
+				{ "special chars <h1>html</h1>", "html in keyname", new Integer(166), "Validation failed: Keyname cannot contain characters >, <, or /"},
+				{ "html in value", "special chars <h1>html</h1>", new Integer(166), "Validation failed: Value cannot contain characters >, <, or /"},
+		};
+	}
+
+	/**
+	 * 1. keyname<br>
+	 * 2. keyvalue<br>
+	 * 3. distributor name<br>
+	 * 4. return code<br>
+	 * 5. output/error string
+	 * @return
+	 */
+	@DataProvider(name="add_distributor_custom_info")
+	public static Object[][] add_distributor_custom_info()
+	{
+		String uid = KatelloUtils.getUniqueID();
+		String dis_name = "distAddCustomInfo-"+uid;
+		return new Object[][]{
+				{"testkey-"+uid,"testvalue-"+uid,dis_name,new Integer(0), String.format(KatelloDistributor.OUT_INFO,"testkey-"+uid,"testvalue-"+uid,dis_name)},
+				{"","blank-key"+uid,dis_name,new Integer(166),"Validation failed: Keyname can't be blank"},
+				{"blank-value"+uid,"",dis_name,new Integer(0),String.format(KatelloDistributor.OUT_INFO,"blank-value"+uid,"",dis_name)},
+				{strRepeat("0123456789",12)+uid,strRepeat("0134456789",12),dis_name,new Integer(0),String.format(KatelloDistributor.OUT_INFO,strRepeat("0123456789",12)+uid,strRepeat("0134456789",12),dis_name)},
+				{strRepeat("013456789",30)+uid,strRepeat("013456789",30),dis_name,new Integer(244),""},
+				{"testkey-"+uid,"duplicate-key"+uid,dis_name,new Integer(166),"Validation failed: Keyname already exists for this object"},
+				{"duplicate-value"+uid,"testvalue-"+uid,dis_name,new Integer(0),String.format(KatelloDistributor.OUT_INFO,"duplicate-value"+uid,"testvalue-"+uid,dis_name)},
+				{"\\!@%^&*(_-~+=\\||,.)"+uid,"\\!@%^&*(_-~+=\\||,.)"+uid,dis_name,new Integer(0),String.format(KatelloDistributor.OUT_INFO,"\\!@%^&*(_-~+=\\||,.)"+uid,"\\!@%^&*(_-~+=\\||,.)"+uid,dis_name)},
+				{"special chars <h1>html</h1>", "html in keyname", dis_name, new Integer(166), "Validation failed: Keyname cannot contain characters >, <, or /"},
+				{"html in value", "special chars <h1>html</h1>", dis_name, new Integer(166), "Validation failed: Value cannot contain characters >, <, or /"},
+		};
+	}
+
+	@DataProvider(name="org_add_custom_info")
+	public static Object[][] org_add_custom_info() {
+		return new Object[][] {
+				{ "custom-key", new Integer(0), null},
+				{ strRepeat("0123456789", 12)+"abcdefgh", new Integer(0), null},
+				{ "special chars \\!@%^&*(_-~+=\\||,.)", new Integer(0), null},
+				{ " ", new Integer(166), "Validation failed: Default info cannot contain blank keynames"},
+				{ "special chars <h1>html</h1>", new Integer(166), "Validation failed: Keyname cannot contain characters >, <, or /"},
+				{ strRepeat("0123456789", 25)+"abcdef", new Integer(166), "Validation failed: Keyname is too long (maximum is 255 characters)"},
 		};
 	}
 }
