@@ -13,7 +13,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloSyncPlan;
 import com.redhat.qe.katello.base.obj.KatelloSyncPlan.SyncPlanInterval;
@@ -22,7 +22,7 @@ import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups={"cfse-cli",TngRunGroups.TNG_KATELLO_Content})
-public class SyncPlanTests extends KatelloCliTestScript {
+public class SyncPlanTests extends KatelloCliTestBase {
 
 	protected static Logger log = Logger
 			.getLogger(PackageTests.class.getName());

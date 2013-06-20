@@ -4,12 +4,12 @@ import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.DeltaCloudInstance;
 import com.redhat.qe.katello.common.KatelloUtils;
 
 @Test(groups = { "cfse-cli", "headpin-cli" })
-public class SetupServers extends KatelloCliTestScript {
+public class SetupServers extends KatelloCliTestBase {
 
 	protected DeltaCloudInstance server;
 	protected String server_name;
@@ -36,7 +36,7 @@ public class SetupServers extends KatelloCliTestScript {
 	@AfterSuite(alwaysRun=true)
 	public void tearDown() {
 		if (isDeltacloud) {
-			//KatelloUtils.destroyDeltaCloudMachine(server);
+			KatelloUtils.destroyDeltaCloudMachine(server);
 		}
 	}
 

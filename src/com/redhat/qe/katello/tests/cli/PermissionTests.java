@@ -4,7 +4,7 @@ import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloPermission;
 import com.redhat.qe.katello.base.obj.KatelloUserRole;
@@ -13,7 +13,7 @@ import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups=TngRunGroups.TNG_KATELLO_Users_Roles)
-public class PermissionTests extends KatelloCliTestScript{
+public class PermissionTests extends KatelloCliTestBase{
 	private String organization;
 	private String usr_role;
 	@BeforeClass(description="init: create org stuff", groups = {"headpin-cli"})

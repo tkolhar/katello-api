@@ -3,14 +3,14 @@ package com.redhat.qe.katello.tests.installation;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloPing;
 import com.redhat.qe.katello.common.KatelloConstants;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups = { "cfse-cli", "headpin-cli" })
-public class InstallISOTests extends KatelloCliTestScript {
+public class InstallISOTests extends KatelloCliTestBase {
 	
 	private String deployment = KatelloConstants.KATELLO_PRODUCT;
 	private SSHCommandResult exec_result;

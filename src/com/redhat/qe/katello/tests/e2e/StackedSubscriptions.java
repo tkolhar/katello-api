@@ -8,7 +8,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloMisc;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
@@ -19,7 +19,7 @@ import com.redhat.qe.tools.SCPTools;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups={"cfse-e2e","headpin-cli"})
-public class StackedSubscriptions extends KatelloCliTestScript {
+public class StackedSubscriptions extends KatelloCliTestBase {
 	
 	protected static Logger log = Logger.getLogger(StackedSubscriptions.class.getName());
 	

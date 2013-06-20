@@ -3,7 +3,7 @@ package com.redhat.qe.katello.tests.deltacloud;
 import java.io.File;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.DeltaCloudInstance;
 import com.redhat.qe.katello.base.obj.KatelloActivationKey;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
@@ -15,7 +15,7 @@ import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SCPTools;
 import com.redhat.qe.tools.SSHCommandResult;
 
-public class BaseDeltacloudTest extends KatelloCliTestScript {
+public class BaseDeltacloudTest extends KatelloCliTestBase {
 
 	public static final String MANIFEST_12SUBSCRIPTIONS = "manifest-automation-CLI-12subscriptions.zip";
 	
@@ -183,13 +183,13 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 	}
 	
 	public void tearDown() {
-//		if (server == null) return;
-//		
-//		KatelloUtils.destroyDeltaCloudMachine(server);
-//		KatelloUtils.destroyDeltaCloudMachine(client);
-//		KatelloUtils.destroyDeltaCloudMachine(client2);
-//		KatelloUtils.destroyDeltaCloudMachine(client3);
-//		
-//		server = null;
+		if (server == null) return;
+		
+		KatelloUtils.destroyDeltaCloudMachine(server);
+		KatelloUtils.destroyDeltaCloudMachine(client);
+		KatelloUtils.destroyDeltaCloudMachine(client2);
+		KatelloUtils.destroyDeltaCloudMachine(client3);
+		
+		server = null;
 	}
 }

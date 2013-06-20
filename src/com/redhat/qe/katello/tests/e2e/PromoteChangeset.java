@@ -6,7 +6,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloErrata;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
@@ -18,7 +18,7 @@ import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups={"cfse-e2e"})
-public class PromoteChangeset extends KatelloCliTestScript {
+public class PromoteChangeset extends KatelloCliTestBase {
 	protected static Logger log = Logger.getLogger(PromoteChangeset.class.getName());
 	
 	private String org;

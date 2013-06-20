@@ -9,7 +9,7 @@ import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
@@ -31,7 +31,7 @@ import com.redhat.qe.tools.SSHCommandResult;
  *
  */
 @Test(groups={"SystemTests",TngRunGroups.TNG_KATELLO_System_Consumer})
-public class SystemTests extends KatelloCliTestScript{	
+public class SystemTests extends KatelloCliTestBase{	
 	protected static Logger log = Logger.getLogger(SystemTests.class.getName());
 
 	private SSHCommandResult exec_result;

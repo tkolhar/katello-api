@@ -10,13 +10,11 @@ import com.redhat.qe.katello.common.KatelloConstants;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
-public class KatelloCliLongrunBase
-extends com.redhat.qe.auto.testng.TestScript 
-implements KatelloConstants {
+public class KatelloCliLongrunBase extends KatelloCliTestBase implements KatelloConstants {
 
 	protected static Logger log = Logger.getLogger(KatelloCliLongrunBase.class.getName());
 
-	protected String org = null;
+	protected String base_org_name = null;
 	
 	protected boolean findSyncedRhelToUse(){
 		ArrayList<String> orgs = new KatelloOrg().custom_listNames();
@@ -27,9 +25,9 @@ implements KatelloConstants {
 			for(String product: products){
 				if(product.equals(KatelloProduct.RHEL_SERVER)){
 					res = new KatelloProduct(product, _org, KatelloProvider.PROVIDER_REDHAT, null, null, null, null, null).status();
-					if(!KatelloUtils.grepCLIOutput("Last Sync", KatelloCliTestScript.sgetOutput(res)).equals("never")){
+					if(!KatelloUtils.grepCLIOutput("Last Sync", KatelloCliTestBase.sgetOutput(res)).equals("never")){
 						// We found an org that has a synced RHEL_SERVER content. Let's re-use it.
-						this.org = _org;
+						this.base_org_name = _org;
 						return true;
 					}
 				}

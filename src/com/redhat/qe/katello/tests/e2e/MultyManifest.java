@@ -8,7 +8,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
@@ -18,7 +18,7 @@ import com.redhat.qe.tools.SCPTools;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups={"cfse-e2e"})
-public class MultyManifest extends KatelloCliTestScript{
+public class MultyManifest extends KatelloCliTestBase{
 	protected static Logger log = Logger.getLogger(MultyManifest.class.getName());
 
 	String org;

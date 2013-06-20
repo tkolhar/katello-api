@@ -1,6 +1,8 @@
 package com.redhat.qe.katello.base.obj;
 
 import javax.management.Attribute;
+
+import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class KatelloErrata extends _KatelloObject{
@@ -8,6 +10,7 @@ public class KatelloErrata extends _KatelloObject{
 	// ** ** ** ** ** ** ** Public constants
 	public static final String CMD_INFO = "errata info";
 	public static final String CMD_LIST = "errata list";
+	public static final String CMD_LIST_DETAILS = "errata list -v";
 	
 	public static final String REG_CHS_PROMOTE_ERROR = "Validation failed: Repository of the erratum '%s' has not been promoted into the target environment!";
 	public static final String REG_CHS_DEL_ERROR = "Erratum not found within this environment you want to promote from.";
@@ -86,6 +89,112 @@ public class KatelloErrata extends _KatelloObject{
 		opts.add(new Attribute("content_view_id", content_view_id));
 		return run(CMD_LIST);
 	}
+
+	public SSHCommandResult list_errata_details(){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		if (this.product_id != null) {
+			opts.add(new Attribute("product_id", product_id));
+		} else {
+			opts.add(new Attribute("product", product));
+		}
+		opts.add(new Attribute("repo", repo));
+		opts.add(new Attribute("environment", environment));
+		opts.add(new Attribute("type", type));
+		opts.add(new Attribute("content_view", content_view));
+		opts.add(new Attribute("content_view_label", content_view_label));
+		opts.add(new Attribute("content_view_id", content_view_id));
+		return run(CMD_LIST_DETAILS);
+	}
+	
+	public SSHCommandResult list_errata_count(String query) {
+		String cmd = CMD_LIST;
+		
+		if(this.org != null)
+			cmd += " --org \""+this.org+"\"";
+		if (this.product_id != null) {
+			cmd += " --product_id \""+this.product_id+"\"";
+		} else {
+			cmd += " --product \""+this.product+"\"";
+		}
+		if(this.repo != null)
+		cmd += " --repo \""+this.repo+"\"";
+		if (this.content_view_id != null) {
+			cmd += " --content_view_id \""+this.content_view_id+"\"";
+		} else if (this.content_view_label != null) {
+			cmd += " --content_view_label \""+this.content_view_label+"\"";
+		} else {
+			cmd += " --content_view \""+this.content_view+"\"";
+		}
+		
+		if(this.environment != null)
+		cmd += " --environment \""+this.environment+"\"";
+
+
+		cmd += " | grep \"" + query + "\" | wc -l";
+		
+		KatelloCli cli = new KatelloCli(cmd, null);
+		return cli.run();	
+	}
+
+	public SSHCommandResult list_errata_names(String query) {
+		String cmd = CMD_LIST;
+		
+		if(this.org != null)
+			cmd += " --org \""+this.org+"\"";
+		if (this.product_id != null) {
+			cmd += " --product_id \""+this.product_id+"\"";
+		} else {
+			cmd += " --product \""+this.product+"\"";
+		}
+		if(this.repo != null)
+		cmd += " --repo \""+this.repo+"\"";
+		if (this.content_view_id != null) {
+			cmd += " --content_view_id \""+this.content_view_id+"\"";
+		} else if (this.content_view_label != null) {
+			cmd += " --content_view_label \""+this.content_view_label+"\"";
+		} else {
+			cmd += " --content_view \""+this.content_view+"\"";
+		}
+		
+		if(this.environment != null)
+		cmd += " --environment \""+this.environment+"\"";
+
+		cmd += " | grep \"" + query + "\" | awk '{print $1}'";
+		
+		KatelloCli cli = new KatelloCli(cmd, null);
+		return cli.run();	
+	}
+	
+	public SSHCommandResult list_errata_details_count(String query) {
+		String cmd = CMD_LIST_DETAILS;
+		
+		if(this.org != null)
+			cmd += " --org \""+this.org+"\"";
+		if (this.product_id != null) {
+			cmd += " --product_id \""+this.product_id+"\"";
+		} else {
+			cmd += " --product \""+this.product+"\"";
+		}
+		if(this.repo != null)
+		cmd += " --repo \""+this.repo+"\"";
+		if (this.content_view_id != null) {
+			cmd += " --content_view_id \""+this.content_view_id+"\"";
+		} else if (this.content_view_label != null) {
+			cmd += " --content_view_label \""+this.content_view_label+"\"";
+		} else {
+			cmd += " --content_view \""+this.content_view+"\"";
+		}
+		
+		if(this.environment != null)
+		cmd += " --environment \""+this.environment+"\"";
+
+		cmd += " | grep \"" + query + "\" | wc -l";
+		
+		KatelloCli cli = new KatelloCli(cmd, null);
+		return cli.run();	
+	}
+
 	
 	// ** ** ** ** ** ** **
 	// ASSERTS

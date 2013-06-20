@@ -11,7 +11,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.DeltaCloudInstance;
 import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
 import com.redhat.qe.katello.base.obj.KatelloContentFilter;
@@ -506,7 +506,7 @@ public class KatelloUtils implements KatelloConstants {
 	 * @since 07.Mar.2013 - Katello nightly katello-1.3.14-1.git.817.b5f1eb9.el6.noarch
 	 */
 	private static void setupBeakerRepo(String hostname){
-		String redhatRelease = KatelloCliTestScript.sgetOutput(KatelloUtils.sshOnClient(hostname, "cat /etc/redhat-release"));
+		String redhatRelease = KatelloCliTestBase.sgetOutput(KatelloUtils.sshOnClient(hostname, "cat /etc/redhat-release"));
 		String bkrRepoUrl = "http://beaker.engineering.redhat.com/harness/RedHatEnterpriseLinux6";
 		if(redhatRelease.startsWith(REDHAT_RELEASE_RHEL5X))
 			bkrRepoUrl = "http://beaker.engineering.redhat.com/harness/RedHatEnterpriseLinuxServer5";
@@ -676,9 +676,11 @@ public class KatelloUtils implements KatelloConstants {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		KatelloContentFilter filter = new KatelloContentFilter("Filter"+uid, org_name, condef.name);
-		filter.add_repo(product_name, repo_name);
 		exec_result = filter.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		exec_result = filter.add_repo(product_name, repo_name);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
 		if (erratas != null) {
 			FilterRuleErrataIds errata1 = new FilterRuleErrataIds(erratas);
 			exec_result = filter.add_rule(( promote ? KatelloContentFilter.TYPE_INCLUDES : KatelloContentFilter.TYPE_EXCLUDES), errata1);
@@ -687,7 +689,7 @@ public class KatelloUtils implements KatelloConstants {
 		if (package_names != null) {
 			FilterRulePackage [] packages = new FilterRulePackage[package_names.length];
 			for (int i = 0; i < package_names.length; i ++) {
-				packages[i] = new FilterRulePackage("package_names[i]");
+				packages[i] = new FilterRulePackage(package_names[i]);
 			}
 			
 			exec_result = filter.add_rule(( promote ? KatelloContentFilter.TYPE_INCLUDES : KatelloContentFilter.TYPE_EXCLUDES), packages);

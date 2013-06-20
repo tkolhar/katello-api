@@ -8,7 +8,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
@@ -21,7 +21,7 @@ import com.redhat.qe.tools.SSHCommandResult;
 import java.io.File;
 
 @Test(groups=TngRunGroups.TNG_KATELLO_Organizations)
-public class OrgTests extends KatelloCliTestScript{
+public class OrgTests extends KatelloCliTestBase{
 	List<KatelloOrg> orgs = Collections.synchronizedList(new ArrayList<KatelloOrg>());
 	String uid = KatelloUtils.getUniqueID();
 	SSHCommandResult exec_result;

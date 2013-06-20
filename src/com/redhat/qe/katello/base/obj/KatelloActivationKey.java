@@ -2,7 +2,7 @@ package com.redhat.qe.katello.base.obj;
 
 import javax.management.Attribute;
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
@@ -164,7 +164,7 @@ public class KatelloActivationKey extends _KatelloObject{
 		String match_info = String.format(REGEXP_AK_LIST,
 					this.name,this.environment_id).replaceAll("\"", "");
 		
-		Assert.assertTrue(KatelloCliTestScript.sgetOutput(res).replaceAll("\n", "").matches(match_info), 
+		Assert.assertTrue(KatelloCliTestBase.sgetOutput(res).replaceAll("\n", "").matches(match_info), 
 				String.format("Activation key [%s] should be found in the list",this.name));
 		
 		// asserts: activation_key info
@@ -174,7 +174,7 @@ public class KatelloActivationKey extends _KatelloObject{
 		match_info = String.format(REGEXP_AK_INFO,
 				this.name, (this.limit != null ? this.limit : "unlimited"), this.environment_id).replaceAll("\"", "");
 		
-		Assert.assertTrue(KatelloCliTestScript.sgetOutput(res).replaceAll("\n", "").matches(match_info), 
+		Assert.assertTrue(KatelloCliTestBase.sgetOutput(res).replaceAll("\n", "").matches(match_info), 
 				String.format("Activation key [%s] should contain correct info",this.name));			
 	}
 	

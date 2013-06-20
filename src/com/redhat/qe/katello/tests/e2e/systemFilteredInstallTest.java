@@ -3,7 +3,7 @@ package com.redhat.qe.katello.tests.e2e;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloActivationKey;
 import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
 import com.redhat.qe.katello.base.obj.KatelloContentFilter;
@@ -22,7 +22,7 @@ import com.redhat.qe.tools.SSHCommandResult;
 
 
 @Test(groups=TngRunGroups.TNG_KATELLO_Content)
-public class systemFilteredInstallTest extends KatelloCliTestScript{
+public class systemFilteredInstallTest extends KatelloCliTestBase{
 
 
 	String uid = KatelloUtils.getUniqueID();

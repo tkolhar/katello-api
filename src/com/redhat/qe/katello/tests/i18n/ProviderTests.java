@@ -6,7 +6,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
@@ -16,7 +16,7 @@ import com.redhat.qe.katello.tests.e2e.SystemsReport;
 import com.redhat.qe.tools.SCPTools;
 import com.redhat.qe.tools.SSHCommandResult;
 
-public class ProviderTests extends KatelloCliTestScript {
+public class ProviderTests extends KatelloCliTestBase {
 	protected static Logger log = Logger.getLogger(ProviderTests.class.getName());
 	
 	private String uid;

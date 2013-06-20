@@ -7,7 +7,7 @@ import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
@@ -34,7 +34,7 @@ import com.redhat.qe.tools.SSHCommandResult;
  * @author gkhachik
  */
 @Test(groups={"cfse-e2e"})
-public class PromoteWithFilters extends KatelloCliTestScript{
+public class PromoteWithFilters extends KatelloCliTestBase{
 	protected static Logger log = Logger.getLogger(PromoteWithFilters.class.getName());
 
 	public static final String ERRATA_ZOO_BEAR = "RHEA-2012:0001";

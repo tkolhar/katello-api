@@ -5,7 +5,7 @@ import java.util.logging.Logger;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloPing;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
@@ -15,7 +15,7 @@ import com.redhat.qe.tools.SSHCommandResult;
  * @author hhovsepy
  */
 @Test(groups={"cfse-e2e"})
-public class BackupRecovery extends KatelloCliTestScript {
+public class BackupRecovery extends KatelloCliTestBase {
 	protected static Logger log = Logger.getLogger(BackupRecovery.class.getName());
 	
 	private static final String BDIR = "/backup";
