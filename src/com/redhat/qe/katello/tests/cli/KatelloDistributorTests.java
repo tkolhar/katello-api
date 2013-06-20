@@ -3,13 +3,13 @@ package com.redhat.qe.katello.tests.cli;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.obj.KatelloDistributor;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
+
 public class KatelloDistributorTests extends KatelloCliTestScript{
 	SSHCommandResult exec_result;
 	String uid = KatelloUtils.getUniqueID();
@@ -22,6 +22,7 @@ public class KatelloDistributorTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
 
+	// TODO bug 951231
 	@Test(description="distributor add custom info",  
 			dataProvider="add_distributor_custom_info", dataProviderClass = KatelloCliDataProvider.class, enabled=true,groups={"cfse-cli","headpin-cli"})
 	public void test_distributorAddCustomInfo(String keyname, String value,String dis_name,Integer exitCode,String output){
@@ -41,6 +42,7 @@ public class KatelloDistributorTests extends KatelloCliTestScript{
 		}
 	} 
 
+	// TODO bug 975832
 	@Test(description="distributor remove custom info",enabled=true,groups={"cfse-cli","headpin-cli"})
 	public void test_distributorRemoveCustomInfo(){
 		SSHCommandResult exec_result;
@@ -63,7 +65,7 @@ public class KatelloDistributorTests extends KatelloCliTestScript{
 		Assert.assertEquals(getOutput(exec_result).trim(),String.format(KatelloDistributor.OUT_INFO,test_key,test_val,dis_rm_name));
 		exec_result = dis_rm.distributor_info();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		String dis_uuid = KatelloCli.grepCLIOutput("UUID", getOutput(exec_result));
+		String dis_uuid = KatelloUtils.grepCLIOutput("UUID", getOutput(exec_result));
 		exec_result = dis_rm.remove_info(test_key);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertEquals(getOutput(exec_result).trim(),String.format(KatelloDistributor.OUT_REMOVE_INFO,dis_rm_name));
@@ -78,6 +80,7 @@ public class KatelloDistributorTests extends KatelloCliTestScript{
 		Assert.assertEquals(getOutput(exec_result).trim(),String.format(KatelloDistributor.OUT_INFO,test_key,test_val,dis_uuid));				
 	}
 	
+	// TODO bug 975832
 	@Test(description="distributor update custom info",enabled=true,groups={"cfse-cli","headpin-cli"}) //TODO modify the returned string once bz#973929 is fixed
 	public void test_distributorUpdateCustomInfo(){		
 		SSHCommandResult exec_result;
@@ -100,7 +103,7 @@ public class KatelloDistributorTests extends KatelloCliTestScript{
 		Assert.assertEquals(getOutput(exec_result).trim(),String.format(KatelloDistributor.OUT_INFO,test_key,test_val,dis_update_name));
 		exec_result = dis_update.distributor_info();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		String dis_uuid = KatelloCli.grepCLIOutput("UUID", getOutput(exec_result));
+		String dis_uuid = KatelloUtils.grepCLIOutput("UUID", getOutput(exec_result));
 		exec_result = dis_update.update_info(test_key,test_update_val,null);
 		Assert.assertTrue(exec_result.getExitCode() == 65, "Check - return code");
 		Assert.assertEquals(getOutput(exec_result).trim(),String.format(KatelloDistributor.ERR_COULD_NOT_UPDATE_INFO,test_key,dis_update_name));
