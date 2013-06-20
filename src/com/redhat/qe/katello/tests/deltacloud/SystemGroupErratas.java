@@ -35,6 +35,9 @@ public class SystemGroupErratas extends BaseDeltacloudTest {
 		KatelloUtils.sshOnClient(client, "service goferd restart;");		
 	}
 	
+	//TODO - https://tcms.engineering.redhat.com/case/184535/?from_plan=7760
+	// Needs to be reworked to be moved to e2e and making it reported in TCMS.
+	// https://engineering.redhat.com/trac/IntegratedMgmtQE/wiki/katello-api-main
 	@Test(description = "List the errata on system group")
 	public void test_errataListOnSystemGroup() {
 		setUpErratas();

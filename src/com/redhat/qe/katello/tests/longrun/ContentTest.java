@@ -1,13 +1,11 @@
 package com.redhat.qe.katello.tests.longrun;
 
-import java.util.ArrayList;
-
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 import org.testng.annotations.BeforeClass;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliLongrunBase;
 import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
 import com.redhat.qe.katello.base.obj.KatelloContentView;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
@@ -24,7 +22,7 @@ import com.redhat.qe.tools.SSHCommandResult;
  *
  */
 @Test(groups={"cfse-cli"})
-public class ContentTest extends KatelloCliTestScript{
+public class ContentTest extends KatelloCliLongrunBase{
 
 	private SSHCommandResult res;
 	private String org;
@@ -80,7 +78,7 @@ public class ContentTest extends KatelloCliTestScript{
 		KatelloContentDefinition cd = new KatelloContentDefinition("cd"+uid, null, org, null);
 		res = cd.create();
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - exit.Code");
-		res = cd.add_product(KatelloProduct.RHEL_SERVER);
+		res = cd.add_repo(repo.product, repo.name);
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - exit.Code");
 		res = cd.publish(contView, null, null);
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - exit.Code");
@@ -110,28 +108,9 @@ public class ContentTest extends KatelloCliTestScript{
 		Assert.assertTrue(output.matches(regExp), "Check - output matches to regexp");
 	}
 
-	private boolean findSyncedRhelToUse(){
-		ArrayList<String> orgs = new KatelloOrg().custom_listNames();
-		ArrayList<String> products;
-		SSHCommandResult res;
-		for(String org: orgs){
-			products = new KatelloProduct(null, org, KatelloProvider.PROVIDER_REDHAT, null, null, null, null, null).custom_listNames();
-			for(String product: products){
-				if(product.equals(KatelloProduct.RHEL_SERVER)){
-					res = new KatelloProduct(product, org, KatelloProvider.PROVIDER_REDHAT, null, null, null, null, null).status();
-					if(!KatelloUtils.grepCLIOutput("Last Sync", getOutput(res)).equals("never")){
-						// We found an org that has a synced RHEL_SERVER content. Let's re-use it.
-						this.org = org;
-						return true;
-					}
-				}
-			}
-		}
-		return false;
-	}
 	@AfterClass(description="cleanup the stuff", alwaysRun=true)
 	public void tearDown(){
-		rhsm_clean();
+		// rhsm_clean();
 		// TODO - do clean rpm repos that has been installed.
 	}
 }
