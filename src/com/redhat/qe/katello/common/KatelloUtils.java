@@ -307,6 +307,7 @@ public class KatelloUtils implements KatelloConstants {
 		Assert.assertNotNull(server.getClient());
 		
 		System.setProperty("katello.server.hostname", server.getIpAddress());
+		System.setProperty("katello.client.hostname", server.getIpAddress());
 		
 		if (!nowait) {
 			configureDDNS(server, configs);
