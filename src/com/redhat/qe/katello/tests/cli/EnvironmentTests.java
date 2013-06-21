@@ -171,9 +171,9 @@ public class EnvironmentTests extends KatelloCliTestScript{
 	  	    Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 
 		}
-
-		// TODO bug 966901
-		@Test(description="it should not be possible to delete Library environment")
+		
+		/** TCMS scenario is: <a href="https://tcms.engineering.redhat.com/case/273128/?from_plan=7843">here</a> */
+		@Test(description="62ac0445-1d73-4cdd-a759-224e0adfb42c")
 		public void testDeleteLibrary() {
 			SSHCommandResult res;
 			String uid = KatelloUtils.getUniqueID();

@@ -2,21 +2,22 @@ package com.redhat.qe.katello.tests.e2e;
 
 import java.io.File;
 import java.util.logging.Logger;
-
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
+import com.redhat.qe.katello.base.obj.KatelloContentView;
+import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.common.KatelloUtils;
-import com.redhat.qe.tools.SCPTools;
+import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
 /**
@@ -35,6 +36,9 @@ public class SystemsReport extends KatelloCliTestScript{
 	private String sys_name1;
 	private String sys_name2;
 	private String sys_name3;
+	private String contViewName; 
+	private SSHCommandResult exec_result;
+	
 	public static final String MANIFEST_HACKED = "manifest-hacked.zip";
 	public static final String EMPTY_HACKED = "manifest-empty.zip";
 	public static final String MANIFEST_2SUBSCRIPTIONS = "manifest-automation-CLI-2subscriptions.zip";
@@ -47,18 +51,15 @@ public class SystemsReport extends KatelloCliTestScript{
 		this.org = "wrong-manifest-"+uid;
 		KatelloOrg org = new KatelloOrg(this.org, null);
 		org.cli_create();
+		new KatelloEnvironment(env_dev, null, this.org, KatelloEnvironment.LIBRARY).cli_create();
+		new KatelloEnvironment(env_test, null, this.org, KatelloEnvironment.LIBRARY).cli_create();
+		this.contViewName = "contView-"+uid;
 	}
 	
 	@Test(description="Import hacked manifest")
 	public void test_importHackedManifest() {
 		
-		SCPTools scp = new SCPTools(
-				System.getProperty("katello.client.hostname", "localhost"), 
-				System.getProperty("katello.client.ssh.user", "root"), 
-				System.getProperty("katello.client.sshkey.private", ".ssh/id_hudson_dsa"), 
-				System.getProperty("katello.client.sshkey.passphrase", "null"));
-		Assert.assertTrue(scp.sendFile("data"+File.separator+MANIFEST_HACKED, "/tmp"),
-				MANIFEST_HACKED+" sent successfully");			
+		KatelloUtils.scpOnClient("data/"+MANIFEST_HACKED, "/tmp");
 		
 		KatelloProvider prov = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, this.org, null, null);
 		SSHCommandResult res = prov.import_manifest("/tmp"+File.separator+MANIFEST_HACKED, new Boolean(true));
@@ -69,13 +70,7 @@ public class SystemsReport extends KatelloCliTestScript{
 	@Test(description="Import empty manifest")
 	public void test_importEmptyManifest() {
 		
-		SCPTools scp = new SCPTools(
-				System.getProperty("katello.client.hostname", "localhost"), 
-				System.getProperty("katello.client.ssh.user", "root"), 
-				System.getProperty("katello.client.sshkey.private", ".ssh/id_hudson_dsa"), 
-				System.getProperty("katello.client.sshkey.passphrase", "null"));
-		Assert.assertTrue(scp.sendFile("data"+File.separator+EMPTY_HACKED, "/tmp"),
-				EMPTY_HACKED+" sent successfully");			
+		KatelloUtils.scpOnClient("data/"+EMPTY_HACKED, "/tmp");
 		
 		KatelloProvider prov = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, this.org, null, null);
 		SSHCommandResult res = prov.import_manifest("/tmp"+File.separator+EMPTY_HACKED, new Boolean(true));
@@ -86,13 +81,7 @@ public class SystemsReport extends KatelloCliTestScript{
 	@Test(description="Import correct manifest", dependsOnMethods={"test_importHackedManifest", "test_importEmptyManifest"})
 	public void test_importManifest() {
 
-		SCPTools scp = new SCPTools(
-				System.getProperty("katello.client.hostname", "localhost"), 
-				System.getProperty("katello.client.ssh.user", "root"), 
-				System.getProperty("katello.client.sshkey.private", ".ssh/id_hudson_dsa"), 
-				System.getProperty("katello.client.sshkey.passphrase", "null"));
-		Assert.assertTrue(scp.sendFile("data"+File.separator+MANIFEST_2SUBSCRIPTIONS, "/tmp"),
-				MANIFEST_2SUBSCRIPTIONS+" sent successfully");			
+		KatelloUtils.scpOnClient("data/"+MANIFEST_2SUBSCRIPTIONS, "/tmp");
 
 		KatelloProvider prov = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, this.org, null, null);
 		SSHCommandResult res = prov.import_manifest("/tmp"+File.separator+MANIFEST_2SUBSCRIPTIONS, new Boolean(true));
@@ -125,11 +114,16 @@ public class SystemsReport extends KatelloCliTestScript{
 	}
 	
 	@Test(description="Promote RHEL Server to both environments", dependsOnMethods={"test_disableenableRHELRepo"})
-	public void test_promoteToEnvs(){		
-		
-		KatelloUtils.promoteProductToEnvironment(org, KatelloProduct.RHEL_SERVER, env_dev);
-		
-		KatelloUtils.promoteProductToEnvironment(org, KatelloProduct.RHEL_SERVER, env_test);
+	public void test_promoteToEnvs(){
+		KatelloContentDefinition cvd = new KatelloContentDefinition("cd"+KatelloUtils.getUniqueID(), null, org, null);
+		cvd.create();
+		cvd.add_product(KatelloProduct.RHEL_SERVER);
+		cvd.publish(contViewName, null, null);
+		KatelloContentView cv = new KatelloContentView(contViewName, org);
+		exec_result = cv.promote_view(env_dev);
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
+		exec_result = cv.promote_view(env_test);
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
 	}
 	
 	@Test(description="Add 2 system to env: Dev and 1 systems to: Test", dependsOnMethods={"test_promoteToEnvs"})
@@ -139,17 +133,18 @@ public class SystemsReport extends KatelloCliTestScript{
 		sys_name2 = "1-"+sys;
 		sys_name3 = "2-"+sys;
 		rhsm_clean_only();
-		rhsm_register(org, this.env_dev, sys_name1, true);
+		rhsm_register(org, env_dev+"/"+contViewName, sys_name1, true);
 		rhsm_clean_only();
-		rhsm_register(org, this.env_test, sys_name2, true);
+		rhsm_register(org, env_test+"/"+contViewName, sys_name2, true);
 		rhsm_clean_only();
-		SSHCommandResult res = rhsm_register(org, this.env_dev, sys_name3, true);
-//		Assert.assertTrue(res.getExitCode().intValue()==1, "Check - return code (system register)");
+		SSHCommandResult res = rhsm_register(org, env_dev+"/"+contViewName, sys_name3, true);
 		String subscriptionStatus = KatelloUtils.grepCLIOutput("Status", getOutput(res).trim()); 
 		Assert.assertTrue(subscriptionStatus.trim().equals("Not Subscribed"),"Check - system should not be subscribed (3rd registration)");		
 	}
 	
-	@Test(description="Check red systems >= 1", dependsOnMethods={"test_addSystemsToEnvs"})
+	/** TCMS scenario is: <a href="https://tcms.engineering.redhat.com/case/231404/?from_plan=7771">here</a> */
+	@Test(description="85c9e53d-5eb8-4f35-878a-7e4ba7618b97", dependsOnMethods={"test_addSystemsToEnvs"}, 
+			groups={TngRunGroups.TNG_KATELLO_System_Consumer})
 	public void test_redSystemsCount(){
 		SSHCommandResult res = new KatelloCli("system report --org \""+this.org+"\" --format csv | grep \",red,\" | wc -l", null).run();
 		int redCnt = Integer.parseInt(getOutput(res).trim());
@@ -182,7 +177,7 @@ public class SystemsReport extends KatelloCliTestScript{
 		res = sys.unsubscribe();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (system unsubscribe)");
 		
-		sys = new KatelloSystem(sys_name2, this.org, this.env_test);
+		sys = new KatelloSystem(sys_name2, this.org, env_test);
 		res = sys.rhsm_identity();
 		system_uuid = KatelloUtils.grepCLIOutput("Current identity is", res.getStdout());
 		sys.uuid = system_uuid;

@@ -12,6 +12,7 @@ import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.base.obj.KatelloUser;
 import com.redhat.qe.katello.base.obj.KatelloUserRole;
 import com.redhat.qe.katello.common.KatelloUtils;
+import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
 /**
@@ -22,7 +23,7 @@ import com.redhat.qe.tools.SSHCommandResult;
  * @author hhovsepy
  *
  */
-@Test(groups={"cfse-e2e"})
+@Test(groups={"cfse-e2e",TngRunGroups.TNG_KATELLO_System_Consumer})
 public class SystemListAccess extends KatelloCliTestScript {
 	
 	private SSHCommandResult exec_result;
@@ -92,7 +93,8 @@ public class SystemListAccess extends KatelloCliTestScript {
 		Assert.assertTrue(getOutput(exec_result).trim().contains(system_name2), "System 2 should be contained");
 	}
 	
-	@Test(description = "Login by created user, list the systems and verify that only system in Dev environment is listed")
+	/** TCMS scenario is: <a href="https://tcms.engineering.redhat.com/case/221905/?from_plan=7771">here</a> */
+	@Test(description = "88849bfa-fd2f-41d3-81c7-02fbca8385fe")
 	public void test_listSystem(){
 		KatelloUser user = new KatelloUser(this.user_name, "root@localhost", KatelloUser.DEFAULT_USER_PASS, false);
 		KatelloSystem sys = new KatelloSystem(system_name1, this.org_name, null);
