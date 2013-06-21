@@ -67,7 +67,7 @@ public class SystemsReport extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(res).contains("Provider [ "+KatelloProvider.PROVIDER_REDHAT+" ] failed to import manifest"),"Message - (provider import_manifest)");
 	}
 
-	@Test(description="Import empty manifest")
+	@Test(description="Import empty manifest", groups={TngRunGroups.TNG_KATELLO_System_Consumer})
 	public void test_importEmptyManifest() {
 		
 		KatelloUtils.scpOnClient("data/"+EMPTY_HACKED, "/tmp");
@@ -78,7 +78,8 @@ public class SystemsReport extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(res).contains("Provider [ "+KatelloProvider.PROVIDER_REDHAT+" ] failed to import manifest"),"Message - (provider import_manifes)");
 	}
 	
-	@Test(description="Import correct manifest", dependsOnMethods={"test_importHackedManifest", "test_importEmptyManifest"})
+	@Test(description="Import correct manifest", dependsOnMethods={"test_importHackedManifest", "test_importEmptyManifest"},
+			groups={TngRunGroups.TNG_KATELLO_System_Consumer})
 	public void test_importManifest() {
 
 		KatelloUtils.scpOnClient("data/"+MANIFEST_2SUBSCRIPTIONS, "/tmp");
@@ -92,7 +93,8 @@ public class SystemsReport extends KatelloCliTestScript{
 		KatelloUtils.sshOnClient("echo '{\"cpu.cpu_socket(s)\":\"1\"}' > /etc/rhsm/facts/sockets.facts");
 	}
 	
-	@Test(description="Promote RHEL Server to both environments", dependsOnMethods={"test_importManifest"})
+	@Test(description="Promote RHEL Server to both environments", dependsOnMethods={"test_importManifest"},
+			groups={TngRunGroups.TNG_KATELLO_System_Consumer})
 	public void test_disableenableRHELRepo() {
 		log.info("Enable repo: ["+KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT+"]");
 		
@@ -113,7 +115,8 @@ public class SystemsReport extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(res).contains("enabled."),"Message - (repo enable)");
 	}
 	
-	@Test(description="Promote RHEL Server to both environments", dependsOnMethods={"test_disableenableRHELRepo"})
+	@Test(description="Promote RHEL Server to both environments", dependsOnMethods={"test_disableenableRHELRepo"},
+			groups={TngRunGroups.TNG_KATELLO_System_Consumer})
 	public void test_promoteToEnvs(){
 		KatelloContentDefinition cvd = new KatelloContentDefinition("cd"+KatelloUtils.getUniqueID(), null, org, null);
 		cvd.create();
@@ -126,7 +129,8 @@ public class SystemsReport extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
 	}
 	
-	@Test(description="Add 2 system to env: Dev and 1 systems to: Test", dependsOnMethods={"test_promoteToEnvs"})
+	@Test(description="Add 2 system to env: Dev and 1 systems to: Test", dependsOnMethods={"test_promoteToEnvs"},
+			groups={TngRunGroups.TNG_KATELLO_System_Consumer})
 	public void test_addSystemsToEnvs(){
 		String sys = "localhost"+KatelloUtils.getUniqueID();
 		sys_name1= sys;
