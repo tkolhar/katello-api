@@ -56,7 +56,7 @@ public class SystemsReport extends KatelloCliTestScript{
 		this.contViewName = "contView-"+uid;
 	}
 	
-	@Test(description="Import hacked manifest")
+	@Test(description="Import hacked manifest", groups={TngRunGroups.TNG_KATELLO_System_Consumer})
 	public void test_importHackedManifest() {
 		
 		KatelloUtils.scpOnClient("data/"+MANIFEST_HACKED, "/tmp");
