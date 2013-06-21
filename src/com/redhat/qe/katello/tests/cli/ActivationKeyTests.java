@@ -155,7 +155,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
     	Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key list)");
     }
     
-    /** TCMS scenario is: <a href="https://tcms.engineering.redhat.com/case/221907/?from_plan=7793">here</a> */
+    /** TCMS scenario is: <a href="https://tcms.engineering.redhat.com/case/221907/?from_plan=7771">here</a> */
     @Test(description="5a47305b-52d0-47ea-9b23-74dffe16b4bf")
     public void test_createWithLimit() {
     	String uid = KatelloUtils.getUniqueID();

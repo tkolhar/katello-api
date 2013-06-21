@@ -442,6 +442,7 @@ public class KatelloSystem extends _KatelloObject{
 		opts.add(new Attribute("install", packageName));
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("environment", env));
 		return run(CMD_PACKAGES);
 	}
 	
