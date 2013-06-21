@@ -22,7 +22,6 @@ public class KatelloDistributorTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
 
-	// TODO bug 951231
 	@Test(description="distributor add custom info",  
 			dataProvider="add_distributor_custom_info", dataProviderClass = KatelloCliDataProvider.class, enabled=true,groups={"cfse-cli","headpin-cli"})
 	public void test_distributorAddCustomInfo(String keyname, String value,String dis_name,Integer exitCode,String output){
