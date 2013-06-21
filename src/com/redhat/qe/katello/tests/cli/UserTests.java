@@ -120,7 +120,7 @@ public class UserTests extends KatelloCliTestBase{
 		}
 	}
 	
-	@Test(description = "delete users - for some org provided", groups={"headpin-cli"})
+	@Test(description = "66c06eec-8698-453d-b956-f5aa6c7d0c8e", groups={"headpin-cli"})
 	public void test_DeleteUserOrg() {
 		SSHCommandResult res;
 		String uniqueID = KatelloUtils.getUniqueID();
@@ -212,7 +212,7 @@ public class UserTests extends KatelloCliTestBase{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+KatelloUser.CMD_REPORT+")");
 	} 
 	
-	@Test(description="assign roles to users", groups={"headpin-cli"})
+	@Test(description="87b757c2-6782-4d9c-8d64-ce5f5ce872ac", groups={"headpin-cli"})
 	public void test_AssignUserRoles(){
 		
 		SSHCommandResult res;
@@ -255,8 +255,7 @@ public class UserTests extends KatelloCliTestBase{
 				String.format(KatelloUser.OUT_ASSIGN_ROLE, user.username, role.name));
 	}
 	
-	@Test(description = "Create User and 2 Roles, assign roles to user and then unassign one of them. " +
-			"Verify that only one role is unassigned", groups={"headpin-cli"})
+	@Test(description = "fbeb8d03-e33f-46b1-82e0-fb7540e4b49c", groups={"headpin-cli"})
 	public void test_unassignRole(){
 		KatelloUser user = createUser();
 		KatelloUserRole role = createRole();
@@ -378,7 +377,7 @@ public class UserTests extends KatelloCliTestBase{
 				"Check - error string (invalid credentials)");
 	}
 	
-	@Test(description="Login incorrect username", groups={"headpin-cli"}, enabled=false) // TODO - try to find out why it fails on group running - TODO for gkhachik
+	@Test(description="fb2f0a12-b2e8-4654-a20f-d986080d5f05", groups={"headpin-cli"}, enabled=true) // TODO - try to find out why it fails on group running - TODO for gkhachik
 	public void test_loginIncorrectUsername() {
 		KatelloUser userAdmin = new KatelloUser("wrong", 
 				null, System.getProperty("katello.admin.password"), false);
@@ -391,7 +390,7 @@ public class UserTests extends KatelloCliTestBase{
 				"Check - error string (invalid credentials)");
 	}
 
-	@Test(description="Login incorrect password", groups={"headpin-cli"}, enabled=false) // TODO - try to find out why it fails on group running - TODO for gkhachik
+	@Test(description="78b4fdca-479d-4022-9b28-3eda1455bbff", groups={"headpin-cli"}, enabled=true) // TODO - try to find out why it fails on group running - TODO for gkhachik
 	public void test_loginIncorrectPassword() {
 		KatelloUser userAdmin = new KatelloUser(System.getProperty("katello.admin.user"), 
 				null, "wrong", false);
@@ -404,7 +403,7 @@ public class UserTests extends KatelloCliTestBase{
 				"Check - error string (invalid credentials)");
 	}
 
-	@Test(description="Login incorrect credentials", groups={"headpin-cli"})
+	@Test(description="8569772a-82fc-4412-8d5c-fcffafa6a5de", groups={"headpin-cli"})
 	public void test_loginIncorrectCredentials() {
 		KatelloUser userAdmin = new KatelloUser("wrong", 
 				null, "wrong", false);

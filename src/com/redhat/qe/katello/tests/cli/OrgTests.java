@@ -271,7 +271,7 @@ public class OrgTests extends KatelloCliTestBase{
 	    Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
 	
-	@Test(description = "Attempt to upload an already imported manifest in a different ORG",groups={"cfse-cli","headpin-cli"})
+	@Test(description = "699bb444-5cfd-4e6f-ab50-cb77292bc57a",groups={"cfse-cli","headpin-cli", TngRunGroups.TNG_KATELLO_Manifests_CDN})
 	public void test_UploadManifestDiffOrg(){
 
 		KatelloProvider providerRH;
@@ -319,7 +319,7 @@ public class OrgTests extends KatelloCliTestBase{
 		}
 	}
 	
-	@Test(description = "Attempt to upload an already imported manifest in the same org",groups={"cfse-cli","headpin-cli"})
+	@Test(description = "ee630a0d-7455-4b92-8069-b14b3d9d1173",groups={"cfse-cli","headpin-cli", TngRunGroups.TNG_KATELLO_Manifests_CDN})
 	public void test_UploadManifestSameOrg(){
 
 		String uniqueID = KatelloUtils.getUniqueID();
@@ -348,8 +348,9 @@ public class OrgTests extends KatelloCliTestBase{
 		}
 	}
 		
-	@Test(description = "Delete a manifest from an ORG and upload the same to an other ORG",groups={"headpin-cli", "cfse-ignore"}, enabled=false)// TODO - gkhachik there is some problem, stays on progress. to investigate.
+	@Test(description = "b5e801df-5661-42f7-b1ba-d09a68c7fd92",groups={"headpin-cli", "cfse-ignore"}, enabled=false)// TODO - gkhachik delete manifest gone from recent sat-6.0.1
 	public void test_ReUploadManifestDiffOrg(){
+		KatelloUtils.scpOnClient("data/"+"stack-manifest.zip", "/tmp");
 		
 		String uniqueID = KatelloUtils.getUniqueID();
 		String org_name = "Raleigh-" + uniqueID;
@@ -359,13 +360,6 @@ public class OrgTests extends KatelloCliTestBase{
 		exec_result = org.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		KatelloProvider provider = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT,org_name,null,null);
-		SCPTools scp = new SCPTools(
-				System.getProperty("katello.server.hostname", "localhost"), 
-				System.getProperty("katello.server.ssh.user", "root"), 
-				System.getProperty("katello.server.sshkey.private", ".ssh/id_hudson_dsa"), 
-				System.getProperty("katello.server.sshkey.passphrase", "null"));
-		Assert.assertTrue(scp.sendFile("data"+File.separator+"stack-manifest.zip", "/tmp"),
-				"stack-manifest.zip sent successfully");			
 		try {
 			exec_result = provider.import_manifest("/tmp"+File.separator+"stack-manifest.zip", new Boolean(true));
 			Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
