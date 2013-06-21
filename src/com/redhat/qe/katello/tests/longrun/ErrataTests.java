@@ -6,26 +6,26 @@ import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliLongrunBase;
 import com.redhat.qe.katello.base.obj.KatelloActivationKey;
+import com.redhat.qe.katello.base.obj.KatelloContentFilter;
+import com.redhat.qe.katello.base.obj.KatelloContentView;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloErrata;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
-import com.redhat.qe.katello.base.obj.KatelloPackage;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.base.obj.KatelloSystemGroup;
+import com.redhat.qe.katello.base.obj.helpers.FilterRuleErrataIds;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups={"cfse-cli"})
-public class PromotionTests extends KatelloCliLongrunBase {
+public class ErrataTests extends KatelloCliLongrunBase {
 	
 	private String ert1;
-	private String content_view_promote_package;
-	private String content_view_remove_package;
+	private String content_view_promote;
 	private String content_view_promote_errata;
-	private String content_view_remove_errata;
 
 	private SSHCommandResult exec_result;
 	private String env_name;
@@ -83,52 +83,38 @@ public class PromotionTests extends KatelloCliLongrunBase {
 		exec_result = new KatelloOrg(base_org_name, null).subscriptions();
 		poolId1 = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
 	}
-	
-	@Test(description="promote rhel packages", dependsOnMethods={"test_syncRhel6"})
-	public void test_promoteRHELPackages() {
-		content_view_promote_package = KatelloUtils.promotePackagesToEnvironment(base_org_name, KatelloProduct.RHEL_SERVER, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, new String[] {"zsh"}, env_name);
 
-		configureClient("actkeypackagepromote" + uid, content_view_promote_package, sys_name, env_name);
-	}
 	
-	@Test(description="list rhel repo packages promoted to test environment", dependsOnMethods={"test_promoteRHELPackages"})
-	public void test_listRHELRepoPackages() {
-		KatelloPackage pack = new KatelloPackage(base_org_name, KatelloProduct.RHEL_SERVER, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, content_view_promote_package);
-		exec_result = pack.cli_search("*zsh*");
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).trim().contains("zsh"), "Package zsh is listed in environment package list");
-	}
-	
-	@Test(description="install zsh package", dependsOnMethods={"test_listRHELRepoPackages"})
-	public void test_installRHELPackage() {
-		KatelloUtils.sshOnClient("yum erase -y zsh");
-		install_Packages(new String[] {"zsh"});
-	}
-	
-	@Test(description="delete promoted rhel packages", dependsOnMethods={"test_installRHELPackage"})
-	public void test_deleteRHELPackages() {
-		content_view_remove_package = KatelloUtils.removePackagesFromEnvironment(base_org_name, KatelloProduct.RHEL_SERVER, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, new String[] {"zsh"}, env_name);
+	@Test(description="promote rhel repo")
+	public void test_promoteRHELRepo() {
+		content_view_promote = KatelloUtils.promoteRepoToEnvironment(base_org_name, KatelloProduct.RHEL_SERVER, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, env_name);	
 		
-		configureClient("actkeypackageremove" + uid, content_view_remove_package, sys_name, env_name);
+		configureClient("actkeywholerepopromote" + uid, content_view_promote, sys_name, env_name);
 	}
 	
-	@Test(description="list rhel repo packages deleted to test environment", dependsOnMethods={"test_deleteRHELPackages"}, enabled=true)
-	public void test_listRHELRepoPackagesDeleted() {
-		KatelloPackage pack = new KatelloPackage(base_org_name, KatelloProduct.RHEL_SERVER, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, content_view_remove_package);
-		exec_result = pack.cli_search("*zsh*");
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertFalse(getOutput(exec_result).trim().contains("zsh"), "Package zsh is not listed in environment package list");
-		
-		KatelloUtils.sshOnClient("yum erase -y zsh");
-		verify_PackagesNotAvailable(new String[] {"zsh"});
-	}
-	
-	@Test(description="promote rhel errata", dependsOnMethods={"test_listRHELRepoPackagesDeleted"})
-	public void test_promoteRHELErrata() {
-		KatelloErrata err = new KatelloErrata(base_org_name, KatelloProduct.RHEL_SERVER, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, content_view_remove_package);
+	@Test(description="list RHEL repo erratas on content view", dependsOnMethods={"test_promoteRHELRepo"})
+	public void test_listRHELErratas() {
+		KatelloErrata err = new KatelloErrata(base_org_name, KatelloProduct.RHEL_SERVER, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, null);
 		exec_result = err.custom_list_errata_names("RHBA");
 		ert1 = getOutput(exec_result).replaceAll("\n", ",").split(",")[0];
+		
+		KatelloErrata errata = new KatelloErrata(base_org_name, KatelloProduct.RHEL_SERVER, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, content_view_promote);
+		
+		exec_result = errata.custom_list_errata_count("RHBA");
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
+		Assert.assertFalse(getOutput(exec_result).replaceAll("\n", "").trim().equals("0"), "Check - erratas are not empty");
+		
+		exec_result = errata.custom_list_errata_count("RHSA");
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
+		Assert.assertFalse(getOutput(exec_result).replaceAll("\n", "").trim().equals("0"), "Check - erratas are not empty");
+		
+		exec_result = errata.custom_list_errata_count("RHEA");
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
+		Assert.assertFalse(getOutput(exec_result).replaceAll("\n", "").trim().equals("0"), "Check - erratas are not empty");
+	}
 	
+	@Test(description="promote rhel errata", dependsOnMethods={"test_listRHELErratas"})
+	public void test_promoteRHELErrata() {
 		content_view_promote_errata = KatelloUtils.promoteErratasToEnvironment(base_org_name, KatelloProduct.RHEL_SERVER, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, new String[] {ert1}, env_name);	
 		
 		configureClient("actkeyerratapromote" + uid, content_view_promote_errata, sys_name, env_name);
@@ -168,32 +154,38 @@ public class PromotionTests extends KatelloCliLongrunBase {
 
 	@Test(description="delete promoted rhel errata", dependsOnMethods={"test_installRHELRepoErrata"})
 	public void test_deleteRHELErrata() {
-		content_view_remove_errata = KatelloUtils.removeErratasFromEnvironment(base_org_name, KatelloProduct.RHEL_SERVER, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, new String[] {ert1}, env_name);
+		KatelloContentView view = new KatelloContentView(content_view_promote, base_org_name);		
+		String def_name = KatelloUtils.grepCLIOutput("Definition", getOutput(view.view_info()).trim(),1);
 		
-		configureClient("actkeyerrataremove" + uid, content_view_remove_errata, sys_name, env_name);
+		KatelloContentFilter filter = new KatelloContentFilter("Filter"+uid, base_org_name, def_name);
+		exec_result = filter.create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		exec_result = filter.add_repo(KatelloProduct.RHEL_SERVER, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		FilterRuleErrataIds errata1 = new FilterRuleErrataIds(ert1);
+		exec_result = filter.add_rule(KatelloContentFilter.TYPE_EXCLUDES, errata1);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+
+		exec_result = view.refresh_view();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		exec_result = view.promote_view(env_name);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+
+		configureClient("actkeyerrataremove" + uid, content_view_promote, sys_name, env_name);
 	}
 	
 	@Test(description="list rhel repo errata deleted to test environment", dependsOnMethods={"test_deleteRHELErrata"})
 	public void test_listRHELRepoErrataDeleted() {
-		KatelloErrata errata = new KatelloErrata(base_org_name, KatelloProduct.RHEL_SERVER, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, content_view_remove_errata);
+		KatelloErrata errata = new KatelloErrata(base_org_name, KatelloProduct.RHEL_SERVER, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, content_view_promote);
 		exec_result = errata.cli_list();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertFalse(getOutput(exec_result).trim().contains(ert1), "Errata " + ert1 + " is not listed in environment errata list");
-
-		exec_result = errata.custom_list_errata_count("RHBA");
-		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
-		Assert.assertFalse(getOutput(exec_result).replaceAll("\n", "").trim().equals("0"), "Check - erratas are not empty");
-		
-		exec_result = errata.custom_list_errata_count("RHSA");
-		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
-		Assert.assertFalse(getOutput(exec_result).replaceAll("\n", "").trim().equals("0"), "Check - erratas are not empty");
-		
-		exec_result = errata.custom_list_errata_count("RHEA");
-		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
-		Assert.assertFalse(getOutput(exec_result).replaceAll("\n", "").trim().equals("0"), "Check - erratas are not empty");
 	}
 	
-	@Test(description="install errata which was excluded by filter, verify that it fails", dependsOnMethods={"test_errataDetailsOnSystem"})
+	//@ TODO bug 970720
+	@Test(description="install errata which was excluded by filter, verify that it fails", dependsOnMethods={"test_listRHELRepoErrataDeleted"})
 	public void test_installRHELRepoExcludedErrata() {
 		KatelloUtils.sshOnClient("yum clean all");
 		exec_result = KatelloUtils.sshOnClient("yum repolist");
