@@ -64,10 +64,8 @@ public class UserNoRoleNoAccess extends KatelloCliTestScript {
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 	}
 	
-	@Test(description="check for organizations command", groups={"headpin-cli"})
-	public void test_User_Org_Commands()
-	{
-		
+	@Test(description="5c7daf3b-965f-4fdd-829d-9eae8ae55156", groups={"headpin-cli"})
+	public void test_User_Org_Commands(){
 		org.runAs(user);
 		res = org.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==147, "Check - return code");
@@ -81,7 +79,6 @@ public class UserNoRoleNoAccess extends KatelloCliTestScript {
 		Assert.assertTrue(res.getExitCode().intValue()==147, "Check - return code");
 		res = org.delete();
 		Assert.assertTrue(res.getExitCode().intValue()==147, "Check - return code");
-
 	}
 
 	  

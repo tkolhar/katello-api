@@ -56,7 +56,8 @@ public class SystemsReport extends KatelloCliTestScript{
 		this.contViewName = "contView-"+uid;
 	}
 	
-	@Test(description="Import hacked manifest", groups={TngRunGroups.TNG_KATELLO_System_Consumer})
+	@Test(description="adf0f665-a3cc-447f-88c5-2f8e3c439af1", 
+			groups={TngRunGroups.TNG_KATELLO_System_Consumer, TngRunGroups.TNG_KATELLO_Manifests_CDN})
 	public void test_importHackedManifest() {
 		
 		KatelloUtils.scpOnClient("data/"+MANIFEST_HACKED, "/tmp");
@@ -67,7 +68,7 @@ public class SystemsReport extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(res).contains("Provider [ "+KatelloProvider.PROVIDER_REDHAT+" ] failed to import manifest"),"Message - (provider import_manifest)");
 	}
 
-	@Test(description="Import empty manifest", groups={TngRunGroups.TNG_KATELLO_System_Consumer})
+	@Test(description="c2032507-b640-4b14-8fb7-16b7223191af", groups={TngRunGroups.TNG_KATELLO_System_Consumer, TngRunGroups.TNG_KATELLO_Manifests_CDN})
 	public void test_importEmptyManifest() {
 		
 		KatelloUtils.scpOnClient("data/"+EMPTY_HACKED, "/tmp");
