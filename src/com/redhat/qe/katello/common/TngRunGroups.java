@@ -9,14 +9,13 @@ package com.redhat.qe.katello.common;
  */
 public interface TngRunGroups {
 
-	public static final String TNG_KATELLO_Activation_Key = "Activation Key";
-//	public static final String TNG_KATELLO_System_Template = "System Template"; // removed from Katello
-	public static final String TNG_KATELLO_Errata = "Errata";
-	public static final String TNG_KATELLO_Environment = "Environment";
+	public static final String TNG_KATELLO_Activation_Key = "Activation Key"; // tcms++
+	public static final String TNG_KATELLO_Errata = "Errata"; // tcms++
+	public static final String TNG_KATELLO_Environment = "Environment"; // tcms ++
 	public static final String TNG_KATELLO_Generic = "Generic";
 	public static final String TNG_KATELLO_Subscriptions = "Subscriptions";
-	public static final String TNG_KATELLO_Content = "Content";
-	public static final String TNG_KATELLO_Providers_Repos = "Providers / Repos";
+	public static final String TNG_KATELLO_Content = "Content"; // tcms--
+	public static final String TNG_KATELLO_Providers_Repos = "Providers / Repos"; // tcms--
 	public static final String TNG_KATELLO_System_Groups = "System Groups";
 	public static final String TNG_KATELLO_System_Consumer = "System / Consumer";
 	public static final String TNG_KATELLO_Organizations = "Organizations";

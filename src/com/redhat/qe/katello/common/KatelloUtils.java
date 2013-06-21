@@ -443,45 +443,47 @@ public class KatelloUtils implements KatelloConstants {
 		
 		configureNtp(hostIP);
 		
-		// Install the product
-		if (product.equals("katello")) {
-			BeakerUtils.Katello_Installation_ConfigureRepos(hostIP);
-			if (ldap.isEmpty()) {
-				BeakerUtils.Katello_Installation_KatelloNightly(hostIP);	
-			} else{
-				BeakerUtils.Katello_Installation_KatelloWithLdap(hostIP, ldap, user, password);
+		if (Boolean.parseBoolean(System.getProperty("deltacloud.installserver", "true"))) {
+			// Install the product
+			if (product.equals("katello")) {
+				BeakerUtils.Katello_Installation_ConfigureRepos(hostIP);
+				if (ldap.isEmpty()) {
+					BeakerUtils.Katello_Installation_KatelloNightly(hostIP);	
+				} else{
+					BeakerUtils.Katello_Installation_KatelloWithLdap(hostIP, ldap, user, password);
+				}
+			} else if (product.equals("cfse")) {
+				BeakerUtils.Katello_Installation_SystemEngineLatest(hostIP, version);
+			} else if (product.equals("sam")) {
+				if (ldap.isEmpty()) {
+					BeakerUtils.Katello_Installation_SAMLatest(hostIP, version);
+				} else {
+					BeakerUtils.Katello_Installation_SAMLatestWithLdap(hostIP, version, ldap, user, password);
+				}
+			} else if (product.equals("headpin")) {
+				BeakerUtils.Katello_Installation_ConfigureRepos(hostIP);
+				if (ldap.isEmpty()) {
+					BeakerUtils.Katello_Installation_HeadpinNightly(hostIP);	
+				} else{
+					BeakerUtils.Katello_Installation_HeadpinWithLdap(hostIP, ldap, user, password);
+				}
+			} else if (product.equals("sat6")) {
+				if (ldap.isEmpty()) {
+					BeakerUtils.Katello_Installation_Satellite6Latest(hostIP, version);	
+				} else{
+					BeakerUtils.Katello_Installation_Satellite6WithLdap(hostIP, version, ldap, user, password);
+				}
 			}
-		} else if (product.equals("cfse")) {
-			BeakerUtils.Katello_Installation_SystemEngineLatest(hostIP, version);
-		} else if (product.equals("sam")) {
-			if (ldap.isEmpty()) {
-				BeakerUtils.Katello_Installation_SAMLatest(hostIP, version);
-			} else {
-				BeakerUtils.Katello_Installation_SAMLatestWithLdap(hostIP, version, ldap, user, password);
-			}
-		} else if (product.equals("headpin")) {
-			BeakerUtils.Katello_Installation_ConfigureRepos(hostIP);
-			if (ldap.isEmpty()) {
-				BeakerUtils.Katello_Installation_HeadpinNightly(hostIP);	
-			} else{
-				BeakerUtils.Katello_Installation_HeadpinWithLdap(hostIP, ldap, user, password);
-			}
-		} else if (product.equals("sat6")) {
-			if (ldap.isEmpty()) {
-				BeakerUtils.Katello_Installation_Satellite6Latest(hostIP, version);	
-			} else{
-				BeakerUtils.Katello_Installation_Satellite6WithLdap(hostIP, version, ldap, user, password);
-			}
+			
+			// Configure the server as a self-client
+			BeakerUtils.Katello_Configuration_KatelloClient(hostIP, machine.getHostName(), version); // at this time DDNS should return the hostname already! It takes ~5 min.
+			
+			try { Thread.sleep(5000); } catch (Exception e) {}
+			KatelloPing ping = new KatelloPing();
+			ping.runOn(machine.getHostName()); // Yes, we can use the hostname already. Assuming installation would take >5 min.
+			SSHCommandResult res = ping.cli_ping();
+			Assert.assertTrue(res.getExitCode().intValue()==0, "Check services up");
 		}
-		
-		// Configure the server as a self-client
-		BeakerUtils.Katello_Configuration_KatelloClient(hostIP, machine.getHostName(), version); // at this time DDNS should return the hostname already! It takes ~5 min.
-		
-		try { Thread.sleep(5000); } catch (Exception e) {}
-		KatelloPing ping = new KatelloPing();
-		ping.runOn(machine.getHostName()); // Yes, we can use the hostname already. Assuming installation would take >5 min.
-		SSHCommandResult res = ping.cli_ping();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check services up");
 	}
 	
 	/**

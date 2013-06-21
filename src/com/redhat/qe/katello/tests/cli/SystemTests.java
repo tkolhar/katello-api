@@ -164,8 +164,9 @@ public class SystemTests extends KatelloCliTestBase{
 		Assert.assertTrue(exec_result.getStdout().trim().contains(KatelloSystem.ERR_RHSM_REG_ALREADY_FORCE_NEEDED),
 				"Check - output (--force needed)");
 	}
-
-	@Test(description = "RHSM force register", 
+	
+	/** TCMS scenario is: <a href="https://tcms.engineering.redhat.com/case/221906/?from_plan=7771">here</a> */
+	@Test(description = "262c4394-0718-4336-a114-60130bd7f447", 
 			groups={"cfse-cli","headpin-cli","rhsmRegs"})
 	public void test_rhsm_ForceReg(){
 		rhsm_clean();
@@ -381,7 +382,8 @@ public class SystemTests extends KatelloCliTestBase{
 		assert_systemInfo(sys);
 	}
 
-	@Test(description="Add Custom Info - Create custom information for a system", 
+	/** TCMS scenario is: <a href="https://tcms.engineering.redhat.com/case/243212/?from_plan=7771">here</a> */
+	@Test(description="2f43f492-8e03-4424-8eb8-b9cd2745cf94", 
 			groups={"cfse-cli","headpin-cli","system-customInfo"}, dependsOnGroups={"rhsmRegs"})
 	public void test_system_customInfo_add(){
 		rhsm_clean();
@@ -401,7 +403,9 @@ public class SystemTests extends KatelloCliTestBase{
 		Assert.assertTrue(customInfoStr.contains("custom-value"), "Check - stdout contains [custom-value]");
 	}
 	
-	@Test(description = "Update Custom Info - Edit custom information for a system",groups={"cfse-cli","headpin-cli","system-customInfo"},
+	
+	/** TCMS scenario is: <a href="https://tcms.engineering.redhat.com/case/243183/?from_plan=7771">here</a> */
+	@Test(description = "cf618455-2f04-4994-844f-e3da4369d900",groups={"cfse-cli","headpin-cli","system-customInfo"},
 			dependsOnMethods={"test_system_customInfo_add"}, dependsOnGroups={"rhsmRegs"})
 	public void test_system_customInfo_update(){
 		
@@ -418,7 +422,8 @@ public class SystemTests extends KatelloCliTestBase{
 		Assert.assertTrue(customInfoStr.contains("updated-value"), "Check - stdout contains [updated-value]");
 	}
 
-	@Test(description = "Remove Custom Info - Remove custom information for a system",groups={"cfse-cli","headpin-cli","system-customInfo"},
+	
+	@Test(description="65037d2b-a924-4f36-8e72-25056d80d097",groups={"cfse-cli","headpin-cli","system-customInfo"},
 			dependsOnMethods={"test_system_customInfo_update"}, dependsOnGroups={"rhsmRegs"})
 	public void test_system_customInfo_remove(){
 		KatelloSystem sys = new KatelloSystem(this.systemNameCustomInfo, this.orgNameMain, this.envName_Dev);
@@ -451,7 +456,8 @@ public class SystemTests extends KatelloCliTestBase{
 		}
 	}
 	
-	@Test(description = "Generate System report in pdf",groups={"cfse-cli","headpin-cli"})
+	
+	@Test(description = "2fa1d67c-f5fc-48ce-b632-e71a1f656b7d",groups={"cfse-cli","headpin-cli"})
 	public void test_pdfReport_System(){
 		String uid = KatelloUtils.getUniqueID();
 		String sys_name = "sys-pdf-report-" + uid;
@@ -472,13 +478,6 @@ public class SystemTests extends KatelloCliTestBase{
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		exec_result = sys.releases();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
-		// TODO - big changes needed here once subscription to pool is ready.
-		/* need to:
-		 * 1. enable reposet of RHEL6Server RPMs (will give, I hope, releases 6Server, 6.1, 6.2, 6.3, 6.4)
-		 * 2. subscribe to Red Hat Enterprise Linux Server, Self-support (1-2 sockets) (Up to 1 guest) pool
-		 * 3. list releases then for that system and make the asserts!
-		 * details: ask gkhachik (aka: me)
-		 */
 	}
 
 	@Test(description = "System facts are displayed appropriately",groups={"cfse-cli","headpin-cli"})
@@ -512,9 +511,10 @@ public class SystemTests extends KatelloCliTestBase{
 	 * @see automation request: https://github.com/gkhachik/katello-api/issues/349
 	 * @author gkhachik
 	 * @since: 06.May.2013
-	 * List releases for the system - RHEL6 64 bit repos getting enabled.
+	 * List releases for the system - RHEL6 64 bit repos getting enabled.<BR>
+	 * TCMS scenario is: <a href="https://tcms.engineering.redhat.com/case/261760/?from_plan=7771">here</a>
 	 */
-	@Test(description = "list system releases for RHEL6 64bit repos", 
+	@Test(description = "ad3b9f0c-fb35-4c06-9156-60b27337583d", 
 			groups={"cfse-cli","manifestImported"})
 	public void test_listReleasesAllRhel6(){
 		KatelloUtils.scpOnClient("data/"+KatelloProvider.MANIFEST_2SUBSCRIPTIONS, "/tmp"); // send manifest zip to the client's /tmp dir.
