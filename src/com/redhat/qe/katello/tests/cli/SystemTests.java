@@ -436,7 +436,6 @@ public class SystemTests extends KatelloCliTestBase{
 		Assert.assertNull(customInfoStr, "Check - output can not be extracted");
 	}
 	
-	// TODO bug 951231
 	@Test(description = "Add Custom Info - Create custom information for a system - different inputs",
 			dataProviderClass = KatelloCliDataProvider.class,dataProvider = "add_custom_info",
 			groups={"cfse-cli","headpin-cli","system-customInfo"}, dependsOnMethods={"test_system_customInfo_remove"},

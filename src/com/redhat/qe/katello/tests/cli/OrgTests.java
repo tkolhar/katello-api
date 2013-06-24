@@ -481,7 +481,6 @@ public class OrgTests extends KatelloCliTestBase{
 		// Validation failed: Name cannot contain characters other than alpha numerals, space, '_', '-'
 	}
 
-	// TODO bugs 975407, 951231
 	@Test(description="add system custom information key",
 		dataProviderClass=KatelloCliDataProvider.class, dataProvider="org_add_custom_info")
 	public void test_addSysCustomKey(String keyname, Integer exitCode, String output) {
@@ -494,7 +493,6 @@ public class OrgTests extends KatelloCliTestBase{
 			Assert.assertTrue(getOutput(exec_result).contains(output), "Check error (add custom info)");
 	}
 
-	// TODO bugs 975407, 951231
 	@Test(description="add distributor custom information key",
 		dataProviderClass=KatelloCliDataProvider.class, dataProvider="org_add_custom_info")
 	public void test_addDistributorCustomKey(String keyname, Integer exitCode, String output) {
