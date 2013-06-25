@@ -22,6 +22,19 @@ public class KatelloDistributorTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
 
+	@Test(description="create distributor with different values",  
+			dataProvider="create_distributor", dataProviderClass = KatelloCliDataProvider.class, enabled=true,groups={"cfse-cli","headpin-cli"})
+	public void test_distributorCreate(String dis_name,Integer exitCode,String output){
+		KatelloDistributor distributor=new KatelloDistributor(this.org_name,dis_name);
+		SSHCommandResult exec_result;
+		exec_result = distributor.distributor_create();	
+		if(exitCode.intValue()==0){ //
+			Assert.assertTrue(getOutput(exec_result).contains(output),"Check - returned output string");
+		}else{ // Failure to be checked
+			Assert.assertTrue(getOutput(exec_result).contains(output),"Check - returned error string");
+		}
+	} 
+	
 	@Test(description="distributor add custom info",  
 			dataProvider="add_distributor_custom_info", dataProviderClass = KatelloCliDataProvider.class, enabled=true,groups={"cfse-cli","headpin-cli"})
 	public void test_distributorAddCustomInfo(String keyname, String value,String dis_name,Integer exitCode,String output){
@@ -114,5 +127,6 @@ public class KatelloDistributorTests extends KatelloCliTestScript{
 		exec_result = dis_update.distributor_info();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}	
+	
 }
 
