@@ -9,7 +9,7 @@ import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
@@ -26,7 +26,7 @@ import com.redhat.qe.tools.SSHCommandResult;
  * @author gkhachik
  */
 @Test(groups={"cfse-e2e"})
-public class SystemsReport extends KatelloCliTestScript{
+public class SystemsReport extends KatelloCliTestBase{
 	protected static Logger log = Logger.getLogger(SystemsReport.class.getName());
 
 	String org;
@@ -145,7 +145,7 @@ public class SystemsReport extends KatelloCliTestScript{
 		rhsm_clean_only();
 		SSHCommandResult res = rhsm_register(org, this.env_dev, sys_name3, true);
 //		Assert.assertTrue(res.getExitCode().intValue()==1, "Check - return code (system register)");
-		String subscriptionStatus = KatelloCli.grepCLIOutput("Status", getOutput(res).trim()); 
+		String subscriptionStatus = KatelloUtils.grepCLIOutput("Status", getOutput(res).trim()); 
 		Assert.assertTrue(subscriptionStatus.trim().equals("Not Subscribed"),"Check - system should not be subscribed (3rd registration)");		
 	}
 	
@@ -177,14 +177,14 @@ public class SystemsReport extends KatelloCliTestScript{
 	public void test_unsubscribeSystems() {
 		KatelloSystem sys = new KatelloSystem(sys_name1, this.org, this.env_dev);
 		SSHCommandResult res = sys.rhsm_identity();
-		String system_uuid = KatelloCli.grepCLIOutput("Current identity is", res.getStdout());
+		String system_uuid = KatelloUtils.grepCLIOutput("Current identity is", res.getStdout());
 		sys.uuid = system_uuid;
 		res = sys.unsubscribe();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (system unsubscribe)");
 		
 		sys = new KatelloSystem(sys_name2, this.org, this.env_test);
 		res = sys.rhsm_identity();
-		system_uuid = KatelloCli.grepCLIOutput("Current identity is", res.getStdout());
+		system_uuid = KatelloUtils.grepCLIOutput("Current identity is", res.getStdout());
 		sys.uuid = system_uuid;
 		res = sys.unsubscribe();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (system unsubscribe)");

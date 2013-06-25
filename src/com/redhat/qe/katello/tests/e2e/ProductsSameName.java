@@ -7,8 +7,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloPackage;
@@ -19,12 +18,12 @@ import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
-public class ProductsSameName extends KatelloCliTestScript {
+public class ProductsSameName extends KatelloCliTestBase {
 	
 	protected static Logger log = Logger.getLogger(ProductsSameName.class.getName());
 	
 	private SSHCommandResult exec_result;
-	private static final String package1 = "pulp-admin-client";
+	private static final String package1 = "acme-package";
 	private static final String package2 = "lion";
 
 	// Katello objects below
@@ -67,16 +66,16 @@ public class ProductsSameName extends KatelloCliTestScript {
 		exec_result = prod.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		exec_result = prod.cli_list();
-		product_id = KatelloCli.grepCLIOutput("ID", getOutput(exec_result), 1);
+		product_id = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result), 1);
 	
 		// Create product 2:
 		KatelloProduct prod2 = new KatelloProduct(product_name2, org_name, provider_name, null, null, null, null, null);
 		exec_result = prod2.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		exec_result = prod.cli_list();
-		product_id2 = KatelloCli.grepCLIOutput("ID", getOutput(exec_result), 1);
+		product_id2 = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result), 1);
 				
-		KatelloRepo repo = new KatelloRepo(repo_name, org_name, null, PULP_RHEL6_x86_64_REPO, null, null,null,product_id);
+		KatelloRepo repo = new KatelloRepo(repo_name, org_name, null, REPO_HHOVSEPY_ZOO4, null, null,null,product_id);
 		exec_result = repo.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
@@ -107,12 +106,7 @@ public class ProductsSameName extends KatelloCliTestScript {
 		exec_result = pack.cli_list();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		Assert.assertTrue(getOutput(exec_result).contains(package1), "found package: pulp-admin-client");
-		Assert.assertTrue(getOutput(exec_result).contains("pulp-server"), "found package: pulp-server");
-		Assert.assertTrue(getOutput(exec_result).contains("python-gofer"), "found package: python-gofer");
-		Assert.assertTrue(getOutput(exec_result).contains("python-qpid"), "found package: python-qpid");
-		Assert.assertTrue(getOutput(exec_result).contains("pulp-agent"), "found package: pulp-agent");
-		Assert.assertTrue(getOutput(exec_result).contains("pulp-consumer-client"), "found package: pulp-consumer-client");
+		Assert.assertTrue(getOutput(exec_result).contains(package1), "found package: "+package1);
 				
 		KatelloPackage pack2 = new KatelloPackage(null, null, org_name, null, repo_name2, null);
 		pack2.setProductId(product_id2);
@@ -121,10 +115,7 @@ public class ProductsSameName extends KatelloCliTestScript {
 		exec_result = pack2.cli_list();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		Assert.assertTrue(getOutput(exec_result).contains(package2), "found package: lion");
-		Assert.assertTrue(getOutput(exec_result).contains("wolf"), "found package: wolf");
-		Assert.assertTrue(getOutput(exec_result).contains("zebra"), "found package: zebra");
-		Assert.assertTrue(getOutput(exec_result).contains("stork"), "found package: stork");
+		Assert.assertTrue(getOutput(exec_result).contains(package2), "found package: "+package2);
 	}
 
 	//@ TODO Bug 921103
@@ -155,13 +146,13 @@ public class ProductsSameName extends KatelloCliTestScript {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		exec_result = sys.subscriptions_available();
-		String poolId1 = KatelloCli.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
+		String poolId1 = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
 		
 		exec_result = sys.subscribe(poolId1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		exec_result = sys.subscriptions_available();
-		String poolId2 = KatelloCli.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
+		String poolId2 = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
 		
 		exec_result = sys.subscribe(poolId2);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");

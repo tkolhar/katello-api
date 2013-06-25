@@ -5,8 +5,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloActivationKey;
 import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
 import com.redhat.qe.katello.base.obj.KatelloContentFilter;
@@ -25,7 +24,7 @@ import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups=TngRunGroups.TNG_KATELLO_Content)
-public class ConsumeFilteredErrata extends KatelloCliTestScript {
+public class ConsumeFilteredErrata extends KatelloCliTestBase {
 	
 	String uid = KatelloUtils.getUniqueID();
 	String org_name = "orgcon-"+ uid;
@@ -161,7 +160,7 @@ public class ConsumeFilteredErrata extends KatelloCliTestScript {
 		exec_result = conview.promote_view(env_name);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentView.OUT_PROMOTE, this.pubview_name, env_name)), "Content view promote output.");
-		// TODO - maybe needs a way of: changeset promote??? to check - gkhachik
+		// promoting content view is the same as create changeset, add content view and promote, it is completely legal
 		
 		act_key = new KatelloActivationKey(org_name,env_name,act_key_name,"Act key created");
 		exec_result = act_key.create();
@@ -169,7 +168,7 @@ public class ConsumeFilteredErrata extends KatelloCliTestScript {
 		exec_result = act_key.update_add_content_view(pubview_name);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");      
 		exec_result = new KatelloOrg(this.org_name,null).subscriptions();
-		String zoo4PoolId = KatelloCli.grepCLIOutput("ID", getOutput(exec_result), 1);
+		String zoo4PoolId = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result), 1);
 		exec_result = act_key.update_add_subscription(zoo4PoolId);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
@@ -187,7 +186,7 @@ public class ConsumeFilteredErrata extends KatelloCliTestScript {
 		sys.setEnvironmentName(this.env_name);
 		exec_result = sys.list();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
-		system_uuid1 = KatelloCli.grepCLIOutput("UUID", getOutput(exec_result));
+		system_uuid1 = KatelloUtils.grepCLIOutput("UUID", getOutput(exec_result));
 		
 		exec_result = group.add_systems(system_uuid1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
@@ -195,9 +194,8 @@ public class ConsumeFilteredErrata extends KatelloCliTestScript {
 		yum_clean();			
 		
 		// consume older packages of erratas
-		exec_result = KatelloUtils.sshOnClient("yum install -y kangaroo-3.6.6-1 sheep-1.3.6-1 zebra-10.0.7-1 bird-5.1.10-1 rat-7.7.0-1" +
-				" ferret-1.2.0-1 crab-5.5.1-1 rabbit-9.8.8-1 eagle-9.8.9-1 fish-4.10.2-1 monkey-2.8.9-1 polecat-9.4.6-1 fox-10.8.0-1 seal-3.10.0-1 bat-3.10.6-1");
-        Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
+		install_Packages(new String[] {"kangaroo-3.6.6-1", "sheep-1.3.6-1", "zebra-10.0.7-1", "bird-5.1.10-1", "rat-7.7.0-1", "ferret-1.2.0-1", "crab-5.5.1-1", 
+				"rabbit-9.8.8-1", "eagle-9.8.9-1", "fish-4.10.2-1", "monkey-2.8.9-1", "polecat-9.4.6-1", "fox-10.8.0-1", "seal-3.10.0-1", "bat-3.10.6-1"});
 		
         StringBuffer installOK = new StringBuffer();
         installOK.append(KANGAROO_ERRATA);
@@ -233,6 +231,8 @@ public class ConsumeFilteredErrata extends KatelloCliTestScript {
 		exec_result = group.erratas_install(installERROR.toString());
 		Assert.assertFalse(exec_result.getExitCode().intValue()==0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("Remote action failed"));
+		
+		verify_PackagesNotAvailable(new String[] {"bat-3.10.7-1", "bird-5.1.11-1", "rat-7.7.2-1", "fox-10.8.2-1", "crab-5.5.4-1", "monkey-2.8.10-1", "eagle-9.8.10-1"});
 	}
 	
 	@AfterClass(description="cleanup RHSM stuff, yum erase packages")

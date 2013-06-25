@@ -8,8 +8,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
@@ -21,7 +20,7 @@ import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups=TngRunGroups.TNG_KATELLO_Providers_Repos)
-public class NonUniqueProductTests  extends KatelloCliTestScript{
+public class NonUniqueProductTests  extends KatelloCliTestBase{
 
 	private String org_name;
 	private String prov_name;
@@ -60,8 +59,8 @@ public class NonUniqueProductTests  extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
 		
 		res = prod.cli_list();
-		prod_id1 = KatelloCli.grepCLIOutput("ID", getOutput(res).trim(),1);
-		prod_id2 = KatelloCli.grepCLIOutput("ID", getOutput(res).trim(),2);
+		prod_id1 = KatelloUtils.grepCLIOutput("ID", getOutput(res).trim(),1);
+		prod_id2 = KatelloUtils.grepCLIOutput("ID", getOutput(res).trim(),2);
 		
 		DateFormat dformat = new SimpleDateFormat("yyyy-MM-dd");
 		DateFormat tformat = new SimpleDateFormat("HH:mm:ss");
@@ -87,7 +86,7 @@ public class NonUniqueProductTests  extends KatelloCliTestScript{
     	KatelloProduct prod = new KatelloProduct(null, prod_id1, this.org_name, this.prov_name, null, null, null, null, null);
     	SSHCommandResult res = prod.status();
     	Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product status)");
-    	String name = KatelloCli.grepCLIOutput("Name", getOutput(res).trim(),1);
+    	String name = KatelloUtils.grepCLIOutput("Name", getOutput(res).trim(),1);
     	Assert.assertEquals(this.prod_name1, name);
     }
 

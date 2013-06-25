@@ -8,8 +8,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloActivationKey;
 import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
 import com.redhat.qe.katello.base.obj.KatelloContentFilter;
@@ -29,7 +28,7 @@ import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups=TngRunGroups.TNG_KATELLO_Content)
-public class ContentFilterTests extends KatelloCliTestScript {
+public class ContentFilterTests extends KatelloCliTestBase {
 	
 	public static final String ERRATA_ZOO_SEA = "RHEA-2012:0002";
 	public static final String REG_EMPTY_RULE = "\\{\\}";
@@ -158,9 +157,11 @@ public class ContentFilterTests extends KatelloCliTestScript {
 
 		exec_result = filter.add_rule(KatelloContentFilter.TYPE_INCLUDES, errata1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentFilter.OUT_ADD_RULE, errata1.filterRule().replace("\\", ""))), "Check - output ");
 
 		exec_result = filter.add_rule(KatelloContentFilter.TYPE_INCLUDES, errata2);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentFilter.OUT_ADD_RULE, errata2.filterRule().replace("\\", ""))), "Check - output ");
 
 		exec_result = filter.add_rule(KatelloContentFilter.TYPE_INCLUDES, errata3);
 		Assert.assertFalse(exec_result.getExitCode() == 0, "Check - return code");
@@ -179,9 +180,11 @@ public class ContentFilterTests extends KatelloCliTestScript {
 
 		exec_result = filter.add_rule(KatelloContentFilter.TYPE_INCLUDES, errata);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentFilter.OUT_ADD_RULE, errata.filterRule().replace("\\", ""))), "Check - output ");
 
 		exec_result = filter.add_rule("{}", KatelloContentFilter.CONTENT_ERRATUM, KatelloContentFilter.TYPE_INCLUDES);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentFilter.OUT_ADD_RULE, "{}")), "Check - output ");
 
 		assert_filterInfo(filter_name, KatelloContentFilter.CONTENT_ERRATUM, KatelloContentFilter.TYPE_INCLUDES, errata.ruleRegExp());
 		assert_filterInfo(filter_name, KatelloContentFilter.CONTENT_ERRATUM, KatelloContentFilter.TYPE_INCLUDES, REG_EMPTY_RULE);
@@ -198,9 +201,11 @@ public class ContentFilterTests extends KatelloCliTestScript {
 
 		exec_result = filter.add_rule(KatelloContentFilter.TYPE_EXCLUDES, errata1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentFilter.OUT_ADD_RULE, errata1.filterRule().replace("\\", ""))), "Check - output ");
 
 		exec_result = filter.add_rule(KatelloContentFilter.TYPE_EXCLUDES, errata2);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentFilter.OUT_ADD_RULE, errata2.filterRule().replace("\\", ""))), "Check - output ");
 
 		exec_result = filter.add_rule(KatelloContentFilter.TYPE_EXCLUDES, errata3);
 		Assert.assertTrue(exec_result.getExitCode() != 0, "Check - return code");
@@ -219,10 +224,12 @@ public class ContentFilterTests extends KatelloCliTestScript {
 
 		exec_result = filter.add_rule(KatelloContentFilter.TYPE_EXCLUDES, errata);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentFilter.OUT_ADD_RULE, errata.filterRule().replace("\\", ""))), "Check - output ");
 
 		exec_result = filter.add_rule(KatelloContentFilter.TYPE_EXCLUDES, new FilterRuleErrataIds());
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentFilter.OUT_ADD_RULE, "{}")), "Check - output ");
+		
 		assert_filterInfo(filter_name, KatelloContentFilter.CONTENT_ERRATUM, KatelloContentFilter.TYPE_EXCLUDES, errata.ruleRegExp());
 		assert_filterInfo(filter_name, KatelloContentFilter.CONTENT_ERRATUM, KatelloContentFilter.TYPE_EXCLUDES, REG_EMPTY_RULE);
 	}
@@ -240,7 +247,7 @@ public class ContentFilterTests extends KatelloCliTestScript {
 		KatelloContentFilter filter = new KatelloContentFilter(filter_name, org_name, condef_name);
 		exec_result = filter.info();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		String rule_id = KatelloCli.grepCLIOutput("    Id", getOutput(exec_result).trim(),1);
+		String rule_id = KatelloUtils.grepCLIOutput("    Id", getOutput(exec_result).trim(),1);
 		exec_result = filter.remove_rule(rule_id);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentFilter.OUT_REMOVE_RULE, rule_id)), "Check - output ");
@@ -254,9 +261,11 @@ public class ContentFilterTests extends KatelloCliTestScript {
 
 		exec_result = filter.add_rule(KatelloContentFilter.TYPE_INCLUDES, groups);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentFilter.OUT_ADD_RULE, groups.filterRule().replace("\\", ""))), "Check - output ");
 
 		exec_result = filter.add_rule(KatelloContentFilter.TYPE_INCLUDES, new FilterRulePackageGroups());
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentFilter.OUT_ADD_RULE, "{}")), "Check - output ");
 
 		assert_filterInfo(filter_name, KatelloContentFilter.CONTENT_PACKAGE_GROUP, KatelloContentFilter.TYPE_INCLUDES, groups.ruleRegExp());
 		assert_filterInfo(filter_name, KatelloContentFilter.CONTENT_PACKAGE_GROUP, KatelloContentFilter.TYPE_INCLUDES, REG_EMPTY_RULE);
@@ -270,9 +279,11 @@ public class ContentFilterTests extends KatelloCliTestScript {
 
 		exec_result = filter.add_rule(KatelloContentFilter.TYPE_EXCLUDES, groups);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentFilter.OUT_ADD_RULE, groups.filterRule().replace("\\", ""))), "Check - output ");
+		
 		exec_result = filter.add_rule(KatelloContentFilter.TYPE_EXCLUDES, new FilterRulePackageGroups());
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentFilter.OUT_ADD_RULE, "{}")), "Check - output ");
 
 		assert_filterInfo(filter_name, KatelloContentFilter.CONTENT_PACKAGE_GROUP, KatelloContentFilter.TYPE_EXCLUDES, groups.ruleRegExp());
 		assert_filterInfo(filter_name, KatelloContentFilter.CONTENT_PACKAGE_GROUP, KatelloContentFilter.TYPE_EXCLUDES, REG_EMPTY_RULE);
@@ -295,6 +306,7 @@ public class ContentFilterTests extends KatelloCliTestScript {
 
 		exec_result = filter.add_rule(KatelloContentFilter.TYPE_INCLUDES, new FilterRulePackage [] {});
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentFilter.OUT_ADD_RULE, "{}")), "Check - output ");
 
 		assert_filterInfo(filter_name, KatelloContentFilter.CONTENT_PACKAGE, KatelloContentFilter.TYPE_INCLUDES, REG_EMPTY_RULE);
 		assert_filterInfo(filter_name, KatelloContentFilter.CONTENT_PACKAGE, KatelloContentFilter.TYPE_INCLUDES, FilterRulePackage.ruleRegExp(packages));

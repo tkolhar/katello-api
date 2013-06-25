@@ -15,11 +15,11 @@ import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class KatelloCliTestScript 
+public class KatelloCliTestBase 
 extends com.redhat.qe.auto.testng.TestScript 
 implements KatelloConstants {
 
-	protected static Logger log = Logger.getLogger(KatelloCliTestScript.class.getName());
+	protected static Logger log = Logger.getLogger(KatelloCliTestBase.class.getName());
 	
 	private static ResourceBundle messageBundle = null;
 	private static ResourceBundle inputBundle = null;
@@ -27,7 +27,7 @@ implements KatelloConstants {
 	private static final String inputFileName = "inputs";
 
 	private int platform_id = -1; // made a class property - in case in the tests there would be a need to check platform.
-	public KatelloCliTestScript() {
+	public KatelloCliTestBase() {
 		super();
 	}
 	
@@ -61,7 +61,7 @@ implements KatelloConstants {
 				"Repo should not contain last_sync == never");
 		
 		// package_count >0; url, progress, last_sync
-		String cnt = KatelloCli.grepCLIOutput("Package Count", res.getStdout());
+		String cnt = KatelloUtils.grepCLIOutput("Package Count", res.getStdout());
 		Assert.assertTrue(new Integer(cnt).intValue()>0, "Repo should contain packages count: >0");
 	}
 	
@@ -96,7 +96,7 @@ implements KatelloConstants {
 		while(now<maxWaitSec){
 			res = repo.info();
 			now = Calendar.getInstance().getTimeInMillis() / 1000;
-			String newsync = KatelloCli.grepCLIOutput("Last Sync", getOutput(res).trim(),1);
+			String newsync = KatelloUtils.grepCLIOutput("Last Sync", getOutput(res).trim(),1);
 			if(!lastsynced.equals(newsync))
 				break;
 			try{Thread.sleep(60000);}catch (Exception e){}
@@ -258,6 +258,40 @@ implements KatelloConstants {
 		} else {
 			log.warning("Message by key: " + key + " not found in locale " + messageBundle.getLocale());
 			return null;
+		}
+	}
+	
+	/**
+	 * Installs array of packages on client system and verifies that they are installed.  
+	 * @param pkgNames
+	 */
+	protected void install_Packages(String[] pkgNames) {
+		StringBuffer install = new StringBuffer();
+		for (String pkg : pkgNames) {
+	        install.append(pkg);
+	        install.append(" ");
+		}
+		SSHCommandResult res = KatelloUtils.sshOnClient("yum install -y "+ install.toString());
+		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
+		res = KatelloUtils.sshOnClient("rpm -qa | grep -E \"" + install.toString().trim().replace(" ", "|") + "\"");
+		for (String pkg : pkgNames) {
+			Assert.assertTrue(getOutput(res).contains(pkg), "Package " + pkg + " should be installed");
+		}
+	}
+	
+	/**
+	 * Check that packages are not available to install on client.
+	 * @param pkgNames
+	 */
+	protected void verify_PackagesNotAvailable(String[] pkgNames) {
+		StringBuffer install = new StringBuffer();
+		for (String pkg : pkgNames) {
+	        install.append(pkg);
+	        install.append(" ");
+		}
+		SSHCommandResult res = KatelloUtils.sshOnClient("yum install -y "+ install.toString());
+		for (String pkg : pkgNames) {
+			Assert.assertTrue(getOutput(res).trim().contains("No package " + pkg + " available."), "Package " + pkg + " should not be available to install.");
 		}
 	}
 	

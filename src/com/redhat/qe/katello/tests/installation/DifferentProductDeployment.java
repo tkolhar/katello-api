@@ -6,14 +6,14 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.common.KatelloConstants;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups = { "cfse-cli", "headpin-cli" })
-public class DifferentProductDeployment extends KatelloCliTestScript {
+public class DifferentProductDeployment extends KatelloCliTestBase {
 
 	private String deployment = KatelloConstants.KATELLO_PRODUCT;
 	private List<String> katello_list = new ArrayList<String>();

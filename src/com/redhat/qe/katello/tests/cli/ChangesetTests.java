@@ -9,8 +9,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
@@ -22,7 +21,7 @@ import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups={"cfse-cli",TngRunGroups.TNG_KATELLO_Content})
-public class ChangesetTests extends KatelloCliTestScript{
+public class ChangesetTests extends KatelloCliTestBase{
 
 	protected static Logger log = Logger.getLogger(ChangesetTests.class.getName());
 	
@@ -186,7 +185,7 @@ public class ChangesetTests extends KatelloCliTestScript{
 		log.finest(String.format("Changeset (info) match regex: [%s]", match_info));
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", " ").matches(match_info), String.format("Changeset [%s] should be found in the result info", chst.name));
 
-		return KatelloCli.grepCLIOutput("ID", getOutput(exec_result));
+		return KatelloUtils.grepCLIOutput("ID", getOutput(exec_result));
 	}
 		
 	private void assert_changesetList(List<KatelloChangeset> chsts, List<KatelloChangeset> excludeChsts) {

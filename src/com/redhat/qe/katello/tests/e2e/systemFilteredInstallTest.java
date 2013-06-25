@@ -3,8 +3,7 @@ package com.redhat.qe.katello.tests.e2e;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloActivationKey;
 import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
 import com.redhat.qe.katello.base.obj.KatelloContentFilter;
@@ -23,7 +22,7 @@ import com.redhat.qe.tools.SSHCommandResult;
 
 
 @Test(groups=TngRunGroups.TNG_KATELLO_Content)
-public class systemFilteredInstallTest extends KatelloCliTestScript{
+public class systemFilteredInstallTest extends KatelloCliTestBase{
 
 
 	String uid = KatelloUtils.getUniqueID();
@@ -122,9 +121,9 @@ public class systemFilteredInstallTest extends KatelloCliTestScript{
 		exec_result = sys.rhsm_registerForce(act_key_name);
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		exec_result = sys.rhsm_identity();
-		system_uuid1 = KatelloCli.grepCLIOutput("Current identity is", exec_result.getStdout());
+		system_uuid1 = KatelloUtils.grepCLIOutput("Current identity is", exec_result.getStdout());
 		exec_result = sys.subscriptions_available();
-		String poolId1 = KatelloCli.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
+		String poolId1 = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
 		Assert.assertNotNull(poolId1, "Check - pool Id is not null");
 		exec_result = sys.subscribe(poolId1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");

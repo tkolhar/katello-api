@@ -89,6 +89,9 @@ public class KatelloPackage extends _KatelloObject{
 		opts.add(new Attribute("query", query));
 		opts.add(new Attribute("product_label", product_label));
 		opts.add(new Attribute("product_id", product_id));
+		opts.add(new Attribute("content_view", content_view));
+		opts.add(new Attribute("content_view_label", content_view_label));
+		opts.add(new Attribute("content_view_id", content_view_id));
 		return run(CMD_SEARCH);
 	}
 	
@@ -103,6 +106,9 @@ public class KatelloPackage extends _KatelloObject{
 		opts.add(new Attribute("environment", environment));
 		opts.add(new Attribute("product_label", product_label));
 		opts.add(new Attribute("product_id", product_id));
+		opts.add(new Attribute("content_view", content_view));
+		opts.add(new Attribute("content_view_label", content_view_label));
+		opts.add(new Attribute("content_view_id", content_view_id));
 		return runExt(CMD_LIST_V, " | grep -e \"^Name.*\\:\" | wc -l"); // -v option here in the command is really important
 	}
 		

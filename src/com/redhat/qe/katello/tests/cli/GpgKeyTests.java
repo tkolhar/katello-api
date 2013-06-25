@@ -5,7 +5,7 @@ import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloGpgKey;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.common.KatelloConstants;
@@ -14,7 +14,7 @@ import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups={KatelloConstants.TNG_CFSE_CLI, TngRunGroups.TNG_KATELLO_Providers_Repos})
-public class GpgKeyTests extends KatelloCliTestScript{
+public class GpgKeyTests extends KatelloCliTestBase{
 	private String rand;
 	private String org;
 	private String gpg;
@@ -54,8 +54,8 @@ public class GpgKeyTests extends KatelloCliTestScript{
 		SSHCommandResult res;
 		KatelloGpgKey gpg = new KatelloGpgKey(this.gpg, this.org, null);
 		res = gpg.cli_info();
-		String prods = KatelloCli.grepCLIOutput("Products", getOutput(res));
-		String repos = KatelloCli.grepCLIOutput("Repositories", getOutput(res));
+		String prods = KatelloUtils.grepCLIOutput("Products", getOutput(res));
+		String repos = KatelloUtils.grepCLIOutput("Repositories", getOutput(res));
 		Assert.assertTrue(res.getExitCode().intValue()==0,"Check - return code (gpg_key info)");
 		Assert.assertTrue(prods.equals(KatelloCli.OUT_EMPTY_LIST), "Check - product list is empty");
 		Assert.assertTrue(repos.equals(KatelloCli.OUT_EMPTY_LIST), "Check - repositories list is empty");

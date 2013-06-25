@@ -9,8 +9,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
@@ -19,8 +18,8 @@ import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups={TngRunGroups.TNG_KATELLO_System_Groups})
-public class SystemGroupTests extends KatelloCliTestScript {
+@Test(groups={"cfse-cli","headpin-cli",TngRunGroups.TNG_KATELLO_System_Groups})
+public class SystemGroupTests extends KatelloCliTestBase{	
 	protected static Logger log = Logger.getLogger(SystemGroupTests.class.getName());
 	
 	String uid = KatelloUtils.getUniqueID();
@@ -174,7 +173,7 @@ public class SystemGroupTests extends KatelloCliTestScript {
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		
 		exec_result = sys.rhsm_identity();
-		system_uuid = KatelloCli.grepCLIOutput("Current identity is", exec_result.getStdout());
+		system_uuid = KatelloUtils.grepCLIOutput("Current identity is", exec_result.getStdout());
 		sys.uuid = system_uuid;
 		
 		exec_result = systemGroup.add_systems(system_uuid);
@@ -190,7 +189,7 @@ public class SystemGroupTests extends KatelloCliTestScript {
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		
 		exec_result = sys.rhsm_identity();
-		system_uuid = KatelloCli.grepCLIOutput("Current identity is", exec_result.getStdout());
+		system_uuid = KatelloUtils.grepCLIOutput("Current identity is", exec_result.getStdout());
 		sys.uuid = system_uuid;
 		
 		exec_result = systemGroup.add_systems(system_uuid);
@@ -214,7 +213,7 @@ public class SystemGroupTests extends KatelloCliTestScript {
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		
 		exec_result = sys.rhsm_identity();
-		system_uuid = KatelloCli.grepCLIOutput("Current identity is", exec_result.getStdout());
+		system_uuid = KatelloUtils.grepCLIOutput("Current identity is", exec_result.getStdout());
 		sys.uuid = system_uuid;
 		
 		exec_result = systemGroup.add_systems(system_uuid);
@@ -233,7 +232,7 @@ public class SystemGroupTests extends KatelloCliTestScript {
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		
 		exec_result = sys.rhsm_identity();
-		system_uuid = KatelloCli.grepCLIOutput("Current identity is", exec_result.getStdout());
+		system_uuid = KatelloUtils.grepCLIOutput("Current identity is", exec_result.getStdout());
 		sys.uuid = system_uuid;
 		
 		exec_result = systemGroup.add_systems(system_uuid);
@@ -394,7 +393,7 @@ public class SystemGroupTests extends KatelloCliTestScript {
 				"Check - output (success)");
 
 		exec_result = sys.info();
-		system_uuid = KatelloCli.grepCLIOutput("UUID", getOutput(exec_result).trim(),1);
+		system_uuid = KatelloUtils.grepCLIOutput("UUID", getOutput(exec_result).trim(),1);
 		sys.uuid = system_uuid;
 		
 		exec_result = systemGroup.add_systems(system_uuid);
@@ -451,7 +450,7 @@ public class SystemGroupTests extends KatelloCliTestScript {
 		log.finest(String.format("System Group (info) match regex: [%s]", match_info));
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", " ").matches(match_info), String.format("System Group [%s] should be found in the result info", systemGroup.name));
 
-		String id = KatelloCli.grepCLIOutput("ID", exec_result.getStdout());
+		String id = KatelloUtils.grepCLIOutput("ID", exec_result.getStdout());
 		
 		return id;
 	}

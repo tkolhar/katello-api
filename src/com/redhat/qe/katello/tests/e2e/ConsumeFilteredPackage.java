@@ -4,14 +4,14 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloActivationKey;
 import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
 import com.redhat.qe.katello.base.obj.KatelloContentFilter;
 import com.redhat.qe.katello.base.obj.KatelloContentView;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
+import com.redhat.qe.katello.base.obj.KatelloPackage;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
@@ -22,7 +22,7 @@ import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups=TngRunGroups.TNG_KATELLO_Content)
-public class ConsumeFilteredPackage extends KatelloCliTestScript {
+public class ConsumeFilteredPackage extends KatelloCliTestBase {
 	
 	String uid = KatelloUtils.getUniqueID();
 	String org_name = "orgcon-"+ uid;
@@ -107,31 +107,25 @@ public class ConsumeFilteredPackage extends KatelloCliTestScript {
 				new FilterRulePackage("lion"),
 				new FilterRulePackage("bear"),
 				new FilterRulePackage("cockateel"),
-				new FilterRulePackage("cow", "2.2-3", null, null),
+				new FilterRulePackage("cow", "2.2", null, null),
+				new FilterRulePackage("walrus", "0.71", null, null),
 				new FilterRulePackage("dog", null, "4.20", null),
 				new FilterRulePackage("dolphin", null, null, "3.11"),
-				new FilterRulePackage("duck", null, "0.6", "0.7"),
+				new FilterRulePackage("duck", null, "0.6", "0.7")
 		};
 
 		exec_result = filter.add_rule(KatelloContentFilter.TYPE_INCLUDES, include_packages);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
-		exec_result = filter.add_rule(KatelloContentFilter.TYPE_INCLUDES, new FilterRulePackage []{});
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-
-
 		FilterRulePackage [] exclude_packages = {
 				new FilterRulePackage("elephant"),
-				new FilterRulePackage("walrus", "5.21-1", null, null),
+				new FilterRulePackage("walrus", "5.21", null, null),
 				new FilterRulePackage("horse", null, "0.21", null),
 				new FilterRulePackage("kangaroo", null, null, "0.3"),
 				new FilterRulePackage("pike", null, "2.1", "2.3"),
 		};
 
 		exec_result = filter.add_rule(KatelloContentFilter.TYPE_EXCLUDES, exclude_packages);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-
-		exec_result = filter.add_rule(KatelloContentFilter.TYPE_EXCLUDES, new FilterRulePackage []{});
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
 		condef.publish(pubview_name,pubview_name,null);
@@ -157,27 +151,38 @@ public class ConsumeFilteredPackage extends KatelloCliTestScript {
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 
 		exec_result = sys.rhsm_identity();
-		system_uuid1 = KatelloCli.grepCLIOutput("Current identity is", exec_result.getStdout());
+		system_uuid1 = KatelloUtils.grepCLIOutput("Current identity is", exec_result.getStdout());
 
 		exec_result = sys.subscriptions_available();
-		String poolId1 = KatelloCli.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
+		String poolId1 = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
 		Assert.assertNotNull(poolId1, "Check - pool Id is not null");
 
 		exec_result = sys.subscribe(poolId1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
 
-		yum_clean();                   
+		yum_clean();
 
+		KatelloPackage pack = new KatelloPackage(org_name, prod_name, repo_name, pubview_name);
+		exec_result = pack.cli_list();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).trim().contains("fox"), "check package fox exists");
+		Assert.assertTrue(getOutput(exec_result).trim().contains("cow-2.2-3"), "check package cow-2.2-3 exists");
+		Assert.assertTrue(getOutput(exec_result).trim().contains("dog-4.23-1"), "check package dog-4.23-1 exists");
+		Assert.assertTrue(getOutput(exec_result).trim().contains("dolphin-3.10.232-1"), "check package dolphin-3.10.232-1 exists");
+		Assert.assertTrue(getOutput(exec_result).trim().contains("duck-0.6-1"), "check package duck-0.6-1 exists");
+		Assert.assertTrue(getOutput(exec_result).trim().contains("walrus-0.71-1"), "check package walrus-0.71-1 exists");
+		
+		Assert.assertFalse(getOutput(exec_result).trim().contains("elephant-8.3-1"), "check package does not elephant-8.3-1 exists");
+		Assert.assertFalse(getOutput(exec_result).trim().contains("walrus-5.21-1"), "check package does not walrus-5.21-1 exists");
+		Assert.assertFalse(getOutput(exec_result).trim().contains("horse-0.22-2"), "check package does not horse-0.22-2 exists");
+		Assert.assertFalse(getOutput(exec_result).trim().contains("kangaroo-0.2-1"), "check package does not kangaroo-0.2-1 exists");
+		Assert.assertFalse(getOutput(exec_result).trim().contains("pike-2.2-1"), "check package does not pike-2.2-1 exists");
 
 		// consume packages from include filter, verify that they are available
-		exec_result = KatelloUtils.sshOnClient("yum install -y fox cow-2.2-3 dog-4.23-1 dolphin-3.10.232-1 duck-0.6-1 walrus-0.71-1");
-		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
+		install_Packages(new String[] {"fox", "cow-2.2-3", "dog-4.23-1", "dolphin-3.10.232-1", "duck-0.6-1", "walrus-0.71-1"});
 
 		// consume packages from exclude filter, verify that they are NOT available
-		exec_result = KatelloUtils.sshOnClient("yum install -y elephant-8.3-1 walrus-5.21-1 horse-0.22-2 kangaroo-0.2-1 pike-2.2-1");
-		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
+		verify_PackagesNotAvailable(new String[] {"elephant-8.3-1", "walrus-5.21-1", "horse-0.22-2", "kangaroo-0.2-1", "pike-2.2-1"});
 	}
-
-	
 }

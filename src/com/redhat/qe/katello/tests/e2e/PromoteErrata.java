@@ -6,7 +6,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloErrata;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
@@ -23,7 +23,7 @@ import com.redhat.qe.tools.SSHCommandResult;
  * @author gkhachik
  */
 @Test(groups={"cfse-e2e"})
-public class PromoteErrata extends KatelloCliTestScript{
+public class PromoteErrata extends KatelloCliTestBase{
 	protected static Logger log = Logger.getLogger(PromoteErrata.class.getName());
 
 	public static final String ERRATA_ZOO_SEA = "RHEA-2012:0002";

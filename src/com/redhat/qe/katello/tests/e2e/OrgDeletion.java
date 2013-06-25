@@ -5,18 +5,19 @@ import java.util.logging.Logger;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.common.KatelloUtils;
+import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
 
-@Test(groups={"cfse-e2e"})
-public class OrgDeletion extends KatelloCliTestScript{
+@Test(groups={TngRunGroups.TNG_KATELLO_Organizations}) // there is scenario in TCMS under Organizations plan.
+public class OrgDeletion extends KatelloCliTestBase{
 	protected static Logger log = Logger.getLogger(BPMTests.class.getName());
 	
 	private SSHCommandResult exec_result;
@@ -28,8 +29,8 @@ public class OrgDeletion extends KatelloCliTestScript{
 	private String provider_name;
 	private String product_name;
 
-	// TODO - seems there is right now a GLOBAL bug: all kinds of delete operations are busted.
-	@Test(description="Create a new Org, add repo, sync it, delete the org")
+	/** TCMS scenario is: <a href="https://tcms.engineering.redhat.com/case/243070/?from_plan=7791">here</a> */
+	@Test(description="3d47951e-6a69-4297-8afe-bae8632fcb10",groups={TngRunGroups.TNG_KATELLO_Organizations})
 	public void test_deleteOrg(){
 		
 		KatelloOrg org = createOrgStuff(null);

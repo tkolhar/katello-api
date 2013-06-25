@@ -6,7 +6,6 @@ import java.util.logging.Logger;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloErrata;
 import com.redhat.qe.katello.base.obj.KatelloGpgKey;
@@ -361,7 +360,7 @@ public class MultyOrgManifest implements KatelloConstants {
         KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);
         sys4.rhsm_registerForce();
         
-		String pool = KatelloCli.grepCLIOutput("Pool Id",
+		String pool = KatelloUtils.grepCLIOutput("Pool Id",
 				KatelloUtils.sshOnClient("subscription-manager list --available --all | sed  -e 's/^ \\{1,\\}//'").getStdout().trim(),1);
 		Assert.assertNotNull(pool);
 		sys4.rhsm_subscribe(pool);

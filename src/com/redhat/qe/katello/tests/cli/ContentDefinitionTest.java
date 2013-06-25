@@ -8,9 +8,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
@@ -21,7 +20,7 @@ import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups={"cfse-cli",TngRunGroups.TNG_KATELLO_Content})
-public class ContentDefinitionTest extends KatelloCliTestScript{
+public class ContentDefinitionTest extends KatelloCliTestBase{
 
 	private SSHCommandResult exec_result;
 	private String org_name;
@@ -32,6 +31,7 @@ public class ContentDefinitionTest extends KatelloCliTestScript{
 	private String product_name2;
 	private String repo_name2;
 	private String content_name;
+	private String content_name_edit;
 	private String content_name_prod;
 	private String content_name_repo;
 	
@@ -94,6 +94,15 @@ public class ContentDefinitionTest extends KatelloCliTestScript{
 		KatelloContentDefinition content = createContentDefinition();
 		assert_ContentViewDefinitionInfo(content);
 		assert_contentList(Arrays.asList(content), new ArrayList<KatelloContentDefinition>());
+		content_name_edit = content.name;
+	}
+	
+	@Test(description = "Edit content definition", dependsOnMethods={"test_Create"})
+	public void test_Edit() {
+		KatelloContentDefinition content = new KatelloContentDefinition(content_name_edit, "descritpion", org_name, content_name_edit);
+		content.update("edited description");
+		content.description = "edited description";
+		assert_ContentViewDefinitionInfo(content);
 	}
 	
 	@Test(description = "Create Content Def with empty name, verify error")
@@ -114,7 +123,7 @@ public class ContentDefinitionTest extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(exec_result).equals(KatelloContentDefinition.ERR_NAME_LONG), "Check - error string (content create)");
 	}
 	
-	@Test(description = "Create 2 new content definitions, delete one of them")
+	@Test(description = "Create 2 new content definitions, delete one of them", dependsOnMethods={"test_Create"})
 	public void test_delete() {
 		
 		KatelloContentDefinition content = createContentDefinition();
@@ -129,6 +138,14 @@ public class ContentDefinitionTest extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentDefinition.OUT_DELETE_DEFINITION, content_name)), "Check - error string (content delete)");
 		
 		assert_contentList(Arrays.asList(content), Arrays.asList(content2));
+	}
+	
+	@Test(description = "Edit content definition second time", dependsOnMethods={"test_delete"})
+	public void test_Edit2() {
+		KatelloContentDefinition content = new KatelloContentDefinition(content_name_edit, "descritpion", org_name, content_name_edit);
+		content.update("edited descr 2");
+		content.description = "edited descr 2";
+		assert_ContentViewDefinitionInfo(content);
 	}
 	
 	@Test(description = "Create new content definition, add product into it")
@@ -193,7 +210,6 @@ public class ContentDefinitionTest extends KatelloCliTestScript{
 	 * @author gkhachik
 	 * @since 15.April.2013
 	 */
-	//@ TODO 961293
 	@Test(description="Clone content definition")
 	public void test_clone(){
 		String sCvdOrigin = this._cvdClone+"-origin";
@@ -219,9 +235,9 @@ public class ContentDefinitionTest extends KatelloCliTestScript{
 		
 		exec_result = cvdClone.info();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
-		Assert.assertTrue(KatelloCli.grepCLIOutput("Name",getOutput(exec_result)).equals(sCvdClone), "Check - stdout (content definition info: Name)");
-		Assert.assertTrue(KatelloCli.grepCLIOutput("Composite",getOutput(exec_result)).equals("False"), "Check - stdout (content definition info: Composite)");
-		Assert.assertTrue(KatelloCli.grepCLIOutput("Org",getOutput(exec_result)).equals(this.org_name), "Check - stdout (content definition info: Org)");
+		Assert.assertTrue(KatelloUtils.grepCLIOutput("Name",getOutput(exec_result)).equals(sCvdClone), "Check - stdout (content definition info: Name)");
+		Assert.assertTrue(KatelloUtils.grepCLIOutput("Composite",getOutput(exec_result)).equals("False"), "Check - stdout (content definition info: Composite)");
+		Assert.assertTrue(KatelloUtils.grepCLIOutput("Org",getOutput(exec_result)).equals(this.org_name), "Check - stdout (content definition info: Org)");
 	}
 	
 	private void assert_contentList(List<KatelloContentDefinition> contents, List<KatelloContentDefinition> excludeContents) {
@@ -256,7 +272,7 @@ public class ContentDefinitionTest extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info), 
 				String.format("Org [%s] should be found in the result info", org_name));	
 		
-		return KatelloCli.grepCLIOutput("ID", getOutput(res));
+		return KatelloUtils.grepCLIOutput("ID", getOutput(res));
 	}
 	
 	private KatelloContentDefinition createContentDefinition() {

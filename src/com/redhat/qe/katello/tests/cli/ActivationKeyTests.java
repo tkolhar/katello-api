@@ -4,9 +4,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloActivationKey;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
@@ -20,7 +19,7 @@ import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups={TngRunGroups.TNG_KATELLO_Activation_Key})
-public class ActivationKeyTests extends KatelloCliTestScript{
+public class ActivationKeyTests extends KatelloCliTestBase{
 	private String organization;
 	private String env;
 	private String systemgroup;
@@ -87,7 +86,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 	}
 		
 	// @ TODO enable test when bug 909612 is fixed.
-    @Test(description="add subscription to ak, verify that it is shown in info, remove it, verify that is is not shown", enabled=false)
+    @Test(description="add subscription to ak, verify that it is shown in info, remove it, verify that is is not shown", enabled=true)
     public void test_update_addremoveSubscription(){
     	String uid = KatelloUtils.getUniqueID();
     	String akName="ak-subscription-zoo3-"+uid;
@@ -107,13 +106,11 @@ public class ActivationKeyTests extends KatelloCliTestScript{
     	KatelloRepo repo = new KatelloRepo(repoName, this.organization, productName, REPO_INECAS_ZOO3, null, null);
     	res = repo.create();
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
-//		res = prod.promote(this.env);
-//		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 		
     	KatelloOrg org = new KatelloOrg(this.organization, null);
     	res = org.subscriptions();
   
-		String poolId1 = KatelloCli.grepCLIOutput("ID", getOutput(res).trim(),1);
+		String poolId1 = KatelloUtils.grepCLIOutput("ID", getOutput(res).trim(),1);
 		Assert.assertNotNull(poolId1, "Check - pool Id is not null");
 		
 		res = ak.update_add_subscription(poolId1);
@@ -156,7 +153,8 @@ public class ActivationKeyTests extends KatelloCliTestScript{
     	Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key list)");
     }
     
-    @Test(description="create activationkey with usage limit 1, register one system, and try to register second one, it will fail")
+    /** TCMS scenario is: <a href="https://tcms.engineering.redhat.com/case/221907/?from_plan=7771">here</a> */
+    @Test(description="5a47305b-52d0-47ea-9b23-74dffe16b4bf")
     public void test_createWithLimit() {
     	String uid = KatelloUtils.getUniqueID();
     	String akName="act_key-"+ uid; 
@@ -184,7 +182,8 @@ public class ActivationKeyTests extends KatelloCliTestScript{
     			"Check - returned output string for registering by activation key");	
     }
 
-    @Test(description="create activationkey with usage limit 1, register one system, and try to register second one, it will fail, increase the limit, it will allow")
+    /** TCMS scenario is: <a href="https://tcms.engineering.redhat.com/case/189165/?from_plan=7793">here</a> */
+    @Test(description="4495ea44-704d-4079-bd4d-7297f887d15f")
     public void test_updateTheLimit() {
     	String uid = KatelloUtils.getUniqueID();
     	String akName="act_key-"+ uid; 
@@ -217,7 +216,8 @@ public class ActivationKeyTests extends KatelloCliTestScript{
     }
 
     //@ TODO 927215
-    @Test(description="create activationkey with usage limit 2, register two systems, and try to register third, it will fail, unreister last one, register third one")
+    /** TCMS scenario is: <a href="https://tcms.engineering.redhat.com/case/189166/?from_plan=7793">here</a> */
+    @Test(description="fc228a30-c0e8-46d3-a254-681222993bd5")
     public void test_unregisterRegister() {
     	String uid = KatelloUtils.getUniqueID();
     	String akName="act_key-"+ uid; 
@@ -241,7 +241,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 		res = sys.rhsm_registerForce(akName); 
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 		res = sys.rhsm_identity();
-		String system_uuid = KatelloCli.grepCLIOutput("Current identity is", res.getStdout());
+		String system_uuid = KatelloUtils.grepCLIOutput("Current identity is", res.getStdout());
 		
 		rhsm_clean_only();
 		
@@ -333,7 +333,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 		res = sys.info();
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
-		Assert.assertTrue(KatelloCliTestScript.sgetOutput(res).contains(akName1 +", "+akName2), 
+		Assert.assertTrue(KatelloCliTestBase.sgetOutput(res).contains(akName1 +", "+akName2), 
 				          String.format("Activationkeys [%s] found in system [%s] info",act_list,systemName));		
     }
     
@@ -353,7 +353,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 		res = sys.info();
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
-		Assert.assertTrue(KatelloCliTestScript.sgetOutput(res).contains(akName), 
+		Assert.assertTrue(KatelloCliTestBase.sgetOutput(res).contains(akName), 
 				          String.format("Activationkey [%s] found in system [%s] info",akName,systemName));		
 				
     }

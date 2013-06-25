@@ -2,7 +2,6 @@ package com.redhat.qe.katello.base.obj;
 
 import javax.management.Attribute;
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
@@ -254,10 +253,12 @@ public class KatelloRepo extends _KatelloObject{
 		return run(CMD_LIST);
 	}
 	
-	public SSHCommandResult custom_reposCount(String environment){
+	public SSHCommandResult custom_reposCount(String environment, Boolean includeDisabled){
 		opts.clear();
 		if(environment == null) 
 			environment = KatelloEnvironment.LIBRARY;
+		if(includeDisabled!=null && includeDisabled)
+			opts.add(new Attribute("include_disabled", ""));
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("environment", environment));
 		opts.add(new Attribute("product", product));
@@ -286,13 +287,13 @@ public class KatelloRepo extends _KatelloObject{
 		
 		res = info();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo info)");
-		String gpg_key = KatelloCli.grepCLIOutput("GPG Key", res.getStdout());
+		String gpg_key = KatelloUtils.grepCLIOutput("GPG Key", res.getStdout());
 		Assert.assertTrue(this.gpgkey.equals(gpg_key), 
 				String.format("Check - GPG Key [%s] should be found in the repo info",this.gpgkey));
 		KatelloGpgKey gpg = new KatelloGpgKey(this.gpgkey, this.org, null);
 		res = gpg.cli_info();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (gpg_key info)");
-		String reposWithGpg = KatelloCli.grepCLIOutput("Repositories", res.getStdout());
+		String reposWithGpg = KatelloUtils.grepCLIOutput("Repositories", res.getStdout());
 		Assert.assertTrue(reposWithGpg.contains(this.name), 
 				"Check - Repo should be in repositories list of GPG Key");
 	}

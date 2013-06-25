@@ -11,11 +11,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.DeltaCloudInstance;
-import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
 import com.redhat.qe.katello.base.obj.KatelloContentFilter;
+import com.redhat.qe.katello.base.obj.KatelloContentView;
 import com.redhat.qe.katello.base.obj.KatelloPing;
 import com.redhat.qe.katello.base.obj.KatelloUser;
 import com.redhat.qe.katello.base.obj.helpers.FilterRuleErrataIds;
@@ -307,6 +307,7 @@ public class KatelloUtils implements KatelloConstants {
 		Assert.assertNotNull(server.getClient());
 		
 		System.setProperty("katello.server.hostname", server.getIpAddress());
+		System.setProperty("katello.client.hostname", server.getIpAddress());
 		
 		if (!nowait) {
 			configureDDNS(server, configs);
@@ -443,45 +444,47 @@ public class KatelloUtils implements KatelloConstants {
 		
 		configureNtp(hostIP);
 		
-		// Install the product
-		if (product.equals("katello")) {
-			BeakerUtils.Katello_Installation_ConfigureRepos(hostIP);
-			if (ldap.isEmpty()) {
-				BeakerUtils.Katello_Installation_KatelloNightly(hostIP);	
-			} else{
-				BeakerUtils.Katello_Installation_KatelloWithLdap(hostIP, ldap, user, password);
+		if (Boolean.parseBoolean(System.getProperty("deltacloud.installserver", "true"))) {
+			// Install the product
+			if (product.equals("katello")) {
+				BeakerUtils.Katello_Installation_ConfigureRepos(hostIP);
+				if (ldap.isEmpty()) {
+					BeakerUtils.Katello_Installation_KatelloNightly(hostIP);	
+				} else{
+					BeakerUtils.Katello_Installation_KatelloWithLdap(hostIP, ldap, user, password);
+				}
+			} else if (product.equals("cfse")) {
+				BeakerUtils.Katello_Installation_SystemEngineLatest(hostIP, version);
+			} else if (product.equals("sam")) {
+				if (ldap.isEmpty()) {
+					BeakerUtils.Katello_Installation_SAMLatest(hostIP, version);
+				} else {
+					BeakerUtils.Katello_Installation_SAMLatestWithLdap(hostIP, version, ldap, user, password);
+				}
+			} else if (product.equals("headpin")) {
+				BeakerUtils.Katello_Installation_ConfigureRepos(hostIP);
+				if (ldap.isEmpty()) {
+					BeakerUtils.Katello_Installation_HeadpinNightly(hostIP);	
+				} else{
+					BeakerUtils.Katello_Installation_HeadpinWithLdap(hostIP, ldap, user, password);
+				}
+			} else if (product.equals("sat6")) {
+				if (ldap.isEmpty()) {
+					BeakerUtils.Katello_Installation_Satellite6Latest(hostIP, version);	
+				} else{
+					BeakerUtils.Katello_Installation_Satellite6WithLdap(hostIP, version, ldap, user, password);
+				}
 			}
-		} else if (product.equals("cfse")) {
-			BeakerUtils.Katello_Installation_SystemEngineLatest(hostIP, version);
-		} else if (product.equals("sam")) {
-			if (ldap.isEmpty()) {
-				BeakerUtils.Katello_Installation_SAMLatest(hostIP, version);
-			} else {
-				BeakerUtils.Katello_Installation_SAMLatestWithLdap(hostIP, version, ldap, user, password);
-			}
-		} else if (product.equals("headpin")) {
-			BeakerUtils.Katello_Installation_ConfigureRepos(hostIP);
-			if (ldap.isEmpty()) {
-				BeakerUtils.Katello_Installation_HeadpinNightly(hostIP);	
-			} else{
-				BeakerUtils.Katello_Installation_HeadpinWithLdap(hostIP, ldap, user, password);
-			}
-		} else if (product.equals("sat6")) {
-			if (ldap.isEmpty()) {
-				BeakerUtils.Katello_Installation_Satellite6Latest(hostIP, version);	
-			} else{
-				BeakerUtils.Katello_Installation_Satellite6WithLdap(hostIP, version, ldap, user, password);
-			}
+			
+			// Configure the server as a self-client
+			BeakerUtils.Katello_Configuration_KatelloClient(hostIP, machine.getHostName(), version); // at this time DDNS should return the hostname already! It takes ~5 min.
+			
+			try { Thread.sleep(5000); } catch (Exception e) {}
+			KatelloPing ping = new KatelloPing();
+			ping.runOn(machine.getHostName()); // Yes, we can use the hostname already. Assuming installation would take >5 min.
+			SSHCommandResult res = ping.cli_ping();
+			Assert.assertTrue(res.getExitCode().intValue()==0, "Check services up");
 		}
-		
-		// Configure the server as a self-client
-		BeakerUtils.Katello_Configuration_KatelloClient(hostIP, machine.getHostName(), version); // at this time DDNS should return the hostname already! It takes ~5 min.
-		
-		try { Thread.sleep(5000); } catch (Exception e) {}
-		KatelloPing ping = new KatelloPing();
-		ping.runOn(machine.getHostName()); // Yes, we can use the hostname already. Assuming installation would take >5 min.
-		SSHCommandResult res = ping.cli_ping();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check services up");
 	}
 	
 	/**
@@ -506,7 +509,7 @@ public class KatelloUtils implements KatelloConstants {
 	 * @since 07.Mar.2013 - Katello nightly katello-1.3.14-1.git.817.b5f1eb9.el6.noarch
 	 */
 	private static void setupBeakerRepo(String hostname){
-		String redhatRelease = KatelloCliTestScript.sgetOutput(KatelloUtils.sshOnClient(hostname, "cat /etc/redhat-release"));
+		String redhatRelease = KatelloCliTestBase.sgetOutput(KatelloUtils.sshOnClient(hostname, "cat /etc/redhat-release"));
 		String bkrRepoUrl = "http://beaker.engineering.redhat.com/harness/RedHatEnterpriseLinux6";
 		if(redhatRelease.startsWith(REDHAT_RELEASE_RHEL5X))
 			bkrRepoUrl = "http://beaker.engineering.redhat.com/harness/RedHatEnterpriseLinuxServer5";
@@ -627,17 +630,13 @@ public class KatelloUtils implements KatelloConstants {
 		}
 		
 		exec_result = condef.publish(pubview_name, pubview_name,"Publish Content");
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");		
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
+		
+		KatelloContentView view = new KatelloContentView(pubview_name, org_name);
 	
 		if (env_names != null && env_names.length > 0) {
 			for (String env_name : env_names) {
-				String changeset_name = "changeset"+getUniqueID();
-				KatelloChangeset cs = new KatelloChangeset(changeset_name, org_name, env_name);
-				exec_result = cs.create();
-				Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-				exec_result = cs.update_addView(pubview_name);
-				Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-				exec_result = cs.apply();
+				exec_result = view.promote_view(env_name);
 				Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 			}
 		}
@@ -672,9 +671,11 @@ public class KatelloUtils implements KatelloConstants {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		KatelloContentFilter filter = new KatelloContentFilter("Filter"+uid, org_name, condef.name);
-		filter.add_repo(product_name, repo_name);
 		exec_result = filter.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		exec_result = filter.add_repo(product_name, repo_name);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
 		if (erratas != null) {
 			FilterRuleErrataIds errata1 = new FilterRuleErrataIds(erratas);
 			exec_result = filter.add_rule(( promote ? KatelloContentFilter.TYPE_INCLUDES : KatelloContentFilter.TYPE_EXCLUDES), errata1);
@@ -683,7 +684,7 @@ public class KatelloUtils implements KatelloConstants {
 		if (package_names != null) {
 			FilterRulePackage [] packages = new FilterRulePackage[package_names.length];
 			for (int i = 0; i < package_names.length; i ++) {
-				packages[i] = new FilterRulePackage("package_names[i]");
+				packages[i] = new FilterRulePackage(package_names[i]);
 			}
 			
 			exec_result = filter.add_rule(( promote ? KatelloContentFilter.TYPE_INCLUDES : KatelloContentFilter.TYPE_EXCLUDES), packages);
@@ -692,13 +693,8 @@ public class KatelloUtils implements KatelloConstants {
 		exec_result = condef.publish(pubview_name, pubview_name,"Publish Content");
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");		
 
-		String changeset_name = "changeset"+uid;
-		KatelloChangeset cs = new KatelloChangeset(changeset_name, org_name, env_name);
-		exec_result = cs.create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		exec_result = cs.update_addView(pubview_name);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		exec_result = cs.apply();
+		KatelloContentView view = new KatelloContentView(pubview_name, org_name);
+		exec_result = view.promote_view(env_name);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		return pubview_name;
 	}
@@ -714,5 +710,56 @@ public class KatelloUtils implements KatelloConstants {
 	private static void configureYumRepo(String repoPattern, boolean disable){
 		int enabled = (disable ? 0: 1);
 		sshOnClient("sed -i \"s/^enabled=.*/enabled="+enabled+"/\" /etc/yum.repos.d/*"+repoPattern+"*");
+	}
+
+	/**
+	 * Returns katello cli output block (usually: [command] list -v options) that has: <BR>
+	 * [Property]:  [Value] in its block.<br>
+	 * As an example would be getting a pool information for:<BR> 
+	 * ("ProductName","High-Availability (8 sockets)",org.subscriptions())
+	 * @param property
+	 * @param value
+	 * @param output
+	 * @return
+	 */
+	public static String grepOutBlock(String property, String value, String output){
+		String _return = null;
+		String[] lines = output.split("\\n\\n");
+		
+		for(String line:lines ){
+			if(line.startsWith("---") || line.trim().equals("")) continue; // skip it.
+			if(KatelloUtils.grepCLIOutput(property, line).equals(value)){
+				_return = line.trim();
+				break;
+			}
+		}
+		return _return;
+	}
+
+	public static String grepCLIOutput(String property, String output) {
+	    return grepCLIOutput(property, output, 1);
+	}
+
+	public static String grepCLIOutput(String property, String output, int occurence) {
+	    int meet_cnt = 0;
+	    String[] lines = output.split("\\n");
+	    for (int i = 0; i < lines.length; i++) {
+	        if (lines[i].startsWith(property)) { // our line
+	            meet_cnt++;
+	            if (meet_cnt == occurence) {
+	                String[] split = lines[i].split(":\\s+");
+	                if (split.length < 2) {
+	                    if(i==lines.length-1) 
+	                    	return "";//last line and has empty value.
+	                    else 
+	                    	return lines[i + 1].trim(); // regular one (like Description:). return next line.
+	                } else {
+	                    return split[1].trim(); // the one with "property: Value" format.
+	                }
+	            }
+	        }
+	    }
+	    log.severe("ERROR: Output can not be extracted for the property: ["+property+"]");
+	    return null;
 	}
 }

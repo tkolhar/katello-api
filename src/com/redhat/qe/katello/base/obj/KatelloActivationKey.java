@@ -2,8 +2,8 @@ package com.redhat.qe.katello.base.obj;
 
 import javax.management.Attribute;
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
+import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class KatelloActivationKey extends _KatelloObject{
@@ -13,6 +13,7 @@ public class KatelloActivationKey extends _KatelloObject{
 	String name;
 	String description;
 	String limit;
+	String content_view;
 	
 	private String id;
 	private String environment_id;
@@ -49,8 +50,11 @@ public class KatelloActivationKey extends _KatelloObject{
 		this.description = pDesc;
 		this.limit = pLimit;
 	}
-		
-
+	
+	public KatelloActivationKey(String pOrg, String pEnv, String pName, String pDesc, String pLimit, String pContentView){
+		this(pOrg,pEnv,pName,pDesc,pLimit);
+		this.content_view = pContentView;
+	}
 	
 	public SSHCommandResult create(){
 		opts.clear();
@@ -59,6 +63,7 @@ public class KatelloActivationKey extends _KatelloObject{
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("description", description));
 		opts.add(new Attribute("limit", limit));
+		opts.add(new Attribute("content_view", content_view));
 		return run(CMD_CREATE);
 	}
 	
@@ -159,7 +164,7 @@ public class KatelloActivationKey extends _KatelloObject{
 		String match_info = String.format(REGEXP_AK_LIST,
 					this.name,this.environment_id).replaceAll("\"", "");
 		
-		Assert.assertTrue(KatelloCliTestScript.sgetOutput(res).replaceAll("\n", "").matches(match_info), 
+		Assert.assertTrue(KatelloCliTestBase.sgetOutput(res).replaceAll("\n", "").matches(match_info), 
 				String.format("Activation key [%s] should be found in the list",this.name));
 		
 		// asserts: activation_key info
@@ -169,7 +174,7 @@ public class KatelloActivationKey extends _KatelloObject{
 		match_info = String.format(REGEXP_AK_INFO,
 				this.name, (this.limit != null ? this.limit : "unlimited"), this.environment_id).replaceAll("\"", "");
 		
-		Assert.assertTrue(KatelloCliTestScript.sgetOutput(res).replaceAll("\n", "").matches(match_info), 
+		Assert.assertTrue(KatelloCliTestBase.sgetOutput(res).replaceAll("\n", "").matches(match_info), 
 				String.format("Activation key [%s] should contain correct info",this.name));			
 	}
 	
@@ -186,13 +191,13 @@ public class KatelloActivationKey extends _KatelloObject{
 			KatelloEnvironment env = new KatelloEnvironment(this.environment, null, this.org, KatelloEnvironment.LIBRARY);
 			res = env.cli_info();
 			Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (environment info)");
-			this.environment_id = KatelloCli.grepCLIOutput("ID", res.getStdout());				
+			this.environment_id = KatelloUtils.grepCLIOutput("ID", res.getStdout());				
 		}
 		
 		// retrieve id
 		if(this.name != null){
 			res = info();
-			this.id = KatelloCli.grepCLIOutput("ID", res.getStdout());
+			this.id = KatelloUtils.grepCLIOutput("ID", res.getStdout());
 		}
 	}
 }

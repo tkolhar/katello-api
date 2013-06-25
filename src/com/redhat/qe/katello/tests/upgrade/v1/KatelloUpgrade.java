@@ -7,13 +7,13 @@ import java.util.logging.Logger;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloPing;
 import com.redhat.qe.katello.common.KatelloConstants;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
-public class KatelloUpgrade extends KatelloCliTestScript{
+public class KatelloUpgrade extends KatelloCliTestBase{
 	protected static Logger log = Logger.getLogger(KatelloUpgrade.class.getName());
 	private String UPGRADE_REPO_LATEST = 
 			"http://download.lab.bos.redhat.com/rel-eng/CloudForms/1.1/latest/el6-se/x86_64/os/";

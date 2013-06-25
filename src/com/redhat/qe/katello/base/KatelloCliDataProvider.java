@@ -1,12 +1,9 @@
 package com.redhat.qe.katello.base;
 
 import java.util.Random;
-
 import org.testng.annotations.DataProvider;
-
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.obj.KatelloDistributor;
-import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloUserRole;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
@@ -84,7 +81,6 @@ public class KatelloCliDataProvider {
 				{ "^custom", new Integer(2), KTL_PROD+": error: option --type: invalid choice: '^custom' (choose from 'redhat', 'custom')"},
 				{ " custom", new Integer(2), KTL_PROD+": error: option --type: invalid choice: ' custom' (choose from 'redhat', 'custom')"},
 				{ "custom ", new Integer(2), KTL_PROD+": error: option --type: invalid choice: 'custom ' (choose from 'redhat', 'custom')"}
-				
 		};		
 	}
 
@@ -116,8 +112,6 @@ public class KatelloCliDataProvider {
 				{ strRepeat("0123456789", 12)+"abcdefgh-"+uid, "long-value", new Integer(0), "Successfully remembered option [ "+strRepeat("0123456789", 12)+"abcdefgh-"+ uid +" ]"},
 				{ "opt-"+uid, "val-"+uid, new Integer(0), "Successfully remembered option [ opt-"+uid+" ]"},
 				{ "opt "+uid, "Option with space in name", new Integer(0), "Successfully remembered option [ opt "+uid+" ]"},
-				
-				
 		};		
 	}
 	
@@ -128,7 +122,6 @@ public class KatelloCliDataProvider {
 				{ "organizations", new Integer(0)},
 				{ "providers", new Integer(0)},
 				{ "environments", new Integer(0)},
-				
 		};		
 	}
 	
@@ -156,9 +149,6 @@ public class KatelloCliDataProvider {
 				{ "perm-all-org"+uid, "organizations", null, "delete_systems,update,update_systems,read,read_systems,register_systems",user_role,new Integer(0),"Successfully created permission [ "+ "perm-all-org"+uid +" ] for user role [ "+ user_role +" ]"},
 				{ "perm-all-tags-verbs-"+uid, "environments", "Library", "read_contents,update_systems,delete_systems,read_systems,register_systems",user_role,new Integer(0),"Successfully created permission [ " + "perm-all-tags-verbs-"+uid + " ] for user role [ "+ user_role +" ]"},
 				{ "perm-some_verbs-org"+uid, "organizations", null, "update,update_systems,read,read_systems",user_role,new Integer(0),"Successfully created permission [ "+ "perm-some_verbs-org"+uid +" ] for user role [ "+ user_role +" ]"},
-				
-				
- 				
 		};
 	}
 	
@@ -215,7 +205,6 @@ public class KatelloCliDataProvider {
 				{ "desc-256Chars"+uid, strRepeat("0123456789", 25)+"abcdef", new Integer(166), "Validation failed: Description cannot contain more than 255 characters"},
 				// misc
 				{ "duplicate"+uid, null, new Integer(0), "Successfully created environment [ duplicate"+uid+" ]"},
- 				
 		};
 	}
 	
@@ -263,28 +252,27 @@ public class KatelloCliDataProvider {
 		};
 	}
 	
-	
 	@DataProvider(name="add_custom_info")
 	public static Object[][] add_custom_info(){
 		String uid = KatelloUtils.getUniqueID();
 		return new Object[][] {
-				// name
 				{ "env-aa", "env-aa", new Integer(0),null},
 				{ strRepeat("0123456789", 12)+"abcdefgh",strRepeat("0123456789", 12)+"abcdefgh", new Integer(0),null},
 				{ " ", "value", new Integer(166),"Validation failed: Keyname can't be blank"},
-				{ "desc-specChars"+uid, "\\!@%^&*(<_-~+=//\\||,.>)", new Integer(0),null},
+				{ "desc-specChars"+uid, "\\!@%^&*(_-~+=\\||,.)", new Integer(0),null},
 				{"desc-256Chars"+uid, strRepeat("0123456789", 25)+"abcdef",new Integer(166), "Validation failed: Value is too long (maximum is 255 characters)"},
 				{strRepeat("0123456789", 25)+"abcdef", "desc-256Chars", new Integer(166), "Validation failed: Keyname is too long (maximum is 255 characters)"},
-
+				{ "special chars <h1>html</h1>", "html in keyname", new Integer(0), null},
+				{ "html in value", "special chars <h1>html</h1>", new Integer(0), null},
 		};
 	}
-	
+
 	/**
 	 * 1. keyname<br>
 	 * 2. keyvalue<br>
 	 * 3. distributor name<br>
 	 * 4. return code<br>
-	 * 5. output/error string 
+	 * 5. output/error string
 	 * @return
 	 */
 	@DataProvider(name="add_distributor_custom_info")
@@ -300,8 +288,22 @@ public class KatelloCliDataProvider {
 				{strRepeat("013456789",30)+uid,strRepeat("013456789",30),dis_name,new Integer(244),""},
 				{"testkey-"+uid,"duplicate-key"+uid,dis_name,new Integer(166),"Validation failed: Keyname already exists for this object"},
 				{"duplicate-value"+uid,"testvalue-"+uid,dis_name,new Integer(0),String.format(KatelloDistributor.OUT_INFO,"duplicate-value"+uid,"testvalue-"+uid,dis_name)},
-				{"\\!@%^&*(<_-~+=//\\||,.>)"+uid,"\\!@%^&*(<_-~+=//\\||,.>)"+uid,dis_name,new Integer(0),String.format(KatelloDistributor.OUT_INFO,"\\!@%^&*(<_-~+=//\\||,.>)"+uid,"\\!@%^&*(<_-~+=//\\||,.>)"+uid,dis_name)}			
-		};		
+				{"\\!@%^&*(_-~+=\\||,.)"+uid,"\\!@%^&*(_-~+=\\||,.)"+uid,dis_name,new Integer(0),String.format(KatelloDistributor.OUT_INFO,"\\!@%^&*(_-~+=\\||,.)"+uid,"\\!@%^&*(_-~+=\\||,.)"+uid,dis_name)},
+				{"special chars <h1>html</h1>", "html in keyname", dis_name, new Integer(0), String.format(KatelloDistributor.OUT_INFO,"special chars <h1>html</h1>","html in keyname",dis_name)},
+				{"html in value", "special chars <h1>html</h1>", dis_name, new Integer(0), String.format(KatelloDistributor.OUT_INFO,"html in value","special chars <h1>html</h1>",dis_name)},
+		};
+	}
+
+	@DataProvider(name="org_add_custom_info")
+	public static Object[][] org_add_custom_info() {
+		return new Object[][] {
+				{ "custom-key", new Integer(0), null},
+				{ strRepeat("0123456789", 12)+"abcdefgh", new Integer(0), null},
+				{ "special chars \\!@%^&*(_-~+=\\||,.)", new Integer(0), null},
+				{ " ", new Integer(166), "Validation failed: Default info cannot contain blank keynames"},
+				{ "special chars <h1>html</h1>", new Integer(0), null},
+				{ strRepeat("0123456789", 25)+"abcdef", new Integer(0), null},
+		};
 	}
 	
 	@DataProvider(name="create_distributor")

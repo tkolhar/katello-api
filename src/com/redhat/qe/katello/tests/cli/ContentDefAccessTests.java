@@ -4,7 +4,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
 import com.redhat.qe.katello.base.obj.KatelloContentView;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
@@ -22,7 +22,7 @@ import com.redhat.qe.tools.SSHCommandResult;
 
 	
 @Test(groups={"cfse-cli",TngRunGroups.TNG_KATELLO_Content})
-public class ContentDefAccessTests extends KatelloCliTestScript{
+public class ContentDefAccessTests extends KatelloCliTestBase{
 
 	private SSHCommandResult exec_result;
 	private String org_name;
@@ -273,6 +273,10 @@ public class ContentDefAccessTests extends KatelloCliTestScript{
 		exec_result = perm.create();
 		Assert.assertTrue(exec_result.getExitCode()==0, "Check - exit code (create perm)");
 
+		perm = new KatelloPermission(perm_prom_v+"-envs", org_name, "environments", null, "promote_changesets", role_prom);
+		exec_result = perm.create(true); // with --all_tags
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check - exit code (create perm)");
+
 		exec_result = user.assign_role(role_prom);
 		Assert.assertTrue(exec_result.getExitCode()==0, "Check - exit code (assign role)");
 
@@ -419,6 +423,12 @@ public class ContentDefAccessTests extends KatelloCliTestScript{
 		exec_result = content.delete();
 		Assert.assertTrue(exec_result.getExitCode()==147, "Check = error code (delete content definition)");
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentDefinition.ERR_DELETE_DENIED, this.user_publish)), "Check - error string (content delete)");
+		
+		user = new KatelloUser(user_modify, "root@localhost", KatelloUser.DEFAULT_USER_PASS, false);
+		content.runAs(user);
+		exec_result = content.delete();
+		Assert.assertTrue(exec_result.getExitCode()==147, "Check = error code (delete content definition)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentDefinition.ERR_DELETE_DENIED, this.user_modify)), "Check - error string (content delete)");
 	}
 
 	@Test(description="check permissions to delete content definition")
@@ -523,7 +533,6 @@ public class ContentDefAccessTests extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentView.ERR_VIEW_READ, this.user_read)), "Check - error string (view read)");
 	}
 
-	// TODO BUG  966035
 	@Test(description="access to promote content views")
 	public void test_PromoteAccess() {
 		KatelloUser user = new KatelloUser(user_prom, KatelloUser.DEFAULT_USER_EMAIL, KatelloUser.DEFAULT_USER_PASS, false);

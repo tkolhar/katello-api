@@ -2,7 +2,7 @@ package com.redhat.qe.katello.base.obj;
 
 import javax.management.Attribute;
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class KatelloUser extends _KatelloObject{
@@ -200,7 +200,7 @@ public class KatelloUser extends _KatelloObject{
 		String match_info = String.format(REGEXP_LIST,
 				this.username,this.email, this.orgname != null ? this.orgname : "None", this.envname != null ? this.envname : "None").replaceAll("\"", "");
 
-		Assert.assertTrue(KatelloCliTestScript.sgetOutput(res).replaceAll("\n", "").matches(match_info), 
+		Assert.assertTrue(KatelloCliTestBase.sgetOutput(res).replaceAll("\n", "").matches(match_info), 
 				String.format("User [%s] should be found in the list",this.username));
 
 
@@ -212,7 +212,7 @@ public class KatelloUser extends _KatelloObject{
 			REGEXP_INFO =  ".*ID\\s*:\\s*\\d+.*Username\\s*:\\s*%s.*Email\\s*:\\s*%s.*Disabled\\s*:\\s*True.*Default Organization\\s*:\\s*%s.*Default Environment\\s*:\\s*%s.*";
 		match_info = String.format(REGEXP_INFO,
 				this.username, this.email, this.orgname != null ? this.orgname : "None", this.envname != null ? this.envname : "None").replaceAll("\"", "");
-		Assert.assertTrue(KatelloCliTestScript.sgetOutput(res).replaceAll("\n", "").matches(match_info), 
+		Assert.assertTrue(KatelloCliTestBase.sgetOutput(res).replaceAll("\n", "").matches(match_info), 
 				String.format("User [%s] should contain correct info",this.username));			
 	}
 

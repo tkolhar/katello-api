@@ -1,10 +1,13 @@
 package com.redhat.qe.katello.base.obj;
 
+import java.util.ArrayList;
+import java.util.StringTokenizer;
 import java.util.logging.Logger;
 import javax.management.Attribute;
 import org.codehaus.jackson.annotate.JsonProperty;
-import com.redhat.qe.katello.base.KatelloCli;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import org.testng.Assert;
+
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
@@ -25,6 +28,12 @@ public class KatelloOrg extends _KatelloObject{
 	public static final String CMD_DEFAULT_INFO_ADD = "org default_info add";
 	public static final String CMD_DEFAULT_INFO_APPLY = "org default_info sync";
 	public static final String CMD_DEFAULT_INFO_REMOVE = "org default_info remove";
+//	public static final String CMD_ADD_SYS_INFO = "org default_info add";
+//	public static final String CMD_APPLY_SYS_INFO = "org default_info apply";
+//	public static final String CMD_REMOVE_SYS_INFO = "org default_info remove --type system";
+//	public static final String CMD_ADD_DISTRIBUTOR_INFO = "org default_info add";
+//	public static final String CMD_APPLY_DISTRIBUTOR_INFO = "org default_info apply";
+//	public static final String CMD_REMOVE_DISTRIBUTOR_INFO = "org default_info remove";
 	
 	public static final String API_CMD_INFO = "/organizations/%s";
 	
@@ -36,6 +45,8 @@ public class KatelloOrg extends _KatelloObject{
 			"Validation failed: Name has already been taken, Label already exists (including organizations being deleted)";
 	public static final String OUT_ADD_SYS_INFO = 
 			"Successfully added [ System ] default custom info [ %s ] to Org [ %s ]";
+	public static final String OUT_ADD_DISTRIBUTOR_INFO =
+			"Successfully added [ Distributor ] default custom info [ %s ] to Org [ %s ]";
 	public static final String OUT_APPLY_SYS_INFO = 
 			"Organization [ %s ] completed applying default info";
 	public static final String OUT_REMOVE_SYS_INFO = 
@@ -187,22 +198,56 @@ public class KatelloOrg extends _KatelloObject{
 		opts.add(new Attribute("type", type));
 		return run(CMD_DEFAULT_INFO_REMOVE);
 	}
+
+//	public SSHCommandResult add_distributor_info(String keyname) {
+//		opts.clear();
+//		opts.add(new Attribute("name", this.name));
+//		opts.add(new Attribute("keyname", keyname));
+//		opts.add(new Attribute("type", "distributor"));
+//		return run(CMD_DEFAULT_INFO_ADD);
+//	}
+//
+//	public SSHCommandResult apply_distributor_info() {
+//		opts.clear();
+//		opts.add(new Attribute("name", this.name));
+//		opts.add(new Attribute("type", "distributor"));
+//		return run(CMD_DEFAULT_INFO_APPLY);
+//	}
+//
+//	public SSHCommandResult remove_distributor_info(String keyname) {
+//		opts.clear();
+//		opts.add(new Attribute("name", this.name));
+//		opts.add(new Attribute("keyname", keyname));
+//		opts.add(new Attribute("type", "distributor"));
+//		return run(CMD_DEFAULT_INFO_REMOVE);
+//	}
+
+	public ArrayList<String> custom_listNames(){
+		ArrayList<String> _ret = new ArrayList<String>();
+		opts.clear();
+		SSHCommandResult res = runExt(CLI_CMD_LIST+" -v","| grep -e \"^Name\" |cut -f2 -d:");
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - exit.Code==0");
+		StringTokenizer toks = new StringTokenizer(KatelloCliTestBase.sgetOutput(res), "\n");
+		while(toks.hasMoreTokens()) 
+			_ret.add(toks.nextToken().trim());
+		return _ret;
+	}
 	
 	public static String getDefaultOrg(){
 		if(defaultOrg!=null) 
 			return defaultOrg;
 		SSHCommandResult res = KatelloUtils.sshOnServer("cat /etc/katello/katello-configure.conf | grep -E \"org_name\\s*=\" | cut -f2 -d\"=\" | sed 's/ *$//g' | sed 's/^ *//g'");
-		defaultOrg = KatelloCliTestScript.sgetOutput(res);
+		defaultOrg = KatelloCliTestBase.sgetOutput(res);
 		if(defaultOrg.isEmpty())
 			defaultOrg = DEFAULT_ORG;
 		return defaultOrg;
 	}
 	
 	public static String getPoolId(String orgName, String productName){
-		SSHCommandResult res = new KatelloOrg(orgName, null).subscriptions(); // all subscriptinos
-		String outBlock = KatelloCli.grepOutBlock(
-				"Subscription", productName, KatelloCliTestScript.sgetOutput(res)); // filter our product's output block
-		return KatelloCli.grepCLIOutput("ID", outBlock); // grep poolid
+		SSHCommandResult res = new KatelloOrg(orgName, null).subscriptions(); // all subscriptions
+		String outBlock = KatelloUtils.grepOutBlock(
+				"Subscription", productName, KatelloCliTestBase.sgetOutput(res)); // filter our product's output block
+		return KatelloUtils.grepCLIOutput("ID", outBlock); // grep poolid
 	}
 
 	// ** ** ** ** ** ** **

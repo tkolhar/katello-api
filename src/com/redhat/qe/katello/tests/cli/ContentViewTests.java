@@ -5,8 +5,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloActivationKey;
 import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
@@ -26,7 +25,7 @@ import com.redhat.qe.katello.tests.e2e.PromoteErrata;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups=TngRunGroups.TNG_KATELLO_Content)
-public class ContentViewTests extends KatelloCliTestScript{
+public class ContentViewTests extends KatelloCliTestBase{
 	
 	public static final String ERRATA_ZOO_SEA = "RHEA-2012:0002";
 	
@@ -172,13 +171,13 @@ public class ContentViewTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		
 		exec_result = sys.rhsm_identity();
-		system_uuid1 = KatelloCli.grepCLIOutput("Current identity is", exec_result.getStdout());
+		system_uuid1 = KatelloUtils.grepCLIOutput("Current identity is", exec_result.getStdout());
 		
 		exec_result = sys.subscriptions_available();
-		String poolId1 = KatelloCli.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
+		String poolId1 = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
 		Assert.assertNotNull(poolId1, "Check - pool Id is not null");
 		
-		String poolId2 = KatelloCli.grepCLIOutput("ID", getOutput(exec_result).trim(),2);
+		String poolId2 = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result).trim(),2);
 		Assert.assertNotNull(poolId2, "Check - pool Id is not null");
 		
 		exec_result = sys.subscribe(poolId1);
@@ -203,13 +202,9 @@ public class ContentViewTests extends KatelloCliTestScript{
 	@Test(description = "Consuming content using an activation key that has a content view definition",groups={"cfse-cli"}, dependsOnMethods={"test_packageList"})
 	public void test_consumeContent()
 	{
-		yum_clean();
 		KatelloUtils.sshOnClient("yum erase -y lion");
-		exec_result=KatelloUtils.sshOnClient("yum install -y lion");
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		exec_result = KatelloUtils.sshOnClient("rpm -q lion");
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).trim().contains("lion-"));
+		yum_clean();
+		install_Packages(new String[] {"lion"});
 		
 		// chack that packages from other repos not in content view are not available
 		exec_result = KatelloUtils.sshOnClient("yum install pulp-agent --disablerepo '*pulp*'");
@@ -226,14 +221,14 @@ public class ContentViewTests extends KatelloCliTestScript{
 		Assert.assertTrue(getOutput(exec_result).contains(ERRATA_ZOO_SEA),"is package in the list: " + ERRATA_ZOO_SEA);
 	}
 	
-	//@ TODO bug 955706
 	@Test(description = "consume Errata content",groups={"cfse-cli"}, dependsOnMethods={"test_errataList"})
 	public void test_ConsumeErrata(){
 		KatelloUtils.sshOnClient("yum erase -y walrus");
 		exec_result = KatelloUtils.sshOnClient("yum install -y walrus-0.71-1.noarch");
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		KatelloErrata ert = new KatelloErrata(ERRATA_ZOO_SEA, this.org_name, this.prod_name, this.repo_name, this.env_name);
+		KatelloErrata ert = new KatelloErrata(ERRATA_ZOO_SEA, this.org_name, this.prod_name, this.repo_name, null);
+		ert.content_view = pubview_name;
 		exec_result = ert.info();
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (errata info --environment Dev)");
 		
@@ -258,8 +253,8 @@ public class ContentViewTests extends KatelloCliTestScript{
 		exec_result = changeset2.apply();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		yum_clean();
-		exec_result = KatelloUtils.sshOnClient("yum install -y walrus");
-		Assert.assertFalse(exec_result.getExitCode() == 0, "Check - return code");
+		
+		verify_PackagesNotAvailable(new String[] {"walrus"});
 	}
 
 	//@ TODO bug 956690
@@ -272,11 +267,7 @@ public class ContentViewTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentView.OUT_PROMOTE, this.pubview_name, env_name)), "Content view promote output.");
 		yum_clean();
-		exec_result = KatelloUtils.sshOnClient("yum install -y walrus");
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - error code");
-		exec_result = KatelloUtils.sshOnClient("rpm -q walrus");
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).trim().contains("walrus-"));
+		install_Packages(new String[] {"walrus"});
 	}
 	
 	@AfterClass

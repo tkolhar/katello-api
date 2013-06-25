@@ -4,8 +4,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloActivationKey;
 import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
 import com.redhat.qe.katello.base.obj.KatelloContentFilter;
@@ -22,7 +21,7 @@ import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups=TngRunGroups.TNG_KATELLO_Content)
-public class ConsumeFilteredPackageGroup extends KatelloCliTestScript {
+public class ConsumeFilteredPackageGroup extends KatelloCliTestBase {
 	
 	public static final String ERRATA_ZOO_SEA = "RHEA-2012:0002";
 	
@@ -52,6 +51,8 @@ public class ConsumeFilteredPackageGroup extends KatelloCliTestScript {
 	
 	@BeforeClass(description="Generate unique objects")
 	public void setUp() {
+		KatelloUtils.sshOnClient("yum erase -y lion zebra stork cockateel");
+		
 		org = new KatelloOrg(org_name,null);
 		exec_result = org.cli_create();		              
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
@@ -130,43 +131,23 @@ public class ConsumeFilteredPackageGroup extends KatelloCliTestScript {
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 
 		exec_result = sys.rhsm_identity();
-		system_uuid1 = KatelloCli.grepCLIOutput("Current identity is", exec_result.getStdout());
+		system_uuid1 = KatelloUtils.grepCLIOutput("Current identity is", exec_result.getStdout());
 
 		exec_result = sys.subscriptions_available();
-		String poolId1 = KatelloCli.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
+		String poolId1 = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
 		Assert.assertNotNull(poolId1, "Check - pool Id is not null");
 
 		exec_result = sys.subscribe(poolId1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
 
-		yum_clean();
-		KatelloUtils.sshOnClient("yum erase -y lion");
-		KatelloUtils.sshOnClient("yum erase -y zebra");
-		KatelloUtils.sshOnClient("yum erase -y stork");
-		KatelloUtils.sshOnClient("yum erase -y cockateel");
-		
+		yum_clean();		
 		
 		// consume packages from group mammals, verify that they are available
-		exec_result=KatelloUtils.sshOnClient("yum install -y lion");
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		exec_result = KatelloUtils.sshOnClient("rpm -q lion");
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).trim().contains("lion-"));
-		
-		exec_result=KatelloUtils.sshOnClient("yum install -y zebra");
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		exec_result = KatelloUtils.sshOnClient("rpm -q zebra");
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).trim().contains("zebra-"));
-		
+		install_Packages(new String[] {"lion", "zebra"});
 		
 		// consume packages from group birds, verify that they are NOT available
-		exec_result=KatelloUtils.sshOnClient("yum install -y stork");
-		Assert.assertTrue(getOutput(exec_result).trim().contains("No package stork available."));
-		
-		exec_result=KatelloUtils.sshOnClient("yum install -y cockateel");
-		Assert.assertTrue(getOutput(exec_result).trim().contains("No package cockateel available."));
+		verify_PackagesNotAvailable(new String[] {"stork", "cockateel"});
 	}
 
 }

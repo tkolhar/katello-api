@@ -6,8 +6,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloPackageGroup;
@@ -20,7 +19,7 @@ import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups={"cfse-cli",TngRunGroups.TNG_KATELLO_Content})
-public class PackageGroupTests extends KatelloCliTestScript {
+public class PackageGroupTests extends KatelloCliTestBase {
 
 	protected static Logger log = Logger.getLogger(PackageGroupTests.class.getName());
 	
@@ -80,7 +79,7 @@ public class PackageGroupTests extends KatelloCliTestScript {
 	public void test_packageGroupList() {
 		KatelloRepo repo = new KatelloRepo(repo_name, org_name, product_name, REPO_INECAS_ZOO3, null, null);
 		exec_result = repo.info();
-		repo_id = KatelloCli.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
+		repo_id = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
 		
 		KatelloPackageGroup packGr = new KatelloPackageGroup(null, null, null);
 		

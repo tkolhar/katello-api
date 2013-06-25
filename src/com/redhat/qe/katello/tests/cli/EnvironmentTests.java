@@ -4,7 +4,7 @@ import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
@@ -13,7 +13,7 @@ import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups=TngRunGroups.TNG_KATELLO_Environment)
-public class EnvironmentTests extends KatelloCliTestScript{
+public class EnvironmentTests extends KatelloCliTestBase{
 	   
 	    private String organization;
 
@@ -170,5 +170,21 @@ public class EnvironmentTests extends KatelloCliTestScript{
 	  	    res = env2.cli_info();      
 	  	    Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 
+		}
+		
+		/** TCMS scenario is: <a href="https://tcms.engineering.redhat.com/case/273128/?from_plan=7843">here</a> */
+		@Test(description="62ac0445-1d73-4cdd-a759-224e0adfb42c")
+		public void testDeleteLibrary() {
+			SSHCommandResult res;
+			String uid = KatelloUtils.getUniqueID();
+			String orgname = "org-"+uid;
+
+			KatelloOrg org = new KatelloOrg(orgname, null);
+			res = org.cli_create();
+			Assert.assertTrue(res.getExitCode() == 0, "check exit code (create org)");
+
+			KatelloEnvironment env = new KatelloEnvironment(KatelloEnvironment.LIBRARY, null, orgname, null);
+			res = env.cli_delete();
+			Assert.assertTrue(res.getExitCode() != 0, "check exit code (delete Library)");
 		}
 }

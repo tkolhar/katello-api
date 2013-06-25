@@ -15,7 +15,7 @@ public class KatelloCli implements KatelloConstants {
 
 	static{new com.redhat.qe.auto.testng.TestScript();}// to make properties be initialized (if they don't still)
 	
-	static protected Logger log = Logger.getLogger(KatelloCli.class.getName());
+	public static Logger log = Logger.getLogger(KatelloCli.class.getName());
 	public static final String OUT_EMPTY_LIST = "[  ]";
 	
 	private String command;
@@ -101,57 +101,5 @@ public class KatelloCli implements KatelloConstants {
 			e.printStackTrace();
 		}
 	}
-
-	/**
-	 * Returns katello cli output block (usually: [command] list -v options) that has: <BR>
-	 * [Property]:  [Value] in its block.<br>
-	 * As an example would be getting a pool information for:<BR> 
-	 * ("ProductName","High-Availability (8 sockets)",org.subscriptions())
-	 * @param property
-	 * @param value
-	 * @param output
-	 * @return
-	 */
-	public static String grepOutBlock(String property, String value, String output){
-		String _return = null;
-		String[] lines = output.split("\\n\\n");
-		
-		for(String line:lines ){
-			if(line.startsWith("---") || line.trim().equals("")) continue; // skip it.
-			if(grepCLIOutput(property, line).equals(value)){
-				_return = line.trim();
-				break;
-			}
-		}
-		return _return;
-	}
-	
-    public static String grepCLIOutput(String property, String output) {
-        return grepCLIOutput(property, output, 1);
-    }
-
-    public static String grepCLIOutput(String property, String output, int occurence) {
-        int meet_cnt = 0;
-        String[] lines = output.split("\\n");
-        for (int i = 0; i < lines.length; i++) {
-            if (lines[i].startsWith(property)) { // our line
-                meet_cnt++;
-                if (meet_cnt == occurence) {
-                    String[] split = lines[i].split(":\\s+");
-                    if (split.length < 2) {
-                        if(i==lines.length-1) 
-                        	return "";//last line and has empty value.
-                        else 
-                        	return lines[i + 1].trim(); // regular one (like Description:). return next line.
-                    } else {
-                        return split[1].trim(); // the one with "property: Value" format.
-                    }
-                }
-            }
-        }
-        log.severe("ERROR: Output can not be extracted for the property: [" + property
-                + "]");
-        return null;
-    }
 
 }

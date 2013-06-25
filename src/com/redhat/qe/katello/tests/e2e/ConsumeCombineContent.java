@@ -4,8 +4,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloActivationKey;
 import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
 import com.redhat.qe.katello.base.obj.KatelloContentFilter;
@@ -23,7 +22,7 @@ import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups=TngRunGroups.TNG_KATELLO_Content)
-public class ConsumeCombineContent extends KatelloCliTestScript{
+public class ConsumeCombineContent extends KatelloCliTestBase{
 
 	String uid = KatelloUtils.getUniqueID();
 	String org_name = "orgcon-"+ uid;
@@ -126,7 +125,7 @@ public class ConsumeCombineContent extends KatelloCliTestScript{
 		 * 
 		 */
 		exec_result = new KatelloOrg(this.org_name,null).subscriptions();
-		String zoo3PoolId = KatelloCli.grepCLIOutput("ID", getOutput(exec_result), 1);
+		String zoo3PoolId = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result), 1);
 		exec_result = act_key.update_add_subscription(zoo3PoolId);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
@@ -146,24 +145,11 @@ public class ConsumeCombineContent extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
 		// consume packages from group mammals, verify that they are available
-		install_Package("fox");
-		install_Package("cow");
-		install_Package("dog");
-		install_Package("dolphin");
-		install_Package("wolf");
+		install_Packages(new String[] {"fox", "cow", "dog", "dolphin", "wolf"});
 
 		// consume packages from exclude filter, verify that they are NOT available
 		exec_result = KatelloUtils.sshOnClient("yum install -y elephant walrus");
 		Assert.assertFalse(exec_result.getExitCode().intValue()==0, "Check - return code");
-	}
-
-	private void install_Package(String pkgName)
-	{
-		exec_result=KatelloUtils.sshOnClient("yum install -y "+ pkgName);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		exec_result = KatelloUtils.sshOnClient("rpm -q "+ pkgName);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).trim().contains(pkgName+"-"));
 	}
 	
 	@AfterClass(description="unregister the system, cleanup packages installed", alwaysRun=true)

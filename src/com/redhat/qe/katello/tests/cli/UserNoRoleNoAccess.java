@@ -3,7 +3,7 @@ package com.redhat.qe.katello.tests.cli;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloUser;
@@ -13,7 +13,7 @@ import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups={TngRunGroups.TNG_KATELLO_Users_Roles})
-public class UserNoRoleNoAccess extends KatelloCliTestScript {
+public class UserNoRoleNoAccess extends KatelloCliTestBase {
 	
 	private String users;	
 	private String organization;
@@ -64,10 +64,8 @@ public class UserNoRoleNoAccess extends KatelloCliTestScript {
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 	}
 	
-	@Test(description="check for organizations command", groups={"headpin-cli"})
-	public void test_User_Org_Commands()
-	{
-		
+	@Test(description="5c7daf3b-965f-4fdd-829d-9eae8ae55156", groups={"headpin-cli"})
+	public void test_User_Org_Commands(){
 		org.runAs(user);
 		res = org.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==147, "Check - return code");
@@ -81,7 +79,6 @@ public class UserNoRoleNoAccess extends KatelloCliTestScript {
 		Assert.assertTrue(res.getExitCode().intValue()==147, "Check - return code");
 		res = org.delete();
 		Assert.assertTrue(res.getExitCode().intValue()==147, "Check - return code");
-
 	}
 
 	  

@@ -4,7 +4,7 @@ import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloPermission;
 import com.redhat.qe.katello.base.obj.KatelloUserRole;
@@ -13,7 +13,7 @@ import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups=TngRunGroups.TNG_KATELLO_Users_Roles)
-public class PermissionTests extends KatelloCliTestScript{
+public class PermissionTests extends KatelloCliTestBase{
 	private String organization;
 	private String usr_role;
 	@BeforeClass(description="init: create org stuff", groups = {"headpin-cli"})
@@ -30,7 +30,7 @@ public class PermissionTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 	}
 
-	@Test(description="create Permissions", groups = {"headpin-cli"}, 
+	@Test(description="de571d55-3987-4ce3-b72e-f97abe509bfc", groups = {"headpin-cli"}, 
 			dataProvider="permission_create", dataProviderClass = KatelloCliDataProvider.class, enabled=true)
 	public void testPerm_create(String name, String scope,String tags,String verbs,String user_role,Integer exitCode, String output){
 		SSHCommandResult res;
@@ -55,7 +55,7 @@ public class PermissionTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue() == exitCode.intValue(), "Check - return code");
 	} 
 
-	@Test(description="delete a permission", groups = {"headpin-cli"},enabled=true)
+	@Test(description="9d7b05ad-a6e7-4668-98b6-62cc939b4cf4", groups = {"headpin-cli"},enabled=true)
 	public void test_delete_permission(){
 		String uid = KatelloUtils.getUniqueID();
 		String permName="perm-delete-"+ uid; 

@@ -9,8 +9,7 @@ import java.util.regex.Pattern;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloGpgKey;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
@@ -21,7 +20,7 @@ import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups={"cfse-cli",TngRunGroups.TNG_KATELLO_Providers_Repos})
-public class ProductRepoTests extends KatelloCliTestScript {
+public class ProductRepoTests extends KatelloCliTestBase {
 
 	protected static Logger log = Logger
 			.getLogger(PackageTests.class.getName());
@@ -64,7 +63,7 @@ public class ProductRepoTests extends KatelloCliTestScript {
 		exec_result = prod.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		exec_result = prod.cli_list();
-		product_id = KatelloCli.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
+		product_id = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
 
 		prod = new KatelloProduct(product_name, org_name,
 				provider_name, null, null, null, null, null);
