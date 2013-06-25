@@ -202,7 +202,7 @@ public class KatelloCliDataProvider {
 //				// description
 				{ "desc-specChars"+uid, "\\!@%^&*(<_-~+=//\\||,.>)", new Integer(0), "Successfully created environment [ desc-specChars"+uid+" ]"},
 				{ "desc-255Chars"+uid, strRepeat("0123456789", 25)+"abcde", new Integer(0), "Successfully created environment [ desc-255Chars"+uid+" ]"},
-				{ "desc-256Chars"+uid, strRepeat("0123456789", 25)+"abcdef", new Integer(166), "Validation failed: Description cannot contain more than 255 characters"},
+				{ "desc-256Chars"+uid, strRepeat("0123456789", 25)+"abcdef", new Integer(0), "Successfully created environment [ desc-256Chars"+uid+" ]"},
 				// misc
 				{ "duplicate"+uid, null, new Integer(0), "Successfully created environment [ duplicate"+uid+" ]"},
 		};
@@ -245,7 +245,7 @@ public class KatelloCliDataProvider {
 //				// description
 				{ "desc-specChars"+uid, "\\!@%^&*(<_-~+=//\\||,.>)", new Integer(0), "Successfully created activation key [ desc-specChars"+uid+" ]"},
 				{ "desc-255Chars"+uid, strRepeat("0123456789", 25)+"abcde", new Integer(0), "Successfully created activation key [ desc-255Chars"+uid+" ]"},
-				{ "desc-256Chars"+uid, strRepeat("0123456789", 25)+"abcdef", new Integer(166), "Validation failed: Description cannot contain more than 255 characters"},
+				{ "desc-256Chars"+uid, strRepeat("0123456789", 25)+"abcdef", new Integer(0), "Successfully created activation key [ desc-256Chars"+uid+" ]"},
 				// misc
 				{ "duplicate"+uid, null, new Integer(0), "Successfully created activation key [ duplicate"+uid+" ]"},
  				{ "duplicate"+uid, null, new Integer(166), "Validation failed: Name has already been taken"}
