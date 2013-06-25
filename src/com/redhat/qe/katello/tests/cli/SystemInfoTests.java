@@ -145,14 +145,14 @@ public class SystemInfoTests extends KatelloCliTestBase{
 	@Test(description="trying to remove an invalid parameter from org, verifies the error message", dependsOnMethods={"addOrgInfo"})
 	public void test_removeOrgInvalidInfo() {
 		KatelloOrg org = new KatelloOrg(this.org, "Default org");
-		exec_result = org.default_info_remove(keyInvalid, "System");
+		exec_result = org.default_info_remove(keyInvalid, "ASDF");
 
 		//TODO: AssertTrue for the exact exitCode
-		Assert.assertFalse(exec_result.getExitCode().intValue()==0, "Check - return code");
+		Assert.assertTrue(exec_result.getExitCode().intValue()==144, "Check - return code");
 
 		//TODO: Assert for the correct Error Message. Feature yet to be added
 		Assert.assertEquals(getOutput(exec_result).trim(), 
-				String.format(KatelloOrg.OUT_REMOVE_SYS_INFO, keyname, org.name),
+				String.format(KatelloOrg.ERR_WRONG_TYPE, keyname, org.name),
 				"Check - remove system info output.");
 
 		List<String[]> sysparamsList = new LinkedList<String[]>();

@@ -4,6 +4,7 @@ import java.util.Random;
 import org.testng.annotations.DataProvider;
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.obj.KatelloDistributor;
+import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloUserRole;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
@@ -39,31 +40,31 @@ public class KatelloCliDataProvider {
 		String uid = KatelloUtils.getUniqueID();
 		return new Object[][] {
 				// name
-				{ "aa", null, null, new Integer(0), "Successfully created provider [ aa ]"},
-				{ "11", null, null, new Integer(0), "Successfully created provider [ 11 ]"},
-				{ "1a", null, null, new Integer(0), "Successfully created provider [ 1a ]"},
-				{ "a1", null, null, new Integer(0), "Successfully created provider [ a1 ]"},
-				{ strRepeat("0123456789", 12)+"abcdefgh", null, null, new Integer(0), "Successfully created provider [ "+strRepeat("0123456789", 12)+"abcdefgh"+" ]"},
-				{ "prov-"+uid, null, null, new Integer(0), "Successfully created provider [ prov-"+uid+" ]"},
-				{ "prov "+uid, "Provider with space in name", null, new Integer(0), "Successfully created provider [ prov "+uid+" ]"},
+				{ "aa", null, null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,"aa")},
+				{ "11", null, null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,"11")},
+				{ "1a", null, null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,"1a")},
+				{ "a1", null, null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,"a1")},
+				{ strRepeat("0123456789", 12)+"abcdefgh", null, null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,strRepeat("0123456789", 12)+"abcdefgh")},
+				{ "prov-"+uid, null, null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,"prov-"+uid)},
+				{ "prov "+uid, "Provider with space in name", null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,"prov "+uid)},
 				{ null, null, null, new Integer(2), System.getProperty("katello.engine", "katello")+": error: Option --name is required; please see --help"},
 				{ " ", null, null, new Integer(166), "Name can't be blank"},
 				{ " a", null, null, new Integer(166), "Validation failed: Name must not contain leading or trailing white spaces."},
 				{ "a ", null, null, new Integer(166), "Validation failed: Name must not contain leading or trailing white spaces."},
-				{ "a", null, null, new Integer(0), "Successfully created provider [ a ]"},
+				{ "a", null, null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,"a")},
 				{ "?1", null, null, new Integer(166), "Validation failed: Name cannot contain characters other than alpha numerals, space, '_', '-'"},
 				{ strRepeat("0123456789", 12)+"abcdefghi", null, null, new Integer(166), "Validation failed: Name cannot contain more than 128 characters"},
 				// description
-				{ "desc-specChars"+uid, "\\!@%^&*(<_-~+=//\\||,.>)", null, new Integer(0), "Successfully created provider [ desc-specChars"+uid+" ]"},
-				{ "desc-255Chars"+uid, strRepeat("0123456789", 25)+"abcde", null, new Integer(0), "Successfully created provider [ desc-255Chars"+uid+" ]"},
-				{ "desc-256Chars"+uid, strRepeat("0123456789", 25)+"abcdef", null, new Integer(166), "Validation failed: Description cannot contain more than 255 characters"},
+				{ "desc-specChars"+uid, "\\!@%^&*(<_-~+=//\\||,.>)", null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,"desc-specChars"+uid)},
+				{ "desc-255Chars"+uid, strRepeat("0123456789", 25)+"abcde", null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,"desc-255Chars"+uid)},
+				{ "desc-256Chars"+uid, strRepeat("0123456789", 25)+"abcdef", null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,"desc-256Chars"+uid)},
 				// url
 				{ "url-httpOnly"+uid, null, "http://", new Integer(2), System.getProperty("katello.engine", "katello")+": error: option --url: invalid format"}, // see below
 				{ "url-httpsOnly"+uid, null, "https://", new Integer(2), System.getProperty("katello.engine", "katello")+": error: option --url: invalid format"}, // according changes of: tstrachota
-				{ "url-redhatcom"+uid, null, "http://redhat.com/", new Integer(0), "Successfully created provider [ url-redhatcom"+uid+" ]"},
-				{ "url-with_space"+uid, null, "http://url with space/", new Integer(0), "Successfully created provider [ url-with_space"+uid+" ]"},
+				{ "url-redhatcom"+uid, null, "http://redhat.com/", new Integer(0), String.format(KatelloProvider.OUT_CREATE,"url-redhatcom"+uid)},
+				{ "url-with_space"+uid, null, "http://url with space/", new Integer(0), String.format(KatelloProvider.OUT_CREATE,"url-with_space"+uid)},
 				// misc
-				{ "duplicate"+uid, null, null, new Integer(0), "Successfully created provider [ duplicate"+uid+" ]"},
+				{ "duplicate"+uid, null, null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,"duplicate"+uid)},
 				{ "duplicate"+uid, null, null, new Integer(166), "Validation failed: Name has already been taken"}
 		};		
 	}
