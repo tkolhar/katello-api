@@ -505,6 +505,60 @@ public class OrgTests extends KatelloCliTestScript{
 			Assert.assertTrue(getOutput(exec_result).contains(output), "Check error (add custom info)");
 	}
 
+	@Test(description = "Org name with a dot, verify that providers, product, environments are handled normally",groups={"katello-cli"})
+	public void test_OrgNameContainsDot(){
+
+		String uid = KatelloUtils.getUniqueID();
+		String provName = "listProv1-"+uid;
+		String envName = "listEnv-"+uid;
+		String prodName = "prod-"+uid;
+		String desc = "Simple description";
+		String orgName = "org."+uid;
+		String sysName = "Sys-"+uid;
+		SSHCommandResult res;
+
+		KatelloOrg org = new KatelloOrg(orgName, "Org name with a dot");
+		exec_result = org.cli_create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+
+		// Create Environment
+		KatelloEnvironment env = new KatelloEnvironment(envName, desc, orgName, KatelloEnvironment.LIBRARY);
+		res = env.cli_create();
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code (Enviornment - create)");
+		//List
+		res = env.cli_list();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (Environment - list)");
+	
+		//Create System
+		rhsm_clean();
+		KatelloSystem sys = new KatelloSystem(sysName, orgName, envName);
+		res = sys.rhsm_register();
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code (System - create)");
+		//list
+		res = sys.list();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (System - list)");
+
+		// Create provider
+		KatelloProvider prov = new KatelloProvider(provName, orgName, desc, KATELLO_SMALL_REPO);
+		res = prov.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (Provider - create)");
+		//List
+		res = prov.cli_list();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (Provider - list)");
+		String match_info = String.format(KatelloProvider.REG_PROVIDER_LIST,provName,KATELLO_SMALL_REPO,desc).replaceAll("\"", "");
+		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info),
+				String.format("Provider [%s] should be found in the list",provName));
+		
+		// Create Product
+		KatelloProduct prod = new KatelloProduct(prodName, orgName, provName, desc, null, null, null, null);
+		res = prod.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (Product - create)");
+		//List
+		res = prod.cli_list();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (Provider - list)");
+
+	}
+
 	@AfterClass(description="Remove org objects", alwaysRun=true)
 	public void tearDown() {
 		for (KatelloOrg org : orgs) {
