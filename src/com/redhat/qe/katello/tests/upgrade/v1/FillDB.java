@@ -8,7 +8,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloActivationKey;
 import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloDistribution;
@@ -153,8 +153,8 @@ public class FillDB implements KatelloConstants{
 		org.runAs(usrGuest);
 		res = org.cli_info();
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "check: org.info");
-		_name = KatelloUtils.grepCLIOutput("Name", KatelloCliTestScript.sgetOutput(res));
-		_description = KatelloUtils.grepCLIOutput("Description", KatelloCliTestScript.sgetOutput(res));
+		_name = KatelloUtils.grepCLIOutput("Name", KatelloCliTestBase.sgetOutput(res));
+		_description = KatelloUtils.grepCLIOutput("Description", KatelloCliTestBase.sgetOutput(res));
 		Assert.assertTrue(_name.equals(org.name), "stdout: org.name");
 		Assert.assertTrue(_description.equals(org.description), "stdout: org.description");
 		
@@ -163,9 +163,9 @@ public class FillDB implements KatelloConstants{
 		env.runAs(usrGuest);
 		res = env.cli_info();
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "check: environment.info");
-		_name = KatelloUtils.grepCLIOutput("Name", KatelloCliTestScript.sgetOutput(res));
-		_description = KatelloUtils.grepCLIOutput("Description", KatelloCliTestScript.sgetOutput(res));
-		_prior = KatelloUtils.grepCLIOutput("Prior Environment", KatelloCliTestScript.sgetOutput(res));
+		_name = KatelloUtils.grepCLIOutput("Name", KatelloCliTestBase.sgetOutput(res));
+		_description = KatelloUtils.grepCLIOutput("Description", KatelloCliTestBase.sgetOutput(res));
+		_prior = KatelloUtils.grepCLIOutput("Prior Environment", KatelloCliTestBase.sgetOutput(res));
 		Assert.assertTrue(_name.equals(env.getName()), "stdout: environment.name");
 		Assert.assertTrue(_description.equals(env.getDescription()), "stdout: environment.description");
 		Assert.assertTrue(_prior.equals(KatelloEnvironment.LIBRARY), "stdout: environment.prior");
@@ -174,9 +174,9 @@ public class FillDB implements KatelloConstants{
 		env.runAs(usrGuest);
 		res = env.cli_info();
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "check: environment.info");
-		_name = KatelloUtils.grepCLIOutput("Name", KatelloCliTestScript.sgetOutput(res));
-		_description = KatelloUtils.grepCLIOutput("Description", KatelloCliTestScript.sgetOutput(res));
-		_prior = KatelloUtils.grepCLIOutput("Prior Environment", KatelloCliTestScript.sgetOutput(res));
+		_name = KatelloUtils.grepCLIOutput("Name", KatelloCliTestBase.sgetOutput(res));
+		_description = KatelloUtils.grepCLIOutput("Description", KatelloCliTestBase.sgetOutput(res));
+		_prior = KatelloUtils.grepCLIOutput("Prior Environment", KatelloCliTestBase.sgetOutput(res));
 		Assert.assertTrue(_name.equals(env.getName()), "stdout: environment.name");
 		Assert.assertTrue(_description.equals(env.getDescription()), "stdout: environment.description");
 		Assert.assertTrue(_prior.equals(envNameTesting), "stdout: environment.prior");
@@ -259,7 +259,7 @@ public class FillDB implements KatelloConstants{
 		KatelloOrg org = new KatelloOrg("noPermit"+uid, null);org.runAs(usrGuest);
 		res = org.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue() == 147, "exit: org.create");
-		Assert.assertTrue(KatelloCliTestScript.sgetOutput(res).contains(
+		Assert.assertTrue(KatelloCliTestBase.sgetOutput(res).contains(
 				String.format(KatelloUser.ERR_NOT_ALLOWED_TO_ACCESS, userNameGuest)), 
 				"stderr: not allowed to access (org.create)");
 
@@ -267,7 +267,7 @@ public class FillDB implements KatelloConstants{
 		env.runAs(usrGuest);
 		res = env.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue() == 147, "exit: environment.create");
-		Assert.assertTrue(KatelloCliTestScript.sgetOutput(res).contains(
+		Assert.assertTrue(KatelloCliTestBase.sgetOutput(res).contains(
 				String.format(KatelloUser.ERR_NOT_ALLOWED_TO_ACCESS, userNameGuest)), 
 				"stderr: not allowed to access (environment.create)");
 		
@@ -275,7 +275,7 @@ public class FillDB implements KatelloConstants{
 		role.runAs(usrGuest);
 		res = env.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue() == 147, "exit: user_role.create");
-		Assert.assertTrue(KatelloCliTestScript.sgetOutput(res).contains(
+		Assert.assertTrue(KatelloCliTestBase.sgetOutput(res).contains(
 				String.format(KatelloUser.ERR_NOT_ALLOWED_TO_ACCESS, userNameGuest)), 
 				"stderr: not allowed to access (user_role.create)");
 		
@@ -283,7 +283,7 @@ public class FillDB implements KatelloConstants{
 		sys.runAs(usrGuest);
 		res = sys.rhsm_registerForce();
 		Assert.assertTrue(res.getExitCode().intValue() == 255, "exit: rhsm.register");
-		Assert.assertTrue(KatelloCliTestScript.sgetOutput(res).contains(
+		Assert.assertTrue(KatelloCliTestBase.sgetOutput(res).contains(
 				String.format(KatelloUser.ERR_NOT_ALLOWED_TO_ACCESS, userNameGuest)), 
 				"stderr: not allowed to access (rhsm.register)");
 
@@ -292,7 +292,7 @@ public class FillDB implements KatelloConstants{
 		org = new KatelloOrg(orgName, null);org.runAs(usrDisabled);
 		res = org.cli_info();
 		Assert.assertTrue(res.getExitCode().intValue() == 145, "exit: org.list");
-		Assert.assertTrue(KatelloCliTestScript.sgetOutput(res).contains(
+		Assert.assertTrue(KatelloCliTestBase.sgetOutput(res).contains(
 				KatelloUser.ERR_INVALID_CREDENTIALS), 
 				"stderr: invalid credentials (org.list)");
 
@@ -300,7 +300,7 @@ public class FillDB implements KatelloConstants{
 		sysGrp.runAs(usrDisabled);
 		res = sysGrp.info();
 		Assert.assertTrue(res.getExitCode().intValue() == 145, "exit: system_group.info");
-		Assert.assertTrue(KatelloCliTestScript.sgetOutput(res).contains(
+		Assert.assertTrue(KatelloCliTestBase.sgetOutput(res).contains(
 				KatelloUser.ERR_INVALID_CREDENTIALS), 
 				"stderr: invalid credentials (system_group.info)");
 		
@@ -312,7 +312,7 @@ public class FillDB implements KatelloConstants{
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: environment.create");
 		res = env.cli_info();
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "exit: environment.info");
-		String prior = KatelloUtils.grepCLIOutput("Prior Environment", KatelloCliTestScript.sgetOutput(res));
+		String prior = KatelloUtils.grepCLIOutput("Prior Environment", KatelloCliTestBase.sgetOutput(res));
 		Assert.assertTrue(prior.equals(envNameDevelopment), "stdout: prior environment");
 
 		log.info(String.format("Additional rw permissions on environment: [%s]",env.getName()));
@@ -414,7 +414,7 @@ public class FillDB implements KatelloConstants{
 		KatelloGpgKey key = new KatelloGpgKey(gpgKeyZoo, orgName, null);
 		key.runAs(orgAdmin);
 		res = key.cli_info();
-		Assert.assertTrue(KatelloCliTestScript.sgetOutput(res).contains(productZoo), "check GPG key info has product Zoo");
+		Assert.assertTrue(KatelloCliTestBase.sgetOutput(res).contains(productZoo), "check GPG key info has product Zoo");
 	}
 	
 	@Test(groups={TNG_POST_UPGRADE},

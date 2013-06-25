@@ -45,7 +45,7 @@ public class KatelloSystemGroup extends _KatelloObject{
 	public static final String REG_SYSTEMGROUP_INFO = ".*ID\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Description\\s*:\\s+%s.*Max Systems\\s*:\\s+%s.*";
 	public static final String REG_SYSTEMGROUP_LIST = ".*\\s+\\d+.*\\s+%s.*";
 	public static final String REG_SYSTEM_LIST = ".*\\s+%s.*\\s+%s.*";
-	public static final String REG_SYSTEMGROUP_ERRATA_INFO = ".*Id:\\s*%s\\s*Title:\\s*%s\\s*Type:\\s*%s#\\s*Systems\\s*:\\s*%s\\s*Systems:\\s*%s.*";
+	public static final String REG_SYSTEMGROUP_ERRATA_INFO = ".*ID\\s*:\\s*%s\\s*Title\\s*:\\s*%s\\s*Type\\s*:\\s*%s#\\s*Systems\\s*:\\s*%s\\s*Systems\\s*:\\s*%s.*";
 	
 	public KatelloSystemGroup(String pName, String pOrg) {
 		this(pName, pOrg, null, null);

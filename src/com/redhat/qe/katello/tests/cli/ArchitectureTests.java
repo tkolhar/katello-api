@@ -4,13 +4,13 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloArchitecture;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups={"foreman"})
-public class ArchitectureTests extends KatelloCliTestScript {
+public class ArchitectureTests extends KatelloCliTestBase {
 	
 	private String name;
 	private String new_name;

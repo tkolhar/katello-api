@@ -21,7 +21,7 @@ public class DeltaCloudAPI {
 	
 	public static DeltaCloudInstance provideServer(boolean nowait, String hostname) {
 		String image = System.getProperty("deltacloud.server.imageid", "7657667a-4108-4484-88d2-c103467a20b3");
-		return provideMachine(nowait, hostname, "4096", "50", image);
+		return provideMachine(nowait, hostname, "6144", "50", image);
 	}
 
 	public static DeltaCloudInstance provideClient(boolean nowait, String hostname) {

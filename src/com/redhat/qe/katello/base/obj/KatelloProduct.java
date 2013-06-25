@@ -5,7 +5,7 @@ import java.util.StringTokenizer;
 import java.util.logging.Logger;
 import javax.management.Attribute;
 import org.testng.Assert;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class KatelloProduct extends _KatelloObject{
@@ -286,7 +286,7 @@ public class KatelloProduct extends _KatelloObject{
 		opts.add(new Attribute("provider", provider));
 		SSHCommandResult res = runExt(CLI_CMD_LIST+" -v","| grep -e \"^Name\" |cut -f2 -d:");
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - exit.Code==0");
-		StringTokenizer toks = new StringTokenizer(KatelloCliTestScript.sgetOutput(res), "\n");
+		StringTokenizer toks = new StringTokenizer(KatelloCliTestBase.sgetOutput(res), "\n");
 		while(toks.hasMoreTokens()) 
 			_ret.add(toks.nextToken().trim());
 		return _ret;
@@ -304,13 +304,13 @@ public class KatelloProduct extends _KatelloObject{
 		log.info("Assertions: product exists");
 		res = cli_list();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		Assert.assertTrue(KatelloCliTestScript.sgetOutput(res).replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST),
+		Assert.assertTrue(KatelloCliTestBase.sgetOutput(res).replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST),
 				"List should contain info about product (requested by: provider)");
 
 		if(envName!=null){
 			res = cli_list(envName);
 			Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-			Assert.assertTrue(KatelloCliTestScript.sgetOutput(res).replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST), 
+			Assert.assertTrue(KatelloCliTestBase.sgetOutput(res).replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST), 
 					"List should contain info about product (requested by: environment)");
 		}
 		
@@ -318,7 +318,7 @@ public class KatelloProduct extends _KatelloObject{
 			res = status();
 			Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 			String REGEXP_PRODUCT_STATUS = ".*Name\\s*:\\s+"+this.name+".*Provider Name\\s*:\\s+"+this.provider+".*Last Sync\\s*:\\s+never.*Sync State\\s*:\\s+Not synced.*";
-			Assert.assertTrue(KatelloCliTestScript.sgetOutput(res).replaceAll("\n", "").matches(REGEXP_PRODUCT_STATUS), 
+			Assert.assertTrue(KatelloCliTestBase.sgetOutput(res).replaceAll("\n", "").matches(REGEXP_PRODUCT_STATUS), 
 					"List should contain status of product (not synced)");
 		}else{
 			// TODO - needs an implementation - when product is synchronized.

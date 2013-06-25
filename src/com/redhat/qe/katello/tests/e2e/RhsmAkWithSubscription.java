@@ -3,7 +3,7 @@ package com.redhat.qe.katello.tests.e2e;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloActivationKey;
 import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
 import com.redhat.qe.katello.base.obj.KatelloContentView;
@@ -26,7 +26,7 @@ import com.redhat.qe.tools.SSHCommandResult;
  * 	<a href='https://tcms.engineering.redhat.com/case/268913/?from_plan=4785'>TCMS</a>
  */
 @Test(groups={"cfse-e2e"})
-public class RhsmAkWithSubscription extends KatelloCliTestScript{
+public class RhsmAkWithSubscription extends KatelloCliTestBase{
 	
 	private final String uid = KatelloUtils.getUniqueID(); 
 	private String org = "AwesomeOrg-"+uid;

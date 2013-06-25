@@ -4,14 +4,14 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloActivationKey;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
-public class Localization extends KatelloCliTestScript{
+public class Localization extends KatelloCliTestBase{
 	
 	private String organization;
 	private String env;
@@ -35,7 +35,7 @@ public class Localization extends KatelloCliTestScript{
     @Test(description="Tests creating activation key by providing name got from i18n messages.properties.")
     public void test_createAKLocale() {
     	String uid = KatelloUtils.getUniqueID();
-    	String akName = KatelloCliTestScript.getText("ak.name")+uid;
+    	String akName = KatelloCliTestBase.getText("ak.name")+uid;
     	SSHCommandResult res;
 
     	KatelloActivationKey ak = new KatelloActivationKey(this.organization, this.env, akName, "Activation key to with localized name", null);

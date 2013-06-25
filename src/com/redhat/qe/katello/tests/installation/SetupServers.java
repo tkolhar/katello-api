@@ -4,12 +4,12 @@ import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.DeltaCloudInstance;
 import com.redhat.qe.katello.common.KatelloUtils;
 
 @Test(groups = { "cfse-cli", "headpin-cli" })
-public class SetupServers extends KatelloCliTestScript {
+public class SetupServers extends KatelloCliTestBase {
 
 	protected DeltaCloudInstance server;
 	protected String server_name;
@@ -25,12 +25,15 @@ public class SetupServers extends KatelloCliTestScript {
 			server = KatelloUtils.getDeltaCloudServer();
 			server_name = server.getHostName();
 
-			System.setProperty("katello.server.hostname", server_name);
-			System.setProperty("katello.client.hostname", server_name);
+			if (Boolean.parseBoolean(System.getProperty(
+					"deltacloud.installserver", "true"))) {
+				System.setProperty("katello.server.hostname", server_name);
+				System.setProperty("katello.client.hostname", server_name);
+			}
 		}
 	}
 
-	@AfterSuite
+	@AfterSuite(alwaysRun=true)
 	public void tearDown() {
 		if (isDeltacloud) {
 			KatelloUtils.destroyDeltaCloudMachine(server);

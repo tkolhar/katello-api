@@ -1,12 +1,12 @@
 package com.redhat.qe.katello.tests.cli;
 import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloVersion;
 
 import com.redhat.qe.tools.SSHCommandResult;
 @Test(groups={"headpin-cli","Install / Configuration"})
-public class VersionTest extends KatelloCliTestScript{
+public class VersionTest extends KatelloCliTestBase{
 	private SSHCommandResult exec_result;
 	
 	@Test(description = "Version - get the version of the server")

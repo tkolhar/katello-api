@@ -3,12 +3,12 @@ package com.redhat.qe.katello.tests.i18n;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
-public class OrgTests extends KatelloCliTestScript {
+public class OrgTests extends KatelloCliTestBase {
 	
 	private String orgName;
 	private String orgDescr;

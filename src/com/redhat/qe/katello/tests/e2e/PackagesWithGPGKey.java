@@ -7,7 +7,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloGpgKey;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
@@ -24,7 +24,7 @@ import com.redhat.qe.tools.SSHCommandResult;
  * @author gkhachik
  */
 @Test(groups={"cfse-e2e"})
-public class PackagesWithGPGKey extends KatelloCliTestScript{
+public class PackagesWithGPGKey extends KatelloCliTestBase{
 	protected static Logger log = Logger.getLogger(PackagesWithGPGKey.class.getName());
 
 	private String org;

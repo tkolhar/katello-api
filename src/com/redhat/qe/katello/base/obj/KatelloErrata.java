@@ -1,6 +1,7 @@
 package com.redhat.qe.katello.base.obj;
 
 import javax.management.Attribute;
+
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class KatelloErrata extends _KatelloObject{
@@ -86,6 +87,43 @@ public class KatelloErrata extends _KatelloObject{
 		opts.add(new Attribute("content_view_id", content_view_id));
 		return run(CMD_LIST);
 	}
+
+	public SSHCommandResult custom_list_errata_names(String query) {
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		if (this.product_id != null) {
+			opts.add(new Attribute("product_id", product_id));
+		} else {
+			opts.add(new Attribute("product", product));
+		}
+		opts.add(new Attribute("repo", repo));
+		opts.add(new Attribute("environment", environment));
+		opts.add(new Attribute("type", type));
+		opts.add(new Attribute("content_view", content_view));
+		opts.add(new Attribute("content_view_label", content_view_label));
+		opts.add(new Attribute("content_view_id", content_view_id));
+
+		return runExt(CMD_LIST, " | grep \"" + query + "\" | awk '{print $1}'");
+	}
+	
+	public SSHCommandResult custom_list_errata_count(String query) {
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		if (this.product_id != null) {
+			opts.add(new Attribute("product_id", product_id));
+		} else {
+			opts.add(new Attribute("product", product));
+		}
+		opts.add(new Attribute("repo", repo));
+		opts.add(new Attribute("environment", environment));
+		opts.add(new Attribute("type", type));
+		opts.add(new Attribute("content_view", content_view));
+		opts.add(new Attribute("content_view_label", content_view_label));
+		opts.add(new Attribute("content_view_id", content_view_id));
+		
+		return runExt(CMD_LIST, " | grep \"" + query + "\" | wc -l");
+	}
+
 	
 	// ** ** ** ** ** ** **
 	// ASSERTS

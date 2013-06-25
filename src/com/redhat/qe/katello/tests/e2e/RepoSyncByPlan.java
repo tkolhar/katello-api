@@ -7,7 +7,7 @@ import java.util.Date;
 import java.util.logging.Logger;
 import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloPackage;
@@ -22,7 +22,7 @@ import com.redhat.qe.tools.SSHCommandResult;
 //TODO [gkhachik] - I am giving up here for now: too hard for debugging to see why the sync plan not works as expected.
 
 @Test(groups={"cfse-e2e"})
-public class RepoSyncByPlan extends KatelloCliTestScript{
+public class RepoSyncByPlan extends KatelloCliTestBase{
 	protected static Logger log = Logger.getLogger(RepoSyncByPlan.class.getName());
 	
 	private SSHCommandResult exec_result;

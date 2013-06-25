@@ -5,14 +5,14 @@ import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloUserRole;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups={TngRunGroups.TNG_KATELLO_Users_Roles})
-public class UserRoleTests extends KatelloCliTestScript{
+public class UserRoleTests extends KatelloCliTestBase{
 
 	@Test(description="53f5c215-3dd8-45e7-819d-1fdf69886d63", groups = {"headpin-cli"}, 
 			dataProvider="user_role_create", dataProviderClass = KatelloCliDataProvider.class, enabled=true)

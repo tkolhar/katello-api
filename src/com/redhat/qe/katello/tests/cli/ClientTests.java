@@ -3,13 +3,13 @@ import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloClient;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 @Test(groups={"headpin-cli",TngRunGroups.TNG_KATELLO_Install_Configuration})
-public class ClientTests extends KatelloCliTestScript{
+public class ClientTests extends KatelloCliTestBase{
 	
 	private SSHCommandResult exec_result;
 	

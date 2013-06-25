@@ -7,7 +7,7 @@ import javax.management.Attribute;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.testng.Assert;
 
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
@@ -223,7 +223,7 @@ public class KatelloOrg extends _KatelloObject{
 		opts.clear();
 		SSHCommandResult res = runExt(CLI_CMD_LIST+" -v","| grep -e \"^Name\" |cut -f2 -d:");
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - exit.Code==0");
-		StringTokenizer toks = new StringTokenizer(KatelloCliTestScript.sgetOutput(res), "\n");
+		StringTokenizer toks = new StringTokenizer(KatelloCliTestBase.sgetOutput(res), "\n");
 		while(toks.hasMoreTokens()) 
 			_ret.add(toks.nextToken().trim());
 		return _ret;
@@ -233,7 +233,7 @@ public class KatelloOrg extends _KatelloObject{
 		if(defaultOrg!=null) 
 			return defaultOrg;
 		SSHCommandResult res = KatelloUtils.sshOnServer("cat /etc/katello/katello-configure.conf | grep -E \"org_name\\s*=\" | cut -f2 -d\"=\" | sed 's/ *$//g' | sed 's/^ *//g'");
-		defaultOrg = KatelloCliTestScript.sgetOutput(res);
+		defaultOrg = KatelloCliTestBase.sgetOutput(res);
 		if(defaultOrg.isEmpty())
 			defaultOrg = DEFAULT_ORG;
 		return defaultOrg;
@@ -242,7 +242,7 @@ public class KatelloOrg extends _KatelloObject{
 	public static String getPoolId(String orgName, String productName){
 		SSHCommandResult res = new KatelloOrg(orgName, null).subscriptions(); // all subscriptions
 		String outBlock = KatelloUtils.grepOutBlock(
-				"Subscription", productName, KatelloCliTestScript.sgetOutput(res)); // filter our product's output block
+				"Subscription", productName, KatelloCliTestBase.sgetOutput(res)); // filter our product's output block
 		return KatelloUtils.grepCLIOutput("ID", outBlock); // grep poolid
 	}
 

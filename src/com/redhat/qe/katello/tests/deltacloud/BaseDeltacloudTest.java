@@ -3,26 +3,26 @@ package com.redhat.qe.katello.tests.deltacloud;
 import java.io.File;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.DeltaCloudInstance;
+import com.redhat.qe.katello.base.obj.KatelloActivationKey;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
-import com.redhat.qe.katello.base.obj.KatelloSystem;
-import com.redhat.qe.katello.base.obj.KatelloSystemGroup;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SCPTools;
 import com.redhat.qe.tools.SSHCommandResult;
 
-public class BaseDeltacloudTest extends KatelloCliTestScript {
+public class BaseDeltacloudTest extends KatelloCliTestBase {
 
 	public static final String MANIFEST_12SUBSCRIPTIONS = "manifest-automation-CLI-12subscriptions.zip";
 	
 	protected SSHCommandResult exec_result;
 
 	// Katello objects below
+	protected String uid;
 	protected static String org_name;
 	protected static String provider_name;
 	protected static String product_name;
@@ -45,11 +45,17 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 	protected static String client_name;
 	protected static String client_name2;
 	protected static String client_name3;
+	protected static String zoo_repo_view;
+	protected static String rhel_repo_view;
+	protected static String zoo_act_key;
+	protected static String rhel_act_key;
+	protected static String poolId1;
+	protected static String poolId2;
 
 	public void setUp(){
 		if (server != null) return;
 		
-		String uid = KatelloUtils.getUniqueID();
+		uid = KatelloUtils.getUniqueID();
 		org_name = "org_"+uid;
 		provider_name = "provider_"+uid;
 		product_name = "product_"+uid;
@@ -59,8 +65,8 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 		system_name = "system_"+uid;
 		system_name2 = "system2_"+uid;
 		system_name3 = "system3_"+uid;
-		group_name = "group_"+uid;
-		group_name2 = "group2_"+uid;
+		zoo_act_key = "zookey"+uid;
+		rhel_act_key = "rhelkey"+uid;
 		
 		server = KatelloUtils.getDeltaCloudServer();
 		server_name = server.getHostName();
@@ -112,7 +118,7 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 		exec_result = repo.synchronize();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		KatelloUtils.promoteProductToEnvironment(org_name, product_name, env_name);
+		zoo_repo_view = KatelloUtils.promoteProductToEnvironment(org_name, product_name, env_name);
 		
 		SCPTools scp = new SCPTools(
 		System.getProperty("katello.server.hostname", "localhost"), 
@@ -138,87 +144,42 @@ public class BaseDeltacloudTest extends KatelloCliTestScript {
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo enable)");
 		Assert.assertTrue(getOutput(res).contains("enabled."),"Message - (repo enable)");
 		
-		KatelloUtils.promoteProductToEnvironment(org_name, KatelloProduct.RHEL_SERVER, env_name2);
+		//KatelloUtils.promoteProductToEnvironment(org_name, KatelloProduct.RHEL_SERVER, env_name2);
 		
 		res = repo.synchronize();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo synchronize)");
 		waitfor_repodata(repo, 2);
-		res = repo.info();
-		String progress = KatelloUtils.grepCLIOutput("Progress", res.getStdout());
-		Assert.assertTrue(progress.equals("Finished"), "Check: status of repo sync - Finished");
+//		res = repo.info();
+//		String progress = KatelloUtils.grepCLIOutput("Progress", res.getStdout());
+//		Assert.assertTrue(progress.equals("Finished"), "Check: status of repo sync - Finished");
 		
-		KatelloUtils.promoteProductToEnvironment(org_name, KatelloProduct.RHEL_SERVER, env_name);
+		rhel_repo_view = KatelloUtils.promoteProductToEnvironment(org_name, KatelloProduct.RHEL_SERVER, env_name);
 		
-		KatelloSystem sys = new KatelloSystem(system_name, org_name, env_name);
-		sys.runOn(client_name);
-		exec_result = sys.rhsm_registerForce(); 
-		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
-		
-		exec_result = sys.rhsm_identity();
-		system_uuid = KatelloUtils.grepCLIOutput("Current identity is", exec_result.getStdout());
-		
-		exec_result = sys.subscriptions_available();
-		String poolId1 = KatelloUtils.grepCLIOutput("Id", getOutput(exec_result).trim(),1);
-		String poolId2 = KatelloUtils.grepCLIOutput("Id", getOutput(exec_result).trim(),2);
+		exec_result = org.subscriptions();
+		poolId1 = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
 		Assert.assertNotNull(poolId1, "Check - pool Id is not null");
+		poolId2 = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result).trim(),2);
+		Assert.assertNotNull(poolId2, "Check - pool Id is not null");
 		
-		exec_result = sys.subscribe(poolId1);
+		KatelloActivationKey act_key = new KatelloActivationKey(org_name,env_name,zoo_act_key,"Act key created");
+		exec_result = act_key.create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");      
+		exec_result = act_key.update_add_content_view(zoo_repo_view);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");      
+		exec_result = act_key.update_add_subscription(poolId1);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		exec_result = act_key.update_add_subscription(poolId2);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		exec_result = sys.subscribe(poolId2);
+		act_key = new KatelloActivationKey(org_name,env_name,rhel_act_key,"Act key created");
+		exec_result = act_key.create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");      
+		exec_result = act_key.update_add_content_view(rhel_repo_view);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");      
+		exec_result = act_key.update_add_subscription(poolId1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		sys = new KatelloSystem(system_name2, org_name, env_name);
-		sys.runOn(client_name2);
-		exec_result = sys.rhsm_registerForce(); 
-		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
-		
-		exec_result = sys.rhsm_identity();
-		system_uuid2 = KatelloUtils.grepCLIOutput("Current identity is", exec_result.getStdout());
-		
-		exec_result = sys.subscribe(poolId1);
+		exec_result = act_key.update_add_subscription(poolId2);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-
-		exec_result = sys.subscribe(poolId2);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		sys = new KatelloSystem(system_name3, org_name, env_name);
-		sys.runOn(client_name3);
-		exec_result = sys.rhsm_registerForce(); 
-		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
-		
-		exec_result = sys.rhsm_identity();
-		system_uuid3 = KatelloUtils.grepCLIOutput("Current identity is", exec_result.getStdout());
-		
-		exec_result = sys.subscribe(poolId1);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		exec_result = sys.subscribe(poolId2);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		KatelloSystemGroup group = new KatelloSystemGroup(group_name, org_name);
-		exec_result = group.create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		exec_result = group.add_systems(system_uuid);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-
-		exec_result = group.add_systems(system_uuid2);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		exec_result = group.add_systems(system_uuid3);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		group = new KatelloSystemGroup(group_name2, org_name);
-		exec_result = group.create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		exec_result = group.add_systems(system_uuid2);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-
-		KatelloUtils.sshOnClient(client_name, "service goferd restart;");
-		KatelloUtils.sshOnClient(client_name2, "service goferd restart;");
-		KatelloUtils.sshOnClient(client_name3, "service goferd restart;");
 	}
 	
 	public void tearDown() {

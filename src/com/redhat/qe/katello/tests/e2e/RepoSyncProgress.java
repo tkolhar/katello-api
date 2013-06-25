@@ -10,7 +10,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
 import com.redhat.qe.katello.base.obj.KatelloContentView;
@@ -53,7 +53,7 @@ import com.redhat.qe.tools.SSHCommandResult;
  * @since 07.Nov.2012 
  */
 @Test(groups={"cfse-e2e"})
-public class RepoSyncProgress extends KatelloCliTestScript{
+public class RepoSyncProgress extends KatelloCliTestBase{
 	protected static Logger log = Logger.getLogger(RepoSyncProgress.class.getName());
 
 	private String orgName;

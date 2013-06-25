@@ -4,7 +4,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
 import com.redhat.qe.katello.base.obj.KatelloContentView;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
@@ -22,7 +22,7 @@ import com.redhat.qe.tools.SSHCommandResult;
 
 	
 @Test(groups={"cfse-cli",TngRunGroups.TNG_KATELLO_Content})
-public class ContentDefAccessTests extends KatelloCliTestScript{
+public class ContentDefAccessTests extends KatelloCliTestBase{
 
 	private SSHCommandResult exec_result;
 	private String org_name;

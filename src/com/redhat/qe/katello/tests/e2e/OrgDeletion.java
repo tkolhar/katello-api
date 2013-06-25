@@ -5,7 +5,7 @@ import java.util.logging.Logger;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
@@ -17,7 +17,7 @@ import com.redhat.qe.tools.SSHCommandResult;
 
 
 @Test(groups={TngRunGroups.TNG_KATELLO_Organizations}) // there is scenario in TCMS under Organizations plan.
-public class OrgDeletion extends KatelloCliTestScript{
+public class OrgDeletion extends KatelloCliTestBase{
 	protected static Logger log = Logger.getLogger(BPMTests.class.getName());
 	
 	private SSHCommandResult exec_result;

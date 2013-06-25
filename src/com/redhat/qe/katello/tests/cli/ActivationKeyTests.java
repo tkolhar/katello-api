@@ -5,7 +5,7 @@ import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloActivationKey;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
@@ -19,7 +19,7 @@ import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups={TngRunGroups.TNG_KATELLO_Activation_Key})
-public class ActivationKeyTests extends KatelloCliTestScript{
+public class ActivationKeyTests extends KatelloCliTestBase{
 	private String organization;
 	private String env;
 	private String systemgroup;
@@ -86,7 +86,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 	}
 		
 	// @ TODO enable test when bug 909612 is fixed.
-    @Test(description="add subscription to ak, verify that it is shown in info, remove it, verify that is is not shown", enabled=false)
+    @Test(description="add subscription to ak, verify that it is shown in info, remove it, verify that is is not shown", enabled=true)
     public void test_update_addremoveSubscription(){
     	String uid = KatelloUtils.getUniqueID();
     	String akName="ak-subscription-zoo3-"+uid;
@@ -106,8 +106,6 @@ public class ActivationKeyTests extends KatelloCliTestScript{
     	KatelloRepo repo = new KatelloRepo(repoName, this.organization, productName, REPO_INECAS_ZOO3, null, null);
     	res = repo.create();
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
-//		res = prod.promote(this.env);
-//		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 		
     	KatelloOrg org = new KatelloOrg(this.organization, null);
     	res = org.subscriptions();
@@ -335,7 +333,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 		res = sys.info();
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
-		Assert.assertTrue(KatelloCliTestScript.sgetOutput(res).contains(akName1 +", "+akName2), 
+		Assert.assertTrue(KatelloCliTestBase.sgetOutput(res).contains(akName1 +", "+akName2), 
 				          String.format("Activationkeys [%s] found in system [%s] info",act_list,systemName));		
     }
     
@@ -355,7 +353,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 		res = sys.info();
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
-		Assert.assertTrue(KatelloCliTestScript.sgetOutput(res).contains(akName), 
+		Assert.assertTrue(KatelloCliTestBase.sgetOutput(res).contains(akName), 
 				          String.format("Activationkey [%s] found in system [%s] info",akName,systemName));		
 				
     }

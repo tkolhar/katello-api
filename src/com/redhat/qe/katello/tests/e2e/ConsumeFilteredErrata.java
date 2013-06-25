@@ -5,7 +5,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloActivationKey;
 import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
 import com.redhat.qe.katello.base.obj.KatelloContentFilter;
@@ -24,7 +24,7 @@ import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups=TngRunGroups.TNG_KATELLO_Content)
-public class ConsumeFilteredErrata extends KatelloCliTestScript {
+public class ConsumeFilteredErrata extends KatelloCliTestBase {
 	
 	String uid = KatelloUtils.getUniqueID();
 	String org_name = "orgcon-"+ uid;
@@ -231,6 +231,8 @@ public class ConsumeFilteredErrata extends KatelloCliTestScript {
 		exec_result = group.erratas_install(installERROR.toString());
 		Assert.assertFalse(exec_result.getExitCode().intValue()==0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("Remote action failed"));
+		
+		verify_PackagesNotAvailable(new String[] {"bat-3.10.7-1", "bird-5.1.11-1", "rat-7.7.2-1", "fox-10.8.2-1", "crab-5.5.4-1", "monkey-2.8.10-1", "eagle-9.8.10-1"});
 	}
 	
 	@AfterClass(description="cleanup RHSM stuff, yum erase packages")

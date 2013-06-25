@@ -8,7 +8,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
@@ -18,7 +18,7 @@ import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(
 		groups={"SystemInfoTests","cfse-cli","headpin-cli",TngRunGroups.TNG_KATELLO_System_Consumer})
-public class SystemInfoTests extends KatelloCliTestScript{	
+public class SystemInfoTests extends KatelloCliTestBase{	
 	protected static Logger log = Logger.getLogger(SystemTests.class.getName());
 	
 	private SSHCommandResult exec_result;

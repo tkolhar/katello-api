@@ -1,13 +1,59 @@
 package com.redhat.qe.katello.tests.deltacloud;
 
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
+import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.base.obj.KatelloSystemGroup;
 import com.redhat.qe.katello.common.KatelloUtils;
 
 @Test(groups="cfse-pack", dependsOnGroups="cfse-dc-errata")
 public class SystemGroupPackages extends BaseDeltacloudTest {
+	
+	@BeforeClass
+	public void setUp() {
+		rhsm_clean(client_name);
+		rhsm_clean(client_name2);
+		rhsm_clean(client_name3);
+		
+		KatelloSystem sys = new KatelloSystem(system_name, org_name, env_name);
+		sys.runOn(client_name);
+		exec_result = sys.rhsm_registerForce(zoo_act_key); 
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");		
+		exec_result = sys.rhsm_identity();
+		system_uuid = KatelloUtils.grepCLIOutput("Current identity is", exec_result.getStdout());
+		
+		sys = new KatelloSystem(system_name2, org_name, env_name);
+		sys.runOn(client_name2);
+		exec_result = sys.rhsm_registerForce(zoo_act_key); 
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		exec_result = sys.rhsm_identity();
+		system_uuid2 = KatelloUtils.grepCLIOutput("Current identity is", exec_result.getStdout());
+		
+		sys = new KatelloSystem(system_name3, org_name, env_name);
+		sys.runOn(client_name3);
+		exec_result = sys.rhsm_registerForce(zoo_act_key); 
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		exec_result = sys.rhsm_identity();
+		system_uuid3 = KatelloUtils.grepCLIOutput("Current identity is", exec_result.getStdout());
+		
+		String uid = KatelloUtils.getUniqueID();
+		group_name = "group_"+uid;
+		
+		KatelloSystemGroup group = new KatelloSystemGroup(group_name, org_name);
+		exec_result = group.create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		exec_result = group.add_systems(system_uuid);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+
+		exec_result = group.add_systems(system_uuid2);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		exec_result = group.add_systems(system_uuid3);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+	}
 	
 	@Test(description = "Install lion package in system group, verify that wolf and lion are installed")
 	public void test_installPackageOnSystemGroup() {

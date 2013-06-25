@@ -15,11 +15,11 @@ import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class KatelloCliTestScript 
+public class KatelloCliTestBase 
 extends com.redhat.qe.auto.testng.TestScript 
 implements KatelloConstants {
 
-	protected static Logger log = Logger.getLogger(KatelloCliTestScript.class.getName());
+	protected static Logger log = Logger.getLogger(KatelloCliTestBase.class.getName());
 	
 	private static ResourceBundle messageBundle = null;
 	private static ResourceBundle inputBundle = null;
@@ -27,7 +27,7 @@ implements KatelloConstants {
 	private static final String inputFileName = "inputs";
 
 	private int platform_id = -1; // made a class property - in case in the tests there would be a need to check platform.
-	public KatelloCliTestScript() {
+	public KatelloCliTestBase() {
 		super();
 	}
 	
