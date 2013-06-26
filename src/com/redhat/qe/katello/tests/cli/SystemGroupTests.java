@@ -41,7 +41,7 @@ public class SystemGroupTests extends KatelloCliTestBase{
 		KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);
 	}
 	
-	@BeforeClass(description="init: katello specific, no headpin", dependsOnMethods={"setUp"})
+	@BeforeClass(description="init: katello specific, no headpin",groups={"cfse-cli"}, dependsOnMethods={"setUp"})
 	public void setUp_katelloOnly(){
 		this.envName = "Dev-"+uid;
 		// Create the env.
