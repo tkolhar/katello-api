@@ -65,12 +65,13 @@ public class ContentTest extends KatelloCliLongrunBase {
 		KatelloRepo repo = new KatelloRepo(KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, base_org_name, KatelloProduct.RHEL_SERVER, null, null, null);
 
 		res = repo.status();
-		this.repoSynced = !getOutput(res).equals("Not synced");
+		this.repoSynced = !(getOutput(res).equals("Not synced") || KatelloUtils.grepCLIOutput("Last Sync", getOutput(res)).equals("never"));
 		if(!repoSynced){
 			res = repo.synchronize();
 			Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo synchronize)");
 		}
-		res = repo.info();
+		
+		res = repo.status();
 		Assert.assertFalse(KatelloUtils.grepCLIOutput("Package Count", getOutput(res)).equals("0"), "Check - package count is NOT 0");
 		
 		// promote
@@ -100,11 +101,12 @@ public class ContentTest extends KatelloCliLongrunBase {
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - exit.Code");
 		String output = getOutput(res);
 		String regExp = ".*The system has been registered with id:.*" +
-				"Service level set to:\\s+ Self-support.*" +
+				"Service level set to:\\s+Self-support.*" +
 				"Installed Product Current Status:.*" +
 				"Product Name:\\s+"+KatelloProduct.RHEL_SERVER+".*" +
 				"Status:\\s+Subscribed.*";
-		Assert.assertTrue(output.matches(regExp), "Check - output matches to regexp");
+		Assert.assertTrue(output.replaceAll("\n", "").matches(regExp), 
+				"Check - output matches to regexp");
 	}
 
 	@AfterClass(description="cleanup the stuff", alwaysRun=true)
