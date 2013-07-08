@@ -41,22 +41,46 @@ public class PackageGroupTests extends KatelloCliTestBase {
 		Assert.assertTrue(getOutput(exec_result).contains("mammals"));
 		Assert.assertTrue(getOutput(exec_result).contains("birds"));
 		
-		packGr.id = "birds";
+		packGr.id = grep_packageGroupID(getOutput(exec_result), "birds");
 		packGr.name = "birds";
 		assert_packageGroupInfo(packGr, repo_id);
 		
-		packGr.id = "mammals";
+		packGr.id = grep_packageGroupID(getOutput(exec_result), "mammals");
 		packGr.name = "mammals";
 		assert_packageGroupInfo(packGr, repo_id);
+	}
+	
+	@Test(description="package_group category list")
+	public void testPackageGroupCategoryList() {
+		KatelloRepo repo = new KatelloRepo(cli_worker, base_zoo_repo_name, base_org_name, base_zoo_product_name, REPO_INECAS_ZOO3, null, null);
+		exec_result = repo.info();
+		String repo_id = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
+
+		KatelloPackageGroup packGr = new KatelloPackageGroup(cli_worker, null, null, null);
+		exec_result = packGr.cli_category_list(repo_id);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check exit code (package_group category_list)");
+		String category_id = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
+
+		exec_result = packGr.cli_category_info(repo_id, category_id);
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (package_group category_info)");
 	}
 
 	private void assert_packageGroupInfo(KatelloPackageGroup pack, String repoId){
 		SSHCommandResult res;
 		res = pack.cli_info(repoId);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 		
 		Assert.assertTrue(getOutput(res).contains(pack.id), "Check - package group Id should exist in list result");		
 		Assert.assertTrue(getOutput(res).contains(pack.name), "Check - package group name should exist in list result");
 	}
 
+	private String grep_packageGroupID(String output, String groupname) {
+		String[] lines = output.split("\\n");
+		for (int i = 0; i < lines.length; i++) {
+			if (lines[i].contains(groupname)) {
+				return lines[i].split(" ")[0];
+			}
+		}
+		return null;
+	}
 }
