@@ -33,7 +33,7 @@ import com.redhat.qe.tools.SSHCommandResult;
  * </pre>
  * @author gkhachik
  */
-@Test(groups={"cfse-e2e"})
+@Test(groups={"cfse-e2e"}, singleThreaded = true)
 public class PromoteWithFilters extends KatelloCliTestBase{
 	protected static Logger log = Logger.getLogger(PromoteWithFilters.class.getName());
 
@@ -56,33 +56,33 @@ public class PromoteWithFilters extends KatelloCliTestBase{
 		this.repo = "ZooRepo"+uniqueID;
 		
 		log.info("E2E - Create org/env");
-		KatelloOrg org = new KatelloOrg(this.org, null);
+		KatelloOrg org = new KatelloOrg(this.cli_worker, this.org, null);
 		org.cli_create();
-		KatelloEnvironment env = new KatelloEnvironment(this.env, null, this.org, KatelloEnvironment.LIBRARY);
+		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, this.env, null, this.org, KatelloEnvironment.LIBRARY);
 		env.cli_create();
 	}
 	
 	@Test(description="Create org, provider, product and repo", enabled=true)
 	public void test_prepareRepo(){
 		log.info("E2E - Create provider/product/repo");
-		KatelloProvider prov = new KatelloProvider(this.provider,this.org, null, null);
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, this.provider,this.org, null, null);
 		prov.create(); // create provider
-		KatelloProduct prod = new KatelloProduct(this.product, this.org, this.provider, null, null, null, null, null);
+		KatelloProduct prod = new KatelloProduct(this.cli_worker, this.product, this.org, this.provider, null, null, null, null, null);
 		prod.create(); // create product
-		KatelloRepo repo = new KatelloRepo(this.repo, this.org, this.product, PackagesWithGPGKey.REPO_INECAS_ZOO3, null, null);
+		KatelloRepo repo = new KatelloRepo(this.cli_worker, this.repo, this.org, this.product, PackagesWithGPGKey.REPO_INECAS_ZOO3, null, null);
 		repo.create(); // create repo
 	}
 	
 	@Test(description="Promote empty product/repo structure to Dev", dependsOnMethods={"test_prepareRepo"}, enabled=true)
 	public void test_promoteToDevNoSync(){
 		log.info("E2E - Promote to Dev - not synced");
-		KatelloUtils.promoteProductToEnvironment(this.org, this.product, this.env);
+		KatelloUtils.promoteProductToEnvironment(cli_worker, this.org, this.product, this.env);
 	}
 
 	@Test(description="Synchronize repository", dependsOnMethods={"test_promoteToDevNoSync"}, enabled=true)
 	public void test_syncRepo(){
 		log.info("E2E - Synchronize repo");
-		KatelloRepo repo = new KatelloRepo(this.repo, this.org, this.product, REPO_INECAS_ZOO3, null, null);
+		KatelloRepo repo = new KatelloRepo(this.cli_worker, this.repo, this.org, this.product, REPO_INECAS_ZOO3, null, null);
 		SSHCommandResult res = repo.synchronize();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo sync)");
 	}
@@ -90,16 +90,16 @@ public class PromoteWithFilters extends KatelloCliTestBase{
 	@Test(description="Promote repo again: remove some packages", dependsOnMethods={"test_syncRepo"}, enabled=true)
 	public void test_promoteToDeSynced(){
 		log.info("E2E - Promote to Dev - synced on repo");
-		KatelloUtils.promoteRepoToEnvironment(this.org, this.product, this.repo, this.env);
+		KatelloUtils.promoteRepoToEnvironment(cli_worker, this.org, this.product, this.repo, this.env);
 
-		KatelloUtils.removePackagesFromEnvironment(this.org, this.product, this.repo, new String[] {"bear", "frog"}, this.env);
+		KatelloUtils.removePackagesFromEnvironment(cli_worker, this.org, this.product, this.repo, new String[] {"bear", "frog"}, this.env);
 	}
 	
 	@Test(description="Check packages: bear,frog - (absent); lion - (present)", dependsOnMethods={"test_promoteToDeSynced"}, enabled=true)
 	public void test_packagesPromotedDev(){
 		String cmd_packListDev = "package list --org \"%s\" --environment \"%s\" --product \"%s\" --repo \"%s\" | grep -E \"%s\" | wc -l";
 		cmd_packListDev = String.format(cmd_packListDev, this.org, this.env, this.product, this.repo, PACKAGES_TO_BLACKLIST_GREP);
-		SSHCommandResult res = new KatelloCli(cmd_packListDev, null).run();
+		SSHCommandResult res = new KatelloCli(cmd_packListDev, null,null,cli_worker.getClientHostname()).run();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (package list - Dev)");
 		Assert.assertTrue(getOutput(res).equals("1"), "Check only one package should exist from grep: "+PACKAGES_TO_BLACKLIST_GREP);
 	}

@@ -1,9 +1,7 @@
 package com.redhat.qe.katello.tests.backup;
 
 import java.util.logging.Logger;
-
 import org.testng.annotations.Test;
-
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloPing;
@@ -206,7 +204,7 @@ public class BackupRecovery extends KatelloCliTestBase {
 		
 		try{Thread.sleep(60000);}catch(Exception ex){} // waiting for services to start
 		
-		KatelloPing ping_obj= new KatelloPing();
+		KatelloPing ping_obj= new KatelloPing(this.cli_worker);
 		SSHCommandResult res = ping_obj.cli_ping(); 
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 	}

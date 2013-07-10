@@ -4,6 +4,7 @@ import java.util.logging.Logger;
 
 import javax.management.Attribute;
 
+import com.redhat.qe.katello.base.threading.KatelloCliWorker;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class KatelloArchitecture extends _KatelloObject{
@@ -33,8 +34,9 @@ public class KatelloArchitecture extends _KatelloObject{
 	
 	public KatelloArchitecture(){super();}
 	
-	public KatelloArchitecture(String pName){
+	public KatelloArchitecture(KatelloCliWorker kcr, String pName){
 		this.name = pName;
+		this.kcr = kcr;
 	}
 	
 	public String getName() {

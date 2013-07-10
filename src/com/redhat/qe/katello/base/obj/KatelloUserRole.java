@@ -1,6 +1,8 @@
 package com.redhat.qe.katello.base.obj;
 
 import javax.management.Attribute;
+
+import com.redhat.qe.katello.base.threading.KatelloCliWorker;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class KatelloUserRole extends _KatelloObject{
@@ -33,9 +35,10 @@ public class KatelloUserRole extends _KatelloObject{
 	public String name;
 	public String description;
 	
-	public KatelloUserRole(String pName, String pDesc){
+	public KatelloUserRole(KatelloCliWorker kcr, String pName, String pDesc){
 		this.name = pName;
 		this.description = pDesc;
+		this.kcr = kcr;
 	}
 	
 	public SSHCommandResult create(){

@@ -18,6 +18,7 @@ import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
+@Test(singleThreaded = true)
 public class ContentViewRefreshTests extends KatelloCliTestBase{
 	
 	String uid = KatelloUtils.getUniqueID();
@@ -46,20 +47,20 @@ public class ContentViewRefreshTests extends KatelloCliTestBase{
 	@BeforeClass(description="Generate unique objects")
 	public void setUp() {
 		// erase packages
-		KatelloUtils.sshOnClient("yum erase -y wolf lion walrus");
+		sshOnClient("yum erase -y wolf lion walrus");
 		
-		org2 = new KatelloOrg(org_name2,null);
+		org2 = new KatelloOrg(this.cli_worker, org_name2,null);
 		exec_result = org2.cli_create();		              
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		env2 = new KatelloEnvironment(env_name2,null,org_name2,KatelloEnvironment.LIBRARY);
+		env2 = new KatelloEnvironment(this.cli_worker, env_name2,null,org_name2,KatelloEnvironment.LIBRARY);
 		exec_result = env2.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
 		
 		// create repos and content definition in second organization for composite content view tests 
 		createLocalRepo1();
 		
-		condef1 = new KatelloContentDefinition(condef_name1,null,org_name2,null);
+		condef1 = new KatelloContentDefinition(cli_worker, condef_name1,null,org_name2,null);
 		exec_result = condef1.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
@@ -70,7 +71,7 @@ public class ContentViewRefreshTests extends KatelloCliTestBase{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		condef1.repos = repo_local1_name;
-		conview1 = new KatelloContentView(pubview_name, org_name2);
+		conview1 = new KatelloContentView(cli_worker, pubview_name, org_name2);
 		assert_ContentViewInfo(condef1, conview1, "Publish Content", "Library", "1");
 	}
 	
@@ -78,7 +79,7 @@ public class ContentViewRefreshTests extends KatelloCliTestBase{
 	public void test_addContentView() {
 		exec_result = conview1.promote_view(env_name2);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		act_key2 = new KatelloActivationKey(org_name2, env_name2, act_key_name2, "Act key created");
+		act_key2 = new KatelloActivationKey(this.cli_worker, org_name2, env_name2, act_key_name2, "Act key created");
 		exec_result = act_key2.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
 		exec_result = act_key2.update_add_content_view(pubview_name);
@@ -93,19 +94,19 @@ public class ContentViewRefreshTests extends KatelloCliTestBase{
 	@Test(description = "register client via activation key",groups={"cfse-cli"}, dependsOnMethods={"test_addContentView"})
 	public void test_registerClient() {
 		rhsm_clean();
-		sys2 = new KatelloSystem(system_name2, this.org_name2, null);
+		sys2 = new KatelloSystem(this.cli_worker, system_name2, this.org_name2, null);
 		exec_result = sys2.rhsm_registerForce(act_key_name2);
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		
 		yum_clean();
 		
-		install_Packages(new String[] {"wolf"});
+		install_Packages(cli_worker.getClientHostname(), new String[] {"wolf"});
 	}
 
 	@Test(description = "refesh content view, verify version is changed", groups={"cfse-cli"}, dependsOnMethods={"test_registerClient"})
 	public void test_refreshContentView() {
 		//install non available package from composite content view
-		verify_PackagesNotAvailable(new String [] {"lion"});
+		verify_PackagesNotAvailable(cli_worker.getClientHostname(), new String [] {"lion"});
 		
 		updateLocalRepo1();
 		
@@ -124,12 +125,12 @@ public class ContentViewRefreshTests extends KatelloCliTestBase{
 		yum_clean();
 		
 		// erase packages
-		exec_result = KatelloUtils.sshOnClient("yum erase -y wolf lion walrus");
+		exec_result = sshOnClient("yum erase -y wolf lion walrus");
 		
 		//install package from refreshed content view
-		install_Packages(new String[] {"lion"});
+		install_Packages(cli_worker.getClientHostname(), new String[] {"lion"});
 		
-		verify_PackagesNotAvailable(new String [] {"walrus"});
+		verify_PackagesNotAvailable(cli_worker.getClientHostname(), new String [] {"walrus"});
 	}
 	
 	@Test(description="Remove the org",
@@ -154,16 +155,16 @@ public class ContentViewRefreshTests extends KatelloCliTestBase{
 		KatelloUtils.sshOnServer("createrepo "+repo_path1);
 		
 		// Create provider:
-		KatelloProvider prov = new KatelloProvider(prov_local1_name, org_name2, "Package provider", null);
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, prov_local1_name, org_name2, "Package provider", null);
 		exec_result = prov.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		// Create product:
-		KatelloProduct prod = new KatelloProduct(prod_local1_name, org_name2, prov_local1_name, null, null, null, null, null);
+		KatelloProduct prod = new KatelloProduct(this.cli_worker, prod_local1_name, org_name2, prov_local1_name, null, null, null, null, null);
 		exec_result = prod.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	
-		KatelloRepo repo = new KatelloRepo(repo_local1_name, org_name2, prod_local1_name, repo_url1, null, null);
+		KatelloRepo repo = new KatelloRepo(this.cli_worker, repo_local1_name, org_name2, prod_local1_name, repo_url1, null, null);
 		exec_result = repo.create(true);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
@@ -175,7 +176,7 @@ public class ContentViewRefreshTests extends KatelloCliTestBase{
 		KatelloUtils.sshOnServer("wget " + REPO_INECAS_ZOO3 + "lion-0.4-1.noarch.rpm  -P " + repo_path1);
 		KatelloUtils.sshOnServer("rm " + repo_path1 + "/walrus-0.71-1.noarch.rpm -f");
 		KatelloUtils.sshOnServer("createrepo " + repo_path1);
-		KatelloRepo repo = new KatelloRepo(repo_local1_name, org_name2, prod_local1_name, repo_url1, null, null);
+		KatelloRepo repo = new KatelloRepo(this.cli_worker, repo_local1_name, org_name2, prod_local1_name, repo_url1, null, null);
 		exec_result = repo.synchronize();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}

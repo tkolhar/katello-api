@@ -24,10 +24,10 @@ public class ActivationKeyTests extends KatelloCliTestBase {
 		org_name = getText("org.create.name")+" "+uid;
 		env_name = getText("environment.create.name")+" "+uid;
 		
-		KatelloOrg org = new KatelloOrg(org_name, null);
+		KatelloOrg org = new KatelloOrg(this.cli_worker, org_name, null);
 		SSHCommandResult res = org.cli_create();
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
-		KatelloEnvironment env = new KatelloEnvironment(env_name, null, org_name, KatelloEnvironment.LIBRARY);
+		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, env_name, null, org_name, KatelloEnvironment.LIBRARY);
 		res = env.cli_create();
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 	}
@@ -39,7 +39,7 @@ public class ActivationKeyTests extends KatelloCliTestBase {
 		String ak_descr = getText("activation_key.create.description")+" "+uid;
 		String outSuccess = getText("activation_key.create.stdout", ak_name);
 		
-		KatelloActivationKey ak = new KatelloActivationKey(org_name, env_name, ak_name, ak_descr, null);
+		KatelloActivationKey ak = new KatelloActivationKey(this.cli_worker, org_name, env_name, ak_name, ak_descr, null);
 		res = ak.create();
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code (activation_key create)");
 		Assert.assertTrue(getOutput(res).equals(outSuccess), "Check - stdout (activation_key create)");
@@ -50,7 +50,7 @@ public class ActivationKeyTests extends KatelloCliTestBase {
 		String ak_name = getText("activation_key.create.name")+" "+uid;
 		String ak_descr = getText("activation_key.create.description")+" "+uid;
 
-		KatelloActivationKey key = new KatelloActivationKey(org_name, env_name, null, null, null);
+		KatelloActivationKey key = new KatelloActivationKey(this.cli_worker, org_name, env_name, null, null, null);
 		SSHCommandResult res = key.list();
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code (activation_key list)");
 		Assert.assertTrue(KatelloUtils.grepCLIOutput(getText("activation_key.list.stdout.property.name"), 
@@ -61,7 +61,7 @@ public class ActivationKeyTests extends KatelloCliTestBase {
 	@Test(description="activation_key update", dependsOnMethods={"test_createAK"})
 	public void test_updateAK(){
 		String ak_name = getText("activation_key.create.name")+" "+uid;
-		KatelloActivationKey key = new KatelloActivationKey(org_name, env_name, ak_name, null, null);
+		KatelloActivationKey key = new KatelloActivationKey(this.cli_worker, org_name, env_name, ak_name, null, null);
 		SSHCommandResult res = key.extend_limit("10");
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code (activation_key update)");
 		Assert.assertTrue(getOutput(res).equals(getText("activation_key.update.stdout", ak_name)), "Check - stdout (activation_key update)");
@@ -72,7 +72,7 @@ public class ActivationKeyTests extends KatelloCliTestBase {
 		String ak_name = getText("activation_key.create.name")+" "+uid;
 		String ak_descr = getText("activation_key.create.description")+" "+uid;
 
-		KatelloActivationKey key = new KatelloActivationKey(org_name, env_name, ak_name, null, null);
+		KatelloActivationKey key = new KatelloActivationKey(this.cli_worker, org_name, env_name, ak_name, null, null);
 		SSHCommandResult res = key.info();
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code (activation_key info)");
 		Assert.assertTrue(KatelloUtils.grepCLIOutput(getText("activation_key.list.stdout.property.name"), 
@@ -86,10 +86,10 @@ public class ActivationKeyTests extends KatelloCliTestBase {
 		String ak_name = getText("activation_key.create.name")+" "+uid;
 		String sg_name = getText("system_group.create.name")+" "+uid;
 
-		KatelloSystemGroup sg = new KatelloSystemGroup(sg_name, org_name);
+		KatelloSystemGroup sg = new KatelloSystemGroup(this.cli_worker, sg_name, org_name);
 		res = sg.create();
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code (system_group create)");		
-		KatelloActivationKey key = new KatelloActivationKey(org_name, env_name, ak_name, null, null);
+		KatelloActivationKey key = new KatelloActivationKey(this.cli_worker, org_name, env_name, ak_name, null, null);
 		res = key.add_system_group(sg_name);
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code (activation_key add_system_group)");
 		Assert.assertTrue(getOutput(res).equals(getText("activation_key.add_system_group.stdout", ak_name)),
@@ -102,7 +102,7 @@ public class ActivationKeyTests extends KatelloCliTestBase {
 		String ak_name = getText("activation_key.create.name")+" "+uid;
 		String sg_name = getText("system_group.create.name")+" "+uid;
 
-		KatelloActivationKey key = new KatelloActivationKey(org_name, env_name, ak_name, null, null);
+		KatelloActivationKey key = new KatelloActivationKey(this.cli_worker, org_name, env_name, ak_name, null, null);
 		res = key.remove_system_group(sg_name);
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code (activation_key remove_system_group)");
 		Assert.assertTrue(getOutput(res).equals(getText("activation_key.remove_system_group.stdout", ak_name)),
@@ -114,7 +114,7 @@ public class ActivationKeyTests extends KatelloCliTestBase {
 		SSHCommandResult res;
 		String ak_name = getText("activation_key.create.name")+" "+uid;
 
-		KatelloActivationKey key = new KatelloActivationKey(org_name, env_name, ak_name, null, null);
+		KatelloActivationKey key = new KatelloActivationKey(this.cli_worker, org_name, env_name, ak_name, null, null);
 		res = key.delete();
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code (activation_key delete)");
 		Assert.assertTrue(getOutput(res).equals(getText("activation_key.delete.stdout", ak_name)),

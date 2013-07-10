@@ -15,7 +15,7 @@ import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups={"cfse-e2e",TngRunGroups.TNG_KATELLO_Errata})
+@Test(groups={"cfse-e2e",TngRunGroups.TNG_KATELLO_Errata}, singleThreaded = true)
 public class SystemErratas extends KatelloCliTestBase {
 	
 	private SSHCommandResult exec_result;
@@ -42,36 +42,36 @@ public class SystemErratas extends KatelloCliTestBase {
 		rhsm_clean(); // clean - in case of it registered
 		
 		// Create org:
-		KatelloOrg org = new KatelloOrg(this.org_name, "Package tests");
+		KatelloOrg org = new KatelloOrg(this.cli_worker, this.org_name, "Package tests");
 		exec_result = org.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
 		// Create provider:
-		KatelloProvider prov = new KatelloProvider(provider_name, org_name,
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, provider_name, org_name,
 				"Package provider", null);
 		exec_result = prov.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
 		// Create product:
-		KatelloProduct prod = new KatelloProduct(product_name, org_name,
+		KatelloProduct prod = new KatelloProduct(this.cli_worker, product_name, org_name,
 				provider_name, null, null, null, null, null);
 		exec_result = prod.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
-		KatelloRepo repo = new KatelloRepo(repo_name, org_name, product_name, REPO_INECAS_ZOO3, null, null);
+		KatelloRepo repo = new KatelloRepo(this.cli_worker, repo_name, org_name, product_name, REPO_INECAS_ZOO3, null, null);
 		exec_result = repo.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		KatelloEnvironment env = new KatelloEnvironment(env_name, null, org_name, KatelloEnvironment.LIBRARY);
+		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, env_name, null, org_name, KatelloEnvironment.LIBRARY);
 		exec_result = env.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (env create)");
 		
 		exec_result = repo.synchronize();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		cv_name = KatelloUtils.promoteProductToEnvironment(org_name, product_name, env_name);
+		cv_name = KatelloUtils.promoteProductToEnvironment(cli_worker, org_name, product_name, env_name);
 		
-		KatelloSystem sys = new KatelloSystem(system_name, this.org_name, this.env_name+"/"+cv_name);
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, system_name, this.org_name, this.env_name+"/"+cv_name);
 		exec_result = sys.rhsm_registerForce(); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		
@@ -82,19 +82,19 @@ public class SystemErratas extends KatelloCliTestBase {
 		exec_result = sys.rhsm_subscribe(poolId1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
-		KatelloUtils.sshOnClient("yum erase -y walrus");
-		exec_result = KatelloUtils.sshOnClient("yum install -y walrus-0.71-1.noarch");
+		sshOnClient("yum erase -y walrus");
+		exec_result = sshOnClient("yum install -y walrus-0.71-1.noarch");
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		KatelloUtils.sshOnClient("sed -i -e \"s/certFrequency.*/certFrequency = 1/\" /etc/rhsm/rhsm.conf");
-		KatelloUtils.sshOnClient("service rhsmcertd restart");
+		sshOnClient("sed -i -e \"s/certFrequency.*/certFrequency = 1/\" /etc/rhsm/rhsm.conf");
+		sshOnClient("service rhsmcertd restart");
 		yum_clean();
-		KatelloUtils.sshOnClient("service goferd restart;");
+		sshOnClient("service goferd restart;");
 	}
 	
 	/** TCMS scenario is: <a href="https://tcms.engineering.redhat.com/case/243044/?from_plan=7760">here</a> */
 	@Test(description = "4aeb7f5c-90f2-4def-b38a-433284d92fad")
 	public void test_errataListOnSystem() {
-		KatelloSystem system = new KatelloSystem(system_name, this.org_name, this.env_name+"/"+cv_name);
+		KatelloSystem system = new KatelloSystem(this.cli_worker, system_name, this.org_name, this.env_name+"/"+cv_name);
 		exec_result = system.list_erratas();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains(PromoteErrata.ERRATA_ZOO_SEA), "Check - errata list output");
@@ -102,7 +102,7 @@ public class SystemErratas extends KatelloCliTestBase {
 	
 	@Test(description = "List the errata details on system", dependsOnMethods={"test_errataListOnSystem"})
 	public void test_errataDetailsOnSystem() {
-		KatelloSystem system = new KatelloSystem(system_name, this.org_name, this.env_name+"/"+cv_name);
+		KatelloSystem system = new KatelloSystem(this.cli_worker, system_name, this.org_name, this.env_name+"/"+cv_name);
 		exec_result = system.list_errata_details();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains(PromoteErrata.ERRATA_ZOO_SEA), "Check - errata list output");
@@ -112,16 +112,16 @@ public class SystemErratas extends KatelloCliTestBase {
 	/** TCMS scenario is: <a href="https://tcms.engineering.redhat.com/case/134195/?from_plan=7760">here</a> */
 	@Test(description = "7cf9e3f5-f328-4225-b972-80e6a93b0a19", dependsOnMethods={"test_errataDetailsOnSystem"})
 	public void test_errataListOnUnsubscribedSystem() {
-		KatelloSystem system = new KatelloSystem(system_name, this.org_name, this.env_name+"/"+cv_name);
+		KatelloSystem system = new KatelloSystem(this.cli_worker, system_name, this.org_name, this.env_name+"/"+cv_name);
 		
-		exec_result = KatelloUtils.sshOnClient("subscription-manager unsubscribe --all");
+		exec_result = sshOnClient("subscription-manager unsubscribe --all");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		
-		KatelloUtils.sshOnClient("sed -i -e \"s/certFrequency.*/certFrequency = 1/\" /etc/rhsm/rhsm.conf");
-		KatelloUtils.sshOnClient("service rhsmcertd restart");
+		sshOnClient("sed -i -e \"s/certFrequency.*/certFrequency = 1/\" /etc/rhsm/rhsm.conf");
+		sshOnClient("service rhsmcertd restart");
 		yum_clean();
-		KatelloUtils.sshOnClient("service goferd restart;");
-		try { Thread.sleep(10000); } catch (Exception ex) {}
+		sshOnClient("service goferd restart;");
+		try { Thread.sleep(3000); } catch (Exception ex) {}
 		
 		exec_result = system.list_erratas();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");

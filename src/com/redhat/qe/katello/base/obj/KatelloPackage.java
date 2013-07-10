@@ -1,6 +1,8 @@
 package com.redhat.qe.katello.base.obj;
 
 import javax.management.Attribute;
+
+import com.redhat.qe.katello.base.threading.KatelloCliWorker;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class KatelloPackage extends _KatelloObject{
@@ -28,20 +30,22 @@ public class KatelloPackage extends _KatelloObject{
 	public String content_view_label;
 	public String content_view_id;
 	
-	public KatelloPackage(String pId, String pName, String pOrg, String pProd, String pRepo, String pEnv){
+	public KatelloPackage(KatelloCliWorker kcr, String pId, String pName, String pOrg, String pProd, String pRepo, String pEnv){
 		this.id = pId;
 		this.name = pName;
 		this.org = pOrg;
 		this.product = pProd;
 		this.repo = pRepo;
 		this.environment = pEnv;
+		this.kcr = kcr;
 	}
 
-	public KatelloPackage(String pOrg, String pProd, String pRepo, String pContnetView){
+	public KatelloPackage(KatelloCliWorker kcr, String pOrg, String pProd, String pRepo, String pContnetView){
 		this.org = pOrg;
 		this.product = pProd;
 		this.repo = pRepo;
 		this.content_view = pContnetView;
+		this.kcr = kcr;
 	}
 	
 	public void setProductId(String productId) {

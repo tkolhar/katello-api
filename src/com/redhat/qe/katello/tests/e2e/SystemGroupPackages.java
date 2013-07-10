@@ -15,7 +15,7 @@ import com.redhat.qe.katello.base.obj.KatelloSystemGroup;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups={"cfse-e2e"})
+@Test(groups={"cfse-e2e"}, singleThreaded = true)
 public class SystemGroupPackages extends KatelloCliTestBase {
 	
 	private SSHCommandResult exec_result;
@@ -44,27 +44,27 @@ public class SystemGroupPackages extends KatelloCliTestBase {
 		rhsm_clean(); // clean - in case of it registered
 		
 		// Create org:
-		KatelloOrg org = new KatelloOrg(this.org_name, "Package tests");
+		KatelloOrg org = new KatelloOrg(this.cli_worker, this.org_name, "Package tests");
 		exec_result = org.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
 		// Create provider:
-		KatelloProvider prov = new KatelloProvider(provider_name, org_name,
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, provider_name, org_name,
 				"Package provider", null);
 		exec_result = prov.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
 		// Create product:
-		KatelloProduct prod = new KatelloProduct(product_name, org_name,
+		KatelloProduct prod = new KatelloProduct(this.cli_worker, product_name, org_name,
 				provider_name, null, null, null, null, null);
 		exec_result = prod.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
-		KatelloRepo repo = new KatelloRepo(repo_name, org_name, product_name, REPO_INECAS_ZOO3, null, null);
+		KatelloRepo repo = new KatelloRepo(this.cli_worker, repo_name, org_name, product_name, REPO_INECAS_ZOO3, null, null);
 		exec_result = repo.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		KatelloEnvironment env = new KatelloEnvironment(env_name, null, org_name, KatelloEnvironment.LIBRARY);
+		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, env_name, null, org_name, KatelloEnvironment.LIBRARY);
 		exec_result = env.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (env create)");
 		
@@ -75,9 +75,9 @@ public class SystemGroupPackages extends KatelloCliTestBase {
 		exec_result = repo.synchronize();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		KatelloUtils.promoteProductToEnvironment(org_name, product_name, env_name);
+		KatelloUtils.promoteProductToEnvironment(cli_worker, org_name, product_name, env_name);
 		
-		KatelloSystem sys = new KatelloSystem(system_name, this.org_name, this.env_name);
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, system_name, this.org_name, this.env_name);
 		exec_result = sys.rhsm_registerForce(); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		
@@ -91,7 +91,7 @@ public class SystemGroupPackages extends KatelloCliTestBase {
 		exec_result = sys.rhsm_subscribe(poolId1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		KatelloSystemGroup group = new KatelloSystemGroup(group_name, this.org_name);
+		KatelloSystemGroup group = new KatelloSystemGroup(this.cli_worker, group_name, this.org_name);
 		exec_result = group.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
@@ -99,25 +99,25 @@ public class SystemGroupPackages extends KatelloCliTestBase {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
 		yum_clean();
-		KatelloUtils.sshOnClient("service goferd restart;");
+		sshOnClient("service goferd restart;");
 	}
 	
 	@Test(description = "Install lion package in system group, verify that wolf and lion are installed")
 	public void test_installPackageOnSystemGroup() {
 		
-		KatelloUtils.sshOnClient("yum -y erase wolf lion");
+		sshOnClient("yum -y erase wolf lion");
 		
-		KatelloSystemGroup group = new KatelloSystemGroup(group_name, this.org_name);
+		KatelloSystemGroup group = new KatelloSystemGroup(this.cli_worker, group_name, this.org_name);
 		exec_result = group.packages_install("lion");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("Remote action finished"));
 		Assert.assertTrue(getOutput(exec_result).trim().contains("Package Install Complete"));
 		
-		exec_result = KatelloUtils.sshOnClient("rpm -q lion");
+		exec_result = sshOnClient("rpm -q lion");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code (rpm -q lion)");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("lion-"));
 		
-		exec_result = KatelloUtils.sshOnClient("rpm -q wolf");
+		exec_result = sshOnClient("rpm -q wolf");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code (rpm -q wolf)");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("wolf-"));
 	}
@@ -125,17 +125,17 @@ public class SystemGroupPackages extends KatelloCliTestBase {
 	@Test(description = "Remove wolf package from system group, verify that wolf and lion are removed", dependsOnMethods={"test_installPackageOnSystemGroup"})
 	public void test_removePackageFromSystemGroup() {
 		
-		KatelloSystemGroup group = new KatelloSystemGroup(group_name, this.org_name);
+		KatelloSystemGroup group = new KatelloSystemGroup(this.cli_worker, group_name, this.org_name);
 		exec_result = group.packages_remove("wolf");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("Remote action finished"));
 		Assert.assertTrue(getOutput(exec_result).trim().contains("Package Remove Complete"));
 		
-		exec_result = KatelloUtils.sshOnClient("rpm -q lion");
+		exec_result = sshOnClient("rpm -q lion");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 1, "Check - return code (rpm -q lion)");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("package lion is not installed"));
 		
-		exec_result = KatelloUtils.sshOnClient("rpm -q wolf");
+		exec_result = sshOnClient("rpm -q wolf");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 1, "Check - return code (rpm -q wolf)");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("package wolf is not installed"));
 	}
@@ -143,23 +143,23 @@ public class SystemGroupPackages extends KatelloCliTestBase {
 	@Test(description = "Install lion zebra tiger packages in system group, verify that packages are installed")
 	public void test_installPackagesOnSystemGroup() {
 		
-		KatelloUtils.sshOnClient("yum -y erase zebra lion tiger");
+		sshOnClient("yum -y erase zebra lion tiger");
 		
-		KatelloSystemGroup group = new KatelloSystemGroup(group_name, this.org_name);
+		KatelloSystemGroup group = new KatelloSystemGroup(this.cli_worker, group_name, this.org_name);
 		exec_result = group.packages_install("lion,zebra,tiger");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("Remote action finished"));
 		Assert.assertTrue(getOutput(exec_result).trim().contains("Package Install Complete"));
 		
-		exec_result = KatelloUtils.sshOnClient("rpm -q lion");
+		exec_result = sshOnClient("rpm -q lion");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code (rpm -q lion)");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("lion-"));
 		
-		exec_result = KatelloUtils.sshOnClient("rpm -q zebra");
+		exec_result = sshOnClient("rpm -q zebra");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code (rpm -q zebra)");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("zebra-"));
 
-		exec_result = KatelloUtils.sshOnClient("rpm -q tiger");
+		exec_result = sshOnClient("rpm -q tiger");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code (rpm -q tiger)");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("tiger-"));
 	}
@@ -167,27 +167,27 @@ public class SystemGroupPackages extends KatelloCliTestBase {
 	@Test(description = "Install birds package group in system group, verify that all birds packages are installed")
 	public void test_installPackageGroupOnSystemGroup() {
 		
-		KatelloUtils.sshOnClient("yum -y erase stork cockateel penguin duck");
+		sshOnClient("yum -y erase stork cockateel penguin duck");
 		
-		KatelloSystemGroup group = new KatelloSystemGroup(group_name, this.org_name);
+		KatelloSystemGroup group = new KatelloSystemGroup(this.cli_worker, group_name, this.org_name);
 		exec_result = group.packagegroup_install("birds");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("Remote action finished"));
 		Assert.assertTrue(getOutput(exec_result).trim().contains("Package Group Install Complete"));
 		
-		exec_result = KatelloUtils.sshOnClient("rpm -q stork");
+		exec_result = sshOnClient("rpm -q stork");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code (rpm -q stork)");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("stork-"));
 		
-		exec_result = KatelloUtils.sshOnClient("rpm -q cockateel");
+		exec_result = sshOnClient("rpm -q cockateel");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code (rpm -q cockateel)");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("cockateel-"));
 
-		exec_result = KatelloUtils.sshOnClient("rpm -q penguin");
+		exec_result = sshOnClient("rpm -q penguin");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code (rpm -q penguin)");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("penguin-"));
 		
-		exec_result = KatelloUtils.sshOnClient("rpm -q duck");
+		exec_result = sshOnClient("rpm -q duck");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code (rpm -q duck)");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("duck-"));
 	}
@@ -195,17 +195,17 @@ public class SystemGroupPackages extends KatelloCliTestBase {
 	@Test(description = "Remove stork and cockateel packages from system group, verify that packages are removed", dependsOnMethods={"test_installPackageGroupOnSystemGroup"})
 	public void test_removePackagesFromSystemGroup() {
 		
-		KatelloSystemGroup group = new KatelloSystemGroup(group_name, this.org_name);
+		KatelloSystemGroup group = new KatelloSystemGroup(this.cli_worker, group_name, this.org_name);
 		exec_result = group.packages_remove("stork,cockateel");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("Remote action finished"));
 		Assert.assertTrue(getOutput(exec_result).trim().contains("Package Remove Complete"));
 		
-		exec_result = KatelloUtils.sshOnClient("rpm -q stork");
+		exec_result = sshOnClient("rpm -q stork");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 1, "Check - return code (rpm -q stork)");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("package stork is not installed"));
 		
-		exec_result = KatelloUtils.sshOnClient("rpm -q cockateel");
+		exec_result = sshOnClient("rpm -q cockateel");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 1, "Check - return code (rpm -q cockateel)");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("package cockateel is not installed"));
 	}
@@ -213,25 +213,25 @@ public class SystemGroupPackages extends KatelloCliTestBase {
 	@Test(description = "Update birds package group in system group, verify that all birds packages are installed", dependsOnMethods={"test_removePackagesFromSystemGroup"})
 	public void test_updatePackageGroupOnSystemGroup() {
 		
-		KatelloSystemGroup group = new KatelloSystemGroup(group_name, this.org_name);
+		KatelloSystemGroup group = new KatelloSystemGroup(this.cli_worker, group_name, this.org_name);
 		exec_result = group.packagegroup_update("birds");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("Remote action finished"));
 		Assert.assertTrue(getOutput(exec_result).trim().contains("Package Group Install Complete"));
 		
-		exec_result = KatelloUtils.sshOnClient("rpm -q stork");
+		exec_result = sshOnClient("rpm -q stork");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code (rpm -q stork)");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("stork-"));
 		
-		exec_result = KatelloUtils.sshOnClient("rpm -q cockateel");
+		exec_result = sshOnClient("rpm -q cockateel");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code (rpm -q cockateel)");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("cockateel-"));
 
-		exec_result = KatelloUtils.sshOnClient("rpm -q penguin");
+		exec_result = sshOnClient("rpm -q penguin");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code (rpm -q penguin)");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("penguin-"));
 		
-		exec_result = KatelloUtils.sshOnClient("rpm -q duck");
+		exec_result = sshOnClient("rpm -q duck");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code (rpm -q duck)");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("duck-"));
 	}
@@ -239,25 +239,25 @@ public class SystemGroupPackages extends KatelloCliTestBase {
 	@Test(description = "Remove birds package group from system group, verify that all packages are removed", dependsOnMethods={"test_updatePackageGroupOnSystemGroup"})
 	public void test_removePackageGroupFromSystemGroup() {
 		
-		KatelloSystemGroup group = new KatelloSystemGroup(group_name, this.org_name);
+		KatelloSystemGroup group = new KatelloSystemGroup(this.cli_worker, group_name, this.org_name);
 		exec_result = group.packagegroup_remove("birds");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("Remote action finished"));
 		Assert.assertTrue(getOutput(exec_result).trim().contains("Package Group Remove Complete"));
 		
-		exec_result = KatelloUtils.sshOnClient("rpm -q stork");
+		exec_result = sshOnClient("rpm -q stork");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 1, "Check - return code (rpm -q stork)");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("package stork is not installed"));
 		
-		exec_result = KatelloUtils.sshOnClient("rpm -q cockateel");
+		exec_result = sshOnClient("rpm -q cockateel");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 1, "Check - return code (rpm -q cockateel)");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("package cockateel is not installed"));
 
-		exec_result = KatelloUtils.sshOnClient("rpm -q penguin");
+		exec_result = sshOnClient("rpm -q penguin");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 1, "Check - return code (rpm -q penguin)");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("package penguin is not installed"));
 		
-		exec_result = KatelloUtils.sshOnClient("rpm -q duck");
+		exec_result = sshOnClient("rpm -q duck");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 1, "Check - return code (rpm -q duck)");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("package duck is not installed"));
 	}
@@ -265,39 +265,39 @@ public class SystemGroupPackages extends KatelloCliTestBase {
 	@Test(description = "Install birds,mammals package groups in system group, verify that all birds and mammals packages are installed")
 	public void test_installPackageGroupsOnSystemGroup() {
 		
-		KatelloUtils.sshOnClient("yum -y erase stork cockateel penguin duck lion tyger wolf zebra");
+		sshOnClient("yum -y erase stork cockateel penguin duck lion tyger wolf zebra");
 		
-		KatelloSystemGroup group = new KatelloSystemGroup(group_name, this.org_name);
+		KatelloSystemGroup group = new KatelloSystemGroup(this.cli_worker, group_name, this.org_name);
 		exec_result = group.packagegroup_install("birds, mammals");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("Remote action finished"));
 		Assert.assertTrue(getOutput(exec_result).trim().contains("Package Group Install Complete"));
 		
-		exec_result = KatelloUtils.sshOnClient("rpm -q stork");
+		exec_result = sshOnClient("rpm -q stork");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code (rpm -q stork)");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("stork-"));
 		
-		exec_result = KatelloUtils.sshOnClient("rpm -q cockateel");
+		exec_result = sshOnClient("rpm -q cockateel");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code (rpm -q cockateel)");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("cockateel-"));
 
-		exec_result = KatelloUtils.sshOnClient("rpm -q penguin");
+		exec_result = sshOnClient("rpm -q penguin");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code (rpm -q penguin)");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("penguin-"));
 		
-		exec_result = KatelloUtils.sshOnClient("rpm -q duck");
+		exec_result = sshOnClient("rpm -q duck");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code (rpm -q duck)");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("duck-"));
 		
-		exec_result = KatelloUtils.sshOnClient("rpm -q lion");
+		exec_result = sshOnClient("rpm -q lion");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code (rpm -q lion)");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("lion-"));
 		
-		exec_result = KatelloUtils.sshOnClient("rpm -q zebra");
+		exec_result = sshOnClient("rpm -q zebra");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code (rpm -q zebra)");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("zebra-"));
 
-		exec_result = KatelloUtils.sshOnClient("rpm -q tiger");
+		exec_result = sshOnClient("rpm -q tiger");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code (rpm -q tiger)");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("tiger-"));
 	}
@@ -306,25 +306,25 @@ public class SystemGroupPackages extends KatelloCliTestBase {
 			dependsOnMethods={"test_installPackageGroupsOnSystemGroup"})
 	public void test_removePackagesFromMultyPackageGroup() {
 		
-		KatelloSystemGroup group = new KatelloSystemGroup(group_name, this.org_name);
+		KatelloSystemGroup group = new KatelloSystemGroup(this.cli_worker, group_name, this.org_name);
 		exec_result = group.packages_remove("stork,cockateel,tiger,lion");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("Remote action finished"));
 		Assert.assertTrue(getOutput(exec_result).trim().contains("Package Remove Complete"));
 		
-		exec_result = KatelloUtils.sshOnClient("rpm -q stork");
+		exec_result = sshOnClient("rpm -q stork");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 1, "Check - return code (rpm -q stork)");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("package stork is not installed"));
 		
-		exec_result = KatelloUtils.sshOnClient("rpm -q cockateel");
+		exec_result = sshOnClient("rpm -q cockateel");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 1, "Check - return code (rpm -q cockateel)");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("package cockateel is not installed"));
 		
-		exec_result = KatelloUtils.sshOnClient("rpm -q lion");
+		exec_result = sshOnClient("rpm -q lion");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 1, "Check - return code (rpm -q lion)");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("package lion is not installed"));
 		
-		exec_result = KatelloUtils.sshOnClient("rpm -q tiger");
+		exec_result = sshOnClient("rpm -q tiger");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 1, "Check - return code (rpm -q tiger)");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("package tiger is not installed"));
 	}
@@ -334,25 +334,25 @@ public class SystemGroupPackages extends KatelloCliTestBase {
 			dependsOnMethods={"test_removePackagesFromMultyPackageGroup"})
 	public void test_updatePackageGroupsOnSystemGroup() {
 		
-		KatelloSystemGroup group = new KatelloSystemGroup(group_name, this.org_name);
+		KatelloSystemGroup group = new KatelloSystemGroup(this.cli_worker, group_name, this.org_name);
 		exec_result = group.packagegroup_update("birds,mammals");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("Remote action finished"));
 		Assert.assertTrue(getOutput(exec_result).trim().contains("Package Group Install Complete"));
 		
-		exec_result = KatelloUtils.sshOnClient("rpm -q stork");
+		exec_result = sshOnClient("rpm -q stork");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code (rpm -q stork)");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("stork-"));
 		
-		exec_result = KatelloUtils.sshOnClient("rpm -q cockateel");
+		exec_result = sshOnClient("rpm -q cockateel");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code (rpm -q cockateel)");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("cockateel-"));
 		
-		exec_result = KatelloUtils.sshOnClient("rpm -q lion");
+		exec_result = sshOnClient("rpm -q lion");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code (rpm -q lion)");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("lion-"));
 
-		exec_result = KatelloUtils.sshOnClient("rpm -q tiger");
+		exec_result = sshOnClient("rpm -q tiger");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code (rpm -q tiger)");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("tiger-"));
 	}
@@ -361,37 +361,37 @@ public class SystemGroupPackages extends KatelloCliTestBase {
 			dependsOnMethods={"test_updatePackageGroupsOnSystemGroup"})
 	public void test_removePackageGroupsFromSystemGroup() {
 		
-		KatelloSystemGroup group = new KatelloSystemGroup(group_name, this.org_name);
+		KatelloSystemGroup group = new KatelloSystemGroup(this.cli_worker, group_name, this.org_name);
 		exec_result = group.packagegroup_remove("birds,mammals");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("Remote action finished"));
 		Assert.assertTrue(getOutput(exec_result).trim().contains("Package Group Remove Complete"));
 		
-		exec_result = KatelloUtils.sshOnClient("rpm -q stork");
+		exec_result = sshOnClient("rpm -q stork");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 1, "Check - return code (rpm -q stork)");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("package stork is not installed"));
 		
-		exec_result = KatelloUtils.sshOnClient("rpm -q cockateel");
+		exec_result = sshOnClient("rpm -q cockateel");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 1, "Check - return code (rpm -q cockateel)");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("package cockateel is not installed"));
 
-		exec_result = KatelloUtils.sshOnClient("rpm -q penguin");
+		exec_result = sshOnClient("rpm -q penguin");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 1, "Check - return code (rpm -q penguin)");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("package penguin is not installed"));
 		
-		exec_result = KatelloUtils.sshOnClient("rpm -q duck");
+		exec_result = sshOnClient("rpm -q duck");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 1, "Check - return code (rpm -q duck)");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("package duck is not installed"));
 		
-		exec_result = KatelloUtils.sshOnClient("rpm -q lion");
+		exec_result = sshOnClient("rpm -q lion");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 1, "Check - return code (rpm -q lion)");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("package lion is not installed"));
 		
-		exec_result = KatelloUtils.sshOnClient("rpm -q tiger");
+		exec_result = sshOnClient("rpm -q tiger");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 1, "Check - return code (rpm -q tiger)");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("package tiger is not installed"));
 		
-		exec_result = KatelloUtils.sshOnClient("rpm -q zebra");
+		exec_result = sshOnClient("rpm -q zebra");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 1, "Check - return code (rpm -q zebra)");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("package zebra is not installed"));
 	}

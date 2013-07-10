@@ -28,7 +28,7 @@ import com.redhat.qe.tools.SSHCommandResult;
  * @author gkhachik
  *
  */
-@Test(groups={"cfse-e2e"})
+@Test(singleThreaded=true, groups={"RhsmOnlyPermissions"})
 public class RhsmOnlyPermissions extends KatelloCliTestBase{
 	private static Logger log = Logger.getLogger(RhsmOnlyPermissions.class.getName());
 
@@ -52,11 +52,11 @@ public class RhsmOnlyPermissions extends KatelloCliTestBase{
 		this.system = "sys-"+this.user;
 
 		this.org = "org-RHSM-only-"+uid;
-		KatelloOrg org = new KatelloOrg(this.org, null);
+		KatelloOrg org = new KatelloOrg(this.cli_worker, this.org, null);
 		org.cli_create();
-		KatelloEnvironment env = new KatelloEnvironment(this.env_dev, null, this.org, KatelloEnvironment.LIBRARY);
+		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, this.env_dev, null, this.org, KatelloEnvironment.LIBRARY);
 		env.cli_create();
-		env = new KatelloEnvironment(this.env_test, null, this.org, KatelloEnvironment.LIBRARY);
+		env = new KatelloEnvironment(this.cli_worker, this.env_test, null, this.org, KatelloEnvironment.LIBRARY);
 		env.cli_create();		
 	}
 	
@@ -64,10 +64,10 @@ public class RhsmOnlyPermissions extends KatelloCliTestBase{
 	public void test_createUserAndRole(){
 		
 		log.info("Preparing: user, user_role");
-		KatelloUser user = new KatelloUser(this.user, "root@localhost", KatelloUser.DEFAULT_USER_PASS, false);
+		KatelloUser user = new KatelloUser(cli_worker, this.user, "root@localhost", KatelloUser.DEFAULT_USER_PASS, false);
 		user.cli_create();
 		user.asserts_create();
-		KatelloUserRole role = new KatelloUserRole(this.user_role, "Full RHSM access for an env. scope");
+		KatelloUserRole role = new KatelloUserRole(cli_worker, this.user_role, "Full RHSM access for an env. scope");
 		SSHCommandResult res = role.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (user_role create)");
 	}
@@ -80,26 +80,26 @@ public class RhsmOnlyPermissions extends KatelloCliTestBase{
 		this.repo = "Zoo3-"+uid;
 
 		log.info("Sync and promote Zoo3 to the dev env. Subscribe the system to it.");
-		KatelloProvider prov = new KatelloProvider(providerName, this.org, null, null);
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, providerName, this.org, null, null);
 		prov.create();
-		KatelloProduct prod = new KatelloProduct(this.prod, this.org, providerName, null, null, null, null, null);
+		KatelloProduct prod = new KatelloProduct(this.cli_worker, this.prod, this.org, providerName, null, null, null, null, null);
 		prod.create();
-		KatelloRepo repo = new KatelloRepo(this.repo, this.org, this.prod, REPO_INECAS_ZOO3, null, null);
+		KatelloRepo repo = new KatelloRepo(this.cli_worker, this.repo, this.org, this.prod, REPO_INECAS_ZOO3, null, null);
 		repo.create();
 		repo.synchronize();
 		
-		this.contentView = KatelloUtils.promoteProductToEnvironment(this.org, this.prod, this.env_dev);
+		this.contentView = KatelloUtils.promoteProductToEnvironment(cli_worker, this.org, this.prod, this.env_dev);
 	}
 
 	@Test(description="Create permission and assign to user", dependsOnMethods={"test_syncZoo3"})
 	public void test_permissionAssign(){
 		SSHCommandResult res;
 		log.info("Create RHSM full access permission and assign it to the user.");
-		res = new KatelloPermission("env-"+user_role, org, "environments", env_dev, "read_changesets,read_systems,register_systems,delete_systems", user_role).create();
+		res = new KatelloPermission(cli_worker, "env-"+user_role, org, "environments", env_dev, "read_changesets,read_systems,register_systems,delete_systems", user_role).create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (create permission - environments)");
-		res = new KatelloPermission("cv-"+user_role, org, "content_views", contentView, "read,subscribe", user_role).create();
+		res = new KatelloPermission(cli_worker, "cv-"+user_role, org, "content_views", contentView, "read,subscribe", user_role).create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (create permission - content_views)");
-		KatelloUser user = new KatelloUser(this.user, null, null, false);
+		KatelloUser user = new KatelloUser(cli_worker, this.user, null, null, false);
 		res = user.assign_role(this.user_role);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (user assign_role)");
 		Assert.assertTrue(getOutput(res).equals(
@@ -114,8 +114,8 @@ public class RhsmOnlyPermissions extends KatelloCliTestBase{
 		log.info("Register the system");
 		rhsm_clean();
 		
-		KatelloSystem sys = new KatelloSystem(this.system, this.org, this.env_dev+"/"+this.contentView);
-		sys.runAs(new KatelloUser(user, null, KatelloUser.DEFAULT_USER_PASS, false));
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, this.system, this.org, this.env_dev+"/"+this.contentView);
+		sys.runAs(new KatelloUser(cli_worker, user, null, KatelloUser.DEFAULT_USER_PASS, false));
 		res = sys.rhsm_register();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (rhsm register)");
 		Assert.assertTrue(getOutput(res).contains("The system has been registered"), "Check - message (registered)");
@@ -126,10 +126,10 @@ public class RhsmOnlyPermissions extends KatelloCliTestBase{
 	public void test_subscribeSystemToZoo3(){
 		
 		log.info("Subscribing system to the pool of: Zoo3");
-		KatelloSystem sys = new KatelloSystem(this.system, this.org, null);
-		KatelloUser user = new KatelloUser(this.user, null, KatelloUser.DEFAULT_USER_PASS, false);
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, this.system, this.org, null);
+		KatelloUser user = new KatelloUser(cli_worker, this.user, null, KatelloUser.DEFAULT_USER_PASS, false);
 		sys.runAs(user);
-		SSHCommandResult res = new KatelloOrg(this.org, null).subscriptions();
+		SSHCommandResult res = new KatelloOrg(this.cli_worker, this.org, null).subscriptions();
 		String pool = KatelloUtils.grepCLIOutput("ID", getOutput(res).trim(),1);
 
 		res = sys.rhsm_subscribe(pool);
@@ -142,14 +142,14 @@ public class RhsmOnlyPermissions extends KatelloCliTestBase{
 	public void test_yumOperations(){
 		
 		log.info("Checks on: yum repolist, packages count");
-		SSHCommandResult res = KatelloUtils.sshOnClient("yum clean all; yum repolist --disablerepo \\* --enablerepo \\*\""+this.repo+"\"\\* | grep "+this.repo);
+		SSHCommandResult res = sshOnClient("yum clean all; yum repolist --disablerepo \\* --enablerepo \\*\""+this.repo+"\"\\* | grep "+this.repo);
 		Assert.assertFalse(getOutput(res).equals("repolist: 0"), "Yum repolist contains the repo just subscribed");
 		
 		String sRev = new StringBuffer(getOutput(res).trim()).reverse().toString();
 		String pkgCountRev = sRev.substring(0, sRev.indexOf(" ")+1);
 		int pkgFromYum = Integer.parseInt(new StringBuffer(pkgCountRev).reverse().toString().trim());
 		
-		KatelloPackage pkgs = new KatelloPackage(this.org, this.prod, this.repo, this.contentView);
+		KatelloPackage pkgs = new KatelloPackage(cli_worker, this.org, this.prod, this.repo, this.contentView);
 		res = pkgs.custom_packagesCount(null); // we specified the contentView already.
 		int pkgFromKatello = Integer.parseInt(getOutput(res));
 		
@@ -162,8 +162,8 @@ public class RhsmOnlyPermissions extends KatelloCliTestBase{
 		log.info("Trying register the system to an environment user has no access to");
 		rhsm_clean();
 		
-		KatelloSystem sys = new KatelloSystem(this.system, this.org, this.env_test);
-		sys.runAs(new KatelloUser(user, null, KatelloUser.DEFAULT_USER_PASS, false));
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, this.system, this.org, this.env_test);
+		sys.runAs(new KatelloUser(cli_worker, user, null, KatelloUser.DEFAULT_USER_PASS, false));
 		SSHCommandResult res = sys.rhsm_register();
 		Assert.assertTrue(res.getExitCode().intValue()==255, "Check - return code (rhsm register)");
 		Assert.assertTrue(getOutput(res).contains("No such environment: "+this.env_test), "Check - message (registered)");

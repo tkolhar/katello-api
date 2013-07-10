@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 import javax.management.Attribute;
 import org.testng.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
+import com.redhat.qe.katello.base.threading.KatelloCliWorker;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class KatelloProduct extends _KatelloObject{
@@ -76,6 +77,7 @@ public class KatelloProduct extends _KatelloObject{
 	boolean assumeyes = false;
 	
 	public KatelloProduct(
+			KatelloCliWorker kcr,
 			String pName, String pOrg, String pProv, 
 			String pDesc, String pGpgkey, String pUrl,
 			Boolean bNodisc, Boolean bAssumeyes){
@@ -85,6 +87,8 @@ public class KatelloProduct extends _KatelloObject{
 		this.description = pDesc;
 		this.gpgkey = pGpgkey;
 		this.url = pUrl;
+		this.kcr = kcr;
+		
 		if(bNodisc != null)
 			this.nodisc = bNodisc.booleanValue();
 		if(bAssumeyes != null)
@@ -92,10 +96,11 @@ public class KatelloProduct extends _KatelloObject{
 	}
 	
 	public KatelloProduct(
+			KatelloCliWorker kcr,
 			String pName, String id, String pOrg, String pProv, 
 			String pDesc, String pGpgkey, String pUrl,
 			Boolean bNodisc, Boolean bAssumeyes){
-		this(pName, pOrg, pProv, pDesc, pGpgkey, pUrl, bNodisc, bAssumeyes);
+		this(kcr, pName, pOrg, pProv, pDesc, pGpgkey, pUrl, bNodisc, bAssumeyes);
 		this.id = id;
 	}
 

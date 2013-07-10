@@ -3,6 +3,7 @@ package com.redhat.qe.katello.base.obj;
 import javax.management.Attribute;
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
+import com.redhat.qe.katello.base.threading.KatelloCliWorker;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
@@ -38,21 +39,22 @@ public class KatelloActivationKey extends _KatelloObject{
 	public static final String ERROR_EXCEED =
 			"Usage limit (%s) exhausted for activation key '%s'";	
 	
-	public KatelloActivationKey(String pOrg, String pEnv, String pName, String pDesc){
-		this(pOrg,pEnv,pName,pDesc,null);
+	public KatelloActivationKey(KatelloCliWorker kcr, String pOrg, String pEnv, String pName, String pDesc){
+		this(kcr, pOrg,pEnv,pName,pDesc,null);
 		
 	}
 	
-	public KatelloActivationKey(String pOrg, String pEnv, String pName, String pDesc, String pLimit){
+	public KatelloActivationKey(KatelloCliWorker kcr, String pOrg, String pEnv, String pName, String pDesc, String pLimit){
 		this.org = pOrg;
 		this.environment = pEnv;
 		this.name = pName;
 		this.description = pDesc;
 		this.limit = pLimit;
+		this.kcr = kcr;
 	}
 	
-	public KatelloActivationKey(String pOrg, String pEnv, String pName, String pDesc, String pLimit, String pContentView){
-		this(pOrg,pEnv,pName,pDesc,pLimit);
+	public KatelloActivationKey(KatelloCliWorker kcr, String pOrg, String pEnv, String pName, String pDesc, String pLimit, String pContentView){
+		this(kcr, pOrg,pEnv,pName,pDesc,pLimit);
 		this.content_view = pContentView;
 	}
 	
@@ -188,7 +190,7 @@ public class KatelloActivationKey extends _KatelloObject{
 		SSHCommandResult res;
 		// retrieve environment_id
 		if(this.environment != null){
-			KatelloEnvironment env = new KatelloEnvironment(this.environment, null, this.org, KatelloEnvironment.LIBRARY);
+			KatelloEnvironment env = new KatelloEnvironment(this.kcr, this.environment, null, this.org, KatelloEnvironment.LIBRARY);
 			res = env.cli_info();
 			Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (environment info)");
 			this.environment_id = KatelloUtils.grepCLIOutput("ID", res.getStdout());				

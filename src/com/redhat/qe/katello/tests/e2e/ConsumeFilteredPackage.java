@@ -21,7 +21,7 @@ import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups=TngRunGroups.TNG_KATELLO_Content)
+@Test(groups=TngRunGroups.TNG_KATELLO_Content, singleThreaded = true)
 public class ConsumeFilteredPackage extends KatelloCliTestBase {
 	
 	String uid = KatelloUtils.getUniqueID();
@@ -50,32 +50,32 @@ public class ConsumeFilteredPackage extends KatelloCliTestBase {
 	
 	@BeforeClass(description="Generate unique objects")
 	public void setUp() {
-		KatelloUtils.sshOnClient("yum erase -y fox cow dog dolphin duck walrus elephant horse kangaroo pike lion");
+		sshOnClient("yum erase -y fox cow dog dolphin duck walrus elephant horse kangaroo pike lion --disablerepo \\* || true");
 		
-		org = new KatelloOrg(org_name,null);
+		org = new KatelloOrg(this.cli_worker, org_name,null);
 		exec_result = org.cli_create();		              
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		env = new KatelloEnvironment(env_name,null,org_name,KatelloEnvironment.LIBRARY);
+		env = new KatelloEnvironment(this.cli_worker, env_name,null,org_name,KatelloEnvironment.LIBRARY);
 		exec_result = env.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		prov = new KatelloProvider(prov_name,org_name,null,null);
+		prov = new KatelloProvider(this.cli_worker, prov_name,org_name,null,null);
 		exec_result = prov.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		prod = new KatelloProduct(prod_name,org_name,prov_name,null, null, null,null, null);
+		prod = new KatelloProduct(this.cli_worker, prod_name,org_name,prov_name,null, null, null,null, null);
 		exec_result = prod.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		repo = new KatelloRepo(repo_name,org_name,prod_name,REPO_INECAS_ZOO3, null, null);
+		repo = new KatelloRepo(this.cli_worker, repo_name,org_name,prod_name,REPO_INECAS_ZOO3, null, null);
 		exec_result = repo.create(true);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		exec_result = repo.synchronize();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		condef = new KatelloContentDefinition(condef_name,null,org_name,null);
+		condef = new KatelloContentDefinition(cli_worker, condef_name,null,org_name,null);
 		exec_result = condef.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
@@ -89,7 +89,7 @@ public class ConsumeFilteredPackage extends KatelloCliTestBase {
 	@Test(description="Consume content from filtered package")
 	public void test_consumePackageContent() {
 
-		KatelloContentFilter filter = new KatelloContentFilter(package_filter, org_name, condef_name);
+		KatelloContentFilter filter = new KatelloContentFilter(cli_worker, package_filter, org_name, condef_name);
 
 		exec_result = filter.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
@@ -130,12 +130,12 @@ public class ConsumeFilteredPackage extends KatelloCliTestBase {
 
 		condef.publish(pubview_name,pubview_name,null);
 
-		conview = new KatelloContentView(pubview_name, org_name);
+		conview = new KatelloContentView(cli_worker, pubview_name, org_name);
 		exec_result = conview.promote_view(env_name);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentView.OUT_PROMOTE, this.pubview_name, env_name)), "Content view promote output.");
 
-		act_key = new KatelloActivationKey(org_name,env_name,act_key_name,"Act key created");
+		act_key = new KatelloActivationKey(this.cli_worker, org_name,env_name,act_key_name,"Act key created");
 		exec_result = act_key.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");      
 		exec_result = act_key.update_add_content_view(pubview_name);
@@ -145,8 +145,8 @@ public class ConsumeFilteredPackage extends KatelloCliTestBase {
 		Assert.assertTrue(getOutput(exec_result).contains(this.pubview_name), "Content view name is in output.");
 
 		//register client, subscribe to pool
-		KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);
-		sys = new KatelloSystem(system_name1, this.org_name, null);
+		sshOnClient(KatelloSystem.RHSM_CLEAN);
+		sys = new KatelloSystem(this.cli_worker, system_name1, this.org_name, null);
 		exec_result = sys.rhsm_registerForce(act_key_name);
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 
@@ -160,10 +160,9 @@ public class ConsumeFilteredPackage extends KatelloCliTestBase {
 		exec_result = sys.subscribe(poolId1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
-
 		yum_clean();
 
-		KatelloPackage pack = new KatelloPackage(org_name, prod_name, repo_name, pubview_name);
+		KatelloPackage pack = new KatelloPackage(cli_worker, org_name, prod_name, repo_name, pubview_name);
 		exec_result = pack.cli_list();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("fox"), "check package fox exists");
@@ -180,9 +179,9 @@ public class ConsumeFilteredPackage extends KatelloCliTestBase {
 		Assert.assertFalse(getOutput(exec_result).trim().contains("pike-2.2-1"), "check package does not pike-2.2-1 exists");
 
 		// consume packages from include filter, verify that they are available
-		install_Packages(new String[] {"fox", "cow-2.2-3", "dog-4.23-1", "dolphin-3.10.232-1", "duck-0.6-1", "walrus-0.71-1"});
+		install_Packages(cli_worker.getClientHostname(), new String[] {"fox", "cow-2.2-3", "dog-4.23-1", "dolphin-3.10.232-1", "duck-0.6-1", "walrus-0.71-1"});
 
 		// consume packages from exclude filter, verify that they are NOT available
-		verify_PackagesNotAvailable(new String[] {"elephant-8.3-1", "walrus-5.21-1", "horse-0.22-2", "kangaroo-0.2-1", "pike-2.2-1"});
+		verify_PackagesNotAvailable(cli_worker.getClientHostname(), new String[] {"elephant-8.3-1", "walrus-5.21-1", "horse-0.22-2", "kangaroo-0.2-1", "pike-2.2-1"});
 	}
 }

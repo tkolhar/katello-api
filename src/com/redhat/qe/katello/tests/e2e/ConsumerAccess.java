@@ -20,7 +20,7 @@ import com.redhat.qe.katello.guice.PlainSSLContext;
 import com.redhat.qe.katello.tasks.KatelloTasks;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups={"cfse-e2e"})
+@Test(groups={"cfse-e2e"}, singleThreaded = true)
 @Guice(modules={KatelloApiModule.class})
 public class ConsumerAccess extends KatelloCliTestBase{
 	protected static Logger log = Logger.getLogger(BPMTests.class.getName());
@@ -50,12 +50,12 @@ public class ConsumerAccess extends KatelloCliTestBase{
 		rhsm_clean(); // clean the RHSM registration
 		
 		// Create org:
-		KatelloOrg org = new KatelloOrg(org_name, "Org deletion");
+		KatelloOrg org = new KatelloOrg(this.cli_worker, org_name, "Org deletion");
 		exec_result = org.cli_create();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloOrg.OUT_CREATE,org_name));
 		
-		KatelloEnvironment env = new KatelloEnvironment(env_name, null, org_name, KatelloEnvironment.LIBRARY);
+		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, env_name, null, org_name, KatelloEnvironment.LIBRARY);
 		exec_result = env.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
@@ -76,7 +76,7 @@ public class ConsumerAccess extends KatelloCliTestBase{
 	 */
 	@Test(description="Retrieve consumer")
 	public void test_consumerRetrieve() {
-		KatelloSystem sys = new KatelloSystem(this.system_name, this.org_name, this.env_name);
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, this.system_name, this.org_name, this.env_name);
 		exec_result = sys.rhsm_register(); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		
@@ -89,11 +89,11 @@ public class ConsumerAccess extends KatelloCliTestBase{
 		exec_result = sys.rhsm_identity();
 		String uuid = KatelloUtils.grepCLIOutput("Current identity is", getOutput(exec_result).trim(),1);
 		
-		exec_result = KatelloUtils.sshOnClient(
+		exec_result = sshOnClient(
 				String.format(serverApiCurlTemplate, user_name,KatelloUser.DEFAULT_USER_PASS)+"/consumers/"+uuid);
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains("User " + user_name + " is not allowed to access api/v1/systems/show"), "Check - access denied output");
 		
-		exec_result = KatelloUtils.sshOnClient(
+		exec_result = sshOnClient(
 				String.format(serverApiCurlTemplate, 
 						System.getProperty("katello.admin.user",KatelloUser.DEFAULT_ADMIN_USER),
 						System.getProperty("katello.admin.password",KatelloUser.DEFAULT_ADMIN_PASS))+"/consumers/"+uuid);

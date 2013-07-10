@@ -21,7 +21,7 @@ public class EnvironmentTests extends KatelloCliTestBase {
 		org_name = getText("org.create.name")+" "+uid;
 		env_name = getText("environment.create.name")+" "+uid;
 		
-		KatelloOrg org = new KatelloOrg(org_name, null);
+		KatelloOrg org = new KatelloOrg(this.cli_worker, org_name, null);
 		SSHCommandResult res = org.cli_create();
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 	}
@@ -29,7 +29,7 @@ public class EnvironmentTests extends KatelloCliTestBase {
 	@Test(description="environment create")
 	public void test_createEnvironment(){
 		SSHCommandResult res;
-		KatelloEnvironment env = new KatelloEnvironment(env_name, getText("environment.create.description"), 
+		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, env_name, getText("environment.create.description"), 
 				org_name, KatelloEnvironment.LIBRARY);
 		res = env.cli_create();
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
@@ -40,7 +40,7 @@ public class EnvironmentTests extends KatelloCliTestBase {
 	
 	@Test(description="environment info", dependsOnMethods={"test_createEnvironment"})
 	public void test_infoEnvironment(){
-		KatelloEnvironment env = new KatelloEnvironment(env_name, null, org_name, null);
+		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, env_name, null, org_name, null);
 		SSHCommandResult res = env.cli_info();
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code (environment info)");
 		Assert.assertTrue(KatelloUtils.grepCLIOutput(getText("environment.list.stdout.property.name"), 
@@ -50,7 +50,7 @@ public class EnvironmentTests extends KatelloCliTestBase {
 	
 	@Test(description="environment list", dependsOnMethods={"test_createEnvironment"})
 	public void test_listEnvironment(){
-		KatelloEnvironment env = new KatelloEnvironment(null, null, org_name, null);
+		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, null, null, org_name, null);
 		SSHCommandResult res = env.cli_list();
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(res).contains(env_name), 
@@ -61,7 +61,7 @@ public class EnvironmentTests extends KatelloCliTestBase {
 	
 	@Test(description="environment update", dependsOnMethods={"test_createEnvironment"})
 	public void test_updateEnvironment(){
-		KatelloEnvironment env = new KatelloEnvironment(env_name, null, org_name, null);
+		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, env_name, null, org_name, null);
 		SSHCommandResult res= env.cli_update(getText("environment.update.description"));
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code (environment update)");
 		Assert.assertTrue(getOutput(res).equals(getText("environment.update.stdout", env_name)), "Check - stdout (environment update)");
@@ -71,7 +71,7 @@ public class EnvironmentTests extends KatelloCliTestBase {
 	public void test_deleteEnvironment(){
 		SSHCommandResult res;
 
-		KatelloEnvironment env = new KatelloEnvironment(env_name, null, org_name, null);
+		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, env_name, null, org_name, null);
 		res = env.cli_delete();
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code (environment delete)");
 		Assert.assertTrue(getOutput(res).equals(getText("environment.delete.stdout", env_name)),

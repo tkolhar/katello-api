@@ -1,6 +1,8 @@
 package com.redhat.qe.katello.base.obj;
 
 import javax.management.Attribute;
+
+import com.redhat.qe.katello.base.threading.KatelloCliWorker;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class KatelloDistributor extends _KatelloObject{
@@ -22,9 +24,10 @@ public class KatelloDistributor extends _KatelloObject{
 	public String name;
 	public String uuid;
 
-	public KatelloDistributor(String dOrg,String dName){
+	public KatelloDistributor(KatelloCliWorker kcr, String dOrg,String dName){
 		this.org = dOrg;
 		this.name=dName;
+		this.kcr = kcr;
 	}
 
 	public SSHCommandResult distributor_create(){

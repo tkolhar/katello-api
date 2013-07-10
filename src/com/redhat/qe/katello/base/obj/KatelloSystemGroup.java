@@ -1,8 +1,9 @@
 package com.redhat.qe.katello.base.obj;
 
 import javax.management.Attribute;
-
 import com.redhat.qe.katello.base.KatelloCli;
+import com.redhat.qe.katello.base.threading.KatelloCliWorker;
+import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class KatelloSystemGroup extends _KatelloObject{
@@ -38,7 +39,8 @@ public class KatelloSystemGroup extends _KatelloObject{
 			"Successfully removed systems from system group [ %s ]";
 	
 	public static final String ERR_SYSTEMGROUP_NOTFOUND = 
-			"Could not find system group [ %s ] within organization [ %s ]";
+			"Could not find system group";
+			//"Couldn't find system group ";
 	public static final String ERR_SYSTEMGROUP_EXCEED = 
 			"Validation failed: You cannot have more than %s system(s) associated with system group '%s'.";
 	
@@ -47,15 +49,16 @@ public class KatelloSystemGroup extends _KatelloObject{
 	public static final String REG_SYSTEM_LIST = ".*\\s+%s.*\\s+%s.*";
 	public static final String REG_SYSTEMGROUP_ERRATA_INFO = ".*ID\\s*:\\s*%s\\s*Title\\s*:\\s*%s\\s*Type\\s*:\\s*%s#\\s*Systems\\s*:\\s*%s\\s*Systems\\s*:\\s*%s.*";
 	
-	public KatelloSystemGroup(String pName, String pOrg) {
-		this(pName, pOrg, null, null);
+	public KatelloSystemGroup(KatelloCliWorker kcr, String pName, String pOrg) {
+		this(kcr, pName, pOrg, null, null);
 	}
 	
-	public KatelloSystemGroup(String pName, String pOrg, String pDescription, Integer pmaxSystems) {
+	public KatelloSystemGroup(KatelloCliWorker kcr, String pName, String pOrg, String pDescription, Integer pmaxSystems) {
 		this.name = pName;
 		this.org = pOrg;
 		this.description = pDescription;
 		this.maxSystems = pmaxSystems;
+		this.kcr = kcr;
 	}
 	
 	public SSHCommandResult create() {
@@ -64,13 +67,18 @@ public class KatelloSystemGroup extends _KatelloObject{
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("description", description));
 		opts.add(new Attribute("max_systems", maxSystems));
-		return run(CMD_CREATE);
+		SSHCommandResult _res = run(CMD_CREATE); 
+		try{
+			Thread.sleep(1000);
+		}catch (InterruptedException e){}
+		return _res;
 	}
 	
 	public SSHCommandResult info(){
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
+		KatelloUtils.sleepAsHuman();
 		return run(CMD_INFO);
 	}
 	
@@ -113,6 +121,7 @@ public class KatelloSystemGroup extends _KatelloObject{
 	public SSHCommandResult list(){
 		opts.clear();
 		opts.add(new Attribute("org", org));
+		KatelloUtils.sleepAsHuman();
 		return run(CMD_LIST);
 	}
 

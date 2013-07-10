@@ -6,8 +6,8 @@ import java.util.logging.Logger;
 import javax.management.Attribute;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.testng.Assert;
-
 import com.redhat.qe.katello.base.KatelloCliTestBase;
+import com.redhat.qe.katello.base.threading.KatelloCliWorker;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
@@ -26,7 +26,7 @@ public class KatelloOrg extends _KatelloObject{
 	public static final String CMD_DELETE = "org delete";
 	public static final String CMD_UPDATE = "org update";
 	public static final String CMD_DEFAULT_INFO_ADD = "org default_info add";
-	public static final String CMD_DEFAULT_INFO_APPLY = "org default_info sync";
+	public static final String CMD_DEFAULT_INFO_APPLY = "org default_info apply";
 	public static final String CMD_DEFAULT_INFO_REMOVE = "org default_info remove";
 //	public static final String CMD_ADD_SYS_INFO = "org default_info add";
 //	public static final String CMD_APPLY_SYS_INFO = "org default_info apply";
@@ -48,7 +48,7 @@ public class KatelloOrg extends _KatelloObject{
 	public static final String OUT_ADD_DISTRIBUTOR_INFO =
 			"Successfully added [ Distributor ] default custom info [ %s ] to Org [ %s ]";
 	public static final String OUT_APPLY_SYS_INFO = 
-			"Organization [ %s ] completed syncing default info";
+			"Organization [ %s ] completed applying default info";
 	public static final String OUT_REMOVE_SYS_INFO = 
 			"Successfully removed [ System ] default custom info [ %s ] for Org [ %s ]";
 	
@@ -78,18 +78,19 @@ public class KatelloOrg extends _KatelloObject{
 	
 	public KatelloOrg(){super();}
 	
-	public KatelloOrg(String pName, String pDesc){
+	public KatelloOrg(KatelloCliWorker kcr, String pName, String pDesc){
 		this.name = pName;
 		this.description = pDesc;
+		this.kcr = kcr;
 	}
 	
-	protected KatelloOrg(Long id, String name, String description) {
-	    this(name, description);
+	protected KatelloOrg(KatelloCliWorker kcr, Long id, String name, String description) {
+	    this(kcr, name, description);
 	    this.id = id;
 	}
 	
-	public KatelloOrg(String name, String description, String label) {
-	    this(name, description);
+	public KatelloOrg(KatelloCliWorker kcr, String name, String description, String label) {
+	    this(kcr, name, description);
 	    this.label = label;
 	}
 
@@ -245,8 +246,8 @@ public class KatelloOrg extends _KatelloObject{
 		return defaultOrg;
 	}
 	
-	public static String getPoolId(String orgName, String productName){
-		SSHCommandResult res = new KatelloOrg(orgName, null).subscriptions(); // all subscriptions
+	public String custom_getPoolId(String productName){
+		SSHCommandResult res = new KatelloOrg(kcr, name, null).subscriptions(); // all subscriptions
 		String outBlock = KatelloUtils.grepOutBlock(
 				"Subscription", productName, KatelloCliTestBase.sgetOutput(res)); // filter our product's output block
 		return KatelloUtils.grepCLIOutput("ID", outBlock); // grep poolid

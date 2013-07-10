@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -40,29 +41,29 @@ public class SystemInfoTests extends KatelloCliTestBase{
 		this.system = "system-" + uid;
 		this.environment = "environment-" + uid;
 
-		KatelloOrg org = new KatelloOrg(this.org, "Default org");
+		KatelloOrg org = new KatelloOrg(this.cli_worker, this.org, "Default org");
 		exec_result = org.cli_create();
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
 
-		KatelloEnvironment env = new KatelloEnvironment(this.environment, null, this.org, KatelloEnvironment.LIBRARY);
+		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, this.environment, null, this.org, KatelloEnvironment.LIBRARY);
 		exec_result = env.cli_create();
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
 
-		KatelloSystem sys = new KatelloSystem(system, this.org, this.environment);
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, system, this.org, this.environment);
 		exec_result = sys.rhsm_registerForce(); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 	}
 
 	@Test
 	public void checkSystemList() {
-		KatelloSystem sys = new KatelloSystem(this.system, this.org, this.environment);
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, this.system, this.org, this.environment);
 		exec_result = sys.list();
 		Assert.assertTrue(getOutput(exec_result).trim().contains(this.system), "System should be contained");
 	}
 
 	@Test(dependsOnMethods={"checkSystemList"})
 	public void checkSystemInfo() {
-		KatelloSystem sys = new KatelloSystem(this.system, this.org, this.environment);
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, this.system, this.org, this.environment);
 		exec_result = sys.info();
 		Assert.assertTrue(getOutput(exec_result).trim().contains(this.system), "System should be contained");
 
@@ -71,7 +72,7 @@ public class SystemInfoTests extends KatelloCliTestBase{
 
 	@Test(dependsOnMethods={"checkSystemInfo"})
 	public void checkOrgInfo() {
-		KatelloOrg org = new KatelloOrg(this.org, "Default org");
+		KatelloOrg org = new KatelloOrg(this.cli_worker, this.org, "Default org");
 		exec_result = org.cli_info();
 		Assert.assertTrue(getOutput(exec_result).trim().contains(this.org), "Org should be contained");
 
@@ -80,7 +81,7 @@ public class SystemInfoTests extends KatelloCliTestBase{
 
 	@Test(description="added a parameter to org, verifies that it exists in system as well", dependsOnMethods={"checkOrgInfo"})
 	public void addOrgInfo() {
-		KatelloOrg org = new KatelloOrg(this.org, "Default org");
+		KatelloOrg org = new KatelloOrg(this.cli_worker, this.org, "Default org");
 		exec_result = org.default_info_add(keyname,"system");
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
 		Assert.assertEquals(getOutput(exec_result).trim(), 
@@ -97,7 +98,7 @@ public class SystemInfoTests extends KatelloCliTestBase{
 		List<String[]> sysparamsList = new LinkedList<String[]>();
 		sysparamsList.add(new String[] {this.keyname, "None"});
 
-		assert_systemInfo(new KatelloSystem(this.system, this.org, this.environment), sysparamsList);
+		assert_systemInfo(new KatelloSystem(this.cli_worker, this.system, this.org, this.environment), sysparamsList);
 
 		List<String> orgparamsList = new LinkedList<String>();
 		orgparamsList.add(this.keyname);
@@ -107,7 +108,7 @@ public class SystemInfoTests extends KatelloCliTestBase{
 
 	@Test(description="remove existing parameter from org, verifies that it still exists in system", dependsOnMethods={"addOrgInfo"})
 	public void test_removeOrgInfo() {
-		KatelloOrg org = new KatelloOrg(this.org, "Default org");
+		KatelloOrg org = new KatelloOrg(this.cli_worker, this.org, "Default org");
 		exec_result = org.default_info_remove(keyname,"system");
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
 		Assert.assertEquals(getOutput(exec_result).trim(), 
@@ -116,7 +117,7 @@ public class SystemInfoTests extends KatelloCliTestBase{
 
 		List<String[]> sysparamsList = new LinkedList<String[]>();
 		sysparamsList.add(new String[]{this.keyname, "none"});
-		assert_systemInfo(new KatelloSystem(this.system, this.org, this.environment), sysparamsList);
+		assert_systemInfo(new KatelloSystem(this.cli_worker, this.system, this.org, this.environment), sysparamsList);
 
 		List<String> orgparamsList = new LinkedList<String>();
 		//orgparamsList.add(this.keyname);
@@ -127,7 +128,7 @@ public class SystemInfoTests extends KatelloCliTestBase{
 	@Test(description="Sync the systems, the removed default parameters should also be removed from the system", dependsOnMethods={"test_removeOrgInfo"})
 	public void test_syncRemovedInfo()
 	{
-		KatelloOrg org = new KatelloOrg(this.org, "Default org");
+		KatelloOrg org = new KatelloOrg(this.cli_worker, this.org, "Default org");
 		exec_result = org.default_info_apply("System");
 
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
@@ -138,13 +139,13 @@ public class SystemInfoTests extends KatelloCliTestBase{
 
 		List<String[]> sysparamsList = new LinkedList<String[]>();
 
-		assert_systemInfo(new KatelloSystem(this.system, this.org, this.environment), sysparamsList);
+		assert_systemInfo(new KatelloSystem(this.cli_worker, this.system, this.org, this.environment), sysparamsList);
 
 	}
 
 	@Test(description="trying to remove an invalid parameter from org, verifies the error message", dependsOnMethods={"addOrgInfo"})
 	public void test_removeOrgInvalidInfo() {
-		KatelloOrg org = new KatelloOrg(this.org, "Default org");
+		KatelloOrg org = new KatelloOrg(this.cli_worker, this.org, "Default org");
 		exec_result = org.default_info_remove(keyInvalid, "ASDF");
 
 		//TODO: AssertTrue for the exact exitCode
@@ -157,7 +158,7 @@ public class SystemInfoTests extends KatelloCliTestBase{
 
 		List<String[]> sysparamsList = new LinkedList<String[]>();
 		sysparamsList.add(new String[] {this.keyname, "None"});
-		assert_systemInfo(new KatelloSystem(this.system, this.org, this.environment), sysparamsList);
+		assert_systemInfo(new KatelloSystem(this.cli_worker, this.system, this.org, this.environment), sysparamsList);
 
 		List<String> orgparamsList = new LinkedList<String>();
 		orgparamsList.add(this.keyname);
@@ -168,7 +169,7 @@ public class SystemInfoTests extends KatelloCliTestBase{
 	@Test(description="Adding multiple default org parameters without syncing the systems, verify that they do not exist in the system yet", dependsOnMethods={"test_syncRemovedInfo"})
 	public void addMultipleOrgInfo()
 	{
-		KatelloOrg org = new KatelloOrg(this.org, "Default org");
+		KatelloOrg org = new KatelloOrg(this.cli_worker, this.org, "Default org");
 		exec_result = org.default_info_add(keyname2, "System");
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
 		Assert.assertEquals(getOutput(exec_result).trim(), 
@@ -184,7 +185,7 @@ public class SystemInfoTests extends KatelloCliTestBase{
 
 		List<String[]> sysparamsList = new LinkedList<String[]>();
 
-		assert_systemInfo(new KatelloSystem(this.system, this.org, this.environment), sysparamsList);
+		assert_systemInfo(new KatelloSystem(this.cli_worker, this.system, this.org, this.environment), sysparamsList);
 
 		List<String> orgparamsList = new LinkedList<String>();
 		orgparamsList.add(this.keyname2);
@@ -196,7 +197,7 @@ public class SystemInfoTests extends KatelloCliTestBase{
 
 	@Test(description="adding the same 2 parameters as the default ones to system", dependsOnMethods={"addMultipleOrgInfo"})
 	public void test_addSystemInfo() {
-		KatelloSystem sys = new KatelloSystem(this.system, this.org, this.environment);
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, this.system, this.org, this.environment);
 		exec_result = sys.add_custom_info(keyname2, value2);
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
 		Assert.assertEquals(getOutput(exec_result).trim(), 
@@ -206,7 +207,7 @@ public class SystemInfoTests extends KatelloCliTestBase{
 		List<String[]> sysparamsList = new LinkedList<String[]>();
 		sysparamsList.add(new String[] {this.keyname2, value2});
 
-		assert_systemInfo(new KatelloSystem(this.system, this.org, this.environment), sysparamsList);
+		assert_systemInfo(new KatelloSystem(this.cli_worker, this.system, this.org, this.environment), sysparamsList);
 
 		exec_result = sys.add_custom_info(keyname3, value3);
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
@@ -216,13 +217,13 @@ public class SystemInfoTests extends KatelloCliTestBase{
 
 		sysparamsList.add(new String[] {this.keyname3, value3});
 
-		assert_systemInfo(new KatelloSystem(this.system, this.org, this.environment), sysparamsList);
+		assert_systemInfo(new KatelloSystem(this.cli_worker, this.system, this.org, this.environment), sysparamsList);
 	}
 
 	@Test(description="Sync the added default parameters, verify that the sync process of org does not override the custom info keys of the system", dependsOnMethods={"test_addSystemInfo"})
 	public void test_syncAddedInfo()
 	{
-		KatelloOrg org = new KatelloOrg(this.org, "Default org");
+		KatelloOrg org = new KatelloOrg(this.cli_worker, this.org, "Default org");
 		exec_result = org.default_info_apply("System");
 
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
@@ -235,7 +236,7 @@ public class SystemInfoTests extends KatelloCliTestBase{
 
 	@Test(description="update a parameter in system", dependsOnMethods={"test_addSystemInfo"})
 	public void updateSystemInfo() {
-		KatelloSystem sys = new KatelloSystem(this.system, this.org, this.environment);
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, this.system, this.org, this.environment);
 		exec_result = sys.update_custom_info(keyname2, value2_edit);
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
 		Assert.assertEquals(getOutput(exec_result).trim(), 
@@ -247,12 +248,12 @@ public class SystemInfoTests extends KatelloCliTestBase{
 		sysparamsList.add(new String[] {this.keyname2, value2_edit});
 		sysparamsList.add(new String[] {this.keyname3, value3});
 
-		assert_systemInfo(new KatelloSystem(this.system, this.org, this.environment), sysparamsList);
+		assert_systemInfo(new KatelloSystem(this.cli_worker, this.system, this.org, this.environment), sysparamsList);
 	}
 
 	@Test(description="remove existing parameter from system", dependsOnMethods={"updateSystemInfo"})
 	public void test_removeSystemInfo() {
-		KatelloSystem sys = new KatelloSystem(this.system, this.org, this.environment);
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, this.system, this.org, this.environment);
 		exec_result = sys.remove_custom_info(keyname2);
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
 		Assert.assertEquals(getOutput(exec_result).trim(), 
@@ -263,18 +264,13 @@ public class SystemInfoTests extends KatelloCliTestBase{
 		sysparamsList.add(new String[] {this.keyname, "None"});
 		sysparamsList.add(new String[] {this.keyname3, value3});
 
-		assert_systemInfo(new KatelloSystem(this.system, this.org, this.environment), sysparamsList);
+		assert_systemInfo(new KatelloSystem(this.cli_worker, this.system, this.org, this.environment), sysparamsList);
 	}
 
 	@Test(description="remove all existing default parameters and sync, verify that the info still exists for the system", dependsOnMethods={"updateSystemInfo"})
 	public void test_removeAllDefaultInfo() {
 
-		KatelloOrg org = new KatelloOrg(this.org, "Default org");
-		exec_result = org.default_info_remove(keyname, "System");
-		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
-		Assert.assertEquals(getOutput(exec_result).trim(), 
-				String.format(KatelloOrg.OUT_REMOVE_SYS_INFO, keyname, org.name),
-				"Check - remove system info output.");
+		KatelloOrg org = new KatelloOrg(this.cli_worker, this.org, "Default org");
 
 		exec_result = org.default_info_remove(keyname2, "System");
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
@@ -301,11 +297,16 @@ public class SystemInfoTests extends KatelloCliTestBase{
 		sysparamsList.add(new String[] {this.keyname2, value2});
 		sysparamsList.add(new String[] {this.keyname3, value3});
 
-		assert_systemInfo(new KatelloSystem(this.system, this.org, this.environment), sysparamsList);
+		assert_systemInfo(new KatelloSystem(this.cli_worker, this.system, this.org, this.environment), sysparamsList);
 
 		List<String> orgparamsList = new LinkedList<String>();
 
 		assert_orgInfo(org, orgparamsList);
+	}
+
+	@AfterClass(description="destroy", alwaysRun=true)
+	public void tearDown(){
+		
 	}
 
 	private void assert_systemInfo(KatelloSystem system, List<String[]> paramsList) {

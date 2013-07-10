@@ -2,7 +2,6 @@ package com.redhat.qe.katello.tests.cli;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
@@ -20,7 +19,7 @@ public class GpgKeyTests extends KatelloCliTestBase{
 	private String gpg;
 	private String filename;
 	
-	@BeforeClass(description="init: create org, prepare gpg file on disk")
+	@BeforeClass(description="init: create org, prepare gpg file on disk", alwaysRun=true)
 	public void setUp(){
 		SSHCommandResult res;
 		rand = KatelloUtils.getUniqueID();
@@ -28,20 +27,20 @@ public class GpgKeyTests extends KatelloCliTestBase{
 		this.filename = "/tmp/RPM-GPG-KEY-dummy-packages-generator";
 		this.gpg = "gpgkey-"+rand;
 
-		KatelloOrg org = new KatelloOrg(this.org, "Org for GPG cli tests");
+		KatelloOrg org = new KatelloOrg(this.cli_worker, this.org, "Org for GPG cli tests");
 		res = org.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (org create)");
 		
 		String cmd = "rm -f "+this.filename+"; " +
 				"curl -sk "+KatelloGpgKey.REPO_GPG_FILE_ZOO+" -o "+this.filename;
-		res = KatelloUtils.sshOnClient(cmd);
+		res = sshOnClient(cmd);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (get gpg file)");
 	}
 
 	@Test(description="simply create a gpg key: nothing yet")
 	public void create_noProdnoRepo(){
 		SSHCommandResult res;
-		KatelloGpgKey gpg = new KatelloGpgKey(this.gpg, this.org, this.filename);
+		KatelloGpgKey gpg = new KatelloGpgKey(cli_worker, this.gpg, this.org, this.filename);
 		res = gpg.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, 
 				"Check - return code (gpg_key create)");
@@ -52,7 +51,7 @@ public class GpgKeyTests extends KatelloCliTestBase{
 	@Test(description="info on gpg key - nothing yet", dependsOnMethods={"create_noProdnoRepo"})
 	public void info_noProdnoRepo(){
 		SSHCommandResult res;
-		KatelloGpgKey gpg = new KatelloGpgKey(this.gpg, this.org, null);
+		KatelloGpgKey gpg = new KatelloGpgKey(cli_worker, this.gpg, this.org, null);
 		res = gpg.cli_info();
 		String prods = KatelloUtils.grepCLIOutput("Products", getOutput(res));
 		String repos = KatelloUtils.grepCLIOutput("Repositories", getOutput(res));
@@ -63,7 +62,7 @@ public class GpgKeyTests extends KatelloCliTestBase{
 	
 	@Test(description="list gpg keys", dependsOnMethods={"create_noProdnoRepo"})
 	public void list(){
-		SSHCommandResult res = new KatelloGpgKey(this.gpg, this.org, null).cli_list();
+		SSHCommandResult res = new KatelloGpgKey(cli_worker, this.gpg, this.org, null).cli_list();
 		Assert.assertTrue(res.getExitCode().intValue()==0,"Check - return code (gpg_key list)");
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(String.format(KatelloGpgKey.REGEXP_GPG, this.gpg)),
 				"Check - gpg key should be listed");
@@ -71,7 +70,7 @@ public class GpgKeyTests extends KatelloCliTestBase{
 	
 	@Test(description="list gpg keys", dependsOnMethods={"create_noProdnoRepo","info_noProdnoRepo","list"})
 	public void delete(){
-		KatelloGpgKey gpg = new KatelloGpgKey(this.gpg, this.org, null);
+		KatelloGpgKey gpg = new KatelloGpgKey(cli_worker, this.gpg, this.org, null);
 		SSHCommandResult res = gpg.cli_delete();
 		Assert.assertTrue(res.getExitCode().intValue()==0,"Check - return code (gpg_key delete)");
 		Assert.assertFalse(getOutput(res).replaceAll("\n", "").matches(String.format(KatelloGpgKey.REGEXP_GPG, this.gpg)),
@@ -81,5 +80,4 @@ public class GpgKeyTests extends KatelloCliTestBase{
 		Assert.assertTrue(getOutput(res).equals(String.format(KatelloGpgKey.ERR_KEY_NOT_FOUND, this.gpg)),
 				"Check - gpg info error string");
 	}
-	
 }

@@ -17,7 +17,7 @@ import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
-import com.redhat.qe.tools.SCPTools;
+
 import com.redhat.qe.tools.SSHCommandResult;
 import java.io.File;
 
@@ -35,28 +35,28 @@ public class OrgTests extends KatelloCliTestBase{
 
 	@BeforeClass(description="Generate unique objects", groups={"cfse-cli","headpin-cli"})
 	public void setUp() {
-		KatelloOrg org = new KatelloOrg("FOO"+uid,"Package tests", "BAR"+uid);
+		KatelloOrg org = new KatelloOrg(this.cli_worker, "FOO"+uid,"Package tests", "BAR"+uid);
 		exec_result = org.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		orgs.add(org);
 
-		exec_result = new KatelloOrg(org_system_name, null).cli_create();
+		exec_result = new KatelloOrg(this.cli_worker, org_system_name, null).cli_create();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 
-		exec_result = new KatelloOrg(org_name, null).cli_create();
+		exec_result = new KatelloOrg(this.cli_worker, org_name, null).cli_create();
 		Assert.assertTrue(exec_result.getExitCode()==0, "Check - return code (org create)");
 	}
 
 	@BeforeClass(description="init: katello specific, no headpin", dependsOnMethods={"setUp"})
 	public void setUp_katelloOnly(){
 		this.env_system_name = "env_system-"+uid;
-		exec_result = new KatelloEnvironment(env_system_name, null, org_system_name, KatelloEnvironment.LIBRARY).cli_create();
+		exec_result = new KatelloEnvironment(this.cli_worker, env_system_name, null, org_system_name, KatelloEnvironment.LIBRARY).cli_create();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 	}
 
 	@Test(description = "List all orgs - default org should be there",groups={"cfse-cli","headpin-cli"})
 	public void test_listOrgs_DefaultOrg(){
-		KatelloOrg list_org = new KatelloOrg(null,null);
+		KatelloOrg list_org = new KatelloOrg(this.cli_worker, null,null);
 		SSHCommandResult res = list_org.cli_list();
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(res).contains(KatelloOrg.getDefaultOrg()), "Check - contains default org");
@@ -66,7 +66,7 @@ public class OrgTests extends KatelloCliTestBase{
 			dataProviderClass = KatelloCliDataProvider.class,
 			dataProvider = "org_create",groups={"cfse-cli","headpin-cli"})
 	public void test_createOrg(String name, String descr){
-		KatelloOrg org = new KatelloOrg(name, descr);
+		KatelloOrg org = new KatelloOrg(this.cli_worker, name, descr);
 		SSHCommandResult res = org.cli_create();
 
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
@@ -79,17 +79,17 @@ public class OrgTests extends KatelloCliTestBase{
 	public void test_createOrgNonLatin(){		
 		String uniqueID = KatelloUtils.getUniqueID();
 
-		KatelloOrg org1 = new KatelloOrg("Орга низация" + uniqueID, "");
+		KatelloOrg org1 = new KatelloOrg(this.cli_worker, "Орга низация" + uniqueID, "");
 		SSHCommandResult res = org1.cli_create();
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 		this.orgs.add(org1);
 
-		KatelloOrg org2 = new KatelloOrg("կազմա կերպություն" + uniqueID, "");
+		KatelloOrg org2 = new KatelloOrg(this.cli_worker, "կազմա կերպություն" + uniqueID, "");
 		res = org2.cli_create();
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 		this.orgs.add(org2);
 
-		KatelloOrg org3 = new KatelloOrg("组 织" + uniqueID, "");
+		KatelloOrg org3 = new KatelloOrg(this.cli_worker, "组 织" + uniqueID, "");
 		res = org3.cli_create();
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 		this.orgs.add(org3);
@@ -99,12 +99,12 @@ public class OrgTests extends KatelloCliTestBase{
 			dependsOnMethods={"test_createOrg", "test_createOrgNonLatin"},groups={"cfse-cli","headpin-cli"})
 	public void test_infoListOrg(){
 		String uniqueID = KatelloUtils.getUniqueID();
-		KatelloOrg list_org = new KatelloOrg("orgUpd"+uniqueID, "Simple description");		
+		KatelloOrg list_org = new KatelloOrg(this.cli_worker, "orgUpd"+uniqueID, "Simple description");		
 		list_org.cli_create();
 
 		orgs.add(list_org);
 
-		list_org = new KatelloOrg(null,null);
+		list_org = new KatelloOrg(this.cli_worker, null,null);
 		SSHCommandResult res = list_org.cli_list();
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code (org list)");
 
@@ -120,7 +120,7 @@ public class OrgTests extends KatelloCliTestBase{
 	public void test_updateOrg(){
 		SSHCommandResult res;
 		String uniqueID = KatelloUtils.getUniqueID();
-		KatelloOrg org = new KatelloOrg("orgUpd"+uniqueID, "Simple description");		
+		KatelloOrg org = new KatelloOrg(this.cli_worker, "orgUpd"+uniqueID, "Simple description");		
 
 		res = org.cli_create();
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
@@ -140,7 +140,7 @@ public class OrgTests extends KatelloCliTestBase{
 	@Test(description="dc5d228a-b998-4845-b050-f9d2fcfa5ec3",groups={"cfse-cli","headpin-cli"})
 	public void test_deleteOrg(){
 		String uniqueID = KatelloUtils.getUniqueID();
-		KatelloOrg org = new KatelloOrg("orgDel"+uniqueID, null);
+		KatelloOrg org = new KatelloOrg(this.cli_worker, "orgDel"+uniqueID, null);
 
 		org.cli_create();
 		SSHCommandResult res = org.delete();
@@ -156,7 +156,7 @@ public class OrgTests extends KatelloCliTestBase{
 	@Test(description="Delete an organization which does not exist",groups={"cfse-cli","headpin-cli"})
 	public void test_deleteOrgNotExist(){
 		String uniqueID = KatelloUtils.getUniqueID();
-		KatelloOrg org = new KatelloOrg("orgDel"+uniqueID, null);
+		KatelloOrg org = new KatelloOrg(this.cli_worker, "orgDel"+uniqueID, null);
 
 		SSHCommandResult res = org.delete();
 		Assert.assertTrue(res.getExitCode() == 148, "Check - return code [148]");
@@ -168,22 +168,22 @@ public class OrgTests extends KatelloCliTestBase{
 	public void test_orgSubscriptions(){
 		String uniqueID = KatelloUtils.getUniqueID();
 		String orgName = "subscriptions-" + uniqueID;
-		KatelloOrg org = new KatelloOrg(orgName, null); // or you can provide null -> "some simple description here"
+		KatelloOrg org = new KatelloOrg(this.cli_worker, orgName, null); // or you can provide null -> "some simple description here"
 		SSHCommandResult res = org.cli_create();
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code (org create)");
 
 		String  providerName = "provider" + uniqueID;
-		KatelloProvider prov = new KatelloProvider(providerName, orgName, "Fedora provider", null);
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, providerName, orgName, "Fedora provider", null);
 		res = prov.create();
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 
 		String productName = "product" + uniqueID;
-		KatelloProduct prod = new KatelloProduct(productName, orgName, providerName, null, null, null, null, null);
+		KatelloProduct prod = new KatelloProduct(this.cli_worker, productName, orgName, providerName, null, null, null, null, null);
 		res = prod.create();
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 
 		String productName1 = "product1" + uniqueID;
-		prod = new KatelloProduct(productName1, orgName, providerName, null, null, null, null, null);
+		prod = new KatelloProduct(this.cli_worker, productName1, orgName, providerName, null, null, null, null, null);
 		res = prod.create();
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 
@@ -198,10 +198,10 @@ public class OrgTests extends KatelloCliTestBase{
 	@Test(description = "5a63c8c1-3add-4269-86d7-9b3caac413db",groups={"cfse-cli","headpin-cli"})
 	public void test_createOrgExists(){
 		String uniqueID = KatelloUtils.getUniqueID();
-		KatelloOrg org = new KatelloOrg("orgCrt"+uniqueID, "Simple description");	
+		KatelloOrg org = new KatelloOrg(this.cli_worker, "orgCrt"+uniqueID, "Simple description");	
 		org.cli_create();
 
-		KatelloOrg org2 = new KatelloOrg("orgCrt"+uniqueID, "Simple description");	
+		KatelloOrg org2 = new KatelloOrg(this.cli_worker, "orgCrt"+uniqueID, "Simple description");	
 		SSHCommandResult res = org2.cli_create();
 
 		Assert.assertTrue(res.getExitCode() == 166, "Check - return code [166]");
@@ -211,19 +211,19 @@ public class OrgTests extends KatelloCliTestBase{
 	@Test(description = "Create org - name is invalid",groups={"cfse-cli","headpin-cli"})
 	public void test_createOrgInvalidName(){
 		String uniqueID = KatelloUtils.getUniqueID();
-		KatelloOrg org = new KatelloOrg("orgCrt"+uniqueID + " very < invalid name", "Simple description");	
+		KatelloOrg org = new KatelloOrg(this.cli_worker, "orgCrt"+uniqueID + " very < invalid name", "Simple description");	
 		SSHCommandResult res = org.cli_create();
 		Assert.assertTrue(res.getExitCode() == 166, "Check - return code [166]");
 		Assert.assertEquals(getOutput(res).trim(), 
 				KatelloOrg.ERR_NAME_INVALID);
 
-		org = new KatelloOrg("orgCrt"+uniqueID + " very > invalid name", "Simple description");	
+		org = new KatelloOrg(this.cli_worker, "orgCrt"+uniqueID + " very > invalid name", "Simple description");	
 		res = org.cli_create();
 		Assert.assertTrue(res.getExitCode() == 166, "Check - return code [166]");
 		Assert.assertEquals(getOutput(res).trim(), 
 				KatelloOrg.ERR_NAME_INVALID);
 
-		org = new KatelloOrg("orgCrt"+uniqueID + " very / invalid name", "Simple description");	
+		org = new KatelloOrg(this.cli_worker, "orgCrt"+uniqueID + " very / invalid name", "Simple description");	
 		res = org.cli_create();
 		Assert.assertTrue(res.getExitCode() == 166, "Check - return code [166]");
 		Assert.assertEquals(getOutput(res).trim(), 
@@ -232,9 +232,9 @@ public class OrgTests extends KatelloCliTestBase{
 
 	@Test(description = "Create org - name is already used",groups={"cfse-cli","headpin-cli"})
 	public void test_createOrgExistingName(){
-		KatelloOrg org = new KatelloOrg(orgName_Exists, "existing org", "label"+KatelloUtils.getUniqueID());
+		KatelloOrg org = new KatelloOrg(this.cli_worker, orgName_Exists, "existing org", "label"+KatelloUtils.getUniqueID());
 		org.cli_create();
-		exec_result = new KatelloOrg(orgName_Exists, "existing org 2", "new"+org.label).cli_create();
+		exec_result = new KatelloOrg(this.cli_worker, orgName_Exists, "existing org 2", "new"+org.label).cli_create();
 
 		Assert.assertTrue(exec_result.getExitCode() == 166, "Check - return code [166]");
 		Assert.assertEquals(getOutput(exec_result).trim(), KatelloOrg.ERR_ORG_NAME_EXISTS);
@@ -242,9 +242,9 @@ public class OrgTests extends KatelloCliTestBase{
 
 	@Test(description = "Create org - label is already used",groups={"cfse-cli","headpin-cli"})
 	public void test_createOrgExistingLabel(){
-		KatelloOrg org = new KatelloOrg("labelExists-"+uid, "existing label", orgLabel_Exists);
+		KatelloOrg org = new KatelloOrg(this.cli_worker, "labelExists-"+uid, "existing label", orgLabel_Exists);
 		org.cli_create();
-		exec_result = new KatelloOrg("new"+org.name, "existing label", orgLabel_Exists).cli_create();
+		exec_result = new KatelloOrg(this.cli_worker, "new"+org.name, "existing label", orgLabel_Exists).cli_create();
 
 		Assert.assertTrue(exec_result.getExitCode() == 166, "Check - return code [166]");
 		Assert.assertEquals(getOutput(exec_result).trim(), KatelloOrg.ERR_ORG_LABEL_EXISTS);
@@ -252,9 +252,9 @@ public class OrgTests extends KatelloCliTestBase{
 
 	@Test(description = "Create org - name and label are already used",groups={"cfse-cli","headpin-cli"}, dependsOnMethods={"test_createOrgExistingLabel"})
 	public void test_createOrgExistingNameAndLabel(){
-		KatelloOrg org = new KatelloOrg("bothExist-"+uid, "existing both name and label", "bothExist-"+uid);
+		KatelloOrg org = new KatelloOrg(this.cli_worker, "bothExist-"+uid, "existing both name and label", "bothExist-"+uid);
 		org.cli_create();
-		exec_result = new KatelloOrg(org.name, org.description, org.label).cli_create();
+		exec_result = new KatelloOrg(this.cli_worker, org.name, org.description, org.label).cli_create();
 
 		Assert.assertTrue(exec_result.getExitCode() == 166, "Check - return code [166]");
 		Assert.assertEquals(getOutput(exec_result).trim(), KatelloOrg.ERR_ORG_EXISTS_MUST_BE_UNIQUE);
@@ -264,11 +264,11 @@ public class OrgTests extends KatelloCliTestBase{
 	public void test_deleteOrgWithSystems(){
 		String uniqueID = KatelloUtils.getUniqueID();
 		String sys_del_name = "system_del-" + uniqueID;
-		KatelloSystem system_del = new KatelloSystem(sys_del_name,org_system_name, env_system_name);
+		KatelloSystem system_del = new KatelloSystem(this.cli_worker, sys_del_name,org_system_name, env_system_name);
 		exec_result = system_del.rhsm_registerForce();
 		exec_result = system_del.list();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		exec_result = new KatelloOrg(org_system_name, null).delete();
+		exec_result = new KatelloOrg(this.cli_worker, org_system_name, null).delete();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
 
@@ -281,32 +281,26 @@ public class OrgTests extends KatelloCliTestBase{
 		String diff_org_name = "Durham-" + uniqueID;
 
 		// upload the manifest to server.
-		SCPTools scp = new SCPTools(
-				System.getProperty("katello.server.hostname", "localhost"), 
-				System.getProperty("katello.server.ssh.user", "root"), 
-				System.getProperty("katello.server.sshkey.private", ".ssh/id_hudson_dsa"), 
-				System.getProperty("katello.server.sshkey.passphrase", "null"));
-		Assert.assertTrue(scp.sendFile("data"+File.separator+"stack-manifest.zip", "/tmp"),
-				"stack-manifest.zip sent successfully"); // check it's uploaded ok.			
+		KatelloUtils.scpOnClient(cli_worker.getClientHostname(), "data/stack-manifest.zip", "/tmp");
 
 		// create org-1
-		KatelloOrg org = new KatelloOrg(org_name,null);
+		KatelloOrg org = new KatelloOrg(this.cli_worker, org_name,null);
 		exec_result = org.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
 		// create org-2
-		KatelloOrg diff_org = new KatelloOrg(diff_org_name,null);
+		KatelloOrg diff_org = new KatelloOrg(this.cli_worker, diff_org_name,null);
 		exec_result = diff_org.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
 		try {
 			// import manifest for the org-1
-			providerRH = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT,org_name,null,null);
+			providerRH = new KatelloProvider(this.cli_worker, KatelloProvider.PROVIDER_REDHAT,org_name,null,null);
 			exec_result = providerRH.import_manifest("/tmp"+File.separator+"stack-manifest.zip", new Boolean(true));
 			Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
 			// now try to import the _same_ manifest for another org. 
-			providerRH = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT,diff_org_name,null,null);
+			providerRH = new KatelloProvider(this.cli_worker, KatelloProvider.PROVIDER_REDHAT,diff_org_name,null,null);
 			exec_result = providerRH.import_manifest("/tmp"+File.separator+"stack-manifest.zip", new Boolean(true));
 			Assert.assertTrue(exec_result.getExitCode().intValue() == 65, "Check - return code");
 			Assert.assertTrue(getOutput(exec_result).contains("Provider [ Red Hat ] failed to import manifest:"),"Check - return string");
@@ -325,17 +319,12 @@ public class OrgTests extends KatelloCliTestBase{
 
 		String uniqueID = KatelloUtils.getUniqueID();
 		String org_name = "Raleigh-" + uniqueID;
-		KatelloOrg org = new KatelloOrg(org_name,null);
+		KatelloOrg org = new KatelloOrg(this.cli_worker, org_name,null);
 		exec_result = org.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		KatelloProvider provider = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT,org_name,null,null);
-		SCPTools scp = new SCPTools(
-				System.getProperty("katello.server.hostname", "localhost"), 
-				System.getProperty("katello.server.ssh.user", "root"), 
-				System.getProperty("katello.server.sshkey.private", ".ssh/id_hudson_dsa"), 
-				System.getProperty("katello.server.sshkey.passphrase", "null"));
-		Assert.assertTrue(scp.sendFile("data"+File.separator+"stack-manifest.zip", "/tmp"),
-				"stack-manifest.zip sent successfully");	
+		KatelloProvider provider = new KatelloProvider(this.cli_worker, KatelloProvider.PROVIDER_REDHAT,org_name,null,null);
+		
+		KatelloUtils.scpOnClient(cli_worker.getClientHostname(),"data/stack-manifest.zip", "/tmp");
 		try {
 			exec_result = provider.import_manifest("/tmp"+File.separator+"stack-manifest.zip", new Boolean(true));
 			Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
@@ -351,25 +340,25 @@ public class OrgTests extends KatelloCliTestBase{
 
 	@Test(description = "b5e801df-5661-42f7-b1ba-d09a68c7fd92",groups={"headpin-cli", "cfse-ignore"}, enabled=false)// TODO - gkhachik delete manifest gone from recent sat-6.0.1
 	public void test_ReUploadManifestDiffOrg(){
-		KatelloUtils.scpOnClient("data/"+"stack-manifest.zip", "/tmp");
+		KatelloUtils.scpOnClient(cli_worker.getClientHostname(), "data/"+"stack-manifest.zip", "/tmp");
 
 		String uniqueID = KatelloUtils.getUniqueID();
 		String org_name = "Raleigh-" + uniqueID;
 		String diff_org_name = "Durham-" + uniqueID;
-		KatelloOrg org = new KatelloOrg(org_name,null);
+		KatelloOrg org = new KatelloOrg(this.cli_worker, org_name,null);
 		KatelloOrg diff_org = null;
 		exec_result = org.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		KatelloProvider provider = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT,org_name,null,null);
+		KatelloProvider provider = new KatelloProvider(this.cli_worker, KatelloProvider.PROVIDER_REDHAT,org_name,null,null);
 		try {
 			exec_result = provider.import_manifest("/tmp"+File.separator+"stack-manifest.zip", new Boolean(true));
 			Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 			exec_result = provider.delete_manifest();
 			Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-			diff_org = new KatelloOrg(diff_org_name,null);
+			diff_org = new KatelloOrg(this.cli_worker, diff_org_name,null);
 			exec_result = diff_org.cli_create();
 			Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-			provider = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT,diff_org_name,null,null);
+			provider = new KatelloProvider(this.cli_worker, KatelloProvider.PROVIDER_REDHAT,diff_org_name,null,null);
 			exec_result = provider.import_manifest("/tmp"+File.separator+"stack-manifest.zip", new Boolean(true));
 			Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		} finally {
@@ -389,17 +378,11 @@ public class OrgTests extends KatelloCliTestBase{
 		String org_name = "sla-org-" + uniqueID;
 		String sys_name = "sys-sla-org";
 		String org_no_import_manifest = "sla-org-no-import" + uniqueID;
-		KatelloOrg org = new KatelloOrg(org_name,null);
+		KatelloOrg org = new KatelloOrg(this.cli_worker, org_name,null);
 		exec_result = org.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		SCPTools scp = new SCPTools(
-				System.getProperty("katello.server.hostname", "localhost"), 
-				System.getProperty("katello.server.ssh.user", "root"), 
-				System.getProperty("katello.server.sshkey.private", ".ssh/id_hudson_dsa"), 
-				System.getProperty("katello.server.sshkey.passphrase", "null"));
-		Assert.assertTrue(scp.sendFile("data"+File.separator+"manifest_org_sla.zip", "/tmp"),
-				"manifest_org_sla.zip sent successfully");	
-		KatelloProvider prov = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT,org_name,null,null);
+		KatelloUtils.scpOnClient(cli_worker.getClientHostname(), "data/manifest_org_sla.zip", "/tmp");
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, KatelloProvider.PROVIDER_REDHAT,org_name,null,null);
 		exec_result = prov.import_manifest("/tmp"+File.separator+"manifest_org_sla.zip", new Boolean(true));
 		exec_result = org.update_servicelevel("Self-support");
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
@@ -408,7 +391,7 @@ public class OrgTests extends KatelloCliTestBase{
 		String DefaultInfoStr = KatelloUtils.grepCLIOutput("Default Service Level", getOutput(exec_result));
 		Assert.assertTrue(DefaultInfoStr.contains("Self-support"), "Check - stdout contains updated service level");
 
-		KatelloSystem sys = new KatelloSystem(sys_name+"-subscribed",org_name,KatelloEnvironment.LIBRARY);
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, sys_name+"-subscribed",org_name,KatelloEnvironment.LIBRARY);
 		if(System.getProperty("katello.engine", "katello").equals("headpin"))
 			sys.setEnvironmentName(null); // Seems to me there is really no better way to make environment == null (just for this case).
 		exec_result = sys.rhsm_registerForce(); 
@@ -429,7 +412,7 @@ public class OrgTests extends KatelloCliTestBase{
 		String Servicelevel = KatelloUtils.grepCLIOutput("Service Level", getOutput(exec_result));
 		Assert.assertTrue(Servicelevel.contains("Self-support"), "Check - stdout contains updated service level");
 
-		KatelloOrg org_no = new KatelloOrg(org_no_import_manifest,null);
+		KatelloOrg org_no = new KatelloOrg(this.cli_worker, org_no_import_manifest,null);
 		exec_result = org_no.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		exec_result = org_no.cli_info();
@@ -446,7 +429,7 @@ public class OrgTests extends KatelloCliTestBase{
 	public void test_updateOrgNonUtf8Chars(){
 		String orgName= "ブッチャーストリート"+uid;
 		String orgDescription = "ブッチャーテストの説明";
-		KatelloOrg org = new KatelloOrg(orgName,orgDescription);
+		KatelloOrg org = new KatelloOrg(this.cli_worker, orgName,orgDescription);
 		exec_result = org.cli_create();
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check -return code");
 		exec_result = org.cli_info();
@@ -463,7 +446,7 @@ public class OrgTests extends KatelloCliTestBase{
 		Assert.assertTrue(KatelloUtils.grepCLIOutput("Description", getOutput(exec_result)).equals(upDesc), "Check - stdout contains description");
 
 		//		// add new env.
-		//		KatelloEnvironment env = new KatelloEnvironment("ブッチャ", "チャーテストの説", orgName, KatelloEnvironment.LIBRARY);
+		//		KatelloEnvironment env = new KatelloEnvironment(this.cli_runner, "ブッチャ", "チャーテストの説", orgName, KatelloEnvironment.LIBRARY);
 		//		exec_result = env.cli_create();
 		//		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check -return code");
 		//		exec_result = env.cli_info();
@@ -485,7 +468,7 @@ public class OrgTests extends KatelloCliTestBase{
 	@Test(description="add system custom information key",
 			dataProviderClass=KatelloCliDataProvider.class, dataProvider="org_add_custom_info")
 	public void test_addSysCustomKey(String keyname, Integer exitCode, String output) {
-		KatelloOrg org = new KatelloOrg(org_name, null);
+		KatelloOrg org = new KatelloOrg(this.cli_worker, org_name, null);
 		exec_result = org.default_info_add(keyname,"system");
 		Assert.assertTrue(exec_result.getExitCode()==exitCode.intValue(), "Check exit code (add custom info)");
 		if(exec_result.getExitCode()==0)
@@ -497,7 +480,7 @@ public class OrgTests extends KatelloCliTestBase{
 	@Test(description="add distributor custom information key",
 			dataProviderClass=KatelloCliDataProvider.class, dataProvider="org_add_custom_info")
 	public void test_addDistributorCustomKey(String keyname, Integer exitCode, String output) {
-		KatelloOrg org = new KatelloOrg(org_name, null);
+		KatelloOrg org = new KatelloOrg(this.cli_worker, org_name, null);
 		exec_result = org.default_info_add(keyname,"distributor");
 		Assert.assertTrue(exec_result.getExitCode()==exitCode.intValue(), "Check exit code (add custom info)");
 		if(exec_result.getExitCode()==0)
@@ -518,12 +501,12 @@ public class OrgTests extends KatelloCliTestBase{
 		String sysName = "Sys-"+uid;
 		SSHCommandResult res;
 
-		KatelloOrg org = new KatelloOrg(orgName, "Org name with a dot");
+		KatelloOrg org = new KatelloOrg(this.cli_worker, orgName, "Org name with a dot");
 		exec_result = org.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
 		// Create Environment
-		KatelloEnvironment env = new KatelloEnvironment(envName, desc, orgName, KatelloEnvironment.LIBRARY);
+		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, envName, desc, orgName, KatelloEnvironment.LIBRARY);
 		res = env.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code (Enviornment - create)");
 		//List
@@ -532,7 +515,7 @@ public class OrgTests extends KatelloCliTestBase{
 
 		//Create System
 		rhsm_clean();
-		KatelloSystem sys = new KatelloSystem(sysName, orgName, envName);
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, sysName, orgName, envName);
 		res = sys.rhsm_register();
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code (System - create)");
 		//list
@@ -540,7 +523,7 @@ public class OrgTests extends KatelloCliTestBase{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (System - list)");
 
 		// Create provider
-		KatelloProvider prov = new KatelloProvider(provName, orgName, desc, KATELLO_SMALL_REPO);
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, provName, orgName, desc, KATELLO_SMALL_REPO);
 		res = prov.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (Provider - create)");
 		//List
@@ -551,7 +534,7 @@ public class OrgTests extends KatelloCliTestBase{
 				String.format("Provider [%s] should be found in the list",provName));
 
 		// Create Product
-		KatelloProduct prod = new KatelloProduct(prodName, orgName, provName, desc, null, null, null, null);
+		KatelloProduct prod = new KatelloProduct(this.cli_worker, prodName, orgName, provName, desc, null, null, null, null);
 		res = prod.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (Product - create)");
 		//List
@@ -565,7 +548,7 @@ public class OrgTests extends KatelloCliTestBase{
 		String org_rm_name = "org-remove-"+ uid;
 		String keyname = "testkey_"+ uid;
 		String distributor_name = "dis_name" + uid;
-		KatelloOrg org_rm_info = new KatelloOrg(org_rm_name,"Remove default info for distributor");
+		KatelloOrg org_rm_info = new KatelloOrg(this.cli_worker, org_rm_name,"Remove default info for distributor");
 		exec_result = org_rm_info.cli_create();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		exec_result = org_rm_info.default_info_add(keyname,"distributor");
@@ -574,7 +557,7 @@ public class OrgTests extends KatelloCliTestBase{
 		exec_result = org_rm_info.default_info_apply("distributor");
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains("Organization [ " + org_rm_name + " ] completed syncing default info"),"Check - returned string");
-		KatelloDistributor distributor = new KatelloDistributor(org_rm_name,distributor_name);
+		KatelloDistributor distributor = new KatelloDistributor(cli_worker, org_rm_name,distributor_name);
 		exec_result = distributor.distributor_create();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains("Successfully created distributor [ " + distributor_name + " ]"),"Check - returned string");
@@ -597,7 +580,7 @@ public class OrgTests extends KatelloCliTestBase{
 		String keyname = "testkey_"+ uid;
 		String distributor_name = "dis_name" + uid;
 		String invalid_key = "invalid_key-" + uid;
-		KatelloOrg org_rm_info = new KatelloOrg(org_rm_name,"Remove default info for distributor");
+		KatelloOrg org_rm_info = new KatelloOrg(this.cli_worker, org_rm_name,"Remove default info for distributor");
 		exec_result = org_rm_info.cli_create();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		exec_result = org_rm_info.default_info_add(keyname,"distributor");
@@ -606,7 +589,7 @@ public class OrgTests extends KatelloCliTestBase{
 		exec_result = org_rm_info.default_info_apply("distributor");
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains("Organization [ " + org_rm_name + " ] completed syncing default info"),"Check - returned string");
-		KatelloDistributor distributor = new KatelloDistributor(org_rm_name,distributor_name);
+		KatelloDistributor distributor = new KatelloDistributor(cli_worker, org_rm_name,distributor_name);
 		exec_result = distributor.distributor_create();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains("Successfully created distributor [ " + distributor_name + " ]"),"Check - returned string");

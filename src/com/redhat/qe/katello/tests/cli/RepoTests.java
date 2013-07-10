@@ -60,24 +60,24 @@ public class RepoTests extends KatelloCliTestBase {
 		this.orgWithManifest = "OrgWithManifest-"+KatelloUtils.getUniqueID();
 
 		// Create org:
-		KatelloOrg org = new KatelloOrg(this.org_name, "Package tests");
+		KatelloOrg org = new KatelloOrg(this.cli_worker, this.org_name, "Package tests");
 		exec_result = org.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
 		// Create user:
-		KatelloUser user = new KatelloUser(user_name, "root@localhost",
+		KatelloUser user = new KatelloUser(cli_worker, user_name, "root@localhost",
 				KatelloUser.DEFAULT_USER_PASS, false);
 		exec_result = user.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
 		// Create provider:
-		KatelloProvider prov = new KatelloProvider(provider_name, org_name,
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, provider_name, org_name,
 				"Package provider", PULP_RHEL6_x86_64_REPO);
 		exec_result = prov.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
 		// Create product:
-		KatelloProduct prod = new KatelloProduct(product_name, org_name,
+		KatelloProduct prod = new KatelloProduct(this.cli_worker, product_name, org_name,
 				provider_name, null, null, null, null, null);
 		exec_result = prod.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
@@ -85,10 +85,10 @@ public class RepoTests extends KatelloCliTestBase {
 		// wget the gpg file (before creating the key)
 		String cmd = "rm -f "+this.file_name+"; " +
 				"curl -sk "+KatelloGpgKey.REPO_GPG_FILE_ZOO+" -o "+this.file_name;
-		exec_result = KatelloUtils.sshOnClient(cmd);
+		exec_result = sshOnClient(cmd);
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (get gpg file)");
 
-		KatelloGpgKey gpg = new KatelloGpgKey(gpg_key, org_name, file_name);
+		KatelloGpgKey gpg = new KatelloGpgKey(cli_worker, gpg_key, org_name, file_name);
 		exec_result = gpg.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
@@ -119,7 +119,7 @@ public class RepoTests extends KatelloCliTestBase {
 
 		repo_name = "repo"+KatelloUtils.getUniqueID();
 		String url_name = PULP_RHEL6_x86_64_REPO.replace("http://repos.fedorapeople.org", "").replace("/", "_");
-		KatelloRepo repo = new KatelloRepo(repo_name, org_name, product_name, PULP_RHEL6_x86_64_REPO, null, null);
+		KatelloRepo repo = new KatelloRepo(this.cli_worker, repo_name, org_name, product_name, PULP_RHEL6_x86_64_REPO, null, null);
 		exec_result = repo.discover(provider_name);
 		repo_name += url_name;
 		repo.name = repo_name;
@@ -137,7 +137,7 @@ public class RepoTests extends KatelloCliTestBase {
 		KatelloRepo repo = createRepo();
 		
 		String repoName1 = repo_name + "1";
-		KatelloRepo repo1 = new KatelloRepo(repoName1, org_name, product_name, PULP_RHEL6_x86_64_REPO, null, null);
+		KatelloRepo repo1 = new KatelloRepo(this.cli_worker, repoName1, org_name, product_name, PULP_RHEL6_x86_64_REPO, null, null);
 		exec_result = repo1.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
@@ -243,7 +243,7 @@ public class RepoTests extends KatelloCliTestBase {
 		
 		repo_name = "repo"+KatelloUtils.getUniqueID();;
 		
-		KatelloRepo repo = new KatelloRepo(repo_name, org_name, product_name, PULP_RHEL6_x86_64_REPO, null, null);
+		KatelloRepo repo = new KatelloRepo(this.cli_worker, repo_name, org_name, product_name, PULP_RHEL6_x86_64_REPO, null, null);
 		
 		exec_result = repo.disable();
 		Assert.assertTrue(exec_result.getExitCode() == 65, "Check - return code");
@@ -277,9 +277,9 @@ public class RepoTests extends KatelloCliTestBase {
 		String url = REPO_DISCOVER_PULP_V2_ALL;
 		this.providerAutoDiscoverHttpPulpV2 = "Pulp "+uid;
 		this.productAutoDiscoverHttpPulpV2 = "Pulp V2 "+uid;
-		new KatelloProvider(this.providerAutoDiscoverHttpPulpV2, this.org_name, "Pulp provider - autodiscovery via http", null).create();
-		new KatelloProduct(this.productAutoDiscoverHttpPulpV2, this.org_name, this.providerAutoDiscoverHttpPulpV2, null, null, null, null, null).create();
-		KatelloRepo _repo = new KatelloRepo("pulp-v2", this.org_name, this.productAutoDiscoverHttpPulpV2, url, null, null);
+		new KatelloProvider(this.cli_worker, this.providerAutoDiscoverHttpPulpV2, this.org_name, "Pulp provider - autodiscovery via http", null).create();
+		new KatelloProduct(this.cli_worker, this.productAutoDiscoverHttpPulpV2, this.org_name, this.providerAutoDiscoverHttpPulpV2, null, null, null, null, null).create();
+		KatelloRepo _repo = new KatelloRepo(this.cli_worker, "pulp-v2", this.org_name, this.productAutoDiscoverHttpPulpV2, url, null, null);
 		SSHCommandResult res = _repo.discover(this.providerAutoDiscoverHttpPulpV2);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check  -return code");
 		Assert.assertTrue(getOutput(_repo.custom_reposCount(null,null)).equals("10"), "Check - 10 repos were prepared");
@@ -302,9 +302,9 @@ public class RepoTests extends KatelloCliTestBase {
 
 		this.providerAutoDiscoverFileZoo5 = "Zoo "+uid;
 		this.productAutoDiscoverFileZoo5 = "Zoo5 "+uid;
-		new KatelloProvider(this.providerAutoDiscoverFileZoo5, this.org_name, "Zoo provider - autodiscovery via file", null).create();
-		new KatelloProduct(this.productAutoDiscoverFileZoo5, this.org_name, this.providerAutoDiscoverFileZoo5, null, null, null, null, null).create();
-		KatelloRepo _repo = new KatelloRepo("_zoo5", this.org_name, this.productAutoDiscoverFileZoo5, "file://"+url, null, null);
+		new KatelloProvider(this.cli_worker, this.providerAutoDiscoverFileZoo5, this.org_name, "Zoo provider - autodiscovery via file", null).create();
+		new KatelloProduct(this.cli_worker, this.productAutoDiscoverFileZoo5, this.org_name, this.providerAutoDiscoverFileZoo5, null, null, null, null, null).create();
+		KatelloRepo _repo = new KatelloRepo(this.cli_worker, "_zoo5", this.org_name, this.productAutoDiscoverFileZoo5, "file://"+url, null, null);
 		SSHCommandResult res = _repo.discover(this.providerAutoDiscoverFileZoo5);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check  -return code");
 		Assert.assertTrue(getOutput(_repo.custom_reposCount(null,null)).equals("1"), "Check - 1 repo was prepared");
@@ -319,19 +319,19 @@ public class RepoTests extends KatelloCliTestBase {
 	public void test_syncAndPromoteAutoDiscoveredRepos(){
 		String uid = KatelloUtils.getUniqueID();
 		String env_testing = "Testing "+uid;
-		SSHCommandResult res = new KatelloEnvironment(env_testing, null, this.org_name, KatelloEnvironment.LIBRARY).cli_create();
+		SSHCommandResult res = new KatelloEnvironment(this.cli_worker, env_testing, null, this.org_name, KatelloEnvironment.LIBRARY).cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check  -return code"); // we need to have the env. created.
 		
-		KatelloProduct prodPulpV2 = new KatelloProduct(this.productAutoDiscoverHttpPulpV2, this.org_name, this.providerAutoDiscoverHttpPulpV2, null, null, null, null, null);
+		KatelloProduct prodPulpV2 = new KatelloProduct(this.cli_worker, this.productAutoDiscoverHttpPulpV2, this.org_name, this.providerAutoDiscoverHttpPulpV2, null, null, null, null, null);
 		res = prodPulpV2.synchronize();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check  -return code");
 		
-		KatelloProduct prodZoo5 = new KatelloProduct(this.productAutoDiscoverFileZoo5, this.org_name, this.providerAutoDiscoverFileZoo5, null, null, null, null, null);
+		KatelloProduct prodZoo5 = new KatelloProduct(this.cli_worker, this.productAutoDiscoverFileZoo5, this.org_name, this.providerAutoDiscoverFileZoo5, null, null, null, null, null);
 		res = prodZoo5.synchronize();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check  -return code");
 		
-		KatelloUtils.promoteProductToEnvironment(org_name, productAutoDiscoverHttpPulpV2, env_testing);
-		KatelloUtils.promoteProductToEnvironment(org_name, productAutoDiscoverFileZoo5, env_testing);
+		KatelloUtils.promoteProductToEnvironment(cli_worker, org_name, productAutoDiscoverHttpPulpV2, env_testing);
+		KatelloUtils.promoteProductToEnvironment(cli_worker, org_name, productAutoDiscoverFileZoo5, env_testing);
 		
 		// HTTP. Check - packages synced and promoted too.
 		assert_allRepoPackagesSynced(this.org_name, this.productAutoDiscoverHttpPulpV2, env_testing, 10);
@@ -346,23 +346,23 @@ public class RepoTests extends KatelloCliTestBase {
 	@Test(description="Auto-discovered repositories can use GPG keys from product")
 	public void test_discoverRepo_addGPGBeforeDiscovery(){
 		// send gpg key to the server /tmp
-		KatelloUtils.scpOnClient("data/"+KatelloGpgKey.FILE_GPG_GKHACHIK_KATELLO_API, "/tmp");
+		KatelloUtils.scpOnClient(cli_worker.getClientHostname(), "data/"+KatelloGpgKey.FILE_GPG_GKHACHIK_KATELLO_API, "/tmp");
 		
 		String uid = KatelloUtils.getUniqueID();
 		String url = REPO_DISCOVER_PULP_V2_ALL;
 		String providername = "PulpGPG Before "+uid;
 		String productname = "PulpGPG Before V2 "+uid;
 
-		KatelloGpgKey key = new KatelloGpgKey("katello-api-"+uid, this.org_name, "/tmp/"+KatelloGpgKey.FILE_GPG_GKHACHIK_KATELLO_API);
+		KatelloGpgKey key = new KatelloGpgKey(cli_worker, "katello-api-"+uid, this.org_name, "/tmp/"+KatelloGpgKey.FILE_GPG_GKHACHIK_KATELLO_API);
 		SSHCommandResult res = key.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check  -return code");
 		
-		new KatelloProvider(providername, this.org_name, null, null).create();
-		new KatelloProduct(productname, this.org_name, providername, null, null, null, null, null).create();
-		res = new KatelloProduct(productname, this.org_name, 
+		new KatelloProvider(this.cli_worker, providername, this.org_name, null, null).create();
+		new KatelloProduct(this.cli_worker, productname, this.org_name, providername, null, null, null, null, null).create();
+		res = new KatelloProduct(this.cli_worker, productname, this.org_name, 
 				providername, null, null, null, null, null).update_gpgkey(key.name);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check  -return code");
-		KatelloRepo _repo = new KatelloRepo("pulp-v2", this.org_name, productname, url, null, null);
+		KatelloRepo _repo = new KatelloRepo(this.cli_worker, "pulp-v2", this.org_name, productname, url, null, null);
 		res = _repo.discover(providername);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check  -return code");
 		Assert.assertTrue(getOutput(_repo.custom_reposCount(null,null)).equals("10"), "Check - 10 repos were prepared");
@@ -380,21 +380,21 @@ public class RepoTests extends KatelloCliTestBase {
 		String providername = "PulpGPG After "+uid;
 		String productname = "PulpGPG After V2 "+uid;
 
-		KatelloGpgKey key = new KatelloGpgKey("katello-api-"+uid, this.org_name, "/tmp/"+KatelloGpgKey.FILE_GPG_GKHACHIK_KATELLO_API);
+		KatelloGpgKey key = new KatelloGpgKey(cli_worker, "katello-api-"+uid, this.org_name, "/tmp/"+KatelloGpgKey.FILE_GPG_GKHACHIK_KATELLO_API);
 		exec_result = key.cli_create();
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check  -return code");
 		
-		new KatelloProvider(providername, this.org_name, null, null).create();
-		new KatelloProduct(productname, this.org_name, providername, null, null, null, null, null).create();
+		new KatelloProvider(this.cli_worker, providername, this.org_name, null, null).create();
+		new KatelloProduct(this.cli_worker, productname, this.org_name, providername, null, null, null, null, null).create();
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check  -return code");
-		KatelloRepo _repo = new KatelloRepo("pulp-v2", this.org_name, productname, url, null, null);
+		KatelloRepo _repo = new KatelloRepo(this.cli_worker, "pulp-v2", this.org_name, productname, url, null, null);
 		exec_result = _repo.discover(providername);
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check  -return code");
 		Assert.assertTrue(getOutput(_repo.custom_reposCount(null,null)).equals("10"), "Check - 10 repos were prepared");
 		
 		assert_allReposGPGAssigned(this.org_name, productname, "");
 
-		exec_result = new KatelloProduct(productname, this.org_name, 
+		exec_result = new KatelloProduct(this.cli_worker, productname, this.org_name, 
 				providername, null, null, null, null, null).update_gpgkey(key.name,true);
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check  -return code");
 
@@ -407,14 +407,14 @@ public class RepoTests extends KatelloCliTestBase {
 	@Test(description="95fd7f1c-711d-4e47-a5fb-76cf04caeb71")
 	public void test_listRedHatProductRepos(){
 		String manifest = "manifest.zip";
-		exec_result = new KatelloOrg(this.orgWithManifest, null).cli_create();
-		KatelloUtils.scpOnClient("data/"+manifest, "/tmp");
-		exec_result = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, this.orgWithManifest, null, null).import_manifest("/tmp/"+manifest, true);
+		exec_result = new KatelloOrg(this.cli_worker, this.orgWithManifest, null).cli_create();
+		KatelloUtils.scpOnClient(cli_worker.getClientHostname(), "data/"+manifest, "/tmp");
+		exec_result = new KatelloProvider(this.cli_worker, KatelloProvider.PROVIDER_REDHAT, this.orgWithManifest, null, null).import_manifest("/tmp/"+manifest, true);
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check  -return code");
-		exec_result = new KatelloProduct(KatelloProduct.RHEL_SERVER, this.orgWithManifest, KatelloProvider.PROVIDER_REDHAT, null, null, null, null, null).repository_set_enable(
+		exec_result = new KatelloProduct(this.cli_worker, KatelloProduct.RHEL_SERVER, this.orgWithManifest, KatelloProvider.PROVIDER_REDHAT, null, null, null, null, null).repository_set_enable(
 				KatelloProduct.REPOSET_RHEL6_RPMS);
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check  -return code");
-		exec_result = new KatelloRepo(null, this.orgWithManifest, KatelloProduct.RHEL_SERVER, null, null, null).custom_reposCount(null, true);
+		exec_result = new KatelloRepo(this.cli_worker, null, this.orgWithManifest, KatelloProduct.RHEL_SERVER, null, null, null).custom_reposCount(null, true);
 		Assert.assertTrue(new Integer(getOutput(exec_result)).intValue()>0, "Check - repos count >0");
 	}
 	
@@ -455,7 +455,7 @@ public class RepoTests extends KatelloCliTestBase {
 	private KatelloRepo createRepo() {
 		repo_name = "repo"+KatelloUtils.getUniqueID();;
 		
-		KatelloRepo repo = new KatelloRepo(repo_name, org_name, product_name, PULP_RHEL6_x86_64_REPO, null, null);
+		KatelloRepo repo = new KatelloRepo(this.cli_worker, repo_name, org_name, product_name, PULP_RHEL6_x86_64_REPO, null, null);
 		exec_result = repo.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloRepo.OUT_CREATE, repo_name)), "Check - output string (repo create)");
@@ -465,14 +465,14 @@ public class RepoTests extends KatelloCliTestBase {
 	
 	private void assert_allRepoPackagesSynced(String orgname, String productname, String envname, int repoCount){
 		if(envname==null) envname = KatelloEnvironment.LIBRARY;
-		KatelloRepo repo = new KatelloRepo(null, orgname, productname, null, null, null);
+		KatelloRepo repo = new KatelloRepo(this.cli_worker, null, orgname, productname, null, null, null);
 		SSHCommandResult res = repo.list(envname);
 		int repoCnt = new Integer(getOutput(repo.custom_reposCount(envname,null))).intValue();
 		Assert.assertTrue(repoCnt==repoCount, "Assert - all repos are promoted");
 		String repoName; int pkgCount;
 		for(int i=0;i<repoCnt;i++){
 			repoName = KatelloUtils.grepCLIOutput("Name", getOutput(res), (i+1));
-			pkgCount = new Integer(getOutput(new KatelloPackage(null, null, orgname, 
+			pkgCount = new Integer(getOutput(new KatelloPackage(cli_worker, null, null, orgname, 
 					productname, repoName, envname).custom_packagesCount(null))).intValue();
 			Assert.assertTrue(pkgCount>0, "Check - packages are synced for: "+repoName);
 		}
@@ -480,12 +480,12 @@ public class RepoTests extends KatelloCliTestBase {
 	
 	private void assert_allReposGPGAssigned(String orgname, String productname, String gpgName){
 		String repoName; SSHCommandResult res;
-		KatelloRepo repo = new KatelloRepo(null, orgname, productname, null, null, null);
+		KatelloRepo repo = new KatelloRepo(this.cli_worker, null, orgname, productname, null, null, null);
 		SSHCommandResult resRepoList = repo.list();
 		int repoCount = new Integer(getOutput(repo.custom_reposCount(null,null))).intValue();
 		for(int i=0;i<repoCount;i++){
 			repoName = KatelloUtils.grepCLIOutput("Name", getOutput(resRepoList), (i+1));
-			res = new KatelloRepo(repoName, orgname, productname, null, null, null).info();
+			res = new KatelloRepo(this.cli_worker, repoName, orgname, productname, null, null, null).info();
 			String __gpg = KatelloUtils.grepCLIOutput("GPG Key", getOutput(res));
 			Assert.assertTrue(gpgName.equals(__gpg), "Check - gpg is assigned for: "+repoName);
 		}
@@ -493,6 +493,6 @@ public class RepoTests extends KatelloCliTestBase {
 
 	@AfterClass(description="remove the org(s) with manifests", alwaysRun=true)
 	public void tearDown(){
-		exec_result = new KatelloOrg(this.orgWithManifest, null).delete(); // we don't care with the result.
+		exec_result = new KatelloOrg(this.cli_worker, this.orgWithManifest, null).delete(); // we don't care with the result.
 	}
 }

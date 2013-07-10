@@ -7,9 +7,14 @@ import java.util.ResourceBundle;
 import java.util.logging.Logger;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.testng.Assert;
+import org.testng.SkipException;
+import org.testng.annotations.BeforeClass;
+
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.base.obj.KatelloUser;
+import com.redhat.qe.katello.base.threading.KatelloCliWorker;
+import com.redhat.qe.katello.base.threading.KatelloCliWorkersPool;
 import com.redhat.qe.katello.common.KatelloConstants;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
@@ -18,23 +23,53 @@ import com.redhat.qe.tools.SSHCommandResult;
 public class KatelloCliTestBase 
 extends com.redhat.qe.auto.testng.TestScript 
 implements KatelloConstants {
-
-	protected static Logger log = Logger.getLogger(KatelloCliTestBase.class.getName());
-	
 	private static ResourceBundle messageBundle = null;
 	private static ResourceBundle inputBundle = null;
 	private static final String messageFileName = "messages";
 	private static final String inputFileName = "inputs";
+	
+	private static KatelloCliWorkersPool cliPool; 
 
-	private int platform_id = -1; // made a class property - in case in the tests there would be a need to check platform.
-	public KatelloCliTestBase() {
-		super();
+	protected static Logger log = Logger.getLogger(KatelloCliTestBase.class.getName());
+	protected KatelloCliWorker cli_worker;
+	
+	@BeforeClass(alwaysRun=true)
+	public void setUpSuper(){
+		KatelloUtils.sleepAsHuman();
+		cliPool = KatelloCliWorkersPool.getInstance(null);
+		
+		// Eclipse mode - get default from property file and exit.
+		if(cliPool==null){ cli_worker = KatelloCliWorker.getSingleMode();return;}
+		
+		cli_worker = cliPool.getWorker(Thread.currentThread().getName(),this.getClass().getName());
+		if(cli_worker == null && cliPool.running()){
+			log.info(">>> no workers for: "+this.getClass().getName()+" : thread "+Thread.currentThread().getName());
+		} // log for protocol and go to sleeping.
+		while(cli_worker == null && cliPool.running()){
+			try{Thread.sleep(NOWORKER_SLEEP);}catch(InterruptedException iex){}
+			cli_worker = cliPool.getWorker(Thread.currentThread().getName(),this.getClass().getName());
+		}
+		if(!cliPool.running()){
+			throw new SkipException("Timeout happened on requesting worker for: "+this.getClass().getName());
+		}
 	}
 	
-	public int getClientPlatformID(){
-		return this.platform_id;
+	protected SSHCommandResult sshOnClient(String _cmd){
+		return KatelloUtils.sshOnClient(cli_worker.getClientHostname(), _cmd);
 	}
 	
+	protected void rhsm_clean(){
+		rhsm_clean(cli_worker.getClientHostname());
+	}
+	
+	protected void rhsm_clean_only(){
+		rhsm_clean_only(cli_worker.getClientHostname());
+	}
+	
+	protected void yum_clean(){
+		yum_clean(cli_worker.getClientHostname());
+	}
+		
 	protected void assert_providerRemoved(KatelloProvider prov){
 		SSHCommandResult res;
 		log.info("Assertions: provider has been removed");
@@ -170,36 +205,22 @@ implements KatelloConstants {
 		return getOutput(res).equals("1");
 	}
 	
-	// TODO - DUPE?
-	protected void rhsm_clean(){
-		log.info("RHSM -> unsubscribe, unregister, clean");
-		KatelloUtils.sshOnClient("subscription-manager unsubscribe --all");
-		KatelloUtils.sshOnClient("subscription-manager unregister");
-		KatelloUtils.sshOnClient("subscription-manager clean");
-	}
-	
 	protected void rhsm_clean(String client){
 		log.info("RHSM -> unsubscribe, unregister, clean");
-		KatelloUtils.sshOnClient(client, "subscription-manager unsubscribe --all");
-		KatelloUtils.sshOnClient(client, "subscription-manager unregister");
+		KatelloUtils.sshOnClient(client, 
+				"subscription-manager unsubscribe --all; " +
+				"subscription-manager unregister; " +
+				"subscription-manager clean");
+	}
+	
+	protected void rhsm_clean_only(String client){ 
+		log.info("RHSM -> clean");
 		KatelloUtils.sshOnClient(client, "subscription-manager clean");
 	}
 
 	
-	protected void rhsm_clean_only(){ 
-		log.info("RHSM -> clean");
-		KatelloUtils.sshOnClient("subscription-manager clean");
-	}
-
-	
-	protected void yum_clean() {
-		KatelloUtils.sshOnClient("yum clean all");
-		KatelloUtils.sshOnClient("yum repolist --disablerepo \\*beaker\\*");
-	}
-
 	protected void yum_clean(String client) {
-		KatelloUtils.sshOnClient(client, "yum clean all");
-		KatelloUtils.sshOnClient(client, "yum repolist --disablerepo \\*beaker\\*");
+		KatelloUtils.sshOnClient(client, "yum clean all; yum repolist");
 	}
 	
 	/**
@@ -211,7 +232,7 @@ implements KatelloConstants {
 	 * @return res
 	 * @author Garik Khachikyan &lt;gkhachik@redhat.com&gt;
 	 */
-	protected SSHCommandResult rhsm_register(String org, String environment, String name, boolean autosubscribe){
+	protected SSHCommandResult rhsm_register(String client, String org, String environment, String name, boolean autosubscribe){
 		String rhsmUser = System.getProperty("katello.admin.user", KatelloUser.DEFAULT_ADMIN_USER);
 		String rhsmPass = System.getProperty("katello.admin.password", KatelloUser.DEFAULT_ADMIN_PASS);
 		log.info("Registering client with: --org \""+org+"\" --environment \""+environment+"\" " +
@@ -221,7 +242,7 @@ implements KatelloConstants {
 				rhsmUser, rhsmPass,org,environment,name);
 		if(autosubscribe)
 			cmd += " --autosubscribe";
-		return KatelloUtils.sshOnClient(cmd);
+		return KatelloUtils.sshOnClient(client, cmd);
 	}
 	
 	protected String getOutput(SSHCommandResult res){
@@ -265,15 +286,15 @@ implements KatelloConstants {
 	 * Installs array of packages on client system and verifies that they are installed.  
 	 * @param pkgNames
 	 */
-	protected void install_Packages(String[] pkgNames) {
+	protected void install_Packages(String client, String[] pkgNames) {
 		StringBuffer install = new StringBuffer();
 		for (String pkg : pkgNames) {
 	        install.append(pkg);
 	        install.append(" ");
 		}
-		SSHCommandResult res = KatelloUtils.sshOnClient("yum install -y "+ install.toString());
+		SSHCommandResult res = KatelloUtils.sshOnClient(client, "yum install -y "+ install.toString());
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
-		res = KatelloUtils.sshOnClient("rpm -qa | grep -E \"" + install.toString().trim().replace(" ", "|") + "\"");
+		res = KatelloUtils.sshOnClient(client, "rpm -qa | grep -E \"" + install.toString().trim().replace(" ", "|") + "\"");
 		for (String pkg : pkgNames) {
 			Assert.assertTrue(getOutput(res).contains(pkg), "Package " + pkg + " should be installed");
 		}
@@ -283,13 +304,13 @@ implements KatelloConstants {
 	 * Check that packages are not available to install on client.
 	 * @param pkgNames
 	 */
-	protected void verify_PackagesNotAvailable(String[] pkgNames) {
+	protected void verify_PackagesNotAvailable(String client, String[] pkgNames) {
 		StringBuffer install = new StringBuffer();
 		for (String pkg : pkgNames) {
 	        install.append(pkg);
 	        install.append(" ");
 		}
-		SSHCommandResult res = KatelloUtils.sshOnClient("yum install -y "+ install.toString());
+		SSHCommandResult res = KatelloUtils.sshOnClient(client, "yum install -y "+ install.toString());
 		for (String pkg : pkgNames) {
 			Assert.assertTrue(getOutput(res).trim().contains("No package " + pkg + " available."), "Package " + pkg + " should not be available to install.");
 		}

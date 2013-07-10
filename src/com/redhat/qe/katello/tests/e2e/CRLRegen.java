@@ -17,7 +17,7 @@ import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups={"cfse-e2e"})
+@Test(groups={"cfse-e2e"}, singleThreaded = true)
 public class CRLRegen extends KatelloCliTestBase{
 	protected static Logger log = Logger.getLogger(BPMTests.class.getName());
 	
@@ -43,30 +43,30 @@ public class CRLRegen extends KatelloCliTestBase{
 		provider_name = "provider"+uid;
 		product_name = "product"+uid;
 		
-		KatelloUtils.sshOnClient("yum -y erase wolf lion zebra stork mouse tiger || true");
+		sshOnClient("yum -y erase wolf lion zebra stork mouse tiger || true");
 		rhsm_clean();
 		
 		// Create org:
-		KatelloOrg org = new KatelloOrg(org_name, "Org 1");
+		KatelloOrg org = new KatelloOrg(this.cli_worker, org_name, "Org 1");
 		exec_result = org.cli_create();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertEquals(getOutput(exec_result).trim(), "Successfully created org [ "+org_name+" ]");
 			
 		// Create provider:
-		KatelloProvider prov = new KatelloProvider(provider_name, org_name, "Package provider", null);
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, provider_name, org_name, "Package provider", null);
 		exec_result = prov.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		// Create product:
-		KatelloProduct prod = new KatelloProduct(product_name, org_name, provider_name, null, null, null, null, null);
+		KatelloProduct prod = new KatelloProduct(this.cli_worker, product_name, org_name, provider_name, null, null, null, null, null);
 		exec_result = prod.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	
-		KatelloRepo repo = new KatelloRepo(repo_name, org_name, product_name, REPO_INECAS_ZOO3, null, null);
+		KatelloRepo repo = new KatelloRepo(this.cli_worker, repo_name, org_name, product_name, REPO_INECAS_ZOO3, null, null);
 		exec_result = repo.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		KatelloEnvironment env = new KatelloEnvironment(env_name, null, org_name, KatelloEnvironment.LIBRARY);
+		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, env_name, null, org_name, KatelloEnvironment.LIBRARY);
 		exec_result = env.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
@@ -76,7 +76,7 @@ public class CRLRegen extends KatelloCliTestBase{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		exec_result = repo.synchronize();
 		
-		this.contentView = KatelloUtils.promoteProductToEnvironment(org_name, product_name, env_name);
+		this.contentView = KatelloUtils.promoteProductToEnvironment(cli_worker, org_name, product_name, env_name);
 	}
 	
 	/**
@@ -94,7 +94,7 @@ public class CRLRegen extends KatelloCliTestBase{
 	@Test(description="CRL Regeneration")
 	public void test_crl_regen() {
 		
-		KatelloSystem sys = new KatelloSystem(system_name, this.org_name, this.env_name+"/"+this.contentView);
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, system_name, this.org_name, this.env_name+"/"+this.contentView);
 		exec_result = sys.rhsm_registerForce(); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		
@@ -106,38 +106,38 @@ public class CRLRegen extends KatelloCliTestBase{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		sys.rhsm_refresh();
 		
-		KatelloUtils.sshOnClient("service goferd restart;");
+		sshOnClient("service goferd restart;");
 		
-		exec_result = KatelloUtils.sshOnClient("yum -y install lion --nogpgcheck");
+		exec_result = sshOnClient("yum -y install lion --nogpgcheck");
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (install lion)");
 		
-		KatelloUtils.sshOnClient("subscription-manager unsubscribe --all");
+		sshOnClient("subscription-manager unsubscribe --all");
 		
-		yum_clean();
-		exec_result = KatelloUtils.sshOnClient("yum -y install zebra --nogpgcheck");
+//		yum_clean();
+		exec_result = sshOnClient("yum -y install zebra --nogpgcheck");
 		Assert.assertTrue(exec_result.getExitCode().intValue()==1, "Check - return code (install zebra)");
 		
 		KatelloUtils.sshOnServer("rm -f /var/lib/candlepin/candlepin-crl.crl");
 		
-		exec_result = KatelloUtils.sshOnClient("yum -y install zebra --nogpgcheck");
+		exec_result = sshOnClient("yum -y install zebra --nogpgcheck");
 		Assert.assertTrue(exec_result.getExitCode().intValue()==1, "Check - return code (install zebra)");
 		
-		KatelloCli cli = new KatelloCli("admin crl_regen", null);
+		KatelloCli cli = new KatelloCli("admin crl_regen", null,null,cli_worker.getClientHostname());
 		exec_result = cli.run();
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (admin crl_regen)");
 		exec_result = KatelloUtils.sshOnServer("ls -la /var/lib/candlepin/ | grep candlepin-crl.crl");
 		Assert.assertTrue(getOutput(exec_result).contains("candlepin-crl.crl"));
 		
-		yum_clean();
-		exec_result = KatelloUtils.sshOnClient("yum -y install zebra --nogpgcheck");
+//		yum_clean();
+		exec_result = sshOnClient("yum -y install zebra --nogpgcheck");
 		Assert.assertTrue(exec_result.getExitCode().intValue()==1, "Check - return code (install zebra)");
 		
 		exec_result = sys.subscribe(poolId1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		sys.rhsm_refresh();
 		
-		yum_clean();
-		exec_result = KatelloUtils.sshOnClient("yum -y install zebra --nogpgcheck");
+//		yum_clean();
+		exec_result = sshOnClient("yum -y install zebra --nogpgcheck");
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (install zebra)");
 	}
 	

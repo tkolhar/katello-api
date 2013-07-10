@@ -3,6 +3,7 @@ package com.redhat.qe.katello.base.obj;
 import javax.management.Attribute;
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
+import com.redhat.qe.katello.base.threading.KatelloCliWorker;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class KatelloUser extends _KatelloObject{
@@ -58,29 +59,31 @@ public class KatelloUser extends _KatelloObject{
 	
 	public KatelloUser() {super();} // For resteasy
 
-	public KatelloUser(String pName, String pEmail, String pPassword, boolean pDisabled){
+	public KatelloUser(KatelloCliWorker kcr, String pName, String pEmail, String pPassword, boolean pDisabled){
 		this.username = pName;
 		this.email = pEmail;
 		this.password = pPassword;
 		this.disabled = pDisabled;
+		this.kcr = kcr;
 	}
 
-	public KatelloUser(String pName, String pEmail, String pPassword, boolean pDisabled, String pLocale){
+	public KatelloUser(KatelloCliWorker kcr, String pName, String pEmail, String pPassword, boolean pDisabled, String pLocale){
 		this.username = pName;
 		this.email = pEmail;
 		this.password = pPassword;
 		this.disabled = pDisabled;
 		this.locale = pLocale;
+		this.kcr = kcr;
 	}
 	
-	public KatelloUser(String pName,String pEmail,String pPassword,boolean pDisabled,String pOrgname,String pEnvname){
-		this(pName,pEmail, pPassword, pDisabled);
+	public KatelloUser(KatelloCliWorker kcr, String pName,String pEmail,String pPassword,boolean pDisabled,String pOrgname,String pEnvname){
+		this(kcr, pName,pEmail, pPassword, pDisabled);
 		this.orgname = pOrgname;
 		this.envname = pEnvname;
 	}
 
-	public KatelloUser(String pName,String pEmail,String pPassword,boolean pDisabled,String pOrgname,String pEnvname, Long id){
-		this(pName, pEmail, pPassword, pDisabled, pOrgname, pEnvname);
+	public KatelloUser(KatelloCliWorker kcr, String pName,String pEmail,String pPassword,boolean pDisabled,String pOrgname,String pEnvname, Long id){
+		this(kcr, pName, pEmail, pPassword, pDisabled, pOrgname, pEnvname);
 		this.id = id;
 	}
 
@@ -202,7 +205,6 @@ public class KatelloUser extends _KatelloObject{
 
 		Assert.assertTrue(KatelloCliTestBase.sgetOutput(res).replaceAll("\n", "").matches(match_info), 
 				String.format("User [%s] should be found in the list",this.username));
-
 
 		// asserts: user info
 		res = cli_info();

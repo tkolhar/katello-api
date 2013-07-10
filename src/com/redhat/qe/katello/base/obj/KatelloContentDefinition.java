@@ -4,6 +4,7 @@ import java.util.logging.Logger;
 
 import javax.management.Attribute;
 
+import com.redhat.qe.katello.base.threading.KatelloCliWorker;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class KatelloContentDefinition extends _KatelloObject{
@@ -80,13 +81,14 @@ public class KatelloContentDefinition extends _KatelloObject{
 	public String products = "";
 	public String repos = "";
 	
-	private KatelloContentDefinition(String pName, String pDesc){
+	private KatelloContentDefinition(KatelloCliWorker kcr, String pName, String pDesc){
 		this.name = pName;
 		this.description = pDesc;
+		this.kcr = kcr;
 	}
 	
-	public KatelloContentDefinition(String name, String description, String pOrg, String label) {
-	    this(name, description);
+	public KatelloContentDefinition(KatelloCliWorker kcr, String name, String description, String pOrg, String label) {
+	    this(kcr, name, description);
 	    this.org = pOrg;
 	    this.label = label;
 	}

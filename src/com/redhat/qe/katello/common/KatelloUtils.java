@@ -9,7 +9,6 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.DeltaCloudInstance;
@@ -20,8 +19,10 @@ import com.redhat.qe.katello.base.obj.KatelloPing;
 import com.redhat.qe.katello.base.obj.KatelloUser;
 import com.redhat.qe.katello.base.obj.helpers.FilterRuleErrataIds;
 import com.redhat.qe.katello.base.obj.helpers.FilterRulePackage;
+import com.redhat.qe.katello.base.threading.KatelloCliWorker;
 import com.redhat.qe.katello.deltacloud.DeltaCloudAPI;
 import com.redhat.qe.tools.ExecCommands;
+
 import com.redhat.qe.tools.SCPTools;
 import com.redhat.qe.tools.SSHCommandResult;
 import com.redhat.qe.tools.SSHCommandRunner;
@@ -77,40 +78,18 @@ public class KatelloUtils implements KatelloConstants {
      * @author gkhachik
      * @since 15.Feb.2011
      */
-    public static String getUniqueID(){
-        try{Thread.sleep(1000+Math.abs(new Random().nextInt(200)));}catch(InterruptedException iex){};
+    public static synchronized String getUniqueID(){
+        KatelloUtils.sleepAsHuman();
         String uid = String.valueOf(
-                Calendar.getInstance().getTimeInMillis() / 1000); 
+                Calendar.getInstance().getTimeInMillis()); 
         log.fine(String.format("Generating unique ID: [%s]",uid));
         return uid;
     }
     
-    public static String getUUID(){
+    public static synchronized String getUUID(){
         return UUID.randomUUID().toString();
     }
     
-    /* (non-Javadoc)
-     * @see com.redhat.qe.katello.tasks.IKatelloTasks#getDiskFreeForPulpRepos()
-     */
-    public static long getDiskFreeForPulpRepos(){
-        long dfPulpRepos=Long.MAX_VALUE;
-        String res = KatelloUtils.sshOnServer("df `grep \"Alias /pulp/repos\" /etc/httpd/conf.d/pulp.conf | awk '{print $3}'` | tail -1 | awk '{print $3}'").getStdout().trim();
-        log.fine("Free disk space for Pulp repositories: ["+res+"]");
-        dfPulpRepos = new Long(res).longValue();
-        return dfPulpRepos;
-    }
-    
-	/**
-	 * Executes ssh command on client-side.<br>
-	 * Credentials (passphrase) and other settings are all taken from System.properties.
-	 * @param _cmd Command string to execute. Multiple commands could be provided with ";".
-	 * @return SSHCommandResult object
-	 * @author Garik Khachikyan <gkhachik@redhat.com>
-	 */
-	public static SSHCommandResult sshOnClient(String _cmd){
-		return getSSHClient().runCommandAndWait(_cmd);
-	}
-
 	/**
 	 * Executes ssh command on client-side.<br>
 	 * Credentials (passphrase) and other settings are all taken from System.properties.
@@ -119,20 +98,11 @@ public class KatelloUtils implements KatelloConstants {
 	 * @return SSHCommandResult object
 	 * @author Garik Khachikyan <gkhachik@redhat.com>
 	 */
-	public static SSHCommandResult sshOnClient(String _hostname, String _cmd){
+	public static synchronized SSHCommandResult sshOnClient(String _hostname, String _cmd){
+		sleepAsHuman();
 		return getSSHClient(_hostname).runCommandAndWait(_cmd);
 	}
 
-	/**
-	 * Executes ssh command(s) on client side and returns without waiting its result.<br>
-	 * Useful for some async commands like: provider synchronize (with option to cancel it later).
-	 * @param _cmd
-	 * @author Garik Khachikyan <gkhachik@redhat.com>
-	 */
-	public static void sshOnClientNoWait(String _cmd){
-		getSSHClient().runCommand(_cmd);
-	}
-	
 	/**
 	 * Executes ssh command(s) on client side and returns without waiting its result.<br>
 	 * Useful for some async commands like: provider synchronize (with option to cancel it later).
@@ -140,7 +110,8 @@ public class KatelloUtils implements KatelloConstants {
 	 * @param _cmd
 	 * @author Garik Khachikyan <gkhachik@redhat.com>
 	 */
-	public static void sshOnClientNoWait(String _hostName, String _cmd){
+	public static synchronized void sshOnClientNoWait(String _hostName, String _cmd){
+		sleepAsHuman();
 		getSSHClient(_hostName).runCommand(_cmd);
 	}
 
@@ -152,9 +123,17 @@ public class KatelloUtils implements KatelloConstants {
 	 * @author Garik Khachikyan <gkhachik@redhat.com>
 	 */
 	public static SSHCommandResult sshOnServer(String _cmd){
+		sleepAsHuman();
 		return getSSHServer().runCommandAndWait(_cmd);
 	}
 	
+	public static void sleepAsHuman(){
+		try{
+			Thread.sleep(50+Math.abs(new Random().nextLong())%SSH_SLEEP_INTERVAL);
+		}catch (InterruptedException e){
+			log.warning(e.getMessage());
+		}
+	}
 	/**
 	 * Useful for starting services of: katello|cfse
 	 * @return res Object
@@ -261,7 +240,7 @@ public class KatelloUtils implements KatelloConstants {
 		return _sshClients.get(hostname);
 	}
 	
-	protected static SSHCommandRunner getSSHServer(){
+	protected static synchronized SSHCommandRunner getSSHServer(){
 		if (_sshServer == null){
 			try{
 				_sshServer = new SSHCommandRunner(
@@ -371,9 +350,10 @@ public class KatelloUtils implements KatelloConstants {
 		}
 	}
 	
-	public static void scpOnClient(String filename, String destinationDir){
+	public static void scpOnClient(String client, String filename, String destinationDir){
+		String hostname = (client == null ? System.getProperty("katello.client.hostname", "localhost") : client);
 		SCPTools scp = new SCPTools(
-				System.getProperty("katello.client.hostname", "localhost"), 
+				hostname, 
 				System.getProperty("katello.client.ssh.user", "root"), 
 				System.getProperty("katello.client.sshkey.private", ".ssh/id_hudson_dsa"), 
 				System.getProperty("katello.client.sshkey.passphrase", "null"));
@@ -419,7 +399,7 @@ public class KatelloUtils implements KatelloConstants {
 		sshOnClient(machine.getIpAddress(), "hostname " + configs[0] + "." + configs[1]);
 		sshOnClient(machine.getIpAddress(), "service network restart");
 		
-		try { Thread.sleep(5000); } catch (Exception e) {}
+		KatelloUtils.sleepAsHuman();
 		
 		machine.setHostName(configs[0] + "." + configs[1]);
 	}
@@ -479,9 +459,8 @@ public class KatelloUtils implements KatelloConstants {
 			// Configure the server as a self-client
 			BeakerUtils.Katello_Configuration_KatelloClient(hostIP, machine.getHostName(), version); // at this time DDNS should return the hostname already! It takes ~5 min.
 			
-			try { Thread.sleep(5000); } catch (Exception e) {}
-			KatelloPing ping = new KatelloPing();
-			ping.runOn(machine.getHostName()); // Yes, we can use the hostname already. Assuming installation would take >5 min.
+			KatelloUtils.sleepAsHuman();
+			KatelloPing ping = new KatelloPing(new KatelloCliWorker(machine.getHostName(), machine.getHostName()));
 			SSHCommandResult res = ping.cli_ping();
 			Assert.assertTrue(res.getExitCode().intValue()==0, "Check services up");
 		}
@@ -550,56 +529,56 @@ public class KatelloUtils implements KatelloConstants {
 		sshOnClient(hostname, "chkconfig --add ntpd; chkconfig ntpd on");
 	}
 
-	public static String promoteReposToEnvironment(String org_name, String[] product_names, String[] repo_names, String env_name) {
-		return promoteToEnvironment(org_name, product_names, null, repo_names, new String[] {env_name}, true);
+	public static String promoteReposToEnvironment(KatelloCliWorker kcr, String org_name, String[] product_names, String[] repo_names, String env_name) {
+		return promoteToEnvironment(kcr, org_name, product_names, null, repo_names, new String[] {env_name}, true);
 	}
 
-	public static String promoteReposToEnvironments(String org_name, String[] product_names, String[] repo_names, String[] env_names) {
-		return promoteToEnvironment(org_name, product_names, null, repo_names, env_names, true);
+	public static String promoteReposToEnvironments(KatelloCliWorker kcr, String org_name, String[] product_names, String[] repo_names, String[] env_names) {
+		return promoteToEnvironment(kcr, org_name, product_names, null, repo_names, env_names, true);
 	}
 	
-	public static String promoteRepoToEnvironment(String org_name, String product_name, String repo_name, String env_name) {
-		return promoteToEnvironment(org_name, new String[] {product_name}, null, new String[] {repo_name}, new String[] {env_name}, true);
+	public static String promoteRepoToEnvironment(KatelloCliWorker kcr, String org_name, String product_name, String repo_name, String env_name) {
+		return promoteToEnvironment(kcr, org_name, new String[] {product_name}, null, new String[] {repo_name}, new String[] {env_name}, true);
 	}
 
-	public static String promoteProductToEnvironment(String org_name, String product_name, String env_name) {
-		return promoteToEnvironment(org_name, new String[] {product_name}, null, null, new String[] {env_name}, true);
+	public static String promoteProductToEnvironment(KatelloCliWorker kcr, String org_name, String product_name, String env_name) {
+		return promoteToEnvironment(kcr, org_name, new String[] {product_name}, null, null, new String[] {env_name}, true);
 	}
 
-	public static String promoteProductsToEnvironment(String org_name, String[] product_names, String env_name) {
-		return promoteToEnvironment(org_name, product_names, null, null, new String[] {env_name}, true);
+	public static String promoteProductsToEnvironment(KatelloCliWorker kcr, String org_name, String[] product_names, String env_name) {
+		return promoteToEnvironment(kcr, org_name, product_names, null, null, new String[] {env_name}, true);
 	}
 
-	public static String promoteProductsToEnvironments(String org_name, String[] product_names, String[] env_names) {
-		return promoteToEnvironment(org_name, product_names, null, null, env_names, true);
+	public static String promoteProductsToEnvironments(KatelloCliWorker kcr, String org_name, String[] product_names, String[] env_names) {
+		return promoteToEnvironment(kcr, org_name, product_names, null, null, env_names, true);
 	}
 	
-	public static String promoteProductIDsToEnvironment(String org_name, String[] product_IDs, String env_name) {
-		return promoteToEnvironment(org_name, null, product_IDs, null, new String[] {env_name}, true);
+	public static String promoteProductIDsToEnvironment(KatelloCliWorker kcr, String org_name, String[] product_IDs, String env_name) {
+		return promoteToEnvironment(kcr, org_name, null, product_IDs, null, new String[] {env_name}, true);
 	}
 
-	public static void removeRepoFromEnvironment(String org_name, String product_name, String repo_name, String env_name) {
-		promoteToEnvironment(org_name, new String[] {product_name}, null, new String[] {repo_name}, new String[] {env_name}, false);
+	public static void removeRepoFromEnvironment(KatelloCliWorker kcr, String org_name, String product_name, String repo_name, String env_name) {
+		promoteToEnvironment(kcr, org_name, new String[] {product_name}, null, new String[] {repo_name}, new String[] {env_name}, false);
 	}
 	
-	public static void removeReposFromEnvironment(String org_name, String[] product_names, String[] repo_names, String env_name) {
-		promoteToEnvironment(org_name, product_names, null, repo_names, new String[] {env_name}, false);
+	public static void removeReposFromEnvironment(KatelloCliWorker kcr, String org_name, String[] product_names, String[] repo_names, String env_name) {
+		promoteToEnvironment(kcr, org_name, product_names, null, repo_names, new String[] {env_name}, false);
 	}
 
-	public static void removeProductFromEnvironment(String org_name, String product_name, String env_name) {
-		promoteToEnvironment(org_name, new String[] {product_name}, null, null, new String[] {env_name}, false);
+	public static void removeProductFromEnvironment(KatelloCliWorker kcr, String org_name, String product_name, String env_name) {
+		promoteToEnvironment(kcr, org_name, new String[] {product_name}, null, null, new String[] {env_name}, false);
 	}
 
-	public static void removeProductIDsFromEnvironment(String org_name, String[] product_IDs, String env_name) {
-		promoteToEnvironment(org_name, null, product_IDs, null, new String[] {env_name}, false);
+	public static void removeProductIDsFromEnvironment(KatelloCliWorker kcr, String org_name, String[] product_IDs, String env_name) {
+		promoteToEnvironment(kcr, org_name, null, product_IDs, null, new String[] {env_name}, false);
 	}
 
-	private static String promoteToEnvironment(String org_name, String[] product_names, String[] product_IDs, String[] repo_names, String[] env_names, boolean promote) {
+	private static String promoteToEnvironment(KatelloCliWorker kcr, String org_name, String[] product_names, String[] product_IDs, String[] repo_names, String[] env_names, boolean promote) {
 
 		String uid = KatelloUtils.getUniqueID();
 		String pubview_name = "pubview"+uid;		
 
-		KatelloContentDefinition condef = new KatelloContentDefinition("content_definition" + uid, null, org_name, null);
+		KatelloContentDefinition condef = new KatelloContentDefinition(kcr, "content_definition" + uid, null, org_name, null);
 		SSHCommandResult exec_result = condef.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");				
 		
@@ -632,7 +611,7 @@ public class KatelloUtils implements KatelloConstants {
 		exec_result = condef.publish(pubview_name, pubview_name,"Publish Content");
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
 		
-		KatelloContentView view = new KatelloContentView(pubview_name, org_name);
+		KatelloContentView view = new KatelloContentView(kcr, pubview_name, org_name);
 	
 		if (env_names != null && env_names.length > 0) {
 			for (String env_name : env_names) {
@@ -643,34 +622,34 @@ public class KatelloUtils implements KatelloConstants {
 		return pubview_name;
 	}
 
-	public static String promotePackagesToEnvironment(String org_name, String product_name, String repo_name, String[] packages, String env_name) {
-		return promoteToEnvironment(org_name, product_name, repo_name, packages, null, env_name, true);
+	public static String promotePackagesToEnvironment(KatelloCliWorker kcr, String org_name, String product_name, String repo_name, String[] packages, String env_name) {
+		return promoteToEnvironment(kcr, org_name, product_name, repo_name, packages, null, env_name, true);
     }
 
-	public static String promoteErratasToEnvironment(String org_name, String product_name, String repo_name, String[] erratas, String env_name) {
-		return promoteToEnvironment(org_name, product_name, repo_name, null, erratas, env_name, true);
+	public static String promoteErratasToEnvironment(KatelloCliWorker kcr, String org_name, String product_name, String repo_name, String[] erratas, String env_name) {
+		return promoteToEnvironment(kcr, org_name, product_name, repo_name, null, erratas, env_name, true);
     }
 
-	public static String removePackagesFromEnvironment(String org_name, String product_name, String repo_name, String[] packages, String env_name) {
-		return promoteToEnvironment(org_name, product_name, repo_name, packages, null, env_name, false);
+	public static String removePackagesFromEnvironment(KatelloCliWorker kcr, String org_name, String product_name, String repo_name, String[] packages, String env_name) {
+		return promoteToEnvironment(kcr, org_name, product_name, repo_name, packages, null, env_name, false);
     }
 
-	public static String removeErratasFromEnvironment(String org_name, String product_name, String repo_name, String[] erratas, String env_name) {
-		return promoteToEnvironment(org_name, product_name, repo_name, null, erratas, env_name, false);
+	public static String removeErratasFromEnvironment(KatelloCliWorker kcr, String org_name, String product_name, String repo_name, String[] erratas, String env_name) {
+		return promoteToEnvironment(kcr, org_name, product_name, repo_name, null, erratas, env_name, false);
     }
 	
-	private static String promoteToEnvironment(String org_name, String product_name, String repo_name, String[] package_names, String[] erratas, String env_name, boolean promote) {
+	private static String promoteToEnvironment(KatelloCliWorker kcr, String org_name, String product_name, String repo_name, String[] package_names, String[] erratas, String env_name, boolean promote) {
 
 		String uid = KatelloUtils.getUniqueID();
 		String pubview_name = "pubview"+uid;		
 
-		KatelloContentDefinition condef = new KatelloContentDefinition("content_definition" + uid, null, org_name, null);
+		KatelloContentDefinition condef = new KatelloContentDefinition(kcr, "content_definition" + uid, null, org_name, null);
 		SSHCommandResult exec_result = condef.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		exec_result = condef.add_repo(product_name, repo_name);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		KatelloContentFilter filter = new KatelloContentFilter("Filter"+uid, org_name, condef.name);
+		KatelloContentFilter filter = new KatelloContentFilter(kcr, "Filter"+uid, org_name, condef.name);
 		exec_result = filter.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		exec_result = filter.add_repo(product_name, repo_name);
@@ -693,23 +672,23 @@ public class KatelloUtils implements KatelloConstants {
 		exec_result = condef.publish(pubview_name, pubview_name,"Publish Content");
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");		
 
-		KatelloContentView view = new KatelloContentView(pubview_name, org_name);
+		KatelloContentView view = new KatelloContentView(kcr, pubview_name, org_name);
 		exec_result = view.promote_view(env_name);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		return pubview_name;
 	}
 	
-	public static void disableYumRepo(String repoPattern){
+	public static void disableYumRepo(String client, String repoPattern){
 		log.info("Disabling yum repos: [*"+repoPattern+"*]");
-		configureYumRepo(repoPattern, true);
+		configureYumRepo(client, repoPattern, true);
 	}
-	public static void enableYumRepo(String repoPattern){
+	public static void enableYumRepo(String client, String repoPattern){
 		log.info("Enabling back yum repos: [*"+repoPattern+"*]");
-		configureYumRepo(repoPattern, false);
+		configureYumRepo(client, repoPattern, false);
 	}
-	private static void configureYumRepo(String repoPattern, boolean disable){
+	private static void configureYumRepo(String client, String repoPattern, boolean disable){
 		int enabled = (disable ? 0: 1);
-		sshOnClient("sed -i \"s/^enabled=.*/enabled="+enabled+"/\" /etc/yum.repos.d/*"+repoPattern+"*");
+		sshOnClient(client, "sed -i \"s/^enabled=.*/enabled="+enabled+"/\" /etc/yum.repos.d/*"+repoPattern+"*");
 	}
 
 	/**

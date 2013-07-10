@@ -2,11 +2,8 @@ package com.redhat.qe.katello.tests.cli;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloActivationKey;
@@ -58,98 +55,95 @@ public class ContentFilterTests extends KatelloCliTestBase {
 	KatelloSystem sys;
 	String system_uuid1;
 	
-	@BeforeClass(description="Generate unique objects")
-	public void setUp() {
-		org = new KatelloOrg(org_name,null);
+	@Test(description="long initialization must use @Test")
+	public void init(){
+		org = new KatelloOrg(this.cli_worker, org_name,null);
 		exec_result = org.cli_create();		              
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		env = new KatelloEnvironment(env_name,null,org_name,KatelloEnvironment.LIBRARY);
+
+		env = new KatelloEnvironment(this.cli_worker, env_name,null,org_name,KatelloEnvironment.LIBRARY);
 		exec_result = env.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		prov = new KatelloProvider(prov_name,org_name,null,null);
+		prov = new KatelloProvider(this.cli_worker, prov_name,org_name,null,null);
 		exec_result = prov.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		prod = new KatelloProduct(prod_name,org_name,prov_name,null, null, null,null, null);
+		prod = new KatelloProduct(this.cli_worker, prod_name,org_name,prov_name,null, null, null,null, null);
 		exec_result = prod.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		repo = new KatelloRepo(repo_name,org_name,prod_name,REPO_INECAS_ZOO3, null, null);
+		repo = new KatelloRepo(this.cli_worker, repo_name,org_name,prod_name,REPO_INECAS_ZOO3, null, null);
 		exec_result = repo.create(true);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		exec_result = repo.synchronize();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		condef = new KatelloContentDefinition(condef_name,null,org_name,null);
+		condef = new KatelloContentDefinition(cli_worker, condef_name,null,org_name,null);
 		exec_result = condef.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
 		exec_result = condef.add_product(prod_name);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
-		KatelloContentFilter filter = new KatelloContentFilter(filter_name, org_name, condef_name);
+		KatelloContentFilter filter = new KatelloContentFilter(cli_worker, filter_name, org_name, condef_name);
 		exec_result = filter.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
 
-
-	@Test(description="create content definition filter")
-	void test_filterCreate() {
-		KatelloContentFilter filter = new KatelloContentFilter(filter_delete, org_name, condef_name);
+	@Test(description="create content definition filter", dependsOnMethods={"init"})
+	public void test_filterCreate() {
+		KatelloContentFilter filter = new KatelloContentFilter(cli_worker, filter_delete, org_name, condef_name);
 		exec_result = filter.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentFilter.OUT_CREATED, filter_delete)), "Check output");
 	}
 
-	@Test(description="delete content definition filter",dependsOnMethods={"test_filterCreate"})
-	void test_filterDelete() {
-		KatelloContentFilter filter = new KatelloContentFilter(filter_delete, org_name, condef_name);
+	@Test(description="delete content definition filter",dependsOnMethods={"init","test_filterCreate"})
+	public void test_filterDelete() {
+		KatelloContentFilter filter = new KatelloContentFilter(cli_worker, filter_delete, org_name, condef_name);
 		exec_result = filter.delete();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentFilter.OUT_DELETED, filter_delete)), "Check output");
 	}
 
-
-	@Test(description="add product to filter")
-	void test_filterAddProduct() {
-		KatelloContentFilter filter = new KatelloContentFilter(filter_name, org_name, condef_name);
+	@Test(description="add product to filter", dependsOnMethods={"init"})
+	public void test_filterAddProduct() {
+		KatelloContentFilter filter = new KatelloContentFilter(cli_worker, filter_name, org_name, condef_name);
 		exec_result = filter.add_product(prod_name);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentFilter.OUT_ADD_PRODUCT, prod_name, filter_name)), "Check output");
 	}
 
 	@Test(description="remove product from filter",dependsOnMethods={"test_filterAddProduct"})
-	void test_filterRemoveProduct() {
-		KatelloContentFilter filter = new KatelloContentFilter(filter_name, org_name, condef_name);
+	public void test_filterRemoveProduct() {
+		KatelloContentFilter filter = new KatelloContentFilter(cli_worker, filter_name, org_name, condef_name);
 		exec_result = filter.remove_product(prod_name);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentFilter.OUT_REMOVE_PRODUCT, prod_name, filter_name)), "Check output");
 	}
 
-	@Test(description="add repository to filter")
-	void test_filterAddRepo() {
-		KatelloContentFilter filter = new KatelloContentFilter(filter_name, org_name, condef_name);
+	@Test(description="add repository to filter", dependsOnMethods={"init"})
+	public void test_filterAddRepo() {
+		KatelloContentFilter filter = new KatelloContentFilter(cli_worker, filter_name, org_name, condef_name);
 		exec_result = filter.add_repo(prod_name, repo_name);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentFilter.OUT_ADD_REPO, repo_name, filter_name)), "Check output");
 	}
 
 	@Test(description="remove repository from filter",dependsOnMethods={"test_filterAddRepo"})
-	void test_filterRemoveRepo() {
-		KatelloContentFilter filter = new KatelloContentFilter(filter_name, org_name, condef_name);
+	public void test_filterRemoveRepo() {
+		KatelloContentFilter filter = new KatelloContentFilter(cli_worker, filter_name, org_name, condef_name);
 		exec_result = filter.remove_repo(prod_name, repo_name);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentFilter.OUT_REMOVE_REPO, repo_name, filter_name)), "Check output");
 	}
 
-
-	@Test(description="create errata include filter rule with date and type")
+	@Test(description="create errata include filter rule with date and type", dependsOnMethods={"init"})
 	public void test_includeErrataFilterDayType() {
 		String [] errata_types = {KatelloContentFilter.ERRATA_TYPE_BUGFIX};
-		KatelloContentFilter filter = new KatelloContentFilter(filter_name, org_name, condef_name);
+		KatelloContentFilter filter = new KatelloContentFilter(cli_worker, filter_name, org_name, condef_name);
 
 		FilterRuleErrataDayType errata1 = new FilterRuleErrataDayType(null, null, errata_types);
 		FilterRuleErrataDayType errata2 = new FilterRuleErrataDayType("2013-04-15", "2014-04-16", errata_types);
@@ -171,9 +165,9 @@ public class ContentFilterTests extends KatelloCliTestBase {
 		assert_filterInfo(filter_name, KatelloContentFilter.CONTENT_ERRATUM, KatelloContentFilter.TYPE_INCLUDES, errata2.ruleRegExp());
 	}
 
-	@Test(description="create errata include filter rule with errata ids")
+	@Test(description="create errata include filter rule with errata ids", dependsOnMethods={"init"})
 	public void test_includeErrataFilterIds() {
-		KatelloContentFilter filter = new KatelloContentFilter(filter_name, org_name, condef_name);
+		KatelloContentFilter filter = new KatelloContentFilter(cli_worker, filter_name, org_name, condef_name);
 
 		String ids [] = { "RHEA-2012:0002", "RHEA-2012:0003" };
 		FilterRuleErrataIds errata = new FilterRuleErrataIds(ids);
@@ -190,10 +184,10 @@ public class ContentFilterTests extends KatelloCliTestBase {
 		assert_filterInfo(filter_name, KatelloContentFilter.CONTENT_ERRATUM, KatelloContentFilter.TYPE_INCLUDES, REG_EMPTY_RULE);
 	}
 
-	@Test(description="create errata exclude filter rule with date and type")
+	@Test(description="create errata exclude filter rule with date and type", dependsOnMethods={"init"})
 	public void test_excludeErrataFilterDayType() {
 		String [] errata_types = {KatelloContentFilter.ERRATA_TYPE_BUGFIX};
-		KatelloContentFilter filter = new KatelloContentFilter(filter_name, org_name, condef_name);
+		KatelloContentFilter filter = new KatelloContentFilter(cli_worker, filter_name, org_name, condef_name);
 
 		FilterRuleErrataDayType errata1 = new FilterRuleErrataDayType(null, null, errata_types);
 		FilterRuleErrataDayType errata2 = new FilterRuleErrataDayType("2013-04-15", "2014-04-16", errata_types);
@@ -215,9 +209,9 @@ public class ContentFilterTests extends KatelloCliTestBase {
 		assert_filterInfo(filter_name, KatelloContentFilter.CONTENT_ERRATUM, KatelloContentFilter.TYPE_EXCLUDES, errata2.ruleRegExp());
 	}
 
-	@Test(description="create errata exclude filter rule")
+	@Test(description="create errata exclude filter rule", dependsOnMethods={"init"})
 	public void test_excludeErrataFilterIds() {
-		KatelloContentFilter filter = new KatelloContentFilter(filter_name, org_name, condef_name);
+		KatelloContentFilter filter = new KatelloContentFilter(cli_worker, filter_name, org_name, condef_name);
 
 		String ids [] = { "RHEA-2012:0002", "RHEA-2012:0003" };
 		FilterRuleErrataIds errata = new FilterRuleErrataIds(ids);
@@ -234,17 +228,17 @@ public class ContentFilterTests extends KatelloCliTestBase {
 		assert_filterInfo(filter_name, KatelloContentFilter.CONTENT_ERRATUM, KatelloContentFilter.TYPE_EXCLUDES, REG_EMPTY_RULE);
 	}
 
-	@Test(description="filter add_rule - check output message")
+	@Test(description="filter add_rule - check output message", dependsOnMethods={"init"})
 	public void test_filterAddRuleOutput() {
-		KatelloContentFilter filter = new KatelloContentFilter(filter_name, org_name, condef_name);
+		KatelloContentFilter filter = new KatelloContentFilter(cli_worker, filter_name, org_name, condef_name);
 		exec_result = filter.add_rule("{}", KatelloContentFilter.CONTENT_ERRATUM, KatelloContentFilter.TYPE_INCLUDES);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentFilter.OUT_ADD_RULE, "{}")), "Check - output ");
 	}
 
-	@Test(description="remove rule from filter")
+	@Test(description="remove rule from filter", dependsOnMethods={"init"})
 	public void test_removeRule() {
-		KatelloContentFilter filter = new KatelloContentFilter(filter_name, org_name, condef_name);
+		KatelloContentFilter filter = new KatelloContentFilter(cli_worker, filter_name, org_name, condef_name);
 		exec_result = filter.info();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		String rule_id = KatelloUtils.grepCLIOutput("    Id", getOutput(exec_result).trim(),1);
@@ -253,9 +247,9 @@ public class ContentFilterTests extends KatelloCliTestBase {
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentFilter.OUT_REMOVE_RULE, rule_id)), "Check - output ");
 	}
 
-	@Test(description="add include package_groups filter rules")
+	@Test(description="add include package_groups filter rules", dependsOnMethods={"init"})
 	public void test_includePackageGroupFilter() {
-		KatelloContentFilter filter = new KatelloContentFilter(filter_name, org_name, condef_name);
+		KatelloContentFilter filter = new KatelloContentFilter(cli_worker, filter_name, org_name, condef_name);
 
 		FilterRulePackageGroups groups = new FilterRulePackageGroups("group1", "group2", "group3");
 
@@ -271,9 +265,9 @@ public class ContentFilterTests extends KatelloCliTestBase {
 		assert_filterInfo(filter_name, KatelloContentFilter.CONTENT_PACKAGE_GROUP, KatelloContentFilter.TYPE_INCLUDES, REG_EMPTY_RULE);
 	}
 
-	@Test(description="add exclude package_groups filter rules")
+	@Test(description="add exclude package_groups filter rules", dependsOnMethods={"init"})
 	public void test_excludePackageGroupFilter() {
-		KatelloContentFilter filter = new KatelloContentFilter(filter_name, org_name, condef_name);
+		KatelloContentFilter filter = new KatelloContentFilter(cli_worker, filter_name, org_name, condef_name);
 
 		FilterRulePackageGroups groups = new FilterRulePackageGroups("group4", "group5", "group6");
 
@@ -289,9 +283,9 @@ public class ContentFilterTests extends KatelloCliTestBase {
 		assert_filterInfo(filter_name, KatelloContentFilter.CONTENT_PACKAGE_GROUP, KatelloContentFilter.TYPE_EXCLUDES, REG_EMPTY_RULE);
 	}
 
-	@Test(description="add include package filter rules")
+	@Test(description="add include package filter rules", dependsOnMethods={"init"})
 	public void test_includePackageFilter() {
-		KatelloContentFilter filter = new KatelloContentFilter(filter_name, org_name, condef_name);
+		KatelloContentFilter filter = new KatelloContentFilter(cli_worker, filter_name, org_name, condef_name);
 
 		FilterRulePackage [] packages = {
 			new FilterRulePackage("camel"),
@@ -312,9 +306,9 @@ public class ContentFilterTests extends KatelloCliTestBase {
 		assert_filterInfo(filter_name, KatelloContentFilter.CONTENT_PACKAGE, KatelloContentFilter.TYPE_INCLUDES, FilterRulePackage.ruleRegExp(packages));
 	}
 
-	@Test(description="add exclude package filter rules")
+	@Test(description="add exclude package filter rules", dependsOnMethods={"init"})
 	public void test_excludePackageFilter() {
-		KatelloContentFilter filter = new KatelloContentFilter(filter_name, org_name, condef_name);
+		KatelloContentFilter filter = new KatelloContentFilter(cli_worker, filter_name, org_name, condef_name);
 
 		FilterRulePackage [] packages = {
 			new FilterRulePackage("elephant"),
@@ -334,15 +328,14 @@ public class ContentFilterTests extends KatelloCliTestBase {
 		assert_filterInfo(filter_name, KatelloContentFilter.CONTENT_PACKAGE, KatelloContentFilter.TYPE_EXCLUDES, FilterRulePackage.ruleRegExp(packages));
 	}
 
-	@AfterClass
+	@AfterClass(alwaysRun=true)
 	public void tearDown() {
 		exec_result = org.delete();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
 
-
 	private void assert_filterInfo(String filter_name, String filter_content, String rule_type, String ruleRegExp) {
-		KatelloContentFilter filter = new KatelloContentFilter(filter_name, org_name, condef_name);
+		KatelloContentFilter filter = new KatelloContentFilter(cli_worker, filter_name, org_name, condef_name);
 		SSHCommandResult res = filter.info();
 		String output = getOutput(res).replaceAll("\n", " ");
 		Pattern pattern = Pattern.compile(String.format(KatelloContentFilter.REG_FILTER_INFO, filter_content, rule_type));

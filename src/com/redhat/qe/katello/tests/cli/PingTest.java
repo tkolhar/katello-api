@@ -13,7 +13,7 @@ public class PingTest extends KatelloCliTestBase{
 
 	@Test(description = "Ping - get the status of the katello server")
 	public void test_Ping(){
-		KatelloPing ping_obj= new KatelloPing();
+		KatelloPing ping_obj= new KatelloPing(cli_worker);
 		exec_result = ping_obj.cli_ping(); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 	}

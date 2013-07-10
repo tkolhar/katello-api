@@ -1,13 +1,9 @@
 package com.redhat.qe.katello.base;
 
-import java.util.Random;
 import org.testng.annotations.DataProvider;
-import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.obj.KatelloDistributor;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
-import com.redhat.qe.katello.base.obj.KatelloUserRole;
 import com.redhat.qe.katello.common.KatelloUtils;
-import com.redhat.qe.tools.SSHCommandResult;
 
 public class KatelloCliDataProvider {
 
@@ -15,7 +11,6 @@ public class KatelloCliDataProvider {
 	@DataProvider(name = "org_create")
 	public static Object[][] org_create(){
 		String uniqueID1 = KatelloUtils.getUniqueID();
-		try{Thread.sleep(1000+Math.abs(new Random().nextInt(500)));}catch(InterruptedException iex){};
 		String uniqueID2 = KatelloUtils.getUniqueID();
 		return new Object[][] {
 				{ "orgNoDescr_"+uniqueID1, null },
@@ -129,27 +124,22 @@ public class KatelloCliDataProvider {
 	@DataProvider(name="permission_create")
 	public static Object[][] permission_create(){
 		String uid = KatelloUtils.getUniqueID();
-		String user_role = "perm-user_role"+uid;
-		SSHCommandResult res;
-		KatelloUserRole usr_role = new KatelloUserRole(user_role,null); 
-		res =usr_role.create();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		return new Object[][] {
 				// name
 				//String name, String scope,String tags,String verbs,Integer exitCode, String output
-				{ "perm-all-verbs-"+uid, "environments", null, "read_contents,update_systems,delete_systems,read_systems,register_systems",user_role,new Integer(0),"Successfully created permission [ " + "perm-all-verbs-"+ uid + " ] for user role [ "+ user_role +" ]"},
-				{ "perm-read_contents-env-"+uid, "environments", null, "read_contents",user_role,new Integer(0),"Successfully created permission [ " + "perm-read_contents-env-"+ uid  + " ] for user role [ "+ user_role +" ]"},
-				{ "perm-read_update-env-"+uid, "environments", null, "read_contents,update_systems",user_role,new Integer(0),"Successfully created permission [ "+ "perm-read_update-env-"+uid+" ] for user role [ "+ user_role +" ]"},
-				{ "perm-del_read_reg-verbs-env-"+uid, "environments", null, "delete_systems,read_systems,register_systems",user_role,new Integer(0),"Successfully created permission [ "+ "perm-del_read_reg-verbs-env-"+uid + " ] for user role [ "+ user_role +" ]"},
-				{ "perm-register-verbs-env-"+uid, "environments", null, "register_systems",user_role,new Integer(0),"Successfully created permission [ " +"perm-register-verbs-env-" +uid + " ] for user role [ "+ user_role +" ]"},
-				{ "perm-exclude_register-verbs-env-"+uid, "environments", null, "read_contents,update_systems,delete_systems,read_systems",user_role,new Integer(0),"Successfully created permission [ "+  "perm-exclude_register-verbs-env-"+uid +" ] for user role [ "+ user_role +" ]"},
-				{ "perm-update_register-verbs-env-"+uid, "environments", null, "update_systems,register_systems",user_role,new Integer(0),"Successfully created permission [ "+"perm-update_register-verbs-env-"+uid+" ] for user role [ "+ user_role +" ]"},
-				{ "perm-read_update-verbs-provider-"+uid, "providers", null, "read,update",user_role,new Integer(0),"Successfully created permission [ "+"perm-read_update-verbs-provider-"+uid +" ] for user role [ "+ user_role +" ]"},
-				{ "perm-read-verbs-provider-"+uid, "providers", null, "read",user_role,new Integer(0),"Successfully created permission [ "+"perm-read-verbs-provider-"+uid +" ] for user role [ "+ user_role +" ]"},
-				{ "perm-update-verbs-provider-"+uid, "providers", null, "update",user_role,new Integer(0),"Successfully created permission [ "+ "perm-update-verbs-provider-"+uid +" ] for user role [ "+ user_role +" ]"},
-				{ "perm-all-org"+uid, "organizations", null, "delete_systems,update,update_systems,read,read_systems,register_systems",user_role,new Integer(0),"Successfully created permission [ "+ "perm-all-org"+uid +" ] for user role [ "+ user_role +" ]"},
-				{ "perm-all-tags-verbs-"+uid, "environments", "Library", "read_contents,update_systems,delete_systems,read_systems,register_systems",user_role,new Integer(0),"Successfully created permission [ " + "perm-all-tags-verbs-"+uid + " ] for user role [ "+ user_role +" ]"},
-				{ "perm-some_verbs-org"+uid, "organizations", null, "update,update_systems,read,read_systems",user_role,new Integer(0),"Successfully created permission [ "+ "perm-some_verbs-org"+uid +" ] for user role [ "+ user_role +" ]"},
+				{ "perm-all-verbs-"+uid, "environments", null, "read_contents,update_systems,delete_systems,read_systems,register_systems",new Integer(0),null},
+				{ "perm-read_contents-env-"+uid, "environments", null, "read_contents",new Integer(0),null},
+				{ "perm-read_update-env-"+uid, "environments", null, "read_contents,update_systems",new Integer(0),null},
+				{ "perm-del_read_reg-verbs-env-"+uid, "environments", null, "delete_systems,read_systems,register_systems",new Integer(0),null},
+				{ "perm-register-verbs-env-"+uid, "environments", null, "register_systems",new Integer(0),null},
+				{ "perm-exclude_register-verbs-env-"+uid, "environments", null, "read_contents,update_systems,delete_systems,read_systems",new Integer(0),null},
+				{ "perm-update_register-verbs-env-"+uid, "environments", null, "update_systems,register_systems",new Integer(0),null},
+				{ "perm-read_update-verbs-provider-"+uid, "providers", null, "read,update",new Integer(0),null},
+				{ "perm-read-verbs-provider-"+uid, "providers", null, "read",new Integer(0),null},
+				{ "perm-update-verbs-provider-"+uid, "providers", null, "update",new Integer(0),null},
+				{ "perm-all-org"+uid, "organizations", null, "delete_systems,update,update_systems,read,read_systems,register_systems",new Integer(0),null},
+				{ "perm-all-tags-verbs-"+uid, "environments", "Library", "read_contents,update_systems,delete_systems,read_systems,register_systems",new Integer(0),null},
+				{ "perm-some_verbs-org"+uid, "organizations", null, "update,update_systems,read,read_systems",new Integer(0),null},
 		};
 	}
 	

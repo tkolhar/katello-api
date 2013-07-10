@@ -66,18 +66,20 @@ public class CompositeContentViewTests extends KatelloCliTestBase{
 	KatelloActivationKey act_key2;
 	KatelloSystem sys2;
 	
-	@BeforeClass(description="Generate unique objects")
+	@BeforeClass(description="Generate unique objects", alwaysRun=true)
 	public void setUp() {
 
-		org2 = new KatelloOrg(org_name2,null);
+		org2 = new KatelloOrg(this.cli_worker, org_name2,null);
 		exec_result = org2.cli_create();		              
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		env2 = new KatelloEnvironment(env_name2,null,org_name2,KatelloEnvironment.LIBRARY);
+		env2 = new KatelloEnvironment(this.cli_worker, env_name2,null,org_name2,KatelloEnvironment.LIBRARY);
 		exec_result = env2.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
-		
-		
+	}
+
+	@Test(description="initialization here")
+	public void init(){
 		// create repos and content definition in second organization for composite content view tests 
 		createRepo1();
 		
@@ -85,7 +87,7 @@ public class CompositeContentViewTests extends KatelloCliTestBase{
 		
 		createRepo3();
 		
-		condef1 = new KatelloContentDefinition(condef_name1,null,org_name2,null);
+		condef1 = new KatelloContentDefinition(cli_worker, condef_name1,null,org_name2,null);
 		exec_result = condef1.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
@@ -101,7 +103,7 @@ public class CompositeContentViewTests extends KatelloCliTestBase{
 		exec_result = condef1.publish(pubview_name1_2, pubview_name1_2, "Publish Content");
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		condef2 = new KatelloContentDefinition(condef_name2,null,org_name2,null);
+		condef2 = new KatelloContentDefinition(cli_worker, condef_name2,null,org_name2,null);
 		exec_result = condef2.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
@@ -117,23 +119,23 @@ public class CompositeContentViewTests extends KatelloCliTestBase{
 		exec_result = condef2.publish(pubview_name2_2, pubview_name2_2, "Publish Content");
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
-		conview1 = new KatelloContentView(pubview_name1_2, org_name2);
+		conview1 = new KatelloContentView(cli_worker, pubview_name1_2, org_name2);
 		exec_result = conview1.promote_view(env_name2);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		conview2 = new KatelloContentView(pubview_name2_2, org_name2);
+		conview2 = new KatelloContentView(cli_worker, pubview_name2_2, org_name2);
 		exec_result = conview2.promote_view(env_name2);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 			
-		KatelloUtils.sshOnClient("sed -i -e \"s/certFrequency.*/certFrequency = 1/\" /etc/rhsm/rhsm.conf");
-		KatelloUtils.sshOnClient("service rhsmcertd restart");
-		yum_clean();
-		KatelloUtils.sshOnClient("service goferd restart;");
+		KatelloUtils.sshOnClient(cli_worker.getClientHostname(),"sed -i -e \"s/certFrequency.*/certFrequency = 1/\" /etc/rhsm/rhsm.conf");
+		KatelloUtils.sshOnClient(cli_worker.getClientHostname(),"service rhsmcertd restart");
+		yum_clean(cli_worker.getClientHostname());
+		KatelloUtils.sshOnClient(cli_worker.getClientHostname(),"service goferd restart;");
 	}
-
-	@Test(description="Create composite content view definition")
+	
+	@Test(description="Create composite content view definition", dependsOnMethods={"init"})
 	public void test_createComposite() {
-		compcondef = new KatelloContentDefinition(condef_composite_name,null,org_name2,null);
+		compcondef = new KatelloContentDefinition(cli_worker, condef_composite_name,null,org_name2,null);
 		exec_result = compcondef.create(true);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
@@ -189,17 +191,17 @@ public class CompositeContentViewTests extends KatelloCliTestBase{
 	@Test(description="Consume content from composite content view definition", dependsOnMethods={"test_addRemoveViewsIntoComposite"})
 	public void test_consumeCompositeContent() {
 		// erase packages
-		KatelloUtils.sshOnClient("yum erase -y wolf lion crab walrus shark cheetah");
+		KatelloUtils.sshOnClient(cli_worker.getClientHostname(),"yum erase -y wolf lion crab walrus shark cheetah");
 		
 		exec_result = compcondef.publish(pubcompview_name1, pubcompview_name1, "Publish Content");
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");		
 		
-		compconview = new KatelloContentView(pubcompview_name1, org_name2);
+		compconview = new KatelloContentView(cli_worker, pubcompview_name1, org_name2);
 		exec_result = compconview.promote_view(env_name2);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentView.OUT_PROMOTE, this.pubcompview_name1, env_name2)), "Content view promote output.");
 		
-		act_key2 = new KatelloActivationKey(org_name2, env_name2, act_key_name2, "Act key2 created");
+		act_key2 = new KatelloActivationKey(this.cli_worker, org_name2, env_name2, act_key_name2, "Act key2 created");
 		exec_result = act_key2.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
 		exec_result = act_key2.update_add_content_view(pubcompview_name1);
@@ -208,8 +210,8 @@ public class CompositeContentViewTests extends KatelloCliTestBase{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
 		Assert.assertTrue(getOutput(exec_result).contains(this.pubcompview_name1), "Content view name is in output.");
 		
-		KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);
-		sys2 = new KatelloSystem(system_name2, this.org_name2, null);
+		KatelloUtils.sshOnClient(cli_worker.getClientHostname(),KatelloSystem.RHSM_CLEAN);
+		sys2 = new KatelloSystem(this.cli_worker, system_name2, this.org_name2, null);
 		exec_result = sys2.rhsm_registerForce(act_key_name2);
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		
@@ -232,45 +234,45 @@ public class CompositeContentViewTests extends KatelloCliTestBase{
 		exec_result = sys2.subscribe(poolId3);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		yum_clean();
+		yum_clean(cli_worker.getClientHostname());
 		
 		//install packages from content view 1 and 2
-		install_Packages(new String[] {"lion", "crab"});
+		install_Packages(cli_worker.getClientHostname(),new String[] {"lion", "crab"});
 		
 		//package should not be available to install
-		exec_result = KatelloUtils.sshOnClient("yum install pulp-agent --disablerepo '*pulp*'");
+		exec_result = KatelloUtils.sshOnClient(cli_worker.getClientHostname(),"yum install pulp-agent --disablerepo '*pulp*'");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("No package pulp-agent available."));
 	}
 
 	@Test(description = "part of promoted composite content view delete by changeset from environment, then repromote composite view, verify that packages are still availble",
 			groups={"cfse-cli"}, dependsOnMethods={"test_consumeCompositeContent"})
 	public void test_deletePromotedContentViewPart() {
-		KatelloUtils.sshOnClient("yum erase -y zebra");
+		KatelloUtils.sshOnClient(cli_worker.getClientHostname(),"yum erase -y zebra");
 		
-		del_changeset = new KatelloChangeset(del_changeset_name,org_name2,env_name2, true);
+		del_changeset = new KatelloChangeset(cli_worker, del_changeset_name,org_name2,env_name2, true);
 		exec_result = del_changeset.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		exec_result = del_changeset.update_addView(pubview_name1_2);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");		
 		exec_result = del_changeset.apply();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		yum_clean();
+		yum_clean(cli_worker.getClientHostname());
 		
-		install_Packages(new String[] {"zebra"});
+		install_Packages(cli_worker.getClientHostname(),new String[] {"zebra"});
 	}
 
 	@Test(description = "removed content view on previous scenario promote back by changeset to environment, verify that packages are availble",
 			groups={"cfse-cli"}, dependsOnMethods={"test_deletePromotedContentViewPart"})
 	public void test_RePromoteContentViewPart() {
-		KatelloUtils.sshOnClient("yum erase -y tiger");
+		KatelloUtils.sshOnClient(cli_worker.getClientHostname(),"yum erase -y tiger");
 		
-		compconview = new KatelloContentView(pubview_name1_2, org_name2);
+		compconview = new KatelloContentView(cli_worker, pubview_name1_2, org_name2);
 		exec_result = compconview.promote_view(env_name2);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentView.OUT_PROMOTE, this.pubview_name1_2, env_name2)), "Content view promote output.");
-		yum_clean();
+		yum_clean(cli_worker.getClientHostname());
 		
-		install_Packages(new String [] {"tiger"});
+		install_Packages(cli_worker.getClientHostname(),new String [] {"tiger"});
 	}	
 
 	/**
@@ -279,16 +281,16 @@ public class CompositeContentViewTests extends KatelloCliTestBase{
 	private void createRepo1() {
 
 		// Create provider:
-		KatelloProvider prov = new KatelloProvider(prov1_name, org_name2, "Package provider", null);
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, prov1_name, org_name2, "Package provider", null);
 		exec_result = prov.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		// Create product:
-		KatelloProduct prod = new KatelloProduct(prod1_name, org_name2, prov1_name, null, null, null, null, null);
+		KatelloProduct prod = new KatelloProduct(this.cli_worker, prod1_name, org_name2, prov1_name, null, null, null, null, null);
 		exec_result = prod.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	
-		KatelloRepo repo = new KatelloRepo(repo1_name, org_name2, prod1_name, REPO_INECAS_ZOO3, null, null);
+		KatelloRepo repo = new KatelloRepo(this.cli_worker, repo1_name, org_name2, prod1_name, REPO_INECAS_ZOO3, null, null);
 		exec_result = repo.create(true);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
@@ -302,16 +304,16 @@ public class CompositeContentViewTests extends KatelloCliTestBase{
 	private void createRepo2() {
 		
 		// Create provider:
-		KatelloProvider prov = new KatelloProvider(prov2_name, org_name2, "Package provider", null);
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, prov2_name, org_name2, "Package provider", null);
 		exec_result = prov.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		// Create product:
-		KatelloProduct prod = new KatelloProduct(prod2_name, org_name2, prov2_name, null, null, null, null, null);
+		KatelloProduct prod = new KatelloProduct(this.cli_worker, prod2_name, org_name2, prov2_name, null, null, null, null, null);
 		exec_result = prod.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	
-		KatelloRepo repo = new KatelloRepo(repo2_name, org_name2, prod2_name, REPO_HHOVSEPY_ZOO4, null, null);
+		KatelloRepo repo = new KatelloRepo(this.cli_worker, repo2_name, org_name2, prod2_name, REPO_HHOVSEPY_ZOO4, null, null);
 		exec_result = repo.create(true);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
@@ -324,16 +326,16 @@ public class CompositeContentViewTests extends KatelloCliTestBase{
 	 */
 	private void createRepo3() {
 		// Create provider:
-		KatelloProvider prov = new KatelloProvider(prov3_name, org_name2, "Package provider", null);
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, prov3_name, org_name2, "Package provider", null);
 		exec_result = prov.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		// Create product:
-		KatelloProduct prod = new KatelloProduct(prod3_name, org_name2, prov3_name, null, null, null, null, null);
+		KatelloProduct prod = new KatelloProduct(this.cli_worker, prod3_name, org_name2, prov3_name, null, null, null, null, null);
 		exec_result = prod.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	
-		KatelloRepo repo = new KatelloRepo(repo3_name, org_name2, prod3_name, PULP_RHEL6_x86_64_REPO, null, null);
+		KatelloRepo repo = new KatelloRepo(this.cli_worker, repo3_name, org_name2, prod3_name, PULP_RHEL6_x86_64_REPO, null, null);
 		exec_result = repo.create(true);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
@@ -341,7 +343,7 @@ public class CompositeContentViewTests extends KatelloCliTestBase{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
 	
-	@AfterClass
+	@AfterClass(alwaysRun=true)
 	public void tearDown() {
 		exec_result = org2.delete();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");

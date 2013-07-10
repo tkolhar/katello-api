@@ -4,10 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
-
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
@@ -32,20 +30,20 @@ public class SystemGroupTests extends KatelloCliTestBase{
 
 	@BeforeClass(description="Generate unique objects", groups={"cfse-cli","headpin-cli"})
 	public void setUp() {
-		KatelloOrg org = new KatelloOrg(this.orgName, null);
+		KatelloOrg org = new KatelloOrg(this.cli_worker, this.orgName, null);
 		exec_result = org.cli_create();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code (org create)");
 		Assert.assertTrue(exec_result.getStdout().trim().equals(String.format(KatelloOrg.OUT_CREATE,this.orgName)),
 				"Check - returned message");
 		
-		KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);
+		sshOnClient(KatelloSystem.RHSM_CLEAN);
 	}
 	
 	@BeforeClass(description="init: katello specific, no headpin",groups={"cfse-cli"}, dependsOnMethods={"setUp"})
 	public void setUp_katelloOnly(){
 		this.envName = "Dev-"+uid;
 		// Create the env.
-		KatelloEnvironment env = new KatelloEnvironment(this.envName, null, this.orgName, KatelloEnvironment.LIBRARY);
+		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, this.envName, null, this.orgName, KatelloEnvironment.LIBRARY);
 		exec_result = env.cli_create();	
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code (env create)");
 	}
@@ -86,7 +84,7 @@ public class SystemGroupTests extends KatelloCliTestBase{
 		systemGroup.name = oldName;
 		exec_result = systemGroup.info();
 		Assert.assertTrue(exec_result.getExitCode() == 65, "Check - return code");
-		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloSystemGroup.ERR_SYSTEMGROUP_NOTFOUND, systemGroup.name, orgName));
+		Assert.assertTrue(getOutput(exec_result).contains(KatelloSystemGroup.ERR_SYSTEMGROUP_NOTFOUND));
 	}
 	
 	@Test(description = "Create system group, than copy it by specifying new name, description and max systems", groups = { "cli-systemgroup", "cfse-cli", "headpin-cli" })
@@ -100,7 +98,7 @@ public class SystemGroupTests extends KatelloCliTestBase{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloSystemGroup.OUT_COPY, systemGroup.name, sgroup_name2));
 		
-		KatelloSystemGroup systemGroup2 = new KatelloSystemGroup(sgroup_name2, this.orgName, newdescr, 1);
+		KatelloSystemGroup systemGroup2 = new KatelloSystemGroup(this.cli_worker, sgroup_name2, this.orgName, newdescr, 1);
 		assert_SystemGroupInfo(systemGroup2);
 		
 		assert_systemGroupList(Arrays.asList(systemGroup, systemGroup2), new ArrayList<KatelloSystemGroup>());		
@@ -134,7 +132,7 @@ public class SystemGroupTests extends KatelloCliTestBase{
 		
 		KatelloSystem sys = addSystemToSystemGroup();
 
-		KatelloSystemGroup systemGroup = new KatelloSystemGroup(systemGroupName, orgName);
+		KatelloSystemGroup systemGroup = new KatelloSystemGroup(this.cli_worker, systemGroupName, orgName);
 		systemGroup.totalSystems = 1;
 		assert_SystemGroupInfo(systemGroup);
 		
@@ -145,7 +143,7 @@ public class SystemGroupTests extends KatelloCliTestBase{
 	public void test_removeSystemFromSystemGroup() {
 		KatelloSystem sys = addSystemToSystemGroup();
 		
-		KatelloSystemGroup systemGroup = new KatelloSystemGroup(systemGroupName, orgName);
+		KatelloSystemGroup systemGroup = new KatelloSystemGroup(this.cli_worker, systemGroupName, orgName);
 		
 		exec_result = systemGroup.remove_systems(system_uuid);
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
@@ -161,14 +159,14 @@ public class SystemGroupTests extends KatelloCliTestBase{
 	public void test_addSystemToLimitedSystemGroup() {
 		systemGroupName = "system_group"+KatelloUtils.getUniqueID();
 		
-		KatelloSystemGroup systemGroup = new KatelloSystemGroup(this.systemGroupName, this.orgName, null, 1);
+		KatelloSystemGroup systemGroup = new KatelloSystemGroup(this.cli_worker, this.systemGroupName, this.orgName, null, 1);
 		exec_result = systemGroup.create();
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
 		
 		rhsm_clean();
 		
 		this.systemName = "localhost-"+KatelloUtils.getUniqueID();
-		KatelloSystem sys = new KatelloSystem(systemName, this.orgName, this.envName);
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, systemName, this.orgName, this.envName);
 		exec_result = sys.rhsm_registerForce(); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		
@@ -181,10 +179,10 @@ public class SystemGroupTests extends KatelloCliTestBase{
 		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloSystemGroup.OUT_ADD_SYSTEMS, systemGroupName));
 		
 		
-		KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);
+		sshOnClient(KatelloSystem.RHSM_CLEAN);
 		
 		this.systemName = "localhost-"+KatelloUtils.getUniqueID();
-		sys = new KatelloSystem(systemName, this.orgName, this.envName);
+		sys = new KatelloSystem(this.cli_worker, systemName, this.orgName, this.envName);
 		exec_result = sys.rhsm_registerForce(); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		
@@ -201,14 +199,14 @@ public class SystemGroupTests extends KatelloCliTestBase{
 	public void test_addSystemToLimitedSystemGroupAfterRemoving() {
 		systemGroupName = "system_group"+KatelloUtils.getUniqueID();
 		
-		KatelloSystemGroup systemGroup = new KatelloSystemGroup(this.systemGroupName, this.orgName, null, 1);
+		KatelloSystemGroup systemGroup = new KatelloSystemGroup(this.cli_worker, this.systemGroupName, this.orgName, null, 1);
 		exec_result = systemGroup.create();
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
 		
-		KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);
+		sshOnClient(KatelloSystem.RHSM_CLEAN);
 		
 		this.systemName = "localhost-"+KatelloUtils.getUniqueID();
-		KatelloSystem sys = new KatelloSystem(systemName, this.orgName, this.envName);
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, systemName, this.orgName, this.envName);
 		exec_result = sys.rhsm_registerForce(); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		
@@ -224,10 +222,10 @@ public class SystemGroupTests extends KatelloCliTestBase{
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloSystemGroup.OUT_REMOVE_SYSTEMS, systemGroupName));
 		
-		KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);
+		sshOnClient(KatelloSystem.RHSM_CLEAN);
 		
 		this.systemName = "localhost-"+KatelloUtils.getUniqueID();
-		sys = new KatelloSystem(systemName, this.orgName, this.envName);
+		sys = new KatelloSystem(this.cli_worker, systemName, this.orgName, this.envName);
 		exec_result = sys.rhsm_registerForce(); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		
@@ -244,7 +242,7 @@ public class SystemGroupTests extends KatelloCliTestBase{
 	public void test_copySystemGroupWithSystem() {
 		KatelloSystem sys = addSystemToSystemGroup();
 		
-		KatelloSystemGroup systemGroup = new KatelloSystemGroup(systemGroupName, orgName);
+		KatelloSystemGroup systemGroup = new KatelloSystemGroup(this.cli_worker, systemGroupName, orgName);
 		
 		systemGroupName = systemGroup.name + "copy";
 		String newdescr = "new description";
@@ -252,7 +250,7 @@ public class SystemGroupTests extends KatelloCliTestBase{
 		exec_result = systemGroup.copy(systemGroupName, newdescr, 1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		KatelloSystemGroup systemGroup2 = new KatelloSystemGroup(systemGroupName, this.orgName, newdescr, 1);
+		KatelloSystemGroup systemGroup2 = new KatelloSystemGroup(this.cli_worker, systemGroupName, this.orgName, newdescr, 1);
 		systemGroup2.totalSystems = 1;
 		assert_SystemGroupInfo(systemGroup2);
 		
@@ -264,7 +262,7 @@ public class SystemGroupTests extends KatelloCliTestBase{
 		KatelloSystemGroup systemGroup = createSystemGroup();
 		
 		String sgroup_name2 = "system_group"+KatelloUtils.getUniqueID();
-		KatelloSystemGroup systemGroup2 = new KatelloSystemGroup(sgroup_name2, this.orgName);
+		KatelloSystemGroup systemGroup2 = new KatelloSystemGroup(this.cli_worker, sgroup_name2, this.orgName);
 		exec_result = systemGroup2.create();
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
 		
@@ -276,7 +274,7 @@ public class SystemGroupTests extends KatelloCliTestBase{
 		KatelloSystemGroup systemGroup = createSystemGroup();
 		
 		String sgroup_name2 = "system_group"+KatelloUtils.getUniqueID();
-		KatelloSystemGroup systemGroup2 = new KatelloSystemGroup(sgroup_name2, this.orgName);
+		KatelloSystemGroup systemGroup2 = new KatelloSystemGroup(this.cli_worker, sgroup_name2, this.orgName);
 		exec_result = systemGroup2.create();
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
 		
@@ -288,8 +286,7 @@ public class SystemGroupTests extends KatelloCliTestBase{
 		
 		exec_result = systemGroup2.info();
 		Assert.assertTrue(exec_result.getExitCode() == 65, "Check - return code");
-		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloSystemGroup.ERR_SYSTEMGROUP_NOTFOUND, sgroup_name2, orgName));
-		
+		Assert.assertTrue(getOutput(exec_result).contains(KatelloSystemGroup.ERR_SYSTEMGROUP_NOTFOUND));
 		
 		assert_systemGroupList(Arrays.asList(systemGroup), Arrays.asList(systemGroup2));
 	}
@@ -306,7 +303,7 @@ public class SystemGroupTests extends KatelloCliTestBase{
 		
 		exec_result = systemGroup.info();
 		Assert.assertTrue(exec_result.getExitCode() == 65, "Check - return code");
-		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloSystemGroup.ERR_SYSTEMGROUP_NOTFOUND, systemGroupName, orgName));
+		Assert.assertTrue(getOutput(exec_result).contains(KatelloSystemGroup.ERR_SYSTEMGROUP_NOTFOUND));
 		
 		
 		exec_result = system.list();
@@ -325,7 +322,7 @@ public class SystemGroupTests extends KatelloCliTestBase{
 		exec_result = systemGroup.copy(systemGroupName, newdescr, 1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		KatelloSystemGroup systemGroup2 = new KatelloSystemGroup(systemGroupName, this.orgName, newdescr, 1);
+		KatelloSystemGroup systemGroup2 = new KatelloSystemGroup(this.cli_worker, systemGroupName, this.orgName, newdescr, 1);
 		
 		exec_result = systemGroup2.deleteWithSystems();
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
@@ -333,8 +330,7 @@ public class SystemGroupTests extends KatelloCliTestBase{
 		
 		exec_result = systemGroup2.info();
 		Assert.assertTrue(exec_result.getExitCode() == 65, "Check - return code");
-		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloSystemGroup.ERR_SYSTEMGROUP_NOTFOUND, systemGroupName, orgName));
-		
+		Assert.assertTrue(getOutput(exec_result).contains(KatelloSystemGroup.ERR_SYSTEMGROUP_NOTFOUND));
 		
 		exec_result = system.list();
 		Assert.assertFalse(getOutput(exec_result).trim().contains(system.name), "System should not be in list");
@@ -350,7 +346,7 @@ public class SystemGroupTests extends KatelloCliTestBase{
 		exec_result = systemGroup.copy(systemGroupName, newdescr, -1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		KatelloSystemGroup systemGroup2 = new KatelloSystemGroup(systemGroupName, this.orgName, newdescr, -1);
+		KatelloSystemGroup systemGroup2 = new KatelloSystemGroup(this.cli_worker, systemGroupName, this.orgName, newdescr, -1);
 		
 		KatelloSystem system = addSystemToSystemGroup(systemGroup2);
 		
@@ -366,7 +362,7 @@ public class SystemGroupTests extends KatelloCliTestBase{
 	private KatelloSystemGroup createSystemGroup() {
 		systemGroupName = "system_group"+KatelloUtils.getUniqueID();
 		
-		KatelloSystemGroup systemGroup = new KatelloSystemGroup(this.systemGroupName, this.orgName);
+		KatelloSystemGroup systemGroup = new KatelloSystemGroup(this.cli_worker, this.systemGroupName, this.orgName);
 		exec_result = systemGroup.create();
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloSystemGroup.OUT_CREATE, systemGroupName)), "Check - output string (system_group create)");
@@ -386,7 +382,7 @@ public class SystemGroupTests extends KatelloCliTestBase{
 		rhsm_clean();
 		
 		this.systemName = "localhost-"+KatelloUtils.getUniqueID();
-		KatelloSystem sys = new KatelloSystem(systemName, this.orgName, this.envName);
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, systemName, this.orgName, this.envName);
 		exec_result = sys.rhsm_register();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		Assert.assertTrue(exec_result.getStdout().trim().contains(KatelloSystem.OUT_CREATE),
@@ -404,7 +400,7 @@ public class SystemGroupTests extends KatelloCliTestBase{
 	}
 	
 	private void assert_systemGroupList(List<KatelloSystemGroup> systemGroups, List<KatelloSystemGroup> excludeSystemGroups) {
-		exec_result = new KatelloSystemGroup(null, orgName).list();
+		exec_result = new KatelloSystemGroup(this.cli_worker, null, orgName).list();
 
 		//system groups that exist in list
 		for(KatelloSystemGroup sgroup : systemGroups) {
@@ -424,7 +420,7 @@ public class SystemGroupTests extends KatelloCliTestBase{
 	}
 
 	private void assert_systemList(List<KatelloSystem> systems, List<KatelloSystem> excludeSystems) {
-		exec_result = new KatelloSystemGroup(systemGroupName, orgName).list_systems();
+		exec_result = new KatelloSystemGroup(this.cli_worker, systemGroupName, orgName).list_systems();
 
 		//systems that exist in list
 		for(KatelloSystem system : systems) {			

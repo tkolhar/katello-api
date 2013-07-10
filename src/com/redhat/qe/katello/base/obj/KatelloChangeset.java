@@ -1,6 +1,8 @@
 package com.redhat.qe.katello.base.obj;
 
 import javax.management.Attribute;
+
+import com.redhat.qe.katello.base.threading.KatelloCliWorker;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class KatelloChangeset extends _KatelloObject{
@@ -42,15 +44,16 @@ public class KatelloChangeset extends _KatelloObject{
 	public String state;
 	private boolean isDeletion;
 	
-	public KatelloChangeset(String pName, String pOrg, String pEnv){
-		this(pName, pOrg, pEnv, false);
+	public KatelloChangeset(KatelloCliWorker kcr, String pName, String pOrg, String pEnv){
+		this(kcr, pName, pOrg, pEnv, false);
 	}
 
-	public KatelloChangeset(String pName, String pOrg, String pEnv, boolean pisDeletion){
+	public KatelloChangeset(KatelloCliWorker kcr, String pName, String pOrg, String pEnv, boolean pisDeletion){
 		this.name = pName;
 		this.org = pOrg;
 		this.environment = pEnv;
 		this.isDeletion = pisDeletion; 
+		this.kcr = kcr;
 	}
 	
 	public SSHCommandResult create(){

@@ -4,10 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
-
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloChangeset;
@@ -36,7 +34,7 @@ public class ChangesetTests extends KatelloCliTestBase{
 	private String product_name2;
 	private String repo_name;
 	
-	@BeforeClass(description="init: create org stuff", groups = {"cli-changeset"})
+	@BeforeClass(description="init: create org stuff", alwaysRun=true)
 	public void setUp() {
 		
 		String uid = KatelloUtils.getUniqueID();
@@ -47,35 +45,38 @@ public class ChangesetTests extends KatelloCliTestBase{
 		product_name = "product"+uid;
 		product_name2 = "product2"+uid;
 		repo_name = "repo"+uid;
-		
+	}
+	
+	@Test(description="initialization here")
+	public void init(){
 		// Create org:
-		KatelloOrg org = new KatelloOrg(this.org_name, "Package tests");
+		KatelloOrg org = new KatelloOrg(this.cli_worker, this.org_name, "Package tests");
 		exec_result = org.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		// Create provider:
-		KatelloProvider prov = new KatelloProvider(provider_name, org_name, "Package provider", REPO_INECAS_ZOO3);
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, provider_name, org_name, "Package provider", REPO_INECAS_ZOO3);
 		exec_result = prov.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		KatelloProvider prov2 = new KatelloProvider(provider_name2, org_name, "Package provider2", null);
+		KatelloProvider prov2 = new KatelloProvider(this.cli_worker, provider_name2, org_name, "Package provider2", null);
 		exec_result = prov2.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		// Create product:
-		KatelloProduct prod = new KatelloProduct(product_name, org_name, provider_name, null, null, null, null, null);
+		KatelloProduct prod = new KatelloProduct(this.cli_worker, product_name, org_name, provider_name, null, null, null, null, null);
 		exec_result = prod.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	
-		KatelloProduct prod2 = new KatelloProduct(product_name2, org_name, provider_name2, null, null, null, null, null);
+		KatelloProduct prod2 = new KatelloProduct(this.cli_worker, product_name2, org_name, provider_name2, null, null, null, null, null);
 		exec_result = prod2.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 			
-		KatelloRepo repo = new KatelloRepo(repo_name, org_name, product_name, REPO_INECAS_ZOO3, null, null);
+		KatelloRepo repo = new KatelloRepo(this.cli_worker, repo_name, org_name, product_name, REPO_INECAS_ZOO3, null, null);
 		exec_result = repo.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		KatelloEnvironment env = new KatelloEnvironment(env_name, null, org_name, KatelloEnvironment.LIBRARY);
+		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, env_name, null, org_name, KatelloEnvironment.LIBRARY);
 		exec_result = env.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (env create)");
 
@@ -83,14 +84,14 @@ public class ChangesetTests extends KatelloCliTestBase{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
 	
-	@Test(description = "Create changeset", groups = { "cli-changeset" })
+	@Test(description = "Create changeset", dependsOnMethods={"init"})
 	public void test_createChangeset() {
 		KatelloChangeset chst = createChangeset();
 		
 		assert_changesetInfo(chst);
 	}
 
-	@Test(description = "Create changeset be existing name", groups = { "cli-changeset" })
+	@Test(description = "Create changeset be existing name", dependsOnMethods={"init"})
 	public void test_createChangesetExists() {
 		KatelloChangeset chst = createChangeset();
 		
@@ -100,7 +101,7 @@ public class ChangesetTests extends KatelloCliTestBase{
 		
 	}
 	
-	@Test(description = "Create 2 changesets, delete one of them", groups = { "cli-changeset" })
+	@Test(description = "Create 2 changesets, delete one of them", dependsOnMethods={"init"})
 	public void test_deleteChangeset() {
 		KatelloChangeset chst = createChangeset();
 		KatelloChangeset chst2 = createChangeset();
@@ -119,19 +120,19 @@ public class ChangesetTests extends KatelloCliTestBase{
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloChangeset.ERR_NOT_FOUND, chst.name, chst.environment)), "Check - output string (changeset not exists)");
 	}
 	
-	@Test(description = "Create changeset and then list it", groups = { "cli-changeset" })
+	@Test(description = "Create changeset and then list it", dependsOnMethods={"init"})
 	public void test_listChangeset() {
 		KatelloChangeset chst = createChangeset();
 		
 		String chst_name2= "changeset"+KatelloUtils.getUniqueID();
-		KatelloChangeset cs = new KatelloChangeset(chst_name2, org_name, env_name);
+		KatelloChangeset cs = new KatelloChangeset(cli_worker, chst_name2, org_name, env_name);
 		exec_result = cs.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset create)");
 		
 		assert_changesetList(Arrays.asList(chst, cs), new ArrayList<KatelloChangeset>());
 	}
 
-	@Test(description = "Create changeset and then promote it", groups = { "cli-changeset" })
+	@Test(description = "Create changeset and then promote it", dependsOnMethods={"init"})
 	public void test_promoteChangeset() {
 		KatelloChangeset chst = createChangeset();
 		
@@ -143,7 +144,7 @@ public class ChangesetTests extends KatelloCliTestBase{
 		assert_changesetInfo(chst);
 	}
 	
-	@Test(description = "Create changeset, than update changeset name", groups = { "cli-changeset" })
+	@Test(description = "Create changeset, than update changeset name", dependsOnMethods={"init"})
 	public void test_updateChangesetName() {
 		KatelloChangeset chst = createChangeset();
 		
@@ -166,7 +167,7 @@ public class ChangesetTests extends KatelloCliTestBase{
 		chst_name = "changeset"+KatelloUtils.getUniqueID();
 		
 		// create Changeset
-		KatelloChangeset cs = new KatelloChangeset(chst_name, org_name, env_name);
+		KatelloChangeset cs = new KatelloChangeset(cli_worker, chst_name, org_name, env_name);
 		exec_result = cs.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (changeset create)");
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloChangeset.OUT_CREATE, chst_name, env_name)), "Check - output string (changeset create)");
@@ -190,7 +191,7 @@ public class ChangesetTests extends KatelloCliTestBase{
 		
 	private void assert_changesetList(List<KatelloChangeset> chsts, List<KatelloChangeset> excludeChsts) {
 
-		exec_result = new KatelloChangeset(chst_name, org_name, env_name).list();
+		exec_result = new KatelloChangeset(cli_worker, chst_name, org_name, env_name).list();
 
 		//changesets that exist in list
 		for(KatelloChangeset chst : chsts) {			

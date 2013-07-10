@@ -2,10 +2,8 @@ package com.redhat.qe.katello.tests.cli;
 
 import java.util.Arrays;
 import java.util.List;
-
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
@@ -25,31 +23,31 @@ public class ProductTests  extends KatelloCliTestBase{
 	private String prov_name2;
 	private String prov_name3;
 	
-	@BeforeClass(description="Prepare an org to work with", groups = {"cli-product"}, alwaysRun=false)
+	@BeforeClass(description="Prepare an org to work with", groups = {"cli-product"}, alwaysRun=true)
 	public void setup_org(){
 		SSHCommandResult res;
 		String uid = KatelloUtils.getUniqueID();
 		this.org_name = "org"+uid;
 		this.prov_name = "prov"+uid;
 		this.prov_name3 = "prov"+KatelloUtils.getUniqueID();;
-		KatelloOrg org = new KatelloOrg(this.org_name, null);
+		KatelloOrg org = new KatelloOrg(this.cli_worker, this.org_name, null);
 		res = org.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (org create)");
-		KatelloProvider prov = new KatelloProvider(this.prov_name, this.org_name, null, null);
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, this.prov_name, this.org_name, null, null);
 		res = prov.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (provider create)");
 		
-		prov = new KatelloProvider(this.prov_name3, this.org_name, null, null);
+		prov = new KatelloProvider(this.cli_worker, this.prov_name3, this.org_name, null, null);
 		res = prov.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (provider create)");
 		
 		uid = KatelloUtils.getUniqueID();
 		this.org_name2 = "org"+uid;
 		this.prov_name2 = "prov"+uid;
-		org = new KatelloOrg(this.org_name2, null);
+		org = new KatelloOrg(this.cli_worker, this.org_name2, null);
 		res = org.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (org create)");
-		prov = new KatelloProvider(this.prov_name2, this.org_name2, null, null);
+		prov = new KatelloProvider(this.cli_worker, this.prov_name2, this.org_name2, null, null);
 		res = prov.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (provider create)");
 	}
@@ -59,7 +57,7 @@ public class ProductTests  extends KatelloCliTestBase{
 	public void test_listProductDefaultOrg(){
       
     	  String providername = KatelloProvider.PROVIDER_REDHAT;
-	 	  KatelloProduct list_product = new KatelloProduct(null,KatelloOrg.getDefaultOrg(),providername,null,null,null,null,null);
+	 	  KatelloProduct list_product = new KatelloProduct(this.cli_worker, null,KatelloOrg.getDefaultOrg(),providername,null,null,null,null,null);
 	 	  SSHCommandResult res = list_product.cli_list();
 	 	  Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
  	}
@@ -72,7 +70,7 @@ public class ProductTests  extends KatelloCliTestBase{
 		SSHCommandResult res;
 		
 		// create product
-		KatelloProduct prod = new KatelloProduct(prodName, this.org_name, this.prov_name, null, null, null, null, null);
+		KatelloProduct prod = new KatelloProduct(this.cli_worker, prodName, this.org_name, this.prov_name, null, null, null, null, null);
 		res = prod.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
 		Assert.assertTrue(getOutput(res).contains(String.format(KatelloProduct.OUT_CREATED,prodName)), "Check - returned output string (product create)");		
@@ -86,14 +84,14 @@ public class ProductTests  extends KatelloCliTestBase{
 		SSHCommandResult res;
 		
 		// create product
-		KatelloProduct prod = new KatelloProduct(prodName, this.org_name, this.prov_name, null, null, PULP_RHEL6_x86_64_REPO, null, true);
+		KatelloProduct prod = new KatelloProduct(this.cli_worker, prodName, this.org_name, this.prov_name, null, null, PULP_RHEL6_x86_64_REPO, null, true);
 		res = prod.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
 		Assert.assertTrue(getOutput(res).contains(String.format(KatelloProduct.OUT_CREATED,prodName)), "Check - returned output string (product create)");
 		prod.assert_productExists(null,false);
 		
 		// check - repo created - we don't know the exact repo name.
-		KatelloRepo repo = new KatelloRepo(null, this.org_name, prodName, null, null, null);
+		KatelloRepo repo = new KatelloRepo(this.cli_worker, null, this.org_name, prodName, null, null, null);
 		res = repo.list();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo list by product)");		
 		String match_info = String.format(KatelloRepo.REG_REPO_LIST_ARCH, prodName, "x86_64").replaceAll("\"", "");
@@ -108,14 +106,14 @@ public class ProductTests  extends KatelloCliTestBase{
 		SSHCommandResult res, resRepos; String repoName;
 		
 		// create product
-		KatelloProduct prod = new KatelloProduct(prodName, this.org_name, this.prov_name, null, null, PULP_RHEL6_REPO, null, true);
+		KatelloProduct prod = new KatelloProduct(this.cli_worker, prodName, this.org_name, this.prov_name, null, null, PULP_RHEL6_REPO, null, true);
 		res = prod.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
 		Assert.assertTrue(getOutput(res).contains(String.format(KatelloProduct.OUT_CREATED,prodName)), "Check - returned output string (product create)");		
 		prod.assert_productExists(null,false);
 		
 		// check - 2 repos created
-		KatelloRepo repo = new KatelloRepo(null, this.org_name, prodName, null, null, null);
+		KatelloRepo repo = new KatelloRepo(this.cli_worker, null, this.org_name, prodName, null, null, null);
 		res = repo.list();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo list by product)");
 		String match_info = String.format(KatelloRepo.REG_REPO_LIST_ARCH, prodName, "i386").replaceAll("\"", "");
@@ -126,18 +124,18 @@ public class ProductTests  extends KatelloCliTestBase{
 				"Repo list should contain info about just created repo (requested by: org, product - x86_64)");
 		
 		// get packages count for the repos - ==0
-		repo = new KatelloRepo(null, this.org_name, prodName, null, null, null);
+		repo = new KatelloRepo(this.cli_worker, null, this.org_name, prodName, null, null, null);
 		resRepos = repo.list();
 		match_info = String.format(KatelloRepo.REG_PACKAGE_CNT, "0").replaceAll("\"", "");	
 		repoName = KatelloUtils.grepCLIOutput("Name", getOutput(resRepos),1); // 1st repo
-		KatelloRepo repoWithName = new KatelloRepo(repoName, this.org_name, prodName, null, null, null);
+		KatelloRepo repoWithName = new KatelloRepo(this.cli_worker, repoName, this.org_name, prodName, null, null, null);
 		waitfor_repodata(repoWithName, 1);
 		res = repoWithName.info();
 		// output to analyze - should contain: 0
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info),"Repo list of the product - should contain package count 0");
 
 		repoName = KatelloUtils.grepCLIOutput("Name", getOutput(resRepos),2); // 2nd repo
-		repoWithName = new KatelloRepo(repoName, this.org_name, prodName, null, null, null);
+		repoWithName = new KatelloRepo(this.cli_worker, repoName, this.org_name, prodName, null, null, null);
 		match_info = String.format(KatelloRepo.REG_PACKAGE_CNT, "0").replaceAll("\"", "");
 		waitfor_repodata(repoWithName, 1);
 		res = repoWithName.info();
@@ -152,7 +150,7 @@ public class ProductTests  extends KatelloCliTestBase{
 		SSHCommandResult res;
 		
 		// create product
-		KatelloProduct prod = new KatelloProduct(prodName, this.org_name, this.prov_name, null, null, PULP_RHEL6_REPO, null, true);
+		KatelloProduct prod = new KatelloProduct(this.cli_worker, prodName, this.org_name, this.prov_name, null, null, PULP_RHEL6_REPO, null, true);
 		res = prod.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
 		
@@ -172,12 +170,12 @@ public class ProductTests  extends KatelloCliTestBase{
 		SSHCommandResult res;
 		
 		// create product
-		KatelloProduct prod = new KatelloProduct(prodName, this.org_name, this.prov_name, null, null, PULP_RHEL6_REPO, null, true);
+		KatelloProduct prod = new KatelloProduct(this.cli_worker, prodName, this.org_name, this.prov_name, null, null, PULP_RHEL6_REPO, null, true);
 		res = prod.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
 		
 		// try to create product second time by the same name but for different org, it should work
-		prod = new KatelloProduct(prodName, this.org_name2, this.prov_name2, null, null, PULP_RHEL6_REPO, null, true);
+		prod = new KatelloProduct(this.cli_worker, prodName, this.org_name2, this.prov_name2, null, null, PULP_RHEL6_REPO, null, true);
 		res = prod.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
 		Assert.assertTrue(getOutput(res).contains(String.format(KatelloProduct.OUT_CREATED,prodName)), "Check - returned output string (product create)");		
@@ -196,7 +194,7 @@ public class ProductTests  extends KatelloCliTestBase{
 		SSHCommandResult res;		
 
 		// create product
-		KatelloProduct prod1 = new KatelloProduct(prodName1, this.org_name, this.prov_name, null, null, PULP_RHEL6_i386_REPO, null, true);
+		KatelloProduct prod1 = new KatelloProduct(this.cli_worker, prodName1, this.org_name, this.prov_name, null, null, PULP_RHEL6_i386_REPO, null, true);
 		res = prod1.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
 		
@@ -205,7 +203,7 @@ public class ProductTests  extends KatelloCliTestBase{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product synchronize)");
 
 		// create env.
-		KatelloEnvironment env1 = new KatelloEnvironment(envName1, null, this.org_name, KatelloEnvironment.LIBRARY);
+		KatelloEnvironment env1 = new KatelloEnvironment(this.cli_worker, envName1, null, this.org_name, KatelloEnvironment.LIBRARY);
 		res = env1.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (environment create)");
 		
@@ -218,7 +216,7 @@ public class ProductTests  extends KatelloCliTestBase{
 //		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product promote)");
 		prod1.syncState = "Finished";
 
-		KatelloProduct prod2 = new KatelloProduct(prodName2, this.org_name, this.prov_name3, null, null, null, null, true);
+		KatelloProduct prod2 = new KatelloProduct(this.cli_worker, prodName2, this.org_name, this.prov_name3, null, null, null, null, true);
 		res = prod2.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
 		
@@ -237,15 +235,15 @@ public class ProductTests  extends KatelloCliTestBase{
 		SSHCommandResult res;
 		
 		// create product
-		KatelloProduct prod1 = new KatelloProduct(prodName1, this.org_name, this.prov_name, null, null, null, null, true);
+		KatelloProduct prod1 = new KatelloProduct(this.cli_worker, prodName1, this.org_name, this.prov_name, null, null, null, null, true);
 		res = prod1.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
 		
-		KatelloProduct prod2 = new KatelloProduct(prodName2, this.org_name, this.prov_name, null, null, null, null, true);
+		KatelloProduct prod2 = new KatelloProduct(this.cli_worker, prodName2, this.org_name, this.prov_name, null, null, null, null, true);
 		res = prod2.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
 		
-		KatelloProduct prod3 = new KatelloProduct(prodName3, this.org_name, this.prov_name3, null, null, null, null, true);
+		KatelloProduct prod3 = new KatelloProduct(this.cli_worker, prodName3, this.org_name, this.prov_name3, null, null, null, null, true);
 		res = prod3.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
 		
@@ -266,7 +264,7 @@ public class ProductTests  extends KatelloCliTestBase{
 		SSHCommandResult res;		
 
 		// create product
-		KatelloProduct prod1 = new KatelloProduct(prodName1, this.org_name, this.prov_name, null, null, PULP_RHEL6_i386_REPO, null, true);
+		KatelloProduct prod1 = new KatelloProduct(this.cli_worker, prodName1, this.org_name, this.prov_name, null, null, PULP_RHEL6_i386_REPO, null, true);
 		res = prod1.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
 		
@@ -275,7 +273,7 @@ public class ProductTests  extends KatelloCliTestBase{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product synchronize)");
 
 		// create env.
-		KatelloEnvironment env1 = new KatelloEnvironment(envName1, null, this.org_name, KatelloEnvironment.LIBRARY);
+		KatelloEnvironment env1 = new KatelloEnvironment(this.cli_worker, envName1, null, this.org_name, KatelloEnvironment.LIBRARY);
 		res = env1.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (environment create)");
 		
@@ -288,7 +286,7 @@ public class ProductTests  extends KatelloCliTestBase{
 //		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product promote)");
 
 		// create product
-		KatelloProduct prod2 = new KatelloProduct(prodName2, this.org_name, this.prov_name, null, null, REPO_INECAS_ZOO3, null, true);
+		KatelloProduct prod2 = new KatelloProduct(this.cli_worker, prodName2, this.org_name, this.prov_name, null, null, REPO_INECAS_ZOO3, null, true);
 		res = prod2.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
 		
@@ -297,7 +295,7 @@ public class ProductTests  extends KatelloCliTestBase{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product synchronize)");
 
 		// create env.
-		KatelloEnvironment env2 = new KatelloEnvironment(envName2, null, this.org_name, KatelloEnvironment.LIBRARY);
+		KatelloEnvironment env2 = new KatelloEnvironment(this.cli_worker, envName2, null, this.org_name, KatelloEnvironment.LIBRARY);
 		res = env2.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (environment create)");
 		
@@ -309,7 +307,7 @@ public class ProductTests  extends KatelloCliTestBase{
 //		res = prod2.promote(envName2);
 //		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product promote)");
 
-		KatelloProduct prod3 = new KatelloProduct(prodName3, this.org_name, this.prov_name3, null, null, null, null, true);
+		KatelloProduct prod3 = new KatelloProduct(this.cli_worker, prodName3, this.org_name, this.prov_name3, null, null, null, null, true);
 		res = prod3.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
 		
@@ -337,7 +335,7 @@ public class ProductTests  extends KatelloCliTestBase{
 		SSHCommandResult res;
 		
 		// create product
-		KatelloProduct prod = new KatelloProduct(prodName, this.org_name, this.prov_name, null, null, null, null, null);
+		KatelloProduct prod = new KatelloProduct(this.cli_worker, prodName, this.org_name, this.prov_name, null, null, null, null, null);
 		res = prod.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
 		Assert.assertTrue(getOutput(res).contains(String.format(KatelloProduct.OUT_CREATED,prodName)), "Check - returned output string (product create)");
@@ -345,7 +343,7 @@ public class ProductTests  extends KatelloCliTestBase{
 		
 		// create env.
 		String envName = "dev-"+uid;
-		KatelloEnvironment env = new KatelloEnvironment(envName, null, this.org_name, KatelloEnvironment.LIBRARY);
+		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, envName, null, this.org_name, KatelloEnvironment.LIBRARY);
 		res = env.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (environment create)");
 		
@@ -354,7 +352,7 @@ public class ProductTests  extends KatelloCliTestBase{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product synchronize)");
 		
 		// promote product to the env.
-		KatelloUtils.promoteProductToEnvironment(org_name, prodName, envName);
+		KatelloUtils.promoteProductToEnvironment(cli_worker, org_name, prodName, envName);
 	}
 	
 	//@ TODO 961780  repo list should be changed to accept option --content_view
@@ -366,14 +364,14 @@ public class ProductTests  extends KatelloCliTestBase{
 		SSHCommandResult res;
 		
 		// create product
-		KatelloProduct prod = new KatelloProduct(prodName, this.org_name, this.prov_name, null, null, PULP_RHEL6_x86_64_REPO, null, true);
+		KatelloProduct prod = new KatelloProduct(this.cli_worker, prodName, this.org_name, this.prov_name, null, null, PULP_RHEL6_x86_64_REPO, null, true);
 		res = prod.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
 		Assert.assertTrue(getOutput(res).contains(String.format(KatelloProduct.OUT_CREATED,prodName)), "Check - returned output string (product create)");
 		prod.assert_productExists(null, false);
 		
 		// create env.
-		KatelloEnvironment env = new KatelloEnvironment(envName, null, this.org_name, KatelloEnvironment.LIBRARY);
+		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, envName, null, this.org_name, KatelloEnvironment.LIBRARY);
 		res = env.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (environment create)");
 		
@@ -382,7 +380,7 @@ public class ProductTests  extends KatelloCliTestBase{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product synchronize)");
 		
 		// promote product to the env.
-		KatelloUtils.promoteProductToEnvironment(org_name, prodName, envName);
+		KatelloUtils.promoteProductToEnvironment(cli_worker, org_name, prodName, envName);
 
 		// product list --environment (1 result - just the product promoted)
 		res = prod.cli_list(envName);
@@ -396,7 +394,7 @@ public class ProductTests  extends KatelloCliTestBase{
 		
 		// repo list --environment (1 result).
 		// check - repo created - we don't know the exact repo name.
-		KatelloRepo repo = new KatelloRepo(null,this.org_name,prodName,null,null,null);
+		KatelloRepo repo = new KatelloRepo(this.cli_worker, null,this.org_name,prodName,null,null,null);
 		res = repo.list(envName);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo list by product)");		
 		match_info = String.format(KatelloRepo.REG_REPO_LIST_ARCH, prodName, "x86_64").replaceAll("\"", "");
@@ -413,14 +411,14 @@ public class ProductTests  extends KatelloCliTestBase{
 		SSHCommandResult res;
 		
 		// create product
-		KatelloProduct prod = new KatelloProduct(prodName, this.org_name, this.prov_name, null, null, PULP_RHEL6_REPO, null, true);
+		KatelloProduct prod = new KatelloProduct(this.cli_worker, prodName, this.org_name, this.prov_name, null, null, PULP_RHEL6_REPO, null, true);
 		res = prod.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
 		Assert.assertTrue(getOutput(res).contains(String.format(KatelloProduct.OUT_CREATED,prodName)), "Check - returned output string (product create)");
 		prod.assert_productExists(null, false);
 		
 		// create env.
-		KatelloEnvironment env = new KatelloEnvironment(envName, null, this.org_name, KatelloEnvironment.LIBRARY);
+		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, envName, null, this.org_name, KatelloEnvironment.LIBRARY);
 		res = env.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (environment create)");
 		
@@ -429,7 +427,7 @@ public class ProductTests  extends KatelloCliTestBase{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product synchronize)");
 		
 		// promote product to the env.
-		KatelloUtils.promoteProductToEnvironment(org_name, prodName, envName);
+		KatelloUtils.promoteProductToEnvironment(cli_worker, org_name, prodName, envName);
 
 		// product list --environment (1 result - just the product promoted)
 		res = prod.cli_list(envName);
@@ -442,7 +440,7 @@ public class ProductTests  extends KatelloCliTestBase{
 				"Product list by environment - just promoted product");
 		
 		// repo list --environment (2 entries).
-		KatelloRepo repo = new KatelloRepo(null,this.org_name,prodName,null,null,null);
+		KatelloRepo repo = new KatelloRepo(this.cli_worker, null,this.org_name,prodName,null,null,null);
 		res = repo.list(envName);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo list by product)");
 		match_info = String.format(KatelloRepo.REG_REPO_LIST_ARCH, prodName, "i386").replaceAll("\"", "");
@@ -460,7 +458,7 @@ public class ProductTests  extends KatelloCliTestBase{
 		SSHCommandResult res;
 
 		// create product
-		KatelloProduct prod = new KatelloProduct(prodName, this.org_name, this.prov_name, null, null, PULP_RHEL6_x86_64_REPO, null, true);
+		KatelloProduct prod = new KatelloProduct(this.cli_worker, prodName, this.org_name, this.prov_name, null, null, PULP_RHEL6_x86_64_REPO, null, true);
 		res = prod.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
 		Assert.assertTrue(getOutput(res).contains(String.format(KatelloProduct.OUT_CREATED,prodName)), "Check - returned output string (product create)");
@@ -471,10 +469,10 @@ public class ProductTests  extends KatelloCliTestBase{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product synchronize)");
 		Assert.assertTrue(getOutput(res).contains(String.format(KatelloProduct.OUT_SYNCHRONIZED,prodName)), "Check - returned output string (product synchronize)");		
 		
-		KatelloRepo repo = new KatelloRepo(null,this.org_name,prodName,null,null,null);
+		KatelloRepo repo = new KatelloRepo(this.cli_worker, null,this.org_name,prodName,null,null,null);
 		res = repo.list();
 		String repoName = KatelloUtils.grepCLIOutput("Name", res.getStdout(),1); // 1st repo
-		repo = new KatelloRepo(repoName,this.org_name,prodName,null,null,null);
+		repo = new KatelloRepo(this.cli_worker, repoName,this.org_name,prodName,null,null,null);
 		
 		waitfor_repodata(repo, 1);
 		
@@ -492,7 +490,7 @@ public class ProductTests  extends KatelloCliTestBase{
 		SSHCommandResult res, resRepos; String repoName;
 
 		// create product
-		KatelloProduct prod = new KatelloProduct(prodName, this.org_name, this.prov_name, null, null, PULP_RHEL6_REPO, null, true);
+		KatelloProduct prod = new KatelloProduct(this.cli_worker, prodName, this.org_name, this.prov_name, null, null, PULP_RHEL6_REPO, null, true);
 		res = prod.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
 		Assert.assertTrue(getOutput(res).contains(String.format(KatelloProduct.OUT_CREATED,prodName)), "Check - returned output string (product create)");
@@ -504,19 +502,19 @@ public class ProductTests  extends KatelloCliTestBase{
 		Assert.assertTrue(getOutput(res).contains(String.format(KatelloProduct.OUT_SYNCHRONIZED,prodName)), "Check - returned output string (product synchronize)");
 		
 		// get packages count for the repos - !=0
-		KatelloRepo repo = new KatelloRepo(null,this.org_name,prodName,null,null,null);
+		KatelloRepo repo = new KatelloRepo(this.cli_worker, null,this.org_name,prodName,null,null,null);
 		resRepos = repo.list();
 		String match_info = String.format(KatelloRepo.REG_PACKAGE_CNT, "0").replaceAll("\"", "");	
 		
 		repoName = KatelloUtils.grepCLIOutput("Name", resRepos.getStdout(),1); // 1st repo
-		repo = new KatelloRepo(repoName,this.org_name,prodName,null,null,null);
+		repo = new KatelloRepo(this.cli_worker, repoName,this.org_name,prodName,null,null,null);
 		waitfor_repodata(repo, 1);
 		res = repo.info();
 		// our line to analyze - should not contain: 0
 		Assert.assertFalse(getOutput(res).matches(match_info),"Repo list of the product - should not contain package count 0 (after product synchronize)");
 
 		repoName = KatelloUtils.grepCLIOutput("Name", resRepos.getStdout(),2); // 2nd repo
-		repo = new KatelloRepo(repoName,this.org_name,prodName,null,null,null);
+		repo = new KatelloRepo(this.cli_worker, repoName,this.org_name,prodName,null,null,null);
 		waitfor_repodata(repo, 1);
 		res = repo.info();
 		// our line to analyze - should not contain: 0
@@ -532,21 +530,21 @@ public class ProductTests  extends KatelloCliTestBase{
 		SSHCommandResult res;
 		
 		// create product
-		KatelloProduct prod = new KatelloProduct(prodName, this.org_name, this.prov_name, null, null, PULP_RHEL6_x86_64_REPO, null, true);
+		KatelloProduct prod = new KatelloProduct(this.cli_worker, prodName, this.org_name, this.prov_name, null, null, PULP_RHEL6_x86_64_REPO, null, true);
 		res = prod.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
 		// sync product
 		res = prod.synchronize();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product synchronize)");
 		// create env. - dev
-		KatelloEnvironment env = new KatelloEnvironment(envName_dev, null, this.org_name, KatelloEnvironment.LIBRARY);
+		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, envName_dev, null, this.org_name, KatelloEnvironment.LIBRARY);
 		res = env.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (environment create)");
 		
-		KatelloUtils.promoteProductToEnvironment(org_name, prodName, envName_dev);
+		KatelloUtils.promoteProductToEnvironment(cli_worker, org_name, prodName, envName_dev);
 		
 		// Assertions - repo list by env
-		KatelloRepo repo = new KatelloRepo(null,this.org_name,prodName,null,null,null);
+		KatelloRepo repo = new KatelloRepo(this.cli_worker, null,this.org_name,prodName,null,null,null);
 		res = repo.list(envName_dev);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo list --environment)");
 		String match_info = String.format(KatelloRepo.REG_REPO_LIST_ARCH, prodName, "x86_64").replaceAll("\"", "");
@@ -579,13 +577,13 @@ public class ProductTests  extends KatelloCliTestBase{
 				"Check - list should NOT contain info about product (deleted already)");
 		
 		// Assertions - repo list by product
-		repo = new KatelloRepo(null,this.org_name,prodName,null,null,null);
+		repo = new KatelloRepo(this.cli_worker, null,this.org_name,prodName,null,null,null);
 		res = repo.list();
 		Assert.assertTrue(res.getExitCode().intValue()==65, "Check - return code (repo list --product)"); // Bug#750464
 		Assert.assertTrue(getOutput(res).equals(String.format(KatelloProduct.ERR_COULD_NOT_FIND_PRODUCT, prodName,org_name)), "Check - `repo list --product` output string");
 		
 		// Assertions - repo list by env.
-		repo = new KatelloRepo(null,this.org_name,prodName,null,null,null);
+		repo = new KatelloRepo(this.cli_worker, null,this.org_name,prodName,null,null,null);
 		res = repo.list(envName_dev);
 		Assert.assertTrue(res.getExitCode().intValue()==65, "Check - return code (repo list --environment)");
 		Assert.assertTrue(getOutput(res).equals(String.format(KatelloProduct.ERR_COULD_NOT_FIND_PRODUCT, prodName,org_name)), "Check - `repo list --environment` output string");
@@ -599,7 +597,7 @@ public class ProductTests  extends KatelloCliTestBase{
 		Assert.assertFalse(getOutput(res).replaceAll("\n", "").matches(match_info), 
 				"Check - list should NOT contain info about product (deleted already)");		
 	}
-	
+
 	private void assert_productList(SSHCommandResult exec_result, List<KatelloProduct> products, List<KatelloProduct> excludeProducts) {
 
 		//products that exist in list

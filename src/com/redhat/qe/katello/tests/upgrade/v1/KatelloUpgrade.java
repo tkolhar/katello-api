@@ -158,7 +158,7 @@ public class KatelloUpgrade extends KatelloCliTestBase{
 			groups={TNG_UPGRADE})
 	public void pingSystem(){
 		log.info("No need to start services: just ping to check all if ok");
-		KatelloPing ping = new KatelloPing();
+		KatelloPing ping = new KatelloPing(null);
 		SSHCommandResult res = ping.cli_ping();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check services up");
 	}

@@ -1,4 +1,6 @@
 package com.redhat.qe.katello.tests.cli;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
@@ -9,9 +11,14 @@ import com.redhat.qe.tools.SSHCommandResult;
 public class VersionTest extends KatelloCliTestBase{
 	private SSHCommandResult exec_result;
 	
+	@BeforeClass(description="setup", alwaysRun=true)
+	public void setUp(){
+		
+	}
+	
 	@Test(description = "Version - get the version of the server")
 	public void test_Version(){
-		KatelloVersion version_obj= new KatelloVersion();
+		KatelloVersion version_obj= new KatelloVersion(cli_worker);
 		exec_result = version_obj.cli_version(); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).trim().matches(KatelloVersion.REG_VERSION), "Check version output format");
@@ -23,6 +30,10 @@ public class VersionTest extends KatelloCliTestBase{
 		} else {
 			Assert.assertTrue(getOutput(exec_result).trim().contains("CloudForms System Engine"), "Check version output");
 		}
+	}
+
+	@AfterClass(description="destroy", alwaysRun=true)
+	public void tearDown(){
 		
 	}
 }

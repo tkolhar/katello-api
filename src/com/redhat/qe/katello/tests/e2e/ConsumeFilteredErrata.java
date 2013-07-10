@@ -23,7 +23,7 @@ import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups=TngRunGroups.TNG_KATELLO_Content)
+@Test(groups=TngRunGroups.TNG_KATELLO_Content, singleThreaded = true)
 public class ConsumeFilteredErrata extends KatelloCliTestBase {
 	
 	String uid = KatelloUtils.getUniqueID();
@@ -70,32 +70,32 @@ public class ConsumeFilteredErrata extends KatelloCliTestBase {
 	
 	@BeforeClass(description="Generate unique objects")
 	public void setUp() {
-		KatelloUtils.sshOnClient("yum erase -y kangaroo sheep zebra bird rat ferret crab rabbit eagle fish monkey polecat fox seal bat");
+		sshOnClient("yum erase -y kangaroo sheep zebra bird rat ferret crab rabbit eagle fish monkey polecat fox seal bat --disablerepo \\* || true");
 		
-		org = new KatelloOrg(org_name,null);
+		org = new KatelloOrg(this.cli_worker, org_name,null);
 		exec_result = org.cli_create();		              
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		env = new KatelloEnvironment(env_name,null,org_name,KatelloEnvironment.LIBRARY);
+		env = new KatelloEnvironment(this.cli_worker, env_name,null,org_name,KatelloEnvironment.LIBRARY);
 		exec_result = env.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		prov = new KatelloProvider(prov_name,org_name,null,null);
+		prov = new KatelloProvider(this.cli_worker, prov_name,org_name,null,null);
 		exec_result = prov.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		prod = new KatelloProduct(prod_name,org_name,prov_name,null, null, null,null, null);
+		prod = new KatelloProduct(this.cli_worker, prod_name,org_name,prov_name,null, null, null,null, null);
 		exec_result = prod.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		repo = new KatelloRepo(repo_name,org_name,prod_name, REPO_HHOVSEPY_ZOO4, null, null);
+		repo = new KatelloRepo(this.cli_worker, repo_name,org_name,prod_name, REPO_HHOVSEPY_ZOO4, null, null);
 		exec_result = repo.create(true);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
 		exec_result = repo.synchronize();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		condef = new KatelloContentDefinition(condef_name,null,org_name,null);
+		condef = new KatelloContentDefinition(cli_worker, condef_name,null,org_name,null);
 		exec_result = condef.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
@@ -106,21 +106,20 @@ public class ConsumeFilteredErrata extends KatelloCliTestBase {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		// The only way to install ERRATA on System is by system group
-		group = new KatelloSystemGroup(group_name, this.org_name);
+		group = new KatelloSystemGroup(this.cli_worker, group_name, this.org_name);
 		exec_result = group.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		KatelloUtils.sshOnClient("sed -i -e \"s/certFrequency.*/certFrequency = 1/\" /etc/rhsm/rhsm.conf");
-		KatelloUtils.sshOnClient("service rhsmcertd restart");
-		yum_clean();
-		KatelloUtils.sshOnClient("service goferd restart;");
+		sshOnClient("sed -i -e \"s/certFrequency.*/certFrequency = 1/\" /etc/rhsm/rhsm.conf");
+		sshOnClient("service rhsmcertd restart");
+		sshOnClient("service goferd restart;");
 	}
     
 	//@ TODO BUG 955706
 	@Test(description="Consume content from filtered errata")
 	public void test_consumeErrataContent() {
 
-		KatelloContentFilter filter = new KatelloContentFilter(errata_filter, org_name, condef_name);
+		KatelloContentFilter filter = new KatelloContentFilter(cli_worker, errata_filter, org_name, condef_name);
 
 		exec_result = filter.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
@@ -156,18 +155,18 @@ public class ConsumeFilteredErrata extends KatelloCliTestBase {
 		
 		condef.publish(pubview_name,pubview_name,null);
 
-		conview = new KatelloContentView(pubview_name, org_name);
+		conview = new KatelloContentView(cli_worker, pubview_name, org_name);
 		exec_result = conview.promote_view(env_name);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentView.OUT_PROMOTE, this.pubview_name, env_name)), "Content view promote output.");
 		// promoting content view is the same as create changeset, add content view and promote, it is completely legal
 		
-		act_key = new KatelloActivationKey(org_name,env_name,act_key_name,"Act key created");
+		act_key = new KatelloActivationKey(this.cli_worker, org_name,env_name,act_key_name,"Act key created");
 		exec_result = act_key.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");      
 		exec_result = act_key.update_add_content_view(pubview_name);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");      
-		exec_result = new KatelloOrg(this.org_name,null).subscriptions();
+		exec_result = new KatelloOrg(this.cli_worker, this.org_name,null).subscriptions();
 		String zoo4PoolId = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result), 1);
 		exec_result = act_key.update_add_subscription(zoo4PoolId);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
@@ -179,7 +178,7 @@ public class ConsumeFilteredErrata extends KatelloCliTestBase {
 
 		//register client, subscribe to pool
 		rhsm_clean();
-		sys = new KatelloSystem(system_name1, this.org_name, null);
+		sys = new KatelloSystem(this.cli_worker, system_name1, this.org_name, null);
 		exec_result = sys.rhsm_registerForce(act_key_name);
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		
@@ -191,10 +190,10 @@ public class ConsumeFilteredErrata extends KatelloCliTestBase {
 		exec_result = group.add_systems(system_uuid1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		yum_clean();			
+//		yum_clean();			
 		
 		// consume older packages of erratas
-		install_Packages(new String[] {"kangaroo-3.6.6-1", "sheep-1.3.6-1", "zebra-10.0.7-1", "bird-5.1.10-1", "rat-7.7.0-1", "ferret-1.2.0-1", "crab-5.5.1-1", 
+		install_Packages(cli_worker.getClientHostname(),new String[] {"kangaroo-3.6.6-1", "sheep-1.3.6-1", "zebra-10.0.7-1", "bird-5.1.10-1", "rat-7.7.0-1", "ferret-1.2.0-1", "crab-5.5.1-1", 
 				"rabbit-9.8.8-1", "eagle-9.8.9-1", "fish-4.10.2-1", "monkey-2.8.9-1", "polecat-9.4.6-1", "fox-10.8.0-1", "seal-3.10.0-1", "bat-3.10.6-1"});
 		
         StringBuffer installOK = new StringBuffer();
@@ -232,11 +231,6 @@ public class ConsumeFilteredErrata extends KatelloCliTestBase {
 		Assert.assertFalse(exec_result.getExitCode().intValue()==0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("Remote action failed"));
 		
-		verify_PackagesNotAvailable(new String[] {"bat-3.10.7-1", "bird-5.1.11-1", "rat-7.7.2-1", "fox-10.8.2-1", "crab-5.5.4-1", "monkey-2.8.10-1", "eagle-9.8.10-1"});
-	}
-	
-	@AfterClass(description="cleanup RHSM stuff, yum erase packages")
-	public void tearDown(){
-		KatelloUtils.sshOnClient("yum erase -y kangaroo sheep zebra bird rat ferret crab rabbit eagle fish monkey polecat fox seal bat || true");
+		verify_PackagesNotAvailable(cli_worker.getClientHostname(), new String[] {"bat-3.10.7-1", "bird-5.1.11-1", "rat-7.7.2-1", "fox-10.8.2-1", "crab-5.5.4-1", "monkey-2.8.10-1", "eagle-9.8.10-1"});
 	}
 }

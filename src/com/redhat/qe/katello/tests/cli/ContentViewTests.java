@@ -66,41 +66,44 @@ public class ContentViewTests extends KatelloCliTestBase{
 	@BeforeClass(description="Generate unique objects")
 	public void setUp() {
 		
-		org = new KatelloOrg(org_name,null);
+		org = new KatelloOrg(this.cli_worker, org_name,null);
 		exec_result = org.cli_create();		              
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		env = new KatelloEnvironment(env_name,null,org_name,KatelloEnvironment.LIBRARY);
+		env = new KatelloEnvironment(this.cli_worker, env_name,null,org_name,KatelloEnvironment.LIBRARY);
 		exec_result = env.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		prov = new KatelloProvider(prov_name,org_name,null,null);
+		prov = new KatelloProvider(this.cli_worker, prov_name,org_name,null,null);
 		exec_result = prov.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		prod = new KatelloProduct(prod_name,org_name,prov_name,null, null, null,null, null);
+		prod = new KatelloProduct(this.cli_worker, prod_name,org_name,prov_name,null, null, null,null, null);
 		exec_result = prod.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		repo = new KatelloRepo(repo_name,org_name,prod_name,REPO_INECAS_ZOO3, null, null);
+		repo = new KatelloRepo(this.cli_worker, repo_name,org_name,prod_name,REPO_INECAS_ZOO3, null, null);
 		exec_result = repo.create(true);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
-		prod2 = new KatelloProduct(prod_name2,org_name,prov_name,null, null, null,null, null);
+		prod2 = new KatelloProduct(this.cli_worker, prod_name2,org_name,prov_name,null, null, null,null, null);
 		exec_result = prod2.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		repo2 = new KatelloRepo(repo_name2,org_name,prod_name2,PULP_RHEL6_x86_64_REPO, null, null);
+		repo2 = new KatelloRepo(this.cli_worker, repo_name2,org_name,prod_name2,PULP_RHEL6_x86_64_REPO, null, null);
 		exec_result = repo2.create(true);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
+	}
+	
+	@Test(description="initialization goes here")
+	public void init(){
 		exec_result = repo2.synchronize();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		exec_result = repo.synchronize();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		condef = new KatelloContentDefinition(condef_name,null,org_name,null);
+		condef = new KatelloContentDefinition(cli_worker, condef_name,null,org_name,null);
 		exec_result = condef.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
@@ -112,19 +115,19 @@ public class ContentViewTests extends KatelloCliTestBase{
 	
 		
 		// The only way to install ERRATA on System is by system group
-		group = new KatelloSystemGroup(group_name, this.org_name);
+		group = new KatelloSystemGroup(this.cli_worker, group_name, this.org_name);
 		exec_result = group.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		KatelloUtils.sshOnClient("sed -i -e \"s/certFrequency.*/certFrequency = 1/\" /etc/rhsm/rhsm.conf");
-		KatelloUtils.sshOnClient("service rhsmcertd restart");
+		sshOnClient("sed -i -e \"s/certFrequency.*/certFrequency = 1/\" /etc/rhsm/rhsm.conf");
+		sshOnClient("service rhsmcertd restart");
 		yum_clean();
-		KatelloUtils.sshOnClient("service goferd restart;");
+		sshOnClient("service goferd restart;");
 	}
 
-	@Test(description="promote content view to environment",groups={"cfse-cli"})
+	@Test(description="promote content view to environment",groups={"cfse-cli"}, dependsOnMethods={"init"})
 	public void test_promoteContentView() {
-		conview = new KatelloContentView(pubview_name, org_name);
+		conview = new KatelloContentView(cli_worker, pubview_name, org_name);
 		exec_result = conview.promote_view(env_name);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentView.OUT_PROMOTE, this.pubview_name, env_name)), "Content view promote output.");
@@ -133,7 +136,7 @@ public class ContentViewTests extends KatelloCliTestBase{
 	@Test(description = "Adding a published content view to an activation key",groups={"cfse-cli"}, dependsOnMethods={"test_promoteContentView"})
 	public void test_addContentView() {
 		
-		act_key = new KatelloActivationKey(org_name,env_name,act_key_name,"Act key created");
+		act_key = new KatelloActivationKey(this.cli_worker, org_name,env_name,act_key_name,"Act key created");
 		exec_result = act_key.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
 		exec_result = act_key.update_add_content_view(pubview_name);
@@ -165,8 +168,8 @@ public class ContentViewTests extends KatelloCliTestBase{
 	
 	@Test(description = "register client via activation key",groups={"cfse-cli"}, dependsOnMethods={"test_reAddContentViewToKey"})
 	public void test_registerClient(){
-		KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);
-		sys = new KatelloSystem(system_name1, this.org_name, null);
+		sshOnClient(KatelloSystem.RHSM_CLEAN);
+		sys = new KatelloSystem(this.cli_worker, system_name1, this.org_name, null);
 		exec_result = sys.rhsm_registerForce(act_key_name);
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		
@@ -189,7 +192,7 @@ public class ContentViewTests extends KatelloCliTestBase{
 	
 	@Test(description = "List the packages of content view",groups={"cfse-cli"}, dependsOnMethods={"test_registerClient"})
 	public void test_packageList() {
-		KatelloPackage pack = new KatelloPackage(org_name, prod_name, repo_name, pubview_name);
+		KatelloPackage pack = new KatelloPackage(cli_worker, org_name, prod_name, repo_name, pubview_name);
 		
 		exec_result = pack.cli_list();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
@@ -202,18 +205,18 @@ public class ContentViewTests extends KatelloCliTestBase{
 	@Test(description = "Consuming content using an activation key that has a content view definition",groups={"cfse-cli"}, dependsOnMethods={"test_packageList"})
 	public void test_consumeContent()
 	{
-		KatelloUtils.sshOnClient("yum erase -y lion");
+		sshOnClient("yum erase -y lion");
 		yum_clean();
-		install_Packages(new String[] {"lion"});
+		install_Packages(cli_worker.getClientHostname(), new String[] {"lion"});
 		
 		// chack that packages from other repos not in content view are not available
-		exec_result = KatelloUtils.sshOnClient("yum install pulp-agent --disablerepo '*pulp*'");
+		exec_result = sshOnClient("yum install pulp-agent --disablerepo '*pulp*'");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("No package pulp-agent available."));
 	}
 	
 	@Test(description = "List the erratas of content view",groups={"cfse-cli"}, dependsOnMethods={"test_consumeContent"})
 	public void test_errataList() {
-		KatelloErrata errata = new KatelloErrata(org_name, prod_name, repo_name, pubview_name);
+		KatelloErrata errata = new KatelloErrata(cli_worker, org_name, prod_name, repo_name, pubview_name);
 		
 		exec_result = errata.cli_list();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
@@ -223,11 +226,11 @@ public class ContentViewTests extends KatelloCliTestBase{
 	
 	@Test(description = "consume Errata content",groups={"cfse-cli"}, dependsOnMethods={"test_errataList"})
 	public void test_ConsumeErrata(){
-		KatelloUtils.sshOnClient("yum erase -y walrus");
-		exec_result = KatelloUtils.sshOnClient("yum install -y walrus-0.71-1.noarch");
+		sshOnClient("yum erase -y walrus");
+		exec_result = sshOnClient("yum install -y walrus-0.71-1.noarch");
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		KatelloErrata ert = new KatelloErrata(ERRATA_ZOO_SEA, this.org_name, this.prod_name, this.repo_name, null);
+		KatelloErrata ert = new KatelloErrata(cli_worker, ERRATA_ZOO_SEA, this.org_name, this.prod_name, this.repo_name, null);
 		ert.content_view = pubview_name;
 		exec_result = ert.info();
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (errata info --environment Dev)");
@@ -241,11 +244,12 @@ public class ContentViewTests extends KatelloCliTestBase{
 		Assert.assertTrue(getOutput(exec_result).trim().contains("Erratum Install Complete"));
 	}
 
-	@Test(description = "promoted content view delete by changeset from environment, verify that packages are not availble anymore",groups={"cfse-cli"}, dependsOnMethods={"test_ConsumeErrata"})
+	@Test(description = "promoted content view delete by changeset from environment, " +
+			"verify that packages are not availble anymore",groups={"cfse-cli"}, dependsOnMethods={"test_ConsumeErrata"})
 	public void test_deletePromotedContentView() {
-		KatelloUtils.sshOnClient("yum erase -y walrus");
+		sshOnClient("yum erase -y walrus");
 		
-		changeset2 = new KatelloChangeset(changeset_name2,org_name,env_name, true);
+		changeset2 = new KatelloChangeset(cli_worker, changeset_name2,org_name,env_name, true);
 		exec_result = changeset2.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		exec_result = changeset2.update_addView(pubview_name);
@@ -254,23 +258,23 @@ public class ContentViewTests extends KatelloCliTestBase{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		yum_clean();
 		
-		verify_PackagesNotAvailable(new String[] {"walrus"});
+		verify_PackagesNotAvailable(cli_worker.getClientHostname(), new String[] {"walrus"});
 	}
 
 	//@ TODO bug 956690
 	@Test(description = "removed content view on previous scenario promote back by changeset to environment, verify that packages are already availble",
 			groups={"cfse-cli"}, dependsOnMethods={"test_deletePromotedContentView"})
 	public void test_RePromoteContentView() {
-		KatelloUtils.sshOnClient("yum erase -y walrus");
+		sshOnClient("yum erase -y walrus");
 		
 		exec_result = conview.promote_view(env_name);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentView.OUT_PROMOTE, this.pubview_name, env_name)), "Content view promote output.");
 		yum_clean();
-		install_Packages(new String[] {"walrus"});
+		install_Packages(cli_worker.getClientHostname(), new String[] {"walrus"});
 	}
 	
-	@AfterClass
+	@AfterClass(alwaysRun=true)
 	public void tearDown() {
 		exec_result = org.delete();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");

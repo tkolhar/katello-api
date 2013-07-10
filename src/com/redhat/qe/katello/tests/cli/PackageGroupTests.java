@@ -1,10 +1,8 @@
 package com.redhat.qe.katello.tests.cli;
 
 import java.util.logging.Logger;
-
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
@@ -45,30 +43,30 @@ public class PackageGroupTests extends KatelloCliTestBase {
 		env_name = "env"+uid;	
 		
 		// Create org:
-		KatelloOrg org = new KatelloOrg(this.org_name,"Package tests");
+		KatelloOrg org = new KatelloOrg(this.cli_worker, this.org_name,"Package tests");
 		exec_result = org.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		// Create user:
-		KatelloUser user = new KatelloUser(user_name, "root@localhost", KatelloUser.DEFAULT_USER_PASS, false);
+		KatelloUser user = new KatelloUser(cli_worker, user_name, "root@localhost", KatelloUser.DEFAULT_USER_PASS, false);
 		exec_result = user.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		// Create provider:
-		KatelloProvider prov = new KatelloProvider(provider_name, org_name, "Package provider", null);
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, provider_name, org_name, "Package provider", null);
 		exec_result = prov.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		// Create product:
-		KatelloProduct prod = new KatelloProduct(product_name, org_name, provider_name, null, null, null, null, null);
+		KatelloProduct prod = new KatelloProduct(this.cli_worker, product_name, org_name, provider_name, null, null, null, null, null);
 		exec_result = prod.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	
-		KatelloRepo repo = new KatelloRepo(repo_name, org_name, product_name, REPO_INECAS_ZOO3, null, null);
+		KatelloRepo repo = new KatelloRepo(this.cli_worker, repo_name, org_name, product_name, REPO_INECAS_ZOO3, null, null);
 		exec_result = repo.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		KatelloEnvironment env = new KatelloEnvironment(env_name, null, org_name, KatelloEnvironment.LIBRARY);
+		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, env_name, null, org_name, KatelloEnvironment.LIBRARY);
 		exec_result = env.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
@@ -77,11 +75,11 @@ public class PackageGroupTests extends KatelloCliTestBase {
 	
 	@Test(description="packagegroup list", groups = {"cli-packagegroup"}, enabled=true)
 	public void test_packageGroupList() {
-		KatelloRepo repo = new KatelloRepo(repo_name, org_name, product_name, REPO_INECAS_ZOO3, null, null);
+		KatelloRepo repo = new KatelloRepo(this.cli_worker, repo_name, org_name, product_name, REPO_INECAS_ZOO3, null, null);
 		exec_result = repo.info();
 		repo_id = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
 		
-		KatelloPackageGroup packGr = new KatelloPackageGroup(null, null, null);
+		KatelloPackageGroup packGr = new KatelloPackageGroup(cli_worker, null, null, null);
 		
 		exec_result = packGr.cli_list(repo_id);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
@@ -97,7 +95,7 @@ public class PackageGroupTests extends KatelloCliTestBase {
 		packGr.name = "mammals";
 		assert_packageGroupInfo(packGr, repo_id);
 	}
-	
+
 	private void assert_packageGroupInfo(KatelloPackageGroup pack, String repoId){
 		SSHCommandResult res;
 		res = pack.cli_info(repoId);

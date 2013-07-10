@@ -73,27 +73,27 @@ public class SystemTests extends KatelloCliTestBase{
 		this.contentViewRhel6 = "rhel6-x86_64-"+uid;
 		this.systemNameAwesome = "awesome-system-"+uid;
 		
-		KatelloOrg org = new KatelloOrg(this.orgNameRhsms, null);
+		KatelloOrg org = new KatelloOrg(this.cli_worker, this.orgNameRhsms, null);
 		exec_result = org.cli_create();
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
 
-		org = new KatelloOrg(this.orgNameMain, null);
+		org = new KatelloOrg(this.cli_worker, this.orgNameMain, null);
 		exec_result = org.cli_create();
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
 
-		exec_result = new KatelloOrg(this.orgNameNoEnvs, null).cli_create();
+		exec_result = new KatelloOrg(this.cli_worker, this.orgNameNoEnvs, null).cli_create();
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
 
-		exec_result = new KatelloOrg(this.orgNameAwesome,null).cli_create();
+		exec_result = new KatelloOrg(this.cli_worker, this.orgNameAwesome,null).cli_create();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 
-		KatelloUser user = new KatelloUser(this.user, "root@localhost", KatelloUser.DEFAULT_USER_PASS, false);
+		KatelloUser user = new KatelloUser(cli_worker, this.user, "root@localhost", KatelloUser.DEFAULT_USER_PASS, false);
 		exec_result = user.cli_create();
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (user create)");
-		KatelloUserRole role = new KatelloUserRole(this.user_role, "not delete to system");
+		KatelloUserRole role = new KatelloUserRole(cli_worker, this.user_role, "not delete to system");
 		exec_result = role.create();
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (user_role create)");
-		KatelloPermission perm = new KatelloPermission(perm_name, this.orgNameMain, "environments", null,
+		KatelloPermission perm = new KatelloPermission(cli_worker, perm_name, this.orgNameMain, "environments", null,
 				"update_systems,read_contents,read_systems,register_systems", this.user_role);
 		exec_result = perm.create();
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (perm create)");
@@ -114,13 +114,13 @@ public class SystemTests extends KatelloCliTestBase{
 		this.envName_Test = "Test-"+uid;
 		this.envName_Prod = "Prod-"+uid;
 		
-		exec_result = new KatelloEnvironment(envName_Dev, null, this.orgNameRhsms, KatelloEnvironment.LIBRARY).cli_create();
+		exec_result = new KatelloEnvironment(this.cli_worker, envName_Dev, null, this.orgNameRhsms, KatelloEnvironment.LIBRARY).cli_create();
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
-		exec_result = new KatelloEnvironment(envName_Dev, null, orgNameMain, KatelloEnvironment.LIBRARY).cli_create();
+		exec_result = new KatelloEnvironment(this.cli_worker, envName_Dev, null, orgNameMain, KatelloEnvironment.LIBRARY).cli_create();
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
-		exec_result = new KatelloEnvironment(envName_Test, null, orgNameMain, KatelloEnvironment.LIBRARY).cli_create();
+		exec_result = new KatelloEnvironment(this.cli_worker, envName_Test, null, orgNameMain, KatelloEnvironment.LIBRARY).cli_create();
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
-		exec_result = new KatelloEnvironment(envName_Prod, null, orgNameMain, KatelloEnvironment.LIBRARY).cli_create();
+		exec_result = new KatelloEnvironment(this.cli_worker, envName_Prod, null, orgNameMain, KatelloEnvironment.LIBRARY).cli_create();
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
 	}
 
@@ -128,7 +128,7 @@ public class SystemTests extends KatelloCliTestBase{
 			groups={"cfse-cli","headpin-cli","rhsmRegs"})
 	public void test_rhsm_RegLibraryOnly(){
 		rhsm_clean();
-		KatelloSystem sys = new KatelloSystem(this.systemNameNoEnvReg, this.orgNameNoEnvs, null);
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, this.systemNameNoEnvReg, this.orgNameNoEnvs, null);
 		exec_result = sys.rhsm_register(); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		Assert.assertTrue(exec_result.getStdout().trim().contains(KatelloSystem.OUT_CREATE),
@@ -142,10 +142,10 @@ public class SystemTests extends KatelloCliTestBase{
 	public void test_rhsm_RegOneEnvOnly(){
 		rhsm_clean();
 		// Create the 1st env.
-		KatelloEnvironment env = new KatelloEnvironment(this.envName_Dev, null, this.orgNameNoEnvs, KatelloEnvironment.LIBRARY);
+		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, this.envName_Dev, null, this.orgNameNoEnvs, KatelloEnvironment.LIBRARY);
 		exec_result = env.cli_create();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
-		KatelloSystem sys = new KatelloSystem(this.systemNameNoEnvReg, this.orgNameNoEnvs, null);
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, this.systemNameNoEnvReg, this.orgNameNoEnvs, null);
 		exec_result = sys.rhsm_register(); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 255, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloSystem.ERR_RHSM_REG_MULTI_ENV,this.orgNameNoEnvs)));
@@ -155,7 +155,7 @@ public class SystemTests extends KatelloCliTestBase{
 			groups={"cfse-cli","headpin-cli","rhsmRegs"})
 	public void test_rhsm_AlreadyReg(){
 		rhsm_clean();
-		KatelloSystem sys = new KatelloSystem(this.systemNameRegOnly+"-alreadyReg", this.orgNameRhsms, this.envName_Dev);
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, this.systemNameRegOnly+"-alreadyReg", this.orgNameRhsms, this.envName_Dev);
 		exec_result = sys.rhsm_register();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		sys.setName(this.systemNameRegOnly);
@@ -170,7 +170,7 @@ public class SystemTests extends KatelloCliTestBase{
 			groups={"cfse-cli","headpin-cli","rhsmRegs"})
 	public void test_rhsm_ForceReg(){
 		rhsm_clean();
-		KatelloSystem sys = new KatelloSystem("sys-ForceReg-"+KatelloUtils.getUniqueID(), this.orgNameRhsms, this.envName_Dev);
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, "sys-ForceReg-"+KatelloUtils.getUniqueID(), this.orgNameRhsms, this.envName_Dev);
 		exec_result = sys.rhsm_register();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code (register - 1st attempt pass)");
 		
@@ -191,8 +191,8 @@ public class SystemTests extends KatelloCliTestBase{
 		rhsm_clean();
 
 		// Create the 2nd env.
-		new KatelloEnvironment(this.envName_Test, null, this.orgNameRhsms, KatelloEnvironment.LIBRARY).cli_create();
-		KatelloSystem sys = new KatelloSystem(system, this.orgNameRhsms, null);
+		new KatelloEnvironment(this.cli_worker, this.envName_Test, null, this.orgNameRhsms, KatelloEnvironment.LIBRARY).cli_create();
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, system, this.orgNameRhsms, null);
 		exec_result = sys.rhsm_register(); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 255, "Check - return code");
 		Assert.assertTrue(exec_result.getStderr().trim().contains(
@@ -207,7 +207,7 @@ public class SystemTests extends KatelloCliTestBase{
 		String system = "rhsm-env-"+uid;
 		rhsm_clean();
 
-		KatelloSystem sys = new KatelloSystem(system, this.orgNameRhsms, this.envName_Test);
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, system, this.orgNameRhsms, this.envName_Test);
 		exec_result = sys.rhsm_register(); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		Assert.assertTrue(exec_result.getStdout().trim().contains(KatelloSystem.OUT_CREATE),
@@ -221,7 +221,7 @@ public class SystemTests extends KatelloCliTestBase{
 		String system = "localhost-"+uid;
 		rhsm_clean();
 
-		KatelloSystem sys = new KatelloSystem(system, this.orgNameRhsms, this.envName_Dev);
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, system, this.orgNameRhsms, this.envName_Dev);
 		exec_result = sys.rhsm_register(); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		Assert.assertTrue(exec_result.getStdout().trim().contains(KatelloSystem.OUT_CREATE),
@@ -230,14 +230,14 @@ public class SystemTests extends KatelloCliTestBase{
 
 		rhsm_clean_only();
 
-		sys = new KatelloSystem(system, this.orgNameRhsms, this.envName_Test);
+		sys = new KatelloSystem(this.cli_worker, system, this.orgNameRhsms, this.envName_Test);
 		exec_result = sys.rhsm_register(); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		Assert.assertTrue(exec_result.getStdout().trim().contains(KatelloSystem.OUT_CREATE),
 				"Check - output (success)");
 
-		sys = new KatelloSystem(null, this.orgNameRhsms, null);
-		KatelloCli cli = new KatelloCli("system list --org "+this.orgNameRhsms+" -v | grep \""+system+"\" | wc -l", null);
+		sys = new KatelloSystem(this.cli_worker, null, this.orgNameRhsms, null);
+		KatelloCli cli = new KatelloCli("system list --org "+this.orgNameRhsms+" -v | grep \""+system+"\" | wc -l", null,null,cli_worker.getClientHostname());
 		exec_result = cli.run();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code (grep: `system list --org`)");
 		Assert.assertTrue(exec_result.getStdout().replaceAll("\n", "").trim().equals("2"), "Check - 2 systems are registered with the same name");
@@ -250,7 +250,7 @@ public class SystemTests extends KatelloCliTestBase{
 		String system = "localhost-"+uid;
 		rhsm_clean();
 
-		KatelloSystem sys = new KatelloSystem(system, this.orgNameMain, this.envName_Prod);
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, system, this.orgNameMain, this.envName_Prod);
 		exec_result = sys.rhsm_register(); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 
@@ -278,10 +278,10 @@ public class SystemTests extends KatelloCliTestBase{
 	public void test_deleteSystemInvalidCredentials(){
 		String uid = KatelloUtils.getUniqueID();
 		String system = "localhost-"+uid;
-		KatelloUser invaliduser = new KatelloUser("name", "email@redhat.com", "password", false);
+		KatelloUser invaliduser = new KatelloUser(cli_worker, "name", "email@redhat.com", "password", false);
 		rhsm_clean();
 
-		KatelloSystem sys = new KatelloSystem(system, this.orgNameMain, this.envName_Prod);
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, system, this.orgNameMain, this.envName_Prod);
 		exec_result = sys.rhsm_register(); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 
@@ -303,10 +303,10 @@ public class SystemTests extends KatelloCliTestBase{
 	public void test_deleteSystemInvalidAccess(){
 		String uid = KatelloUtils.getUniqueID();
 		String system = "localhost-"+uid;
-		KatelloUser user = new KatelloUser(this.user, "root@localhost", KatelloUser.DEFAULT_USER_PASS, false);
+		KatelloUser user = new KatelloUser(cli_worker, this.user, "root@localhost", KatelloUser.DEFAULT_USER_PASS, false);
 		rhsm_clean();
 
-		KatelloSystem sys = new KatelloSystem(system, this.orgNameMain, this.envName_Prod);
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, system, this.orgNameMain, this.envName_Prod);
 		exec_result = sys.rhsm_register(); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 
@@ -329,7 +329,7 @@ public class SystemTests extends KatelloCliTestBase{
 		this.promoteContent(this.orgNameMain, this.envName_Dev);
 		rhsm_clean();
 
-		KatelloSystem sys = new KatelloSystem(this.systemNameRegOnly+"-subscribed", this.orgNameMain, this.envName_Dev);
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, this.systemNameRegOnly+"-subscribed", this.orgNameMain, this.envName_Dev);
 		exec_result = sys.rhsm_register(); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 
@@ -348,12 +348,12 @@ public class SystemTests extends KatelloCliTestBase{
 			groups={"cfse-cli"})
 	public void test_reRegisterSystem(){
 		rhsm_clean();
-		KatelloSystem sys = new KatelloSystem("localhost-"+KatelloUtils.getUniqueID(), this.orgNameMain, this.envName_Dev);
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, "localhost-"+KatelloUtils.getUniqueID(), this.orgNameMain, this.envName_Dev);
 		exec_result = sys.rhsm_register();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 
 		rhsm_clean_only();
-		sys = new KatelloSystem(this.systemNameRegOnly+"-subscribed", this.orgNameMain, this.envName_Dev);
+		sys = new KatelloSystem(this.cli_worker, this.systemNameRegOnly+"-subscribed", this.orgNameMain, this.envName_Dev);
 		exec_result = sys.rhsm_register();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		Assert.assertTrue(exec_result.getStdout().trim().contains(KatelloSystem.OUT_CREATE),
@@ -366,7 +366,7 @@ public class SystemTests extends KatelloCliTestBase{
 		String system = "rhsm-rename-"+uid;
 		rhsm_clean();
 
-		KatelloSystem sys = new KatelloSystem(system, this.orgNameMain, this.envName_Prod);
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, system, this.orgNameMain, this.envName_Prod);
 		exec_result = sys.rhsm_register(); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 
@@ -388,7 +388,7 @@ public class SystemTests extends KatelloCliTestBase{
 	public void test_system_customInfo_add(){
 		rhsm_clean();
 		
-		KatelloSystem sys = new KatelloSystem(this.systemNameCustomInfo, this.orgNameMain, this.envName_Dev);
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, this.systemNameCustomInfo, this.orgNameMain, this.envName_Dev);
 		exec_result = sys.rhsm_register();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		exec_result = sys.add_custom_info("custom-key","custom-value");
@@ -409,7 +409,7 @@ public class SystemTests extends KatelloCliTestBase{
 			dependsOnMethods={"test_system_customInfo_add"}, dependsOnGroups={"rhsmRegs"})
 	public void test_system_customInfo_update(){
 		
-		KatelloSystem sys = new KatelloSystem(this.systemNameCustomInfo, this.orgNameMain, this.envName_Dev);
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, this.systemNameCustomInfo, this.orgNameMain, this.envName_Dev);
 		exec_result = sys.update_custom_info("custom-key", "updated-value");
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(
@@ -426,7 +426,7 @@ public class SystemTests extends KatelloCliTestBase{
 	@Test(description="65037d2b-a924-4f36-8e72-25056d80d097",groups={"cfse-cli","headpin-cli","system-customInfo"},
 			dependsOnMethods={"test_system_customInfo_update"}, dependsOnGroups={"rhsmRegs"})
 	public void test_system_customInfo_remove(){
-		KatelloSystem sys = new KatelloSystem(this.systemNameCustomInfo, this.orgNameMain, this.envName_Dev);
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, this.systemNameCustomInfo, this.orgNameMain, this.envName_Dev);
 		exec_result = sys.remove_custom_info("custom-key");
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(
@@ -442,7 +442,7 @@ public class SystemTests extends KatelloCliTestBase{
 			dependsOnGroups={"rhsmRegs"})
 	public void test_system_customInfo_addVariations(String keyname,String value,Integer exitCode,String output){
 		
-		KatelloSystem sys = new KatelloSystem(this.systemNameCustomInfo, this.orgNameMain, this.envName_Dev);
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, this.systemNameCustomInfo, this.orgNameMain, this.envName_Dev);
 		exec_result= sys.add_custom_info(keyname,value);
 		Assert.assertTrue(exec_result.getExitCode().intValue() == exitCode.intValue(), "Check - return code");
 		if(exec_result.getExitCode().intValue() == 0 ){ //
@@ -462,7 +462,7 @@ public class SystemTests extends KatelloCliTestBase{
 		String sys_name = "sys-pdf-report-" + uid;
 		rhsm_clean();
 		
-		KatelloSystem sys = new KatelloSystem(sys_name, this.orgNameMain, this.envName_Prod);
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, sys_name, this.orgNameMain, this.envName_Prod);
 		exec_result = sys.rhsm_register();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		exec_result = sys.report("pdf");
@@ -472,7 +472,7 @@ public class SystemTests extends KatelloCliTestBase{
 	@Test(description = "List all the releases for an Organisation",groups={"cfse-cli","headpin-cli"})
 	public void test_Release_System(){
 		String sys_name = "sys-release-" + KatelloUtils.getUniqueID();
-		KatelloSystem sys = new KatelloSystem(sys_name, this.orgNameMain, this.envName_Prod);
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, sys_name, this.orgNameMain, this.envName_Prod);
 		exec_result = sys.rhsm_registerForce();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		exec_result = sys.releases();
@@ -484,7 +484,7 @@ public class SystemTests extends KatelloCliTestBase{
 		rhsm_clean();
 		String sys_name = "sys-facts-" + KatelloUtils.getUniqueID();
 
-		KatelloSystem sys = new KatelloSystem(sys_name, this.orgNameMain, this.envName_Prod);
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, sys_name, this.orgNameMain, this.envName_Prod);
 		exec_result = sys.rhsm_register();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		exec_result = sys.facts();
@@ -497,7 +497,7 @@ public class SystemTests extends KatelloCliTestBase{
 		String uid = KatelloUtils.getUniqueID();
 		String sys_name = "sys-report-" + uid;
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
-		KatelloSystem sys = new KatelloSystem(sys_name, this.orgNameMain, this.envName_Prod);
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, sys_name, this.orgNameMain, this.envName_Prod);
 		exec_result = sys.rhsm_register();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		exec_result = sys.report(null);
@@ -516,17 +516,17 @@ public class SystemTests extends KatelloCliTestBase{
 	@Test(description = "ad3b9f0c-fb35-4c06-9156-60b27337583d", 
 			groups={"cfse-cli","manifestImported"})
 	public void test_listReleasesAllRhel6(){
-		KatelloUtils.scpOnClient("data/"+KatelloProvider.MANIFEST_2SUBSCRIPTIONS, "/tmp"); // send manifest zip to the client's /tmp dir.
+		KatelloUtils.scpOnClient(cli_worker.getClientHostname(), "data/"+KatelloProvider.MANIFEST_2SUBSCRIPTIONS, "/tmp"); // send manifest zip to the client's /tmp dir.
 		
-		exec_result = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, this.orgNameAwesome, null, null).import_manifest(
+		exec_result = new KatelloProvider(this.cli_worker, KatelloProvider.PROVIDER_REDHAT, this.orgNameAwesome, null, null).import_manifest(
 				"/tmp/"+KatelloProvider.MANIFEST_2SUBSCRIPTIONS, false); // import manifest
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
-		exec_result = new KatelloProduct(KatelloProduct.RHEL_SERVER,this.orgNameAwesome,KatelloProvider.PROVIDER_REDHAT,
+		exec_result = new KatelloProduct(this.cli_worker, KatelloProduct.RHEL_SERVER,this.orgNameAwesome,KatelloProvider.PROVIDER_REDHAT,
 				null,null,null,null,null).repository_set_enable(KatelloProduct.REPOSET_RHEL6_RPMS);
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
-		exec_result = new KatelloEnvironment("Testing", null, this.orgNameAwesome, KatelloEnvironment.LIBRARY).cli_create();
+		exec_result = new KatelloEnvironment(this.cli_worker, "Testing", null, this.orgNameAwesome, KatelloEnvironment.LIBRARY).cli_create();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
-		exec_result = new KatelloRepo(null,this.orgNameAwesome,KatelloProduct.RHEL_SERVER,
+		exec_result = new KatelloRepo(this.cli_worker, null,this.orgNameAwesome,KatelloProduct.RHEL_SERVER,
 				null,null,null).custom_repoListByRegexp("^Name.*x86_64.*", true);
 		// parse repos to be enabled and used
 		StringTokenizer toks = new StringTokenizer(getOutput(exec_result),"\n");
@@ -535,14 +535,14 @@ public class SystemTests extends KatelloCliTestBase{
 			repos64bit.addElement(toks.nextToken().trim());
 		} // now we have the repos. Let's enable it and add to content view definition.
 
-		KatelloChangeset cs1 = new KatelloChangeset("cs1", this.orgNameAwesome, "Testing");
+		KatelloChangeset cs1 = new KatelloChangeset(cli_worker, "cs1", this.orgNameAwesome, "Testing");
 		exec_result = cs1.create();// changeset is unique within Org - I hope so :D
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
-		KatelloContentDefinition contDef1 = new KatelloContentDefinition("cvd1", null, orgNameAwesome, null);
+		KatelloContentDefinition contDef1 = new KatelloContentDefinition(cli_worker, "cvd1", null, orgNameAwesome, null);
 		exec_result = contDef1.create();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");		
 		for(String repo: repos64bit){
-			exec_result = new KatelloRepo(repo, orgNameAwesome, KatelloProduct.RHEL_SERVER, null, null, null).enable();
+			exec_result = new KatelloRepo(this.cli_worker, repo, orgNameAwesome, KatelloProduct.RHEL_SERVER, null, null, null).enable();
 			Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code"); // enable
 			exec_result = contDef1.add_repo(KatelloProduct.RHEL_SERVER, repo);
 			Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code"); // add to content definition
@@ -555,7 +555,7 @@ public class SystemTests extends KatelloCliTestBase{
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		
 		// RHSM register the system
-		KatelloSystem sys =  new KatelloSystem(systemNameAwesome, this.orgNameAwesome, "Testing");
+		KatelloSystem sys =  new KatelloSystem(this.cli_worker, systemNameAwesome, this.orgNameAwesome, "Testing");
 		exec_result = sys.rhsm_registerForce();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		exec_result = sys.releases();
@@ -578,7 +578,7 @@ public class SystemTests extends KatelloCliTestBase{
 	public void test_rhsmRegWithOptionRelease(){
 		String release = "6.4";
 		
-		KatelloSystem sys =  new KatelloSystem(systemNameAwesome, this.orgNameAwesome, "Testing");
+		KatelloSystem sys =  new KatelloSystem(this.cli_worker, systemNameAwesome, this.orgNameAwesome, "Testing");
 		exec_result = sys.rhsm_registerForce_release(release, true, true); // forced - as the system most probably will be registered - previous scenario.
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		exec_result = sys.info();
@@ -596,7 +596,7 @@ public class SystemTests extends KatelloCliTestBase{
 	@Test(description="list system packages")
 	public void test_listPackages() {
 		String sysname = "system-" + KatelloUtils.getUniqueID();
-		KatelloSystem sys =  new KatelloSystem(sysname, orgNameMain, envName_Prod);
+		KatelloSystem sys =  new KatelloSystem(this.cli_worker, sysname, orgNameMain, envName_Prod);
 		exec_result = sys.rhsm_register();
 		exec_result = sys.list_packages();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - exit code (list packages)");
@@ -623,36 +623,36 @@ public class SystemTests extends KatelloCliTestBase{
 		String repo_name = "zooRepo-"+uid;
 		
 		// Create provider:
-		KatelloProvider prov = new KatelloProvider(provider_name, orgNameMain,
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, provider_name, orgNameMain,
 				"Package provider", null);
 		exec_result = prov.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
 		// Create product:
-		KatelloProduct prod = new KatelloProduct(product_name, orgNameMain,
+		KatelloProduct prod = new KatelloProduct(this.cli_worker, product_name, orgNameMain,
 				provider_name, null, null, null, null, null);
 		exec_result = prod.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
-		KatelloRepo repo = new KatelloRepo(repo_name, orgNameMain, product_name, REPO_INECAS_ZOO3, null, null);
+		KatelloRepo repo = new KatelloRepo(this.cli_worker, repo_name, orgNameMain, product_name, REPO_INECAS_ZOO3, null, null);
 		exec_result = repo.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
 		// promote product to the env prod.
-		KatelloUtils.promoteProductToEnvironment(orgNameMain, product_name, envName_Prod);
+		KatelloUtils.promoteProductToEnvironment(cli_worker, orgNameMain, product_name, envName_Prod);
 
 		exec_result = repo.synchronize();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
-		KatelloUtils.promoteProductToEnvironment(orgNameMain, product_name, envName_Prod);
+		KatelloUtils.promoteProductToEnvironment(cli_worker, orgNameMain, product_name, envName_Prod);
 	}
 
 	@AfterClass(description="erase registration made; cleanup",alwaysRun=true)
 	public void tearDown(){
 		rhsm_clean();
-		exec_result = new KatelloOrg(this.orgNameAwesome, null).cli_info();
+		exec_result = new KatelloOrg(this.cli_worker, this.orgNameAwesome, null).cli_info();
 		if(exec_result.getExitCode().intValue()==0){
-			new KatelloOrg(this.orgNameAwesome, null).delete(); // remove the org with that manifest - enable the manifest to be reused.
+			new KatelloOrg(this.cli_worker, this.orgNameAwesome, null).delete(); // remove the org with that manifest - enable the manifest to be reused.
 		}
 	}
 }

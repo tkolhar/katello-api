@@ -1,0 +1,65 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+
+<suite name="Katello Test Suite" parallel="classes" thread-count="20">
+	<test name="CLI_Tests" order-by-instances="true">
+		<packages>
+			<package name="com.redhat.qe.katello.tests.cli"/>
+		</packages>
+	</test>
+
+        <test name="DEBUG" order-by-instances="true">
+                <classes>
+                        <class name="com.redhat.qe.katello.tests.e2e.SetupServers"/>
+                        <class name="com.redhat.qe.katello.tests.e2e.BPMTests"/>
+                        <class name="com.redhat.qe.katello.tests.e2e.RhsmOnlyPermissions"/>
+                        <class name="com.redhat.qe.katello.tests.e2e.OrgDeletion"/>
+                        <class name="com.redhat.qe.katello.tests.e2e.SystemsReport"/>
+                        <class name="com.redhat.qe.katello.tests.e2e.MultyManifest"/>
+                        <class name="com.redhat.qe.katello.tests.e2e.SystemEnvironments"/>
+                </classes>
+        </test>
+
+
+	<test name="E2E_Tests" order-by-instances="true">
+		<classes>
+			<class name="com.redhat.qe.katello.tests.e2e.SetupServers"/>
+			<class name="com.redhat.qe.katello.tests.e2e.BPMTests"/>
+			<class name="com.redhat.qe.katello.tests.e2e.RhsmOnlyPermissions"/>
+			<class name="com.redhat.qe.katello.tests.e2e.ConsumeCombineContent"/>
+			<class name="com.redhat.qe.katello.tests.e2e.ConsumeFilteredPackage"/>
+			<class name="com.redhat.qe.katello.tests.e2e.ConsumeFilteredErrata"/>
+			<class name="com.redhat.qe.katello.tests.e2e.ConsumeFilteredPackageGroup"/>
+			<class name="com.redhat.qe.katello.tests.e2e.CRLRegen"/>
+			<class name="com.redhat.qe.katello.tests.e2e.MultyManifest"/>
+			<class name="com.redhat.qe.katello.tests.e2e.ConsumerAccess"/>
+			<class name="com.redhat.qe.katello.tests.e2e.ContentViewRefreshTests"/>
+			<class name="com.redhat.qe.katello.tests.e2e.ProductsSameName"/>
+			<class name="com.redhat.qe.katello.tests.e2e.StackedSubscriptions"/>
+			<class name="com.redhat.qe.katello.tests.e2e.RhsmAkWithSubscription"/>
+			<class name="com.redhat.qe.katello.tests.e2e.OrgDeletion"/>
+			<class name="com.redhat.qe.katello.tests.e2e.SystemErratas"/>
+			<class name="com.redhat.qe.katello.tests.e2e.SystemEnvironments"/>
+			<class name="com.redhat.qe.katello.tests.e2e.SystemListAccess"/>
+			<class name="com.redhat.qe.katello.tests.e2e.SystemsReport"/>
+<!--
+	SECTION OF BROKEN TESTS
+			<class name="com.redhat.qe.katello.tests.e2e.OrgReCreate"/>
+			<class name="com.redhat.qe.katello.tests.e2e.PackagesWithGPGKey"/>
+			<class name="com.redhat.qe.katello.tests.e2e.PromoteErrata"/>
+			<class name="com.redhat.qe.katello.tests.e2e.PromoteChangeset"/>
+			<class name="com.redhat.qe.katello.tests.e2e.PromotePackageWithDashes"/>
+			<class name="com.redhat.qe.katello.tests.e2e.PromoteProductToDifferentEnvs"/>
+			<class name="com.redhat.qe.katello.tests.e2e.PromoteWithFilters"/>
+			<class name="com.redhat.qe.katello.tests.e2e.RepoSyncByPlan"/>
+			<class name="com.redhat.qe.katello.tests.e2e.RepoSyncProgress"/>
+-->
+		</classes>
+	</test>
+
+	<test name="Longrun_Tests">
+		<packages>
+			<package name="com.redhat.qe.katello.tests.longrun"/>
+		</packages>
+	</test>
+
+</suite>

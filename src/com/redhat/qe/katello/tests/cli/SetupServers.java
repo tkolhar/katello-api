@@ -3,7 +3,6 @@ package com.redhat.qe.katello.tests.cli;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
-
 import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.DeltaCloudInstance;
 import com.redhat.qe.katello.common.KatelloUtils;
@@ -32,9 +31,6 @@ public class SetupServers extends KatelloCliTestBase {
 			System.setProperty("katello.server.hostname", server.getHostName());
 			System.setProperty("katello.client.hostname", server.getHostName());
 		}
-		KatelloUtils.disableYumRepo("beaker");
-		KatelloUtils.disableYumRepo("epel");
-		KatelloUtils.disableYumRepo("katello-tools");
 	}
 	
 	@AfterSuite(alwaysRun=true)
@@ -43,9 +39,6 @@ public class SetupServers extends KatelloCliTestBase {
 			KatelloUtils.destroyDeltaCloudMachine(server);
 			KatelloUtils.destroyDeltaCloudMachine(client);
 		}
-		KatelloUtils.enableYumRepo("beaker");
-		KatelloUtils.enableYumRepo("epel");
-		KatelloUtils.enableYumRepo("katello-tools");
 	}
 
 }

@@ -1,6 +1,8 @@
 package com.redhat.qe.katello.base.obj;
 
 import javax.management.Attribute;
+
+import com.redhat.qe.katello.base.threading.KatelloCliWorker;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class KatelloPermission extends _KatelloObject{
@@ -21,7 +23,7 @@ public class KatelloPermission extends _KatelloObject{
 	String verbs;
 	String user_role;
 	
-	public KatelloPermission(String pName, String pOrg,
+	public KatelloPermission(KatelloCliWorker kcr, String pName, String pOrg,
 			String pScope, String pTags, String pVerbs, String pUserRole){
 		this.name = pName;
 		this.org = pOrg;
@@ -29,6 +31,7 @@ public class KatelloPermission extends _KatelloObject{
 		this.tags = pTags;
 		this.verbs = pVerbs;
 		this.user_role = pUserRole;
+		this.kcr = kcr;
 	}
 	
 	public SSHCommandResult create(){

@@ -20,7 +20,7 @@ public class OrgTests extends KatelloCliTestBase {
 		orgName = getText("org.create.name") + uid;
 		orgDescr = getText("org.create.description") + uid;
 		
-		KatelloOrg org = new KatelloOrg(orgName, orgDescr);
+		KatelloOrg org = new KatelloOrg(this.cli_worker, orgName, orgDescr);
 		
 		SSHCommandResult res = org.cli_create();
 		
@@ -32,7 +32,7 @@ public class OrgTests extends KatelloCliTestBase {
 	public void test_updateOrg() {
 		orgNewDescr = getText("org.update.description");
 		
-		KatelloOrg org = new KatelloOrg(orgName, null);
+		KatelloOrg org = new KatelloOrg(this.cli_worker, orgName, null);
 		
 		SSHCommandResult res = org.update(orgNewDescr);
 		
@@ -43,7 +43,7 @@ public class OrgTests extends KatelloCliTestBase {
 	@Test(description = "Retrieves org", dependsOnMethods = {"test_updateOrg"}, groups={"cfse-cli"})
 	public void test_readOrg() {
 		
-		KatelloOrg org = new KatelloOrg(orgName, null);
+		KatelloOrg org = new KatelloOrg(this.cli_worker, orgName, null);
 		
 		SSHCommandResult res = org.cli_info();
 		
@@ -57,7 +57,7 @@ public class OrgTests extends KatelloCliTestBase {
 	@Test(description = "Lists orgs", dependsOnMethods = {"test_readOrg"}, groups={"cfse-cli"})
 	public void test_listOrg() {
 		
-		KatelloOrg org = new KatelloOrg(orgName, null);
+		KatelloOrg org = new KatelloOrg(this.cli_worker, orgName, null);
 		
 		SSHCommandResult res = org.cli_list();
 		
@@ -71,7 +71,7 @@ public class OrgTests extends KatelloCliTestBase {
 	@Test(description = "Deletes org", dependsOnMethods = {"test_listOrg"}, groups={"cfse-cli"})
 	public void test_deleteOrg() {
 		
-		KatelloOrg org = new KatelloOrg(orgName, null);
+		KatelloOrg org = new KatelloOrg(this.cli_worker, orgName, null);
 		
 		SSHCommandResult res = org.delete();
 		

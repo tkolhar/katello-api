@@ -34,7 +34,7 @@ import com.redhat.qe.tools.SSHCommandResult;
  * 9) Unsubsribe the machine, see that the machine no longer subscribed in the UI.<BR>
  * 10) Verify that yum can no longer access the content.
  */
-@Test(groups={"cfse-e2e"})
+@Test(singleThreaded = true, groups={"BPMTests"}) //, singleThreaded = true
 public class BPMTests extends KatelloCliTestBase{
 	protected static Logger log = Logger.getLogger(BPMTests.class.getName());
 	
@@ -67,83 +67,83 @@ public class BPMTests extends KatelloCliTestBase{
 		rhsmPoolId = null; // going to be set after listing avail. subscriptions.
 	}
 	
-	@Test(description="Create a new Org and create an admin user having default org/environment.")
-	public void test_createOrgUser(){
+	@Test(description="Create a new Org and create an admin user having default org/environment.", priority=1)
+	public void test_BPMTests_createOrgUser(){
 		// Create org:
-		KatelloOrg org = new KatelloOrg(this.awesomeOrg,"BPM tests");
+		KatelloOrg org = new KatelloOrg(this.cli_worker, this.awesomeOrg,"BPM tests");
 		exec_result = org.cli_create();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
-		exec_result = new KatelloEnvironment(envDev,null,awesomeOrg,KatelloEnvironment.LIBRARY).cli_create();
+		exec_result = new KatelloEnvironment(this.cli_worker, envDev,null,awesomeOrg,KatelloEnvironment.LIBRARY).cli_create();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 
 		// Create user:
-		KatelloUser user = new KatelloUser(awesomeAdmin, awesomeAdmin+"@localhost", KatelloUser.DEFAULT_USER_PASS, false, awesomeOrg, envDev);
+		KatelloUser user = new KatelloUser(cli_worker, awesomeAdmin, awesomeAdmin+"@localhost", KatelloUser.DEFAULT_USER_PASS, false, awesomeOrg, envDev);
 		exec_result = user.cli_create();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 	}
 	
-	@Test(description="Create permossions/roles as needed for the org Admin user", dependsOnMethods={"test_createOrgUser"})
-	public void test_orgAdminRolesPermissions(){
+	@Test(description="Create permossions/roles as needed for the org Admin user", dependsOnMethods={"test_BPMTests_createOrgUser"}, priority=100)
+	public void test_BPMTests_orgAdminRolesPermissions(){
 		String uid = KatelloUtils.getUniqueID();
-		KatelloUserRole roleOrgAdmin = new KatelloUserRole("role-"+awesomeAdmin, "Administrator for "+awesomeOrg);
+		KatelloUserRole roleOrgAdmin = new KatelloUserRole(cli_worker, "role-"+awesomeAdmin, "Administrator for "+awesomeOrg);
 		exec_result = roleOrgAdmin.create();
 		
-		exec_result = new KatelloPermission("prwActivationKeys-"+uid, awesomeOrg, "activation_keys", null, null, roleOrgAdmin.name).create(true, true);
+		exec_result = new KatelloPermission(cli_worker, "prwActivationKeys-"+uid, awesomeOrg, "activation_keys", null, null, roleOrgAdmin.name).create(true, true);
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
-		exec_result = new KatelloPermission("prwContentViewDefinitions-"+uid, awesomeOrg, "content_view_definitions", null, null, roleOrgAdmin.name).create(true, true);
+		exec_result = new KatelloPermission(cli_worker, "prwContentViewDefinitions-"+uid, awesomeOrg, "content_view_definitions", null, null, roleOrgAdmin.name).create(true, true);
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
-		exec_result = new KatelloPermission("prwContentViews-"+uid, awesomeOrg, "content_views", null, null, roleOrgAdmin.name).create(true, true);
+		exec_result = new KatelloPermission(cli_worker, "prwContentViews-"+uid, awesomeOrg, "content_views", null, null, roleOrgAdmin.name).create(true, true);
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
-		exec_result = new KatelloPermission("prwEnvironments-"+uid, awesomeOrg, "environments", null, null, roleOrgAdmin.name).create(true, true);
+		exec_result = new KatelloPermission(cli_worker, "prwEnvironments-"+uid, awesomeOrg, "environments", null, null, roleOrgAdmin.name).create(true, true);
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
-		exec_result = new KatelloPermission("prwOrganizations-"+uid, awesomeOrg, "organizations", null, null, roleOrgAdmin.name).create(true, true);
+		exec_result = new KatelloPermission(cli_worker, "prwOrganizations-"+uid, awesomeOrg, "organizations", null, null, roleOrgAdmin.name).create(true, true);
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
-		exec_result = new KatelloPermission("prwProviders-"+uid, awesomeOrg, "providers", null, null, roleOrgAdmin.name).create(true, true);
+		exec_result = new KatelloPermission(cli_worker, "prwProviders-"+uid, awesomeOrg, "providers", null, null, roleOrgAdmin.name).create(true, true);
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
-		exec_result = new KatelloPermission("prwSystemGroups-"+uid, awesomeOrg, "system_groups", null, null, roleOrgAdmin.name).create(true, true);
-		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
-		
-		exec_result = new KatelloUser(awesomeAdmin, null, null, false).assign_role(roleOrgAdmin.name);
+		exec_result = new KatelloPermission(cli_worker, "prwSystemGroups-"+uid, awesomeOrg, "system_groups", null, null, roleOrgAdmin.name).create(true, true);
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		
-		this.ktlOrgAdmin = new KatelloUser(awesomeAdmin, null, KatelloUser.DEFAULT_USER_PASS, false, null, null); // set the KatelloUser object to be used later on. 
+		exec_result = new KatelloUser(cli_worker, awesomeAdmin, null, null, false).assign_role(roleOrgAdmin.name);
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
+		
+		this.ktlOrgAdmin = new KatelloUser(cli_worker, awesomeAdmin, null, KatelloUser.DEFAULT_USER_PASS, false, null, null); // set the KatelloUser object to be used later on. 
 	}
 	
 	@Test(description="Create a Custom Provider, Product and Repo",
-			dependsOnMethods={"test_orgAdminRolesPermissions"})
-	public void test_createProviderProductRepo(){		
+			dependsOnMethods={"test_BPMTests_orgAdminRolesPermissions"}, priority=100)
+	public void test_BPMTests_createProviderProductRepo(){		
 		// Create provider
-		KatelloProvider prov = new KatelloProvider(providerPulp, awesomeOrg, "Pulp provider", null);
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, providerPulp, awesomeOrg, "Pulp provider", null);
 		prov.runAs(ktlOrgAdmin);
 		exec_result = prov.create();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		
 		// Create product
-		KatelloProduct prod = new KatelloProduct(productPulp64Bit, awesomeOrg, providerPulp, null, null, null, null, null);
+		KatelloProduct prod = new KatelloProduct(this.cli_worker, productPulp64Bit, awesomeOrg, providerPulp, null, null, null, null, null);
 		prod.runAs(ktlOrgAdmin);
 		exec_result = prod.create();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 
 		// Create repo
-		KatelloRepo repo = new KatelloRepo(repoPulp64Bit, awesomeOrg, productPulp64Bit, PULP_RHEL6_x86_64_REPO, null, null);
+		KatelloRepo repo = new KatelloRepo(this.cli_worker, repoPulp64Bit, awesomeOrg, productPulp64Bit, PULP_RHEL6_x86_64_REPO, null, null);
 		repo.runAs(ktlOrgAdmin);
 		exec_result = repo.create();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 	}
 	
-	@Test(description="Sync the content.", dependsOnMethods={"test_createProviderProductRepo"})
-	public void test_syncRepo(){
+	@Test(description="Sync the content.", dependsOnMethods={"test_BPMTests_createProviderProductRepo"}, priority=100)
+	public void test_BPMTests_syncRepo(){
 		// Repo synchronize:
-		KatelloRepo repo = new KatelloRepo(repoPulp64Bit, awesomeOrg, productPulp64Bit, PULP_RHEL6_x86_64_REPO, null, null);
+		KatelloRepo repo = new KatelloRepo(this.cli_worker, repoPulp64Bit, awesomeOrg, productPulp64Bit, PULP_RHEL6_x86_64_REPO, null, null);
 		repo.runAs(ktlOrgAdmin);
 		exec_result = repo.synchronize();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 	}
 	
-	@Test(description="Promote the content to the new environment.", dependsOnMethods={"test_syncRepo"})
-	public void test_promoteContent(){
+	@Test(description="Promote the content to the new environment.", dependsOnMethods={"test_BPMTests_syncRepo"}, priority=100)
+	public void test_BPMTests_promoteContent(){
 		String uid = KatelloUtils.getUniqueID();
-		KatelloContentDefinition contDef = new KatelloContentDefinition("cd-"+uid, null, awesomeOrg, null);
+		KatelloContentDefinition contDef = new KatelloContentDefinition(cli_worker, "cd-"+uid, null, awesomeOrg, null);
 		contDef.runAs(ktlOrgAdmin);
 		exec_result = contDef.create();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
@@ -151,7 +151,7 @@ public class BPMTests extends KatelloCliTestBase{
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		exec_result = contDef.publish(this.contentViewDev, null, null);
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
-		KatelloChangeset cs = new KatelloChangeset("cs-"+uid, awesomeOrg, envDev);
+		KatelloChangeset cs = new KatelloChangeset(cli_worker, "cs-"+uid, awesomeOrg, envDev);
 		cs.runAs(ktlOrgAdmin);
 		exec_result = cs.create();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
@@ -161,22 +161,22 @@ public class BPMTests extends KatelloCliTestBase{
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 	}
 	
-	@Test(description="From a client machine RHSM register to Katello.", dependsOnMethods={"test_promoteContent"})
-	public void test_rhsmRegister(){
+	@Test(description="From a client machine RHSM register to Katello.", dependsOnMethods={"test_BPMTests_promoteContent"}, priority=100)
+	public void test_BPMTests_rhsmRegister(){
 		log.info("Clean RHSM registration");
 		rhsm_clean();
 		
-		KatelloSystem sys = new KatelloSystem(this.awesomeSystem, this.awesomeOrg, this.envDev+"/"+this.contentViewDev);
-		sys.runAs(new KatelloUser(awesomeAdmin, null, KatelloUser.DEFAULT_USER_PASS, false));
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, this.awesomeSystem, this.awesomeOrg, this.envDev+"/"+this.contentViewDev);
+		sys.runAs(new KatelloUser(cli_worker, awesomeAdmin, null, KatelloUser.DEFAULT_USER_PASS, false));
 		exec_result = sys.rhsm_register(); 
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		log.finest("Sleeping 3 sec. giving chance system to recognize the registration.");
 		try{Thread.sleep(3000);}catch(InterruptedException iex){}
 	}
 	
-	@Test(description="List available subscriptions", dependsOnMethods={"test_rhsmRegister"})
-	public void test_rhsm_listAvailableSubscriptions(){
-		KatelloSystem sys = new KatelloSystem(this.awesomeSystem, this.awesomeOrg, this.envDev);
+	@Test(description="List available subscriptions", dependsOnMethods={"test_BPMTests_rhsmRegister"}, priority=100)
+	public void test_BPMTests_rhsm_listAvailableSubscriptions(){
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, this.awesomeSystem, this.awesomeOrg, this.envDev);
 		sys.runAs(ktlOrgAdmin);
 		exec_result = sys.subscriptions_available();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");		
@@ -188,9 +188,9 @@ public class BPMTests extends KatelloCliTestBase{
 				productPulp64Bit,rhsmPoolId));
 	}
 	
-	@Test(description="Subscribe to pool", dependsOnMethods={"test_rhsm_listAvailableSubscriptions"})
-	public void test_rhsm_subscribeToPool(){
-		KatelloSystem sys = new KatelloSystem(this.awesomeSystem, this.awesomeOrg, this.envDev);
+	@Test(description="Subscribe to pool", dependsOnMethods={"test_BPMTests_rhsm_listAvailableSubscriptions"}, priority=100)
+	public void test_BPMTests_rhsm_subscribeToPool(){
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, this.awesomeSystem, this.awesomeOrg, this.envDev);
 		sys.runAs(ktlOrgAdmin);
 		exec_result = sys.rhsm_subscribe(rhsmPoolId);
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
@@ -202,10 +202,10 @@ public class BPMTests extends KatelloCliTestBase{
 	
 	//@ TODO bug 896600
 	@Test(description="Yum should work - yum info pulp-admin-client", 
-			dependsOnMethods={"test_rhsm_subscribeToPool"})
-	public void test_yuminfo(){
+			dependsOnMethods={"test_BPMTests_rhsm_subscribeToPool"}, priority=100)
+	public void test_BPMTests_yuminfo(){
 		String pkg_pulp_consumer = "pulp-admin-client";
-		exec_result = KatelloUtils.sshOnClient("yum info "+pkg_pulp_consumer+" --disablerepo=* --enablerepo=*"+repoPulp64Bit+"*");
+		exec_result = sshOnClient("yum info "+pkg_pulp_consumer+" --disablerepo=* --enablerepo=*"+repoPulp64Bit+"*");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		String YUM_INFO_PULP_CONSUMER = 
 				".*Available Packages"+

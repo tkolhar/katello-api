@@ -36,7 +36,7 @@ public class UserTests extends KatelloCliTestBase {
 
 		user.password = "redhat";
 		
-		KatelloPing ping = new KatelloPing();
+		KatelloPing ping = new KatelloPing(cli_worker);
 		ping.runAs(user);
 		res = ping.cli_ping();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check services up");
@@ -55,7 +55,7 @@ public class UserTests extends KatelloCliTestBase {
 
 		user.password = "redhat";
 		
-		KatelloPing ping = new KatelloPing();
+		KatelloPing ping = new KatelloPing(cli_worker);
 		ping.runAs(user);
 		res = ping.cli_ping();
 		Assert.assertTrue(res.getExitCode().intValue()==145, 
@@ -77,7 +77,7 @@ public class UserTests extends KatelloCliTestBase {
 		Assert.assertTrue(res.getExitCode().intValue()==144, "Check - error code ("+KatelloUser.CMD_CREATE+")");
 		Assert.assertTrue(getOutput(res).contains("wrong parameters"), "Check - returned error string ("+KatelloUser.CMD_CREATE+")");
 		
-		KatelloPing ping = new KatelloPing();
+		KatelloPing ping = new KatelloPing(cli_worker);
 		ping.runAs(user);
 		res = ping.cli_ping();
 		Assert.assertTrue(res.getExitCode().intValue()==145, 

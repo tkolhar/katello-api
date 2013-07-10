@@ -5,6 +5,7 @@ import javax.management.Attribute;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
 import com.redhat.qe.katello.base.KatelloCli;
+import com.redhat.qe.katello.base.threading.KatelloCliWorker;
 import com.redhat.qe.katello.common.KatelloConstants;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
@@ -106,14 +107,17 @@ public class KatelloSystem extends _KatelloObject{
 	private KatelloIdCert idCert;
 	private KatelloEnvironment environment;
 	
-	public KatelloSystem(String pName, String pOrg, String pEnv){
+	public KatelloSystem(KatelloCliWorker kcr, String pName, String pOrg, String pEnv){
 		this.name = pName;
 		this.org = pOrg;
 		this.env = pEnv;
+		this.kcr = kcr;
 	}
 	
-	public KatelloSystem(String name, String org, String env, String uuid, Long environmentId, String href, KatelloOwner owner, Map<String, String> facts, KatelloIdCert idCert) {
-	    this(name, org, env);
+	public KatelloSystem(KatelloCliWorker kcr, String name, String org, String env, 
+			String uuid, Long environmentId, String href, KatelloOwner owner, 
+			Map<String, String> facts, KatelloIdCert idCert) {
+	    this(kcr, name, org, env);
         this.uuid = uuid;
         this.environmentId = environmentId;
 	    this.owner = owner;

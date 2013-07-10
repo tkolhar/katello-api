@@ -2,6 +2,7 @@ package com.redhat.qe.katello.base.obj;
 
 import javax.management.Attribute;
 
+import com.redhat.qe.katello.base.threading.KatelloCliWorker;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class KatelloErrata extends _KatelloObject{
@@ -25,24 +26,26 @@ public class KatelloErrata extends _KatelloObject{
 	public String content_view_label;
 	public String content_view_id;
 	
-	public KatelloErrata(String pId, String pOrg, String pProd, String pRepo, String pEnv){
-		this(pId, pOrg, pProd, pRepo, pEnv, null);
+	public KatelloErrata(KatelloCliWorker kcr, String pId, String pOrg, String pProd, String pRepo, String pEnv){
+		this(kcr, pId, pOrg, pProd, pRepo, pEnv, null);
 	}
 
-	public KatelloErrata(String pId, String pOrg, String pProd, String pRepo, String pEnv, String pType){
+	public KatelloErrata(KatelloCliWorker kcr, String pId, String pOrg, String pProd, String pRepo, String pEnv, String pType){
 		this.id = pId;
 		this.org = pOrg;
 		this.product = pProd;
 		this.repo = pRepo;
 		this.environment = pEnv;
 		this.type = pType;
+		this.kcr = kcr;
 	}
 	
-	public KatelloErrata(String pOrg, String pProd, String pRepo, String pContnetView) {
+	public KatelloErrata(KatelloCliWorker kcr, String pOrg, String pProd, String pRepo, String pContnetView) {
 		this.org = pOrg;
 		this.product = pProd;
 		this.repo = pRepo;
 		this.content_view = pContnetView;
+		this.kcr = kcr;
 	}
 	
 	public void setId(String pId) {

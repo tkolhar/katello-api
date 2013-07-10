@@ -1,10 +1,8 @@
 package com.redhat.qe.katello.tests.cli;
 
 import java.util.logging.Logger;
-
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
@@ -33,7 +31,7 @@ public class ErrataTests extends KatelloCliTestBase {
 	private String env_name;
 	private String content_view;
 	
-	@BeforeClass(description="Generate unique objects")
+	@BeforeClass(description="Generate unique objects", alwaysRun=true)
 	public void setUp() {
 		String uid = KatelloUtils.getUniqueID();
 		org_name = "org"+uid;
@@ -43,39 +41,39 @@ public class ErrataTests extends KatelloCliTestBase {
 		env_name = "env"+uid;
 		
 		// Create org:
-		KatelloOrg org = new KatelloOrg(this.org_name,"Package tests");
+		KatelloOrg org = new KatelloOrg(this.cli_worker, this.org_name,"Package tests");
 		exec_result = org.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		// Create provider:
-		KatelloProvider prov = new KatelloProvider(provider_name, org_name, "Package provider", null);
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, provider_name, org_name, "Package provider", null);
 		exec_result = prov.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		// Create product:
-		KatelloProduct prod = new KatelloProduct(product_name, org_name, provider_name, null, null, null, null, null);
+		KatelloProduct prod = new KatelloProduct(this.cli_worker, product_name, org_name, provider_name, null, null, null, null, null);
 		exec_result = prod.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		exec_result = prod.cli_list();
 		product_Id = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
 	
-		KatelloRepo repo = new KatelloRepo(repo_name, org_name, product_name, REPO_INECAS_ZOO3, null, null);
+		KatelloRepo repo = new KatelloRepo(this.cli_worker, repo_name, org_name, product_name, REPO_INECAS_ZOO3, null, null);
 		exec_result = repo.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		KatelloEnvironment env = new KatelloEnvironment(env_name, null, org_name, KatelloEnvironment.LIBRARY);
+		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, env_name, null, org_name, KatelloEnvironment.LIBRARY);
 		exec_result = env.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 				
 		prov.synchronize();
 
-		content_view = KatelloUtils.promoteRepoToEnvironment(org_name, product_name, repo_name, env_name);
+		content_view = KatelloUtils.promoteRepoToEnvironment(cli_worker, org_name, product_name, repo_name, env_name);
 	}
 	
 	@Test(description="8782a6e0-f41a-48d5-8599-bfe7f24078f6")
 	public void test_errataList() {
-		KatelloErrata errata = new KatelloErrata(org_name, product_name, repo_name, content_view);
+		KatelloErrata errata = new KatelloErrata(cli_worker, org_name, product_name, repo_name, content_view);
 		errata.setProductId(product_Id);
 		
 		exec_result = errata.cli_list();
@@ -85,7 +83,7 @@ public class ErrataTests extends KatelloCliTestBase {
 
 	@Test(description="2542ae61-8de6-40ce-866f-999c39fa9018")
 	public void test_errataInfo() {
-		KatelloErrata errata = new KatelloErrata(org_name, product_name, repo_name, content_view);
+		KatelloErrata errata = new KatelloErrata(cli_worker, org_name, product_name, repo_name, content_view);
 		errata.setId(PromoteErrata.ERRATA_ZOO_SEA);
 		errata.setProductId(product_Id);
 		

@@ -2,7 +2,6 @@ package com.redhat.qe.katello.tests.cli;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
@@ -24,7 +23,7 @@ public class ProviderTests extends KatelloCliTestBase{
 		
 		String uid = KatelloUtils.getUniqueID();
 		this.org_name = "org"+uid;
-		KatelloOrg org = new KatelloOrg(this.org_name,null);
+		KatelloOrg org = new KatelloOrg(this.cli_worker, this.org_name,null);
 		SSHCommandResult res = org.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 	}
@@ -34,13 +33,13 @@ public class ProviderTests extends KatelloCliTestBase{
 		KatelloProvider prov;
 		String uid = KatelloUtils.getUniqueID();
 		String tmpOrg = "tmpOrg"+uid;
-		KatelloOrg org = new KatelloOrg(tmpOrg,null);
+		KatelloOrg org = new KatelloOrg(this.cli_worker, tmpOrg,null);
 		SSHCommandResult res = org.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		
 		// assertions - `provider list` 
 		// check that default provider of RedHat type is prepared
-		prov = new KatelloProvider(null, tmpOrg, null, null);
+		prov = new KatelloProvider(this.cli_worker, null, tmpOrg, null, null);
 		res = prov.cli_list();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(String.format(KatelloProvider.REG_REDHAT_LIST, KatelloProvider.CDN_URL).replaceAll("\"", "")),
@@ -48,7 +47,7 @@ public class ProviderTests extends KatelloCliTestBase{
 
 		// assertions - `provider status` 
 		// status of "Red Hat" provider
-		prov = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, tmpOrg, null, null);
+		prov = new KatelloProvider(this.cli_worker, KatelloProvider.PROVIDER_REDHAT, tmpOrg, null, null);
 		res = prov.status();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		String match_info = String.format(KatelloProvider.REG_REDHAT_STATUS, "never", "Not synced").replaceAll("\"", "");
@@ -57,10 +56,10 @@ public class ProviderTests extends KatelloCliTestBase{
 		
 		// assertions - `provider info`
 		// get info of "Red Hat" provider
-		res = new KatelloOrg(org_name, null).cli_info();
+		res = new KatelloOrg(this.cli_worker, org_name, null).cli_info();
 		
 		String orgId = KatelloUtils.grepCLIOutput("ID", getOutput(res));
-		prov = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, org_name, null, null);
+		prov = new KatelloProvider(this.cli_worker, KatelloProvider.PROVIDER_REDHAT, org_name, null, null);
 		res = prov.info();
 		match_info = String.format(KatelloProvider.REG_REDHAT_INFO, KatelloProvider.CDN_URL, orgId, "").replaceAll("\"", "");
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info), 
@@ -78,7 +77,7 @@ public class ProviderTests extends KatelloCliTestBase{
 			cmd = cmd + " --description \""+descr+"\"";
 		if(url!=null)
 			cmd = cmd + " --url \""+url+"\"";
-		KatelloProvider prov = new KatelloProvider(name, org_name, descr, url);
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, name, org_name, descr, url);
 		SSHCommandResult  res = prov.create();
 		Assert.assertTrue(res.getExitCode().intValue() == exitCode.intValue(), "Check - return code");
 		
@@ -95,11 +94,11 @@ public class ProviderTests extends KatelloCliTestBase{
 		String uid = KatelloUtils.getUniqueID();
 		String orgName = "delRH"+uid;
 		
-		KatelloOrg org = new KatelloOrg(orgName, null);
+		KatelloOrg org = new KatelloOrg(this.cli_worker, orgName, null);
 		res = org.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		
-		KatelloProvider prov = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, this.org_name, null, null);
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, KatelloProvider.PROVIDER_REDHAT, this.org_name, null, null);
 		res = prov.delete();
 		Assert.assertTrue(res.getExitCode().intValue()==147, "Check - return code");
 		//Assert.assertEquals(getOutput(res).trim(), "Error while deleting provider [ Red Hat ]: Red Hat provider can not be deleted,","Check - returned error string");
@@ -116,32 +115,32 @@ public class ProviderTests extends KatelloCliTestBase{
 	public void test_deleteProvider_missingReqParams(){
 		String uid = KatelloUtils.getUniqueID();
 		String provName = "delProv-"+uid;
-		KatelloProvider prov = new KatelloProvider(provName, this.org_name, null, null);
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, provName, this.org_name, null, null);
 		SSHCommandResult res = prov.create();
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 		
-		prov = new KatelloProvider(null, null, null, null);
+		prov = new KatelloProvider(this.cli_worker, null, null, null, null);
 		res = prov.delete();
 		Assert.assertTrue(res.getExitCode().intValue() == 2, "Check - return code");
 		Assert.assertTrue(getOutput(res).contains("Option --org is required; please see --help"),"Check - returned error string - 1");
 		Assert.assertTrue(getOutput(res).contains("Option --name is required; please see --help"),"Check - returned error string - 2");
 		
-		prov = new KatelloProvider(null, this.org_name, null, null);
+		prov = new KatelloProvider(this.cli_worker, null, this.org_name, null, null);
 		res = prov.delete();
 		Assert.assertTrue(res.getExitCode().intValue() == 2, "Check - return code");
 		Assert.assertTrue(getOutput(res).contains("Option --name is required; please see --help"),"Check - returned error string");
 		
-		prov = new KatelloProvider(provName, null, null, null);
+		prov = new KatelloProvider(this.cli_worker, provName, null, null, null);
 		res = prov.delete();
 		Assert.assertTrue(res.getExitCode().intValue() == 2, "Check - return code");
 		Assert.assertTrue(getOutput(res).contains("Option --org is required; please see --help"),"Check - returned error string");
 		
-		prov = new KatelloProvider(null, "", null, null);
+		prov = new KatelloProvider(this.cli_worker, null, "", null, null);
 		res = prov.delete();
 		Assert.assertTrue(res.getExitCode().intValue() == 2, "Check - return code");
 		Assert.assertTrue(getOutput(res).contains("katello: error: --org option requires an argument"),"Check - returned error string");
 		
-		prov = new KatelloProvider("", this.org_name, null, null);
+		prov = new KatelloProvider(this.cli_worker, "", this.org_name, null, null);
 		res = prov.delete();
 		Assert.assertTrue(res.getExitCode().intValue() == 2, "Check - return code");
 		Assert.assertTrue(getOutput(res).contains("katello: error: --name option requires an argument"),"Check - returned error string");
@@ -153,14 +152,14 @@ public class ProviderTests extends KatelloCliTestBase{
 		String provName = "delProv-"+uid;
 		String org1 = "anotherOrg"+uid;
 		
-		KatelloOrg org = new KatelloOrg(org1,null);
+		KatelloOrg org = new KatelloOrg(this.cli_worker, org1,null);
 		SSHCommandResult res = org.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 
-		KatelloProvider prov = new KatelloProvider(provName, this.org_name, null, null);
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, provName, this.org_name, null, null);
 		res = prov.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		prov = new KatelloProvider(provName, org1, null, null);
+		prov = new KatelloProvider(this.cli_worker, provName, org1, null, null);
 		res = prov.delete();
 		Assert.assertTrue(res.getExitCode().intValue()==65, "Check - return code");
 		Assert.assertTrue(getOutput(res).contains("Could not find provider [ "+provName+" ] within organization [ "+org1+" ]"),"Check - returned error string");
@@ -171,7 +170,7 @@ public class ProviderTests extends KatelloCliTestBase{
 		SSHCommandResult res;
 		String uid = KatelloUtils.getUniqueID();
 		
-		KatelloProvider prov = new KatelloProvider("noProd-"+uid, this.org_name, null, null);
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, "noProd-"+uid, this.org_name, null, null);
 		res = prov.create();		
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		res = prov.delete();
@@ -194,10 +193,10 @@ public class ProviderTests extends KatelloCliTestBase{
 		String prodName = "prod-"+uid;
 		
 		// Create provider, product
-		KatelloProvider prov = new KatelloProvider(provName, this.org_name, null, null);
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, provName, this.org_name, null, null);
 		res = prov.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		KatelloProduct prod = new KatelloProduct(prodName, this.org_name, provName, null, null, null, null, null);
+		KatelloProduct prod = new KatelloProduct(this.cli_worker, prodName, this.org_name, provName, null, null, null, null, null);
 		res = prod.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		
@@ -215,10 +214,10 @@ public class ProviderTests extends KatelloCliTestBase{
 		Assert.assertTrue(getOutput(res).equals(String.format(KatelloProduct.ERR_COULD_NOT_FIND_PRODUCT, prodName,org_name)), "Check - `product status` output string");
 		
 		// Create another provider with the same product name
-		prov = new KatelloProvider(provName_1, this.org_name, null, null);
+		prov = new KatelloProvider(this.cli_worker, provName_1, this.org_name, null, null);
 		res = prov.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		KatelloProduct prod1 = new KatelloProduct(prodName, this.org_name, provName_1, null, null, null, null, null);
+		KatelloProduct prod1 = new KatelloProduct(this.cli_worker, prodName, this.org_name, provName_1, null, null, null, null, null);
 		res = prod1.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		// Check `product status` - should be shown with provName_1 info there
@@ -242,17 +241,17 @@ public class ProviderTests extends KatelloCliTestBase{
 		String repoName2 = "repo2-"+ uid;
 		
 		// Create provider, product
-		KatelloProvider prov = new KatelloProvider(provName, this.org_name, null, null);
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, provName, this.org_name, null, null);
 		SSHCommandResult res = prov.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 
 		// create product
-		KatelloProduct prod1 = new KatelloProduct(prodName1, this.org_name, provName, null, null, PULP_RHEL6_i386_REPO, null, true);
+		KatelloProduct prod1 = new KatelloProduct(this.cli_worker, prodName1, this.org_name, provName, null, null, PULP_RHEL6_i386_REPO, null, true);
 		res = prod1.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
 		
 		// Create repo - valid url to sync
-		KatelloRepo repo1 = new KatelloRepo(repoName1, this.org_name, prodName1, PULP_RHEL6_x86_64_REPO, null, null);
+		KatelloRepo repo1 = new KatelloRepo(this.cli_worker, repoName1, this.org_name, prodName1, PULP_RHEL6_x86_64_REPO, null, null);
 		repo1.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		
@@ -261,7 +260,7 @@ public class ProviderTests extends KatelloCliTestBase{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product synchronize)");
 
 		// create env.
-		KatelloEnvironment env1 = new KatelloEnvironment(envName1, null, this.org_name, KatelloEnvironment.LIBRARY);
+		KatelloEnvironment env1 = new KatelloEnvironment(this.cli_worker, envName1, null, this.org_name, KatelloEnvironment.LIBRARY);
 		res = env1.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (environment create)");
 		
@@ -270,15 +269,15 @@ public class ProviderTests extends KatelloCliTestBase{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product synchronize)");
 		
 		// promote product to the env.
-		KatelloUtils.promoteProductToEnvironment(org_name, prodName1, envName1);
+		KatelloUtils.promoteProductToEnvironment(cli_worker, org_name, prodName1, envName1);
 		prod1.syncState = "Finished";
 
-		KatelloProduct prod2 = new KatelloProduct(prodName2, this.org_name, provName, REPO_INECAS_ZOO3, null, null, null, true);
+		KatelloProduct prod2 = new KatelloProduct(this.cli_worker, prodName2, this.org_name, provName, REPO_INECAS_ZOO3, null, null, null, true);
 		res = prod2.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
 
 		// Create repo - valid url to sync
-		KatelloRepo repo2 = new KatelloRepo(repoName2, this.org_name, prodName2, REPO_INECAS_ZOO3, null, null);
+		KatelloRepo repo2 = new KatelloRepo(this.cli_worker, repoName2, this.org_name, prodName2, REPO_INECAS_ZOO3, null, null);
 		res = repo2.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		
@@ -303,17 +302,17 @@ public class ProviderTests extends KatelloCliTestBase{
 		String repoName2 = "repo2-"+ uid;
 		
 		// Create provider, product
-		KatelloProvider prov = new KatelloProvider(provName, this.org_name, null, null);
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, provName, this.org_name, null, null);
 		SSHCommandResult res = prov.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 
 		// create product
-		KatelloProduct prod = new KatelloProduct(prodName, this.org_name, provName, null, null, null, null, true);
+		KatelloProduct prod = new KatelloProduct(this.cli_worker, prodName, this.org_name, provName, null, null, null, null, true);
 		res = prod.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
 		
 		// Create repo - valid url to sync
-		KatelloRepo repo1 = new KatelloRepo(repoName1, this.org_name, prodName, PULP_RHEL6_x86_64_REPO, null, null);
+		KatelloRepo repo1 = new KatelloRepo(this.cli_worker, repoName1, this.org_name, prodName, PULP_RHEL6_x86_64_REPO, null, null);
 		repo1.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 
@@ -321,7 +320,7 @@ public class ProviderTests extends KatelloCliTestBase{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		
 		// Create repo - valid url to sync
-		KatelloRepo repo2 = new KatelloRepo(repoName2, this.org_name, prodName, REPO_INECAS_ZOO3, null, null);
+		KatelloRepo repo2 = new KatelloRepo(this.cli_worker, repoName2, this.org_name, prodName, REPO_INECAS_ZOO3, null, null);
 		res = repo2.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		
@@ -340,7 +339,7 @@ public class ProviderTests extends KatelloCliTestBase{
 		String provName = "listProv1-"+uid;
 		
 		// Create provider
-		KatelloProvider prov = new KatelloProvider(provName, this.org_name, null, null);
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, provName, this.org_name, null, null);
 		res = prov.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		// List
@@ -367,7 +366,7 @@ public class ProviderTests extends KatelloCliTestBase{
 		String provDesc = "Simple description";
 		
 		// Create provider
-		KatelloProvider prov = new KatelloProvider(provName, this.org_name, provDesc, KATELLO_SMALL_REPO);
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, provName, this.org_name, provDesc, KATELLO_SMALL_REPO);
 		res = prov.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		//List
@@ -391,7 +390,7 @@ public class ProviderTests extends KatelloCliTestBase{
 		String provName = "listProvURL-"+uid;
 		
 		// Create provider
-		KatelloProvider prov = new KatelloProvider(provName, this.org_name, null, KATELLO_SMALL_REPO);
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, provName, this.org_name, null, KATELLO_SMALL_REPO);
 		res = prov.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		// List
@@ -416,7 +415,7 @@ public class ProviderTests extends KatelloCliTestBase{
 		String provName = "syncNoProd-"+uid;
 		
 		// Create provider
-		KatelloProvider prov = new KatelloProvider(provName, this.org_name, null, null);
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, provName, this.org_name, null, null);
 		res = prov.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		// Sync
@@ -434,15 +433,15 @@ public class ProviderTests extends KatelloCliTestBase{
 		String repoName = "pulpF15_64bit-"+uid;
 		
 		// Create provider
-		KatelloProvider prov = new KatelloProvider(provName, this.org_name, null, null);
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, provName, this.org_name, null, null);
 		res = prov.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		// Create product
-		KatelloProduct prod = new KatelloProduct(prodName, this.org_name, provName, null, null, null, null, null);
+		KatelloProduct prod = new KatelloProduct(this.cli_worker, prodName, this.org_name, provName, null, null, null, null, null);
 		res = prod.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		// Create repo - valid url to sync
-		KatelloRepo repo = new KatelloRepo(repoName, this.org_name, prodName, PULP_RHEL6_x86_64_REPO, null, null);
+		KatelloRepo repo = new KatelloRepo(this.cli_worker, repoName, this.org_name, prodName, PULP_RHEL6_x86_64_REPO, null, null);
 		repo.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		// Sync provider
@@ -465,21 +464,21 @@ public class ProviderTests extends KatelloCliTestBase{
 		String repoName2 = "pulpF15_32bit-"+uid;
 		
 		// Create provider
-		KatelloProvider prov = new KatelloProvider(provName, this.org_name, null, null);
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, provName, this.org_name, null, null);
 		res = prov.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		// Create products
-		KatelloProduct prod1 = new KatelloProduct(prodName1, this.org_name, provName, null, null, null, null, null);
+		KatelloProduct prod1 = new KatelloProduct(this.cli_worker, prodName1, this.org_name, provName, null, null, null, null, null);
 		res = prod1.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		KatelloProduct prod2 = new KatelloProduct(prodName2, this.org_name, provName, null, null, null, null, null);
+		KatelloProduct prod2 = new KatelloProduct(this.cli_worker, prodName2, this.org_name, provName, null, null, null, null, null);
 		res = prod2.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		// Create repos
-		KatelloRepo repo1 = new KatelloRepo(repoName1, this.org_name, prodName1, PULP_RHEL6_x86_64_REPO, null, null);
+		KatelloRepo repo1 = new KatelloRepo(this.cli_worker, repoName1, this.org_name, prodName1, PULP_RHEL6_x86_64_REPO, null, null);
 		res = repo1.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		KatelloRepo repo2 = new KatelloRepo(repoName2, this.org_name, prodName2, PULP_RHEL6_i386_REPO, null, null);
+		KatelloRepo repo2 = new KatelloRepo(this.cli_worker, repoName2, this.org_name, prodName2, PULP_RHEL6_i386_REPO, null, null);
 		res = repo2.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		// Sync provider
@@ -498,7 +497,7 @@ public class ProviderTests extends KatelloCliTestBase{
 	@Test(description="Try to updateRed Hat provider - name", groups = {"cli-providers"},enabled=true)
 	public void test_updateProvider_RedHat_name(){
 		SSHCommandResult res;
-		KatelloProvider prov = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, this.org_name, null, null);
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, KatelloProvider.PROVIDER_REDHAT, this.org_name, null, null);
 		res = prov.update("REDHAT", null, null);
 		Assert.assertTrue(res.getExitCode().intValue()==166, "Check - return code (provider update)");
 		Assert.assertTrue(getOutput(res).contains(KatelloProvider.ERR_REDHAT_UPDATENAME), "Check - returned error string (provider update)");
@@ -510,12 +509,12 @@ public class ProviderTests extends KatelloCliTestBase{
 		String update_url = "https://localhost:443";
 		String match_info;
 		
-		KatelloProvider prov = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, this.org_name, null, null);
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, KatelloProvider.PROVIDER_REDHAT, this.org_name, null, null);
 		res = prov.update(null, update_url, null);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (provider update)");
 		Assert.assertTrue(getOutput(res).contains(String.format(KatelloProvider.OUT_UPDATE,KatelloProvider.PROVIDER_REDHAT)), 
 				"Check - returned error string (provider update)");
-		res = new KatelloOrg(org_name, null).cli_info();
+		res = new KatelloOrg(this.cli_worker, org_name, null).cli_info();
 		String orgId = KatelloUtils.grepCLIOutput("ID", getOutput(res));
 		// Info
 		res = prov.info();
@@ -534,7 +533,7 @@ public class ProviderTests extends KatelloCliTestBase{
 		String match_info;
 		
 		// Create provider
-		KatelloProvider prov = new KatelloProvider(provName, this.org_name, null, null);
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, provName, this.org_name, null, null);
 		res = prov.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		
@@ -564,7 +563,7 @@ public class ProviderTests extends KatelloCliTestBase{
 		String match_info;
 		
 		// Create provider
-		KatelloProvider prov = new KatelloProvider(provName, this.org_name, null, null);
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, provName, this.org_name, null, null);
 		res = prov.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		
@@ -592,10 +591,10 @@ public class ProviderTests extends KatelloCliTestBase{
 		SSHCommandResult res;
 		String uid = KatelloUtils.getUniqueID();
 		String org_name = "org-status-" + uid;
-		KatelloOrg org=new KatelloOrg(org_name,null);
+		KatelloOrg org=new KatelloOrg(this.cli_worker, org_name,null);
 		res= org.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		KatelloProvider prov = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, org_name, null, null);
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, KatelloProvider.PROVIDER_REDHAT, org_name, null, null);
 		res=prov.status();
 		Assert.assertTrue(res.getExitCode().intValue()==2, "Check - return code");
 		Assert.assertTrue(getOutput(res).contains("headpin: error: invalid action: please see --help"),"Check - returned error string");
@@ -608,10 +607,10 @@ public class ProviderTests extends KatelloCliTestBase{
 		SSHCommandResult res;
 		String uid = KatelloUtils.getUniqueID();
 		String org_name = "org-create-del" + uid;
-		KatelloOrg org=new KatelloOrg(org_name,null);
+		KatelloOrg org=new KatelloOrg(this.cli_worker, org_name,null);
 		res= org.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		KatelloProvider prov = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, org_name, null, null);
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, KatelloProvider.PROVIDER_REDHAT, org_name, null, null);
 		res=prov.create();
 		Assert.assertTrue(res.getExitCode().intValue()==2, "Check - return code");
 		Assert.assertTrue(getOutput(res).contains("headpin: error: invalid action: please see --help"),"Check - returned error string");

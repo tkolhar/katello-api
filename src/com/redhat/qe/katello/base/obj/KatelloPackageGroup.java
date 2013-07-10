@@ -1,6 +1,8 @@
 package com.redhat.qe.katello.base.obj;
 
 import javax.management.Attribute;
+
+import com.redhat.qe.katello.base.threading.KatelloCliWorker;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class KatelloPackageGroup extends _KatelloObject{
@@ -15,10 +17,11 @@ public class KatelloPackageGroup extends _KatelloObject{
 	public String name;
 	public String description;
 	
-	public KatelloPackageGroup(String pId, String pName, String pDescr){
+	public KatelloPackageGroup(KatelloCliWorker kcr, String pId, String pName, String pDescr){
 		this.id = pId;
 		this.name = pName;
 		this.description = pDescr;
+		this.kcr = kcr;
 	}
 	
 	public SSHCommandResult cli_info(String repoId) {

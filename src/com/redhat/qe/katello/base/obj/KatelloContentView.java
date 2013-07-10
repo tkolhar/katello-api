@@ -4,6 +4,7 @@ import java.util.logging.Logger;
 
 import javax.management.Attribute;
 
+import com.redhat.qe.katello.base.threading.KatelloCliWorker;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class KatelloContentView extends _KatelloObject{
@@ -39,13 +40,14 @@ public class KatelloContentView extends _KatelloObject{
 	
 	public KatelloContentView(){super();}
 	
-	public KatelloContentView(String pName, String pOrg){
+	public KatelloContentView(KatelloCliWorker kcr, String pName, String pOrg){
 		this.name = pName;
 		this.org = pOrg;
+		this.kcr = kcr;
 	}
 	
-	public KatelloContentView(String name, String description, String pOrg, String label) {
-	    this(name, description);
+	public KatelloContentView(KatelloCliWorker kcr, String name, String description, String pOrg, String label) {
+	    this(kcr, name, description);
 	    this.org = pOrg;
 	    this.label = label;
 	}

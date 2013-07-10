@@ -1,6 +1,5 @@
 package com.redhat.qe.katello.tests.upgrade.v1;
 
-import java.io.File;
 import java.util.logging.Logger;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -17,7 +16,6 @@ import com.redhat.qe.katello.base.obj.KatelloUser;
 import com.redhat.qe.katello.base.obj.KatelloUserRole;
 import com.redhat.qe.katello.common.KatelloConstants;
 import com.redhat.qe.katello.common.KatelloUtils;
-import com.redhat.qe.tools.SCPTools;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups={"sam-upgrade"})
@@ -71,7 +69,7 @@ public class VirtualSubscriptions implements KatelloConstants {
 			groups={TNG_PRE_UPGRADE})
 	public void createSamAdmin(){
 		SSHCommandResult res;
-		samAdmin = new KatelloUser("samAdmin-"+uid, 
+		samAdmin = new KatelloUser(null, "samAdmin-"+uid, 
 				KatelloUser.DEFAULT_USER_EMAIL, KatelloUser.DEFAULT_ADMIN_PASS, false);
 		res = samAdmin.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit(0) - user create (admin)");
@@ -84,18 +82,18 @@ public class VirtualSubscriptions implements KatelloConstants {
 			groups={TNG_PRE_UPGRADE})
 	public void createOrgEnvs(){
 		SSHCommandResult res;
-		KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);
-		KatelloUtils.sshOnClient("rpm -e "+KatelloGpgKey.GPG_PUBKEY_RPM_ZOO+" || true");
+		KatelloUtils.sshOnClient(null, KatelloSystem.RHSM_CLEAN);
+		KatelloUtils.sshOnClient(null, "rpm -e "+KatelloGpgKey.GPG_PUBKEY_RPM_ZOO+" || true");
 		
-		KatelloOrg org = new KatelloOrg(orgName, null);
+		KatelloOrg org = new KatelloOrg(null, orgName, null);
 		org.runAs(samAdmin); 
 		res = org.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit(0) - org create");
-		KatelloEnvironment env = new KatelloEnvironment(envTesting, null, orgName, KatelloEnvironment.LIBRARY);
+		KatelloEnvironment env = new KatelloEnvironment(null, envTesting, null, orgName, KatelloEnvironment.LIBRARY);
 		env.runAs(samAdmin);
 		res = env.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit(0) - environment create (Testing)");
-		env = new KatelloEnvironment(envDevelopment, null, orgName, envTesting);
+		env = new KatelloEnvironment(null, envDevelopment, null, orgName, envTesting);
 		env.runAs(samAdmin);
 		res = env.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit(0) - environment create (Development)");
@@ -106,19 +104,13 @@ public class VirtualSubscriptions implements KatelloConstants {
 			groups={TNG_PRE_UPGRADE})
 	public void importManifest(){
 		SSHCommandResult res;
-		SCPTools scp = new SCPTools(
-				System.getProperty("katello.client.hostname", "localhost"), 
-				System.getProperty("katello.client.ssh.user", "root"), 
-				System.getProperty("katello.client.sshkey.private", ".ssh/id_hudson_dsa"), 
-				System.getProperty("katello.client.sshkey.passphrase", "null"));
-		Assert.assertTrue(scp.sendFile("data"+File.separator+KatelloProvider.MANIFEST_12SUBSCRIPTIONS, "/tmp"),
-				KatelloProvider.MANIFEST_12SUBSCRIPTIONS+" sent successfully");
+		KatelloUtils.scpOnClient(null, "data/"+KatelloProvider.MANIFEST_12SUBSCRIPTIONS, "/tmp");
 
-		KatelloProvider rh = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, orgName, null, null);
+		KatelloProvider rh = new KatelloProvider(null, KatelloProvider.PROVIDER_REDHAT, orgName, null, null);
 		rh.runAs(samAdmin);
 		res = rh.import_manifest("/tmp/"+KatelloProvider.MANIFEST_12SUBSCRIPTIONS, null);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit(0) - provider import_manifest");
-		KatelloOrg org = new KatelloOrg(orgName, null); org.runAs(samAdmin);
+		KatelloOrg org = new KatelloOrg(null, orgName, null); org.runAs(samAdmin);
 		res = org.subscriptions();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit(0) - org subscriptions");
 		Assert.assertTrue(KatelloCliTestBase.sgetOutput(res).contains("(Up to 1 guest)"), "stdout - contains guest");
@@ -134,16 +126,16 @@ public class VirtualSubscriptions implements KatelloConstants {
 			groups={TNG_PRE_UPGRADE})
 	public void prepareAKAndSubscribe(){
 		SSHCommandResult res;
-		KatelloActivationKey key = new KatelloActivationKey(
+		KatelloActivationKey key = new KatelloActivationKey(null, 
 				orgName, envTesting, akRhel, null, null); key.runAs(samAdmin);
 		res = key.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit(0) - activation_key create (Testing)");
 		res = key.update_add_subscription(poolRhel);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit(0) - activation_key add_subscription (RHEL)");
-		KatelloSystem sys = new KatelloSystem(clients[0], orgName, null);
+		KatelloSystem sys = new KatelloSystem(null, clients[0], orgName, null);
 		sys.runOn(clients[0]); sys.rhsm_clean();// clean on 1st client
 		
-		sys = new KatelloSystem(clients[0]+"-"+uid, orgName, envTesting);
+		sys = new KatelloSystem(null, clients[0]+"-"+uid, orgName, envTesting);
 		sys.runAs(samAdmin);
 		sys.runOn(clients[0]);
 		res = sys.rhsm_registerForce(akRhel);
@@ -155,7 +147,7 @@ public class VirtualSubscriptions implements KatelloConstants {
 			groups={TNG_PRE_UPGRADE})
 	public void checkvirtPoolAppeared(){
 		SSHCommandResult res;
-		KatelloOrg org = new KatelloOrg(orgName, null); org.runAs(samAdmin);
+		KatelloOrg org = new KatelloOrg(null, orgName, null); org.runAs(samAdmin);
 		res = org.subscriptions();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit(0) - org subscriptions");
 		Assert.assertTrue(KatelloCliTestBase.sgetOutput(res).contains("(Up to 1 guest)"), "stdout - contains guest");
@@ -183,16 +175,16 @@ public class VirtualSubscriptions implements KatelloConstants {
 			groups={TNG_PRE_UPGRADE})
 	public void subscribeToVirt(){
 		SSHCommandResult res;
-		KatelloActivationKey key = new KatelloActivationKey(
+		KatelloActivationKey key = new KatelloActivationKey(null, 
 				orgName, envDevelopment, akVirt, null, null); key.runAs(samAdmin);
 		res = key.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit(0) - activation_key create (Development)");
 		res = key.update_add_subscription(poolVirt);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit(0) - activation_key add_subscription (Virtual Guest)");
-		KatelloSystem sys = new KatelloSystem(clients[1], orgName, null);
+		KatelloSystem sys = new KatelloSystem(null, clients[1], orgName, null);
 		sys.runOn(clients[1]); sys.rhsm_clean();// clean on 1st client
 		
-		sys = new KatelloSystem("new-"+clients[1]+"-"+uid, orgName, envDevelopment);
+		sys = new KatelloSystem(null, "new-"+clients[1]+"-"+uid, orgName, envDevelopment);
 		sys.runAs(samAdmin);
 		sys.runOn(clients[1]);
 		res = sys.rhsm_registerForce(akVirt);
@@ -207,13 +199,13 @@ public class VirtualSubscriptions implements KatelloConstants {
 			groups={TNG_POST_UPGRADE})
 	public void unregisterRhelClient(){
 		SSHCommandResult res;
-		KatelloSystem sys = new KatelloSystem(clients[0], orgName, envTesting);
+		KatelloSystem sys = new KatelloSystem(null, clients[0], orgName, envTesting);
 		sys.runAs(samAdmin); sys.runOn(clients[0]);
 		res = sys.rhsm_unregister();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit(0) - rhsm unregister");
 		
 		// org subscriptions
-		KatelloOrg org = new KatelloOrg(orgName, null); org.runAs(samAdmin);
+		KatelloOrg org = new KatelloOrg(null, orgName, null); org.runAs(samAdmin);
 		res = org.subscriptions();
 		String block = KatelloUtils.grepOutBlock("Id", poolRhel, KatelloCliTestBase.sgetOutput(res));
 		Assert.assertNotNull(block, "stdout - RHEL subscription returned");
@@ -223,7 +215,7 @@ public class VirtualSubscriptions implements KatelloConstants {
 		Assert.assertNotNull(block, "stdout - RHEL consumers == 0");
 		
 		// activation key (virtual)
-		KatelloActivationKey key = new KatelloActivationKey(orgName, envDevelopment, akVirt, null, null);
+		KatelloActivationKey key = new KatelloActivationKey(null, orgName, envDevelopment, akVirt, null, null);
 		key.runAs(samAdmin);
 		res = key.info();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit(0) - activation_key info");
@@ -237,7 +229,7 @@ public class VirtualSubscriptions implements KatelloConstants {
 			groups={TNG_POST_UPGRADE})
 	public void subscribeBackRhelClient(){
 		SSHCommandResult res;
-		KatelloSystem sys = new KatelloSystem(clients[0]+"-"+uid, orgName, envTesting);
+		KatelloSystem sys = new KatelloSystem(null, clients[0]+"-"+uid, orgName, envTesting);
 		sys.runAs(samAdmin);
 		sys.runOn(clients[0]);
 		res = sys.rhsm_registerForce(akRhel);
@@ -253,7 +245,7 @@ public class VirtualSubscriptions implements KatelloConstants {
 			groups={TNG_POST_UPGRADE})
 	public void checkSubscriptionsPreserved(){
 		SSHCommandResult res;
-		KatelloOrg org = new KatelloOrg(orgName, null); org.runAs(samAdmin);
+		KatelloOrg org = new KatelloOrg(null, orgName, null); org.runAs(samAdmin);
 		res = org.subscriptions();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit(0) - org subscriptions");
 		Assert.assertTrue(KatelloCliTestBase.sgetOutput(res).contains("(Up to 1 guest)"), "stdout - contains guest");
@@ -278,7 +270,7 @@ public class VirtualSubscriptions implements KatelloConstants {
 	public void checkSubscribedRhelClient(){
 		SSHCommandResult res;
 		
-		KatelloSystem sys = new KatelloSystem(clients[0]+"-"+uid, orgName, envTesting);
+		KatelloSystem sys = new KatelloSystem(null, clients[0]+"-"+uid, orgName, envTesting);
 		sys.runAs(samAdmin); sys.runOn(clients[0]);
 		res = sys.subscriptions();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit(0) - system subscriptions");
@@ -304,7 +296,7 @@ public class VirtualSubscriptions implements KatelloConstants {
 			groups={TNG_POST_UPGRADE})
 	public void subscribeClient2(){
 		SSHCommandResult res;
-		KatelloSystem sys = new KatelloSystem(clients[1]+"-"+uid, orgName, envDevelopment);
+		KatelloSystem sys = new KatelloSystem(null, clients[1]+"-"+uid, orgName, envDevelopment);
 		sys.runAs(samAdmin);
 		sys.runOn(clients[1]);
 		res = sys.rhsm_registerForce();

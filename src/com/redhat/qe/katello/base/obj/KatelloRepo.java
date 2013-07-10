@@ -2,6 +2,7 @@ package com.redhat.qe.katello.base.obj;
 
 import javax.management.Attribute;
 import com.redhat.qe.Assert;
+import com.redhat.qe.katello.base.threading.KatelloCliWorker;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
@@ -58,7 +59,7 @@ public class KatelloRepo extends _KatelloObject{
 	public String lastSync;
 	public boolean nogpgkey = false;
 	
-	public KatelloRepo(String pName, String pOrg, 
+	public KatelloRepo(KatelloCliWorker kcr, String pName, String pOrg, 
 			String pProd, String pUrl, 
 			String pGpgkey, Boolean pNogpgkey){
 		this.name = pName;
@@ -66,14 +67,17 @@ public class KatelloRepo extends _KatelloObject{
 		this.product = pProd;
 		this.url = pUrl;
 		this.gpgkey = pGpgkey;
+		this.kcr = kcr;
+		
 		if(pNogpgkey != null)
 			this.nogpgkey = pNogpgkey.booleanValue();
 	}
 	
-	public KatelloRepo(String pName, String pOrg, 
+	public KatelloRepo(KatelloCliWorker kcr,
+			String pName, String pOrg, 
 			String pProd, String pUrl, 
 			String pGpgkey, Boolean pNogpgkey, String product_label, String product_id){
-		this(pName, pOrg, pProd,pUrl, pGpgkey, pNogpgkey);
+		this(kcr, pName, pOrg, pProd,pUrl, pGpgkey, pNogpgkey);
 		this.product_label = product_label;
 		this.product_id = product_id;
 	}
@@ -290,7 +294,7 @@ public class KatelloRepo extends _KatelloObject{
 		String gpg_key = KatelloUtils.grepCLIOutput("GPG Key", res.getStdout());
 		Assert.assertTrue(this.gpgkey.equals(gpg_key), 
 				String.format("Check - GPG Key [%s] should be found in the repo info",this.gpgkey));
-		KatelloGpgKey gpg = new KatelloGpgKey(this.gpgkey, this.org, null);
+		KatelloGpgKey gpg = new KatelloGpgKey(this.kcr, this.gpgkey, this.org, null);
 		res = gpg.cli_info();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (gpg_key info)");
 		String reposWithGpg = KatelloUtils.grepCLIOutput("Repositories", res.getStdout());

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -34,22 +35,22 @@ public class UserTests extends KatelloCliTestBase{
 		this.env = "Library"; // initially - for headpin
 		this.organization2 = "org2-"+uid;
 		this.env2 = "env2-"+uid;
-		KatelloOrg org = new KatelloOrg(this.organization, null);
+		KatelloOrg org = new KatelloOrg(this.cli_worker, this.organization, null);
 		res = org.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		KatelloEnvironment env = new KatelloEnvironment(this.env, null, this.organization, KatelloEnvironment.LIBRARY);
+		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, this.env, null, this.organization, KatelloEnvironment.LIBRARY);
 		res = env.cli_create();
-		org = new KatelloOrg(this.organization2, null);
+		org = new KatelloOrg(this.cli_worker, this.organization2, null);
 		res = org.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		env = new KatelloEnvironment(this.env2, null, this.organization2, KatelloEnvironment.LIBRARY);
+		env = new KatelloEnvironment(this.cli_worker, this.env2, null, this.organization2, KatelloEnvironment.LIBRARY);
 		res = env.cli_create();
 	}
 
 	@BeforeClass(description="init: katello specific, no headpin", dependsOnMethods={"setUp"}, groups={"cfse-cli"})
 	public void setUp_katelloOnly(){
 		this.env = "ak-"+uid;
-		SSHCommandResult exec_result = new KatelloEnvironment(this.env, null, organization, KatelloEnvironment.LIBRARY).cli_create();
+		SSHCommandResult exec_result = new KatelloEnvironment(this.cli_worker, this.env, null, organization, KatelloEnvironment.LIBRARY).cli_create();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 	}
 
@@ -61,7 +62,7 @@ public class UserTests extends KatelloCliTestBase{
 		String userpass = "password";
 		String usermail = username+"@localhost";
 		
-		KatelloUser usr = new KatelloUser(username, usermail, userpass, false);
+		KatelloUser usr = new KatelloUser(cli_worker, username, usermail, userpass, false);
 		res = usr.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+KatelloUser.CMD_CREATE+")");
 		Assert.assertTrue(getOutput(res).contains(
@@ -85,7 +86,7 @@ public class UserTests extends KatelloCliTestBase{
 		String userpass = "password";
 		String usermail = username+"@localhost";
 		
-		KatelloUser usr = new KatelloUser(username, usermail, userpass, true);
+		KatelloUser usr = new KatelloUser(cli_worker, username, usermail, userpass, true);
 		res = usr.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+KatelloUser.CMD_CREATE+")");
 		Assert.assertTrue(getOutput(res).contains(
@@ -98,7 +99,7 @@ public class UserTests extends KatelloCliTestBase{
 
 	@Test(description = "List all users - admin should be there", groups={"headpin-cli"})
 	public void test_listUsers_admin(){
-		KatelloUser list_user = new KatelloUser(null,null, null, false);
+		KatelloUser list_user = new KatelloUser(cli_worker, null,null, null, false);
 		SSHCommandResult res = list_user.cli_list();
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(res).contains(KatelloUser.DEFAULT_ADMIN_USER), "Check - contains: ["+KatelloUser.DEFAULT_ADMIN_USER+"]");
@@ -127,7 +128,7 @@ public class UserTests extends KatelloCliTestBase{
 		String username = "user-" + uniqueID;
 		String userpass = "password";
 		String usermail = username + "@localhost";
-		KatelloUser usr = new KatelloUser(username, usermail, userpass, false,
+		KatelloUser usr = new KatelloUser(cli_worker, username, usermail, userpass, false,
 				this.organization, this.env);
 		res = usr.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue() == 0,
@@ -159,7 +160,7 @@ public class UserTests extends KatelloCliTestBase{
 		String userpass = "password";
 		String usermail = username+"@localhost";
 		
-		KatelloUser usr = new KatelloUser(username, usermail, userpass, false);
+		KatelloUser usr = new KatelloUser(cli_worker, username, usermail, userpass, false);
 		res = usr.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+KatelloUser.CMD_CREATE+")");
 		Assert.assertTrue(getOutput(res).contains(
@@ -177,14 +178,14 @@ public class UserTests extends KatelloCliTestBase{
 	
 	@Test(description="Generates User Report - pdf format", groups={"headpin-cli"})
 	public void test_UserReport_pdf(){
-		KatelloUtils.sshOnClient("rm -f katello_users_report.pdf");
+		sshOnClient("rm -f katello_users_report.pdf");
 		SSHCommandResult res;
 		String format = "pdf";
 		KatelloUser usr = new KatelloUser();
 		res = usr.report(format);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+KatelloUser.CMD_REPORT+")");
 		
-		res = KatelloUtils.sshOnClient("ls -la | grep katello_users_report.pdf");
+		res = sshOnClient("ls -la | grep katello_users_report.pdf");
 		Assert.assertTrue(getOutput(res).contains("katello_users_report.pdf"));
 	}
 	
@@ -223,7 +224,7 @@ public class UserTests extends KatelloCliTestBase{
 		String unique_role_ID = KatelloUtils.getUniqueID();
 		String user_role_name = "user-role"+unique_role_ID;
 		String role_desc = "Assigned " + user_role_name + " to user " + username; 
-		KatelloUser usr = new KatelloUser(username, usermail, userpass, false);
+		KatelloUser usr = new KatelloUser(cli_worker, username, usermail, userpass, false);
 		res = usr.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+KatelloUser.CMD_CREATE+")");
 		Assert.assertTrue(getOutput(res).contains(
@@ -231,7 +232,7 @@ public class UserTests extends KatelloCliTestBase{
 				"Check - returned output string ("+KatelloUser.CMD_CREATE+")");
 		
 		usr.asserts_create();
-		KatelloUserRole usr_role = new KatelloUserRole(user_role_name,role_desc);
+		KatelloUserRole usr_role = new KatelloUserRole(cli_worker, user_role_name,role_desc);
         res = usr_role.create();
         Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+KatelloUserRole.CMD_CREATE+")");
         Assert.assertTrue(getOutput(res).contains(String.format(KatelloUserRole.OUT_CREATE, user_role_name)),
@@ -333,7 +334,7 @@ public class UserTests extends KatelloCliTestBase{
 		String username = "user-" + uniqueID;
 		String userpass = "password";
 		String usermail = username + "@localhost";
-		KatelloUser usr = new KatelloUser(username, usermail, userpass, false,
+		KatelloUser usr = new KatelloUser(cli_worker, username, usermail, userpass, false,
 				this.organization, this.env);
 		res = usr.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue() == 0,
@@ -354,7 +355,7 @@ public class UserTests extends KatelloCliTestBase{
 		String username = "user-" + uniqueID;
 		String userpass = "password";
 		String usermail = username + "@localhost";
-		KatelloUser usr = new KatelloUser(username, usermail, userpass, false,
+		KatelloUser usr = new KatelloUser(cli_worker, username, usermail, userpass, false,
 				this.organization, this.env2);
 		res = usr.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue() == 65,"Check - return code (environment delete)");
@@ -366,9 +367,9 @@ public class UserTests extends KatelloCliTestBase{
 	
 	@Test(description="access to cli calls by providing an empty password", groups={"headpin-cli"}, enabled=false) // TODO - try to find out why it fails on group running - TODO for gkhachik
 	public void test_getAccessWithEmptyPassword(){
-		KatelloUser userAdmin = new KatelloUser(System.getProperty("katello.admin.user"), 
+		KatelloUser userAdmin = new KatelloUser(cli_worker, System.getProperty("katello.admin.user"), 
 				null,"", false);
-		KatelloOrg org = new KatelloOrg(organization, null);
+		KatelloOrg org = new KatelloOrg(this.cli_worker, organization, null);
 		org.runAs(userAdmin);
 		SSHCommandResult res = org.cli_list();
 		Assert.assertTrue(res.getExitCode().intValue()==145, 
@@ -379,9 +380,9 @@ public class UserTests extends KatelloCliTestBase{
 	
 	@Test(description="fb2f0a12-b2e8-4654-a20f-d986080d5f05", groups={"headpin-cli"}, enabled=true) // TODO - try to find out why it fails on group running - TODO for gkhachik
 	public void test_loginIncorrectUsername() {
-		KatelloUser userAdmin = new KatelloUser("wrong", 
+		KatelloUser userAdmin = new KatelloUser(cli_worker, "wrong", 
 				null, System.getProperty("katello.admin.password"), false);
-		KatelloOrg org = new KatelloOrg(organization, null);
+		KatelloOrg org = new KatelloOrg(this.cli_worker, organization, null);
 		org.runAs(userAdmin);
 		SSHCommandResult res = org.cli_list();
 		Assert.assertTrue(res.getExitCode().intValue()==145, 
@@ -392,9 +393,9 @@ public class UserTests extends KatelloCliTestBase{
 
 	@Test(description="78b4fdca-479d-4022-9b28-3eda1455bbff", groups={"headpin-cli"}, enabled=true) // TODO - try to find out why it fails on group running - TODO for gkhachik
 	public void test_loginIncorrectPassword() {
-		KatelloUser userAdmin = new KatelloUser(System.getProperty("katello.admin.user"), 
+		KatelloUser userAdmin = new KatelloUser(cli_worker, System.getProperty("katello.admin.user"), 
 				null, "wrong", false);
-		KatelloOrg org = new KatelloOrg(organization, null);
+		KatelloOrg org = new KatelloOrg(this.cli_worker, organization, null);
 		org.runAs(userAdmin);
 		SSHCommandResult res = org.cli_list();
 		Assert.assertTrue(res.getExitCode().intValue()==145, 
@@ -405,9 +406,9 @@ public class UserTests extends KatelloCliTestBase{
 
 	@Test(description="8569772a-82fc-4412-8d5c-fcffafa6a5de", groups={"headpin-cli"})
 	public void test_loginIncorrectCredentials() {
-		KatelloUser userAdmin = new KatelloUser("wrong", 
+		KatelloUser userAdmin = new KatelloUser(cli_worker, "wrong", 
 				null, "wrong", false);
-		KatelloOrg org = new KatelloOrg(organization, null);
+		KatelloOrg org = new KatelloOrg(this.cli_worker, organization, null);
 		org.runAs(userAdmin);
 		SSHCommandResult res = org.cli_list();
 		Assert.assertTrue(res.getExitCode().intValue()==145, 
@@ -425,8 +426,8 @@ public class UserTests extends KatelloCliTestBase{
 	    String readonly_email = readonly_user_name + "@redhat.com";
 	    String readonly_pass = "redhat";
 	    String org_name = "readonly_org-"+ uniqueID;
-	    KatelloOrg org = new KatelloOrg(org_name,null);
-	    KatelloUser readonly_user = new KatelloUser(readonly_user_name,readonly_email,readonly_pass,false,this.organization,this.env);
+	    KatelloOrg org = new KatelloOrg(this.cli_worker, org_name,null);
+	    KatelloUser readonly_user = new KatelloUser(cli_worker, readonly_user_name,readonly_email,readonly_pass,false,this.organization,this.env);
 	    res = readonly_user.cli_create();
 	    Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code (" + KatelloUser.CMD_CREATE + ")");
 	    res=readonly_user.assign_role(KatelloUserRole.ROLE_READ_EVERYTHING);
@@ -434,9 +435,13 @@ public class UserTests extends KatelloCliTestBase{
 	    org.runAs(readonly_user);
 	    res = org.cli_create();
 	    Assert.assertTrue(res.getExitCode().intValue() == 147, "Check - return code");
-
 	}
 	
+	@AfterClass(description="destroy", alwaysRun=true)
+	public void tearDown(){
+		
+	}
+
 	private void assert_userInfo(KatelloUser user){
 		SSHCommandResult res;
 		res = user.cli_info();
@@ -453,7 +458,7 @@ public class UserTests extends KatelloCliTestBase{
 		String userpass = "password";
 		String usermail = username+"@localhost";
 		
-		KatelloUser user = new KatelloUser(username, usermail, userpass, false);
+		KatelloUser user = new KatelloUser(cli_worker, username, usermail, userpass, false);
 		user.cli_create();
 		
 		return user;
@@ -463,7 +468,7 @@ public class UserTests extends KatelloCliTestBase{
 		String uniqueID = KatelloUtils.getUniqueID();
 		String rolename = "role-"+uniqueID;
 		String descr = "role-desc";
-		KatelloUserRole role = new KatelloUserRole(rolename, descr);
+		KatelloUserRole role = new KatelloUserRole(cli_worker, rolename, descr);
 		role.create();
 		
 		return role;

@@ -48,28 +48,28 @@ public class ErrataTests extends KatelloCliLongrunBase {
 		this.group_name1 = "testgroup1" + uid;
 		
 		if(!findSyncedRhelToUse()){
-			exec_result = new KatelloOrg(base_org_name, null).cli_create();
+			exec_result = new KatelloOrg(this.cli_worker, base_org_name, null).cli_create();
 			Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - exit.Code");
-			KatelloUtils.scpOnClient("data/"+manifestZip, "/tmp");
-			exec_result = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, base_org_name, null, null).import_manifest("/tmp/"+manifestZip, new Boolean(true));
+			KatelloUtils.scpOnClient(cli_worker.getClientHostname(), "data/"+manifestZip, "/tmp");
+			exec_result = new KatelloProvider(this.cli_worker, KatelloProvider.PROVIDER_REDHAT, base_org_name, null, null).import_manifest("/tmp/"+manifestZip, new Boolean(true));
 			Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-			KatelloProduct prod=new KatelloProduct(KatelloProduct.RHEL_SERVER, base_org_name, KatelloProvider.PROVIDER_REDHAT, null, null, null,null, null);
+			KatelloProduct prod=new KatelloProduct(this.cli_worker, KatelloProduct.RHEL_SERVER, base_org_name, KatelloProvider.PROVIDER_REDHAT, null, null, null,null, null);
 			exec_result = prod.repository_set_enable(KatelloProduct.REPOSET_RHEL6_RPMS);
 			Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (repo set enable)");
-			KatelloRepo repo = new KatelloRepo(KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT,base_org_name, KatelloProduct.RHEL_SERVER, null, null, null);
+			KatelloRepo repo = new KatelloRepo(this.cli_worker, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT,base_org_name, KatelloProduct.RHEL_SERVER, null, null, null);
 			exec_result = repo.enable();
 			Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (repo enable)");
 			Assert.assertTrue(getOutput(exec_result).contains("enabled."),"Message - (repo enable)");
 		}
 		
-		exec_result = new KatelloEnvironment(env_name, null, base_org_name, KatelloEnvironment.LIBRARY).cli_create();
+		exec_result = new KatelloEnvironment(this.cli_worker, env_name, null, base_org_name, KatelloEnvironment.LIBRARY).cli_create();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - exit.Code");
 	}
 
 	@Test(description="Sync RHEL6Server content")
 	public void test_syncRhel6(){
 		// sync
-		KatelloRepo repo = new KatelloRepo(KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, base_org_name, KatelloProduct.RHEL_SERVER, null, null, null);
+		KatelloRepo repo = new KatelloRepo(this.cli_worker, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, base_org_name, KatelloProduct.RHEL_SERVER, null, null, null);
 
 		exec_result = repo.status();
 		this.repoSynced = !getOutput(exec_result).equals("Not synced");
@@ -80,25 +80,25 @@ public class ErrataTests extends KatelloCliLongrunBase {
 		exec_result = repo.info();
 		Assert.assertFalse(KatelloUtils.grepCLIOutput("Package Count", getOutput(exec_result)).equals("0"), "Check - package count is NOT 0");
 		
-		exec_result = new KatelloOrg(base_org_name, null).subscriptions();
+		exec_result = new KatelloOrg(this.cli_worker, base_org_name, null).subscriptions();
 		poolId1 = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
 	}
 
 	
 	@Test(description="promote rhel repo")
 	public void test_promoteRHELRepo() {
-		content_view_promote = KatelloUtils.promoteRepoToEnvironment(base_org_name, KatelloProduct.RHEL_SERVER, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, env_name);	
+		content_view_promote = KatelloUtils.promoteRepoToEnvironment(cli_worker, base_org_name, KatelloProduct.RHEL_SERVER, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, env_name);	
 		
 		configureClient("actkeywholerepopromote" + uid, content_view_promote, sys_name, env_name);
 	}
 	
 	@Test(description="list RHEL repo erratas on content view", dependsOnMethods={"test_promoteRHELRepo"})
 	public void test_listRHELErratas() {
-		KatelloErrata err = new KatelloErrata(base_org_name, KatelloProduct.RHEL_SERVER, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, null);
+		KatelloErrata err = new KatelloErrata(cli_worker, base_org_name, KatelloProduct.RHEL_SERVER, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, null);
 		exec_result = err.custom_list_errata_names("RHBA");
 		ert1 = getOutput(exec_result).replaceAll("\n", ",").split(",")[0];
 		
-		KatelloErrata errata = new KatelloErrata(base_org_name, KatelloProduct.RHEL_SERVER, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, content_view_promote);
+		KatelloErrata errata = new KatelloErrata(cli_worker, base_org_name, KatelloProduct.RHEL_SERVER, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, content_view_promote);
 		
 		exec_result = errata.custom_list_errata_count("RHBA");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
@@ -115,14 +115,14 @@ public class ErrataTests extends KatelloCliLongrunBase {
 	
 	@Test(description="promote rhel errata", dependsOnMethods={"test_listRHELErratas"})
 	public void test_promoteRHELErrata() {
-		content_view_promote_errata = KatelloUtils.promoteErratasToEnvironment(base_org_name, KatelloProduct.RHEL_SERVER, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, new String[] {ert1}, env_name);	
+		content_view_promote_errata = KatelloUtils.promoteErratasToEnvironment(cli_worker, base_org_name, KatelloProduct.RHEL_SERVER, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, new String[] {ert1}, env_name);	
 		
 		configureClient("actkeyerratapromote" + uid, content_view_promote_errata, sys_name, env_name);
 	}
 	
 	@Test(description="list rhel repo errata promoted to test environment", dependsOnMethods={"test_promoteRHELErrata"})
 	public void test_listRHELRepoErrata() {
-		KatelloErrata errata = new KatelloErrata(base_org_name, KatelloProduct.RHEL_SERVER, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, content_view_promote_errata);
+		KatelloErrata errata = new KatelloErrata(cli_worker, base_org_name, KatelloProduct.RHEL_SERVER, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, content_view_promote_errata);
 		exec_result = errata.cli_list();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).trim().contains(ert1), "Errata " + ert1 + " is listed in environment errata list");
@@ -130,10 +130,10 @@ public class ErrataTests extends KatelloCliLongrunBase {
 	
 	@Test(description="install errata", dependsOnMethods={"test_listRHELRepoErrata"})
 	public void test_installRHELRepoErrata() {
-		KatelloUtils.sshOnClient("yum clean all");
-		exec_result = KatelloUtils.sshOnClient("yum repolist");
+		sshOnClient("yum clean all");
+		exec_result = sshOnClient("yum repolist");
 		
-		KatelloSystemGroup group = new KatelloSystemGroup(group_name, base_org_name);
+		KatelloSystemGroup group = new KatelloSystemGroup(this.cli_worker, group_name, base_org_name);
 		exec_result = group.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		exec_result = group.add_systems(system_uuid);
@@ -144,8 +144,8 @@ public class ErrataTests extends KatelloCliLongrunBase {
 		Assert.assertTrue(getOutput(exec_result).trim().contains("Remote action finished"));
 		Assert.assertTrue(getOutput(exec_result).trim().contains("Erratum Install Complete"));
 		
-		KatelloUtils.sshOnClient("service rhsmcertd restart");
-		try { Thread.sleep(65000); } catch (Exception ex) {}
+		sshOnClient("service rhsmcertd restart");
+		try { Thread.sleep(3000); } catch (Exception ex) {}
 		
 		exec_result = group.list_erratas();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
@@ -154,10 +154,10 @@ public class ErrataTests extends KatelloCliLongrunBase {
 
 	@Test(description="delete promoted rhel errata", dependsOnMethods={"test_installRHELRepoErrata"})
 	public void test_deleteRHELErrata() {
-		KatelloContentView view = new KatelloContentView(content_view_promote, base_org_name);		
+		KatelloContentView view = new KatelloContentView(cli_worker, content_view_promote, base_org_name);		
 		String def_name = KatelloUtils.grepCLIOutput("Definition", getOutput(view.view_info()).trim(),1);
 		
-		KatelloContentFilter filter = new KatelloContentFilter("Filter"+uid, base_org_name, def_name);
+		KatelloContentFilter filter = new KatelloContentFilter(cli_worker, "Filter"+uid, base_org_name, def_name);
 		exec_result = filter.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		exec_result = filter.add_repo(KatelloProduct.RHEL_SERVER, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT);
@@ -178,7 +178,7 @@ public class ErrataTests extends KatelloCliLongrunBase {
 	
 	@Test(description="list rhel repo errata deleted to test environment", dependsOnMethods={"test_deleteRHELErrata"})
 	public void test_listRHELRepoErrataDeleted() {
-		KatelloErrata errata = new KatelloErrata(base_org_name, KatelloProduct.RHEL_SERVER, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, content_view_promote);
+		KatelloErrata errata = new KatelloErrata(cli_worker, base_org_name, KatelloProduct.RHEL_SERVER, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, content_view_promote);
 		exec_result = errata.cli_list();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertFalse(getOutput(exec_result).trim().contains(ert1), "Errata " + ert1 + " is not listed in environment errata list");
@@ -187,10 +187,10 @@ public class ErrataTests extends KatelloCliLongrunBase {
 	//@ TODO bug 970720
 	@Test(description="install errata which was excluded by filter, verify that it fails", dependsOnMethods={"test_listRHELRepoErrataDeleted"})
 	public void test_installRHELRepoExcludedErrata() {
-		KatelloUtils.sshOnClient("yum clean all");
-		exec_result = KatelloUtils.sshOnClient("yum repolist");
+		sshOnClient("yum clean all");
+		exec_result = sshOnClient("yum repolist");
 		
-		KatelloSystemGroup group = new KatelloSystemGroup(group_name1, base_org_name);
+		KatelloSystemGroup group = new KatelloSystemGroup(this.cli_worker, group_name1, base_org_name);
 		exec_result = group.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		exec_result = group.add_systems(system_uuid);
@@ -204,7 +204,7 @@ public class ErrataTests extends KatelloCliLongrunBase {
 	private void configureClient(String activationKey, String contentView, String systemName, String envName) {
 		rhsm_clean();
 		
-		KatelloActivationKey act_key = new KatelloActivationKey(base_org_name, envName, activationKey, "Act key created");
+		KatelloActivationKey act_key = new KatelloActivationKey(this.cli_worker, base_org_name, envName, activationKey, "Act key created");
 		exec_result = act_key.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");      
 		exec_result = act_key.update_add_content_view(contentView);
@@ -212,15 +212,15 @@ public class ErrataTests extends KatelloCliLongrunBase {
 		exec_result = act_key.update_add_subscription(poolId1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		KatelloSystem sys = new KatelloSystem(systemName, base_org_name, envName);
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, systemName, base_org_name, envName);
 			exec_result = sys.rhsm_registerForce(activationKey); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		exec_result = sys.rhsm_identity();
 		system_uuid = KatelloUtils.grepCLIOutput("Current identity is", exec_result.getStdout());
 		
-		KatelloUtils.sshOnClient("sed -i -e \"s/certFrequency.*/certFrequency = 1/\" /etc/rhsm/rhsm.conf");
-		KatelloUtils.sshOnClient("service rhsmcertd restart");
+		sshOnClient("sed -i -e \"s/certFrequency.*/certFrequency = 1/\" /etc/rhsm/rhsm.conf");
+		sshOnClient("service rhsmcertd restart");
 		yum_clean();
-		KatelloUtils.sshOnClient("service goferd restart;");		
+		sshOnClient("service goferd restart;");		
 	}
 }

@@ -3,10 +3,8 @@ package com.redhat.qe.katello.tests.cli;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
@@ -47,48 +45,49 @@ public class ContentDefinitionTest extends KatelloCliTestBase{
 		provider_name2 = "provider2"+uid;
 		product_name2 = "product2"+uid;
 		repo_name2 = "repo2"+uid;
-		
-		this._cvdClone = "cvdClone-"+uid;
+		_cvdClone = "cvdClone-"+uid;
+	}
 
+	@Test(description="initialization goes here")
+	public void init(){
 		// Create org:
-		KatelloOrg org = new KatelloOrg(this.org_name,"Package tests");
+		KatelloOrg org = new KatelloOrg(this.cli_worker, this.org_name,"Package tests");
 		exec_result = org.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		// Create provider:
-		KatelloProvider prov = new KatelloProvider(provider_name, org_name, "Package provider", PULP_RHEL6_x86_64_REPO);
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, provider_name, org_name, "Package provider", PULP_RHEL6_x86_64_REPO);
 		exec_result = prov.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		// Create product:
-		KatelloProduct prod = new KatelloProduct(product_name, org_name, provider_name, null, null, null, null, null);
+		KatelloProduct prod = new KatelloProduct(this.cli_worker, product_name, org_name, provider_name, null, null, null, null, null);
 		exec_result = prod.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		KatelloRepo repo = new KatelloRepo(repo_name, org_name, product_name, PULP_RHEL6_x86_64_REPO, null, null);
+		KatelloRepo repo = new KatelloRepo(this.cli_worker, repo_name, org_name, product_name, PULP_RHEL6_x86_64_REPO, null, null);
 		exec_result = repo.create(true);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		// Create second provider:
-		prov = new KatelloProvider(provider_name2, org_name, "Package provider", REPO_INECAS_ZOO3);
+		prov = new KatelloProvider(this.cli_worker, provider_name2, org_name, "Package provider", REPO_INECAS_ZOO3);
 		exec_result = prov.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		// Create product:
-		prod = new KatelloProduct(product_name2, org_name, provider_name2, null, null, null, null, null);
+		prod = new KatelloProduct(this.cli_worker, product_name2, org_name, provider_name2, null, null, null, null, null);
 		exec_result = prod.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		repo = new KatelloRepo(repo_name2, org_name, product_name2, REPO_INECAS_ZOO3, null, null);
+		repo = new KatelloRepo(this.cli_worker, repo_name2, org_name, product_name2, REPO_INECAS_ZOO3, null, null);
 		exec_result = repo.create(true);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		// init-s
 		init_cvdClone();
 	}
-
 	
-	@Test(description = "Create new content definition")
+	@Test(description = "Create new content definition", dependsOnMethods={"init"})
 	public void test_Create() {
 		
 		KatelloContentDefinition content = createContentDefinition();
@@ -99,25 +98,25 @@ public class ContentDefinitionTest extends KatelloCliTestBase{
 	
 	@Test(description = "Edit content definition", dependsOnMethods={"test_Create"})
 	public void test_Edit() {
-		KatelloContentDefinition content = new KatelloContentDefinition(content_name_edit, "descritpion", org_name, content_name_edit);
+		KatelloContentDefinition content = new KatelloContentDefinition(cli_worker, content_name_edit, "descritpion", org_name, content_name_edit);
 		content.update("edited description");
 		content.description = "edited description";
 		assert_ContentViewDefinitionInfo(content);
 	}
 	
-	@Test(description = "Create Content Def with empty name, verify error")
+	@Test(description = "Create Content Def with empty name, verify error", dependsOnMethods={"init"})
 	public void test_createContentDefEmptyName() {
-		KatelloContentDefinition content = new KatelloContentDefinition("", null, org_name, null);
+		KatelloContentDefinition content = new KatelloContentDefinition(cli_worker, "", null, org_name, null);
 		exec_result = content.create();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 166, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(KatelloContentDefinition.ERR_NAME_EMPTY), "Check - error string (content create)");
 	}
 	
-	@Test(description = "Create Content Def with long name, verify error")
+	@Test(description = "Create Content Def with long name, verify error", dependsOnMethods={"init"})
 	public void test_createContentDefLongName() {
 		String name = KatelloCliDataProvider.strRepeat("Lorem ipsum dolor sit amet", 14);
 		
-		KatelloContentDefinition content = new KatelloContentDefinition(name, null, org_name, null);
+		KatelloContentDefinition content = new KatelloContentDefinition(cli_worker, name, null, org_name, null);
 		exec_result = content.create();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 166, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).equals(KatelloContentDefinition.ERR_NAME_LONG), "Check - error string (content create)");
@@ -142,13 +141,13 @@ public class ContentDefinitionTest extends KatelloCliTestBase{
 	
 	@Test(description = "Edit content definition second time", dependsOnMethods={"test_delete"})
 	public void test_Edit2() {
-		KatelloContentDefinition content = new KatelloContentDefinition(content_name_edit, "descritpion", org_name, content_name_edit);
+		KatelloContentDefinition content = new KatelloContentDefinition(cli_worker, content_name_edit, "descritpion", org_name, content_name_edit);
 		content.update("edited descr 2");
 		content.description = "edited descr 2";
 		assert_ContentViewDefinitionInfo(content);
 	}
 	
-	@Test(description = "Create new content definition, add product into it")
+	@Test(description = "Create new content definition, add product into it", dependsOnMethods={"init"})
 	public void test_addProduct() {
 		KatelloContentDefinition content = createContentDefinition();
 		content_name_prod = content.name;
@@ -166,7 +165,7 @@ public class ContentDefinitionTest extends KatelloCliTestBase{
 
 	@Test(description = "remove product from definition", dependsOnMethods={"test_addProduct"})
 	public void test_removeProduct() {
-		KatelloContentDefinition content = new KatelloContentDefinition(content_name_prod, "descritpion", org_name, content_name_prod);
+		KatelloContentDefinition content = new KatelloContentDefinition(cli_worker, content_name_prod, "descritpion", org_name, content_name_prod);
 		
 		exec_result = content.remove_product(product_name2);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
@@ -176,7 +175,7 @@ public class ContentDefinitionTest extends KatelloCliTestBase{
 		assert_ContentViewDefinitionInfo(content);
 	}
 
-	@Test(description = "Create new content definition, add repo into it")
+	@Test(description = "Create new content definition, add repo into it", dependsOnMethods={"init"})
 	public void test_addRepo() {
 		KatelloContentDefinition content = createContentDefinition();
 		content_name_repo = content.name;
@@ -194,7 +193,7 @@ public class ContentDefinitionTest extends KatelloCliTestBase{
 
 	@Test(description = "remove repo from definition", dependsOnMethods={"test_addRepo"})
 	public void test_removeRepo() {
-		KatelloContentDefinition content = new KatelloContentDefinition(content_name_repo, "descritpion", org_name, content_name_repo);
+		KatelloContentDefinition content = new KatelloContentDefinition(cli_worker, content_name_repo, "descritpion", org_name, content_name_repo);
 		
 		exec_result = content.remove_repo(product_name2, repo_name2);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
@@ -210,11 +209,11 @@ public class ContentDefinitionTest extends KatelloCliTestBase{
 	 * @author gkhachik
 	 * @since 15.April.2013
 	 */
-	@Test(description="Clone content definition")
+	@Test(description="Clone content definition", dependsOnMethods={"init"})
 	public void test_clone(){
 		String sCvdOrigin = this._cvdClone+"-origin";
 		String sCvdClone = this._cvdClone+"-clone";
-		KatelloContentDefinition cvdOrigin = new KatelloContentDefinition(sCvdOrigin, null, this.org_name, null);
+		KatelloContentDefinition cvdOrigin = new KatelloContentDefinition(cli_worker, sCvdOrigin, null, this.org_name, null);
 		exec_result = cvdOrigin.create();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		exec_result = cvdOrigin.add_product(this._cvdClone);
@@ -226,7 +225,7 @@ public class ContentDefinitionTest extends KatelloCliTestBase{
 		Assert.assertTrue(getOutput(exec_result).equals(
 				String.format(KatelloContentDefinition.OUT_CLONE_SUCCESSFUL,sCvdClone)), 
 				"Check - stdout (successfully cloned)");
-		KatelloContentDefinition cvdClone = new KatelloContentDefinition(sCvdClone, null, this.org_name, null);
+		KatelloContentDefinition cvdClone = new KatelloContentDefinition(cli_worker, sCvdClone, null, this.org_name, null);
 
 		exec_result = cvdClone.list();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
@@ -239,10 +238,10 @@ public class ContentDefinitionTest extends KatelloCliTestBase{
 		Assert.assertTrue(KatelloUtils.grepCLIOutput("Composite",getOutput(exec_result)).equals("False"), "Check - stdout (content definition info: Composite)");
 		Assert.assertTrue(KatelloUtils.grepCLIOutput("Org",getOutput(exec_result)).equals(this.org_name), "Check - stdout (content definition info: Org)");
 	}
-	
+
 	private void assert_contentList(List<KatelloContentDefinition> contents, List<KatelloContentDefinition> excludeContents) {
 
-		SSHCommandResult res = new KatelloContentDefinition(null, null, org_name, null).list();
+		SSHCommandResult res = new KatelloContentDefinition(cli_worker, null, null, org_name, null).list();
 
 		//contents that exist in list
 		for(KatelloContentDefinition cont : contents){
@@ -277,7 +276,7 @@ public class ContentDefinitionTest extends KatelloCliTestBase{
 	
 	private KatelloContentDefinition createContentDefinition() {
 		content_name = "content"+KatelloUtils.getUniqueID();
-		KatelloContentDefinition content = new KatelloContentDefinition(content_name, "descritpion", org_name, content_name);
+		KatelloContentDefinition content = new KatelloContentDefinition(cli_worker, content_name, "descritpion", org_name, content_name);
 		exec_result = content.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentDefinition.OUT_CREATE_DEFINITION, content_name)), "Check - out string (content create)");
@@ -291,18 +290,18 @@ public class ContentDefinitionTest extends KatelloCliTestBase{
 	 * @since 15.Apr.2013
 	 */
 	private void init_cvdClone(){
-		exec_result = new KatelloProvider(this._cvdClone, this.org_name, null, null).create();
+		exec_result = new KatelloProvider(this.cli_worker, this._cvdClone, this.org_name, null, null).create();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
-		exec_result = new KatelloProduct(this._cvdClone, this.org_name, this._cvdClone, null, null, null, null, null).create();
+		exec_result = new KatelloProduct(this.cli_worker, this._cvdClone, this.org_name, this._cvdClone, null, null, null, null, null).create();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		// create repo zoo
-		exec_result = new KatelloRepo(this._cvdClone+"-zoo", this.org_name, this._cvdClone, REPO_INECAS_ZOO3, null, null).create(true);
+		exec_result = new KatelloRepo(this.cli_worker, this._cvdClone+"-zoo", this.org_name, this._cvdClone, REPO_INECAS_ZOO3, null, null).create(true);
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		// create repo pulp
-		exec_result = new KatelloRepo(this._cvdClone+"-pulp", this.org_name, this._cvdClone, PULP_RHEL6_x86_64_REPO, null, null).create(true);
+		exec_result = new KatelloRepo(this.cli_worker, this._cvdClone+"-pulp", this.org_name, this._cvdClone, PULP_RHEL6_x86_64_REPO, null, null).create(true);
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		// sync the provider
-		exec_result = new KatelloProvider(this._cvdClone, this.org_name, null, null).synchronize();
+		exec_result = new KatelloProvider(this.cli_worker, this._cvdClone, this.org_name, null, null).synchronize();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 	}
 }

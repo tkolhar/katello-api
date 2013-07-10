@@ -18,6 +18,7 @@ import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
+@Test(singleThreaded = true)
 public class ProductsSameName extends KatelloCliTestBase {
 	
 	protected static Logger log = Logger.getLogger(ProductsSameName.class.getName());
@@ -52,38 +53,38 @@ public class ProductsSameName extends KatelloCliTestBase {
 		system_name = "system"+uid;
 		
 		// Create org:
-		KatelloOrg org = new KatelloOrg(this.org_name,"Package tests");
+		KatelloOrg org = new KatelloOrg(this.cli_worker, this.org_name,"Package tests");
 		exec_result = org.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		// Create provider:
-		KatelloProvider prov = new KatelloProvider(provider_name, org_name, "Package provider", null);
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, provider_name, org_name, "Package provider", null);
 		exec_result = prov.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		// Create product 1:
-		KatelloProduct prod = new KatelloProduct(product_name, org_name, provider_name, null, null, null, null, null);
+		KatelloProduct prod = new KatelloProduct(this.cli_worker, product_name, org_name, provider_name, null, null, null, null, null);
 		exec_result = prod.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		exec_result = prod.cli_list();
 		product_id = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result), 1);
 	
 		// Create product 2:
-		KatelloProduct prod2 = new KatelloProduct(product_name2, org_name, provider_name, null, null, null, null, null);
+		KatelloProduct prod2 = new KatelloProduct(this.cli_worker, product_name2, org_name, provider_name, null, null, null, null, null);
 		exec_result = prod2.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		exec_result = prod.cli_list();
 		product_id2 = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result), 1);
 				
-		KatelloRepo repo = new KatelloRepo(repo_name, org_name, null, REPO_HHOVSEPY_ZOO4, null, null,null,product_id);
+		KatelloRepo repo = new KatelloRepo(this.cli_worker, repo_name, org_name, null, REPO_HHOVSEPY_ZOO4, null, null,null,product_id);
 		exec_result = repo.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		KatelloRepo repo2 = new KatelloRepo(repo_name2, org_name, null, REPO_INECAS_ZOO3, null, null,null,product_id2);
+		KatelloRepo repo2 = new KatelloRepo(this.cli_worker, repo_name2, org_name, null, REPO_INECAS_ZOO3, null, null,null,product_id2);
 		exec_result = repo2.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		KatelloEnvironment env = new KatelloEnvironment(env_name, null, org_name, KatelloEnvironment.LIBRARY);
+		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, env_name, null, org_name, KatelloEnvironment.LIBRARY);
 		exec_result = env.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
@@ -91,15 +92,15 @@ public class ProductsSameName extends KatelloCliTestBase {
 		exec_result = prov.synchronize();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code"); // provider sync will do sync both repos
 		
-		this.contentView = KatelloUtils.promoteProductIDsToEnvironment(org_name, new String[] {product_id, product_id2}, env_name);
+		this.contentView = KatelloUtils.promoteProductIDsToEnvironment(cli_worker, org_name, new String[] {product_id, product_id2}, env_name);
 		
-		KatelloUtils.sshOnClient(String.format("yum -y erase %s %s || true",package1,package2));
+		sshOnClient(String.format("yum -y erase %s %s || true",package1,package2));
 	}
 	
 	@Test(description="package list of two repos")
 	public void test_packageList() {
 		
-		KatelloPackage pack = new KatelloPackage(null, null, org_name, null, repo_name, null);
+		KatelloPackage pack = new KatelloPackage(cli_worker, null, null, org_name, null, repo_name, null);
 		pack.setProductId(product_id);
 		pack.content_view = this.contentView;
 		
@@ -108,7 +109,7 @@ public class ProductsSameName extends KatelloCliTestBase {
 		
 		Assert.assertTrue(getOutput(exec_result).contains(package1), "found package: "+package1);
 				
-		KatelloPackage pack2 = new KatelloPackage(null, null, org_name, null, repo_name2, null);
+		KatelloPackage pack2 = new KatelloPackage(cli_worker, null, null, org_name, null, repo_name2, null);
 		pack2.setProductId(product_id2);
 		pack2.content_view = this.contentView;
 		
@@ -122,14 +123,14 @@ public class ProductsSameName extends KatelloCliTestBase {
 	@Test(description="package info of two repos")
 	public void test_packageInfo() {
 		
-		KatelloPackage pack = new KatelloPackage(package1, null, org_name, null, repo_name, null);
+		KatelloPackage pack = new KatelloPackage(cli_worker, package1, null, org_name, null, repo_name, null);
 		pack.setProductId(product_id); 
 		pack.content_view = this.contentView;
 		exec_result = pack.cli_info();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(package1));
 
-		KatelloPackage pack2 = new KatelloPackage(package2, null, org_name, null, repo_name2, null);
+		KatelloPackage pack2 = new KatelloPackage(cli_worker, package2, null, org_name, null, repo_name2, null);
 		pack2.setProductId(product_id2);
 		pack2.content_view = this.contentView;
 		exec_result = pack2.cli_info();
@@ -141,7 +142,7 @@ public class ProductsSameName extends KatelloCliTestBase {
 	public void testInstallPackage() {
 		rhsm_clean();
 		
-		KatelloSystem sys = new KatelloSystem(this.system_name, this.org_name, this.env_name+"/"+this.contentView);
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, this.system_name, this.org_name, this.env_name+"/"+this.contentView);
 		exec_result = sys.rhsm_registerForce(); 
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
@@ -159,17 +160,17 @@ public class ProductsSameName extends KatelloCliTestBase {
 		
 		sys.rhsm_refresh();
 		
-		exec_result = KatelloUtils.sshOnClient("yum -y install "+package2);
+		exec_result = sshOnClient("yum -y install "+package2);
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (install "+package2+")");
 
-		exec_result = KatelloUtils.sshOnClient("yum -y install "+package1);
+		exec_result = sshOnClient("yum -y install "+package1);
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (install "+package1+")");
 	}
 	
 	@AfterClass(description="uninstall rpm-s, cleanup the rhsm registration", alwaysRun=true)
 	public void destroy(){
 		log.info("cleanup previousely installed rpm-s");
-		KatelloUtils.sshOnClient(String.format("yum -y erase %s %s || true",package1,package2));
+		sshOnClient(String.format("yum -y erase %s %s || true",package1,package2));
 		rhsm_clean();
 	}
 

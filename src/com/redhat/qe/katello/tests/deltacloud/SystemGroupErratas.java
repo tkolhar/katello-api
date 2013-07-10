@@ -21,21 +21,21 @@ public class SystemGroupErratas extends BaseDeltacloudTest {
 		rhsm_clean(client_name2);
 		rhsm_clean(client_name3);
 		
-		KatelloSystem sys = new KatelloSystem(system_name, org_name, env_name);
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, system_name, org_name, env_name);
 		sys.runOn(client_name);
 		exec_result = sys.rhsm_registerForce(zoo_act_key); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");		
 		exec_result = sys.rhsm_identity();
 		system_uuid = KatelloUtils.grepCLIOutput("Current identity is", exec_result.getStdout());
 		
-		sys = new KatelloSystem(system_name2, org_name, env_name);
+		sys = new KatelloSystem(this.cli_worker, system_name2, org_name, env_name);
 		sys.runOn(client_name2);
 		exec_result = sys.rhsm_registerForce(zoo_act_key); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		exec_result = sys.rhsm_identity();
 		system_uuid2 = KatelloUtils.grepCLIOutput("Current identity is", exec_result.getStdout());
 		
-		sys = new KatelloSystem(system_name3, org_name, env_name);
+		sys = new KatelloSystem(this.cli_worker, system_name3, org_name, env_name);
 		sys.runOn(client_name3);
 		exec_result = sys.rhsm_registerForce(zoo_act_key); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
@@ -46,7 +46,7 @@ public class SystemGroupErratas extends BaseDeltacloudTest {
 		group_name = "group_"+uid;
 		group_name2 = "group2_"+uid;
 		
-		KatelloSystemGroup group = new KatelloSystemGroup(group_name, org_name);
+		KatelloSystemGroup group = new KatelloSystemGroup(this.cli_worker, group_name, org_name);
 		exec_result = group.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
@@ -59,7 +59,7 @@ public class SystemGroupErratas extends BaseDeltacloudTest {
 		exec_result = group.add_systems(system_uuid3);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		group = new KatelloSystemGroup(group_name2, org_name);
+		group = new KatelloSystemGroup(this.cli_worker, group_name2, org_name);
 		exec_result = group.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
@@ -95,12 +95,12 @@ public class SystemGroupErratas extends BaseDeltacloudTest {
 	public void test_errataListOnSystemGroup() {
 		setUpErratas();
 		
-		KatelloSystemGroup group = new KatelloSystemGroup(group_name, org_name);
+		KatelloSystemGroup group = new KatelloSystemGroup(this.cli_worker, group_name, org_name);
 		exec_result = group.list_erratas();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains(PromoteErrata.ERRATA_ZOO_SEA), "Check - errata list output");
 		
-		group = new KatelloSystemGroup(group_name2, org_name);
+		group = new KatelloSystemGroup(this.cli_worker, group_name2, org_name);
 		exec_result = group.list_erratas("security");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains(PromoteErrata.ERRATA_ZOO_SEA), "Check - errata list output");
@@ -117,7 +117,7 @@ public class SystemGroupErratas extends BaseDeltacloudTest {
 	
 	@Test(description = "Install the errata on system group", dependsOnMethods={"test_errataDetailsOnSystemGroup"})
 	public void test_errataInstallOnSystemGroup() {
-		KatelloSystemGroup group = new KatelloSystemGroup(group_name, org_name);
+		KatelloSystemGroup group = new KatelloSystemGroup(this.cli_worker, group_name, org_name);
 		exec_result = group.erratas_install(PromoteErrata.ERRATA_ZOO_SEA);
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("Remote action finished"));
@@ -135,7 +135,7 @@ public class SystemGroupErratas extends BaseDeltacloudTest {
 	public void test_erratInstallWithDependencyOnSystemGroup() {
 		setUpErratas();
 		
-		KatelloSystemGroup group = new KatelloSystemGroup(group_name, org_name);
+		KatelloSystemGroup group = new KatelloSystemGroup(this.cli_worker, group_name, org_name);
 		
 		exec_result = group.erratas_install("RHBA-2012:1007");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
@@ -155,7 +155,7 @@ public class SystemGroupErratas extends BaseDeltacloudTest {
 	public void test_errataListInstallOnSystemGroup() {		
 		setUpErratas();
 		
-		KatelloSystemGroup group = new KatelloSystemGroup(group_name, org_name);
+		KatelloSystemGroup group = new KatelloSystemGroup(this.cli_worker, group_name, org_name);
 		
 		exec_result = group.list_errata_names("RHBA");
 		String ert1 = getOutput(exec_result).replaceAll("\n", ",").split(",")[0];
@@ -183,12 +183,12 @@ public class SystemGroupErratas extends BaseDeltacloudTest {
 	public void test_errataInstallOnClonnedSystemGroup() {
 		setUpErratas();
 		
-		KatelloSystemGroup group = new KatelloSystemGroup(group_name, org_name);
+		KatelloSystemGroup group = new KatelloSystemGroup(this.cli_worker, group_name, org_name);
 		
 		exec_result = group.copy("cloned" + group.name, null, null);
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		
-		group = new KatelloSystemGroup("cloned" + group.name, org_name);
+		group = new KatelloSystemGroup(this.cli_worker, "cloned" + group.name, org_name);
 		
 		exec_result = group.erratas_install(PromoteErrata.ERRATA_ZOO_SEA);
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
@@ -204,7 +204,7 @@ public class SystemGroupErratas extends BaseDeltacloudTest {
 	}
 	
 	private void verifyErrataDetailsOnSystemGroup(String groupName, int systemCount, List<String> existingSystems) {
-		KatelloSystemGroup group = new KatelloSystemGroup(groupName, org_name);
+		KatelloSystemGroup group = new KatelloSystemGroup(this.cli_worker, groupName, org_name);
 		exec_result = group.list_errata_details("security");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		String sysregexp = "";

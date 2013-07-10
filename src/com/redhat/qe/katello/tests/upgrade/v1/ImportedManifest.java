@@ -59,15 +59,15 @@ public class ImportedManifest implements KatelloConstants {
 			dependsOnMethods={"init"}, 
 			groups={TNG_PRE_UPGRADE})
 	public void createOrgsAndSyncRepo(){
-		KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);
-		KatelloUtils.sshOnClient("rpm -e "+KatelloGpgKey.GPG_PUBKEY_RPM_ZOO+" || true");
+		KatelloUtils.sshOnClient(null, KatelloSystem.RHSM_CLEAN);
+		KatelloUtils.sshOnClient(null, "rpm -e "+KatelloGpgKey.GPG_PUBKEY_RPM_ZOO+" || true");
 				
         //this org contains imported manifest with RHEL repo promoted to environments
         // DO NOT DELETE THIS ORG IN TEAR_DOWN
-		KatelloOrg org = new KatelloOrg(_org, null);
-		KatelloEnvironment env1 = new KatelloEnvironment(_env_1, null, _org, KatelloEnvironment.LIBRARY);
-		KatelloEnvironment env2 = new KatelloEnvironment(_env_2, null, _org, _env_1);
-		KatelloEnvironment env3 = new KatelloEnvironment(_env_3, null, _org, _env_2);
+		KatelloOrg org = new KatelloOrg(null, _org, null);
+		KatelloEnvironment env1 = new KatelloEnvironment(null, _env_1, null, _org, KatelloEnvironment.LIBRARY);
+		KatelloEnvironment env2 = new KatelloEnvironment(null, _env_2, null, _org, _env_1);
+		KatelloEnvironment env3 = new KatelloEnvironment(null, _env_3, null, _org, _env_2);
 		
 		org.cli_create();
 		env1.cli_create();
@@ -80,7 +80,7 @@ public class ImportedManifest implements KatelloConstants {
 			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE}, 
 			groups={TNG_POST_UPGRADE})
 	public void checkOrgsSurvived(){
-		KatelloOrg org = new KatelloOrg(_org, null);
+		KatelloOrg org = new KatelloOrg(null, _org, null);
 		SSHCommandResult res = org.cli_info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (org info)");
 	}
@@ -89,15 +89,15 @@ public class ImportedManifest implements KatelloConstants {
 			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE}, 
 			groups={TNG_POST_UPGRADE})
 	public void checkEnvironmentsSurvived(){
-		KatelloEnvironment env = new KatelloEnvironment(_env_1, null, _org, KatelloEnvironment.LIBRARY);
+		KatelloEnvironment env = new KatelloEnvironment(null, _env_1, null, _org, KatelloEnvironment.LIBRARY);
 		SSHCommandResult res = env.cli_info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (env info)");
 		
-		env = new KatelloEnvironment(_env_2, null, _org, KatelloEnvironment.LIBRARY);
+		env = new KatelloEnvironment(null, _env_2, null, _org, KatelloEnvironment.LIBRARY);
 		res = env.cli_info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (env info)");
 		
-		env = new KatelloEnvironment(_env_3, null, _org, KatelloEnvironment.LIBRARY);
+		env = new KatelloEnvironment(null, _env_3, null, _org, KatelloEnvironment.LIBRARY);
 		res = env.cli_info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (env info)");
 	}
@@ -106,7 +106,7 @@ public class ImportedManifest implements KatelloConstants {
 			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE}, 
 			groups={TNG_POST_UPGRADE})
 	public void checkOrgCreate(){
-		KatelloOrg org = new KatelloOrg(_neworg, null);
+		KatelloOrg org = new KatelloOrg(null, _neworg, null);
 		SSHCommandResult res = org.cli_create();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (org create)");		
 	}
@@ -115,7 +115,7 @@ public class ImportedManifest implements KatelloConstants {
 			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE}, 
 			groups={TNG_POST_UPGRADE}, dependsOnMethods={"checkOrgCreate"})
 	public void checkOrgRemove(){
-		KatelloOrg org = new KatelloOrg(_neworg, null);
+		KatelloOrg org = new KatelloOrg(null, _neworg, null);
 		SSHCommandResult res = org.delete();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (org remove)");		
 	}
@@ -124,7 +124,7 @@ public class ImportedManifest implements KatelloConstants {
 			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE}, 
 			groups={TNG_POST_UPGRADE})
 	public void checkUserCreate(){
-		KatelloUser user = new KatelloUser(_newuser, "newuser@localhost", "redhat", false);
+		KatelloUser user = new KatelloUser(null, _newuser, "newuser@localhost", "redhat", false);
 		SSHCommandResult res = user.cli_create();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (user create)");	
 	}
@@ -133,7 +133,7 @@ public class ImportedManifest implements KatelloConstants {
 			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE}, 
 			groups={TNG_POST_UPGRADE}, dependsOnMethods={"checkUserCreate"})
 	public void checkUserRemove(){
-		KatelloUser user = new KatelloUser(_newuser, "newuser@localhost", "redhat", false);
+		KatelloUser user = new KatelloUser(null, _newuser, "newuser@localhost", "redhat", false);
 		SSHCommandResult res = user.delete();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (user remove)");		
 	}

@@ -58,34 +58,34 @@ public class UserPermissionTests extends KatelloCliTestBase {
 		this.envs[0] = "Dev" + uid;
 		this.envs[1] = "Test" + uid;
 		
-		KatelloOrg org = new KatelloOrg(this.org, null);
+		KatelloOrg org = new KatelloOrg(this.cli_worker, this.org, null);
 		res = org.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		
-		KatelloEnvironment env = new KatelloEnvironment(this.envs[0], null, this.org, KatelloEnvironment.LIBRARY);
+		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, this.envs[0], null, this.org, KatelloEnvironment.LIBRARY);
 		res = env.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		
-		env = new KatelloEnvironment(this.envs[1], null, this.org, KatelloEnvironment.LIBRARY);
+		env = new KatelloEnvironment(this.cli_worker, this.envs[1], null, this.org, KatelloEnvironment.LIBRARY);
 		res = env.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		
-		KatelloProvider prov = new KatelloProvider(this.provider, this.org, null, null);
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, this.provider, this.org, null, null);
 		res = prov.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		
-		KatelloSystemGroup sysgrp = new KatelloSystemGroup(this.group, this.org);
+		KatelloSystemGroup sysgrp = new KatelloSystemGroup(this.cli_worker, this.group, this.org);
 		res = sysgrp.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 	}
 	
-	@AfterClass(description="remove all created stuff")
+	@AfterClass(description="remove all created stuff", alwaysRun=true)
 	public void tearDown() {
 		
 		KatelloPermission perm;
 		for (String prm : permissions) {
 			for (String rl : roles) {
-				perm = new KatelloPermission(prm, this.org, null, null, 
+				perm = new KatelloPermission(cli_worker, prm, this.org, null, null, 
 					null, rl);
 				perm.delete();
 			}
@@ -93,17 +93,17 @@ public class UserPermissionTests extends KatelloCliTestBase {
 		
 		KatelloUser usr;
 		for (String user : users) {
-			usr = new KatelloUser(user, null, null, true);
+			usr = new KatelloUser(cli_worker, user, null, null, true);
 			usr.delete();
 		}
 		
 		KatelloUserRole role;
 		for (String rl : roles) {
-			role = new KatelloUserRole(rl, null);
+			role = new KatelloUserRole(cli_worker, rl, null);
 			role.cli_delete();
 		}
 		
-		KatelloOrg org = new KatelloOrg(this.org, null);
+		KatelloOrg org = new KatelloOrg(this.cli_worker, this.org, null);
 		org.delete();
 	}
 	
@@ -112,12 +112,12 @@ public class UserPermissionTests extends KatelloCliTestBase {
 		String userpass = "Redhat@1234";
 		String usermail = users[0] + "@localhost";
 		
-		user1 = new KatelloUser(users[0], usermail, userpass, false);
+		user1 = new KatelloUser(cli_worker, users[0], usermail, userpass, false);
 		SSHCommandResult res = user1.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		
 		usermail = users[1] + "@localhost";
-		user2 = new KatelloUser(users[1], usermail, userpass, false);
+		user2 = new KatelloUser(cli_worker, users[1], usermail, userpass, false);
 		res = user2.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 	}
@@ -125,11 +125,11 @@ public class UserPermissionTests extends KatelloCliTestBase {
 	@Test(description="create roles - for default org", dependsOnMethods={"test_createUsers"}, enabled=true)
 	public void test_createRoles() {
 		
-		KatelloUserRole role = new KatelloUserRole(roles[0], "Role 1");
+		KatelloUserRole role = new KatelloUserRole(cli_worker, roles[0], "Role 1");
 		SSHCommandResult res = role.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 
-		role = new KatelloUserRole(roles[1], "Role 2");
+		role = new KatelloUserRole(cli_worker, roles[1], "Role 2");
 		res = role.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		
@@ -142,27 +142,27 @@ public class UserPermissionTests extends KatelloCliTestBase {
 	@Test(description="create permissions - for default org", dependsOnMethods={"test_createUsers", "test_createRoles"}, enabled=true)
 	public void test_createPermissions() {
 		
-		KatelloPermission perm = new KatelloPermission(this.permissions[0], this.org, "environments", null, 
+		KatelloPermission perm = new KatelloPermission(cli_worker, this.permissions[0], this.org, "environments", null, 
 				"register_systems", this.roles[0]);
 		SSHCommandResult res = perm.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		
-		perm = new KatelloPermission(this.permissions[1], this.org, "organizations", null, 
+		perm = new KatelloPermission(cli_worker, this.permissions[1], this.org, "organizations", null, 
 				"read,update", this.roles[0]);
 		res = perm.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		
-		perm = new KatelloPermission(this.permissions[2], this.org, "providers", provider, 
+		perm = new KatelloPermission(cli_worker, this.permissions[2], this.org, "providers", provider, 
 				"read", this.roles[1]);
 		res = perm.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		
-		perm = new KatelloPermission(this.permissions[3], this.org, "system_groups", null, 
+		perm = new KatelloPermission(cli_worker, this.permissions[3], this.org, "system_groups", null, 
 				"create, delete, update, read", this.roles[1]);
 		res = perm.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		
-		perm = new KatelloPermission(this.permissions[4], this.org, "system_groups", group, 
+		perm = new KatelloPermission(cli_worker, this.permissions[4], this.org, "system_groups", group, 
 				"delete, update, read", this.roles[1]);
 		res = perm.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
@@ -172,7 +172,7 @@ public class UserPermissionTests extends KatelloCliTestBase {
 	public void test_userAccess() {
 		SSHCommandResult res;
 		
-		KatelloOrg organization = new KatelloOrg(org, "");
+		KatelloOrg organization = new KatelloOrg(this.cli_worker, org, "");
 		organization.runAs(user1);
 		res = organization.update("test description");
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
@@ -180,11 +180,11 @@ public class UserPermissionTests extends KatelloCliTestBase {
 		Assert.assertTrue(res.getExitCode().intValue()==147, "Check - return code");
 		organization.runAs(null);
 		
-		KatelloProvider prov = new KatelloProvider("Prov" + uid, org, "", null);
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, "Prov" + uid, org, "", null);
 		prov.runAs(user2);
 		res = prov.create();
 		Assert.assertTrue(res.getExitCode().intValue()==147, "Check - return code");
-		prov = new KatelloProvider(provider, org, "", null);
+		prov = new KatelloProvider(this.cli_worker, provider, org, "", null);
 		prov.runAs(user2);
 		res = prov.update(null, null, "new descr");
 		Assert.assertTrue(res.getExitCode().intValue()==147, "Check - return code");
@@ -194,11 +194,11 @@ public class UserPermissionTests extends KatelloCliTestBase {
 		Assert.assertTrue(res.getExitCode().intValue()==147, "Check - return code");
 		prov.runAs(null);
 		
-		KatelloSystemGroup group = new KatelloSystemGroup("testgroup" + uid, org);
+		KatelloSystemGroup group = new KatelloSystemGroup(this.cli_worker, "testgroup" + uid, org);
 		group.runAs(user2);
 		res = group.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		group = new KatelloSystemGroup(this.group, org);
+		group = new KatelloSystemGroup(this.cli_worker, this.group, org);
 		prov.runAs(user2);
 		res = group.update(null, "new descr", 5);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");

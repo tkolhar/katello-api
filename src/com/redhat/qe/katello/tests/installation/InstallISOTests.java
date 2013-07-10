@@ -55,7 +55,7 @@ public class InstallISOTests extends KatelloCliTestBase {
 			KatelloUtils.sshOnServer("katello-configure --db-name=katello --db-user=katello --db-password=katello --deployment=katello --user-name=admin --user-pass=admin --katello-web-workers=2 --job-workers=2 --es-min-mem=512M --es-max-mem=1024M");
 		}
 		
-		KatelloPing ping_obj= new KatelloPing();
+		KatelloPing ping_obj= new KatelloPing(cli_worker);
 		exec_result = ping_obj.cli_ping(); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 	}
