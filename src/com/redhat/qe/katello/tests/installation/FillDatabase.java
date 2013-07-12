@@ -124,6 +124,10 @@ public class FillDatabase extends KatelloCliTestBase implements KatelloConstants
 		SSHCommandResult res = org.cli_info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (org info)");
 		
+		org = new KatelloOrg(cli_worker, base_org_name, null);
+		res = org.cli_info();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (org info)");
+		
 		KatelloUserRole role1 = new KatelloUserRole(cli_worker, _role1, null);
 		res = role1.cli_info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (role info)");
@@ -149,9 +153,22 @@ public class FillDatabase extends KatelloCliTestBase implements KatelloConstants
 			dependsOnGroups={TNG_PRE_BACKUP, TNG_BACKUP}, 
 			groups={TNG_POST_RECOVERY})
 	public void checkRepoSurvived(){
-		KatelloRepo repo = new KatelloRepo(cli_worker, _repo, _org, _product, REPO_INECAS_ZOO3, null, null);
+		KatelloRepo repo = new KatelloRepo(cli_worker, _repo, _org, _product, null, null, null);
 		SSHCommandResult res = repo.info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (org info)");
+		
+		repo = new KatelloRepo(cli_worker, base_zoo_repo_name, base_org_name, base_zoo_product_name, null, null, null);
+		res = repo.info();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (org info)");
+
+		repo = new KatelloRepo(cli_worker, base_zoo4_repo_name, base_org_name, base_zoo4_product_name, null, null, null);
+		res = repo.info();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (org info)");
+		
+		repo = new KatelloRepo(cli_worker, base_pulp_repo_name, base_org_name, base_pulp_product_name, null, null, null);
+		res = repo.info();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (org info)");
+		
 	}
 	
 }

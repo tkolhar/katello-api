@@ -112,9 +112,7 @@ public class BackupRecovery extends KatelloCliTestBase {
 	@Test(description="reset katello on server", groups={TNG_BACKUP}, dependsOnGroups={TNG_PRE_BACKUP},
 			enabled=true, dependsOnMethods={"checkBackup"})
 	public void resetKatello() {
-		SSHCommandResult res = KatelloUtils.sshOnServer("katello-configure --db-name=katello --db-user=katello --db-password=katello --deployment=katello" +
-				" --user-name=admin --user-pass=admin --katello-web-workers=2 --job-workers=2 --es-min-mem=512M --es-max-mem=1024M" +
-				" --reset-cache=YES --reset-data=YES");
+		SSHCommandResult res = KatelloUtils.sshOnServer(KatelloUtils.getKatelloConfigureCommand() + " --reset-cache=YES --reset-data=YES");
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		
 		KatelloUtils.sshOnServer("subscription-manager clean; yum clean all");
