@@ -3,6 +3,7 @@ package com.redhat.qe.katello.base;
 import org.testng.annotations.DataProvider;
 import com.redhat.qe.katello.base.obj.KatelloDistributor;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
+import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.common.KatelloUtils;
 
 public class KatelloCliDataProvider {
@@ -249,12 +250,18 @@ public class KatelloCliDataProvider {
 		return new Object[][] {
 				{ "env-aa", "env-aa", new Integer(0),null},
 				{ strRepeat("0123456789", 12)+"abcdefgh",strRepeat("0123456789", 12)+"abcdefgh", new Integer(0),null},
-				{ " ", "value", new Integer(166),"Validation failed: Keyname can't be blank"},
+				{ " ", "value", new Integer(166),KatelloSystem.ERR_BLANK_KEYNAME},
 				{ "desc-specChars"+uid, "\\!@%^&*(_-~+=\\||,.)", new Integer(0),null},
 				{"desc-256Chars"+uid, strRepeat("0123456789", 25)+"abcdef",new Integer(166), "Validation failed: Value is too long (maximum is 255 characters)"},
 				{strRepeat("0123456789", 25)+"abcdef", "desc-256Chars", new Integer(166), "Validation failed: Keyname is too long (maximum is 255 characters)"},
 				{ "special chars <h1>html</h1>", "html in keyname", new Integer(0), null},
 				{ "html in value", "special chars <h1>html</h1>", new Integer(0), null},
+				{"key-blank-val", "", new Integer(0), null},
+				{strRepeat("0123456789", 25)+"abcdef", "desc-256Chars", new Integer(166), KatelloSystem.ERR_KEY_TOO_LONG},
+				{strRepeat("0123456789", 25)+"abcde", "desc-255Chars", new Integer(0), null},
+				{"desc-255Chars", strRepeat("0123456789", 25)+"abcde", new Integer(0), null},
+				{"desc-256Chars", strRepeat("0123456789", 25)+"abcdef", new Integer(166), KatelloSystem.ERR_VALUE_TOO_LONG},
+				{"special:@!#$%^&*()","value_foo@!#$%^&*()", new Integer(0),null},
 		};
 	}
 

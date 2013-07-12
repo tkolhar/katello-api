@@ -56,6 +56,11 @@ public class KatelloSystem extends _KatelloObject{
 	public static final String ERR_DELETE_ACCESS = 
 			"Invalid credentials";
 	public static final String ERR_UPDATE = "User %s is not allowed to access api/v1/systems/update";
+	public static final String ERR_BLANK_KEYNAME = "Validation failed: Keyname can't be blank";
+	public static final String ERR_DUPLICATE_KEYNAME = "Validation failed: Keyname already exists for this object";
+	public static final String ERR_INVALID_KEY = "Couldn't find custom info with keyname '%s'"; 
+	public static final String ERR_KEY_TOO_LONG = "Validation failed: Keyname is too long (maximum is 255 characters)";
+	public static final String ERR_VALUE_TOO_LONG = "Validation failed: Value is too long (maximum is 255 characters)";
 	
 	public static final String OUT_REMOTE_ACTION_DONE = "Remote action finished:";
 	public static final String OUT_RHSM_SUBSCRIBED_OK = 
