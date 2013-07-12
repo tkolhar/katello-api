@@ -3,11 +3,9 @@ package com.redhat.qe.katello.tests.cli;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import org.testng.annotations.AfterClass;
+import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
@@ -436,12 +434,21 @@ public class UserTests extends KatelloCliTestBase{
 	    res = org.cli_create();
 	    Assert.assertTrue(res.getExitCode().intValue() == 147, "Check - return code");
 	}
-	
-	@AfterClass(description="destroy", alwaysRun=true)
-	public void tearDown(){
-		
-	}
 
+	@Test(description = "create user - non-Latin variations of user names", groups={"headpin-cli"}, 
+			dataProviderClass=KatelloCliDataProvider.class, dataProvider="user_create")
+	public void test_createUser_variations(String username, String userpass, String usermail, Boolean pDisable){
+		SSHCommandResult res;
+		KatelloUser user = new KatelloUser(cli_worker, username, usermail, userpass, pDisable);
+		res = user.cli_create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+KatelloUser.CMD_CREATE+")");
+		Assert.assertTrue(getOutput(res).contains(
+				String.format(KatelloUser.OUT_CREATE,username)), 
+				"Check - returned output string ("+KatelloUser.CMD_CREATE+")");
+
+		user.asserts_create();
+	}
+	
 	private void assert_userInfo(KatelloUser user){
 		SSHCommandResult res;
 		res = user.cli_info();
@@ -473,5 +480,4 @@ public class UserTests extends KatelloCliTestBase{
 		
 		return role;
 	}
-
 }

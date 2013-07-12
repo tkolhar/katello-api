@@ -317,4 +317,19 @@ public class KatelloCliDataProvider {
 				{"test_distributor"+uid,new Integer(166),"Validation failed: Name already taken"},	
 		};		
 	}
+	
+	@DataProvider(name = "user_create")
+	public static Object[][] user_create(){
+		String uid = KatelloUtils.getUniqueID();
+		return new Object[][] {
+				//name, email, password, disabled
+				{"newUserName"+uid, "newUserName@redhat.com", "newUserName", false }, 
+				{"նոր օգտվող"+uid, "newUser@redhat.com", "նոր օգտվող", false},
+				{"新用戶"+uid, "newUser@redhat.com", "新用戶", false},
+				{"नए उपयोगकर्ता"+uid, "newUser@redhat.com", "नए उपयोगकर्ता", false},
+				{"нового пользователя"+uid, "newUser@redhat.com", "нового пользователя", false},
+				{"uusi käyttäjä"+uid, "newUser@redhat.com", "uusi käyttäjä", false},
+				{"νέος χρήστης"+uid, "newUser@redhat.com", "νέος χρήστης", false},
+		};
+	}
 }
