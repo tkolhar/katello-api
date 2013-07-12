@@ -28,9 +28,9 @@
 			<class name="com.redhat.qe.katello.tests.e2e.SystemEnvironments"/>
 			<class name="com.redhat.qe.katello.tests.e2e.SystemListAccess"/>
 			<class name="com.redhat.qe.katello.tests.e2e.SystemsReport"/>
+			<class name="com.redhat.qe.katello.tests.e2e.OrgReCreate"/>
 <!--
 	SECTION OF BROKEN TESTS
-			<class name="com.redhat.qe.katello.tests.e2e.OrgReCreate"/>
 			<class name="com.redhat.qe.katello.tests.e2e.PackagesWithGPGKey"/>
 			<class name="com.redhat.qe.katello.tests.e2e.PromoteErrata"/>
 			<class name="com.redhat.qe.katello.tests.e2e.PromoteChangeset"/>
@@ -150,6 +150,18 @@
 		<classes>
 		    <class name="com.redhat.qe.katello.tests.installation.SetupServers"/>
 			<class name="com.redhat.qe.katello.tests.installation.InstallISOTests"/>
+		</classes>
+	</test>
+	<test name="Katello_Backup_Tests">
+		<groups>
+			<run>
+				<include name="cfse-cli"/>
+			</run>
+		</groups>
+		<classes>
+			<class name="com.redhat.qe.katello.tests.installation.SetupServers"/>
+			<class name="com.redhat.qe.katello.tests.installation.FillDatabase"/>
+			<class name="com.redhat.qe.katello.tests.installation.BackupRecovery"/>
 		</classes>
 	</test>
 </suite>

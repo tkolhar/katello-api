@@ -14,29 +14,19 @@ import com.redhat.qe.tools.SSHCommandResult;
 @Test(groups=TngRunGroups.TNG_KATELLO_Environment)
 public class EnvironmentTests extends KatelloCliTestBase{
 
-	private String organization;
-
 	@BeforeClass(description="init: create org stuff")
 	public void setUp(){
-		SSHCommandResult res;
-		String uid = KatelloUtils.getUniqueID();
-		this.organization = "env-"+uid;
-		KatelloOrg org = new KatelloOrg(this.cli_worker, this.organization, null);
-		res = org.cli_create();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-
-		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, "BAR", "BAR env", this.organization, KatelloEnvironment.LIBRARY);
-		res = env.cli_create();
+		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, "BAR", "BAR env", base_org_name, KatelloEnvironment.LIBRARY);
+		SSHCommandResult res = env.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 	}
-
 
 	@Test(description="create Environment",  
 			dataProvider="environment_create", dataProviderClass = KatelloCliDataProvider.class, enabled=true)
 	public void testEnv_create(String name, String descr, Integer exitCode, String output){
 		SSHCommandResult res;
 
-		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, name, descr, this.organization, KatelloEnvironment.LIBRARY);
+		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, name, descr, base_org_name, KatelloEnvironment.LIBRARY);
 		res = env.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue() == exitCode.intValue(), "Check - return code");
 
@@ -52,12 +42,12 @@ public class EnvironmentTests extends KatelloCliTestBase{
 		SSHCommandResult res;
 		String output = "Validation failed: Name : 'Library' is a built-in environment, Name of environment must be unique within one organization, Label : 'Library' is a built-in environment, Label of environment must be unique within one organization";
 
-		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, KatelloEnvironment.LIBRARY, "Library env", this.organization, KatelloEnvironment.LIBRARY);
+		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, KatelloEnvironment.LIBRARY, "Library env", base_org_name, KatelloEnvironment.LIBRARY);
 		res = env.cli_create();
 		Assert.assertEquals(res.getExitCode().intValue(), 166, "Check - return code");
 		Assert.assertTrue(getOutput(res).contains(output),"Check - returned error string");
 
-		env = new KatelloEnvironment(this.cli_worker, KatelloEnvironment.LIBRARY, "Library env", this.organization, "BAR");
+		env = new KatelloEnvironment(this.cli_worker, KatelloEnvironment.LIBRARY, "Library env", base_org_name, "BAR");
 		res = env.cli_create();
 		Assert.assertEquals(res.getExitCode().intValue(), 166, "Check - return code");
 		Assert.assertTrue(getOutput(res).contains(output),"Check - returned error string");
@@ -70,7 +60,7 @@ public class EnvironmentTests extends KatelloCliTestBase{
 		String uid = KatelloUtils.getUniqueID();
 		String name = "env-"+uid;
 		String descr = "Environment "+ name  + " Created";
-		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, name,descr,this.organization,KatelloEnvironment.LIBRARY);
+		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, name,descr,base_org_name,KatelloEnvironment.LIBRARY);
 		res = env.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(res).contains(
@@ -88,7 +78,7 @@ public class EnvironmentTests extends KatelloCliTestBase{
 		String uid = KatelloUtils.getUniqueID();
 		String envName="env-delete_act_key-"+ uid; 
 		SSHCommandResult res;
-		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, envName, "Environment created", this.organization, KatelloEnvironment.LIBRARY);
+		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, envName, "Environment created", base_org_name, KatelloEnvironment.LIBRARY);
 		res = env.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (environment create)");
 		Assert.assertTrue(getOutput(res).contains(
@@ -103,7 +93,7 @@ public class EnvironmentTests extends KatelloCliTestBase{
 		res = env.cli_info();
 		Assert.assertTrue(res.getExitCode().intValue() == 65,"Check - return code (environment delete)");
 		Assert.assertTrue(getOutput(res).contains(
-				String.format(KatelloEnvironment.ERROR_INFO,envName,this.organization)), 
+				String.format(KatelloEnvironment.ERROR_INFO,envName,base_org_name)), 
 				"Check - returned output string ("+KatelloEnvironment.CMD_INFO+")");	
 		res = env.cli_list();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (environment list)");
@@ -115,7 +105,7 @@ public class EnvironmentTests extends KatelloCliTestBase{
 		SSHCommandResult res;
 		String uid = KatelloUtils.getUniqueID();
 		String name = "env-"+uid;
-		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, name,null,this.organization,KatelloEnvironment.LIBRARY);
+		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, name,null,base_org_name,KatelloEnvironment.LIBRARY);
 		res = env.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(res).contains(
@@ -148,9 +138,9 @@ public class EnvironmentTests extends KatelloCliTestBase{
 		String env2_name = "env2-"+uid;
 		String descr_env1 = "Environment "+ env1_name  + " Created";
 		String descr_env2 = "Environment "+ env2_name + " Created";
-		KatelloEnvironment env1 = new KatelloEnvironment(this.cli_worker, env1_name,descr_env1,this.organization,KatelloEnvironment.LIBRARY);
-		KatelloEnvironment env2 = new KatelloEnvironment(this.cli_worker, env2_name,descr_env2,this.organization,KatelloEnvironment.LIBRARY);
-		sys_reg = new KatelloSystem(this.cli_worker, sys_name,this.organization,env1_name);
+		KatelloEnvironment env1 = new KatelloEnvironment(this.cli_worker, env1_name,descr_env1,base_org_name,KatelloEnvironment.LIBRARY);
+		KatelloEnvironment env2 = new KatelloEnvironment(this.cli_worker, env2_name,descr_env2,base_org_name,KatelloEnvironment.LIBRARY);
+		sys_reg = new KatelloSystem(this.cli_worker, sys_name,base_org_name,env1_name);
 		res = env1.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(res).contains(String.format(KatelloEnvironment.OUT_CREATE,env1_name)),"Check - returned output string ("+KatelloEnvironment.CMD_CREATE+")");
@@ -159,7 +149,7 @@ public class EnvironmentTests extends KatelloCliTestBase{
 		Assert.assertTrue(res.getStdout().trim().contains(KatelloSystem.OUT_CREATE),"Check - output (success)");
 		res = env1.cli_info();      
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
-		sys_reg = new KatelloSystem(this.cli_worker, sys_name,this.organization,env2_name);  
+		sys_reg = new KatelloSystem(this.cli_worker, sys_name,base_org_name,env2_name);  
 		res = env2.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(res).contains(String.format(KatelloEnvironment.OUT_CREATE,env2_name)),"Check - returned output string ("+KatelloEnvironment.CMD_CREATE+")");

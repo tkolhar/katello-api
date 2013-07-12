@@ -36,6 +36,7 @@ public class ProductsSameName extends KatelloCliTestBase {
 	private String product_name;
 	private String product_name2;
 	private String system_name;
+	private String package_id, package_id2;
 	private String product_id, product_id2;
 	
 	private String contentView;
@@ -117,20 +118,26 @@ public class ProductsSameName extends KatelloCliTestBase {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		Assert.assertTrue(getOutput(exec_result).contains(package2), "found package: "+package2);
+		pack.name = package1;
+		package_id = pack.custom_packageId();
+		Assert.assertNotNull(package_id, "Package ID is not null");
+		pack2.name = package2;
+		package_id2 = pack2.custom_packageId();
+		Assert.assertNotNull(package_id2, "Package ID is not null");
 	}
 
 	//@ TODO Bug 921103
-	@Test(description="package info of two repos")
+	@Test(description="package info of two repos", dependsOnMethods={"test_packageList"})
 	public void test_packageInfo() {
 		
-		KatelloPackage pack = new KatelloPackage(cli_worker, package1, null, org_name, null, repo_name, null);
+		KatelloPackage pack = new KatelloPackage(cli_worker, package_id, null, org_name, null, repo_name, null);
 		pack.setProductId(product_id); 
 		pack.content_view = this.contentView;
 		exec_result = pack.cli_info();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(package1));
 
-		KatelloPackage pack2 = new KatelloPackage(cli_worker, package2, null, org_name, null, repo_name2, null);
+		KatelloPackage pack2 = new KatelloPackage(cli_worker, package_id2, null, org_name, null, repo_name2, null);
 		pack2.setProductId(product_id2);
 		pack2.content_view = this.contentView;
 		exec_result = pack2.cli_info();

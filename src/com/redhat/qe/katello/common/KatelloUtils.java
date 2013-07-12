@@ -741,4 +741,11 @@ public class KatelloUtils implements KatelloConstants {
 	    log.severe("ERROR: Output can not be extracted for the property: ["+property+"]");
 	    return null;
 	}
+	
+	public static String getKatelloConfigureCommand() {
+		StringBuilder result = new StringBuilder("katello-configure --deployment=" + KatelloConstants.KATELLO_PRODUCT + " ");
+		String configFile = KatelloUtils.sshOnServer("cat /etc/katello/katello-configure.conf | grep -Ev \"^#\"").getStdout();
+		result.append(configFile.replaceAll("\\n", " "));
+		return result.toString();
+	}
 }

@@ -112,14 +112,11 @@ public class BackupRecovery extends KatelloCliTestBase {
 		Assert.assertTrue(getOutput(res).contains("pgsql_data.tar.gz"), "Result should contain pgsql_data.tar.gz");
 	}
 	
-	@Test(description="reinstall katello on server", groups={TNG_BACKUP}, dependsOnGroups={TNG_PRE_BACKUP},
-			enabled=true, dependsOnMethods={"checkBackup"})
-	public void reinstallKatello() {
-		SSHCommandResult res = KatelloUtils.sshOnServer("wget https://raw.github.com/Katello/katello/master/scripts/katello_remove.sh");
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		
-		KatelloUtils.sshOnServer("chmod a+x katello_remove.sh");
-		res = KatelloUtils.sshOnServer("./katello_remove.sh");
+	@Test(description="reset katello on server", groups={TNG_BACKUP}, dependsOnGroups={TNG_PRE_BACKUP},
+		       enabled=true, dependsOnMethods={"checkBackup"})
+	public void resetKatello() {
+		SSHCommandResult res = KatelloUtils.sshOnServer(KatelloUtils.getKatelloConfigureCommand() +
+				" --reset-data=YES --reset-cache=YES --no-bars -b");
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		
 		KatelloUtils.sshOnServer("subscription-manager clean; yum clean all");
@@ -132,7 +129,7 @@ public class BackupRecovery extends KatelloCliTestBase {
 	}
 	
 	@Test(description="prepare for restores", groups={TNG_BACKUP}, dependsOnGroups={TNG_PRE_BACKUP},
-			enabled=true, dependsOnMethods={"reinstallKatello"})
+			enabled=true, dependsOnMethods={"resetKatello"})
 	public void prepareRestore() {
 		SSHCommandResult res = KatelloUtils.sshOnServer("restorecon -Rnv /");
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");

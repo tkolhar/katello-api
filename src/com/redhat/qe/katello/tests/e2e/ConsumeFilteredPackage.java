@@ -106,6 +106,9 @@ public class ConsumeFilteredPackage extends KatelloCliTestBase {
 				new FilterRulePackage("tiger"),
 				new FilterRulePackage("lion"),
 				new FilterRulePackage("bear"),
+				new FilterRulePackage("whale"),
+				new FilterRulePackage("shark"),
+				new FilterRulePackage("stork"),
 				new FilterRulePackage("cockateel"),
 				new FilterRulePackage("cow", "2.2", null, null),
 				new FilterRulePackage("walrus", "0.71", null, null),
@@ -159,7 +162,8 @@ public class ConsumeFilteredPackage extends KatelloCliTestBase {
 
 		exec_result = sys.subscribe(poolId1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-
+		
+		KatelloUtils.sshOnClient(cli_worker.getClientHostname(), "subscription-manager refresh; service rhsmcertd restart");
 		yum_clean();
 
 		KatelloPackage pack = new KatelloPackage(cli_worker, org_name, prod_name, repo_name, pubview_name);

@@ -140,7 +140,7 @@ public class ConsumeFilteredPackageGroup extends KatelloCliTestBase {
 		exec_result = sys.subscribe(poolId1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
-
+		KatelloUtils.sshOnClient(cli_worker.getClientHostname(), "subscription-manager refresh; service rhsmcertd restart");
 		yum_clean();		
 		
 		// consume packages from group mammals, verify that they are available

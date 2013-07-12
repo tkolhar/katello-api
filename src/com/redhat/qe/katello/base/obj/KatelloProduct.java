@@ -7,6 +7,7 @@ import javax.management.Attribute;
 import org.testng.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.threading.KatelloCliWorker;
+import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class KatelloProduct extends _KatelloObject{
@@ -295,6 +296,13 @@ public class KatelloProduct extends _KatelloObject{
 		while(toks.hasMoreTokens()) 
 			_ret.add(toks.nextToken().trim());
 		return _ret;
+	}
+	
+	public String custom_getProductId(){
+		SSHCommandResult res = cli_list(); // all products
+		String outBlock = KatelloUtils.grepOutBlock(
+				"Name", this.name, KatelloCliTestBase.sgetOutput(res)); // filter our product's output block
+		return KatelloUtils.grepCLIOutput("ID", outBlock); // grep ID
 	}
 
 	// ** ** ** ** ** ** **

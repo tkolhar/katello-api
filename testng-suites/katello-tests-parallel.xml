@@ -41,9 +41,9 @@
 			<class name="com.redhat.qe.katello.tests.e2e.SystemEnvironments"/>
 			<class name="com.redhat.qe.katello.tests.e2e.SystemListAccess"/>
 			<class name="com.redhat.qe.katello.tests.e2e.SystemsReport"/>
+			<class name="com.redhat.qe.katello.tests.e2e.OrgReCreate"/>
 <!--
 	SECTION OF BROKEN TESTS
-			<class name="com.redhat.qe.katello.tests.e2e.OrgReCreate"/>
 			<class name="com.redhat.qe.katello.tests.e2e.PackagesWithGPGKey"/>
 			<class name="com.redhat.qe.katello.tests.e2e.PromoteErrata"/>
 			<class name="com.redhat.qe.katello.tests.e2e.PromoteChangeset"/>

@@ -7,11 +7,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
-import com.redhat.qe.katello.base.obj.KatelloEnvironment;
-import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloPackage;
-import com.redhat.qe.katello.base.obj.KatelloProduct;
-import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.base.obj.KatelloUser;
 import com.redhat.qe.katello.common.KatelloUtils;
@@ -21,63 +17,23 @@ import com.redhat.qe.tools.SSHCommandResult;
 @Test(groups={"cfse-cli",TngRunGroups.TNG_KATELLO_Content})
 public class PackageTests extends KatelloCliTestBase {
 
-	protected static Logger log = Logger.getLogger(PackageTests.class.getName());
-	
-	private SSHCommandResult exec_result;
-	
-	private String org_name;
+	protected static Logger log = Logger.getLogger(PackageTests.class.getName());	
 	private String user_name;
-	private String provider_name;
-	private String product_name;
-	private String repo_name;
-	private String env_name;
 
 	
 	@BeforeClass(description="Generate unique objects")
 	public void setUp(){
-		String uid = KatelloUtils.getUniqueID();
-		org_name = "org"+uid;
-		user_name = "user"+uid;
-		provider_name = "provider"+uid;
-		product_name = "product"+uid;
-		repo_name = "repo"+uid;
-		env_name = "env"+uid;	
-		
-		// Create org:
-		KatelloOrg org = new KatelloOrg(this.cli_worker, this.org_name,"Package tests");
-		exec_result = org.cli_create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
+		user_name = "user"+KatelloUtils.getUniqueID();
 		// Create user:
 		KatelloUser user = new KatelloUser(cli_worker, user_name, "root@localhost", KatelloUser.DEFAULT_USER_PASS, false);
 		exec_result = user.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		// Create provider:
-		KatelloProvider prov = new KatelloProvider(this.cli_worker, provider_name, org_name, "Package provider", PULP_RHEL6_x86_64_REPO);
-		exec_result = prov.create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		// Create product:
-		KatelloProduct prod = new KatelloProduct(this.cli_worker, product_name, org_name, provider_name, null, null, null, null, null);
-		exec_result = prod.create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-	
-		KatelloRepo repo = new KatelloRepo(this.cli_worker, repo_name, org_name, product_name, PULP_RHEL6_x86_64_REPO, null, null);
-		exec_result = repo.create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, env_name, null, org_name, KatelloEnvironment.LIBRARY);
-		exec_result = env.cli_create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-
-		prov.synchronize();
 	}
 	
 	@Test(description="package list", groups = {"cli-packages"}, enabled=true)
 	public void test_packageList() {
 		
-		KatelloPackage pack = new KatelloPackage(cli_worker, null, null, org_name, product_name, repo_name, null);
+		KatelloPackage pack = new KatelloPackage(cli_worker, null, null, base_org_name, base_pulp_product_name, base_pulp_repo_name, null);
 		
 		exec_result = pack.cli_list();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
@@ -93,10 +49,10 @@ public class PackageTests extends KatelloCliTestBase {
 	
 	@Test(description="package search", groups = {"cli-packages"}, enabled=true)
 	public void test_packageSearch() {
-		KatelloRepo repo = new KatelloRepo(this.cli_worker, repo_name, org_name, product_name, null, null, null);
+		KatelloRepo repo = new KatelloRepo(this.cli_worker, base_pulp_repo_name, base_org_name, base_pulp_product_name, null, null, null);
 		waitfor_repodata(repo, 1);
 
-		KatelloPackage pack = new KatelloPackage(cli_worker, null, null, org_name, product_name, repo_name, null);
+		KatelloPackage pack = new KatelloPackage(cli_worker, null, null, base_org_name, base_pulp_product_name, base_pulp_repo_name, null);
 		exec_result = pack.cli_search("pulp-agent*");
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		

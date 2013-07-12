@@ -115,7 +115,20 @@ public class KatelloPackage extends _KatelloObject{
 		opts.add(new Attribute("content_view_id", content_view_id));
 		return runExt(CMD_LIST_V, " | grep -e \"^Name.*\\:\" | wc -l"); // -v option here in the command is really important
 	}
-		
+
+	public String custom_packageId(){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("product", product));
+		opts.add(new Attribute("repo", repo));
+		opts.add(new Attribute("environment", environment));
+		opts.add(new Attribute("product_label", product_label));
+		opts.add(new Attribute("product_id", product_id));
+		opts.add(new Attribute("content_view", content_view));
+		opts.add(new Attribute("content_view_label", content_view_label));
+		opts.add(new Attribute("content_view_id", content_view_id));
+		return runExt(CMD_LIST, " | grep \"" + name + "\" | awk '{print $1}'").getStdout().replaceAll("\n", ",").split(",")[0];
+	}
 	// ** ** ** ** ** ** **
 	// ASSERTS
 	// ** ** ** ** ** ** **	

@@ -10,8 +10,6 @@ import com.redhat.qe.tools.SSHCommandResult;
 @Test(groups={"headpin-cli",TngRunGroups.TNG_KATELLO_Install_Configuration})
 public class ClientTests extends KatelloCliTestBase{
 	
-	private SSHCommandResult exec_result;
-	
 	@Test(description = "Saved_options list options saved in the client config")
 	public void test_SavedOptions(){
 		KatelloClient client_obj= new KatelloClient(cli_worker,null,null);
@@ -19,10 +17,8 @@ public class ClientTests extends KatelloCliTestBase{
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 	}
 	
-	
 	@Test(description = "forget : remove an option from the client config")
 	public void test_Forget(){
-			
 		String uid = KatelloUtils.getUniqueID();
 		String option = "op-"+uid;
 	    String value = "val-"+uid;
@@ -38,7 +34,6 @@ public class ClientTests extends KatelloCliTestBase{
  				String.format(KatelloClient.OUT_FORGET,option)), 
  				"Check - returned output string ("+KatelloClient.CMD_FORGET+")");		
 	}
-	
 	
 	@Test(description="Client Remember", groups = {"headpin-cli"}, 
 			dataProvider="client_remember", dataProviderClass = KatelloCliDataProvider.class, enabled=true)

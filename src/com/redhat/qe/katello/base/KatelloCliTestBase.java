@@ -10,6 +10,9 @@ import org.testng.Assert;
 import org.testng.SkipException;
 import org.testng.annotations.BeforeClass;
 
+import com.redhat.qe.katello.base.obj.KatelloEnvironment;
+import com.redhat.qe.katello.base.obj.KatelloOrg;
+import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.base.obj.KatelloUser;
@@ -32,14 +35,36 @@ implements KatelloConstants {
 
 	protected static Logger log = Logger.getLogger(KatelloCliTestBase.class.getName());
 	protected KatelloCliWorker cli_worker;
+	protected static SSHCommandResult exec_result = null;
+	
+	// base_*** stuff to be reused (if you want ;)
+	protected static String base_org_name = null;
+	protected static String base_dev_env_name = null;
+	protected static String base_test_env_name = null;
+	protected static String base_prod_env_name = null;
+	protected static String base_zoo_provider_name = null;
+	protected static String base_zoo_product_name = null;
+	protected static String base_zoo_product_id = null;
+	protected static String base_zoo_repo_name = null;
+	protected static String base_zoo_repo_pool = null;
+	protected static String base_zoo4_provider_name = null;
+	protected static String base_zoo4_product_name = null;
+	protected static String base_zoo4_product_id = null;
+	protected static String base_zoo4_repo_name = null;
+	protected static String base_zoo4_repo_pool = null;
+	protected static String base_pulp_provider_name = null;
+	protected static String base_pulp_product_name = null;
+	protected static String base_pulp_product_id = null;
+	protected static String base_pulp_repo_name = null;
+	protected static String base_pulp_repo_pool = null;
 	
 	@BeforeClass(alwaysRun=true)
 	public void setUpSuper(){
 		KatelloUtils.sleepAsHuman();
 		cliPool = KatelloCliWorkersPool.getInstance(null);
 		
-		// Eclipse mode - get default from property file and exit.
-		if(cliPool==null){ cli_worker = KatelloCliWorker.getSingleMode();return;}
+		// Eclipse mode - get default from property file; init base org and exit.
+		if(cliPool==null){ cli_worker = KatelloCliWorker.getSingleMode(); createBaseOrg(); return;}
 		
 		cli_worker = cliPool.getWorker(Thread.currentThread().getName(),this.getClass().getName());
 		if(cli_worker == null && cliPool.running()){
@@ -52,6 +77,7 @@ implements KatelloConstants {
 		if(!cliPool.running()){
 			throw new SkipException("Timeout happened on requesting worker for: "+this.getClass().getName());
 		}
+		createBaseOrg(); // wait worker to be initialized and invoke it at the very end. there is if (null) - so it would work only on the first invoking. 
 	}
 	
 	protected SSHCommandResult sshOnClient(String _cmd){
@@ -316,4 +342,99 @@ implements KatelloConstants {
 		}
 	}
 	
+	private void createBaseOrg(){
+		if (base_org_name == null) {
+			String uid = KatelloUtils.getUniqueID();
+			base_org_name = "CLI Test Org " + uid;
+			base_dev_env_name = "CLI Dev env " + uid;
+			base_test_env_name = "CLI Test env " + uid;
+			base_prod_env_name = "CLI Prod env " + uid;
+			base_zoo_provider_name = "CLI Zoo Prov " + uid;
+			base_zoo_product_name = "CLI Zoo Prod " + uid;
+			base_zoo_repo_name = "CLI Zoo Repo " + uid;
+			base_zoo4_provider_name = "CLI Zoo4 Prov " + uid;
+			base_zoo4_product_name = "CLI Zoo4 Prod " + uid;
+			base_zoo4_repo_name = "CLI Zoo4 Repo " + uid;
+			base_pulp_provider_name = "CLI Pulp Prov " + uid;
+			base_pulp_product_name = "CLI Pulp Prod " + uid;
+			base_pulp_repo_name = "CLI Pulp Repo " + uid;
+			KatelloOrg org = new KatelloOrg(cli_worker, base_org_name, null);
+			exec_result = org.cli_create();
+			Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
+
+			if (KATELLO_PRODUCT.equals("headpin")) return; // We are done: if `headpin|sam`
+
+			// -- Environment
+			KatelloEnvironment env = new KatelloEnvironment(cli_worker, base_dev_env_name, null, base_org_name, KatelloEnvironment.LIBRARY);
+			exec_result = env.cli_create();
+			Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
+			env = new KatelloEnvironment(cli_worker, base_test_env_name, null, base_org_name, KatelloEnvironment.LIBRARY);
+			exec_result = env.cli_create();
+			Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
+			env = new KatelloEnvironment(cli_worker, base_prod_env_name, null, base_org_name, KatelloEnvironment.LIBRARY);
+			exec_result = env.cli_create();
+			Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
+			
+			// == == == zoo3 (inecas)
+			// -- Provider
+			KatelloProvider prov = new KatelloProvider(cli_worker, base_zoo_provider_name, base_org_name, null, null);
+			exec_result = prov.create();
+			Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+			// -- Product
+			KatelloProduct prod = new KatelloProduct(cli_worker, base_zoo_product_name, base_org_name, base_zoo_provider_name, 
+					null, null, null, null, null);
+			exec_result = prod.create();
+			Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+			// -- Repo
+			KatelloRepo repo = new KatelloRepo(cli_worker, base_zoo_repo_name, base_org_name, base_zoo_product_name, REPO_INECAS_ZOO3, null, null);
+			exec_result = repo.create();
+			Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+			exec_result = repo.synchronize();
+			Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+			base_zoo_product_id = prod.custom_getProductId();
+			Assert.assertNotNull(base_zoo_product_id, "Check - base_zoo_product_id is not null");
+			base_zoo_repo_pool = org.custom_getPoolId(base_zoo_product_name);
+			Assert.assertNotNull(base_zoo_repo_pool, "Check - pool Id is not null");
+
+			// == == == pulp
+			// -- Provider
+			prov = new KatelloProvider(cli_worker, base_pulp_provider_name, base_org_name, null, null);
+			exec_result = prov.create();
+			Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+			// -- Product
+			prod = new KatelloProduct(cli_worker, base_pulp_product_name, base_org_name, base_pulp_provider_name, null, null, null, null, null);
+			exec_result = prod.create();
+			Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+			// -- Repo
+			repo = new KatelloRepo(cli_worker, base_pulp_repo_name, base_org_name, base_pulp_product_name, PULP_RHEL6_x86_64_REPO, null, null);
+			exec_result = repo.create(true);
+			Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+			exec_result = repo.synchronize();
+			Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+			base_pulp_repo_pool = org.custom_getPoolId(base_pulp_product_name);
+			Assert.assertNotNull(base_zoo_repo_pool, "Check - pool Id is not null");
+			base_pulp_product_id = prod.custom_getProductId();
+			Assert.assertNotNull(base_pulp_product_id, "Check - base_pulp_product_id is not null");
+
+			// == == == zoo4 (hhovsepy)
+			// -- Provider
+			prov = new KatelloProvider(cli_worker, base_zoo4_provider_name, base_org_name, "Zoo4 provider", null);
+			exec_result = prov.create();
+			Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+			// -- Product
+			prod = new KatelloProduct(cli_worker, base_zoo4_product_name, base_org_name, base_zoo4_provider_name, null, null, null, null, null);
+			exec_result = prod.create();
+			Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+			// -- Repo
+			repo = new KatelloRepo(cli_worker, base_zoo4_repo_name, base_org_name, base_zoo4_product_name, REPO_HHOVSEPY_ZOO4, null, null);
+			exec_result = repo.create(true);
+			Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+			exec_result = repo.synchronize();
+			Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+			base_zoo4_repo_pool = org.custom_getPoolId(base_zoo4_product_name);
+			Assert.assertNotNull(base_zoo4_repo_pool, "Check - pool Id is not null");
+			base_zoo4_product_id = prod.custom_getProductId();
+			Assert.assertNotNull(base_pulp_product_id, "Check - base_zoo_product_id is not null");
+		}	
+	}
 }

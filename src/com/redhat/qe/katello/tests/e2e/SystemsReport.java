@@ -2,11 +2,9 @@ package com.redhat.qe.katello.tests.e2e;
 
 import java.io.File;
 import java.util.logging.Logger;
-
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
@@ -17,7 +15,6 @@ import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.common.KatelloUtils;
-
 import com.redhat.qe.tools.SSHCommandResult;
 
 /**
@@ -46,7 +43,7 @@ public class SystemsReport extends KatelloCliTestBase{
 		this.env_dev = "Dev-"+uid;
 		this.env_test = "Test-"+uid;
 		this.org = "wrong-manifest-"+uid;
-		KatelloOrg org = new KatelloOrg(this.cli_worker, this.org, null);
+		KatelloOrg org = new KatelloOrg(cli_worker, this.org, null);
 		org.cli_create();
 	}
 	

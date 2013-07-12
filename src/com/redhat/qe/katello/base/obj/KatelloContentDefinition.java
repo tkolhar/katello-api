@@ -66,7 +66,7 @@ public class KatelloContentDefinition extends _KatelloObject{
 			"Definition cannot contain views with the same repositories.";
 	public static final String ERR_UPDATE = "User %s is not allowed to access api/v1/content_view_definitions/update";
 	
-	public static final String REG_DEF_INFO = ".*ID\\s*:\\s+\\d+.*Name\\s*:\\s+%sLabel\\s*:\\s+%s.*Description\\s*:\\s+%s.*Org\\s*:\\s+%s.*Published Views\\s*:\\s+%s.*Component Views\\s*:\\s+%s.*Products\\s*:\\s+%s.*Repos\\s*:\\s*%s.*";
+	public static final String REG_DEF_INFO = ".*ID\\s*:\\s*\\d+.*Name\\s*:\\s*%sLabel\\s*:\\s*%s.*Description\\s*:\\s*%s.*Org\\s*:\\s*%s.*Published Views\\s*:\\s*%s.*Component Views\\s*:\\s*%s.*Products\\s*:\\s*%s.*Repos\\s*:\\s*%s.*";
 	public static final String REG_DEF_LIST = ".*\\s+\\d+.*\\s+%s.*\\s+%s.*\\s+%s.*\\s+%s.*";
 
 	

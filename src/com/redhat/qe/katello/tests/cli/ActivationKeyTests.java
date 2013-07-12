@@ -1,6 +1,5 @@
 package com.redhat.qe.katello.tests.cli;
 
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
@@ -8,9 +7,6 @@ import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloActivationKey;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
-import com.redhat.qe.katello.base.obj.KatelloProduct;
-import com.redhat.qe.katello.base.obj.KatelloProvider;
-import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.base.obj.KatelloSystemGroup;
 import com.redhat.qe.katello.common.KatelloUtils;
@@ -19,31 +15,14 @@ import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups={TngRunGroups.TNG_KATELLO_Activation_Key})
 public class ActivationKeyTests extends KatelloCliTestBase{
-	private String organization;
-	private String env;
 	private String systemgroup;
-	
-	@BeforeClass(description="init: create org stuff", alwaysRun=true)
-	public void setUp(){
-		SSHCommandResult res;
-		String uid = KatelloUtils.getUniqueID();
-		this.organization = "Simple Org"+uid;
-		this.env = "GA Env"+uid;
-
-		KatelloOrg org = new KatelloOrg(this.cli_worker, this.organization, null);
-		res = org.cli_create();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, this.env, null, this.organization, KatelloEnvironment.LIBRARY);
-		res = env.cli_create();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-	}
 	
 	@Test(description="create AK", dataProvider="activationkey_create", 
 			dataProviderClass = KatelloCliDataProvider.class, enabled=true)
 	public void test_create(String name, String descr, Integer exitCode, String output){
 		SSHCommandResult res;
 		
-		KatelloActivationKey ak = new KatelloActivationKey(this.cli_worker, this.organization, this.env, name, descr, null);
+		KatelloActivationKey ak = new KatelloActivationKey(this.cli_worker, base_org_name, base_dev_env_name, name, descr, null);
 		res = ak.create();
 		Assert.assertTrue(res.getExitCode().intValue() == exitCode.intValue(), "Check - return code");
 		
@@ -65,15 +44,15 @@ public class ActivationKeyTests extends KatelloCliTestBase{
 		KatelloOrg org = new KatelloOrg(this.cli_worker, org2, null);
 		res = org.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, this.env, null, org2, KatelloEnvironment.LIBRARY);
+		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, base_dev_env_name, null, org2, KatelloEnvironment.LIBRARY);
 		res = env.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		
-		KatelloActivationKey ak = new KatelloActivationKey(this.cli_worker, org2, this.env, ak_name, null, null);
+		KatelloActivationKey ak = new KatelloActivationKey(this.cli_worker, org2, base_dev_env_name, ak_name, null, null);
 		res = ak.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key create)");
 		
-		ak = new KatelloActivationKey(this.cli_worker, this.organization, this.env, ak_name, null, null);
+		ak = new KatelloActivationKey(this.cli_worker, base_org_name, base_dev_env_name, ak_name, null, null);
 		res = ak.create(); // force update IDs 
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key create)");
 		Assert.assertTrue(getOutput(res).contains(
@@ -83,46 +62,26 @@ public class ActivationKeyTests extends KatelloCliTestBase{
 		ak.asserts_create();
 	}
 		
-	// @ TODO enable test when bug 909612 is fixed.
-    @Test(description="add subscription to ak, verify that it is shown in info, remove it, verify that is is not shown", enabled=true)
+    @Test(description="add subscription to ak, verify that it is shown in info, remove it, verify that is is not shown")
     public void test_update_addremoveSubscription(){
     	String uid = KatelloUtils.getUniqueID();
     	String akName="ak-subscription-zoo3-"+uid;
-    	String providerName = "Zoo3-"+uid;
-    	String productName = "Zoo3 "+uid;
-    	String repoName = "Zoo3 "+uid;
     	SSHCommandResult res;
 
-    	KatelloActivationKey ak = new KatelloActivationKey(this.cli_worker, this.organization, this.env, akName, "Activation key with Zoo3 subscription", null);
+    	KatelloActivationKey ak = new KatelloActivationKey(this.cli_worker, base_org_name, base_dev_env_name, akName, "Activation key with Zoo3 subscription", null);
     	res = ak.create();
-    	Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key create)");
-    	KatelloProvider prov = new KatelloProvider(this.cli_worker, providerName, this.organization, null, null);
-    	prov.create();
-    	KatelloProduct prod = new KatelloProduct(this.cli_worker, productName, this.organization, providerName, null, null, null, null, null);
-    	res = prod.create();
-    	Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
-    	KatelloRepo repo = new KatelloRepo(this.cli_worker, repoName, this.organization, productName, REPO_INECAS_ZOO3, null, null);
-    	res = repo.create();
-		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
-		
-    	KatelloOrg org = new KatelloOrg(this.cli_worker, this.organization, null);
-    	res = org.subscriptions();
-  
-		String poolId1 = KatelloUtils.grepCLIOutput("ID", getOutput(res).trim(),1);
-		Assert.assertNotNull(poolId1, "Check - pool Id is not null");
-		
-		res = ak.update_add_subscription(poolId1);
+		res = ak.update_add_subscription(base_zoo_repo_pool);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (add subscription)");
 		
 		
 		res = ak.info();
-		Assert.assertTrue(res.getStdout().contains(poolId1), "Check that pool Id is in info page.");
+		Assert.assertTrue(res.getStdout().contains(base_zoo_repo_pool), "Check that pool Id is in info page.");
 		
-		res = ak.update_remove_subscription(poolId1);
+		res = ak.update_remove_subscription(base_zoo_repo_pool);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (add subscription)");
 		
 		res = ak.info();
-		Assert.assertFalse(res.getStdout().contains(poolId1), "Check that pool Id is NOT in info page.");
+		Assert.assertFalse(res.getStdout().contains(base_zoo_repo_pool), "Check that pool Id is NOT in info page.");
     }
     
 	
@@ -131,7 +90,7 @@ public class ActivationKeyTests extends KatelloCliTestBase{
     	String uid = KatelloUtils.getUniqueID();
     	String akName="ak-delete_act_key-"+ uid; 
     	SSHCommandResult res;
-    	KatelloActivationKey ak = new KatelloActivationKey(this.cli_worker, this.organization, this.env, akName, "Activation key created to test deletion", null);
+    	KatelloActivationKey ak = new KatelloActivationKey(this.cli_worker, base_org_name, base_dev_env_name, akName, "Activation key created to test deletion", null);
     	res = ak.create();
     	Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key create)");
     	Assert.assertTrue(getOutput(res).contains(
@@ -157,7 +116,7 @@ public class ActivationKeyTests extends KatelloCliTestBase{
     	String uid = KatelloUtils.getUniqueID();
     	String akName="act_key-"+ uid; 
     	SSHCommandResult res;
-    	KatelloActivationKey ak = new KatelloActivationKey(this.cli_worker, this.organization, this.env, akName, "Activation key created to ", "1");
+    	KatelloActivationKey ak = new KatelloActivationKey(this.cli_worker, base_org_name, base_dev_env_name, akName, "Activation key created to ", "1");
     	res = ak.create();
     	Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key create)");
     	ak.asserts_create();
@@ -165,14 +124,14 @@ public class ActivationKeyTests extends KatelloCliTestBase{
     	sshOnClient(KatelloSystem.RHSM_CLEAN);
     	
     	String systemName = "localhost-"+KatelloUtils.getUniqueID();
-		KatelloSystem sys = new KatelloSystem(this.cli_worker, systemName, this.organization, null);
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, systemName, base_org_name, null);
 		res = sys.rhsm_registerForce(akName); 
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 		
 		sshOnClient(KatelloSystem.RHSM_CLEAN);
 		
 		systemName = "localhost-"+KatelloUtils.getUniqueID();
-		sys = new KatelloSystem(this.cli_worker, systemName, this.organization, null);
+		sys = new KatelloSystem(this.cli_worker, systemName, base_org_name, null);
 		res = sys.rhsm_registerForce(akName); 
 		Assert.assertTrue(res.getExitCode().intValue() == 255, "Check - return code");
 		Assert.assertTrue(getOutput(res).contains(
@@ -186,7 +145,7 @@ public class ActivationKeyTests extends KatelloCliTestBase{
     	String uid = KatelloUtils.getUniqueID();
     	String akName="act_key-"+ uid; 
     	SSHCommandResult res;
-    	KatelloActivationKey ak = new KatelloActivationKey(this.cli_worker, this.organization, this.env, akName, "Activation key created to ", "1");
+    	KatelloActivationKey ak = new KatelloActivationKey(this.cli_worker, base_org_name, base_dev_env_name, akName, "Activation key created to ", "1");
     	res = ak.create();
     	Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key create)");
     	ak.asserts_create();
@@ -194,14 +153,14 @@ public class ActivationKeyTests extends KatelloCliTestBase{
     	sshOnClient(KatelloSystem.RHSM_CLEAN);
     	
     	String systemName = "localhost-"+KatelloUtils.getUniqueID();
-		KatelloSystem sys = new KatelloSystem(this.cli_worker, systemName, this.organization, null);
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, systemName, base_org_name, null);
 		res = sys.rhsm_registerForce(akName); 
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 		
 		sshOnClient(KatelloSystem.RHSM_CLEAN);
 		
 		systemName = "localhost-"+KatelloUtils.getUniqueID();
-		sys = new KatelloSystem(this.cli_worker, systemName, this.organization, null);
+		sys = new KatelloSystem(this.cli_worker, systemName, base_org_name, null);
 		res = sys.rhsm_registerForce(akName); 
 		Assert.assertTrue(res.getExitCode().intValue() == 255, "Check - return code");
 		Assert.assertTrue(getOutput(res).contains(
@@ -220,7 +179,7 @@ public class ActivationKeyTests extends KatelloCliTestBase{
     	String uid = KatelloUtils.getUniqueID();
     	String akName="act_key-"+ uid; 
     	SSHCommandResult res;
-    	KatelloActivationKey ak = new KatelloActivationKey(this.cli_worker, this.organization, this.env, akName, "Activation key created to ", "2");
+    	KatelloActivationKey ak = new KatelloActivationKey(this.cli_worker, base_org_name, base_dev_env_name, akName, "Activation key created to ", "2");
     	res = ak.create();
     	Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key create)");
     	ak.asserts_create();
@@ -228,14 +187,14 @@ public class ActivationKeyTests extends KatelloCliTestBase{
     	rhsm_clean();
     	
     	String systemName = "localhost-"+KatelloUtils.getUniqueID();
-		KatelloSystem sys = new KatelloSystem(this.cli_worker, systemName, this.organization, null);
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, systemName, base_org_name, null);
 		res = sys.rhsm_registerForce(akName); 
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 		
 		rhsm_clean_only();
 		
 		systemName = "localhost-"+KatelloUtils.getUniqueID();
-		sys = new KatelloSystem(this.cli_worker, systemName, this.organization, null);
+		sys = new KatelloSystem(this.cli_worker, systemName, base_org_name, null);
 		res = sys.rhsm_registerForce(akName); 
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 		res = sys.rhsm_identity();
@@ -245,7 +204,7 @@ public class ActivationKeyTests extends KatelloCliTestBase{
 		
 		// third system should not register
 		systemName = "localhost-"+KatelloUtils.getUniqueID();
-		KatelloSystem sys3 = new KatelloSystem(this.cli_worker, systemName, this.organization, null);
+		KatelloSystem sys3 = new KatelloSystem(this.cli_worker, systemName, base_org_name, null);
 		res = sys3.rhsm_registerForce(akName); 
 		Assert.assertTrue(res.getExitCode().intValue() == 255, "Check - return code");
 		Assert.assertTrue(getOutput(res).contains(
@@ -267,11 +226,11 @@ public class ActivationKeyTests extends KatelloCliTestBase{
     	String akName="ak-subscription-zoo3-"+uid;
     	SSHCommandResult res;
 
-    	KatelloActivationKey ak = new KatelloActivationKey(this.cli_worker, this.organization, this.env, akName, "Activation key to add system group", null);
+    	KatelloActivationKey ak = new KatelloActivationKey(this.cli_worker, base_org_name, base_dev_env_name, akName, "Activation key to add system group", null);
     	res = ak.create();
     	Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key create)");
     	
-		KatelloSystemGroup systemGroup = new KatelloSystemGroup(this.cli_worker, this.systemgroup, this.organization);
+		KatelloSystemGroup systemGroup = new KatelloSystemGroup(this.cli_worker, this.systemgroup, base_org_name);
 		res = systemGroup.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		
@@ -289,11 +248,11 @@ public class ActivationKeyTests extends KatelloCliTestBase{
     	String akName="ak-subscription-zoo3-"+uid;
     	SSHCommandResult res;
 
-    	KatelloActivationKey ak = new KatelloActivationKey(this.cli_worker, this.organization, this.env, akName, "Activation key to add and remove system group", null);
+    	KatelloActivationKey ak = new KatelloActivationKey(this.cli_worker, base_org_name, base_dev_env_name, akName, "Activation key to add and remove system group", null);
     	res = ak.create();
     	Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key create)");
     	
-		KatelloSystemGroup systemGroup = new KatelloSystemGroup(this.cli_worker, this.systemgroup, this.organization);
+		KatelloSystemGroup systemGroup = new KatelloSystemGroup(this.cli_worker, this.systemgroup, base_org_name);
 		res = systemGroup.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		
@@ -314,19 +273,19 @@ public class ActivationKeyTests extends KatelloCliTestBase{
     	String akName1="act_key1-"+ uid; 
     	String akName2="act_key2-"+uid;
     	SSHCommandResult res;
-    	KatelloActivationKey ak = new KatelloActivationKey(this.cli_worker, this.organization, this.env, akName1, "Activation key created  ", null);
+    	KatelloActivationKey ak = new KatelloActivationKey(this.cli_worker, base_org_name, base_dev_env_name, akName1, "Activation key created  ", null);
     	res = ak.create();
     	Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key create)");
     	ak.asserts_create();
     	
-    	ak = new KatelloActivationKey(this.cli_worker, this.organization, this.env, akName2, "Activation key created ", null);
+    	ak = new KatelloActivationKey(this.cli_worker, base_org_name, base_dev_env_name, akName2, "Activation key created ", null);
      	res = ak.create();
      	Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key create)");
      	ak.asserts_create();     	
     	act_list = akName1 + "," + akName2;
     	sshOnClient(KatelloSystem.RHSM_CLEAN);    	
     	String systemName = "localhost-"+KatelloUtils.getUniqueID();
-		KatelloSystem sys = new KatelloSystem(this.cli_worker, systemName, this.organization, null);
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, systemName, base_org_name, null);
 		res = sys.rhsm_registerForce_multiplekeys(act_list); 
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 		res = sys.info();
@@ -340,13 +299,13 @@ public class ActivationKeyTests extends KatelloCliTestBase{
     	String uid = KatelloUtils.getUniqueID();
     	String akName="act_key-"+ uid;    
     	SSHCommandResult res;
-    	KatelloActivationKey ak = new KatelloActivationKey(this.cli_worker, this.organization, this.env, akName, "Activation key created ", null);
+    	KatelloActivationKey ak = new KatelloActivationKey(this.cli_worker, base_org_name, base_dev_env_name, akName, "Activation key created ", null);
     	res = ak.create();
     	Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key create)");
     	ak.asserts_create();   	
     	sshOnClient(KatelloSystem.RHSM_CLEAN); 	
     	String systemName = "localhost-"+KatelloUtils.getUniqueID();
-		KatelloSystem sys = new KatelloSystem(this.cli_worker, systemName, this.organization, null);
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, systemName, base_org_name, null);
 		res = sys.rhsm_registerForce(akName); 
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 		res = sys.info();
