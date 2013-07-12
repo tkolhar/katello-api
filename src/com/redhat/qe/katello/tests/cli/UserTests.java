@@ -94,6 +94,27 @@ public class UserTests extends KatelloCliTestBase{
 		usr.asserts_create();
 	}
 	
+	@Test(description="update user info - valid username", groups={"headpin-cli"})
+	public void test_updateUserInfo(){
+		SSHCommandResult res;
+		String uniqueID = KatelloUtils.getUniqueID();
+		String username = "user-"+uniqueID;
+		String userpass = "password";
+		String usermail = username+"@localhost";
+		
+		KatelloUser usr = new KatelloUser(cli_worker, username, usermail, userpass, true);
+		res = usr.cli_create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+KatelloUser.CMD_CREATE+")");
+		Assert.assertTrue(getOutput(res).contains(
+				String.format(KatelloUser.OUT_CREATE,username)), 
+				"Check - returned output string ("+KatelloUser.CMD_CREATE+")");
+		usr.asserts_create();
+		
+		res = usr.update_defaultOrgEnv(this.organization, this.env);
+		//Assert successfull update
+		//user info
+		// assert all info correct
+	}
 
 	@Test(description = "List all users - admin should be there", groups={"headpin-cli"})
 	public void test_listUsers_admin(){
