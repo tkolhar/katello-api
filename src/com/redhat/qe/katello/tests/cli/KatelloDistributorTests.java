@@ -114,5 +114,21 @@ public class KatelloDistributorTests extends KatelloCliTestBase{
 		exec_result = dis_update.distributor_info();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
+	
+	@Test(description = "Delete Distributor after attaching/downloading/uploading subscription", enabled=true,groups={"cfse-cli","headpin-cli"})
+	public void test_distributorDelete()
+	{
+	  distributor_name = "newDistributor-"+KatelloUtils.getUniqueID();
+	  KatelloDistributor distributor=new KatelloDistributor(cli_worker, org_name, distributor_name);
+	  exec_result = distributor.distributor_create();
+	  Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (create distributor)");
+	  Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloDistributor.OUT_CREATE, distributor_name)), "Check - output for create distributor");
+
+	  //TODO: Attach subscription to distributor. BZ: 974452, 974466
+	  //delete distributor
+	  exec_result = distributor.distributor_delete();
+	  Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (delete distributor)");
+	  Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloDistributor.OUT_DELETE, distributor_name)), "Check - output for delete distributor");
+	}
 }
 

@@ -655,7 +655,8 @@ public class KatelloSystem extends _KatelloObject{
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("keyname", keyname));
 		opts.add(new Attribute("value", value));
-
+		opts.add(new Attribute("uuid", uuid));
+		
 		return run(CMD_UPDATE_CUSTOM_INFO);
 	}	
 	
@@ -665,7 +666,8 @@ public class KatelloSystem extends _KatelloObject{
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("keyname", keyname));
-
+		opts.add(new Attribute("uuid", uuid));
+		
 		return run(CMD_REMOVE_CUSTOM_INFO);
 	}	
 

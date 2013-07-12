@@ -318,7 +318,7 @@ public class SystemTests extends KatelloCliTestBase{
 
 		sys.runAs(user);
 		exec_result = sys.remove();
-		Assert.assertEquals(exec_result.getExitCode().intValue(), 145, "Check - return code");
+		Assert.assertTrue(exec_result.getExitCode().intValue()>0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloSystem.ERR_DELETE_ACCESS, user.username)),
 				"Check - output (error)");
 	}
@@ -394,7 +394,7 @@ public class SystemTests extends KatelloCliTestBase{
 		exec_result = sys.add_custom_info("custom-key","custom-value");
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(
-				String.format("Successfully added Custom Information [ custom-key : custom-value ] to System [ %s ]",sys.name)),
+				String.format(KatelloSystem.OUT_ADD_CUSTOM_INFO, "custom-key", "custom-value", sys.name)),
 				"Check - returned output string");
 		exec_result = sys.info();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
