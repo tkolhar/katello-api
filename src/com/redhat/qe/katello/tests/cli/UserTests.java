@@ -3,9 +3,12 @@ package com.redhat.qe.katello.tests.cli;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
+
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
@@ -96,25 +99,38 @@ public class UserTests extends KatelloCliTestBase{
 	
 	@Test(description="update user info - valid username", groups={"headpin-cli"})
 	public void test_updateUserInfo(){
-		SSHCommandResult res;
-		String uniqueID = KatelloUtils.getUniqueID();
-		String username = "user-"+uniqueID;
-		String userpass = "password";
-		String usermail = username+"@localhost";
 		
-		KatelloUser usr = new KatelloUser(cli_worker, username, usermail, userpass, true);
-		res = usr.cli_create();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+KatelloUser.CMD_CREATE+")");
-		Assert.assertTrue(getOutput(res).contains(
-				String.format(KatelloUser.OUT_CREATE,username)), 
-				"Check - returned output string ("+KatelloUser.CMD_CREATE+")");
+		SSHCommandResult res;
+		KatelloUser usr = createUser();
 		usr.asserts_create();
 		
+		//update default_org, default_env
 		res = usr.update_defaultOrgEnv(this.organization, this.env);
-		//Assert successfull update
-		//user info
-		// assert all info correct
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+KatelloUser.CMD_UPDATE+")");
+		Assert.assertTrue(getOutput(res).contains(
+				String.format(KatelloUser.OUT_UPDATE, usr.getUsername())), "Check - return output string ("+KatelloUser.CMD_UPDATE+")");
+		
+		//update other user credentials
+		res = usr.update_userCredentials("newPass", "newEmail@localhost", false);
+		System.out.println("OPTPUT : "+getOutput(res)+" EXIT CODE: "+res.getExitCode());
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+KatelloUser.CMD_UPDATE+")");
+		Assert.assertTrue(getOutput(res).contains(
+				String.format(KatelloUser.OUT_UPDATE, usr.getUsername())), "Check - return output string ("+KatelloUser.CMD_UPDATE+")");
+		
+		//Verify new user Info
+		res = usr.cli_info();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+KatelloUser.CLI_CMD_INFO+")");
+		
+		String defaultInfoStr = KatelloUtils.grepCLIOutput("Email", getOutput(res));
+		Assert.assertTrue(defaultInfoStr.contains("newEmail@localhost"), "Check - stdout contains updated e-mail ID");
+		defaultInfoStr = KatelloUtils.grepCLIOutput("Disabled", getOutput(res));
+		Assert.assertTrue(defaultInfoStr.contains("False"), "Check - stdout contains updated disabled value");
+		defaultInfoStr = KatelloUtils.grepCLIOutput("Default Organization", getOutput(res));
+		Assert.assertTrue(defaultInfoStr.contains(this.organization), "Check - stdout contains updated default organization");
+		defaultInfoStr = KatelloUtils.grepCLIOutput("Default Environment", getOutput(res));
+		Assert.assertTrue(defaultInfoStr.contains(this.env), "Check - stdout contains updated default environment");
 	}
+
 
 	@Test(description = "List all users - admin should be there", groups={"headpin-cli"})
 	public void test_listUsers_admin(){

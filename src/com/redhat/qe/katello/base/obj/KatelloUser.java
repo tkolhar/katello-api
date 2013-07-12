@@ -25,6 +25,8 @@ public class KatelloUser extends _KatelloObject{
 	public static final String CMD_UPDATE = "user update";
 	public static final String OUT_CREATE = 
 			"Successfully created user [ %s ]";
+	public static final String OUT_UPDATE = 
+			"Successfully updated user [ %s ]"; 
 	public static final String OUT_DELETE =
 			"Successfully deleted user [ %s ]";
 	public static final String OUT_ASSIGN_ROLE =
@@ -181,6 +183,15 @@ public class KatelloUser extends _KatelloObject{
 		opts.add(new Attribute("username", username));
 		opts.add(new Attribute("default_organization", org));
 		return run(CMD_UPDATE+" --no_default_environment");
+	}
+	
+	public SSHCommandResult update_userCredentials(String password, String email, boolean isDisabled){
+		opts.clear();
+		opts.add(new Attribute("username", username));
+		opts.add(new Attribute("password", password));
+		opts.add(new Attribute("email", email));
+		opts.add(new Attribute("disabled", isDisabled));
+		return run(CMD_UPDATE);
 	}
 
 	public void asserts_delete(){
