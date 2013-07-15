@@ -415,6 +415,25 @@ public class UserTests extends KatelloCliTestBase{
 				"Check - error string (invalid credentials)");
 	}
 	
+	@Test(description="Login disabled user. Should be unsuccessful.", groups={"headpin-cli"})
+	public void test_loginDisabledUser()
+	{
+		SSHCommandResult res;
+		String uniqueID = KatelloUtils.getUniqueID();
+		String userName = "disabledUsername"+uniqueID;
+		KatelloUser userDisabled = new KatelloUser(cli_worker, userName, userName+"@localhost", "disabledPass", true);
+		res = userDisabled.cli_create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+KatelloUser.CMD_CREATE+")");
+		userDisabled.asserts_create();
+		KatelloOrg org = new KatelloOrg(this.cli_worker, organization, null);
+		org.runAs(userDisabled);
+		res = org.cli_list();
+		Assert.assertTrue(res.getExitCode().intValue()==145, 
+				"Check - return code (invalid credentials)");
+		Assert.assertTrue(getOutput(res).equals(KatelloUser.ERR_INVALID_CREDENTIALS), 
+				"Check - error string (invalid credentials)");	
+	}
+	
 	@Test(description="Read-only user for an organization can only view information but cannot modify it", groups={"headpin-cli"})
 	public void test_ReadonlyUser(){
 
