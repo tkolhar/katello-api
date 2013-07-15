@@ -343,7 +343,13 @@ implements KatelloConstants {
 	}
 	
 	private void createBaseOrg(){
+		
 		if (base_org_name == null) {
+			String classname = this.getClass().getName();
+			if(!classname.contains("tests.cli.")&&
+				!classname.contains("tests.e2.")) 
+				return;
+			
 			String uid = KatelloUtils.getUniqueID();
 			base_org_name = "CLI Test Org " + uid;
 			base_dev_env_name = "CLI Dev env " + uid;
