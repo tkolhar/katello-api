@@ -43,6 +43,7 @@ public class SystemFilteredInstallTest extends KatelloCliTestBase{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
 
+	//TODO bug 980948
 	public void test_systemFilteredconsumePackageGroupContent() {
 
 		KatelloContentFilter filter = new KatelloContentFilter(cli_worker, packageGroup_filter, base_org_name, condef_name);
