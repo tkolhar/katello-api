@@ -66,7 +66,13 @@ public class KatelloUserRole extends _KatelloObject{
 		opts.clear();
 		opts.add(new Attribute("new_name", new_name));
 		opts.add(new Attribute("name", name));
-		opts.add(new Attribute("description", description));
+		return run(CMD_UPDATE);
+	}
+
+	public SSHCommandResult cli_update_description(String new_descr){
+		opts.clear();
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("description", new_descr));
 		return run(CMD_UPDATE);
 	}
 	

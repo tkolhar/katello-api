@@ -40,6 +40,8 @@ public class KatelloUser extends _KatelloObject{
 			"Invalid credentials";
 	public static final String ERR_NOT_ALLOWED_TO_ACCESS = 
 			"User %s is not allowed to access";
+	public static final String ERR_LOCALE =
+			"Validation failed: Default locale must be one of bn, de, en, es, fr, gu, hi, it, ja, kn, ko, mr, or, pa, pt-BR, ru, ta, te, zh-CN, zh-TW";
 	
 	public static final String REG_USER_LIST = ".*ID\\s*:\\s*\\d+.*Username\\s*:\\s*%s.*Email\\s*:\\s*%s.*";
 	public static final String REG_USER_ROLE_LIST = ".*\\d+\\s*%s.*";
@@ -191,6 +193,13 @@ public class KatelloUser extends _KatelloObject{
 		opts.add(new Attribute("password", password));
 		opts.add(new Attribute("email", email));
 		opts.add(new Attribute("disabled", isDisabled));
+		return run(CMD_UPDATE);
+	}
+
+	public SSHCommandResult update_locale(String loc) {
+		opts.clear();
+		opts.add(new Attribute("username", username));
+		opts.add(new Attribute("default_locale", loc));
 		return run(CMD_UPDATE);
 	}
 
