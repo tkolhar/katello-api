@@ -19,6 +19,7 @@ import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
+import com.redhat.qe.katello.base.obj.KatelloSystemGroup;
 import com.redhat.qe.katello.base.obj.KatelloUser;
 import com.redhat.qe.katello.base.obj.KatelloUserRole;
 import com.redhat.qe.katello.common.KatelloUtils;
@@ -55,6 +56,13 @@ public class SystemTests extends KatelloCliTestBase{
 	private String contentViewRhel6;
 	private String systemNameAwesome;
 	
+	private String sysgroup_name;
+	private String org_name;
+	private String sys_name;
+	private String sys_nonexist_name;
+	private String sys_reg_name;
+	private String grp_nonexist_name;
+
 	@BeforeClass(description="Generate unique names",groups={"cfse-cli","headpin-cli"})
 	public void setUp(){
 		String uid = KatelloUtils.getUniqueID();
@@ -73,6 +81,13 @@ public class SystemTests extends KatelloCliTestBase{
 		this.contentViewRhel6 = "rhel6-x86_64-"+uid;
 		this.systemNameAwesome = "awesome-system-"+uid;
 		
+		org_name = "org"+uid;
+		sys_name = "system"+uid;
+		sys_nonexist_name = "nonexisting-system"+uid;
+		sys_reg_name = "system-reg"+uid;
+		sysgroup_name = "sysgroup"+uid;
+		grp_nonexist_name = "sysgroup-nonexist"+uid;
+
 		KatelloOrg org = new KatelloOrg(this.cli_worker, this.orgNameRhsms, null);
 		exec_result = org.cli_create();
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
@@ -105,6 +120,16 @@ public class SystemTests extends KatelloCliTestBase{
 		this.envName_Dev = null;
 		this.envName_Test = null;
 		this.envName_Prod = null;
+
+		org = new KatelloOrg(cli_worker, org_name, null);
+		exec_result = org.cli_create();
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check exit code (org create)");
+		KatelloSystemGroup sysgroup = new KatelloSystemGroup(cli_worker, sysgroup_name, org_name);
+		exec_result = sysgroup.create();
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check exit code (system group create)");
+
+		KatelloSystem sys =  new KatelloSystem(cli_worker, sys_name, org_name, "Library");
+		sys.register();
 	}
 	
 	@BeforeClass(description="init: katello specific, no headpin", dependsOnMethods={"setUp"})
@@ -602,6 +627,131 @@ public class SystemTests extends KatelloCliTestBase{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - exit code (list packages)");
 		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloSystem.OUT_LIST_PACKAGES, sysname, orgNameMain)), "Check output (list packages)");
 	}
+
+
+
+	// TODO bug 974486
+	@Test(description="system tasks - wrong system given")
+	public void test_badSystemTasks() {
+		KatelloSystem sys =  new KatelloSystem(cli_worker, sys_nonexist_name, org_name, null);
+		exec_result = sys.tasks();
+		Assert.assertTrue(exec_result.getExitCode()==65, "Check exit code (system tasks)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloSystem.ERR_NOT_FOUND, "boosystem", orgNameMain)), "Check error message (system tasks)");
+	}
+
+	// TODO bug 974503
+	@Test(description="system task test")
+	public void test_systemTask() {
+		KatelloSystem sys =  new KatelloSystem(cli_worker, null, null, null);
+		// create task to get ID
+		exec_result = sys.packages_install("fakepackage");
+		Assert.assertTrue(getOutput(exec_result).contains("Performing remote action"), "(create task)");
+		String taskId = getOutput(exec_result).substring(27, 63); // TODO grep ID
+		// get task info
+		exec_result = sys.task(taskId);
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check return code (system task)");
+	}
+
+	// TODO bug 974486
+	@Test(description="system tasks", dependsOnMethods={"test_systemTask"})
+	public void test_systemTasks() {
+		KatelloSystem sys =  new KatelloSystem(cli_worker, sys_name, org_name, null);
+		exec_result = sys.tasks();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (system tasks)");
+		Assert.assertTrue(getOutput(exec_result).contains("Package Install"), "Check output (system tasks)");
+	}
+
+	@Test(description="system task - bad id given")
+	public void test_systemBadTask() {
+		KatelloSystem sys =  new KatelloSystem(cli_worker, null, null, null);
+		exec_result = sys.task("007");
+		Assert.assertTrue(exec_result.getExitCode()==148, "Check return code (system task)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloSystem.ERR_NO_TASK, "007")), "Check error message (system task)");
+	}
+
+	// TODO bug 983428
+	@Test(description="system remove_deletion - invalid uuid given")
+	public void test_removeDeletionBadUUID() {
+		KatelloSystem sys = new KatelloSystem(cli_worker, null, null, null);
+		sys.uuid = "007";
+		exec_result = sys.remove();
+		Assert.assertTrue(exec_result.getExitCode()==148, "Check exit code (system remove_deletion)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloSystem.ERR_NO_DELETION_RECORD,sys.uuid)), "Check exit code (system remove_deletion)");
+	}
+
+	@Test(description="system register")
+	public void test_systemRegister() {
+		KatelloSystem sys = new KatelloSystem(cli_worker, sys_reg_name, org_name, null);
+		exec_result = sys.register();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (system register)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloSystem.OUT_REGISTRED, sys_reg_name)), "Check output (system register)");
+	}
+
+	@Test(description="system unregister", dependsOnMethods={"test_systemRegister"})
+	public void test_systemUnregister() {
+		KatelloSystem sys = new KatelloSystem(cli_worker, sys_reg_name, org_name, null);
+		sys.list();
+		exec_result = sys.info();
+		sys.uuid = KatelloUtils.grepCLIOutput("UUID", getOutput(exec_result));
+		exec_result = sys.unregister();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (system unregister)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloSystem.OUT_UNREGISTRED, sys.uuid)), "Check output (system unregister)");
+	}
+
+
+
+	@Test(description="add system to system group")
+	public void test_addToGroup() {
+		KatelloSystem sys = new KatelloSystem(cli_worker, sys_name, org_name, "Library");
+		exec_result = sys.add_to_groups(sysgroup_name);
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (add system to group)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloSystem.OUT_ADD_TO_GROUPS, sys_name)), "Check output (add system to group)");
+	}
+
+	// TODO bug 974098
+	@Test(description="add system to nonexisting group")
+	public void test_addToNonexistGroup() {
+		KatelloSystem sys = new KatelloSystem(cli_worker, sys_name, org_name, "Library");
+		exec_result = sys.add_to_groups(grp_nonexist_name);
+		Assert.assertTrue(exec_result.getExitCode()==65, "Check exit code (add system to group)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloSystemGroup.ERR_SYSTEMGROUP_NOTFOUND, grp_nonexist_name, org_name)), "Check output (add system to group)");
+	}
+
+	// TODO bug 982572
+	@Test(description="add nonexisting system to group")
+	public void test_addNonexistSystemToGroup() {
+		KatelloSystem sys = new KatelloSystem(cli_worker, sys_nonexist_name, org_name, "Library");
+		exec_result = sys.add_to_groups(sysgroup_name);
+		Assert.assertTrue(exec_result.getExitCode()==65, "Check exit code (add system to group)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloSystem.ERR_NOT_FOUND, sys_nonexist_name, org_name)), "Check output (add system to group)");
+	}
+
+	@Test(description="remove system from sytem groups")
+	public void test_removeFromGroup() {
+		KatelloSystem sys = new KatelloSystem(cli_worker, sys_name, org_name, "Library");
+		exec_result = sys.remove_from_groups(sysgroup_name);
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (remove system from group)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloSystem.OUT_REMOVE_FROM_GROUPS, sys_name)), "Check output (remove system from group)");
+	}
+
+	// TODO bug 974098
+	@Test(description="remove system from system group - group not found")
+	public void test_removeFromNonexistGroup() {
+		KatelloSystem sys = new KatelloSystem(cli_worker, sys_name, org_name, "Library");
+		exec_result = sys.remove_from_groups(grp_nonexist_name);
+		Assert.assertTrue(exec_result.getExitCode()==65, "Check exit code (remove system from group)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloSystemGroup.ERR_SYSTEMGROUP_NOTFOUND, grp_nonexist_name, org_name)), "Check output (remove system from group)");
+	}
+
+	// TODO bug 982572
+	@Test(description="remove system from system group - system not found")
+	public void test_removeNonexistSystemFromGroup() {
+		KatelloSystem sys = new KatelloSystem(cli_worker, sys_nonexist_name, org_name, "Library");
+		exec_result = sys.remove_from_groups(sysgroup_name);
+		Assert.assertTrue(exec_result.getExitCode()==65, "Check exit code (remove system from group)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloSystem.ERR_NOT_FOUND, sys_nonexist_name, org_name)), "Check output (system remove from group)");
+	}
+
 
 	private void assert_systemInfo(KatelloSystem system) {
 		if (system.description == null) system.description = "Initial Registration Params";
