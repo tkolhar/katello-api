@@ -168,6 +168,22 @@ public class UserRoleTests extends KatelloCliTestBase{
 			}	            
 	}    
 
+	@Test(description="update role description")
+	public void test_updateDescription() {
+		SSHCommandResult res;
+		String uid = KatelloUtils.getUniqueID();
+		String role_name="role"+ uid;
+		String description = "user role description";
+		KatelloUserRole role = new KatelloUserRole(cli_worker, role_name, null);
+		res = role.create();
+		Assert.assertTrue(res.getExitCode()==0, "Check exit code (create role)");
+		res = role.cli_update_description(description);
+		Assert.assertTrue(res.getExitCode()==0, "Check exit code (update role)");
+		res = role.cli_info();
+		Assert.assertTrue(res.getExitCode()==0, "Check exit code (role info)");
+		Assert.assertTrue(getOutput(res).contains(description));
+	}
+
 	@AfterClass(description="Cleanup the trash we did.", alwaysRun=true, groups = {"headpin-cli"}, enabled=true)
 	public void tearDown(){
 		Object[][] roles = KatelloCliDataProvider.user_role_create();

@@ -5,6 +5,7 @@ import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloActivationKey;
+import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
@@ -16,6 +17,7 @@ import com.redhat.qe.tools.SSHCommandResult;
 @Test(groups={TngRunGroups.TNG_KATELLO_Activation_Key})
 public class ActivationKeyTests extends KatelloCliTestBase{
 	private String systemgroup;
+	
 	
 	@Test(description="create AK", dataProvider="activationkey_create", 
 			dataProviderClass = KatelloCliDataProvider.class, enabled=true)
@@ -313,4 +315,83 @@ public class ActivationKeyTests extends KatelloCliTestBase{
 		Assert.assertTrue(KatelloCliTestBase.sgetOutput(res).contains(akName), 
 				          String.format("Activationkey [%s] found in system [%s] info",akName,systemName));		
     }
+
+	@Test(description="update key description")
+	public void test_updateDescription() {
+		SSHCommandResult res;
+		String uid = KatelloUtils.getUniqueID();
+		String key_name="act_key-"+uid;
+		String new_description = "new description";
+		KatelloActivationKey key = new KatelloActivationKey(cli_worker, base_org_name, base_dev_env_name, key_name, "description");
+		res = key.create();
+		Assert.assertTrue(res.getExitCode()==0, "Check exit code (key create)");
+		res = key.update_description(new_description);
+		Assert.assertTrue(res.getExitCode()==0, "Check exit code (key update)");
+		res = key.info();
+		Assert.assertTrue(getOutput(res).contains(new_description), "Check output (key info)");
+	}
+
+	@Test(description="update key environemnt")
+	public void test_updateEnvironment() {
+		SSHCommandResult res;
+		String uid = KatelloUtils.getUniqueID();
+		String key_name="act_key-"+uid;
+		KatelloEnvironment ak_env = new KatelloEnvironment(cli_worker, base_dev_env_name, null, base_org_name, null);
+		res = ak_env.cli_info();
+		String env_id = KatelloUtils.grepCLIOutput("ID", getOutput(res));
+		KatelloActivationKey key = new KatelloActivationKey(cli_worker, base_org_name, KatelloEnvironment.LIBRARY, key_name, "description");
+		res = key.create();
+		Assert.assertTrue(res.getExitCode()==0, "Check exit code (key create)");
+
+		res = key.update_environment(base_dev_env_name);
+		Assert.assertTrue(res.getExitCode()==0, "Check exit code (key update)");
+		res = key.info();
+		String ak_env_id = KatelloUtils.grepCLIOutput("Environment ID", getOutput(res));
+		Assert.assertTrue(ak_env_id.equals(env_id), "Check (key env id)");
+	}
+
+	@Test(description="update key name")
+	public void test_updateName() {
+		SSHCommandResult res;
+		String uid = KatelloUtils.getUniqueID();
+		String key_name="act_key-"+uid;
+		String new_name = "act_key_new"+uid;
+		KatelloActivationKey key = new KatelloActivationKey(cli_worker, base_org_name, base_dev_env_name, key_name, "description");
+		res = key.create();
+		Assert.assertTrue(res.getExitCode()==0, "Check exit code (key create)");
+		res = key.update_name(new_name);
+		Assert.assertTrue(res.getExitCode()==0, "Check exit code (key update)");
+
+		key = new KatelloActivationKey(cli_worker, base_org_name, base_dev_env_name, new_name, "description");
+		res = key.info();
+		Assert.assertTrue(res.getExitCode()==0, "Check exit code (key update)");
+		Assert.assertTrue(getOutput(res).contains(new_name), "Check output (key info)");
+	}
+
+	@Test(description="update key content view")
+	public void test_removeContentView() {
+		SSHCommandResult res;
+		String uid = KatelloUtils.getUniqueID();
+		String key_name="act_key-"+uid;
+		KatelloActivationKey key = new KatelloActivationKey(cli_worker, base_org_name, KatelloEnvironment.LIBRARY, key_name, "description");
+		res = key.create();
+		Assert.assertTrue(res.getExitCode()==0, "Check exit code (key create)");
+
+		String def_name = "def"+uid;
+		String view_name = "view"+uid;
+		KatelloContentDefinition def = new KatelloContentDefinition(cli_worker, def_name, null, base_org_name, null);
+		res = def.create();
+		Assert.assertTrue(res.getExitCode()==0, "Check exit code (create definition)");
+		res = def.publish(view_name, null, null);
+		Assert.assertTrue(res.getExitCode()==0, "Check exit code (publish definition)");
+
+		res = key.update_add_content_view(view_name);
+		Assert.assertTrue(res.getExitCode()==0, "Check exit code (key update)");
+		res = key.info();
+		Assert.assertTrue(getOutput(res).contains(view_name), "Check output (key info)");
+		res = key.update_remove_content_view();
+		Assert.assertTrue(res.getExitCode()==0, "Check exit code (key update)");
+		res = key.info();
+		Assert.assertFalse(getOutput(res).contains("Content View"), "Check output (no content view)");
+	}
 }

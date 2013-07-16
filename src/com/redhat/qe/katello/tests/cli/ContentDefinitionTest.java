@@ -47,6 +47,16 @@ public class ContentDefinitionTest extends KatelloCliTestBase{
 		content.description = "edited description";
 		assert_ContentViewDefinitionInfo(content);
 	}
+
+	@Test(description = "update content definition name")
+	public void test_updateName() {
+		String new_name = "definition" + KatelloUtils.getUniqueID();
+		KatelloContentDefinition content = createContentDefinition();
+		assert_ContentViewDefinitionInfo(content);
+		content.update_name(new_name);
+		content.name = new_name;
+		assert_ContentViewDefinitionInfo(content);
+	}
 	
 	@Test(description = "Create Content Def with empty name, verify error")
 	public void test_createContentDefEmptyName() {

@@ -24,6 +24,11 @@ public class KatelloSystem extends _KatelloObject{
 	public static final String CMD_SUBSCRIBE = "system subscribe";
 	public static final String CMD_RELEASES = "system releases";
 	public static final String CMD_FACTS = "system facts";
+	public static final String CMD_TASK = "system task";
+	public static final String CMD_TASKS = "system tasks";
+	public static final String CMD_ADD_TO_GROUPS = "system add_to_groups";
+	public static final String CMD_REMOVE_FROM_GROUPS = "system remove_from_groups";
+	public static final String CMD_REGISTER = "system register";
 	
 	public static final String CMD_ADD_CUSTOM_INFO = "system custom_info add";
 	public static final String CMD_UPDATE_CUSTOM_INFO = "system custom_info update";
@@ -61,6 +66,9 @@ public class KatelloSystem extends _KatelloObject{
 	public static final String ERR_INVALID_KEY = "Couldn't find custom info with keyname '%s'"; 
 	public static final String ERR_KEY_TOO_LONG = "Validation failed: Keyname is too long (maximum is 255 characters)";
 	public static final String ERR_VALUE_TOO_LONG = "Validation failed: Value is too long (maximum is 255 characters)";
+	public static final String ERR_NOT_FOUND = "Could not find System [ %s ] in Org [ %s ]";
+	public static final String ERR_NO_DELETION_RECORD = "Deletion record for hypervisor %s not found.";
+	public static final String ERR_NO_TASK = "Couldn't find TaskStatus with uuid = %s";
 	
 	public static final String OUT_REMOTE_ACTION_DONE = "Remote action finished:";
 	public static final String OUT_RHSM_SUBSCRIBED_OK = 
@@ -82,6 +90,11 @@ public class KatelloSystem extends _KatelloObject{
 	public static final String OUT_RHSM_REGISTERED_OK = 
 			"The system has been registered with id:";
 	public static final String OUT_LIST_PACKAGES = "Package Information for System [ %s ] in Org [ %s ]";
+	public static final String OUT_ADD_TO_GROUPS = "Successfully added system groups to system [ %s ]";
+	public static final String OUT_REMOVE_FROM_GROUPS = "Successfully removed system groups from system [ %s ]";
+	public static final String OUT_UNSUBSCRIBE = "Successfully removed subscription from System [ %s ]";
+	public static final String OUT_REGISTRED = "Successfully registered system [ %s ]";
+	public static final String OUT_UNREGISTRED = "Successfully unregistered System [ %s ]";
 	
 	public static final String API_CMD_INFO = "/consumers/%s";
 	public static final String API_CMD_GET_SERIALS = "/consumers/%s/certificates/serials";
@@ -471,6 +484,33 @@ public class KatelloSystem extends _KatelloObject{
 		return run(CMD_PACKAGES);
 	}
 	
+	public SSHCommandResult packages_update(String packageNames) {
+		opts.clear();
+		opts.add(new Attribute("update", packageNames));
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		return run(CMD_PACKAGES);
+	}
+
+
+	public SSHCommandResult packages_remove(String packageNames) {
+		opts.clear();
+		opts.add(new Attribute("remove", packageNames));
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		return run(CMD_PACKAGES);
+	}
+
+
+	public SSHCommandResult packages_remove_groups(String packageGroupNames) {
+		opts.clear();
+		opts.add(new Attribute("remove_groups", packageGroupNames));
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		return run(CMD_PACKAGES);
+	}
+
+
 	public SSHCommandResult rhsm_subscribe(String poolid){
 		String cmd = RHSM_SUBSCRIBE;
 		
@@ -542,6 +582,14 @@ public class KatelloSystem extends _KatelloObject{
 		return run(String.format(KatelloSystem.SYSTEM_UNSUBSCRIBE, uuid, org));
 	}
 
+	public SSHCommandResult unsubscribe(String poolID){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("entitlement", poolID));
+		return run("system unsubscribe");
+	}
+
 	public SSHCommandResult unregister(){
 		opts.clear();
 		return run(String.format(KatelloSystem.SYSTEM_UNREGISTER, uuid, org));
@@ -595,6 +643,19 @@ public class KatelloSystem extends _KatelloObject{
 		return run(CMD_LIST_ERRATA_DETAILS);
 	}
 	
+	public SSHCommandResult task(String taskId) {
+		opts.clear();
+		opts.add(new Attribute("id", taskId));
+		return run(CMD_TASK);
+	}
+
+	public SSHCommandResult tasks() {
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		return run(CMD_TASKS);
+	}
+
 	public SSHCommandResult list_errata_count(String query) {
 		String cmd = CMD_LIST_ERRATAS;
 		
@@ -678,5 +739,29 @@ public class KatelloSystem extends _KatelloObject{
 		opts.add(new Attribute("content_view", view));
 
 		return run(CMD_UPDATE);
+	}
+
+	public SSHCommandResult add_to_groups(String groups) {
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("system_groups", groups));
+		return run(CMD_ADD_TO_GROUPS);
+	}
+
+	public SSHCommandResult remove_from_groups(String groups) {
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("system_groups", groups));
+		return run(CMD_REMOVE_FROM_GROUPS);
+	}
+
+	public SSHCommandResult register() {
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("environment", env));
+		return run(CMD_REGISTER);
 	}
 }

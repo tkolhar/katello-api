@@ -166,6 +166,14 @@ public class KatelloContentDefinition extends _KatelloObject{
 		return run(CMD_DEFINITION_UPDATE);
 	}
 
+	public SSHCommandResult update_name(String new_name){
+		opts.clear();
+		opts.add(new Attribute("name", this.name));
+		opts.add(new Attribute("org", this.org));
+		opts.add(new Attribute("new_name", new_name));
+		return run(CMD_DEFINITION_UPDATE);
+	}
+
 	public SSHCommandResult add_repo(String product, String repo){
 		opts.clear();
 		opts.add(new Attribute("name", this.name));

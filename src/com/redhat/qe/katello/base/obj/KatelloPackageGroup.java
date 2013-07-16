@@ -10,6 +10,8 @@ public class KatelloPackageGroup extends _KatelloObject{
 	// ** ** ** ** ** ** ** Public constants
 	public static final String CMD_INFO = "package_group info";
 	public static final String CMD_LIST = "package_group list";
+	public static final String CMD_CATEGORY_LIST = "package_group category_list -v";
+	public static final String CMD_CATEGORY_INFO = "package_group category_info";
 
 	
 	// ** ** ** ** ** ** ** Class members
@@ -36,7 +38,19 @@ public class KatelloPackageGroup extends _KatelloObject{
 		opts.add(new Attribute("repo_id", repoId));
 		return run(CMD_LIST);
 	}
-	
+
+	public SSHCommandResult cli_category_list(String repoId) {
+		opts.clear();
+		opts.add(new Attribute("repo_id", repoId));
+		return run(CMD_CATEGORY_LIST);
+	}
+
+	public SSHCommandResult cli_category_info(String repoId, String categoryId) {
+		opts.clear();
+		opts.add(new Attribute("repo_id", repoId));
+		opts.add(new Attribute("id", categoryId));
+		return run(CMD_CATEGORY_INFO);
+	}
 	// ** ** ** ** ** ** **
 	// ASSERTS
 	// ** ** ** ** ** ** **	

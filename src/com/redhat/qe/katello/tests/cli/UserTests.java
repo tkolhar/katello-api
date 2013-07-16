@@ -505,6 +505,59 @@ public class UserTests extends KatelloCliTestBase{
 		user.asserts_create();
 	}
 	
+	@Test(description="create user with default locale")
+	public void test_createUserLocale() {
+		SSHCommandResult res;
+		String username = "user"+KatelloUtils.getUniqueID();
+		KatelloUser user = new KatelloUser(cli_worker, username, KatelloUser.DEFAULT_USER_EMAIL, KatelloUser.DEFAULT_USER_PASS, false, "fr");
+		res = user.cli_create();
+		Assert.assertTrue(res.getExitCode()==0, "Check exit code (user create)");
+		res = user.cli_info();
+		Assert.assertTrue(res.getExitCode()==0, "Check exit code (user info)");
+		String locale = KatelloUtils.grepCLIOutput("Default Locale", getOutput(res));
+		Assert.assertTrue(locale.equals("fr"), "Check output (user info locale)");
+	}
+
+	// TODO bug 974998
+	@Test(description="create user with bad default locale")
+	public void test_createUserLocaleBad() {
+		SSHCommandResult res;
+		String username = "user"+KatelloUtils.getUniqueID();
+		KatelloUser user = new KatelloUser(cli_worker, username, KatelloUser.DEFAULT_USER_EMAIL, KatelloUser.DEFAULT_USER_PASS, false, "foo");
+		res = user.cli_create();
+		Assert.assertTrue(res.getExitCode()==166, "Check exit code (user create)");
+	}
+
+	@Test(description="update user default locale")
+	public void test_updateLocale() {
+		SSHCommandResult res;
+		String username = "user"+KatelloUtils.getUniqueID();
+
+		KatelloUser user = new KatelloUser(cli_worker, username, KatelloUser.DEFAULT_USER_EMAIL, KatelloUser.DEFAULT_USER_PASS, false);
+		res = user.cli_create();
+		Assert.assertTrue(res.getExitCode()==0, "Check exit code (user create)");
+		res = user.update_locale("fr");
+		Assert.assertTrue(res.getExitCode()==0, "Check exit code (user update)");
+		res = user.cli_info();
+		Assert.assertTrue(res.getExitCode()==0, "Check exit code (user info)");
+		String locale = KatelloUtils.grepCLIOutput("Default Locale", getOutput(res));
+		Assert.assertTrue(locale.equals("fr"), "Check output (user info locale)");
+	}
+
+	@Test(description="user update bad default locale")
+	public void test_updateBadLocale() {
+		SSHCommandResult res;
+		String username = "user"+KatelloUtils.getUniqueID();
+
+		KatelloUser user = new KatelloUser(cli_worker, username, KatelloUser.DEFAULT_USER_EMAIL, KatelloUser.DEFAULT_USER_PASS, false);
+		res = user.cli_create();
+		Assert.assertTrue(res.getExitCode()==0, "Check exit code (user create)");
+
+		res = user.update_locale("foo");
+		Assert.assertTrue(res.getExitCode()==166, "Check exit code (user update)");
+		Assert.assertTrue(getOutput(res).equals(KatelloUser.ERR_LOCALE), "Check error (update bad locale)");
+	}
+
 	private void assert_userInfo(KatelloUser user){
 		SSHCommandResult res;
 		res = user.cli_info();
