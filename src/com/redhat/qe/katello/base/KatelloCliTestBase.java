@@ -347,7 +347,7 @@ implements KatelloConstants {
 		if (base_org_name == null) {
 			String classname = this.getClass().getName();
 			if(!classname.contains("tests.cli.")&&
-				!classname.contains("tests.e2.")) 
+				!classname.contains("tests.e2e.")) 
 				return;
 			
 			String uid = KatelloUtils.getUniqueID();

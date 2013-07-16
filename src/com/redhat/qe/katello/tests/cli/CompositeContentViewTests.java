@@ -145,10 +145,8 @@ public class CompositeContentViewTests extends KatelloCliTestBase{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentView.OUT_PROMOTE, this.pubcompview_name1, base_dev_env_name)), "Content view promote output.");
 		
-		act_key2 = new KatelloActivationKey(cli_worker, base_org_name, base_dev_env_name, act_key_name2, "Act key2 created");
+		act_key2 = new KatelloActivationKey(cli_worker, base_org_name, base_dev_env_name, act_key_name2, "Act key2 created", null, pubcompview_name1);
 		exec_result = act_key2.create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
-		exec_result = act_key2.update_add_content_view(pubcompview_name1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
 		exec_result = act_key2.info();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
