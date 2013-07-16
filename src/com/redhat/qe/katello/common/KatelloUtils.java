@@ -457,7 +457,7 @@ public class KatelloUtils implements KatelloConstants {
 			}
 			
 			// Configure the server as a self-client
-			BeakerUtils.Katello_Configuration_KatelloClient(hostIP, machine.getHostName(), version); // at this time DDNS should return the hostname already! It takes ~5 min.
+			BeakerUtils.Katello_Configuration_KatelloClient(hostIP, machine.getHostName(), version, product); // at this time DDNS should return the hostname already! It takes ~5 min.
 			
 			KatelloUtils.sleepAsHuman();
 			KatelloPing ping = new KatelloPing(new KatelloCliWorker(machine.getHostName(), machine.getHostName()));
@@ -474,13 +474,15 @@ public class KatelloUtils implements KatelloConstants {
 	private static void installClient(DeltaCloudInstance machine, String server) {
 		String hostname = machine.getIpAddress();
 		String version = System.getProperty("katello.product.version", "1.1");
+		String product = System.getProperty("katello.product", "katello");
 		
 		setupBeakerRepo(hostname);
 		configureBeaker(hostname);
 				
 		BeakerUtils.Katello_Sanity_ImportKeys(hostname);
 		BeakerUtils.Katello_Installation_RegisterRHNClassic(hostname);
-		BeakerUtils.Katello_Configuration_KatelloClient(hostname, server, version);
+		BeakerUtils.Katello_Installation_ConfigureRepos(hostname);
+		BeakerUtils.Katello_Configuration_KatelloClient(hostname, server, version, product);
 	}
 	
 	/**

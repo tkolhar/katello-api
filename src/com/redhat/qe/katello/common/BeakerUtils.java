@@ -18,11 +18,12 @@ public class BeakerUtils {
 		return KatelloUtils.sshOnClient(hostname, cmds);
 	}
 
-	public static SSHCommandResult Katello_Configuration_KatelloClient(String hostname, String servername, String releaseVersion){
+	public static SSHCommandResult Katello_Configuration_KatelloClient(String hostname, String servername, String releaseVersion, String product){
 		String cmds = 
 				"yum install -y Katello-Katello-Configuration-KatelloClient --disablerepo=* --enablerepo=beaker*; " +
 				"cd /mnt/tests/Katello/Configuration/KatelloClient/; " +
 				"export KATELLO_SERVER_HOSTNAME="+servername+"; " +
+				"export KATELLO_PRODUCT="+product+"; " +
 				"export KATELLO_RELEASE="+releaseVersion+"; make run";
 		return KatelloUtils.sshOnClient(hostname, cmds);
 	}

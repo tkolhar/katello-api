@@ -29,7 +29,7 @@ public class SetupServers extends KatelloCliTestBase {
 			client_name = client.getHostName();
 			
 			System.setProperty("katello.server.hostname", server_name);
-			System.setProperty("katello.client.hostname", server_name);
+			System.setProperty("katello.client.hostname", client_name);
 		}
 	}
 	
