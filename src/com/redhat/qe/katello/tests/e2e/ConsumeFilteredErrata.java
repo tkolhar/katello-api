@@ -9,7 +9,6 @@ import com.redhat.qe.katello.base.obj.KatelloActivationKey;
 import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
 import com.redhat.qe.katello.base.obj.KatelloContentFilter;
 import com.redhat.qe.katello.base.obj.KatelloContentView;
-import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.base.obj.KatelloSystemGroup;
 import com.redhat.qe.katello.base.obj.helpers.FilterRuleErrataDayType;
@@ -121,20 +120,17 @@ public class ConsumeFilteredErrata extends KatelloCliTestBase {
 		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentView.OUT_PROMOTE, this.pubview_name, base_test_env_name)), "Content view promote output.");
 		// promoting content view is the same as create changeset, add content view and promote, it is completely legal
 		
-		act_key = new KatelloActivationKey(this.cli_worker, base_org_name, base_test_env_name, act_key_name,"Act key created");
+		act_key = new KatelloActivationKey(this.cli_worker, base_org_name, base_test_env_name, act_key_name,"Act key created", null, pubview_name);
 		exec_result = act_key.create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");      
-		exec_result = act_key.update_add_content_view(pubview_name);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");      
-		exec_result = new KatelloOrg(this.cli_worker, base_org_name,null).subscriptions();
-		String zoo4PoolId = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result), 1);
-		exec_result = act_key.update_add_subscription(zoo4PoolId);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");           
+
+		exec_result = act_key.update_add_subscription(base_zoo4_repo_pool);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		exec_result = act_key.info();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");      
 		Assert.assertTrue(getOutput(exec_result).contains(this.pubview_name), "Content view name is in output.");
-		Assert.assertTrue(getOutput(exec_result).contains(zoo4PoolId), "Subscription is in output.");
+		Assert.assertTrue(getOutput(exec_result).contains(base_zoo4_repo_pool), "Subscription is in output.");
 
 		//register client, subscribe to pool
 		rhsm_clean();

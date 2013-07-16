@@ -71,11 +71,9 @@ public class ConsumeCombineContent extends KatelloCliTestBase{
 		exec_result = conview.promote_view(base_dev_env_name);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentView.OUT_PROMOTE, this.pubview_name, base_dev_env_name)), "Content view promote output.");
-		act_key = new KatelloActivationKey(this.cli_worker, base_org_name,base_dev_env_name,act_key_name,"Act key created");
+		act_key = new KatelloActivationKey(this.cli_worker, base_org_name,base_dev_env_name,act_key_name,"Act key created", null, pubview_name);
 		exec_result = act_key.create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");      
-		exec_result = act_key.update_add_content_view(pubview_name);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");      
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");           
 		
 		/* 
 		 * gkhachik - adding the poolid of zoo3 to the activation_key so 

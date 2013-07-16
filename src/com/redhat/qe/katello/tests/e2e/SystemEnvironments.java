@@ -10,12 +10,9 @@ import com.redhat.qe.katello.base.obj.KatelloContentView;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.common.KatelloUtils;
-import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups={"cfse-e2e"}, singleThreaded = true)
 public class SystemEnvironments extends KatelloCliTestBase {
-	
-	private SSHCommandResult exec_result;
 
 	// Katello objects below
 	private String env_name_Dev, env_name_Test, env_name_Prod;
@@ -51,10 +48,8 @@ public class SystemEnvironments extends KatelloCliTestBase {
 		exec_result = view.promote_view(env_name_Prod);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		KatelloActivationKey act_key = new KatelloActivationKey(this.cli_worker, base_org_name, env_name_Dev, act_key_name,"Act key created");
+		KatelloActivationKey act_key = new KatelloActivationKey(this.cli_worker, base_org_name, env_name_Dev, act_key_name,"Act key created", null, contentView_name);
 		exec_result = act_key.create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");      
-		exec_result = act_key.update_add_content_view(contentView_name);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");      
 		exec_result = act_key.update_add_subscription(base_zoo_repo_pool);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
