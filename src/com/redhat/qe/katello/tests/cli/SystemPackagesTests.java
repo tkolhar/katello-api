@@ -49,10 +49,8 @@ public class SystemPackagesTests extends KatelloCliTestBase {
 		KatelloContentView view = new KatelloContentView(cli_worker, view_name, base_org_name);
 		exec_result = view.promote_view(base_dev_env_name);
 		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (promote view)");
-		KatelloActivationKey key = new KatelloActivationKey(cli_worker, base_org_name, base_dev_env_name, actkey_name, null);
+		KatelloActivationKey key = new KatelloActivationKey(cli_worker, base_org_name, base_dev_env_name, actkey_name, null, null, view_name);
 		exec_result = key.create();
-		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (create key)");
-		exec_result = key.update_add_content_view(view_name);
 		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (update key)");
 
 		KatelloSystem sys = new KatelloSystem(cli_worker, sys_name, base_org_name, base_dev_env_name);
