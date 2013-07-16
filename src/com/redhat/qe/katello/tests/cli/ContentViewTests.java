@@ -25,6 +25,8 @@ public class ContentViewTests extends KatelloCliTestBase{
 	String condef_name = "condef-" + uid;
 	String conview_name = "conview-" + uid;
 	String pubview_name = "pubview-" + uid;
+	String view_delete = "viewdelete-" + uid;
+	String view_refresh = "viewrefresh-" + uid;
 	String condef_name1 = "condef1-" + uid;
 	String condef_name2 = "condef2-" + uid;
 	String act_key_name = "act_key" + uid;
@@ -44,13 +46,19 @@ public class ContentViewTests extends KatelloCliTestBase{
 		condef = new KatelloContentDefinition(cli_worker, condef_name,null,base_org_name,null);
 		exec_result = condef.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
+
+		exec_result = condef.publish(view_refresh, view_refresh, "view to be refreshed");
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+
 		exec_result = condef.add_repo(base_zoo_product_name, base_zoo_repo_name);
+
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
 		
 		exec_result = condef.publish(pubview_name,pubview_name,"Publish Content");
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");		
 	
+		exec_result = condef.publish(view_delete, view_delete, "view to be deleted");
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		// The only way to install ERRATA on System is by system group
 		group = new KatelloSystemGroup(this.cli_worker, group_name, base_org_name);
@@ -210,5 +218,24 @@ public class ContentViewTests extends KatelloCliTestBase{
 		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentView.OUT_PROMOTE, this.pubview_name, base_dev_env_name)), "Content view promote output.");
 		yum_clean();
 		install_Packages(cli_worker.getClientHostname(), new String[] {"walrus"});
+	}
+	
+	@Test(description = "delete content view")
+	public void test_deleteContentView() {
+		KatelloContentView view = new KatelloContentView(cli_worker, view_delete, base_org_name);
+		exec_result = view.delete_view();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check exit code (delete view)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentView.OUT_DELETE, view_delete)), "Check output (delete view)");
+	}
+
+	@Test(description="refresh content view and check new content")
+	public void test_refreshContentView() {
+		KatelloContentView view = new KatelloContentView(cli_worker, view_refresh, base_org_name);
+		KatelloPackage pkg = new KatelloPackage(cli_worker, base_org_name, base_zoo_product_name, base_zoo_repo_name, view_refresh);
+		exec_result = view.refresh_view();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check exit code (refresh view)");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentView.OUT_REFRESH, view_refresh)), "Check output (refresh view)");
+		exec_result = pkg.cli_list();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code");
 	}
 }

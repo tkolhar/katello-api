@@ -14,11 +14,13 @@ public class KatelloContentView extends _KatelloObject{
 	public static final String CMD_REFRESH_VIEW = "content view refresh";
 	public static final String CMD_VIEW_INFO = "content view info";
 	public static final String CMD_VIEW_LIST = "content view list";
+	public static final String CMD_VIEW_DELETE = "content view delete";
 	
 	public static final String OUT_PROMOTE =
 			"Content view [ %s ] promoted to environment [ %s ]";
 	public static final String OUT_REFRESH =
 			"Content view [ %s ] was successfully refreshed.";
+	public static final String OUT_DELETE = "Content view [ %s ] was successfully deleted.";
 		
 	public static final String ERR_VIEW_READ =
 			"User %s is not allowed to access api/v1/content_views/index";
@@ -104,6 +106,12 @@ public class KatelloContentView extends _KatelloObject{
 		return run(CMD_VIEW_INFO);
 	}
 
+	public SSHCommandResult delete_view() {
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		return run(CMD_VIEW_DELETE);
+	}
 	// ** ** ** ** ** ** **
 	// ASSERTS
 	// ** ** ** ** ** ** **
