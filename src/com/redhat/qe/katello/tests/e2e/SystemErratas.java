@@ -5,81 +5,31 @@ import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
-import com.redhat.qe.katello.base.obj.KatelloEnvironment;
-import com.redhat.qe.katello.base.obj.KatelloOrg;
-import com.redhat.qe.katello.base.obj.KatelloProduct;
-import com.redhat.qe.katello.base.obj.KatelloProvider;
-import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
-import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups={"cfse-e2e",TngRunGroups.TNG_KATELLO_Errata}, singleThreaded = true)
 public class SystemErratas extends KatelloCliTestBase {
-	
-	private SSHCommandResult exec_result;
 
 	// Katello objects below
-	private String org_name;
-	private String provider_name;
-	private String product_name;
-	private String repo_name;
-	private String env_name;
 	private String system_name;
 	private String cv_name;
 	
 	@BeforeClass(description="Generate unique names")
 	public void setUp(){
 		String uid = KatelloUtils.getUniqueID();
-		org_name = "org_"+uid;
-		provider_name = "provider_"+uid;
-		product_name = "product_"+uid;
-		repo_name = "repo_name_"+uid;
-		env_name = "env_Dev_"+uid;
 		system_name = "system_"+uid;
 		
 		rhsm_clean(); // clean - in case of it registered
 		
-		// Create org:
-		KatelloOrg org = new KatelloOrg(this.cli_worker, this.org_name, "Package tests");
-		exec_result = org.cli_create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-
-		// Create provider:
-		KatelloProvider prov = new KatelloProvider(this.cli_worker, provider_name, org_name,
-				"Package provider", null);
-		exec_result = prov.create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-
-		// Create product:
-		KatelloProduct prod = new KatelloProduct(this.cli_worker, product_name, org_name,
-				provider_name, null, null, null, null, null);
-		exec_result = prod.create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-
-		KatelloRepo repo = new KatelloRepo(this.cli_worker, repo_name, org_name, product_name, REPO_INECAS_ZOO3, null, null);
-		exec_result = repo.create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		cv_name = KatelloUtils.promoteProductToEnvironment(cli_worker, base_org_name, base_zoo_product_name, base_dev_env_name);
 		
-		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, env_name, null, org_name, KatelloEnvironment.LIBRARY);
-		exec_result = env.cli_create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (env create)");
-		
-		exec_result = repo.synchronize();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		cv_name = KatelloUtils.promoteProductToEnvironment(cli_worker, org_name, product_name, env_name);
-		
-		KatelloSystem sys = new KatelloSystem(this.cli_worker, system_name, this.org_name, this.env_name+"/"+cv_name);
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, system_name, base_org_name, base_dev_env_name.replaceAll(" ", "_")+"/"+cv_name);
 		exec_result = sys.rhsm_registerForce(); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		
-		exec_result = sys.subscriptions_available();
-		String poolId1 = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
-		Assert.assertNotNull(poolId1, "Check - pool Id is not null");
-		
-		exec_result = sys.rhsm_subscribe(poolId1);
+		exec_result = sys.rhsm_subscribe(base_zoo_repo_pool);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
 		sshOnClient("yum erase -y walrus");
@@ -94,7 +44,7 @@ public class SystemErratas extends KatelloCliTestBase {
 	/** TCMS scenario is: <a href="https://tcms.engineering.redhat.com/case/243044/?from_plan=7760">here</a> */
 	@Test(description = "4aeb7f5c-90f2-4def-b38a-433284d92fad")
 	public void test_errataListOnSystem() {
-		KatelloSystem system = new KatelloSystem(this.cli_worker, system_name, this.org_name, this.env_name+"/"+cv_name);
+		KatelloSystem system = new KatelloSystem(this.cli_worker, system_name, base_org_name, base_dev_env_name.replaceAll(" ", "_")+"/"+cv_name);
 		exec_result = system.list_erratas();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains(PromoteErrata.ERRATA_ZOO_SEA), "Check - errata list output");
@@ -102,7 +52,7 @@ public class SystemErratas extends KatelloCliTestBase {
 	
 	@Test(description = "List the errata details on system", dependsOnMethods={"test_errataListOnSystem"})
 	public void test_errataDetailsOnSystem() {
-		KatelloSystem system = new KatelloSystem(this.cli_worker, system_name, this.org_name, this.env_name+"/"+cv_name);
+		KatelloSystem system = new KatelloSystem(this.cli_worker, system_name, base_org_name, base_dev_env_name.replaceAll(" ", "_")+"/"+cv_name);
 		exec_result = system.list_errata_details();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains(PromoteErrata.ERRATA_ZOO_SEA), "Check - errata list output");
@@ -112,7 +62,7 @@ public class SystemErratas extends KatelloCliTestBase {
 	/** TCMS scenario is: <a href="https://tcms.engineering.redhat.com/case/134195/?from_plan=7760">here</a> */
 	@Test(description = "7cf9e3f5-f328-4225-b972-80e6a93b0a19", dependsOnMethods={"test_errataDetailsOnSystem"})
 	public void test_errataListOnUnsubscribedSystem() {
-		KatelloSystem system = new KatelloSystem(this.cli_worker, system_name, this.org_name, this.env_name+"/"+cv_name);
+		KatelloSystem system = new KatelloSystem(this.cli_worker, system_name, base_org_name, base_dev_env_name.replaceAll(" ", "_")+"/"+cv_name);
 		
 		exec_result = sshOnClient("subscription-manager unsubscribe --all");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");

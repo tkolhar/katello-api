@@ -79,11 +79,10 @@ public class ContentViewRefreshTests extends KatelloCliTestBase{
 	public void test_addContentView() {
 		exec_result = conview1.promote_view(env_name2);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		act_key2 = new KatelloActivationKey(this.cli_worker, org_name2, env_name2, act_key_name2, "Act key created");
+		act_key2 = new KatelloActivationKey(this.cli_worker, org_name2, env_name2, act_key_name2, "Act key created", null, pubview_name);
 		exec_result = act_key2.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
-		exec_result = act_key2.update_add_content_view(pubview_name);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
+
 		exec_result = org2.subscriptions();
 		String poolId1 = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
 		Assert.assertNotNull(poolId1, "Check - pool Id is not null");
