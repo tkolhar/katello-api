@@ -361,6 +361,16 @@ public class KatelloUtils implements KatelloConstants {
 				filename+" sent successfully");
 	}
 	
+	public static boolean scpOnClientGetFile(String client, String filename, String destinationDir){
+		String hostname = (client == null ? System.getProperty("katello.client.hostname", "localhost") : client);
+		SCPTools scp = new SCPTools(
+				hostname, 
+				System.getProperty("katello.client.ssh.user", "root"), 
+				System.getProperty("katello.client.sshkey.private", ".ssh/id_hudson_dsa"), 
+				System.getProperty("katello.client.sshkey.passphrase", "null"));
+		return scp.getFile(filename, destinationDir);
+	}
+	
 	private static String[] getMachineConfigs(boolean isServer) {
 		String[][] configs = null;
 		if (isServer) {
