@@ -17,6 +17,7 @@ public class KatelloCli implements KatelloConstants {
 	
 	public static Logger log = Logger.getLogger(KatelloCli.class.getName());
 	public static final String OUT_EMPTY_LIST = "[  ]";
+	public static String CMD_PY_COVERAGE = ""; // python coverage for CLI commands?
 	
 	private String command;
 	private List<Attribute> args;
@@ -61,12 +62,13 @@ public class KatelloCli implements KatelloConstants {
 	}
 
 	public SSHCommandResult runExt(String cmdTail){
-		String cmd = System.getProperty("katello.engine", "katello");
+		String cmd = "/usr/bin/"+System.getProperty("katello.engine", "katello");
 		String locale = System.getProperty("katello.locale", KATELLO_DEFAULT_LOCALE);
 		for(int i=0;i<this.args.size();i++){
 			cmd = cmd + " --" + args.get(i).getName()+" \""+args.get(i).getValue().toString()+"\"";
 		}
-		cmd = "export LANG=" + locale + " && " + cmd + " " + this.command;
+		
+		cmd = "export LANG=" + locale + "; " + CMD_PY_COVERAGE + " " + cmd + " " + this.command;
 		for(int i=0;i<this.opts.size();i++){
 			if(this.opts.get(i).getValue()!=null)
 				cmd = cmd + " --" + opts.get(i).getName()+" \""+opts.get(i).getValue().toString()+"\"";
