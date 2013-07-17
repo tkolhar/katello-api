@@ -25,6 +25,8 @@ public class SetupServers extends KatelloCliTestBase {
 			server = KatelloUtils.getDeltaCloudServer();
 			server_name = server.getHostName();
 			
+			try{Thread.sleep(600000);}catch(InterruptedException iex){}
+			
 			client = KatelloUtils.getDeltaCloudClient(server_name);
 			client_name = client.getHostName();
 			
