@@ -22,9 +22,6 @@ public class KatelloRepo extends _KatelloObject{
 	public static final String CMD_ENABLE = "repo enable";
 	public static final String CMD_DISABLE = "repo disable";
 	public static final String CMD_DISCOVER = "repo discover";
-	public static final String CMD_ADD_FILTER = "repo add_filter";
-	public static final String CMD_REMOVE_FILTER = "repo remove_filter";
-	public static final String CMD_FILTER_LIST = "repo list_filters";
 	public static final String CMD_STATUS = "repo status";
 	public static final String CMD_LIST = "repo list -v";
 	
@@ -36,13 +33,10 @@ public class KatelloRepo extends _KatelloObject{
 			"Could not find repository [ %s ] within organization [ %s ], product [ %s ] and environment [ %s ]";	
 	public static final String ERR_REPO_EXISTS = "There is already a repo with the name [ %s ] for product [ %s ]";
 	public static final String ERR_LABEL_EXISTS = "Label has already been taken";
-	public static final String OUT_FILTER_ADDED = 
-			"Added filter [ %s ] to repository [ %s ]";
 	public static final String OUT_REPO_SYNCHED = "Repo [ %s ] synchronized";
 	
 	public static final String REG_REPO_INFO = ".*ID\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*URL\\s*:\\s+%s.*Last Sync\\s*:\\s+%s.*GPG Key\\s*:\\s*+%s.*";
 	public static final String REG_REPO_STATUS = ".*Package Count\\s*:\\s+\\d+.*Last Sync\\s*:\\s+%s.*";
-	public static final String REG_FILTER_LIST = ".*\\s*%s.*\\s+%s.*";
 	public static final String REG_REPO_LIST = ".*ID\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Package Count\\s*:\\s+\\d+.*Last Sync\\s*:\\s+%s.*";
 	public static final String REG_REPO_LIST_ARCH = ".*ID\\s*:\\s+\\d+.*Name\\s*:\\s+%s_.*_%s.*";
 	public static final String REG_REPO_LASTSYNC = "\\d{4}/\\d{2}/\\d{2}\\s\\d{2}:\\d{2}:\\d{2}";
@@ -112,16 +106,6 @@ public class KatelloRepo extends _KatelloObject{
 		return run(CMD_DELETE);
 	}
 	
-	public SSHCommandResult list_filters(){
-		opts.clear();
-		opts.add(new Attribute("org", org));
-		opts.add(new Attribute("name", name));
-		opts.add(new Attribute("product", product));
-		opts.add(new Attribute("product_label", product_label));
-		opts.add(new Attribute("product_id", product_id));
-		return run(CMD_FILTER_LIST);
-	}
-	
 	public SSHCommandResult synchronize(){
 		opts.clear();
 		opts.add(new Attribute("org", org));
@@ -180,28 +164,6 @@ public class KatelloRepo extends _KatelloObject{
 		opts.add(new Attribute("product", product));
 		opts.add(new Attribute("product_id", product_id));
 		return run(CMD_DISABLE);
-	}
-	
-	public SSHCommandResult add_filter(String filter){
-		opts.clear();
-		opts.add(new Attribute("filter", filter));
-		opts.add(new Attribute("org", org));
-		opts.add(new Attribute("name", name));
-		opts.add(new Attribute("product", product));
-		opts.add(new Attribute("product_label", product_label));
-		opts.add(new Attribute("product_id", product_id));
-		return run(CMD_ADD_FILTER);
-	}
-	
-	public SSHCommandResult remove_filter(String filter){
-		opts.clear();
-		opts.add(new Attribute("filter", filter));
-		opts.add(new Attribute("org", org));
-		opts.add(new Attribute("name", name));
-		opts.add(new Attribute("product", product));
-		opts.add(new Attribute("product_label", product_label));
-		opts.add(new Attribute("product_id", product_id));
-		return run(CMD_REMOVE_FILTER);
 	}
 	
 	public SSHCommandResult status(){
