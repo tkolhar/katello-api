@@ -368,7 +368,7 @@ implements KatelloConstants {
 			exec_result = org.cli_create();
 			Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
 
-			if (KATELLO_PRODUCT.equals("headpin")) return; // We are done: if `headpin|sam`
+			if (System.getProperty("katello.engine", "katello").equals("headpin")) return; // We are done: if `headpin|sam`
 
 			// -- Environment
 			KatelloEnvironment env = new KatelloEnvironment(cli_worker, base_dev_env_name, null, base_org_name, KatelloEnvironment.LIBRARY);
