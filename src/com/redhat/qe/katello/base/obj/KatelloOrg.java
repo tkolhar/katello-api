@@ -26,7 +26,7 @@ public class KatelloOrg extends _KatelloObject{
 	public static final String CMD_DELETE = "org delete";
 	public static final String CMD_UPDATE = "org update";
 	public static final String CMD_DEFAULT_INFO_ADD = "org default_info add";
-	public static final String CMD_DEFAULT_INFO_APPLY = "org default_info apply";
+	public static final String CMD_DEFAULT_INFO_APPLY = "org default_info sync";
 	public static final String CMD_DEFAULT_INFO_REMOVE = "org default_info remove";
 //	public static final String CMD_ADD_SYS_INFO = "org default_info add";
 //	public static final String CMD_APPLY_SYS_INFO = "org default_info apply";
@@ -53,7 +53,7 @@ public class KatelloOrg extends _KatelloObject{
 			"Successfully removed [ System ] default custom info [ %s ] for Org [ %s ]";
 	
 	public static final String ERR_NAME_INVALID = 
-			"Validation failed: Name cannot contain characters other than alpha numerals, space, '_', '-'";
+			"Validation failed: Name cannot contain characters other than alpha numerals, space, '_', '-', '.'";
 	public static final String ERR_ORG_NOTFOUND = 
 			"Couldn't find organization '%s'";
 	public static final String ERR_ORG_NAME_EXISTS = 
