@@ -11,9 +11,10 @@ public class KatelloClient extends _KatelloObject{
 	public static final String CMD_REMEMBER = "client remember";
 	public static final String OUT_REMEMBER = "Successfully remembered option [ %s ]";
 	public static final String OUT_FORGET = "Successfully forgot option [ %s ]";
-	private ArrayList<Attribute> opts;
 	private String option;
 	private String value;
+	
+	public KatelloClient(){super();}
 	
 	public KatelloClient(KatelloCliWorker kcr, String optionName,String valueName){
 		
@@ -21,10 +22,6 @@ public class KatelloClient extends _KatelloObject{
 		this.value = valueName;
 		this.opts = new ArrayList<Attribute>();
 		this.kcr = kcr;
-	}
-	
-	public KatelloClient(){
-		this.opts = new ArrayList<Attribute>();
 	}
 	
 	public SSHCommandResult cli_saved_options(){

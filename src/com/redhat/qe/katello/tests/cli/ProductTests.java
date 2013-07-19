@@ -23,35 +23,38 @@ public class ProductTests  extends KatelloCliTestBase{
 	private String prov_name2;
 	private String prov_name3;
 	
-	@BeforeClass(description="Prepare an org to work with", groups = {"cli-product"}, alwaysRun=true)
+	@BeforeClass(description="Prepare an org to work with", groups={"cli-products","headpin-cli"}, alwaysRun=true)
 	public void setup_org(){
 		SSHCommandResult res;
 		String uid = KatelloUtils.getUniqueID();
 		this.org_name = "org"+uid;
-		this.prov_name = "prov"+uid;
-		this.prov_name3 = "prov"+KatelloUtils.getUniqueID();;
 		KatelloOrg org = new KatelloOrg(this.cli_worker, this.org_name, null);
 		res = org.cli_create();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (org create)");
-		KatelloProvider prov = new KatelloProvider(this.cli_worker, this.prov_name, this.org_name, null, null);
-		res = prov.create();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (provider create)");
-		
-		prov = new KatelloProvider(this.cli_worker, this.prov_name3, this.org_name, null, null);
-		res = prov.create();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (provider create)");
-		
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (org create)");		
 		uid = KatelloUtils.getUniqueID();
 		this.org_name2 = "org"+uid;
-		this.prov_name2 = "prov"+uid;
 		org = new KatelloOrg(this.cli_worker, this.org_name2, null);
 		res = org.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (org create)");
+	}
+
+	@BeforeClass(description="init: katello specific, no headpin", dependsOnMethods={"setup_org"})
+	public void setUp_katelloOnly(){
+		SSHCommandResult res;
+		String uid = KatelloUtils.getUniqueID();
+		this.prov_name = "prov"+uid;
+		this.prov_name3 = "prov"+KatelloUtils.getUniqueID();
+		this.prov_name2 = "prov"+uid;
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, this.prov_name, this.org_name, null, null);
+		res = prov.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (provider create)");	
+		prov = new KatelloProvider(this.cli_worker, this.prov_name3, this.org_name, null, null);
+		res = prov.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (provider create)");
 		prov = new KatelloProvider(this.cli_worker, this.prov_name2, this.org_name2, null, null);
 		res = prov.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (provider create)");
 	}
-	
 
     @Test(description = "List all product for orgs", groups = {"headpin-cli"})
 	public void test_listProductDefaultOrg(){

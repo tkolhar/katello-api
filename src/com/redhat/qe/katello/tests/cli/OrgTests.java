@@ -604,8 +604,8 @@ public class OrgTests extends KatelloCliTestBase{
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains("Organization [ " + org_rm_name + " ] completed syncing default info"),"Check - returned string");
 		exec_result = org_rm_info.default_info_remove(invalid_key,"distributor");
-		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).contains("Successfully removed [ Distributor ] default custom info [ "+ invalid_key +" ] for Org [ "+ org_rm_name +" ]"), "Check - stdout removed distributor default info");
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 148, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).contains("Couldn't find default_info with keyname [ "+ invalid_key +" ]"), "Check - stdout removed distributor default info");
 		exec_result = org_rm_info.delete();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");		
 	}
