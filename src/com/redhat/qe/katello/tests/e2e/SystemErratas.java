@@ -41,6 +41,7 @@ public class SystemErratas extends KatelloCliTestBase {
 		sshOnClient("service goferd restart;");
 	}
 	
+	// @ TODO https://bugzilla.redhat.com/show_bug.cgi?id=986377
 	/** TCMS scenario is: <a href="https://tcms.engineering.redhat.com/case/243044/?from_plan=7760">here</a> */
 	@Test(description = "4aeb7f5c-90f2-4def-b38a-433284d92fad")
 	public void test_errataListOnSystem() {
