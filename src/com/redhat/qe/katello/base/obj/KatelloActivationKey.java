@@ -38,6 +38,10 @@ public class KatelloActivationKey extends _KatelloObject{
 			"Could not find activation key [ %s ]";
 	public static final String ERROR_EXCEED =
 			"Usage limit (%s) exhausted for activation key '%s'";	
+	public static final String ERROR_BLANK_NAME = "Name can't be blank";
+	public static final String ERROR_NAME_WHITESPACE = "Validation failed: Name must not contain leading or trailing white spaces.";
+	public static final String ERROR_DUPLICATE_NAME = "Validation failed: Name has already been taken";
+	public static final String ERROR_LONG_NAME = "Validation failed: Name cannot contain more than 255 characters";
 	
 	public KatelloActivationKey(KatelloCliWorker kcr, String pOrg, String pEnv, String pName, String pDesc){
 		this(kcr, pOrg,pEnv,pName,pDesc,null);

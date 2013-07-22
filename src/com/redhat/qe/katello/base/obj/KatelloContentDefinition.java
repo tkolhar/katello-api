@@ -53,7 +53,7 @@ public class KatelloContentDefinition extends _KatelloObject{
 	public static final String ERR_NAME_EMPTY = 
 			"Name can't be blank, Name must contain at least 1 character";
 	public static final String ERR_NAME_LONG = 
-			"Validation failed: Name cannot contain more than 128 characters, Label cannot contain more than 128 characters";
+			"Validation failed: Name cannot contain more than 255 characters, Label cannot contain more than 128 characters";
 	public static final String ERR_ORG_NOTFOUND = 
 			"Couldn't find organization '%s'";
 	public static final String ERR_CREATE_DENIED = 
