@@ -33,6 +33,7 @@ public class SystemGroupTests extends KatelloCliTestBase{
 	private String system_uuid;
 	private String contentName;
 	private String contentView;
+	private String sysgroup_name;
 
 	@BeforeClass(description="Generate unique objects", groups={"cfse-cli","headpin-cli"})
 	public void setUp() {
@@ -378,6 +379,72 @@ public class SystemGroupTests extends KatelloCliTestBase{
 		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloSystemGroup.OUT_REMOVE_SYSTEMS, systemGroupName));
 		
 		assert_systemList(new ArrayList<KatelloSystem>(), Arrays.asList(system));
+	}
+
+	@Test(description="system_group job_history")
+	public void test_jobHistory() {
+		String sys_name = "system"+KatelloUtils.getUniqueID();
+		KatelloSystemGroup group = createSystemGroup();
+		sysgroup_name = group.name;
+		// create dumy job just to list job history
+		KatelloSystem sys = new KatelloSystem(cli_worker, sys_name, orgName, "Library");
+		exec_result = sys.register();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (system reg)");
+		exec_result = sys.add_to_groups(sysgroup_name);
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (system add group)");
+		group.packages_install("lion");
+
+		exec_result = group.job_history();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (sysgroup job_tasks)");
+	}
+
+	@Test(description="system_group job_tasks test - ok id", dependsOnMethods={"test_jobHistory"})
+	public void test_jobTasks() {
+		KatelloSystemGroup group = new KatelloSystemGroup(cli_worker, sysgroup_name, orgName);
+		// need job!
+		exec_result = group.job_history();
+		String jobID = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result));
+		Assert.assertNotNull(jobID, "Check job id not null");
+		exec_result = group.job_tasks(jobID);
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (sysgroup job_tasks)");
+	}
+
+	// TODO bug 985412
+	@Test(description="system_group job_tasks test - bad id", dependsOnMethods={"test_jobHistory"})
+	public void test_jobTasksBadID() {
+		KatelloSystemGroup group = new KatelloSystemGroup(cli_worker, sysgroup_name, orgName);
+		exec_result = group.job_tasks("0");
+		Assert.assertTrue(exec_result.getExitCode()!=0, "Check exit code (sysgroup job_tasks)");
+		Assert.assertFalse(getOutput(exec_result).contains("error: 'tasks'"), "Check error (sysgroup job_tasks)");
+	}
+
+	@Test(description="system_group update systems - change systems environment and content view")
+	public void test_updateSystems() {
+		String uid =  KatelloUtils.getUniqueID();
+		String sys_name1 = "system"+uid;
+		KatelloSystemGroup group = createSystemGroup();
+		KatelloSystem sys1 = new KatelloSystem(cli_worker, sys_name1, orgName, "Library");
+		exec_result = sys1.register();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (sys reg)");
+		exec_result = sys1.add_to_groups(group.name);
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (sys add group)");
+
+		String def_name = "definition"+uid;
+		String view_name = "view"+uid;
+		KatelloContentDefinition def = new KatelloContentDefinition(cli_worker, def_name, null, orgName, null);
+		def.create();
+		def.publish(view_name, null, null);
+		KatelloContentView view = new KatelloContentView(cli_worker, view_name, orgName);
+		view.promote_view(envName);
+
+		exec_result = group.update_systems(envName, view_name);
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (group update systems)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloSystemGroup.OUT_UPDATE_SYSTEMS, group.name)), "Check output (group update systems)");
+
+		exec_result = sys1.info();
+		String sys_env = KatelloUtils.grepCLIOutput("Environment", getOutput(exec_result));
+		Assert.assertTrue(envName.equals(sys_env), "Check output (environment set)");
+		Assert.assertTrue(getOutput(exec_result).contains(view_name), "Check output (view set)");
 	}
 	
 	private KatelloSystemGroup createSystemGroup() {
