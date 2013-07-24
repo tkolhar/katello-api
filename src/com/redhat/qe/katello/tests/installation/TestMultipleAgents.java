@@ -56,11 +56,12 @@ public class TestMultipleAgents extends KatelloCliTestBase {
 				System.getProperty("deltacloud.client.imageid"), ",");
 		
 		while (tok.hasMoreTokens()) {
+			String type = tok.nextToken().trim();
 			DeltaCloudInstance client = KatelloUtils.getDeltaCloudClient(
-					server_name, DELTACLOUD_IMAGES.get(tok.nextToken()));
+					server_name, DELTACLOUD_IMAGES.get(type));
 			clients.add(client);
 
-			testClientConsume(client.getHostName());
+			testClientConsume(client.getHostName(), type);
 			
 			KatelloUtils.destroyDeltaCloudMachine(client);
 		}
@@ -119,19 +120,17 @@ public class TestMultipleAgents extends KatelloCliTestBase {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
 	
-	private void testClientConsume(String client_name) {
+	private void testClientConsume(String client_name, String client_type) {
 		KatelloSystem sys = new KatelloSystem(null, client_name+KatelloUtils.getUniqueID(), org_name, null);
 		sys.runOn(client_name);
 		exec_result = sys.rhsm_registerForce(act_key_name);
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		
-		String arch = KatelloUtils.sshOnClient(client_name, "uname -snrmpio").getStdout();
-		
 		SSHCommandResult res = KatelloUtils.sshOnClient(client_name, "yum install -y " + package_name);
-		Assert.assertTrue(res.getExitCode() == 0, "Package is installed successfully on machine " + arch);
+		Assert.assertTrue(res.getExitCode() == 0, "Package is installed successfully on machine " + client_type);
 		
 		res = KatelloUtils.sshOnClient(client_name, "rpm -qa | grep -E \"" + package_name + "\"");
-		Assert.assertTrue(getOutput(res).contains(package_name), "Package " + package_name + " should be installed on machine " + arch);		
+		Assert.assertTrue(getOutput(res).contains(package_name), "Package " + package_name + " should be installed on machine " + client_type);		
 	}
 
 }

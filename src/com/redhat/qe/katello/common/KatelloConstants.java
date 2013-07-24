@@ -181,7 +181,7 @@ public interface KatelloConstants {
 	public static final Map<String, String> DELTACLOUD_IMAGES = new HashMap<String, String>(){{
 		put("RHEL 5.9 Server x86_64", "e0b6d040-5757-4b81-b170-f25e8d9472b6");
 		put("RHEL 6.3 Server x86_64", "fc06e21b-8973-48e2-9d64-3b5a90f2717e");
-		put("RHEL 6.4 Server x86_64", "a9985d67-5399-4c9a-a15e-4a2b786a4a15");
+		put("RHEL 6.4 Server x86_64", "24689ef2-0970-4523-adfc-3a14d4fcc89c");
 	}};
 
 }
