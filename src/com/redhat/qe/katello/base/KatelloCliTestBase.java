@@ -64,7 +64,7 @@ implements KatelloConstants {
 		cliPool = KatelloCliWorkersPool.getInstance(null);
 		
 		// Eclipse mode - get default from property file; init base org and exit.
-		if(cliPool==null){ cli_worker = KatelloCliWorker.getSingleMode(); createBaseOrg(); return;}
+		if(cliPool==null){ cli_worker = KatelloCliWorker.getSingleMode(); createBaseOrg(this.getClass().getName(), cli_worker); return;}
 		
 		cli_worker = cliPool.getWorker(Thread.currentThread().getName(),this.getClass().getName());
 		if(cli_worker == null && cliPool.running()){
@@ -77,7 +77,7 @@ implements KatelloConstants {
 		if(!cliPool.running()){
 			throw new SkipException("Timeout happened on requesting worker for: "+this.getClass().getName());
 		}
-		createBaseOrg(); // wait worker to be initialized and invoke it at the very end. there is if (null) - so it would work only on the first invoking. 
+		createBaseOrg(this.getClass().getName(), cli_worker); // wait worker to be initialized and invoke it at the very end. there is if (null) - so it would work only on the first invoking. 
 	}
 	
 	protected SSHCommandResult sshOnClient(String _cmd){
@@ -342,10 +342,9 @@ implements KatelloConstants {
 		}
 	}
 	
-	private void createBaseOrg(){
+	private static synchronized void createBaseOrg(String classname, KatelloCliWorker cli_worker){
 		
 		if (base_org_name == null) {
-			String classname = this.getClass().getName();
 			if(!classname.contains("tests.cli.")&&
 				!classname.contains("tests.e2e.")) 
 				return;
@@ -440,7 +439,7 @@ implements KatelloConstants {
 			base_zoo4_repo_pool = org.custom_getPoolId(base_zoo4_product_name);
 			Assert.assertNotNull(base_zoo4_repo_pool, "Check - pool Id is not null");
 			base_zoo4_product_id = prod.custom_getProductId();
-			Assert.assertNotNull(base_pulp_product_id, "Check - base_zoo_product_id is not null");
+			Assert.assertNotNull(base_zoo4_product_id, "Check - base_zoo_product_id is not null");
 		}	
 	}
 }
