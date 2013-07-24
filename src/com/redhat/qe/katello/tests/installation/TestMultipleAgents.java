@@ -57,7 +57,7 @@ public class TestMultipleAgents extends KatelloCliTestBase {
 		
 		while (tok.hasMoreTokens()) {
 			DeltaCloudInstance client = KatelloUtils.getDeltaCloudClient(
-					server_name, tok.nextToken());
+					server_name, DELTACLOUD_IMAGES.get(tok.nextToken()));
 			clients.add(client);
 
 			testClientConsume(client.getHostName());

@@ -10,6 +10,8 @@ import org.testng.Assert;
 import org.testng.SkipException;
 import org.testng.annotations.BeforeClass;
 
+import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
+import com.redhat.qe.katello.base.obj.KatelloContentView;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
@@ -441,5 +443,21 @@ implements KatelloConstants {
 			base_zoo4_product_id = prod.custom_getProductId();
 			Assert.assertNotNull(base_zoo4_product_id, "Check - base_zoo_product_id is not null");
 		}	
+	}
+	
+	protected void promoteEmptyContentView(String org_name, String... env_names) {
+		String uid = KatelloUtils.getUniqueID();
+		KatelloContentDefinition condef = new KatelloContentDefinition(cli_worker, "def"+uid, null, org_name, null);
+		exec_result = condef.create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		String content_view = "view"+uid;
+		exec_result = condef.publish(content_view, content_view, "view");
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		KatelloContentView conview = new KatelloContentView(cli_worker, content_view, org_name);
+		
+		for (String env_name : env_names) {
+			exec_result = conview.promote_view(env_name);
+			Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		}
 	}
 }
