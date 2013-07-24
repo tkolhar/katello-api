@@ -165,4 +165,14 @@
 			<class name="com.redhat.qe.katello.tests.installation.BackupRecovery"/>
 		</classes>
 	</test>
+	<test name="Katello_MultipleClient_Tests">
+		<groups>
+    			<run>
+      				<include name="cfse-cli"/>
+    			</run>
+ 		</groups>
+		<classes>
+		    <class name="com.redhat.qe.katello.tests.installation.TestMultipleAgents"/>
+		</classes>
+	</test>
 </suite>
