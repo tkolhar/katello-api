@@ -48,7 +48,7 @@ public class KatelloOrg extends _KatelloObject{
 	public static final String OUT_ADD_DISTRIBUTOR_INFO =
 			"Successfully added [ Distributor ] default custom info [ %s ] to Org [ %s ]";
 	public static final String OUT_APPLY_SYS_INFO = 
-			"Organization [ %s ] completed applying default info";
+			"Organization [ %s ] completed syncing default info";
 	public static final String OUT_REMOVE_SYS_INFO = 
 			"Successfully removed [ System ] default custom info [ %s ] for Org [ %s ]";
 	

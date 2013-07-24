@@ -4,10 +4,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
+
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
+import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
+import com.redhat.qe.katello.base.obj.KatelloContentView;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
@@ -27,6 +31,8 @@ public class SystemGroupTests extends KatelloCliTestBase{
 	private String envName = null; // initially - for headpin
 	private String systemName;
 	private String system_uuid;
+	private String contentName;
+	private String contentView;
 
 	@BeforeClass(description="Generate unique objects", groups={"cfse-cli","headpin-cli"})
 	public void setUp() {
@@ -42,10 +48,25 @@ public class SystemGroupTests extends KatelloCliTestBase{
 	@BeforeClass(description="init: katello specific, no headpin",groups={"cfse-cli"}, dependsOnMethods={"setUp"})
 	public void setUp_katelloOnly(){
 		this.envName = "Dev-"+uid;
+		this.contentName = "content-" + uid;
+		this.contentView = "contentView-"+uid;
 		// Create the env.
 		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, this.envName, null, this.orgName, KatelloEnvironment.LIBRARY);
 		exec_result = env.cli_create();	
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code (env create)");
+		// Associate a content view to the env.
+		KatelloContentDefinition content = new KatelloContentDefinition(this.cli_worker, contentName, "descritpion", this.orgName, contentName);
+		exec_result = content.create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		exec_result = content.publish(contentView, contentView, "New Content View");
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		KatelloContentView contentView = new KatelloContentView(this.cli_worker, this.contentView, this.orgName);
+		exec_result = contentView.promote_view(this.envName);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		
 	}
 	
 	@Test(description = "Create system group", groups = { "cli-systemgroup", "cfse-cli", "headpin-cli" })

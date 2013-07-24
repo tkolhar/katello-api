@@ -10,6 +10,8 @@ import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
+import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
+import com.redhat.qe.katello.base.obj.KatelloContentView;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
@@ -26,6 +28,8 @@ public class SystemInfoTests extends KatelloCliTestBase{
 	private String org;
 	private String system;
 	private String environment;
+	private String contentName;
+	private String contentView;
 	private String keyname = "secret question";
 	private String keyname2 = "second question";
 	private String value2 = "value2";
@@ -40,6 +44,8 @@ public class SystemInfoTests extends KatelloCliTestBase{
 		this.org = "org-default-"+uid;
 		this.system = "system-" + uid;
 		this.environment = "environment-" + uid;
+		this.contentName = "content-" + uid;
+		this.contentView = "contentView-"+uid;
 
 		KatelloOrg org = new KatelloOrg(this.cli_worker, this.org, "Default org");
 		exec_result = org.cli_create();
@@ -49,6 +55,17 @@ public class SystemInfoTests extends KatelloCliTestBase{
 		exec_result = env.cli_create();
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
 
+		KatelloContentDefinition content = new KatelloContentDefinition(this.cli_worker, contentName, "descritpion", this.org, contentName);
+		exec_result = content.create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		exec_result = content.publish(contentView, contentView, "New Content View");
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		KatelloContentView contentView = new KatelloContentView(this.cli_worker, this.contentView, this.org);
+		exec_result = contentView.promote_view(this.environment);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
 		KatelloSystem sys = new KatelloSystem(this.cli_worker, system, this.org, this.environment);
 		exec_result = sys.rhsm_registerForce(); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");

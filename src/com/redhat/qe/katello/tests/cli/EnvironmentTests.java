@@ -1,9 +1,12 @@
 package com.redhat.qe.katello.tests.cli;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
+import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
+import com.redhat.qe.katello.base.obj.KatelloContentView;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
@@ -21,6 +24,7 @@ public class EnvironmentTests extends KatelloCliTestBase{
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 	}
 
+	//TODO BZ: 987670
 	@Test(description="create Environment",  
 			dataProvider="environment_create", dataProviderClass = KatelloCliDataProvider.class, enabled=true)
 	public void testEnv_create(String name, String descr, Integer exitCode, String output){
@@ -136,23 +140,44 @@ public class EnvironmentTests extends KatelloCliTestBase{
 		String env1_name = "env1-"+uid;
 		uid = KatelloUtils.getUniqueID();
 		String env2_name = "env2-"+uid;
+		String contentName = "content-" + uid;
+		String contentView = "contentView-"+uid;
 		String descr_env1 = "Environment "+ env1_name  + " Created";
 		String descr_env2 = "Environment "+ env2_name + " Created";
+		
 		KatelloEnvironment env1 = new KatelloEnvironment(this.cli_worker, env1_name,descr_env1,base_org_name,KatelloEnvironment.LIBRARY);
 		KatelloEnvironment env2 = new KatelloEnvironment(this.cli_worker, env2_name,descr_env2,base_org_name,KatelloEnvironment.LIBRARY);
 		sys_reg = new KatelloSystem(this.cli_worker, sys_name,base_org_name,env1_name);
+		
+		KatelloContentDefinition content = new KatelloContentDefinition(this.cli_worker, contentName, "descritpion", base_org_name, contentName);
+		exec_result = content.create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		exec_result = content.publish(contentView, contentView, "New Content View");
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
 		res = env1.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(res).contains(String.format(KatelloEnvironment.OUT_CREATE,env1_name)),"Check - returned output string ("+KatelloEnvironment.CMD_CREATE+")");
+		
+		res = env2.cli_create();
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(res).contains(String.format(KatelloEnvironment.OUT_CREATE,env2_name)),"Check - returned output string ("+KatelloEnvironment.CMD_CREATE+")");
+		
+		KatelloContentView conView = new KatelloContentView(this.cli_worker, contentView, base_org_name);
+		exec_result = conView.promote_view(env1_name);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		exec_result = conView.promote_view(env2_name);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
 		res = sys_reg.rhsm_registerForce();
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 		Assert.assertTrue(res.getStdout().trim().contains(KatelloSystem.OUT_CREATE),"Check - output (success)");
 		res = env1.cli_info();      
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
-		sys_reg = new KatelloSystem(this.cli_worker, sys_name,base_org_name,env2_name);  
-		res = env2.cli_create();
-		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
-		Assert.assertTrue(getOutput(res).contains(String.format(KatelloEnvironment.OUT_CREATE,env2_name)),"Check - returned output string ("+KatelloEnvironment.CMD_CREATE+")");
+		sys_reg = new KatelloSystem(this.cli_worker, sys_name,base_org_name,env2_name); 
+		
 		res = sys_reg.rhsm_registerForce();
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 		Assert.assertTrue(res.getStdout().trim().contains(KatelloSystem.OUT_CREATE),"Check - output (success)");

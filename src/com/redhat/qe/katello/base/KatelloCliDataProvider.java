@@ -4,6 +4,7 @@ import org.testng.annotations.DataProvider;
 
 import com.redhat.qe.katello.base.obj.KatelloActivationKey;
 import com.redhat.qe.katello.base.obj.KatelloDistributor;
+import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.common.KatelloUtils;
@@ -179,21 +180,20 @@ public class KatelloCliDataProvider {
 		String uid = KatelloUtils.getUniqueID();
 		return new Object[][] {
 				// name
-				{ "env-aa", null, new Integer(0), "Successfully created environment [ env-aa ]"},
-				{ "env-11", null, new Integer(0), "Successfully created environment [ env-11 ]"},
-				{ "env-1a", null, new Integer(0), "Successfully created environment [ env-1a ]"},
-				{ "env-a1", null, new Integer(0), "Successfully created environment [ env-a1 ]"},
-				{ strRepeat("0123456789", 12)+"abcdefgh", null, new Integer(0), "Successfully created environment [ "+strRepeat("0123456789", 12)+"abcdefgh"+" ]"},
-				{ strRepeat("0123456789", 12)+"abcdefg", null, new Integer(0), "Successfully created environment [ "+strRepeat("0123456789", 12)+"abcdefg"+" ]"},
-				{ "env-"+uid, null, new Integer(0), "Successfully created environment [ env-"+uid+" ]"},
-				{ "env "+uid, "Provider with space in name", new Integer(0), "Successfully created environment [ env "+uid+" ]"},
-				{ " ", null, new Integer(166), "Name can't be blank"},
+				{ "env-aa", null, new Integer(0), String.format(KatelloEnvironment.OUT_CREATE, "env-aa")},
+				{ "env-11", null, new Integer(0), String.format(KatelloEnvironment.OUT_CREATE, "env-11")},
+				{ "env-1a", null, new Integer(0), String.format(KatelloEnvironment.OUT_CREATE, "env-1a")},
+				{ "env-a1", null, new Integer(0), String.format(KatelloEnvironment.OUT_CREATE, "env-a1")},
+				{ strRepeat("0123456789", 25)+"abcde", "Environment name with 255 characters", new Integer(0), String.format(KatelloEnvironment.OUT_CREATE, strRepeat("0123456789", 25)+"abcde")},
+				{ "env-"+uid, null, new Integer(0), String.format(KatelloEnvironment.OUT_CREATE, "env-"+uid)},
+				{ "env "+uid, "Provider with space in name", new Integer(0), String.format(KatelloEnvironment.OUT_CREATE, "env "+uid)},
+				{ " ", null, new Integer(166), KatelloEnvironment.ERROR_BLANK_NAME},
 				{ " a", null, new Integer(166), "Validation failed: Name must not contain leading or trailing white spaces."},
 				{ "a ", null, new Integer(166), "Validation failed: Name must not contain leading or trailing white spaces."},
-				{ "a", null, new Integer(0), "Successfully created environment [ a ]"},
-				{ "?1", null, new Integer(166), "Validation failed: Name cannot contain characters other than alpha numerals, space, '_', '-'"},
-			    { strRepeat("0123456789", 12)+"abcdefghi", null, new Integer(166), "Validation failed: Name cannot contain more than 128 characters"},
-//				// description
+				{ "a", null, new Integer(0), String.format(KatelloEnvironment.OUT_CREATE, "a")},
+				{ "\\!@%^&*(<_-~+=//\\||,.>)", "Environment name with special characters", new Integer(0), String.format(KatelloEnvironment.OUT_CREATE, "\\!@%^&*(<_-~+=//\\||,.>)")},
+			    { strRepeat("0123456789", 25)+"abcdef", null, new Integer(166), KatelloEnvironment.ERROR_LONG_NAME},
+			    // description
 				{ "desc-specChars"+uid, "\\!@%^&*(<_-~+=//\\||,.>)", new Integer(0), "Successfully created environment [ desc-specChars"+uid+" ]"},
 				{ "desc-255Chars"+uid, strRepeat("0123456789", 25)+"abcde", new Integer(0), "Successfully created environment [ desc-255Chars"+uid+" ]"},
 				{ "desc-256Chars"+uid, strRepeat("0123456789", 25)+"abcdef", new Integer(0), "Successfully created environment [ desc-256Chars"+uid+" ]"},
@@ -234,7 +234,7 @@ public class KatelloCliDataProvider {
 				{ " a", null, new Integer(166), KatelloActivationKey.ERROR_NAME_WHITESPACE},
 				{ "a ", null, new Integer(166), KatelloActivationKey.ERROR_NAME_WHITESPACE},
 				{ "a", null, new Integer(0), String.format(KatelloActivationKey.OUT_CREATE, "a")},
-				{ ">1", null, new Integer(166), "Validation failed: Name cannot contain characters other than alpha numerals, space, '_', '-'"},
+				{ "(\\!@%^&*(<_-~+=//\\||,.>)", null, new Integer(0), String.format(KatelloActivationKey.OUT_CREATE, "(\\!@%^&*(<_-~+=//\\||,.>)" )},
 			    { strRepeat("0123456789", 25)+"abcdef", null, new Integer(166), KatelloActivationKey.ERROR_LONG_NAME},
 //				// description
 				{ "desc-specChars"+uid, "\\!@%^&*(<_-~+=//\\||,.>)", new Integer(0), String.format(KatelloActivationKey.OUT_CREATE, "desc-specChars"+uid)},
