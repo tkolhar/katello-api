@@ -76,6 +76,8 @@ public class SystemListAccess extends KatelloCliTestBase {
 		exec_result = user.assign_role(this.user_role);
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (user assign_role)");
 		
+		promoteEmptyContentView(org_name, env_name_Dev, env_name_Test);
+		
 		KatelloSystem sys = new KatelloSystem(this.cli_worker, system_name1, this.org_name, env_name_Dev);
 		exec_result = sys.rhsm_registerForce();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code (register --force)");
