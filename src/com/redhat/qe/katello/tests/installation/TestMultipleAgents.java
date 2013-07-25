@@ -46,7 +46,7 @@ public class TestMultipleAgents extends KatelloCliTestBase {
 		System.setProperty("katello.client.hostname", server_name);
 
 		try {
-			Thread.sleep(600000);
+			Thread.sleep(1200000);
 		} catch (InterruptedException iex) {
 		}
 
