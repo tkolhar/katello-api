@@ -46,7 +46,7 @@ public class TestMultipleAgents extends KatelloCliTestBase {
 		System.setProperty("katello.client.hostname", server_name);
 
 		try {
-			Thread.sleep(1200000);
+			Thread.sleep(600000);
 		} catch (InterruptedException iex) {
 		}
 
@@ -60,7 +60,12 @@ public class TestMultipleAgents extends KatelloCliTestBase {
 			DeltaCloudInstance client = KatelloUtils.getDeltaCloudClient(
 					server_name, DELTACLOUD_IMAGES.get(type));
 			clients.add(client);
-
+			
+			try {
+				Thread.sleep(300000);
+			} catch (InterruptedException iex) {
+			}
+			
 			testClientConsume(client.getHostName(), type);
 			
 			KatelloUtils.destroyDeltaCloudMachine(client);
