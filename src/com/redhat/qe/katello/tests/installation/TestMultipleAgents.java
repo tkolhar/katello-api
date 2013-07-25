@@ -40,15 +40,15 @@ public class TestMultipleAgents extends KatelloCliTestBase {
 	@Test(description = "setup Deltacloud Server")
 	public void testMultipleClients() {
 
-		//server = KatelloUtils.getDeltaCloudServer();
-		server_name = "cfseserver2.usersys.redhat.com";//server.getHostName();
+		server = KatelloUtils.getDeltaCloudServer();
+		server_name = server.getHostName();
 		System.setProperty("katello.server.hostname", server_name);
 		System.setProperty("katello.client.hostname", server_name);
 
-//		try {
-//			Thread.sleep(600000);
-//		} catch (InterruptedException iex) {
-//		}
+		try {
+			Thread.sleep(600000);
+		} catch (InterruptedException iex) {
+		}
 
 		createOrgStuff();
 		
@@ -69,7 +69,7 @@ public class TestMultipleAgents extends KatelloCliTestBase {
 
 	@AfterClass(alwaysRun = true)
 	public void tearDown() {
-		//KatelloUtils.destroyDeltaCloudMachine(server);
+		KatelloUtils.destroyDeltaCloudMachine(server);
 		for (DeltaCloudInstance client : clients) {
 			KatelloUtils.destroyDeltaCloudMachine(client);
 		}
