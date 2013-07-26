@@ -1,8 +1,12 @@
 package com.redhat.qe.katello.tests.e2e;
 
+import java.util.ArrayList;
+import java.util.StringTokenizer;
+
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
+
 import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.DeltaCloudInstance;
 import com.redhat.qe.katello.common.KatelloUtils;
@@ -11,9 +15,8 @@ import com.redhat.qe.katello.common.KatelloUtils;
 public class SetupServers extends KatelloCliTestBase {
 	
 	protected DeltaCloudInstance server;
-	protected DeltaCloudInstance client;
+	protected ArrayList<DeltaCloudInstance> clients = new ArrayList<DeltaCloudInstance>();;
 	protected String server_name;
-	protected String client_name;
 	protected static boolean isDeltacloud = false;
 	
 	@BeforeSuite(description = "setup Deltacloud Server and client", alwaysRun=true)
@@ -24,14 +27,18 @@ public class SetupServers extends KatelloCliTestBase {
 		if (isDeltacloud) {
 			server = KatelloUtils.getDeltaCloudServer();
 			server_name = server.getHostName();
-			
-			try{Thread.sleep(600000);}catch(InterruptedException iex){}
-			
-			client = KatelloUtils.getDeltaCloudClient(server_name);
-			client_name = client.getHostName();
+
+			StringTokenizer tok = new StringTokenizer(System.getProperty("deltacloud.client.imageid"),",");
+			StringBuffer workers = new StringBuffer();
+			while(tok.hasMoreTokens()){
+				DeltaCloudInstance client = KatelloUtils.getDeltaCloudClient(server_name, tok.nextToken());
+				workers.append(client.getHostName());
+				if (tok.hasMoreTokens()) workers.append(",");
+				clients.add(client);
+			}
 			
 			System.setProperty("katello.server.hostname", server_name);
-			System.setProperty("katello.client.hostname", client_name);
+			System.setProperty("katello.workers.list", workers.toString());
 		}
 	}
 	
@@ -39,7 +46,9 @@ public class SetupServers extends KatelloCliTestBase {
 	public void tearDown() {
 		if (isDeltacloud) {
 			KatelloUtils.destroyDeltaCloudMachine(server);
-			KatelloUtils.destroyDeltaCloudMachine(client);
+			for (DeltaCloudInstance client : clients) {
+				KatelloUtils.destroyDeltaCloudMachine(client);
+			}
 		}
 	}
 }
