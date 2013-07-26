@@ -574,8 +574,10 @@ public class KatelloUtils implements KatelloConstants {
 	
 	private static void configureNtp(String hostname){
 		sshOnClient(hostname, "rpm -q ntp || yum -y install ntp");
-		sshOnClient(hostname, "service ntpd restart");
 		sshOnClient(hostname, "chkconfig --add ntpd; chkconfig ntpd on");
+		sshOnClient(hostname, "service ntpd stop");
+		sshOnClient(hostname, "ntpdate clock.redhat.com");
+		sshOnClient(hostname, "service ntpd start");
 	}
 
 	public static String promoteReposToEnvironment(KatelloCliWorker kcr, String org_name, String[] product_names, String[] repo_names, String env_name) {
