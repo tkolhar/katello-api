@@ -65,6 +65,11 @@ public class TestMultipleAgents extends KatelloCliTestBase {
 					server_name, DELTACLOUD_IMAGES.get(type));
 			clients.add(client);
 			
+			try {
+				Thread.sleep(300000);
+			} catch (InterruptedException iex) {
+			}
+			
 			testClientConsume(client.getHostName(), type);
 			
 			KatelloUtils.destroyDeltaCloudMachine(client);
@@ -153,6 +158,7 @@ public class TestMultipleAgents extends KatelloCliTestBase {
 
 	}
 	
+	//TODO bug fails for RHEL 5 988776
 	private void testClientConsume(String client_name, String client_type) {
 		String actKey = null;
 		String packName = null;
