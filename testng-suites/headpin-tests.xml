@@ -62,6 +62,7 @@
 			</run>
 		</groups>
 		<classes>
+			<class name="com.redhat.qe.katello.tests.upgrade.v1.SetupServers"/>
 			<class name="com.redhat.qe.katello.tests.upgrade.v1.ImportedManifest"/>
 			<class name="com.redhat.qe.katello.tests.upgrade.v1.VirtualSubscriptions"/>
 			<class name="com.redhat.qe.katello.tests.upgrade.v1.KatelloUpgrade"/>

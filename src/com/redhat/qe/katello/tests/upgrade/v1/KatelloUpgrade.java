@@ -85,9 +85,11 @@ public class KatelloUpgrade extends KatelloCliTestBase{
 		}
 		KatelloUtils.sshOnServer("sed -i 's/enabled=1/enabled=0/g' /etc/yum.repos.d/" + KatelloConstants.KATELLO_PRODUCT + ".repo");
 		
-		for (String client : clients) {
-			KatelloUtils.sshOnClient(client, "echo -en \""+_yumrepo+"\" > /etc/yum.repos.d/" + KatelloConstants.KATELLO_PRODUCT + "-upgrade.repo");
-			KatelloUtils.sshOnClient(client, "echo -en \""+_yumrepoTools+"\" > /etc/yum.repos.d/" + KatelloConstants.KATELLO_PRODUCT + "-tools-upgrade.repo");
+		if(!KATELLO_PRODUCT.equals("sam")) {
+			for (String client : clients) {
+				KatelloUtils.sshOnClient(client, "echo -en \""+_yumrepo+"\" > /etc/yum.repos.d/" + KatelloConstants.KATELLO_PRODUCT + "-upgrade.repo");
+				KatelloUtils.sshOnClient(client, "echo -en \""+_yumrepoTools+"\" > /etc/yum.repos.d/" + KatelloConstants.KATELLO_PRODUCT + "-tools-upgrade.repo");
+			}
 		}
 	}
 	
@@ -144,11 +146,13 @@ public class KatelloUpgrade extends KatelloCliTestBase{
 			dependsOnGroups={TNG_PRE_UPGRADE}, 
 			groups={TNG_UPGRADE})
 	public void upgradeClients() {
-		SSHCommandResult res;
-		for (String client : clients) {
-			KatelloUtils.sshOnClient(client, "yum clean all");
-			res = KatelloUtils.sshOnClient(client, "yum upgrade -y");
-			Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (upgrade)");
+		if(!KATELLO_PRODUCT.equals("sam")) {
+			SSHCommandResult res;
+			for (String client : clients) {
+				KatelloUtils.sshOnClient(client, "yum clean all");
+				res = KatelloUtils.sshOnClient(client, "yum upgrade -y");
+				Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (upgrade)");
+			}
 		}
 	}
 
