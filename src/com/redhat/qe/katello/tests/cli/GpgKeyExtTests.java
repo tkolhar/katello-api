@@ -155,7 +155,7 @@ public class GpgKeyExtTests extends KatelloCliTestBase{
 		Assert.assertTrue(repo_gpg.equals(anotherGpg_name), "Check - repo gpg key info is what we expect");
 	}
 
-
+	//Failing due to BZ: 988950
 	@Test(description="delete gpg key verify that it is deleted from repos as well", dependsOnMethods={"test_add2Repos_WithGpg","test_addRepo_productHasGpg"})
 	public void test_deleteGPG(){
 		KatelloGpgKey gpg = new KatelloGpgKey(cli_worker, this.gpg, this.org, null);

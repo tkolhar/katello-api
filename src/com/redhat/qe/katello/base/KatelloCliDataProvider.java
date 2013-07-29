@@ -5,6 +5,7 @@ import org.testng.annotations.DataProvider;
 import com.redhat.qe.katello.base.obj.KatelloActivationKey;
 import com.redhat.qe.katello.base.obj.KatelloDistributor;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
+import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.common.KatelloUtils;
@@ -16,9 +17,13 @@ public class KatelloCliDataProvider {
 	public static Object[][] org_create(){
 		String uniqueID1 = KatelloUtils.getUniqueID();
 		String uniqueID2 = KatelloUtils.getUniqueID();
+		//name,label, description, ExitCode, Output
 		return new Object[][] {
-				{ "orgNoDescr_"+uniqueID1, null },
-				{ "org "+uniqueID2+"", "Org with space"}
+				{ "orgNoDescr_"+uniqueID1,null, null, new Integer(0), String.format(KatelloOrg.OUT_CREATE, "orgNoDescr_"+uniqueID1)},
+				{ "org "+uniqueID2+"", null, "Org with space", new Integer(0), String.format(KatelloOrg.OUT_CREATE, "org "+uniqueID2+"")},
+				{strRepeat("0123456789", 25)+"abcde", null, "Org name with 255 characters", new Integer(0), String.format(KatelloOrg.OUT_CREATE, strRepeat("0123456789", 25)+"abcde")},
+				{strRepeat("0123456789", 25)+"abcdef", null, "Org name with 256 characters", new Integer(166), String.format(KatelloOrg.ERR_LONG_NAME)},
+				{"\\!@%^&*(<_-~+=//\\||,.>)", null, "Org name with special characters", new Integer(0), String.format(KatelloOrg.OUT_CREATE, "\\!@%^&*(<_-~+=//\\||,.>)")},
 		};
 	}
 	
@@ -43,7 +48,7 @@ public class KatelloCliDataProvider {
 				{ "11", null, null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,"11")},
 				{ "1a", null, null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,"1a")},
 				{ "a1", null, null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,"a1")},
-				{ strRepeat("0123456789", 12)+"abcdefgh", null, null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,strRepeat("0123456789", 12)+"abcdefgh")},
+				{ strRepeat("0123456789", 25)+"abcde", null, null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,strRepeat("0123456789", 25)+"abcde")},
 				{ "prov-"+uid, null, null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,"prov-"+uid)},
 				{ "prov "+uid, "Provider with space in name", null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,"prov "+uid)},
 				{ null, null, null, new Integer(2), System.getProperty("katello.engine", "katello")+": error: Option --name is required; please see --help"},
@@ -51,8 +56,8 @@ public class KatelloCliDataProvider {
 				{ " a", null, null, new Integer(166), "Validation failed: Name must not contain leading or trailing white spaces."},
 				{ "a ", null, null, new Integer(166), "Validation failed: Name must not contain leading or trailing white spaces."},
 				{ "a", null, null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,"a")},
-				{ "?1", null, null, new Integer(166), "Validation failed: Name cannot contain characters other than alpha numerals, space, '_', '-'"},
-				{ strRepeat("0123456789", 12)+"abcdefghi", null, null, new Integer(166), "Validation failed: Name cannot contain more than 255 characters"},
+				{ "\\!@%^&*(<_-~+=//\\||,.>)", "Name with special characters", null, new Integer(0), String.format(KatelloProvider.OUT_CREATE, "\\!@%^&*(<_-~+=//\\||,.>)")},
+				{ strRepeat("0123456789", 25)+"abcdef", null, null, new Integer(166), "Validation failed: Name cannot contain more than 255 characters"},
 				// description
 				{ "desc-specChars"+uid, "\\!@%^&*(<_-~+=//\\||,.>)", null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,"desc-specChars"+uid)},
 				{ "desc-255Chars"+uid, strRepeat("0123456789", 25)+"abcde", null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,"desc-255Chars"+uid)},

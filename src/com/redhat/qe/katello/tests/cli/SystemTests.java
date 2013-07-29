@@ -269,7 +269,6 @@ public class SystemTests extends KatelloCliTestBase{
 
 		KatelloSystem sys = new KatelloSystem(this.cli_worker, system, this.orgNameRhsms, this.envName_Test);
 		exec_result = sys.rhsm_register(); 
-		System.out.println("OUTPUT: Exit Code: "+exec_result.getExitCode()+" String: "+exec_result.getStdout());
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		Assert.assertTrue(exec_result.getStdout().trim().contains(KatelloSystem.OUT_CREATE),
 				"Check - output (success)");
@@ -293,7 +292,6 @@ public class SystemTests extends KatelloCliTestBase{
 
 		sys = new KatelloSystem(this.cli_worker, system, this.orgNameRhsms, this.envName_Test);
 		exec_result = sys.rhsm_register(); 
-		System.out.println("OUTPUT Exit Code: "+exec_result.getExitCode() + " String: "+ exec_result.getStdout());
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		Assert.assertTrue(exec_result.getStdout().trim().contains(KatelloSystem.OUT_CREATE),
 				"Check - output (success)");
@@ -720,7 +718,6 @@ public class SystemTests extends KatelloCliTestBase{
 	public void test_systemRegister() {
 		KatelloSystem sys = new KatelloSystem(cli_worker, sys_reg_name, org_name, null);
 		exec_result = sys.register();
-		System.out.println("OUTPUT: Exit Code: "+exec_result.getExitCode()+" String: "+getOutput(exec_result));
 		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (system register)");
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloSystem.OUT_REGISTRED, sys_reg_name)), "Check output (system register)");
 	}
