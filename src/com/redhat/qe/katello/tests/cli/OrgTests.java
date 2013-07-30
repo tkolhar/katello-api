@@ -17,7 +17,6 @@ import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
-
 import com.redhat.qe.tools.SSHCommandResult;
 import java.io.File;
 
@@ -62,14 +61,20 @@ public class OrgTests extends KatelloCliTestBase{
 		Assert.assertTrue(getOutput(res).contains(KatelloOrg.getDefaultOrg()), "Check - contains default org");
 	}
 
+	//TODO: BZ 987670
 	@Test(description = "Create org - different variations",
 			dataProviderClass = KatelloCliDataProvider.class,
 			dataProvider = "org_create",groups={"cfse-cli","headpin-cli"})
-	public void test_createOrg(String name, String descr){
+	public void test_createOrg(String name, String lable, String descr, Integer exitCode, String output){
 		KatelloOrg org = new KatelloOrg(this.cli_worker, name, descr);
 		SSHCommandResult res = org.cli_create();
 
-		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
+		Assert.assertTrue(res.getExitCode() == exitCode.intValue(), "Check - return code");
+		if(exitCode.intValue()==0){
+			Assert.assertTrue(getOutput(res).contains(output),"Check - returned output string");
+		}else{ // Failure to be checked
+			Assert.assertTrue(getOutput(res).contains(output),"Check - returned error string");
+		}
 
 		this.orgs.add(org);
 	}
@@ -208,26 +213,27 @@ public class OrgTests extends KatelloCliTestBase{
 		Assert.assertEquals(getOutput(res).trim(), KatelloOrg.ERR_ORG_EXISTS_MUST_BE_UNIQUE);
 	}
 
-	@Test(description = "Create org - name is invalid",groups={"cfse-cli","headpin-cli"})
-	public void test_createOrgInvalidName(){
+	//TODO: BZ: 987670
+	@Test(description = "Create org - name with special characters",groups={"cfse-cli","headpin-cli"})
+	public void test_createOrgNameSpecialCharacters(){
 		String uniqueID = KatelloUtils.getUniqueID();
 		KatelloOrg org = new KatelloOrg(this.cli_worker, "orgCrt"+uniqueID + " very < invalid name", "Simple description");	
 		SSHCommandResult res = org.cli_create();
-		Assert.assertTrue(res.getExitCode() == 166, "Check - return code [166]");
+		Assert.assertTrue(res.getExitCode() == 0, "Check - return code [0]");
 		Assert.assertEquals(getOutput(res).trim(), 
-				KatelloOrg.ERR_NAME_INVALID);
+				String.format(KatelloOrg.OUT_CREATE, "orgCrt"+uniqueID + " very < invalid name"));
 
-		org = new KatelloOrg(this.cli_worker, "orgCrt"+uniqueID + " very > invalid name", "Simple description");	
+		org = new KatelloOrg(this.cli_worker, "orgCrt"+uniqueID + " invalid name > very", "Simple description");	
 		res = org.cli_create();
-		Assert.assertTrue(res.getExitCode() == 166, "Check - return code [166]");
+		Assert.assertTrue(res.getExitCode() == 0, "Check - return code [0]");
 		Assert.assertEquals(getOutput(res).trim(), 
-				KatelloOrg.ERR_NAME_INVALID);
+				String.format(KatelloOrg.OUT_CREATE, "orgCrt"+uniqueID + " invalid name > very"));
 
-		org = new KatelloOrg(this.cli_worker, "orgCrt"+uniqueID + " very / invalid name", "Simple description");	
+		org = new KatelloOrg(this.cli_worker, "orgCrt"+uniqueID + " very / Invalid name", "Simple description");	
 		res = org.cli_create();
-		Assert.assertTrue(res.getExitCode() == 166, "Check - return code [166]");
+		Assert.assertTrue(res.getExitCode() == 0, "Check - return code [0]");
 		Assert.assertEquals(getOutput(res).trim(), 
-				KatelloOrg.ERR_NAME_INVALID);
+				String.format(KatelloOrg.OUT_CREATE, "orgCrt"+uniqueID + " very / Invalid name"));
 	}
 
 	@Test(description = "Create org - name is already used",groups={"cfse-cli","headpin-cli"})
@@ -323,7 +329,6 @@ public class OrgTests extends KatelloCliTestBase{
 		exec_result = org.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		KatelloProvider provider = new KatelloProvider(this.cli_worker, KatelloProvider.PROVIDER_REDHAT,org_name,null,null);
-		
 		KatelloUtils.scpOnClient(cli_worker.getClientHostname(),"data/stack-manifest.zip", "/tmp");
 		try {
 			exec_result = provider.import_manifest("/tmp"+File.separator+"stack-manifest.zip", new Boolean(true));
@@ -489,6 +494,7 @@ public class OrgTests extends KatelloCliTestBase{
 			Assert.assertTrue(getOutput(exec_result).contains(output), "Check error (add custom info)");
 	}
 
+	//TODO: Failing due to BZ: 973907
 	@Test(description = "Org name with a dot, verify that providers, product, environments are handled normally",groups={"katello-cli"})
 	public void test_OrgNameContainsDot(){
 

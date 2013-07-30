@@ -3,15 +3,18 @@ package com.redhat.qe.katello.tests.cli;
 import java.util.StringTokenizer;
 import java.util.Vector;
 import java.util.logging.Logger;
+
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
+import com.redhat.qe.katello.base.obj.KatelloContentView;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloPermission;
@@ -43,6 +46,9 @@ public class SystemTests extends KatelloCliTestBase{
 	private String envName_Dev;
 	private String envName_Test;
 	private String envName_Prod;
+	
+	private String contentName;
+	private String contentView;
 	
 	private String systemNameRegOnly;
 	private String systemNameCustomInfo;
@@ -138,8 +144,12 @@ public class SystemTests extends KatelloCliTestBase{
 		this.envName_Dev = "Dev-"+uid;
 		this.envName_Test = "Test-"+uid;
 		this.envName_Prod = "Prod-"+uid;
+		this.contentName = "content-" + uid;
+		this.contentView = "contentView-"+uid;
 		
 		exec_result = new KatelloEnvironment(this.cli_worker, envName_Dev, null, this.orgNameRhsms, KatelloEnvironment.LIBRARY).cli_create();
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
+		exec_result = new KatelloEnvironment(this.cli_worker, envName_Test, null, this.orgNameRhsms, KatelloEnvironment.LIBRARY).cli_create();
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
 		exec_result = new KatelloEnvironment(this.cli_worker, envName_Dev, null, orgNameMain, KatelloEnvironment.LIBRARY).cli_create();
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
@@ -147,6 +157,31 @@ public class SystemTests extends KatelloCliTestBase{
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
 		exec_result = new KatelloEnvironment(this.cli_worker, envName_Prod, null, orgNameMain, KatelloEnvironment.LIBRARY).cli_create();
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
+		//Associate content view to the environments
+		KatelloContentDefinition contentMain = new KatelloContentDefinition(this.cli_worker, contentName, "descritpion", orgNameMain, contentName);
+		exec_result = contentMain.create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		exec_result = contentMain.publish(this.contentView, this.contentView, "Content View for orgNameMain");
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		KatelloContentView contentView = new KatelloContentView(this.cli_worker, this.contentView, orgNameMain);
+		exec_result = contentView.promote_view(envName_Prod);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		exec_result = contentView.promote_view(envName_Test);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		exec_result = contentView.promote_view(envName_Dev);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		KatelloContentDefinition contentRhsm = new KatelloContentDefinition(this.cli_worker, contentName, "descritpion", this.orgNameRhsms, contentName);
+		exec_result = contentRhsm.create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		exec_result = contentRhsm.publish(this.contentView, this.contentView, "Content View for orgNameRhsms");
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		KatelloContentView contentViewRhsm = new KatelloContentView(this.cli_worker, this.contentView, this.orgNameRhsms);
+		exec_result = contentViewRhsm.promote_view(envName_Dev);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		exec_result = contentViewRhsm.promote_view(envName_Test);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
 	}
 
 	@Test(description = "RHSM register - org have no environment but Locker only", 

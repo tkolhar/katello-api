@@ -48,7 +48,7 @@ public class KatelloOrg extends _KatelloObject{
 	public static final String OUT_ADD_DISTRIBUTOR_INFO =
 			"Successfully added [ Distributor ] default custom info [ %s ] to Org [ %s ]";
 	public static final String OUT_APPLY_SYS_INFO = 
-			"Organization [ %s ] completed applying default info";
+			"Organization [ %s ] completed syncing default info";
 	public static final String OUT_REMOVE_SYS_INFO = 
 			"Successfully removed [ System ] default custom info [ %s ] for Org [ %s ]";
 	
@@ -62,6 +62,7 @@ public class KatelloOrg extends _KatelloObject{
 			"Validation failed: Label already exists (including organizations being deleted)";
 	public static final String ERR_WRONG_TYPE = 
 			"Type must be one of the following [ system, distributor ]";
+	public static final String ERR_LONG_NAME = "Validation failed: Name cannot contain more than 255 characters" ;
 
 	public static final String REG_ORG_LIST = ".*ID\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Description\\s*:\\s+%s.*";
 	public static final String REG_ORG_INFO = ".*ID\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Description\\s*:\\s+%s.*";

@@ -50,7 +50,7 @@ public class ActivationKeyTests extends KatelloCliTestBase{
 			Assert.assertTrue(getOutput(res).contains(output),"Check - returned error string");
 		}
 	} 
-	    
+
 	@Test(description="create AK - same name, diff. orgs")
 	public void test_create_diffOrgsSameName(){
 		SSHCommandResult res;
@@ -138,7 +138,7 @@ public class ActivationKeyTests extends KatelloCliTestBase{
     }
     
     /** TCMS scenario is: <a href="https://tcms.engineering.redhat.com/case/221907/?from_plan=7771">here</a> */
-    @Test(description="5a47305b-52d0-47ea-9b23-74dffe16b4bf")
+	@Test(description="5a47305b-52d0-47ea-9b23-74dffe16b4bf")
     public void test_createWithLimit() {
     	String uid = KatelloUtils.getUniqueID();
     	String akName="act_key-"+ uid; 
@@ -201,7 +201,7 @@ public class ActivationKeyTests extends KatelloCliTestBase{
 
     //@ TODO 927215
     /** TCMS scenario is: <a href="https://tcms.engineering.redhat.com/case/189166/?from_plan=7793">here</a> */
-    @Test(description="fc228a30-c0e8-46d3-a254-681222993bd5")
+	@Test(description="fc228a30-c0e8-46d3-a254-681222993bd5")
     public void test_unregisterRegister() {
     	String uid = KatelloUtils.getUniqueID();
     	String akName="act_key-"+ uid; 
@@ -245,7 +245,7 @@ public class ActivationKeyTests extends KatelloCliTestBase{
 		res = sys3.rhsm_registerForce(akName);
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
     }
-    
+  
     @Test(description="add system group to activationkey",  enabled=true)
     public void test_addSystemGroup() {
     	String uid = KatelloUtils.getUniqueID();

@@ -96,7 +96,7 @@ public class UserTests extends KatelloCliTestBase{
 		
 		usr.asserts_create();
 	}
-	
+	//TODO: BZ: 974961
 	@Test(description="update user info - valid username", groups={"headpin-only"})
 	public void test_updateUserInfo(){
 		

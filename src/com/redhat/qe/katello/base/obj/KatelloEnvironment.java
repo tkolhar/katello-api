@@ -24,12 +24,15 @@ public class KatelloEnvironment extends _KatelloObject{
 			"Successfully created environment [ %s ]";
 	public static final String OUT_DELETE = 
 			"Successfully deleted environment [ %s ]";
-	public static final String ERROR_INFO =
-			"Could not find environment [ %s ] within organization [ %s ]";
 	public static final String OUT_UPDATE =  
 			"Successfully updated environment [ %s ]";
 	public static final String API_CMD_LIST = "/organizations/%s/environments";
 	public static final String API_CMD_CREATE = "/organizations/%s/environments";
+	
+	public static final String ERROR_INFO =
+			"Could not find environment [ %s ] within organization [ %s ]";
+	public static final String ERROR_BLANK_NAME = "Name can't be blank";
+	public static final String ERROR_LONG_NAME = "Validation failed: Name cannot contain more than 255 characters" ;
 	
 	// ** ** ** ** ** ** ** Class members
 	private String name;
