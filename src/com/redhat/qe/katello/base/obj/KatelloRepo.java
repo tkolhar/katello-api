@@ -24,6 +24,7 @@ public class KatelloRepo extends _KatelloObject{
 	public static final String CMD_DISCOVER = "repo discover";
 	public static final String CMD_STATUS = "repo status";
 	public static final String CMD_LIST = "repo list -v";
+	public static final String CMD_CANCEL_SYNC = "repo cancel_sync";
 	
 	public static final String OUT_CREATE = 
 			"Successfully created repository [ %s ]";
@@ -34,6 +35,11 @@ public class KatelloRepo extends _KatelloObject{
 	public static final String ERR_REPO_EXISTS = "There is already a repo with the name [ %s ] for product [ %s ]";
 	public static final String ERR_LABEL_EXISTS = "Label has already been taken";
 	public static final String OUT_REPO_SYNCHED = "Repo [ %s ] synchronized";
+	public static final String OUT_NO_SYNC_RUNNIG = "No synchronization is currently running";
+	public static final String OUT_SYNC_CANCELLED = "Synchronization cancelled";
+	public static final String OUT_REPO_SYNC_CANCELLED = "Repo [ %s ] synchronization canceled";
+	public static final String OUT_REPO_ENABLED = "Repository '%s' enabled.";
+	public static final String OUT_REPO_DISABLED = "Repository '%s' disabled.";
 	
 	public static final String REG_REPO_INFO = ".*ID\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*URL\\s*:\\s+%s.*Last Sync\\s*:\\s+%s.*GPG Key\\s*:\\s*+%s.*";
 	public static final String REG_REPO_STATUS = ".*Package Count\\s*:\\s+\\d+.*Last Sync\\s*:\\s+%s.*";
@@ -122,6 +128,17 @@ public class KatelloRepo extends _KatelloObject{
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("product", product));
 		opts.add(new Attribute("gpgkey", gpgkey));
+		opts.add(new Attribute("product_label", product_label));
+		opts.add(new Attribute("product_id", product_id));
+		return run(CMD_UPDATE);
+	}
+
+	public SSHCommandResult update_nogpgkey(){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("product", product));
+		opts.add(new Attribute("nogpgkey", ""));
 		opts.add(new Attribute("product_label", product_label));
 		opts.add(new Attribute("product_id", product_id));
 		return run(CMD_UPDATE);
@@ -219,6 +236,14 @@ public class KatelloRepo extends _KatelloObject{
 		return run(CMD_LIST);
 	}
 	
+	public SSHCommandResult listAll(){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("product", product));
+		opts.add(new Attribute("include_disabled", ""));
+		return run(CMD_LIST);
+	}
+
 	public SSHCommandResult custom_reposCount(String environment, Boolean includeDisabled){
 		opts.clear();
 		if(environment == null) 
@@ -244,6 +269,13 @@ public class KatelloRepo extends _KatelloObject{
 		return runExt(CMD_LIST, " | grep -E \""+regexp+"\" | cut -f2 -d:"); // there would be a leading space for each line there. take care to trim() it.
 	}
 
+	public SSHCommandResult cancel_sync() {
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("product", product));
+		opts.add(new Attribute("name", name));
+		return run(CMD_CANCEL_SYNC);
+	}
 	// ** ** ** ** ** ** **
 	// ASSERTS
 	// ** ** ** ** ** ** **
