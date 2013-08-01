@@ -228,12 +228,12 @@ public class KatelloCliDataProvider {
 				{ "ak-"+uid, null, new Integer(0), String.format(KatelloActivationKey.OUT_CREATE, "ak-"+uid)},
 				{ "ak "+uid, "Provider with space in name", new Integer(0), String.format(KatelloActivationKey.OUT_CREATE, "ak "+uid)},
 
-				{ null, null, new Integer(2), System.getProperty("katello.engine", "katello")+": error: Option --name is required; please see --help"},
+				{ null, null, new Integer(166),"Validation failed: Name cannot be blank, Name can't be blank"},
 				
 				
-				{ null, null, new Integer(2), System.getProperty("katello.engine", "katello")+": error: Option --name is required; please see --help"},
+				{ null, null, new Integer(166),"Validation failed: Name cannot be blank, Name can't be blank"},
 
-				{ null, null, new Integer(2), System.getProperty("katello.engine", "katello")+": error: Option --name is required; please see --help"},
+				{ null, null, new Integer(166),"Validation failed: Name cannot be blank, Name can't be blank"},
 
 				{ " ", null, new Integer(166), KatelloActivationKey.ERROR_BLANK_NAME},
 				{ " a", null, new Integer(166), KatelloActivationKey.ERROR_NAME_WHITESPACE},
