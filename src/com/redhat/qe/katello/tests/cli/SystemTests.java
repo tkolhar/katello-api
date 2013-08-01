@@ -556,7 +556,6 @@ public class SystemTests extends KatelloCliTestBase{
 		rhsm_clean();
 		String uid = KatelloUtils.getUniqueID();
 		String sys_name = "sys-report-" + uid;
-		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		KatelloSystem sys = new KatelloSystem(this.cli_worker, sys_name, this.orgNameMain, this.envName_Prod);
 		exec_result = sys.rhsm_register();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
@@ -677,7 +676,7 @@ public class SystemTests extends KatelloCliTestBase{
 	// TODO bug 974503
 	@Test(description="system task test")
 	public void test_systemTask() {
-		KatelloSystem sys =  new KatelloSystem(cli_worker, null, null, null);
+		KatelloSystem sys =  new KatelloSystem(cli_worker, sys_name, org_name, KatelloEnvironment.LIBRARY);
 		// create task to get ID
 		exec_result = sys.packages_install("fakepackage");
 		Assert.assertTrue(getOutput(exec_result).contains("Performing remote action"), "(create task)");
@@ -716,7 +715,7 @@ public class SystemTests extends KatelloCliTestBase{
 
 	@Test(description="system register")
 	public void test_systemRegister() {
-		KatelloSystem sys = new KatelloSystem(cli_worker, sys_reg_name, org_name, null);
+		KatelloSystem sys = new KatelloSystem(cli_worker, sys_reg_name, org_name, KatelloEnvironment.LIBRARY);
 		exec_result = sys.register();
 		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (system register)");
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloSystem.OUT_REGISTRED, sys_reg_name)), "Check output (system register)");

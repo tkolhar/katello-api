@@ -149,90 +149,12 @@ public class KatelloChangeset extends _KatelloObject{
 		return run(CMD_UPDATE);
 	}
 
-	public SSHCommandResult update_add_repo(String repo, String product) {
-		opts.clear();
-		opts.add(new Attribute("org", org));
-		opts.add(new Attribute("environment", environment));
-		opts.add(new Attribute("name", name));
-		opts.add(new Attribute("from_product", product));
-		opts.add(new Attribute("add_repo", repo));
-		return run(CMD_UPDATE);
-	}
-
-	public SSHCommandResult update_add_erratum(String erratum, String product) {
-		opts.clear();
-		opts.add(new Attribute("org", org));
-		opts.add(new Attribute("environment", environment));
-		opts.add(new Attribute("name", name));
-		opts.add(new Attribute("from_product", product));
-		opts.add(new Attribute("add_erratum", erratum));
-		return run(CMD_UPDATE);
-	}
-
-	public SSHCommandResult update_add_product(String product) {
-		opts.clear();
-		opts.add(new Attribute("org", org));
-		opts.add(new Attribute("environment", environment));
-		opts.add(new Attribute("name", name));
-		opts.add(new Attribute("add_product", product));
-		return run(CMD_UPDATE);
-	}
-
-	public SSHCommandResult update_add_package(String pkg, String product) {
-		opts.clear();
-		opts.add(new Attribute("org", org));
-		opts.add(new Attribute("environment", environment));
-		opts.add(new Attribute("name", name));
-		opts.add(new Attribute("from_product", product));
-		opts.add(new Attribute("add_package", pkg));
-		return run(CMD_UPDATE);
-	}
-
 	public SSHCommandResult update_removeView(String viewName){
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("environment", environment));
 		opts.add(new Attribute("remove_content_view", viewName));
-		return run(CMD_UPDATE);
-	}
-
-	public SSHCommandResult update_remove_erratum(String erratum, String product) {
-		opts.clear();
-		opts.add(new Attribute("org", org));
-		opts.add(new Attribute("environment", environment));
-		opts.add(new Attribute("name", name));
-		opts.add(new Attribute("from_product", product));
-		opts.add(new Attribute("remove_erratum", erratum));
-		return run(CMD_UPDATE);
-	}
-
-	public SSHCommandResult update_remove_repo(String repo, String product) {
-		opts.clear();
-		opts.add(new Attribute("org", org));
-		opts.add(new Attribute("environment", environment));
-		opts.add(new Attribute("name", name));
-		opts.add(new Attribute("from_product", product));
-		opts.add(new Attribute("remove_repo", repo));
-		return run(CMD_UPDATE);
-	}
-
-	public SSHCommandResult update_remove_product(String product) {
-		opts.clear();
-		opts.add(new Attribute("org", org));
-		opts.add(new Attribute("environment", environment));
-		opts.add(new Attribute("name", name));
-		opts.add(new Attribute("remove_product", product));
-		return run(CMD_UPDATE);
-	}
-
-	public SSHCommandResult update_remove_package(String pkg, String product) {
-		opts.clear();
-		opts.add(new Attribute("org", org));
-		opts.add(new Attribute("environment", environment));
-		opts.add(new Attribute("name", name));
-		opts.add(new Attribute("from_product", product));
-		opts.add(new Attribute("remove_package", pkg));
 		return run(CMD_UPDATE);
 	}
 	

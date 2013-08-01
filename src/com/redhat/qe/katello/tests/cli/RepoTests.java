@@ -238,6 +238,60 @@ public class RepoTests extends KatelloCliTestBase {
 		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloRepo.ERR_REPO_NOTFOUND, repo.name, repo.org, repo.product, "Library"));
 	}
 	
+	@Test(description = "Cancel repo synchronization when no sync. running")
+	public void test_cancelNoSynchronization() {
+		KatelloRepo repo = createRepo();
+		exec_result = repo.cancel_sync();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (repo cancel sync)");
+		Assert.assertTrue(getOutput(exec_result).equals(KatelloRepo.OUT_NO_SYNC_RUNNIG), "Check output (repo cancel sync)");
+	}
+
+	@Test(description="unset repo gpgkey")
+	public void test_removeRepoGpgKey() {
+		String repo_name = "repo"+KatelloUtils.getUniqueID();
+		KatelloRepo repo = new KatelloRepo(cli_worker, repo_name, org_name, product_name, PULP_RHEL6_x86_64_REPO, gpg_key, null);
+		exec_result = repo.create();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (repo create)");
+		exec_result = repo.update_nogpgkey();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (repo unset gpgkey)");
+		exec_result = repo.info();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (repo info)");
+		String key = KatelloUtils.grepCLIOutput("GPG Key", getOutput(exec_result));
+		Assert.assertTrue(key.isEmpty(), "Check exit code (repo info - no key)");
+	}
+
+	@Test(description="Enable, disable Red Hat repository", dependsOnMethods={"test_listRedHatProductRepos"})
+	public void test_enableDisableRedHatRepo() {
+		String product_name = KatelloProduct.RHEL_SERVER;
+		String reposet_name = KatelloProduct.REPOSET_RHEL6_RPMS;
+		
+		KatelloProduct product = new KatelloProduct(cli_worker, product_name, orgWithManifest, null, null, null, null, null, null);
+		exec_result = product.repository_set_enable(reposet_name);
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (enable repo set)");
+		KatelloRepo repo = new KatelloRepo(cli_worker, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, orgWithManifest, product_name, null, null, null);
+
+		// enable repo
+		exec_result = repo.enable();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (enable repo)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloRepo.OUT_REPO_ENABLED, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT)), "Check output (enable repo)");
+		exec_result = repo.list();
+		Assert.assertTrue(getOutput(exec_result).contains(KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT), "Check output (repo listed)");
+		// disable repo
+		exec_result = repo.disable();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (disable repo)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloRepo.OUT_REPO_DISABLED, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT)), "Check output (disable repo)");
+		exec_result = repo.list();
+		Assert.assertFalse(getOutput(exec_result).contains(KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT), "Check output (disabled repo not listed)");
+	}
+
+	@Test(description="test repo list --include_disabled", dependsOnMethods={"test_enableDisableRedHatRepo"})
+	public void test_repoListIncludeDisabled() {
+		KatelloRepo repo = new KatelloRepo(cli_worker, null, orgWithManifest, null, null, null, null);
+		exec_result = repo.listAll();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (repo list --include_disabled)");
+		Assert.assertTrue(getOutput(exec_result).contains(KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT), "Check output (repo listed)");
+	}
+
 	@Test(description = "Call commands on non existing repo", groups = { "cli-repo" })
 	public void test_commandsInvalidRepo() {
 		
@@ -494,5 +548,6 @@ public class RepoTests extends KatelloCliTestBase {
 	@AfterClass(description="remove the org(s) with manifests", alwaysRun=true)
 	public void tearDown(){
 		exec_result = new KatelloOrg(this.cli_worker, this.orgWithManifest, null).delete(); // we don't care with the result.
+		new KatelloOrg(cli_worker, org_name, null).delete();
 	}
 }

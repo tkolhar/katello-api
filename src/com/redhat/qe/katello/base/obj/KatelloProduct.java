@@ -28,9 +28,6 @@ public class KatelloProduct extends _KatelloObject{
 	public static final String CMD_SET_PLAN = "product set_plan";
 	public static final String CMD_UPDATE = "product update";
 	public static final String CMD_REMOVE_PLAN = "product remove_plan";
-	public static final String CMD_ADD_FILTER = "product add_filter";
-	public static final String CMD_REMOVE_FILTER = "product remove_filter";
-	public static final String CMD_FILTER_LIST = "product list_filters";
 	public static final String CMD_ENABLE_REPO_SET= "product repository_set_enable";
 	
 	/** Parameters:<BR>1: product_name<BR>2: org_name */
@@ -175,40 +172,6 @@ public class KatelloProduct extends _KatelloObject{
 		}
 		opts.add(new Attribute("description", new_description));
 		return run(CMD_UPDATE);
-	}
-	
-	public SSHCommandResult add_filter(String filter){
-		opts.clear();
-		opts.add(new Attribute("filter", filter));
-		opts.add(new Attribute("org", org));
-		if (this.id != null) {
-			opts.add(new Attribute("id", id));
-		} else {
-			opts.add(new Attribute("name", this.name));
-		}
-		return run(CMD_ADD_FILTER);
-	}
-	public SSHCommandResult list_filters(){
-		opts.clear();
-		opts.add(new Attribute("org", org));
-		if (this.id != null) {
-			opts.add(new Attribute("id", id));
-		} else {
-			opts.add(new Attribute("name", this.name));
-		}
-		return run(CMD_FILTER_LIST);
-	}
-	
-	public SSHCommandResult remove_filter(String filter){
-		opts.clear();
-		opts.add(new Attribute("filter", filter));
-		opts.add(new Attribute("org", org));
-		if (this.id != null) {
-			opts.add(new Attribute("id", id));
-		} else {
-			opts.add(new Attribute("name", this.name));
-		}
-		return run(CMD_REMOVE_FILTER);
 	}
 	
 	public SSHCommandResult status(){

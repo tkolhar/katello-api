@@ -13,8 +13,6 @@ import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
-import com.redhat.qe.katello.base.obj.KatelloProduct;
-import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
 
 
@@ -27,16 +25,13 @@ public class ChangesetTests extends KatelloCliTestBase{
 	private String ch_name;
 	private String def_name;
 	private String view_name;
-	private String repoenv_name;
-	private String productenv_name;
+
 	@BeforeClass(description="init: create org stuff", groups = {"cli-changeset"})
 	public void setUp() {
 		String uid = KatelloUtils.getUniqueID();
 		ch_name = "changeset"+uid;
 		def_name = "def"+uid;
 		view_name = "view"+uid;
-		productenv_name = "product-env"+uid;
-		repoenv_name = "repo-env"+uid;
 
 		KatelloChangeset chset = new KatelloChangeset(cli_worker, ch_name, base_org_name, base_dev_env_name);
 		exec_result = chset.create();
@@ -47,23 +42,6 @@ public class ChangesetTests extends KatelloCliTestBase{
 		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (def create)");
 		exec_result = def.publish(view_name, null, null);
 		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (def publish)");
-		
-		// create promoted product
-		KatelloProduct prod = new KatelloProduct(cli_worker, productenv_name, base_org_name, base_zoo_provider_name, null, null, null, null, null);
-		exec_result = prod.create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		KatelloRepo repoenv = new KatelloRepo(cli_worker, repoenv_name, base_org_name, productenv_name, REPO_INECAS_ZOO3, null, null);
-		exec_result = repoenv.create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		exec_result = repoenv.synchronize();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		chset = new KatelloChangeset(cli_worker, ch_name, base_org_name, base_dev_env_name);
-		exec_result = chset.update_add_repo(repoenv_name, productenv_name);
-		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (chset add repo)");
-		exec_result = chset.update_add_product(productenv_name);
-		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (chset add product)");
-		exec_result = chset.apply();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
 
 	@Test(description = "Create changeset")
@@ -167,48 +145,6 @@ public class ChangesetTests extends KatelloCliTestBase{
 		Assert.assertTrue(getOutput(exec_result).contains(view_name), "Check output");
 	}
 
-	@Test(description="add erratum to changeset")
-	public void test_addErratum() {
-		KatelloChangeset chset = new KatelloChangeset(cli_worker, ch_name, base_org_name, base_dev_env_name);
-		String err_id = "RHEA-2012:0002";
-		exec_result = chset.update_add_erratum(err_id, productenv_name);
-		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (chset add erratum)");
-		exec_result = chset.info();
-		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (chset info)");
-		Assert.assertTrue(getOutput(exec_result).contains(err_id), "Check output");
-	}
-
-	@Test(description="add package to changeset")
-	public void test_addPackage() {
-		KatelloChangeset chset = new KatelloChangeset(cli_worker, ch_name, base_org_name, base_dev_env_name);;
-		String pack_name = "whale";
-		exec_result = chset.update_add_package(pack_name, productenv_name);
-		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (chset add package)");
-		exec_result = chset.info();
-		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (chset info)");
-		Assert.assertTrue(getOutput(exec_result).contains(pack_name), "Check output");
-	}
-
-	@Test(description="add product to changeset")
-	public void test_addProduct() {
-		KatelloChangeset chset = new KatelloChangeset(cli_worker, ch_name, base_org_name, base_dev_env_name);
-		exec_result = chset.update_add_product(base_zoo_product_name);
-		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (chset add product)");
-		exec_result = chset.info();
-		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (chset info)");
-		Assert.assertTrue(getOutput(exec_result).contains(base_zoo_product_name), "Check output");
-	}
-
-	@Test(description="add repo to changeset")
-	public void test_addRepo() {
-		KatelloChangeset chset = new KatelloChangeset(cli_worker, ch_name, base_org_name, base_dev_env_name);
-		exec_result = chset.update_add_repo(base_zoo_repo_name, base_zoo_product_name);
-		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (chset add repo)");
-		exec_result = chset.info();
-		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (chset info)");
-		Assert.assertTrue(getOutput(exec_result).contains(base_zoo_repo_name), "Check output");
-	}
-
 	@Test(description="update changeset description")
 	public void test_updateDescription() {
 		KatelloChangeset chset = new KatelloChangeset(cli_worker, ch_name, base_org_name, base_dev_env_name);
@@ -229,47 +165,6 @@ public class ChangesetTests extends KatelloCliTestBase{
 		Assert.assertFalse(getOutput(exec_result).contains(view_name), "Check output");
 	}
 
-	@Test(description="remove erratum from changeset", dependsOnMethods={"test_addErratum"})
-	public void test_removeErratum() {
-		KatelloChangeset chset = new KatelloChangeset(cli_worker, ch_name, base_org_name, base_dev_env_name);
-		String err_id = "RHEA-2012:0002";
-		exec_result = chset.update_remove_erratum(err_id, productenv_name);
-		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (chset add erratum)");
-		exec_result = chset.info();
-		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (chset info)");
-		Assert.assertFalse(getOutput(exec_result).contains(err_id), "Check output");
-	}
-
-	@Test(description="remove package from changeset", dependsOnMethods={"test_addPackage"})
-	public void test_removePackage() {
-		KatelloChangeset chset = new KatelloChangeset(cli_worker, ch_name, base_org_name, base_dev_env_name);;
-		String pack_name = "whale-0.2-1.noarch";
-		exec_result = chset.update_remove_package(pack_name, productenv_name);
-		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (chset remove package)");
-		exec_result = chset.info();
-		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (chset info)");
-		Assert.assertFalse(getOutput(exec_result).contains(pack_name), "Check output");
-	}
-
-	@Test(description="remove product from changeset", dependsOnMethods={"test_addProduct"})
-	public void test_removeProduct() {
-		KatelloChangeset chset = new KatelloChangeset(cli_worker, ch_name, base_org_name, base_dev_env_name);
-		exec_result = chset.update_remove_product(base_zoo_product_name);
-		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (chset remove product)");
-		exec_result = chset.info();
-		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (chset info)");
-		Assert.assertFalse(getOutput(exec_result).contains(base_zoo_product_name), "Check output");
-	}
-
-	@Test(description="remove repo from changeset", dependsOnMethods={"test_addRepo"})
-	public void test_removeRepo() {
-		KatelloChangeset chset = new KatelloChangeset(cli_worker, ch_name, base_org_name, base_dev_env_name);
-		exec_result = chset.update_remove_repo(base_zoo_repo_name, base_zoo_product_name);
-		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (chset remove repo)");
-		exec_result = chset.info();
-		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (chset info)");
-		Assert.assertFalse(getOutput(exec_result).contains(base_zoo_repo_name), "Check output");
-	}
 	
 	private KatelloChangeset createChangeset() {
 		chst_name = "changeset"+KatelloUtils.getUniqueID();

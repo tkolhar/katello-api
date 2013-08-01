@@ -346,7 +346,7 @@ public class KatelloCliDataProvider {
 				//{String name, String description, Integer exit_code, String output},
 				{"changeset ok", "", new Integer(0), null},
 				{"!@#$%^&*()_+{}|:?[];.,", "special characters", new Integer(0), null},
-				{strRepeat("0123456789", 25)+"abcdef", "too long name", new Integer(166), "Validation failed: Name is too long (maximum is 255 characters)"},
+				{strRepeat("0123456789", 25)+"abcdef", "too long name", new Integer(166), "Validation failed: Name cannot contain more than 255 characters"},
 				{"too long description", strRepeat("0123456789", 25)+"abcdef", new Integer(166), "Validation failed: Description cannot contain more than 255 characters"},
 				{"<h1>changeset</h1>", "html in name", new Integer(0), null},
 				{"html in description", "<h1>changeset description</h1>", new Integer(0), null},

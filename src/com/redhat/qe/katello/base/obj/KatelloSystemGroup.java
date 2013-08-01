@@ -28,6 +28,9 @@ public class KatelloSystemGroup extends _KatelloObject{
 	public static final String CMD_REMOVE_SYSTEMS = "system_group remove_systems";
 	public static final String CMD_PACKAGES = "system_group packages";
 	public static final String CMD_ERRATA = "system_group errata";
+	public static final String CMD_JOB_HISTORY = "system_group job_history -v";
+	public static final String CMD_JOB_TASKS = "system_group job_tasks";
+	public static final String CMD_UPDATE_SYSTEMS = "system_group update_systems";
 	
 	public static final String OUT_CREATE = 
 			"Successfully created system group [ %s ]";
@@ -37,6 +40,7 @@ public class KatelloSystemGroup extends _KatelloObject{
 			"Successfully added systems to system group [ %s ]";
 	public static final String OUT_REMOVE_SYSTEMS = 
 			"Successfully removed systems from system group [ %s ]";
+	public static final String OUT_UPDATE_SYSTEMS = "Successfully updated systems in group [ %s ]";
 	
 	public static final String ERR_SYSTEMGROUP_NOTFOUND = 
 			"Could not find system group";
@@ -273,5 +277,29 @@ public class KatelloSystemGroup extends _KatelloObject{
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		return run(CMD_PACKAGES);
+	}
+
+	public SSHCommandResult job_history() {
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		return run(CMD_JOB_HISTORY);
+	}
+
+	public SSHCommandResult job_tasks(String jobID) {
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("job_id", jobID));
+		return run(CMD_JOB_TASKS);
+	}
+
+	public SSHCommandResult update_systems(String env, String view) {
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("environment", env));
+		opts.add(new Attribute("view", view));
+		return run(CMD_UPDATE_SYSTEMS);
 	}
 }
