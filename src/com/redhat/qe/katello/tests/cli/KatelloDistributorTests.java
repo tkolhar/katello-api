@@ -48,7 +48,7 @@ public class KatelloDistributorTests extends KatelloCliTestBase{
 			Assert.assertTrue(getOutput(exec_result).contains(output),"Check - returned error string");
 		}
 	}
-	
+	//TODO: failing due to bz#990299
 	@Test(description="distributor remove custom info",enabled=true,groups={"cfse-cli","headpin-cli"})
 	public void test_distributorRemoveCustomInfo(){
 		SSHCommandResult exec_result;
