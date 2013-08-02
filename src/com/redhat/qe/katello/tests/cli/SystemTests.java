@@ -114,8 +114,8 @@ public class SystemTests extends KatelloCliTestBase{
 		KatelloUserRole role = new KatelloUserRole(cli_worker, this.user_role, "not delete to system");
 		exec_result = role.create();
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (user_role create)");
-		KatelloPermission perm = new KatelloPermission(cli_worker, perm_name, this.orgNameMain, "environments", null,
-				"update_systems,read_contents,read_systems,register_systems", this.user_role);
+		KatelloPermission perm = new KatelloPermission(cli_worker, perm_name, this.orgNameMain, "organizations", null,
+				"update_systems,read,read_systems,register_systems", this.user_role);
 		exec_result = perm.create();
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (perm create)");
 		exec_result = user.assign_role(this.user_role);
@@ -147,6 +147,9 @@ public class SystemTests extends KatelloCliTestBase{
 		this.contentName = "content-" + uid;
 		this.contentView = "contentView-"+uid;
 		
+		KatelloPermission perm = new KatelloPermission(cli_worker, perm_name, this.orgNameMain, "environments", null,
+				"update_systems,read_contents,read_systems,register_systems", this.user_role);
+		exec_result = perm.create();
 		exec_result = new KatelloEnvironment(this.cli_worker, envName_Dev, null, this.orgNameRhsms, KatelloEnvironment.LIBRARY).cli_create();
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
 		exec_result = new KatelloEnvironment(this.cli_worker, envName_Test, null, this.orgNameRhsms, KatelloEnvironment.LIBRARY).cli_create();

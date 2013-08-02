@@ -152,6 +152,32 @@ public class KatelloCliDataProvider {
 		};
 	}
 	
+	@DataProvider(name="permission_create_headpinOnly")
+	public static Object[][] permission_create_headpinOnly(){
+		String uid = KatelloUtils.getUniqueID();
+		return new Object[][] {
+				// name
+				//String name, String scope,String tags,String verbs,Integer exitCode, String output
+				{ "perm-read_update-verbs-provider-"+uid, "providers", null, "read,update",new Integer(0),null},
+				{ "perm-read-verbs-provider-"+uid, "providers", null, "read",new Integer(0),null},
+				{ "perm-update-verbs-provider-"+uid, "providers", null, "update",new Integer(0),null},
+				{ "perm-all-org"+uid, "organizations", null, "delete_distributors,update_distributors,read_distributors,register_distributors,delete_systems,update,update_systems,read,read_systems,register_systems",new Integer(0),null},
+				{ "perm-some_verbs-org"+uid, "organizations", null, "update,update_systems,read,read_systems",new Integer(0),null},
+				{ "perm-some_dis_verbs-org"+uid, "organizations", null, "update,delete_distributors,update_distributors,read_distributors,register_distributors",new Integer(0),null},
+				{ "perm-some_sys_verbs-org"+uid, "organizations", null, "delete_systems,update_systems,read_systems,register_systems",new Integer(0),null},
+				{ "perm-read_verbs-org"+uid, "organizations", null, "read",new Integer(0),null},
+				{ "perm-update_verbs-org"+uid, "organizations", null, "update",new Integer(0),null},
+				{ "perm-update_system_verbs-org"+uid, "organizations", null, "update_systems",new Integer(0),null},
+				{ "perm-update_dis_verbs-org"+uid, "organizations", null, "update_distributors",new Integer(0),null},
+				{ "perm-delete_system_verbs-org"+uid, "organizations", null, "delete_systems",new Integer(0),null},
+				{ "perm-delete_dis_verbs-org"+uid, "organizations", null, "delete_distributors",new Integer(0),null},
+				{ "perm-register_dis_verbs-org"+uid, "organizations", null, "register_distributors",new Integer(0),null},
+				{ "perm-register_sys_verbs-org"+uid, "organizations", null, "register_systems",new Integer(0),null},
+				{ "perm-read_sys_verbs-org"+uid, "organizations", null, "read_systems",new Integer(0),null},
+				{ "perm-read_dis_verbs-org"+uid, "organizations", null, "read_distributors",new Integer(0),null},
+		};
+	}
+	
 	@DataProvider(name="user_role_create")
 	public static Object[][] user_role_create(){
 		String uid = KatelloUtils.getUniqueID();
