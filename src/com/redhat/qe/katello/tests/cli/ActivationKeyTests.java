@@ -16,7 +16,7 @@ import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups={"headpin-cli",TngRunGroups.TNG_KATELLO_Activation_Key})
+@Test(groups={TngRunGroups.TNG_KATELLO_Activation_Key})
 public class ActivationKeyTests extends KatelloCliTestBase{
 	private String systemgroup;
 	private String content_view;
@@ -35,8 +35,15 @@ public class ActivationKeyTests extends KatelloCliTestBase{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
 	
+	@BeforeClass(description="init: headpin specific, no katello",groups={"headpin-cli","cfse-ignore"})
+	public void setUp_headpinOnly()
+	{
+		base_dev_env_name=null;
+		content_view = null;
+	}
+	
 	@Test(description="create AK", dataProvider="activationkey_create", 
-			dataProviderClass = KatelloCliDataProvider.class, enabled=true)
+			dataProviderClass = KatelloCliDataProvider.class, enabled=true,groups={"cfse-cli","headpin-cli"})
 	public void test_create(String name, String descr, Integer exitCode, String output){
 		SSHCommandResult res;
 		
@@ -51,7 +58,7 @@ public class ActivationKeyTests extends KatelloCliTestBase{
 		}
 	} 
 
-	@Test(description="create AK - same name, diff. orgs")
+	@Test(description="create AK - same name, diff. orgs",groups={"cfse-cli"})
 	public void test_create_diffOrgsSameName(){
 		SSHCommandResult res;
 		String uid = KatelloUtils.getUniqueID();
@@ -89,7 +96,7 @@ public class ActivationKeyTests extends KatelloCliTestBase{
 		ak.asserts_create();
 	}
 		
-    @Test(description="add subscription to ak, verify that it is shown in info, remove it, verify that is is not shown")
+    @Test(description="add subscription to ak, verify that it is shown in info, remove it, verify that is is not shown",groups={"cfse-cli"})
     public void test_update_addremoveSubscription(){
     	String uid = KatelloUtils.getUniqueID();
     	String akName="ak-subscription-zoo3-"+uid;
@@ -112,7 +119,7 @@ public class ActivationKeyTests extends KatelloCliTestBase{
     }
     
 	
-    @Test(description="delete a activationkey")
+    @Test(description="delete a activationkey",groups={"cfse-cli","headpin-cli"})
     public void test_delete_activation_key(){
     	String uid = KatelloUtils.getUniqueID();
     	String akName="ak-delete_act_key-"+ uid; 
@@ -138,7 +145,7 @@ public class ActivationKeyTests extends KatelloCliTestBase{
     }
     
     /** TCMS scenario is: <a href="https://tcms.engineering.redhat.com/case/221907/?from_plan=7771">here</a> */
-	@Test(description="5a47305b-52d0-47ea-9b23-74dffe16b4bf")
+	@Test(description="5a47305b-52d0-47ea-9b23-74dffe16b4bf",groups={"cfse-cli","headpin-cli"})
     public void test_createWithLimit() {
     	String uid = KatelloUtils.getUniqueID();
     	String akName="act_key-"+ uid; 
@@ -167,7 +174,7 @@ public class ActivationKeyTests extends KatelloCliTestBase{
     }
 
     /** TCMS scenario is: <a href="https://tcms.engineering.redhat.com/case/189165/?from_plan=7793">here</a> */
-    @Test(description="4495ea44-704d-4079-bd4d-7297f887d15f")
+    @Test(description="4495ea44-704d-4079-bd4d-7297f887d15f",groups={"cfse-cli","headpin-cli"})
     public void test_updateTheLimit() {
     	String uid = KatelloUtils.getUniqueID();
     	String akName="act_key-"+ uid; 
@@ -201,7 +208,7 @@ public class ActivationKeyTests extends KatelloCliTestBase{
 
     //@ TODO 927215
     /** TCMS scenario is: <a href="https://tcms.engineering.redhat.com/case/189166/?from_plan=7793">here</a> */
-	@Test(description="fc228a30-c0e8-46d3-a254-681222993bd5")
+	@Test(description="fc228a30-c0e8-46d3-a254-681222993bd5",groups={"cfse-cli","headpin-cli"})
     public void test_unregisterRegister() {
     	String uid = KatelloUtils.getUniqueID();
     	String akName="act_key-"+ uid; 
@@ -246,7 +253,7 @@ public class ActivationKeyTests extends KatelloCliTestBase{
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
     }
   
-    @Test(description="add system group to activationkey",  enabled=true)
+    @Test(description="add system group to activationkey",  enabled=true,groups={"cfse-cli","headpin-cli"})
     public void test_addSystemGroup() {
     	String uid = KatelloUtils.getUniqueID();
 		this.systemgroup = "systemgroup"+uid;
@@ -268,7 +275,7 @@ public class ActivationKeyTests extends KatelloCliTestBase{
 				"Check - returned output string (activation_key add_system_group)");
     }
     
-    @Test(description="remove system group from activationkey", enabled=true)
+    @Test(description="remove system group from activationkey", enabled=true,groups={"cfse-cli","headpin-cli"})
     public void test_removeSystemGroup() {
     	String uid = KatelloUtils.getUniqueID();
 		this.systemgroup = "systemgroup"+uid;
@@ -293,7 +300,7 @@ public class ActivationKeyTests extends KatelloCliTestBase{
 				"Check - returned output string (activation_key remove_system_group)");
     }
     
-    @Test(description="As a user, I would like to use more than one activation keys.", groups = {"cfse-cli"})
+    @Test(description="As a user, I would like to use more than one activation keys",groups={"cfse-cli","headpin-cli"})
     public void test_regTwokeys() {
     	String uid = KatelloUtils.getUniqueID();
     	String act_list = "";
@@ -321,7 +328,7 @@ public class ActivationKeyTests extends KatelloCliTestBase{
 				          String.format("Activationkeys [%s] found in system [%s] info",act_list,systemName));		
     }
     
-    @Test(description="As an admin, I'd like to see which activation key used it for registering the system")
+    @Test(description="As an admin, I'd like to see which activation key used it for registering the system",groups={"cfse-cli","headpin-cli"})
     public void test_Viewregkey() {
     	String uid = KatelloUtils.getUniqueID();
     	String akName="act_key-"+ uid;    
@@ -341,7 +348,7 @@ public class ActivationKeyTests extends KatelloCliTestBase{
 				          String.format("Activationkey [%s] found in system [%s] info",akName,systemName));		
     }
 
-	@Test(description="update key description")
+	@Test(description="update key description",groups={"cfse-cli","headpin-cli"})
 	public void test_updateDescription() {
 		SSHCommandResult res;
 		String uid = KatelloUtils.getUniqueID();
@@ -375,7 +382,7 @@ public class ActivationKeyTests extends KatelloCliTestBase{
 		Assert.assertTrue(ak_env_id.equals(env_id), "Check (key env id)");
 	}
 
-	@Test(description="update key name")
+	@Test(description="update key name",groups={"cfse-cli","headpin-cli"})
 	public void test_updateName() {
 		SSHCommandResult res;
 		String uid = KatelloUtils.getUniqueID();
@@ -391,5 +398,31 @@ public class ActivationKeyTests extends KatelloCliTestBase{
 		res = key.info();
 		Assert.assertTrue(res.getExitCode()==0, "Check exit code (key update)");
 		Assert.assertTrue(getOutput(res).contains(new_name), "Check output (key info)");
+	}
+	
+	@Test(description="create AK - same name, diff org : headpin-only",groups={"headpin-cli","cfse-ignore"})
+	public void test_create_diffOrgsSameNameHeadpinOnly(){
+		SSHCommandResult res;
+		String uid = KatelloUtils.getUniqueID();
+		String ak_name = "ak-"+uid;
+		String org2 = "org2-"+uid;
+
+		// create 2nd org (and the same env) 
+		KatelloOrg org = new KatelloOrg(this.cli_worker, org2, null);
+		res = org.cli_create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+
+		KatelloActivationKey ak = new KatelloActivationKey(this.cli_worker, org2, base_dev_env_name, ak_name, null, null, content_view);
+		res = ak.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key create)");
+
+		ak = new KatelloActivationKey(this.cli_worker, base_org_name, base_dev_env_name, ak_name, null, null, content_view);
+		res = ak.create(); // force update IDs 
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key create)");
+		Assert.assertTrue(getOutput(res).contains(
+				String.format(KatelloActivationKey.OUT_CREATE,ak_name)), 
+				"Check - returned output string (activation_key create)");
+
+		ak.asserts_create();
 	}
 }
