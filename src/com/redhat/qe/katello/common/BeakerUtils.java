@@ -28,6 +28,12 @@ public class BeakerUtils {
 		return KatelloUtils.sshOnClient(hostname, cmds);
 	}
 	
+	public static void install_CandlepinCert(String hostname, String servername){
+		KatelloUtils.sshOnClient(hostname, "yum -y update subscription-manager python-rhsm --disablerepo=\\*beaker\\*");
+		KatelloUtils.sshOnClient(hostname, "wget http://" + servername + "/pub/candlepin-cert-consumer-" + servername + "-1.0-1.noarch.rpm -O /tmp/candlepin-cert-consumer-" + servername + "-1.0-1.noarch.rpm");
+		KatelloUtils.sshOnClient(hostname, "yum -y --nogpgcheck localinstall /tmp/candlepin-cert-consumer-" + servername + "-1.0-1.noarch.rpm");
+	}
+	
 	public static SSHCommandResult Katello_Installation_ConfigureRepos(String hostname){
 		String cmds = 
 				"yum install -y Katello-Katello-Installation-ConfigureRepos --disablerepo=* --enablerepo=beaker*; " +

@@ -116,8 +116,11 @@ public class VirtualSubscriptions implements KatelloConstants {
 		Assert.assertTrue(KatelloCliTestBase.sgetOutput(res).contains("(Up to 1 guest)"), "stdout - contains guest");
 		// getting poolid could vary - might be need to make switch case here for different versions...
 		poolRhel = KatelloUtils.grepCLIOutput("ID", KatelloCliTestBase.sgetOutput(res));
+		if (poolRhel == null || poolRhel.isEmpty()) {
+			poolRhel = KatelloUtils.grepCLIOutput("Id", KatelloCliTestBase.sgetOutput(res));
+		}
 		String consumed = KatelloUtils.grepCLIOutput("Consumed", KatelloCliTestBase.sgetOutput(res));
-		Assert.assertTrue(!poolRhel.isEmpty(), "stdout - poolid exists");
+		Assert.assertTrue(poolRhel != null && !poolRhel.isEmpty(), "stdout - poolid exists");
 		Assert.assertTrue(Integer.parseInt(consumed)==0, "stdout - consumed 0");
 	}
 	
@@ -158,7 +161,16 @@ public class VirtualSubscriptions implements KatelloConstants {
 		
 		String pool1 = KatelloUtils.grepCLIOutput("ID", KatelloCliTestBase.sgetOutput(res),1);
 		String pool2 = KatelloUtils.grepCLIOutput("ID", KatelloCliTestBase.sgetOutput(res),2);
+		if (pool1 == null || pool1.isEmpty()) {
+			pool1 = KatelloUtils.grepCLIOutput("Id", KatelloCliTestBase.sgetOutput(res), 1);
+		}
+		if (pool2 == null || pool2.isEmpty()) {
+			pool2 = KatelloUtils.grepCLIOutput("Id", KatelloCliTestBase.sgetOutput(res), 2);
+		}
 		String pool3Null = KatelloUtils.grepCLIOutput("ID", KatelloCliTestBase.sgetOutput(res),3);
+		if (pool3Null == null || pool3Null.isEmpty()) {
+			pool3Null = KatelloUtils.grepCLIOutput("Id", KatelloCliTestBase.sgetOutput(res), 3);
+		}
 		
 		Assert.assertNotNull(pool1, "stdout - pool1 not null");
 		Assert.assertNotNull(pool2, "stdout - pool2 not null");
@@ -167,7 +179,10 @@ public class VirtualSubscriptions implements KatelloConstants {
 		// store the virtual poolID
 		block = KatelloUtils.grepOutBlock("Consumed", "0", KatelloCliTestBase.sgetOutput(res));
 		poolVirt = KatelloUtils.grepCLIOutput("ID", block);
-		Assert.assertNotNull(pool1, "stdout - virtual pool not null");
+		if (poolVirt == null || poolVirt.isEmpty()) {
+			poolVirt = KatelloUtils.grepCLIOutput("Id", block);
+		}
+		Assert.assertNotNull(poolVirt, "stdout - virtual pool not null");
 	}
 	
 	@Test(description="try to assign client[1] to that virt. pool. Should fail.", 
@@ -256,7 +271,16 @@ public class VirtualSubscriptions implements KatelloConstants {
 		
 		String pool1 = KatelloUtils.grepCLIOutput("ID", KatelloCliTestBase.sgetOutput(res),1);
 		String pool2 = KatelloUtils.grepCLIOutput("ID", KatelloCliTestBase.sgetOutput(res),2);
+		if (pool1 == null || pool1.isEmpty()) {
+			pool1 = KatelloUtils.grepCLIOutput("Id", KatelloCliTestBase.sgetOutput(res), 1);
+		}
+		if (pool2 == null || pool2.isEmpty()) {
+			pool2 = KatelloUtils.grepCLIOutput("Id", KatelloCliTestBase.sgetOutput(res), 2);
+		}
 		String pool3Null = KatelloUtils.grepCLIOutput("ID", KatelloCliTestBase.sgetOutput(res),3);
+		if (pool3Null == null || pool3Null.isEmpty()) {
+			pool3Null = KatelloUtils.grepCLIOutput("Id", KatelloCliTestBase.sgetOutput(res), 3);
+		}
 		
 		Assert.assertNotNull(pool1, "stdout - pool1 not null");
 		Assert.assertNotNull(pool2, "stdout - pool2 not null");
@@ -308,7 +332,7 @@ public class VirtualSubscriptions implements KatelloConstants {
 		Assert.assertNotNull(uuid2, "stdout - uuid is not null");
 	}
 	
-	@AfterClass(description="adjust sockets back", alwaysRun=true)
+	@AfterClass(description="adjust sockets back", groups={TNG_PRE_UPGRADE}, alwaysRun=true)
 	public void adjustBackSockets(){
 		log.finest("Remove the prepared: /etc/rhsm/facts/sockets.facts");
 		KatelloUtils.sshOnClient(clients[0],"rm -f /etc/rhsm/facts/sockets.facts");

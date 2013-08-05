@@ -326,7 +326,26 @@ public class KatelloUtils implements KatelloConstants {
 		
 		return client;
 	}
+
+	public static DeltaCloudInstance getDeltaCloudClientCertOnly(String server, String imageId) {
 		
+		String[] configs = getMachineConfigs(false);
+		Assert.assertNotNull(configs, "No free machine available on Deltacloud");
+
+		DeltaCloudInstance client = DeltaCloudAPI.provideClient(false, configs[0],imageId);
+
+		Assert.assertNotNull(client.getClient());
+		
+		configureDDNS(client, configs);
+		
+		_sshClients.put(client.getHostName(), _sshClients.get(client.getIpAddress()));
+		
+		installCandlepinCert(client, server);
+		
+		return client;
+	}
+
+
 	/**
 	 * Destroys the machine from DeltaCloud.
 	 * @IMPORTANT EACH PROVIDED DELTACLOUD MACHINE SHOULD BE DESTROYED AFTER TEST
@@ -491,8 +510,26 @@ public class KatelloUtils implements KatelloConstants {
 				
 		BeakerUtils.Katello_Sanity_ImportKeys(hostname);
 		BeakerUtils.Katello_Installation_RegisterRHNClassic(hostname);
+		configureNtp(hostname);
 		BeakerUtils.Katello_Installation_ConfigureRepos(hostname);
 		BeakerUtils.Katello_Configuration_KatelloClient(hostname, server, version, product);
+	}
+	
+	/**
+	 * Install server's candlepin cert on client machine.
+	 * @param machine DeltaCloudInstance on which client should be installed.
+	 * @param server the hostname of server to which the client should be configured.
+	 */
+	private static void installCandlepinCert(DeltaCloudInstance machine, String server) {
+		String hostname = machine.getIpAddress();
+		
+		setupBeakerRepo(hostname);
+		configureBeaker(hostname);
+				
+		BeakerUtils.Katello_Sanity_ImportKeys(hostname);
+		BeakerUtils.Katello_Installation_RegisterRHNClassic(hostname);
+		configureNtp(hostname);
+		BeakerUtils.install_CandlepinCert(hostname, server);
 	}
 	
 	/**
@@ -537,8 +574,10 @@ public class KatelloUtils implements KatelloConstants {
 	
 	private static void configureNtp(String hostname){
 		sshOnClient(hostname, "rpm -q ntp || yum -y install ntp");
-		sshOnClient(hostname, "service ntpd restart");
 		sshOnClient(hostname, "chkconfig --add ntpd; chkconfig ntpd on");
+		sshOnClient(hostname, "service ntpd stop");
+		sshOnClient(hostname, "ntpdate clock.redhat.com");
+		sshOnClient(hostname, "service ntpd start");
 	}
 
 	public static String promoteReposToEnvironment(KatelloCliWorker kcr, String org_name, String[] product_names, String[] repo_names, String env_name) {

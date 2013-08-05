@@ -52,6 +52,7 @@ public class StackedSubscriptions extends KatelloCliTestBase {
 
 		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, this.env_name, null, this.org_name, KatelloEnvironment.LIBRARY);
 		env.cli_create();
+		promoteEmptyContentView(org_name, env_name);
 	}
 	
 	

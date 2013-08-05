@@ -84,6 +84,7 @@ public class PromoteChangeset extends KatelloCliTestBase {
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").contains(PromoteErrata.ERRATA_ZOO_SEA), "Check - errata list output");
 	}
 
+	//@ TODO bug 987470
 	@Test(description="Delete package from GA", dependsOnMethods={"test_promotePackageToGA"})
 	public void test_deletePackageFromGA(){
 		KatelloChangeset changeset2 = new KatelloChangeset(cli_worker, "deletepackage"+uniqueID, base_org_name, this.env2, true);
@@ -95,6 +96,7 @@ public class PromoteChangeset extends KatelloCliTestBase {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
 
+	//@ TODO bug 987470
 	@Test(description="Delete errata from GA", dependsOnMethods={"test_promoteErrataToGA"})
 	public void test_deleteErrataFromGA(){
 		KatelloChangeset changeset2 = new KatelloChangeset(cli_worker, "deleteerratas"+uniqueID, base_org_name, this.env2, true);

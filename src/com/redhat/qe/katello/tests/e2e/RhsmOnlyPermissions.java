@@ -121,7 +121,7 @@ public class RhsmOnlyPermissions extends KatelloCliTestBase{
 		SSHCommandResult res = sshOnClient("yum clean all; yum repolist --disablerepo \\* --enablerepo \\*\""+base_zoo_repo_name.replaceAll(" ", "_")+"\"\\* | grep "+base_zoo_repo_name.replaceAll(" ", "_"));
 		Assert.assertFalse(getOutput(res).equals("repolist: 0"), "Yum repolist contains the repo just subscribed");
 		
-		String sRev = new StringBuffer(getOutput(res).trim()).reverse().toString();
+		String sRev = new StringBuffer(res.getStdout().trim()).reverse().toString();
 		String pkgCountRev = sRev.substring(0, sRev.indexOf(" ")+1);
 		int pkgFromYum = Integer.parseInt(new StringBuffer(pkgCountRev).reverse().toString().trim());
 		

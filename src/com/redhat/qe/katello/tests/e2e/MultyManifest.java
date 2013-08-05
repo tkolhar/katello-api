@@ -53,6 +53,7 @@ public class MultyManifest extends KatelloCliTestBase{
 		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, this.env_dev, null, this.org, KatelloEnvironment.LIBRARY);
 		SSHCommandResult res = env.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
+		promoteEmptyContentView(org, env_dev);
 		
 		KatelloSystem sys = new KatelloSystem(this.cli_worker, sys_name, this.org, this.env_dev);
 		res = sys.rhsm_registerForce(); 

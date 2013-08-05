@@ -10,6 +10,8 @@ import org.testng.Assert;
 import org.testng.SkipException;
 import org.testng.annotations.BeforeClass;
 
+import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
+import com.redhat.qe.katello.base.obj.KatelloContentView;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
@@ -64,7 +66,7 @@ implements KatelloConstants {
 		cliPool = KatelloCliWorkersPool.getInstance(null);
 		
 		// Eclipse mode - get default from property file; init base org and exit.
-		if(cliPool==null){ cli_worker = KatelloCliWorker.getSingleMode(); createBaseOrg(); return;}
+		if(cliPool==null){ cli_worker = KatelloCliWorker.getSingleMode(); createBaseOrg(this.getClass().getName(), cli_worker); return;}
 		
 		cli_worker = cliPool.getWorker(Thread.currentThread().getName(),this.getClass().getName());
 		if(cli_worker == null && cliPool.running()){
@@ -77,7 +79,7 @@ implements KatelloConstants {
 		if(!cliPool.running()){
 			throw new SkipException("Timeout happened on requesting worker for: "+this.getClass().getName());
 		}
-		createBaseOrg(); // wait worker to be initialized and invoke it at the very end. there is if (null) - so it would work only on the first invoking. 
+		createBaseOrg(this.getClass().getName(), cli_worker); // wait worker to be initialized and invoke it at the very end. there is if (null) - so it would work only on the first invoking. 
 	}
 	
 	protected SSHCommandResult sshOnClient(String _cmd){
@@ -342,10 +344,9 @@ implements KatelloConstants {
 		}
 	}
 	
-	private void createBaseOrg(){
+	private static synchronized void createBaseOrg(String classname, KatelloCliWorker cli_worker){
 		
 		if (base_org_name == null) {
-			String classname = this.getClass().getName();
 			if(!classname.contains("tests.cli.")&&
 				!classname.contains("tests.e2e.")) 
 				return;
@@ -440,7 +441,23 @@ implements KatelloConstants {
 			base_zoo4_repo_pool = org.custom_getPoolId(base_zoo4_product_name);
 			Assert.assertNotNull(base_zoo4_repo_pool, "Check - pool Id is not null");
 			base_zoo4_product_id = prod.custom_getProductId();
-			Assert.assertNotNull(base_pulp_product_id, "Check - base_zoo_product_id is not null");
+			Assert.assertNotNull(base_zoo4_product_id, "Check - base_zoo_product_id is not null");
 		}	
+	}
+	
+	protected void promoteEmptyContentView(String org_name, String... env_names) {
+		String uid = KatelloUtils.getUniqueID();
+		KatelloContentDefinition condef = new KatelloContentDefinition(cli_worker, "def"+uid, null, org_name, null);
+		exec_result = condef.create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		String content_view = "view"+uid;
+		exec_result = condef.publish(content_view, content_view, "view");
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		KatelloContentView conview = new KatelloContentView(cli_worker, content_view, org_name);
+		
+		for (String env_name : env_names) {
+			exec_result = conview.promote_view(env_name);
+			Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		}
 	}
 }
