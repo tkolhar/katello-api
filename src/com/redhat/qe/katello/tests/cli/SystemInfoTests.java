@@ -109,7 +109,7 @@ public class SystemInfoTests extends KatelloCliTestBase{
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
 
 		Assert.assertTrue(getOutput(exec_result).trim().contains( 
-				String.format(KatelloOrg.OUT_APPLY_SYS_INFO, org.name)),
+				String.format(KatelloOrg.OUT_APPLY_INFO, org.name)),
 				"Check - apply system info output.");
 
 		List<String[]> sysparamsList = new LinkedList<String[]>();
@@ -151,7 +151,7 @@ public class SystemInfoTests extends KatelloCliTestBase{
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
 
 		Assert.assertTrue(getOutput(exec_result).trim().contains( 
-				String.format(KatelloOrg.OUT_APPLY_SYS_INFO, org.name)),
+				String.format(KatelloOrg.OUT_APPLY_INFO, org.name)),
 				"Check - apply system info output.");
 
 		List<String[]> sysparamsList = new LinkedList<String[]>();
@@ -246,7 +246,7 @@ public class SystemInfoTests extends KatelloCliTestBase{
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
 
 		Assert.assertTrue(getOutput(exec_result).trim().contains( 
-				String.format(KatelloOrg.OUT_APPLY_SYS_INFO, org.name)),
+				String.format(KatelloOrg.OUT_APPLY_INFO, org.name)),
 				"Check - apply system info output.");
 
 	}
@@ -306,7 +306,7 @@ public class SystemInfoTests extends KatelloCliTestBase{
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
 
 		Assert.assertTrue(getOutput(exec_result).trim().contains( 
-				String.format(KatelloOrg.OUT_APPLY_SYS_INFO, org.name)),
+				String.format(KatelloOrg.OUT_APPLY_INFO, org.name)),
 				"Check - apply system info output.");
 
 		List<String[]> sysparamsList = new LinkedList<String[]>();

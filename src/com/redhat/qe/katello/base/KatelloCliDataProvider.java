@@ -315,9 +315,11 @@ public class KatelloCliDataProvider {
 				{"testkey-"+uid,"testvalue-"+uid,dis_name,new Integer(0), String.format(KatelloDistributor.OUT_INFO,"testkey-"+uid,"testvalue-"+uid,dis_name)},
 				{"","blank-key"+uid,dis_name,new Integer(166),"Validation failed: Keyname can't be blank"},
 				{"blank-value"+uid,"",dis_name,new Integer(0),String.format(KatelloDistributor.OUT_INFO,"blank-value"+uid,"",dis_name)},
-				{strRepeat("0123456789",12)+uid,strRepeat("0134456789",12),dis_name,new Integer(0),String.format(KatelloDistributor.OUT_INFO,strRepeat("0123456789",12)+uid,strRepeat("0134456789",12),dis_name)},
-				{strRepeat("013456789",30)+uid,strRepeat("013456789",30),dis_name,new Integer(244),""},
-				{"testkey-"+uid,"duplicate-key"+uid,dis_name,new Integer(166),"Validation failed: Keyname already exists for this object"},
+				{strRepeat("0123456789",25)+"abcde","255charKey",dis_name,new Integer(0),String.format(KatelloDistributor.OUT_INFO,strRepeat("0123456789",25)+"abcde","255charKey",dis_name)},
+				{strRepeat("0123456789",25)+"abcdef","256charKey",dis_name,new Integer(166),KatelloDistributor.ERR_KEY_TOO_LONG},
+				{"255charValue"+uid, strRepeat("0123456789",25)+"abcde", dis_name,new Integer(0),String.format(KatelloDistributor.OUT_INFO,"255charValue"+uid, strRepeat("0123456789",25)+"abcde", dis_name)},
+				{"256charValue"+uid, strRepeat("0123456789",25)+"abcdef", dis_name,new Integer(166), KatelloDistributor.ERR_VALUE_TOO_LONG},
+				{"testkey-"+uid,"duplicate-key"+uid,dis_name,new Integer(166), KatelloDistributor.ERR_DUPLICATE_KEY},
 				{"duplicate-value"+uid,"testvalue-"+uid,dis_name,new Integer(0),String.format(KatelloDistributor.OUT_INFO,"duplicate-value"+uid,"testvalue-"+uid,dis_name)},
 				{"\\!@%^&*(_-~+=\\||,.)"+uid,"\\!@%^&*(_-~+=\\||,.)"+uid,dis_name,new Integer(0),String.format(KatelloDistributor.OUT_INFO,"\\!@%^&*(_-~+=\\||,.)"+uid,"\\!@%^&*(_-~+=\\||,.)"+uid,dis_name)},
 				{"special chars <h1>html</h1>", "html in keyname", dis_name, new Integer(0), String.format(KatelloDistributor.OUT_INFO,"special chars <h1>html</h1>","html in keyname",dis_name)},
@@ -327,13 +329,16 @@ public class KatelloCliDataProvider {
 
 	@DataProvider(name="org_add_custom_info")
 	public static Object[][] org_add_custom_info() {
+	
 		return new Object[][] {
-				{ "custom-key", new Integer(0), null},
-				{ strRepeat("0123456789", 12)+"abcdefgh", new Integer(0), null},
+				{"custom-key", new Integer(0), null},
+				{ " ", new Integer(166), KatelloOrg.ERR_BLANK_KEY},
+				{ strRepeat("0123456789", 25)+"abcde", new Integer(0), null},
+				{ strRepeat("0123456789", 25)+"abcdef", new Integer(166), KatelloOrg.ERR_KEY_TOO_LONG},
+				{ "custom-key", new Integer(166), KatelloOrg.ERR_DUPLICATE_DISTRIBUTOR_KEY},
 				{ "special chars \\!@%^&*(_-~+=\\||,.)", new Integer(0), null},
-				{ " ", new Integer(166), "Validation failed: Default info cannot contain blank keynames"},
 				{ "special chars <h1>html</h1>", new Integer(0), null},
-				{ strRepeat("0123456789", 25)+"abcdef", new Integer(0), null},
+				
 		};
 	}
 	

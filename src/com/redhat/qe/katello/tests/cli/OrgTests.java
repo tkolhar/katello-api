@@ -480,8 +480,9 @@ public class OrgTests extends KatelloCliTestBase{
 			Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloOrg.OUT_ADD_SYS_INFO, keyname, org_name)), "Check output (add custom info)");
 		else
 			Assert.assertTrue(getOutput(exec_result).contains(output), "Check error (add custom info)");
+		
 	}
-
+    // TODO: Failing due to BZ: 990687
 	@Test(description="add distributor custom information key",
 			dataProviderClass=KatelloCliDataProvider.class, dataProvider="org_add_custom_info")
 	public void test_addDistributorCustomKey(String keyname, Integer exitCode, String output) {
@@ -489,7 +490,12 @@ public class OrgTests extends KatelloCliTestBase{
 		exec_result = org.default_info_add(keyname,"distributor");
 		Assert.assertTrue(exec_result.getExitCode()==exitCode.intValue(), "Check exit code (add custom info)");
 		if(exec_result.getExitCode()==0)
+		{
 			Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloOrg.OUT_ADD_DISTRIBUTOR_INFO, keyname, org_name)), "Check output (add custom info)");
+			exec_result = org.default_info_apply("distributor");
+			Assert.assertTrue(exec_result.getExitCode() == 0, "Check exit code (Sync default info)");
+			Assert.assertTrue(getOutput(exec_result).contains(KatelloOrg.OUT_APPLY_INFO), "Check output (Sync default info)");
+		}
 		else
 			Assert.assertTrue(getOutput(exec_result).contains(output), "Check error (add custom info)");
 	}
