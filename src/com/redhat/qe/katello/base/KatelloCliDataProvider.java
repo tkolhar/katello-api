@@ -22,8 +22,8 @@ public class KatelloCliDataProvider {
 				{ "orgNoDescr_"+uniqueID1,null, null, new Integer(0), String.format(KatelloOrg.OUT_CREATE, "orgNoDescr_"+uniqueID1)},
 				{ "org "+uniqueID2+"", null, "Org with space", new Integer(0), String.format(KatelloOrg.OUT_CREATE, "org "+uniqueID2+"")},
 				{strRepeat("0123456789", 25)+"abcde", null, "Org name with 255 characters", new Integer(0), String.format(KatelloOrg.OUT_CREATE, strRepeat("0123456789", 25)+"abcde")},
-				{strRepeat("0123456789", 25)+"abcdef", null, "Org name with 256 characters", new Integer(166), String.format(KatelloOrg.ERR_LONG_NAME)},
-				{"\\!@%^&*(<_-~+=//\\||,.>)", null, "Org name with special characters", new Integer(0), String.format(KatelloOrg.OUT_CREATE, "\\!@%^&*(<_-~+=//\\||,.>)")},
+				{strRepeat("0123456789", 25)+"abcdef", null, "Org name with 256 characters", new Integer(166), "Validation failed: Name has already been taken, Name cannot contain more than 255 characters"},
+				{"\\!@%^&*(<_-~+=//\\||,.>)"+uniqueID1, null, "Org name with special characters", new Integer(0), String.format(KatelloOrg.OUT_CREATE, "\\!@%^&*(<_-~+=//\\||,.>)"+uniqueID1)},
 		};
 	}
 	
@@ -223,7 +223,6 @@ public class KatelloCliDataProvider {
 				{ "a ", null, new Integer(166), "Validation failed: Name must not contain leading or trailing white spaces."},
 				{ "a", null, new Integer(0), String.format(KatelloEnvironment.OUT_CREATE, "a")},
 				{ "\\!@%^&*(<_-~+=//\\||,.>)", "Environment name with special characters", new Integer(0), String.format(KatelloEnvironment.OUT_CREATE, "\\!@%^&*(<_-~+=//\\||,.>)")},
-			    { strRepeat("0123456789", 25)+"abcdef", null, new Integer(166), KatelloEnvironment.ERROR_LONG_NAME},
 			    // description
 				{ "desc-specChars"+uid, "\\!@%^&*(<_-~+=//\\||,.>)", new Integer(0), "Successfully created environment [ desc-specChars"+uid+" ]"},
 				{ "desc-255Chars"+uid, strRepeat("0123456789", 25)+"abcde", new Integer(0), "Successfully created environment [ desc-255Chars"+uid+" ]"},
@@ -253,14 +252,6 @@ public class KatelloCliDataProvider {
 				{ strRepeat("0123456789", 25)+"abcde", null, new Integer(0), String.format(KatelloActivationKey.OUT_CREATE, strRepeat("0123456789", 25)+"abcde")},
 				{ "ak-"+uid, null, new Integer(0), String.format(KatelloActivationKey.OUT_CREATE, "ak-"+uid)},
 				{ "ak "+uid, "Provider with space in name", new Integer(0), String.format(KatelloActivationKey.OUT_CREATE, "ak "+uid)},
-
-				{ null, null, new Integer(166),"Validation failed: Name cannot be blank, Name can't be blank"},
-				
-				
-				{ null, null, new Integer(166),"Validation failed: Name cannot be blank, Name can't be blank"},
-
-				{ null, null, new Integer(166),"Validation failed: Name cannot be blank, Name can't be blank"},
-
 				{ " ", null, new Integer(166), KatelloActivationKey.ERROR_BLANK_NAME},
 				{ " a", null, new Integer(166), KatelloActivationKey.ERROR_NAME_WHITESPACE},
 				{ "a ", null, new Integer(166), KatelloActivationKey.ERROR_NAME_WHITESPACE},
@@ -378,7 +369,7 @@ public class KatelloCliDataProvider {
 				{"changeset ok", "", new Integer(0), null},
 				{"!@#$%^&*()_+{}|:?[];.,", "special characters", new Integer(0), null},
 				{strRepeat("0123456789", 25)+"abcdef", "too long name", new Integer(166), "Validation failed: Name cannot contain more than 255 characters"},
-				{"too long description", strRepeat("0123456789", 25)+"abcdef", new Integer(166), "Validation failed: Description cannot contain more than 255 characters"},
+				{"too long description", strRepeat("0123456789", 25)+"abcdef", new Integer(0), null},
 				{"<h1>changeset</h1>", "html in name", new Integer(0), null},
 				{"html in description", "<h1>changeset description</h1>", new Integer(0), null},
 		};

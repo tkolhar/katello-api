@@ -30,8 +30,7 @@ public class ActivationKeyTests extends KatelloCliTestBase{
 		content_view = "view"+uid;
 		exec_result = condef.publish(content_view, content_view, "view");
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		KatelloContentView conview = new KatelloContentView(cli_worker, content_view, base_org_name);
-		exec_result = conview.promote_view(base_dev_env_name);
+		exec_result = new KatelloContentView(cli_worker, content_view, base_org_name).promote_view(base_dev_env_name);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
 	

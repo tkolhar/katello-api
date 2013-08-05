@@ -625,7 +625,9 @@ public class OrgTests extends KatelloCliTestBase{
 	@AfterClass(description="Remove org objects", alwaysRun=true)
 	public void tearDown() {
 		for (KatelloOrg org : orgs) {
-			org.delete();
+			try{
+				org.delete();
+			}catch(Exception ex){/*simply ignore if there might be exceptions*/}
 		}
 	}	
 
