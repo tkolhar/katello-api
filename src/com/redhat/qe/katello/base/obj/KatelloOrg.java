@@ -3,9 +3,12 @@ package com.redhat.qe.katello.base.obj;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
+
 import javax.management.Attribute;
+
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.testng.Assert;
+
 import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.threading.KatelloCliWorker;
 import com.redhat.qe.katello.common.KatelloUtils;
@@ -47,7 +50,7 @@ public class KatelloOrg extends _KatelloObject{
 			"Successfully added [ System ] default custom info [ %s ] to Org [ %s ]";
 	public static final String OUT_ADD_DISTRIBUTOR_INFO =
 			"Successfully added [ Distributor ] default custom info [ %s ] to Org [ %s ]";
-	public static final String OUT_APPLY_SYS_INFO = 
+	public static final String OUT_APPLY_INFO = 
 			"Organization [ %s ] completed syncing default info";
 	public static final String OUT_REMOVE_SYS_INFO = 
 			"Successfully removed [ System ] default custom info [ %s ] for Org [ %s ]";
@@ -63,6 +66,9 @@ public class KatelloOrg extends _KatelloObject{
 	public static final String ERR_WRONG_TYPE = 
 			"Type must be one of the following [ system, distributor ]";
 	public static final String ERR_LONG_NAME = "Validation failed: Name cannot contain more than 255 characters" ;
+	public static final String ERR_BLANK_KEY = "Validation failed: Default info cannot contain blank keynames";
+	public static final String ERR_KEY_TOO_LONG = "Validation failed: Keyname is too long (maximum is 255 characters)";
+	public static final String ERR_DUPLICATE_DISTRIBUTOR_KEY = "Organization [ %s ] already contains default info [ %s ] for [ Distributors ]";
 
 	public static final String REG_ORG_LIST = ".*ID\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Description\\s*:\\s+%s.*";
 	public static final String REG_ORG_INFO = ".*ID\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Description\\s*:\\s+%s.*";
