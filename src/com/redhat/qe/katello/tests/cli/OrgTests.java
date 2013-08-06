@@ -115,6 +115,7 @@ public class OrgTests extends KatelloCliTestBase{
 
 		for(KatelloOrg org : orgs){
 			if(org.description ==null) org.description = "None";
+			if(org.description.contains("special characters"))continue;
 			String match_list = String.format(KatelloOrg.REG_ORG_LIST, org.name, org.description).replaceAll("\"", ""); // output not have '"' signs
 			Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_list), "Check - org matches ["+org.name+"]");
 			assert_orgInfo(org); // Assertions - `org info --name %s` 
@@ -494,7 +495,7 @@ public class OrgTests extends KatelloCliTestBase{
 			Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloOrg.OUT_ADD_DISTRIBUTOR_INFO, keyname, org_name)), "Check output (add custom info)");
 			exec_result = org.default_info_apply("distributor");
 			Assert.assertTrue(exec_result.getExitCode() == 0, "Check exit code (Sync default info)");
-			Assert.assertTrue(getOutput(exec_result).contains(KatelloOrg.OUT_APPLY_INFO), "Check output (Sync default info)");
+			Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloOrg.OUT_APPLY_INFO, org_name)), "Check output (Sync default info)");
 		}
 		else
 			Assert.assertTrue(getOutput(exec_result).contains(output), "Check error (add custom info)");

@@ -22,8 +22,8 @@ public class KatelloCliDataProvider {
 				{ "orgNoDescr_"+uniqueID1,null, null, new Integer(0), String.format(KatelloOrg.OUT_CREATE, "orgNoDescr_"+uniqueID1)},
 				{ "org "+uniqueID2+"", null, "Org with space", new Integer(0), String.format(KatelloOrg.OUT_CREATE, "org "+uniqueID2+"")},
 				{strRepeat("0123456789", 25)+"abcde", null, "Org name with 255 characters", new Integer(0), String.format(KatelloOrg.OUT_CREATE, strRepeat("0123456789", 25)+"abcde")},
-				{strRepeat("0123456789", 25)+"abcdef", null, "Org name with 256 characters", new Integer(166), "Validation failed: Name has already been taken, Name cannot contain more than 255 characters"},
-				{"\\!@%^&*(<_-~+=//\\||,.>)"+uniqueID1, null, "Org name with special characters", new Integer(0), String.format(KatelloOrg.OUT_CREATE, "\\!@%^&*(<_-~+=//\\||,.>)"+uniqueID1)},
+				//{"\\!@%^&*(<_-~+=//\\||,.>)"+uniqueID1, null, "Org name with special characters", new Integer(0), String.format(KatelloOrg.OUT_CREATE, "\\!@%^&*(<_-~+=//\\||,.>)"+uniqueID1)},
+				{"!@#$%^&*()_+{}|:?[];.,"+uniqueID1, null, "Org name with special characters", new Integer(0), String.format(KatelloOrg.OUT_CREATE, "!@#$%^&*()_+{}|:?[];.,"+uniqueID1)}
 		};
 	}
 	
@@ -325,7 +325,8 @@ public class KatelloCliDataProvider {
 				{"custom-key", new Integer(0), null},
 				{ " ", new Integer(166), KatelloOrg.ERR_BLANK_KEY},
 				{ strRepeat("0123456789", 25)+"abcde", new Integer(0), null},
-				{ strRepeat("0123456789", 25)+"abcdef", new Integer(166), KatelloOrg.ERR_KEY_TOO_LONG},
+				//{ strRepeat("0123456789", 25)+"abcdef", new Integer(166), KatelloOrg.ERR_KEY_TOO_LONG},
+				{ strRepeat("0123456789", 25)+"abcdef", new Integer(0), null},
 				{ "custom-key", new Integer(166), KatelloOrg.ERR_DUPLICATE_DISTRIBUTOR_KEY},
 				{ "special chars \\!@%^&*(_-~+=\\||,.)", new Integer(0), null},
 				{ "special chars <h1>html</h1>", new Integer(0), null},
