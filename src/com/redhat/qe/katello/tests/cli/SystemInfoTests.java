@@ -65,15 +65,13 @@ public class SystemInfoTests extends KatelloCliTestBase{
 		KatelloContentView contentView = new KatelloContentView(this.cli_worker, this.contentView, this.org);
 		exec_result = contentView.promote_view(this.environment);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		KatelloSystem sys = new KatelloSystem(this.cli_worker, system, this.org, this.environment);
-		exec_result = sys.rhsm_registerForce(); 
-		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 	}
 
 	@Test
 	public void checkSystemList() {
-		KatelloSystem sys = new KatelloSystem(this.cli_worker, this.system, this.org, this.environment);
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, system, this.org, this.environment);
+		exec_result = sys.rhsm_registerForce(); 
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		exec_result = sys.list();
 		Assert.assertTrue(getOutput(exec_result).trim().contains(this.system), "System should be contained");
 	}
