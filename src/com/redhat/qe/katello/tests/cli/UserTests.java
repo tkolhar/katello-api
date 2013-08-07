@@ -96,7 +96,7 @@ public class UserTests extends KatelloCliTestBase{
 		
 		usr.asserts_create();
 	}
-	//TODO: BZ: 974961
+	//TODO: BZ: 993588 
 	@Test(description="update user info - valid username", groups={"headpin-only"})
 	public void test_updateUserInfo(){
 		
@@ -105,14 +105,13 @@ public class UserTests extends KatelloCliTestBase{
 		usr.asserts_create();
 		
 		//update default_org
-		res = usr.update_defaultOrg(this.organization);
+		res = usr.update_defaultOrgEnv(this.organization, this.env);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+KatelloUser.CMD_UPDATE+")");
 		Assert.assertTrue(getOutput(res).contains(
 				String.format(KatelloUser.OUT_UPDATE, usr.getUsername())), "Check - return output string ("+KatelloUser.CMD_UPDATE+")");
 		
 		//update other user credentials
 		res = usr.update_userCredentials("newPass", "newEmail@localhost", false);
-		System.out.println("OPTPUT : "+getOutput(res)+" EXIT CODE: "+res.getExitCode());
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+KatelloUser.CMD_UPDATE+")");
 		Assert.assertTrue(getOutput(res).contains(
 				String.format(KatelloUser.OUT_UPDATE, usr.getUsername())), "Check - return output string ("+KatelloUser.CMD_UPDATE+")");

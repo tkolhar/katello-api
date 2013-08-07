@@ -119,7 +119,7 @@ public class KatelloDistributorTests extends KatelloCliTestBase{
 		
 	}
 
-	@Test(description="distributor update custom info",enabled=true,groups={"cfse-cli","headpin-cli"}) //TODO modify the returned string once bz#973929 is fixed
+	@Test(description="distributor update custom info",enabled=true,groups={"cfse-cli","headpin-cli"})
 	public void test_distributorUpdateCustomInfo(){		
 		SSHCommandResult exec_result;
 		uid = KatelloUtils.getUniqueID();
@@ -146,13 +146,12 @@ public class KatelloDistributorTests extends KatelloCliTestBase{
 		String dis_uuid = KatelloUtils.grepCLIOutput("UUID", getOutput(exec_result));
 		
 		exec_result = dis_update.update_info(test_key,test_update_val,null);
-		System.out.println("OUT_UPDATE : CODE: "+exec_result.getExitCode() + " STRING: "+getOutput(exec_result));
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertEquals(getOutput(exec_result).trim(),String.format(KatelloDistributor.OUT_UPDATE_INFO,test_key, test_update_val, dis_update_name));
+		Assert.assertEquals(getOutput(exec_result).trim(),String.format(KatelloDistributor.OUT_UPDATE_INFO,test_key, dis_update_name), "Check - output");
 		exec_result = dis_update.distributor_info();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		String customInfoStr = KatelloUtils.grepCLIOutput("Custom Info", getOutput(exec_result));
-		Assert.assertTrue(customInfoStr.contains(test_key+" : "+test_update_val), "Check - custom value update");
+		Assert.assertTrue(customInfoStr.contains(test_key+": "+test_update_val), "Check - custom value update");
 		
 		exec_result = dis_update.update_info(invalid_key, test_val, null);
 		Assert.assertTrue(exec_result.getExitCode() == 148, "Check - return code");
@@ -163,11 +162,11 @@ public class KatelloDistributorTests extends KatelloCliTestBase{
 		test_val = "test_update_val_with_uuid" + uid;
 		exec_result = dis_update.update_info(test_key,test_val,dis_uuid);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertEquals(getOutput(exec_result).trim(),String.format(KatelloDistributor.OUT_UPDATE_INFO,test_key, test_val, dis_uuid));		
+		Assert.assertEquals(getOutput(exec_result).trim(),String.format(KatelloDistributor.OUT_UPDATE_INFO,test_key, dis_uuid), "Check - output");		
 		exec_result = dis_update.distributor_info();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		customInfoStr = KatelloUtils.grepCLIOutput("Custom Info", getOutput(exec_result));
-		Assert.assertTrue(customInfoStr.contains(test_key+" : "+test_val), "Check - custom value update");
+		Assert.assertTrue(customInfoStr.contains(test_key+": "+test_val), "Check - custom value update");
 		
 		exec_result = dis_update.update_info(invalid_key, test_val, dis_uuid);
 		Assert.assertTrue(exec_result.getExitCode() == 148, "Check - return code");
