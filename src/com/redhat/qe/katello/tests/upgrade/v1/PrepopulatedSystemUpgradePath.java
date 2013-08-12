@@ -44,7 +44,7 @@ public class PrepopulatedSystemUpgradePath implements KatelloConstants{
 		log.info("initialize organizations ...");
 
 		for(String org: _orgs){
-			tmpOrg = new KatelloOrg(org, null);
+			tmpOrg = new KatelloOrg(null, org, null);
 			res = tmpOrg.cli_create();
 			Assert.assertTrue(res.getExitCode()==0, "Check - exit code (org create)");
 		}
@@ -60,11 +60,11 @@ public class PrepopulatedSystemUpgradePath implements KatelloConstants{
 		String prior = KatelloEnvironment.LIBRARY;
 		for(int i=0;i<_orgs.length;i++){
 			for(int j=0;j<3;j++){
-				tmpEnv = new KatelloEnvironment(_envs[i][j], null, _orgs[i], prior);
+				tmpEnv = new KatelloEnvironment(null, _envs[i][j], null, _orgs[i], prior);
 				res = tmpEnv.cli_create();
 				Assert.assertTrue(res.getExitCode()==0, "Check - exit code (environment create)");
 				if(i==2){ // create the <envName>2 bucket
-					tmpEnv = new KatelloEnvironment(_envs[i][j].replace('1', '2'), null, _orgs[i], prior.replace('1', '2'));
+					tmpEnv = new KatelloEnvironment(null, _envs[i][j].replace('1', '2'), null, _orgs[i], prior.replace('1', '2'));
 					res = tmpEnv.cli_create();
 					Assert.assertTrue(res.getExitCode()==0, "Check - exit code (environment create)");
 				}
@@ -82,13 +82,13 @@ public class PrepopulatedSystemUpgradePath implements KatelloConstants{
 		log.info("initialize users ...");
 		
 		// TODO - CFSE still not have default_* properties for `user create`
-		user = new KatelloUser("Akihito"+_uid, "Akihito@localhost", "redhat", false);
+		user = new KatelloUser(null, "Akihito"+_uid, "Akihito@localhost", "redhat", false);
 		res = user.cli_create();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (user create)");
-		user = new KatelloUser("Dilma_Rousseff"+_uid, "Dilma_Rousseff@localhost", "redhat", false);
+		user = new KatelloUser(null, "Dilma_Rousseff"+_uid, "Dilma_Rousseff@localhost", "redhat", false);
 		res = user.cli_create();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (user create)");
-		user = new KatelloUser("Ollanta_Humala"+_uid, "Ollanta_Humala@localhost", "redhat", false);
+		user = new KatelloUser(null, "Ollanta_Humala"+_uid, "Ollanta_Humala@localhost", "redhat", false);
 		res = user.cli_create();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (user create)");
 	}
@@ -104,13 +104,13 @@ public class PrepopulatedSystemUpgradePath implements KatelloConstants{
 				"http://download.lab.bos.redhat.com/released/RHEL-6-RHN-Tools/5.4.1/AS/x86_64/tree/RHNTools/"};
 		
 		for(int i=0;i<_orgs.length-1;i++){
-			KatelloProvider prov = new KatelloProvider("Provider "+_uid, _orgs[i], null, null);
-			KatelloProduct prod = new KatelloProduct("Product "+_uid, _orgs[i], prov.name, null, null, null, null, null);
+			KatelloProvider prov = new KatelloProvider(null, "Provider "+_uid, _orgs[i], null, null);
+			KatelloProduct prod = new KatelloProduct(null, "Product "+_uid, _orgs[i], prov.name, null, null, null, null, null);
 			res = prov.create();
 			Assert.assertTrue(res.getExitCode()==0, "Check - exit code (provider create)");
 			res = prod.create();
 			Assert.assertTrue(res.getExitCode()==0, "Check - exit code (product create)");
-			KatelloRepo repo = new KatelloRepo("Repo "+_uid, _orgs[i], "Product "+_uid, repo_links[i], null, null);		
+			KatelloRepo repo = new KatelloRepo(null, "Repo "+_uid, _orgs[i], "Product "+_uid, repo_links[i], null, null);		
 			res = repo.create();
 			Assert.assertTrue(res.getExitCode()==0, "Check - exit code (repo create)");
 			res = repo.synchronize();
@@ -132,6 +132,6 @@ public class PrepopulatedSystemUpgradePath implements KatelloConstants{
 	 */
 	private void pushRepoFullCycle(String org, String[] envs){
 		log.info("promote repo to all environments for the org: ["+org+"]");
-		KatelloUtils.promoteProductsToEnvironments(org, new String[] {"Product "+_uid}, envs);
+		KatelloUtils.promoteProductsToEnvironments(null, org, new String[] {"Product "+_uid}, envs);
 	}
 }

@@ -2,21 +2,20 @@ package com.redhat.qe.katello.tests.cli;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloArchitecture;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups={"foreman"})
-public class ArchitectureTests extends KatelloCliTestScript {
+public class ArchitectureTests extends KatelloCliTestBase {
 	
 	private String name;
 	private String new_name;
 	
 	@BeforeClass(description="Prepare an data to work with")
-	public void setup_org(){
+	public void setUp(){
 		String uid = KatelloUtils.getUniqueID();
 		this.name = "arch"+uid.substring(7);
 		this.new_name = "new" + KatelloUtils.getUniqueID().substring(7);
@@ -26,7 +25,7 @@ public class ArchitectureTests extends KatelloCliTestScript {
 	public void testArchitecture_create() {
 		SSHCommandResult res;
 		
-		KatelloArchitecture arch = new KatelloArchitecture(name);
+		KatelloArchitecture arch = new KatelloArchitecture(cli_worker, name);
 		res = arch.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 		
@@ -37,7 +36,7 @@ public class ArchitectureTests extends KatelloCliTestScript {
 	public void testArchitecture_createExists() {
 		SSHCommandResult res;
 		
-		KatelloArchitecture arch = new KatelloArchitecture(name);
+		KatelloArchitecture arch = new KatelloArchitecture(cli_worker, name);
 		res = arch.cli_create();
 		Assert.assertEquals(res.getExitCode().intValue(), 166, "Check - return code");
 		
@@ -48,7 +47,7 @@ public class ArchitectureTests extends KatelloCliTestScript {
 	public void testArchitecture_info() {
 		SSHCommandResult res;
 		
-		KatelloArchitecture arch = new KatelloArchitecture(name);
+		KatelloArchitecture arch = new KatelloArchitecture(cli_worker, name);
 		res = arch.cli_info();
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 		
@@ -59,7 +58,7 @@ public class ArchitectureTests extends KatelloCliTestScript {
 	public void testArchitecture_update() {
 		SSHCommandResult res;
 		
-		KatelloArchitecture arch = new KatelloArchitecture(name);
+		KatelloArchitecture arch = new KatelloArchitecture(cli_worker, name);
 		res = arch.update(new_name);
 		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
 		
@@ -70,7 +69,7 @@ public class ArchitectureTests extends KatelloCliTestScript {
 	public void testArchitecture_list() {
 		SSHCommandResult res;
 		
-		KatelloArchitecture arch = new KatelloArchitecture(name);
+		KatelloArchitecture arch = new KatelloArchitecture(cli_worker, name);
 		res = arch.cli_list();
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 		
@@ -82,7 +81,7 @@ public class ArchitectureTests extends KatelloCliTestScript {
 	public void testArchitecture_infoNotFound() {
 		SSHCommandResult res;
 		
-		KatelloArchitecture arch = new KatelloArchitecture(name);
+		KatelloArchitecture arch = new KatelloArchitecture(cli_worker, name);
 		res = arch.cli_info();
 		Assert.assertTrue(res.getExitCode().intValue() == 148, "Check - return code");
 		
@@ -93,7 +92,7 @@ public class ArchitectureTests extends KatelloCliTestScript {
 	public void testArchitecture_delete() {
 		SSHCommandResult res;
 		
-		KatelloArchitecture arch = new KatelloArchitecture(new_name);
+		KatelloArchitecture arch = new KatelloArchitecture(cli_worker, new_name);
 		res = arch.delete();
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 		
@@ -104,7 +103,7 @@ public class ArchitectureTests extends KatelloCliTestScript {
 	public void testArchitecture_updateNotFound() {
 		SSHCommandResult res;
 		
-		KatelloArchitecture arch = new KatelloArchitecture(new_name);
+		KatelloArchitecture arch = new KatelloArchitecture(cli_worker, new_name);
 		res = arch.update(name);
 		Assert.assertTrue(res.getExitCode().intValue() == 148, "Check - return code");
 		
@@ -115,7 +114,7 @@ public class ArchitectureTests extends KatelloCliTestScript {
 	public void testArchitecture_deleteNotFound() {
 		SSHCommandResult res;
 		
-		KatelloArchitecture arch = new KatelloArchitecture(new_name);
+		KatelloArchitecture arch = new KatelloArchitecture(cli_worker, new_name);
 		res = arch.delete();
 		Assert.assertTrue(res.getExitCode().intValue() == 148, "Check - return code");
 		

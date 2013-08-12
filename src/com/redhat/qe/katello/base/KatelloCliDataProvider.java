@@ -1,13 +1,14 @@
 package com.redhat.qe.katello.base;
 
-import java.util.Random;
-
 import org.testng.annotations.DataProvider;
 
-import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.obj.KatelloUserRole;
+import com.redhat.qe.katello.base.obj.KatelloActivationKey;
+import com.redhat.qe.katello.base.obj.KatelloDistributor;
+import com.redhat.qe.katello.base.obj.KatelloEnvironment;
+import com.redhat.qe.katello.base.obj.KatelloOrg;
+import com.redhat.qe.katello.base.obj.KatelloProvider;
+import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.common.KatelloUtils;
-import com.redhat.qe.tools.SSHCommandResult;
 
 public class KatelloCliDataProvider {
 
@@ -15,11 +16,14 @@ public class KatelloCliDataProvider {
 	@DataProvider(name = "org_create")
 	public static Object[][] org_create(){
 		String uniqueID1 = KatelloUtils.getUniqueID();
-		try{Thread.sleep(1000+Math.abs(new Random().nextInt(500)));}catch(InterruptedException iex){};
 		String uniqueID2 = KatelloUtils.getUniqueID();
+		//name,label, description, ExitCode, Output
 		return new Object[][] {
-				{ "orgNoDescr_"+uniqueID1, null },
-				{ "org "+uniqueID2+"", "Org with space"}
+				{ "orgNoDescr_"+uniqueID1,null, null, new Integer(0), String.format(KatelloOrg.OUT_CREATE, "orgNoDescr_"+uniqueID1)},
+				{ "org "+uniqueID2+"", null, "Org with space", new Integer(0), String.format(KatelloOrg.OUT_CREATE, "org "+uniqueID2+"")},
+				{strRepeat("0123456789", 25)+"abcde", null, "Org name with 255 characters", new Integer(0), String.format(KatelloOrg.OUT_CREATE, strRepeat("0123456789", 25)+"abcde")},
+				//{"\\!@%^&*(<_-~+=//\\||,.>)"+uniqueID1, null, "Org name with special characters", new Integer(0), String.format(KatelloOrg.OUT_CREATE, "\\!@%^&*(<_-~+=//\\||,.>)"+uniqueID1)},
+				{"!@#$%^&*()_+{}|:?[];.,"+uniqueID1, null, "Org name with special characters", new Integer(0), String.format(KatelloOrg.OUT_CREATE, "!@#$%^&*()_+{}|:?[];.,"+uniqueID1)}
 		};
 	}
 	
@@ -40,31 +44,31 @@ public class KatelloCliDataProvider {
 		String uid = KatelloUtils.getUniqueID();
 		return new Object[][] {
 				// name
-				{ "aa", null, null, new Integer(0), "Successfully created provider [ aa ]"},
-				{ "11", null, null, new Integer(0), "Successfully created provider [ 11 ]"},
-				{ "1a", null, null, new Integer(0), "Successfully created provider [ 1a ]"},
-				{ "a1", null, null, new Integer(0), "Successfully created provider [ a1 ]"},
-				{ strRepeat("0123456789", 12)+"abcdefgh", null, null, new Integer(0), "Successfully created provider [ "+strRepeat("0123456789", 12)+"abcdefgh"+" ]"},
-				{ "prov-"+uid, null, null, new Integer(0), "Successfully created provider [ prov-"+uid+" ]"},
-				{ "prov "+uid, "Provider with space in name", null, new Integer(0), "Successfully created provider [ prov "+uid+" ]"},
+				{ "aa", null, null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,"aa")},
+				{ "11", null, null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,"11")},
+				{ "1a", null, null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,"1a")},
+				{ "a1", null, null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,"a1")},
+				{ strRepeat("0123456789", 25)+"abcde", null, null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,strRepeat("0123456789", 25)+"abcde")},
+				{ "prov-"+uid, null, null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,"prov-"+uid)},
+				{ "prov "+uid, "Provider with space in name", null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,"prov "+uid)},
 				{ null, null, null, new Integer(2), System.getProperty("katello.engine", "katello")+": error: Option --name is required; please see --help"},
 				{ " ", null, null, new Integer(166), "Name can't be blank"},
 				{ " a", null, null, new Integer(166), "Validation failed: Name must not contain leading or trailing white spaces."},
 				{ "a ", null, null, new Integer(166), "Validation failed: Name must not contain leading or trailing white spaces."},
-				{ "a", null, null, new Integer(0), "Successfully created provider [ a ]"},
-				{ "?1", null, null, new Integer(166), "Validation failed: Name cannot contain characters other than alpha numerals, space, '_', '-'"},
-				{ strRepeat("0123456789", 12)+"abcdefghi", null, null, new Integer(166), "Validation failed: Name cannot contain more than 128 characters"},
+				{ "a", null, null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,"a")},
+				{ "\\!@%^&*(<_-~+=//\\||,.>)", "Name with special characters", null, new Integer(0), String.format(KatelloProvider.OUT_CREATE, "\\!@%^&*(<_-~+=//\\||,.>)")},
+				{ strRepeat("0123456789", 25)+"abcdef", null, null, new Integer(166), "Validation failed: Name cannot contain more than 255 characters"},
 				// description
-				{ "desc-specChars"+uid, "\\!@%^&*(<_-~+=//\\||,.>)", null, new Integer(0), "Successfully created provider [ desc-specChars"+uid+" ]"},
-				{ "desc-255Chars"+uid, strRepeat("0123456789", 25)+"abcde", null, new Integer(0), "Successfully created provider [ desc-255Chars"+uid+" ]"},
-				{ "desc-256Chars"+uid, strRepeat("0123456789", 25)+"abcdef", null, new Integer(166), "Validation failed: Description cannot contain more than 255 characters"},
+				{ "desc-specChars"+uid, "\\!@%^&*(<_-~+=//\\||,.>)", null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,"desc-specChars"+uid)},
+				{ "desc-255Chars"+uid, strRepeat("0123456789", 25)+"abcde", null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,"desc-255Chars"+uid)},
+				{ "desc-256Chars"+uid, strRepeat("0123456789", 25)+"abcdef", null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,"desc-256Chars"+uid)},
 				// url
 				{ "url-httpOnly"+uid, null, "http://", new Integer(2), System.getProperty("katello.engine", "katello")+": error: option --url: invalid format"}, // see below
 				{ "url-httpsOnly"+uid, null, "https://", new Integer(2), System.getProperty("katello.engine", "katello")+": error: option --url: invalid format"}, // according changes of: tstrachota
-				{ "url-redhatcom"+uid, null, "http://redhat.com/", new Integer(0), "Successfully created provider [ url-redhatcom"+uid+" ]"},
-				{ "url-with_space"+uid, null, "http://url with space/", new Integer(0), "Successfully created provider [ url-with_space"+uid+" ]"},
+				{ "url-redhatcom"+uid, null, "http://redhat.com/", new Integer(0), String.format(KatelloProvider.OUT_CREATE,"url-redhatcom"+uid)},
+				{ "url-with_space"+uid, null, "http://url with space/", new Integer(0), String.format(KatelloProvider.OUT_CREATE,"url-with_space"+uid)},
 				// misc
-				{ "duplicate"+uid, null, null, new Integer(0), "Successfully created provider [ duplicate"+uid+" ]"},
+				{ "duplicate"+uid, null, null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,"duplicate"+uid)},
 				{ "duplicate"+uid, null, null, new Integer(166), "Validation failed: Name has already been taken"}
 		};		
 	}
@@ -82,7 +86,6 @@ public class KatelloCliDataProvider {
 				{ "^custom", new Integer(2), KTL_PROD+": error: option --type: invalid choice: '^custom' (choose from 'redhat', 'custom')"},
 				{ " custom", new Integer(2), KTL_PROD+": error: option --type: invalid choice: ' custom' (choose from 'redhat', 'custom')"},
 				{ "custom ", new Integer(2), KTL_PROD+": error: option --type: invalid choice: 'custom ' (choose from 'redhat', 'custom')"}
-				
 		};		
 	}
 
@@ -114,8 +117,6 @@ public class KatelloCliDataProvider {
 				{ strRepeat("0123456789", 12)+"abcdefgh-"+uid, "long-value", new Integer(0), "Successfully remembered option [ "+strRepeat("0123456789", 12)+"abcdefgh-"+ uid +" ]"},
 				{ "opt-"+uid, "val-"+uid, new Integer(0), "Successfully remembered option [ opt-"+uid+" ]"},
 				{ "opt "+uid, "Option with space in name", new Integer(0), "Successfully remembered option [ opt "+uid+" ]"},
-				
-				
 		};		
 	}
 	
@@ -126,37 +127,54 @@ public class KatelloCliDataProvider {
 				{ "organizations", new Integer(0)},
 				{ "providers", new Integer(0)},
 				{ "environments", new Integer(0)},
-				
 		};		
 	}
 	
 	@DataProvider(name="permission_create")
 	public static Object[][] permission_create(){
 		String uid = KatelloUtils.getUniqueID();
-		String user_role = "perm-user_role"+uid;
-		SSHCommandResult res;
-		KatelloUserRole usr_role = new KatelloUserRole(user_role,null); 
-		res =usr_role.create();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		return new Object[][] {
 				// name
 				//String name, String scope,String tags,String verbs,Integer exitCode, String output
-				{ "perm-all-verbs-"+uid, "environments", null, "read_contents,update_systems,delete_systems,read_systems,register_systems",user_role,new Integer(0),"Successfully created permission [ " + "perm-all-verbs-"+ uid + " ] for user role [ "+ user_role +" ]"},
-				{ "perm-read_contents-env-"+uid, "environments", null, "read_contents",user_role,new Integer(0),"Successfully created permission [ " + "perm-read_contents-env-"+ uid  + " ] for user role [ "+ user_role +" ]"},
-				{ "perm-read_update-env-"+uid, "environments", null, "read_contents,update_systems",user_role,new Integer(0),"Successfully created permission [ "+ "perm-read_update-env-"+uid+" ] for user role [ "+ user_role +" ]"},
-				{ "perm-del_read_reg-verbs-env-"+uid, "environments", null, "delete_systems,read_systems,register_systems",user_role,new Integer(0),"Successfully created permission [ "+ "perm-del_read_reg-verbs-env-"+uid + " ] for user role [ "+ user_role +" ]"},
-				{ "perm-register-verbs-env-"+uid, "environments", null, "register_systems",user_role,new Integer(0),"Successfully created permission [ " +"perm-register-verbs-env-" +uid + " ] for user role [ "+ user_role +" ]"},
-				{ "perm-exclude_register-verbs-env-"+uid, "environments", null, "read_contents,update_systems,delete_systems,read_systems",user_role,new Integer(0),"Successfully created permission [ "+  "perm-exclude_register-verbs-env-"+uid +" ] for user role [ "+ user_role +" ]"},
-				{ "perm-update_register-verbs-env-"+uid, "environments", null, "update_systems,register_systems",user_role,new Integer(0),"Successfully created permission [ "+"perm-update_register-verbs-env-"+uid+" ] for user role [ "+ user_role +" ]"},
-				{ "perm-read_update-verbs-provider-"+uid, "providers", null, "read,update",user_role,new Integer(0),"Successfully created permission [ "+"perm-read_update-verbs-provider-"+uid +" ] for user role [ "+ user_role +" ]"},
-				{ "perm-read-verbs-provider-"+uid, "providers", null, "read",user_role,new Integer(0),"Successfully created permission [ "+"perm-read-verbs-provider-"+uid +" ] for user role [ "+ user_role +" ]"},
-				{ "perm-update-verbs-provider-"+uid, "providers", null, "update",user_role,new Integer(0),"Successfully created permission [ "+ "perm-update-verbs-provider-"+uid +" ] for user role [ "+ user_role +" ]"},
-				{ "perm-all-org"+uid, "organizations", null, "delete_systems,update,update_systems,read,read_systems,register_systems",user_role,new Integer(0),"Successfully created permission [ "+ "perm-all-org"+uid +" ] for user role [ "+ user_role +" ]"},
-				{ "perm-all-tags-verbs-"+uid, "environments", "Library", "read_contents,update_systems,delete_systems,read_systems,register_systems",user_role,new Integer(0),"Successfully created permission [ " + "perm-all-tags-verbs-"+uid + " ] for user role [ "+ user_role +" ]"},
-				{ "perm-some_verbs-org"+uid, "organizations", null, "update,update_systems,read,read_systems",user_role,new Integer(0),"Successfully created permission [ "+ "perm-some_verbs-org"+uid +" ] for user role [ "+ user_role +" ]"},
-				
-				
- 				
+				{ "perm-all-verbs-"+uid, "environments", null, "read_contents,update_systems,delete_systems,read_systems,register_systems",new Integer(0),null},
+				{ "perm-read_contents-env-"+uid, "environments", null, "read_contents",new Integer(0),null},
+				{ "perm-read_update-env-"+uid, "environments", null, "read_contents,update_systems",new Integer(0),null},
+				{ "perm-del_read_reg-verbs-env-"+uid, "environments", null, "delete_systems,read_systems,register_systems",new Integer(0),null},
+				{ "perm-register-verbs-env-"+uid, "environments", null, "register_systems",new Integer(0),null},
+				{ "perm-exclude_register-verbs-env-"+uid, "environments", null, "read_contents,update_systems,delete_systems,read_systems",new Integer(0),null},
+				{ "perm-update_register-verbs-env-"+uid, "environments", null, "update_systems,register_systems",new Integer(0),null},
+				{ "perm-read_update-verbs-provider-"+uid, "providers", null, "read,update",new Integer(0),null},
+				{ "perm-read-verbs-provider-"+uid, "providers", null, "read",new Integer(0),null},
+				{ "perm-update-verbs-provider-"+uid, "providers", null, "update",new Integer(0),null},
+				{ "perm-all-org"+uid, "organizations", null, "delete_systems,update,update_systems,read,read_systems,register_systems",new Integer(0),null},
+				{ "perm-all-tags-verbs-"+uid, "environments", "Library", "read_contents,update_systems,delete_systems,read_systems,register_systems",new Integer(0),null},
+				{ "perm-some_verbs-org"+uid, "organizations", null, "update,update_systems,read,read_systems",new Integer(0),null},
+		};
+	}
+	
+	@DataProvider(name="permission_create_headpinOnly")
+	public static Object[][] permission_create_headpinOnly(){
+		String uid = KatelloUtils.getUniqueID();
+		return new Object[][] {
+				// name
+				//String name, String scope,String tags,String verbs,Integer exitCode, String output
+				{ "perm-read_update-verbs-provider-"+uid, "providers", null, "read,update",new Integer(0),null},
+				{ "perm-read-verbs-provider-"+uid, "providers", null, "read",new Integer(0),null},
+				{ "perm-update-verbs-provider-"+uid, "providers", null, "update",new Integer(0),null},
+				{ "perm-all-org"+uid, "organizations", null, "delete_distributors,update_distributors,read_distributors,register_distributors,delete_systems,update,update_systems,read,read_systems,register_systems",new Integer(0),null},
+				{ "perm-some_verbs-org"+uid, "organizations", null, "update,update_systems,read,read_systems",new Integer(0),null},
+				{ "perm-some_dis_verbs-org"+uid, "organizations", null, "update,delete_distributors,update_distributors,read_distributors,register_distributors",new Integer(0),null},
+				{ "perm-some_sys_verbs-org"+uid, "organizations", null, "delete_systems,update_systems,read_systems,register_systems",new Integer(0),null},
+				{ "perm-read_verbs-org"+uid, "organizations", null, "read",new Integer(0),null},
+				{ "perm-update_verbs-org"+uid, "organizations", null, "update",new Integer(0),null},
+				{ "perm-update_system_verbs-org"+uid, "organizations", null, "update_systems",new Integer(0),null},
+				{ "perm-update_dis_verbs-org"+uid, "organizations", null, "update_distributors",new Integer(0),null},
+				{ "perm-delete_system_verbs-org"+uid, "organizations", null, "delete_systems",new Integer(0),null},
+				{ "perm-delete_dis_verbs-org"+uid, "organizations", null, "delete_distributors",new Integer(0),null},
+				{ "perm-register_dis_verbs-org"+uid, "organizations", null, "register_distributors",new Integer(0),null},
+				{ "perm-register_sys_verbs-org"+uid, "organizations", null, "register_systems",new Integer(0),null},
+				{ "perm-read_sys_verbs-org"+uid, "organizations", null, "read_systems",new Integer(0),null},
+				{ "perm-read_dis_verbs-org"+uid, "organizations", null, "read_distributors",new Integer(0),null},
 		};
 	}
 	
@@ -177,11 +195,11 @@ public class KatelloCliDataProvider {
 				{ "a ", null, new Integer(166), "Validation failed: Name must not contain leading or trailing white spaces."},
 				{ "a", null, new Integer(166), "Validation failed: Name must contain at least 3 character"},
 				{ "?1", null, new Integer(166), "Validation failed: Name must contain at least 3 character"},
-			    { strRepeat("0123456789", 12)+"abcdefghi", null, new Integer(166), "Validation failed: Name is too long (maximum is 128 characters)"},
+//			    { strRepeat("0123456789", 12)+"abcdefghi", null, new Integer(166), "Validation failed: Name is too long (maximum is 128 characters)"},
 //				// description
 				{ "desc-specChars"+uid, "\\!@%^&*(<_-~+=//\\||,.>)", new Integer(0), "Successfully created user role [ desc-specChars"+uid+" ]"},
 				
-				{ "desc-256Chars"+uid, strRepeat("0123456789", 25)+"abcdef", new Integer(166), "Validation failed: Description is too long (maximum is 250 characters)"},
+				{ "desc-256Chars"+uid, strRepeat("0123456789", 25)+"abcdef", new Integer(0), "Successfully created user role [ desc-256Chars"+ uid +" ]"},
 				// misc
 				{ "duplicate"+uid, null, new Integer(0), "Successfully created user role [ duplicate"+uid+" ]"},
 				
@@ -193,27 +211,24 @@ public class KatelloCliDataProvider {
 		String uid = KatelloUtils.getUniqueID();
 		return new Object[][] {
 				// name
-				{ "env-aa", null, new Integer(0), "Successfully created environment [ env-aa ]"},
-				{ "env-11", null, new Integer(0), "Successfully created environment [ env-11 ]"},
-				{ "env-1a", null, new Integer(0), "Successfully created environment [ env-1a ]"},
-				{ "env-a1", null, new Integer(0), "Successfully created environment [ env-a1 ]"},
-				{ strRepeat("0123456789", 12)+"abcdefgh", null, new Integer(0), "Successfully created environment [ "+strRepeat("0123456789", 12)+"abcdefgh"+" ]"},
-				{ strRepeat("0123456789", 12)+"abcdefg", null, new Integer(0), "Successfully created environment [ "+strRepeat("0123456789", 12)+"abcdefg"+" ]"},
-				{ "env-"+uid, null, new Integer(0), "Successfully created environment [ env-"+uid+" ]"},
-				{ "env "+uid, "Provider with space in name", new Integer(0), "Successfully created environment [ env "+uid+" ]"},
-				{ " ", null, new Integer(166), "Name can't be blank"},
+				{ "env-aa", null, new Integer(0), String.format(KatelloEnvironment.OUT_CREATE, "env-aa")},
+				{ "env-11", null, new Integer(0), String.format(KatelloEnvironment.OUT_CREATE, "env-11")},
+				{ "env-1a", null, new Integer(0), String.format(KatelloEnvironment.OUT_CREATE, "env-1a")},
+				{ "env-a1", null, new Integer(0), String.format(KatelloEnvironment.OUT_CREATE, "env-a1")},
+				{ strRepeat("0123456789", 25)+"abcde", "Environment name with 255 characters", new Integer(0), String.format(KatelloEnvironment.OUT_CREATE, strRepeat("0123456789", 25)+"abcde")},
+				{ "env-"+uid, null, new Integer(0), String.format(KatelloEnvironment.OUT_CREATE, "env-"+uid)},
+				{ "env "+uid, "Provider with space in name", new Integer(0), String.format(KatelloEnvironment.OUT_CREATE, "env "+uid)},
+				{ " ", null, new Integer(166), KatelloEnvironment.ERROR_BLANK_NAME},
 				{ " a", null, new Integer(166), "Validation failed: Name must not contain leading or trailing white spaces."},
 				{ "a ", null, new Integer(166), "Validation failed: Name must not contain leading or trailing white spaces."},
-				{ "a", null, new Integer(0), "Successfully created environment [ a ]"},
-				{ "?1", null, new Integer(166), "Validation failed: Name cannot contain characters other than alpha numerals, space, '_', '-'"},
-			    { strRepeat("0123456789", 12)+"abcdefghi", null, new Integer(166), "Validation failed: Name cannot contain more than 128 characters"},
-//				// description
+				{ "a", null, new Integer(0), String.format(KatelloEnvironment.OUT_CREATE, "a")},
+				{ "\\!@%^&*(<_-~+=//\\||,.>)", "Environment name with special characters", new Integer(0), String.format(KatelloEnvironment.OUT_CREATE, "\\!@%^&*(<_-~+=//\\||,.>)")},
+			    // description
 				{ "desc-specChars"+uid, "\\!@%^&*(<_-~+=//\\||,.>)", new Integer(0), "Successfully created environment [ desc-specChars"+uid+" ]"},
 				{ "desc-255Chars"+uid, strRepeat("0123456789", 25)+"abcde", new Integer(0), "Successfully created environment [ desc-255Chars"+uid+" ]"},
-				{ "desc-256Chars"+uid, strRepeat("0123456789", 25)+"abcdef", new Integer(166), "Validation failed: Description cannot contain more than 255 characters"},
+				{ "desc-256Chars"+uid, strRepeat("0123456789", 25)+"abcdef", new Integer(0), "Successfully created environment [ desc-256Chars"+uid+" ]"},
 				// misc
 				{ "duplicate"+uid, null, new Integer(0), "Successfully created environment [ duplicate"+uid+" ]"},
- 				
 		};
 	}
 	
@@ -230,50 +245,135 @@ public class KatelloCliDataProvider {
 		String uid = KatelloUtils.getUniqueID();
 		return new Object[][] {
 				// name
-				{ "aa", null, new Integer(0), "Successfully created activation key [ aa ]"},
-				{ "11", null, new Integer(0), "Successfully created activation key [ 11 ]"},
-				{ "1a", null, new Integer(0), "Successfully created activation key [ 1a ]"},
-				{ "a1", null, new Integer(0), "Successfully created activation key [ a1 ]"},
-				{ strRepeat("0123456789", 12)+"abcdefgh", null, new Integer(0), "Successfully created activation key [ "+strRepeat("0123456789", 12)+"abcdefgh"+" ]"},
-				{ "ak-"+uid, null, new Integer(0), "Successfully created activation key [ ak-"+uid+" ]"},
-				{ "ak "+uid, "Provider with space in name", new Integer(0), "Successfully created activation key [ ak "+uid+" ]"},
-
-				{ null, null, new Integer(2), System.getProperty("katello.engine", "katello")+": error: Option --name is required; please see --help"},
-				
-				
-				{ null, null, new Integer(2), System.getProperty("katello.engine", "katello")+": error: Option --name is required; please see --help"},
-
-				{ null, null, new Integer(2), System.getProperty("katello.engine", "katello")+": error: Option --name is required; please see --help"},
-
-				{ " ", null, new Integer(166), "Name can't be blank"},
-				{ " a", null, new Integer(166), "Validation failed: Name must not contain leading or trailing white spaces."},
-				{ "a ", null, new Integer(166), "Validation failed: Name must not contain leading or trailing white spaces."},
-				{ "a", null, new Integer(0), "Successfully created activation key [ a ]"},
-				{ ">1", null, new Integer(166), "Validation failed: Name cannot contain characters other than alpha numerals, space, '_', '-'"},
-			    { strRepeat("0123456789", 12)+"abcdefghi", null, new Integer(166), "Validation failed: Name cannot contain more than 128 characters"},
+				{ "aa", null, new Integer(0), String.format(KatelloActivationKey.OUT_CREATE, "aa")},
+				{ "11", null, new Integer(0), String.format(KatelloActivationKey.OUT_CREATE, "11")},
+				{ "1a", null, new Integer(0), String.format(KatelloActivationKey.OUT_CREATE, "1a")},
+				{ "a1", null, new Integer(0), String.format(KatelloActivationKey.OUT_CREATE, "a1")},
+				{ strRepeat("0123456789", 25)+"abcde", null, new Integer(0), String.format(KatelloActivationKey.OUT_CREATE, strRepeat("0123456789", 25)+"abcde")},
+				{ "ak-"+uid, null, new Integer(0), String.format(KatelloActivationKey.OUT_CREATE, "ak-"+uid)},
+				{ "ak "+uid, "Provider with space in name", new Integer(0), String.format(KatelloActivationKey.OUT_CREATE, "ak "+uid)},
+				{ " ", null, new Integer(166), KatelloActivationKey.ERROR_BLANK_NAME},
+				{ " a", null, new Integer(166), KatelloActivationKey.ERROR_NAME_WHITESPACE},
+				{ "a ", null, new Integer(166), KatelloActivationKey.ERROR_NAME_WHITESPACE},
+				{ "a", null, new Integer(0), String.format(KatelloActivationKey.OUT_CREATE, "a")},
+				{ "(\\!@%^&*(<_-~+=//\\||,.>)", null, new Integer(0), String.format(KatelloActivationKey.OUT_CREATE, "(\\!@%^&*(<_-~+=//\\||,.>)" )},
+			    { strRepeat("0123456789", 25)+"abcdef", null, new Integer(166), KatelloActivationKey.ERROR_LONG_NAME},
 //				// description
-				{ "desc-specChars"+uid, "\\!@%^&*(<_-~+=//\\||,.>)", new Integer(0), "Successfully created activation key [ desc-specChars"+uid+" ]"},
-				{ "desc-255Chars"+uid, strRepeat("0123456789", 25)+"abcde", new Integer(0), "Successfully created activation key [ desc-255Chars"+uid+" ]"},
-				{ "desc-256Chars"+uid, strRepeat("0123456789", 25)+"abcdef", new Integer(166), "Validation failed: Description cannot contain more than 255 characters"},
+				{ "desc-specChars"+uid, "\\!@%^&*(<_-~+=//\\||,.>)", new Integer(0), String.format(KatelloActivationKey.OUT_CREATE, "desc-specChars"+uid)},
+				{ "desc-255Chars"+uid, strRepeat("0123456789", 25)+"abcde", new Integer(0), String.format(KatelloActivationKey.OUT_CREATE, "desc-255Chars"+uid)},
+				{ "desc-256Chars"+uid, strRepeat("0123456789", 25)+"abcdef", new Integer(0), String.format(KatelloActivationKey.OUT_CREATE, "desc-256Chars"+uid)},
 				// misc
-				{ "duplicate"+uid, null, new Integer(0), "Successfully created activation key [ duplicate"+uid+" ]"},
- 				{ "duplicate"+uid, null, new Integer(166), "Validation failed: Name has already been taken"}
+				{ "duplicate"+uid, null, new Integer(0), String.format(KatelloActivationKey.OUT_CREATE, "duplicate"+uid)},
+ 				{ "duplicate"+uid, null, new Integer(166), KatelloActivationKey.ERROR_DUPLICATE_NAME}
 		};
 	}
-	
 	
 	@DataProvider(name="add_custom_info")
 	public static Object[][] add_custom_info(){
 		String uid = KatelloUtils.getUniqueID();
 		return new Object[][] {
-				// name
 				{ "env-aa", "env-aa", new Integer(0),null},
 				{ strRepeat("0123456789", 12)+"abcdefgh",strRepeat("0123456789", 12)+"abcdefgh", new Integer(0),null},
-				{ " ", "value", new Integer(166),"Validation failed: Keyname can't be blank"},
-				{ "desc-specChars"+uid, "\\!@%^&*(<_-~+=//\\||,.>)", new Integer(0),null},
-				{"desc-256Chars"+uid, strRepeat("0123456789", 25)+"abcdef",new Integer(244), "PGError: ERROR:  value too long for type character varying(255)"},
-				{strRepeat("0123456789", 25)+"abcdef", "desc-256Chars", new Integer(244), "PGError: ERROR:  value too long for type character varying(255)"},
-
+				{ " ", "value", new Integer(166),KatelloSystem.ERR_BLANK_KEYNAME},
+				{ "desc-specChars"+uid, "\\!@%^&*(_-~+=\\||,.)", new Integer(0),null},
+				{"desc-256Chars"+uid, strRepeat("0123456789", 25)+"abcdef",new Integer(166), "Validation failed: Value is too long (maximum is 255 characters)"},
+				{strRepeat("0123456789", 25)+"abcdef", "desc-256Chars", new Integer(166), "Validation failed: Keyname is too long (maximum is 255 characters)"},
+				{ "special chars <h1>html</h1>", "html in keyname", new Integer(0), null},
+				{ "html in value", "special chars <h1>html</h1>", new Integer(0), null},
+				{"key-blank-val", "", new Integer(0), null},
+				{strRepeat("0123456789", 25)+"abcdef", "desc-256Chars", new Integer(166), KatelloSystem.ERR_KEY_TOO_LONG},
+				{strRepeat("0123456789", 25)+"abcde", "desc-255Chars", new Integer(0), null},
+				{"desc-255Chars", strRepeat("0123456789", 25)+"abcde", new Integer(0), null},
+				{"desc-256Chars", strRepeat("0123456789", 25)+"abcdef", new Integer(166), KatelloSystem.ERR_VALUE_TOO_LONG},
+				{"special:@!#$%^&*()","value_foo@!#$%^&*()", new Integer(0),null},
 		};
+	}
+
+	/**
+	 * 1. keyname<br>
+	 * 2. keyvalue<br>
+	 * 3. distributor name<br>
+	 * 4. return code<br>
+	 * 5. output/error string
+	 * @return
+	 */
+	@DataProvider(name="add_distributor_custom_info")
+	public static Object[][] add_distributor_custom_info()
+	{
+		String uid = KatelloUtils.getUniqueID();
+		String dis_name = "distAddCustomInfo-"+uid;
+		return new Object[][]{
+				{"testkey-"+uid,"testvalue-"+uid,dis_name,new Integer(0), String.format(KatelloDistributor.OUT_INFO,"testkey-"+uid,"testvalue-"+uid,dis_name)},
+				{"","blank-key"+uid,dis_name,new Integer(166),"Validation failed: Keyname can't be blank"},
+				{"blank-value"+uid,"",dis_name,new Integer(0),String.format(KatelloDistributor.OUT_INFO,"blank-value"+uid,"",dis_name)},
+				{strRepeat("0123456789",25)+"abcde","255charKey",dis_name,new Integer(0),String.format(KatelloDistributor.OUT_INFO,strRepeat("0123456789",25)+"abcde","255charKey",dis_name)},
+				{strRepeat("0123456789",25)+"abcdef","256charKey",dis_name,new Integer(166),KatelloDistributor.ERR_KEY_TOO_LONG},
+				{"255charValue"+uid, strRepeat("0123456789",25)+"abcde", dis_name,new Integer(0),String.format(KatelloDistributor.OUT_INFO,"255charValue"+uid, strRepeat("0123456789",25)+"abcde", dis_name)},
+				{"256charValue"+uid, strRepeat("0123456789",25)+"abcdef", dis_name,new Integer(166), KatelloDistributor.ERR_VALUE_TOO_LONG},
+				{"testkey-"+uid,"duplicate-key"+uid,dis_name,new Integer(166), KatelloDistributor.ERR_DUPLICATE_KEY},
+				{"duplicate-value"+uid,"testvalue-"+uid,dis_name,new Integer(0),String.format(KatelloDistributor.OUT_INFO,"duplicate-value"+uid,"testvalue-"+uid,dis_name)},
+				{"\\!@%^&*(_-~+=\\||,.)"+uid,"\\!@%^&*(_-~+=\\||,.)"+uid,dis_name,new Integer(0),String.format(KatelloDistributor.OUT_INFO,"\\!@%^&*(_-~+=\\||,.)"+uid,"\\!@%^&*(_-~+=\\||,.)"+uid,dis_name)},
+				{"special chars <h1>html</h1>", "html in keyname", dis_name, new Integer(0), String.format(KatelloDistributor.OUT_INFO,"special chars <h1>html</h1>","html in keyname",dis_name)},
+				{"html in value", "special chars <h1>html</h1>", dis_name, new Integer(0), String.format(KatelloDistributor.OUT_INFO,"html in value","special chars <h1>html</h1>",dis_name)},
+		};
+	}
+
+	@DataProvider(name="org_add_custom_info")
+	public static Object[][] org_add_custom_info() {
+	
+		return new Object[][] {
+				{"custom-key", new Integer(0), null},
+				{ " ", new Integer(166), KatelloOrg.ERR_BLANK_KEY},
+				{ strRepeat("0123456789", 25)+"abcde", new Integer(0), null},
+				//{ strRepeat("0123456789", 25)+"abcdef", new Integer(166), KatelloOrg.ERR_KEY_TOO_LONG},
+				{ strRepeat("0123456789", 25)+"abcdef", new Integer(0), null},
+				{ "custom-key", new Integer(166), KatelloOrg.ERR_DUPLICATE_DISTRIBUTOR_KEY},
+				{ "special chars \\!@%^&*(_-~+=\\||,.)", new Integer(0), null},
+				{ "special chars <h1>html</h1>", new Integer(0), null},
+				
+		};
+	}
+	
+	@DataProvider(name="create_distributor")
+	public static Object[][] create_distributor()
+	{
+		String uid = KatelloUtils.getUniqueID();
+		return new Object[][]{
+				{"test_distributor"+uid,new Integer(0), String.format(KatelloDistributor.OUT_CREATE,"test_distributor"+uid)},		
+				{"",new Integer(166),"Validation failed: Name can't be blank"},
+				{strRepeat("0123456789",12)+uid,new Integer(0),String.format(KatelloDistributor.OUT_CREATE,strRepeat("0123456789",12)+uid)},
+				{strRepeat("0123456789",30)+uid,new Integer(166),"Validation failed: Name is too long (maximum is 250 characters)"},
+				{"\\!@%^&*(<_-~+=//\\||,.>)"+uid,new Integer(144),""},				
+				{"test_distributor"+uid,new Integer(166),"Validation failed: Name already taken"},	
+		};		
+	}
+	
+	@DataProvider(name = "user_create")
+	public static Object[][] user_create(){
+		String uid = KatelloUtils.getUniqueID();
+		return new Object[][] {
+				//name, email, password, disabled
+				{"newUserName"+uid, "newUserName@redhat.com", "newUserName", false }, 
+				{"նոր օգտվող"+uid, "newUser@redhat.com", "նոր օգտվող", false},
+				{"新用戶"+uid, "newUser@redhat.com", "新用戶", false},
+				{"नए उपयोगकर्ता"+uid, "newUser@redhat.com", "नए उपयोगकर्ता", false},
+				{"нового пользователя"+uid, "newUser@redhat.com", "нового пользователя", false},
+				{"uusi käyttäjä"+uid, "newUser@redhat.com", "uusi käyttäjä", false},
+				{"νέος χρήστης"+uid, "newUser@redhat.com", "νέος χρήστης", false},
+		};
+	}
+
+	@DataProvider(name="changeset_create")
+	public static Object[][] changeset_create() {
+		return new Object[][] {
+				//{String name, String description, Integer exit_code, String output},
+				{"changeset ok", "", new Integer(0), null},
+				{"!@#$%^&*()_+{}|:?[];.,", "special characters", new Integer(0), null},
+				{strRepeat("0123456789", 25)+"abcdef", "too long name", new Integer(166), "Validation failed: Name cannot contain more than 255 characters"},
+				{"too long description", strRepeat("0123456789", 25)+"abcdef", new Integer(0), null},
+				{"<h1>changeset</h1>", "html in name", new Integer(0), null},
+				{"html in description", "<h1>changeset description</h1>", new Integer(0), null},
+		};
+
 	}
 }

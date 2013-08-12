@@ -1,9 +1,13 @@
 package com.redhat.qe.katello.base.obj;
 
+import java.util.ArrayList;
+import java.util.StringTokenizer;
 import java.util.logging.Logger;
 import javax.management.Attribute;
 import org.testng.Assert;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
+import com.redhat.qe.katello.base.threading.KatelloCliWorker;
+import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class KatelloProduct extends _KatelloObject{
@@ -24,9 +28,6 @@ public class KatelloProduct extends _KatelloObject{
 	public static final String CMD_SET_PLAN = "product set_plan";
 	public static final String CMD_UPDATE = "product update";
 	public static final String CMD_REMOVE_PLAN = "product remove_plan";
-	public static final String CMD_ADD_FILTER = "product add_filter";
-	public static final String CMD_REMOVE_FILTER = "product remove_filter";
-	public static final String CMD_FILTER_LIST = "product list_filters";
 	public static final String CMD_ENABLE_REPO_SET= "product repository_set_enable";
 	
 	/** Parameters:<BR>1: product_name<BR>2: org_name */
@@ -74,6 +75,7 @@ public class KatelloProduct extends _KatelloObject{
 	boolean assumeyes = false;
 	
 	public KatelloProduct(
+			KatelloCliWorker kcr,
 			String pName, String pOrg, String pProv, 
 			String pDesc, String pGpgkey, String pUrl,
 			Boolean bNodisc, Boolean bAssumeyes){
@@ -83,6 +85,8 @@ public class KatelloProduct extends _KatelloObject{
 		this.description = pDesc;
 		this.gpgkey = pGpgkey;
 		this.url = pUrl;
+		this.kcr = kcr;
+		
 		if(bNodisc != null)
 			this.nodisc = bNodisc.booleanValue();
 		if(bAssumeyes != null)
@@ -90,10 +94,11 @@ public class KatelloProduct extends _KatelloObject{
 	}
 	
 	public KatelloProduct(
+			KatelloCliWorker kcr,
 			String pName, String id, String pOrg, String pProv, 
 			String pDesc, String pGpgkey, String pUrl,
 			Boolean bNodisc, Boolean bAssumeyes){
-		this(pName, pOrg, pProv, pDesc, pGpgkey, pUrl, bNodisc, bAssumeyes);
+		this(kcr, pName, pOrg, pProv, pDesc, pGpgkey, pUrl, bNodisc, bAssumeyes);
 		this.id = id;
 	}
 
@@ -167,40 +172,6 @@ public class KatelloProduct extends _KatelloObject{
 		}
 		opts.add(new Attribute("description", new_description));
 		return run(CMD_UPDATE);
-	}
-	
-	public SSHCommandResult add_filter(String filter){
-		opts.clear();
-		opts.add(new Attribute("filter", filter));
-		opts.add(new Attribute("org", org));
-		if (this.id != null) {
-			opts.add(new Attribute("id", id));
-		} else {
-			opts.add(new Attribute("name", this.name));
-		}
-		return run(CMD_ADD_FILTER);
-	}
-	public SSHCommandResult list_filters(){
-		opts.clear();
-		opts.add(new Attribute("org", org));
-		if (this.id != null) {
-			opts.add(new Attribute("id", id));
-		} else {
-			opts.add(new Attribute("name", this.name));
-		}
-		return run(CMD_FILTER_LIST);
-	}
-	
-	public SSHCommandResult remove_filter(String filter){
-		opts.clear();
-		opts.add(new Attribute("filter", filter));
-		opts.add(new Attribute("org", org));
-		if (this.id != null) {
-			opts.add(new Attribute("id", id));
-		} else {
-			opts.add(new Attribute("name", this.name));
-		}
-		return run(CMD_REMOVE_FILTER);
 	}
 	
 	public SSHCommandResult status(){
@@ -277,6 +248,26 @@ public class KatelloProduct extends _KatelloObject{
 		return run(CMD_UPDATE);
 	}
 
+	public ArrayList<String> custom_listNames(){
+		ArrayList<String> _ret = new ArrayList<String>();
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("provider", provider));
+		SSHCommandResult res = runExt(CLI_CMD_LIST+" -v","| grep -e \"^Name\" |cut -f2 -d:");
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - exit.Code==0");
+		StringTokenizer toks = new StringTokenizer(KatelloCliTestBase.sgetOutput(res), "\n");
+		while(toks.hasMoreTokens()) 
+			_ret.add(toks.nextToken().trim());
+		return _ret;
+	}
+	
+	public String custom_getProductId(){
+		SSHCommandResult res = cli_list(); // all products
+		String outBlock = KatelloUtils.grepOutBlock(
+				"Name", this.name, KatelloCliTestBase.sgetOutput(res)); // filter our product's output block
+		return KatelloUtils.grepCLIOutput("ID", outBlock); // grep ID
+	}
+
 	// ** ** ** ** ** ** **
 	// ASSERTS
 	// ** ** ** ** ** ** **
@@ -289,13 +280,13 @@ public class KatelloProduct extends _KatelloObject{
 		log.info("Assertions: product exists");
 		res = cli_list();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		Assert.assertTrue(KatelloCliTestScript.sgetOutput(res).replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST),
+		Assert.assertTrue(KatelloCliTestBase.sgetOutput(res).replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST),
 				"List should contain info about product (requested by: provider)");
 
 		if(envName!=null){
 			res = cli_list(envName);
 			Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-			Assert.assertTrue(KatelloCliTestScript.sgetOutput(res).replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST), 
+			Assert.assertTrue(KatelloCliTestBase.sgetOutput(res).replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST), 
 					"List should contain info about product (requested by: environment)");
 		}
 		
@@ -303,7 +294,7 @@ public class KatelloProduct extends _KatelloObject{
 			res = status();
 			Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 			String REGEXP_PRODUCT_STATUS = ".*Name\\s*:\\s+"+this.name+".*Provider Name\\s*:\\s+"+this.provider+".*Last Sync\\s*:\\s+never.*Sync State\\s*:\\s+Not synced.*";
-			Assert.assertTrue(KatelloCliTestScript.sgetOutput(res).replaceAll("\n", "").matches(REGEXP_PRODUCT_STATUS), 
+			Assert.assertTrue(KatelloCliTestBase.sgetOutput(res).replaceAll("\n", "").matches(REGEXP_PRODUCT_STATUS), 
 					"List should contain status of product (not synced)");
 		}else{
 			// TODO - needs an implementation - when product is synchronized.

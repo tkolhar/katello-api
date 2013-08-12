@@ -1,6 +1,8 @@
 package com.redhat.qe.katello.base.obj;
 
 import javax.management.Attribute;
+
+import com.redhat.qe.katello.base.threading.KatelloCliWorker;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class KatelloDistribution extends _KatelloObject{
@@ -15,12 +17,13 @@ public class KatelloDistribution extends _KatelloObject{
 	String repo;
 	String environment;
 	
-	public KatelloDistribution(String pOrg, String pProduct,
+	public KatelloDistribution(KatelloCliWorker kcr, String pOrg, String pProduct,
 			String pRepo, String pEnvironment){
 		this.org = pOrg;
 		this.product = pProduct;
 		this.repo = pRepo;
 		this.environment = pEnvironment;
+		this.kcr = kcr;
 	}
 	
 	public SSHCommandResult list(){

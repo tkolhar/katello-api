@@ -6,7 +6,6 @@ import java.util.logging.Logger;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloErrata;
 import com.redhat.qe.katello.base.obj.KatelloGpgKey;
@@ -21,7 +20,7 @@ import com.redhat.qe.katello.base.obj.KatelloUser;
 import com.redhat.qe.katello.base.obj.KatelloUserRole;
 import com.redhat.qe.katello.common.KatelloConstants;
 import com.redhat.qe.katello.common.KatelloUtils;
-import com.redhat.qe.tools.SCPTools;
+
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class MultyOrgManifest implements KatelloConstants {
@@ -179,29 +178,29 @@ public class MultyOrgManifest implements KatelloConstants {
 			dependsOnMethods={"init"}, 
 			groups={TNG_PRE_UPGRADE})
 	public void createOrgsAndSyncRepo(){
-		KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);
-		KatelloUtils.sshOnClient("rpm -e "+KatelloGpgKey.GPG_PUBKEY_RPM_ZOO+" || true");
+		KatelloUtils.sshOnClient(null, KatelloSystem.RHSM_CLEAN);
+		KatelloUtils.sshOnClient(null, "rpm -e "+KatelloGpgKey.GPG_PUBKEY_RPM_ZOO+" || true");
 		
 		SSHCommandResult res;
 
-		KatelloUser user1 = new KatelloUser(_user1, _user1+"@redhat.com", "redhat", false);
+		KatelloUser user1 = new KatelloUser(null, _user1, _user1+"@redhat.com", "redhat", false);
 		user1.cli_create();
 		
-		KatelloUser user2 = new KatelloUser(_user2, _user2+"@redhat.com", "redhat", false);
+		KatelloUser user2 = new KatelloUser(null, _user2, _user2+"@redhat.com", "redhat", false);
 		user2.cli_create();
 		
-		KatelloUser user3 = new KatelloUser(_user3, _user3+"@redhat.com", "redhat", false);
+		KatelloUser user3 = new KatelloUser(null, _user3, _user3+"@redhat.com", "redhat", false);
 		user3.cli_create();
 		
-		KatelloUserRole role1 = new KatelloUserRole(_role1, null);
+		KatelloUserRole role1 = new KatelloUserRole(null, _role1, null);
 		res = role1.create();
         Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (user_role create)");
                 
-        KatelloUserRole role2 = new KatelloUserRole(_role2, null);
+        KatelloUserRole role2 = new KatelloUserRole(null, _role2, null);
 		res = role2.create();
         Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (user_role create)");
         
-        KatelloUserRole role3 = new KatelloUserRole(_role3, null);
+        KatelloUserRole role3 = new KatelloUserRole(null, _role3, null);
 		res = role3.create();
         Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (user_role create)");
         
@@ -211,19 +210,19 @@ public class MultyOrgManifest implements KatelloConstants {
         user2.assign_role(role1.name);
         user3.assign_role(role3.name);
         
-		KatelloOrg org = new KatelloOrg(_org1, null);
-		KatelloProvider provider = new KatelloProvider(_provider1, _org1, null, null);
-		KatelloProduct product1 = new KatelloProduct(_product1_1, _org1, _provider1, null, null, null, null, null);
-		KatelloRepo repo1 = new KatelloRepo(_repo1_1, _org1, _product1_1, REPO_INECAS_ZOO3, null, null);		
-		KatelloProduct product2 = new KatelloProduct(_product1_2, _org1, _provider1, null, null, null, null, null);
-		KatelloRepo repo2 = new KatelloRepo(_repo1_2, _org1, _product1_2, PULP_RHEL6_x86_64_REPO, null, null);
-		KatelloEnvironment env1 = new KatelloEnvironment(_env1_1, null, _org1, KatelloEnvironment.LIBRARY);
-		KatelloEnvironment env2 = new KatelloEnvironment(_env1_2, null, _org1, _env1_1);
-		KatelloEnvironment env3 = new KatelloEnvironment(_env1_3, null, _org1, _env1_2);    	
-		KatelloPermission perm1 = new KatelloPermission(_perm1_1, _org1, "environments", _env1_1, _perm_actions, _role1);
-		KatelloPermission perm2 = new KatelloPermission(_perm1_2, _org1, "environments", _env1_2, _perm_actions, _role2);
-		KatelloPermission perm3 = new KatelloPermission(_perm1_3, _org1, "environments", _env1_3, _perm_actions, _role3);
-		KatelloSystem sys1 = new KatelloSystem(_system1, _org1, _env1_3);
+		KatelloOrg org = new KatelloOrg(null, _org1, null);
+		KatelloProvider provider = new KatelloProvider(null, _provider1, _org1, null, null);
+		KatelloProduct product1 = new KatelloProduct(null, _product1_1, _org1, _provider1, null, null, null, null, null);
+		KatelloRepo repo1 = new KatelloRepo(null, _repo1_1, _org1, _product1_1, REPO_INECAS_ZOO3, null, null);		
+		KatelloProduct product2 = new KatelloProduct(null, _product1_2, _org1, _provider1, null, null, null, null, null);
+		KatelloRepo repo2 = new KatelloRepo(null, _repo1_2, _org1, _product1_2, PULP_RHEL6_x86_64_REPO, null, null);
+		KatelloEnvironment env1 = new KatelloEnvironment(null, _env1_1, null, _org1, KatelloEnvironment.LIBRARY);
+		KatelloEnvironment env2 = new KatelloEnvironment(null, _env1_2, null, _org1, _env1_1);
+		KatelloEnvironment env3 = new KatelloEnvironment(null, _env1_3, null, _org1, _env1_2);    	
+		KatelloPermission perm1 = new KatelloPermission(null, _perm1_1, _org1, "environments", _env1_1, _perm_actions, _role1);
+		KatelloPermission perm2 = new KatelloPermission(null, _perm1_2, _org1, "environments", _env1_2, _perm_actions, _role2);
+		KatelloPermission perm3 = new KatelloPermission(null, _perm1_3, _org1, "environments", _env1_3, _perm_actions, _role3);
+		KatelloSystem sys1 = new KatelloSystem(null, _system1, _org1, _env1_3);
 		org.cli_create();
 		provider.create();
 		product1.create();
@@ -235,26 +234,26 @@ public class MultyOrgManifest implements KatelloConstants {
 		repo2.create();
 		repo1.synchronize();
 		repo2.synchronize();
-		KatelloUtils.promoteProductsToEnvironments(_org1, new String [] {_product1_1, _product1_2}, new String[] {_env1_1, _env1_2, _env1_3});
+		KatelloUtils.promoteProductsToEnvironments(null, _org1, new String [] {_product1_1, _product1_2}, new String[] {_env1_1, _env1_2, _env1_3});
         perm1.create();
         perm2.create();
         perm3.create();
-        KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);
+        KatelloUtils.sshOnClient(null, KatelloSystem.RHSM_CLEAN);
         sys1.rhsm_registerForce();
         
-		org = new KatelloOrg(_org2, null);
-		provider = new KatelloProvider(_provider2, _org2, null, null);
-		product1 = new KatelloProduct(_product2_1, _org2, _provider2, null, null, null, null, null);
-		repo1 = new KatelloRepo(_repo2_1, _org2, _product2_1, REPO_INECAS_ZOO3, null, null);		
-		product2 = new KatelloProduct(_product2_2, _org2, _provider2, null, null, null, null, null);
-		repo2 = new KatelloRepo(_repo2_2, _org2, _product2_2, PULP_RHEL6_x86_64_REPO, null, null);
-		env1 = new KatelloEnvironment(_env2_1, null, _org2, KatelloEnvironment.LIBRARY);
-		env2 = new KatelloEnvironment(_env2_2, null, _org2, _env2_1);
-		env3 = new KatelloEnvironment(_env2_3, null, _org2, _env2_2);
-		perm1 = new KatelloPermission(_perm2_1, _org2, "environments", _env2_1, _perm_actions, _role1);
-		perm2 = new KatelloPermission(_perm2_2, _org2, "environments", _env2_2, _perm_actions, _role2);
-		perm3 = new KatelloPermission(_perm2_3, _org2, "environments", _env2_3, _perm_actions, _role3);
-		KatelloSystem sys2 = new KatelloSystem(_system2, _org2, _env2_3);
+		org = new KatelloOrg(null, _org2, null);
+		provider = new KatelloProvider(null, _provider2, _org2, null, null);
+		product1 = new KatelloProduct(null, _product2_1, _org2, _provider2, null, null, null, null, null);
+		repo1 = new KatelloRepo(null, _repo2_1, _org2, _product2_1, REPO_INECAS_ZOO3, null, null);		
+		product2 = new KatelloProduct(null, _product2_2, _org2, _provider2, null, null, null, null, null);
+		repo2 = new KatelloRepo(null, _repo2_2, _org2, _product2_2, PULP_RHEL6_x86_64_REPO, null, null);
+		env1 = new KatelloEnvironment(null, _env2_1, null, _org2, KatelloEnvironment.LIBRARY);
+		env2 = new KatelloEnvironment(null, _env2_2, null, _org2, _env2_1);
+		env3 = new KatelloEnvironment(null, _env2_3, null, _org2, _env2_2);
+		perm1 = new KatelloPermission(null, _perm2_1, _org2, "environments", _env2_1, _perm_actions, _role1);
+		perm2 = new KatelloPermission(null, _perm2_2, _org2, "environments", _env2_2, _perm_actions, _role2);
+		perm3 = new KatelloPermission(null, _perm2_3, _org2, "environments", _env2_3, _perm_actions, _role3);
+		KatelloSystem sys2 = new KatelloSystem(null, _system2, _org2, _env2_3);
 		org.cli_create();
 		provider.create();
 		product1.create();
@@ -266,32 +265,32 @@ public class MultyOrgManifest implements KatelloConstants {
 		repo2.create();
 		repo1.synchronize();
 		repo2.synchronize();
-		KatelloUtils.promoteProductsToEnvironments(_org2, new String [] {_product2_1, _product2_2}, new String[] {_env2_1, _env2_2, _env2_3});
+		KatelloUtils.promoteProductsToEnvironments(null, _org2, new String [] {_product2_1, _product2_2}, new String[] {_env2_1, _env2_2, _env2_3});
 		perm1.create();
         perm2.create();
         perm3.create();
-        KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);
+        KatelloUtils.sshOnClient(null, KatelloSystem.RHSM_CLEAN);
         sys2.rhsm_registerForce();
 		
-		org = new KatelloOrg(_org3, null);
-		provider = new KatelloProvider(_provider3, _org3, null, null);
-		product1 = new KatelloProduct(_product3_1, _org3, _provider3, null, null, null, null, null);
-		repo1 = new KatelloRepo(_repo3_1, _org3, _product3_1, REPO_INECAS_ZOO3, null, null);		
-		product2 = new KatelloProduct(_product3_2, _org3, _provider3, null, null, null, null, null);
-		repo2 = new KatelloRepo(_repo3_2, _org3, _product3_2, PULP_RHEL6_x86_64_REPO, null, null);
-		env1 = new KatelloEnvironment(_env3_1, null, _org3, KatelloEnvironment.LIBRARY);
-		env2 = new KatelloEnvironment(_env3_2, null, _org3, _env3_1);
-		env3 = new KatelloEnvironment(_env3_3, null, _org3, _env3_2);
-		KatelloEnvironment env4 = new KatelloEnvironment(_env3_4, null, _org3, _env3_3);
-		KatelloEnvironment env5 = new KatelloEnvironment(_env3_5, null, _org3, _env3_4);
-		KatelloEnvironment env6 = new KatelloEnvironment(_env3_6, null, _org3, _env3_5);
-		perm1 = new KatelloPermission(_perm3_1, _org3, "environments", _env3_1, _perm_actions, _role1);
-		perm2 = new KatelloPermission(_perm3_2, _org3, "environments", _env3_2, _perm_actions, _role2);
-		perm3 = new KatelloPermission(_perm3_3, _org3, "environments", _env3_3, _perm_actions, _role3);
-		KatelloPermission perm4 = new KatelloPermission(_perm3_4, _org3, "environments", _env3_4, _perm_actions, _role1);
-		KatelloPermission perm5 = new KatelloPermission(_perm3_5, _org3, "environments", _env3_5, _perm_actions, _role2);
-		KatelloPermission perm6 = new KatelloPermission(_perm3_6, _org3, "environments", _env3_6, _perm_actions, _role3);
-		KatelloSystem sys3 = new KatelloSystem(_system3, _org3, _env3_3);
+		org = new KatelloOrg(null, _org3, null);
+		provider = new KatelloProvider(null, _provider3, _org3, null, null);
+		product1 = new KatelloProduct(null, _product3_1, _org3, _provider3, null, null, null, null, null);
+		repo1 = new KatelloRepo(null, _repo3_1, _org3, _product3_1, REPO_INECAS_ZOO3, null, null);		
+		product2 = new KatelloProduct(null, _product3_2, _org3, _provider3, null, null, null, null, null);
+		repo2 = new KatelloRepo(null, _repo3_2, _org3, _product3_2, PULP_RHEL6_x86_64_REPO, null, null);
+		env1 = new KatelloEnvironment(null, _env3_1, null, _org3, KatelloEnvironment.LIBRARY);
+		env2 = new KatelloEnvironment(null, _env3_2, null, _org3, _env3_1);
+		env3 = new KatelloEnvironment(null, _env3_3, null, _org3, _env3_2);
+		KatelloEnvironment env4 = new KatelloEnvironment(null, _env3_4, null, _org3, _env3_3);
+		KatelloEnvironment env5 = new KatelloEnvironment(null, _env3_5, null, _org3, _env3_4);
+		KatelloEnvironment env6 = new KatelloEnvironment(null, _env3_6, null, _org3, _env3_5);
+		perm1 = new KatelloPermission(null, _perm3_1, _org3, "environments", _env3_1, _perm_actions, _role1);
+		perm2 = new KatelloPermission(null, _perm3_2, _org3, "environments", _env3_2, _perm_actions, _role2);
+		perm3 = new KatelloPermission(null, _perm3_3, _org3, "environments", _env3_3, _perm_actions, _role3);
+		KatelloPermission perm4 = new KatelloPermission(null, _perm3_4, _org3, "environments", _env3_4, _perm_actions, _role1);
+		KatelloPermission perm5 = new KatelloPermission(null, _perm3_5, _org3, "environments", _env3_5, _perm_actions, _role2);
+		KatelloPermission perm6 = new KatelloPermission(null, _perm3_6, _org3, "environments", _env3_6, _perm_actions, _role3);
+		KatelloSystem sys3 = new KatelloSystem(null, _system3, _org3, _env3_3);
 		org.cli_create();
 		provider.create();
 		product1.create();
@@ -306,7 +305,7 @@ public class MultyOrgManifest implements KatelloConstants {
 		repo2.create();
 		repo1.synchronize();
 		repo2.synchronize();
-		KatelloUtils.promoteProductsToEnvironments(_org3, new String [] {_product3_1, _product3_2}, 
+		KatelloUtils.promoteProductsToEnvironments(null, _org3, new String [] {_product3_1, _product3_2}, 
 				new String[] {_env3_1, _env3_2, _env3_3, _env3_4, _env3_5, _env3_6});
 		perm1.create();
         perm2.create();
@@ -314,18 +313,18 @@ public class MultyOrgManifest implements KatelloConstants {
 		perm4.create();
         perm5.create();
         perm6.create();
-        KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);
+        KatelloUtils.sshOnClient(null, KatelloSystem.RHSM_CLEAN);
         sys3.rhsm_registerForce();
 		
         //this org contains imported manifest with RHEL repo promoted to environments
         // DO NOT DELETE THIS ORG IN TEAR_DOWN
-		org = new KatelloOrg(_org4, null);
-		env1 = new KatelloEnvironment(_env4_1, null, _org4, KatelloEnvironment.LIBRARY);
-		env2 = new KatelloEnvironment(_env4_2, null, _org4, _env4_1);
-		env3 = new KatelloEnvironment(_env4_3, null, _org4, _env4_2);
-		perm1 = new KatelloPermission(_perm4_1, _org4, "environments", _env4_1, _perm_actions, _role1);
-		perm2 = new KatelloPermission(_perm4_2, _org4, "environments", _env4_2, _perm_actions, _role2);
-		perm3 = new KatelloPermission(_perm4_3, _org4, "environments", _env4_3, _perm_actions, _role3);
+		org = new KatelloOrg(null, _org4, null);
+		env1 = new KatelloEnvironment(null, _env4_1, null, _org4, KatelloEnvironment.LIBRARY);
+		env2 = new KatelloEnvironment(null, _env4_2, null, _org4, _env4_1);
+		env3 = new KatelloEnvironment(null, _env4_3, null, _org4, _env4_2);
+		perm1 = new KatelloPermission(null, _perm4_1, _org4, "environments", _env4_1, _perm_actions, _role1);
+		perm2 = new KatelloPermission(null, _perm4_2, _org4, "environments", _env4_2, _perm_actions, _role2);
+		perm3 = new KatelloPermission(null, _perm4_3, _org4, "environments", _env4_3, _perm_actions, _role3);
 		
 		org.cli_create();
 		env1.cli_create();
@@ -335,57 +334,51 @@ public class MultyOrgManifest implements KatelloConstants {
         perm2.create();
         perm3.create();
 		
-		SCPTools scp = new SCPTools(
-				System.getProperty("katello.client.hostname", "localhost"), 
-				System.getProperty("katello.client.ssh.user", "root"), 
-				System.getProperty("katello.client.sshkey.private", ".ssh/id_hudson_dsa"), 
-				System.getProperty("katello.client.sshkey.passphrase", "null"));
-		Assert.assertTrue(scp.sendFile("data"+File.separator+"export.zip", "/tmp"),
-				"export.zip sent successfully");			
+		KatelloUtils.scpOnClient(null, "data/export.zip", "/tmp");
 
-		KatelloProvider prov = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, _org4, null, null);
+		KatelloProvider prov = new KatelloProvider(null, KatelloProvider.PROVIDER_REDHAT, _org4, null, null);
 		res = prov.import_manifest("/tmp"+File.separator+"export.zip", new Boolean(true));
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (provider import_manifest)");
 		
-		KatelloRepo repo = new KatelloRepo(KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, _org4, KatelloProduct.RHEL_SERVER, null, null, null);
+		KatelloRepo repo = new KatelloRepo(null, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, _org4, KatelloProduct.RHEL_SERVER, null, null, null);
 		res = repo.enable();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo enable)");
 
 		res = repo.synchronize();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo sync)");
 
-		KatelloUtils.promoteProductsToEnvironments(_org4, new String [] {KatelloProduct.RHEL_SERVER}, 
+		KatelloUtils.promoteProductsToEnvironments(null, _org4, new String [] {KatelloProduct.RHEL_SERVER}, 
 				new String[] {_env4_1, _env4_2, _env4_3});
 
-		KatelloSystem sys4 = new KatelloSystem(_system4, _org4, _env4_3);
-        KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);
+		KatelloSystem sys4 = new KatelloSystem(null, _system4, _org4, _env4_3);
+        KatelloUtils.sshOnClient(null, KatelloSystem.RHSM_CLEAN);
         sys4.rhsm_registerForce();
         
-		String pool = KatelloCli.grepCLIOutput("Pool Id",
-				KatelloUtils.sshOnClient("subscription-manager list --available --all | sed  -e 's/^ \\{1,\\}//'").getStdout().trim(),1);
+		String pool = KatelloUtils.grepCLIOutput("Pool Id",
+				KatelloUtils.sshOnClient(null, "subscription-manager list --available --all | sed  -e 's/^ \\{1,\\}//'").getStdout().trim(),1);
 		Assert.assertNotNull(pool);
 		sys4.rhsm_subscribe(pool);
 		
-		KatelloUtils.sshOnClient("service goferd restart;");
+		KatelloUtils.sshOnClient(null, "service goferd restart;");
 	}
 	
 	@Test(description="verify orgs survived the upgrade", 
 			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE}, 
 			groups={TNG_POST_UPGRADE})
 	public void checkOrgsSurvived(){
-		KatelloOrg org = new KatelloOrg(_org1, null);
+		KatelloOrg org = new KatelloOrg(null, _org1, null);
 		SSHCommandResult res = org.cli_info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (org info)");
 		
-		org = new KatelloOrg(_org2, null);
+		org = new KatelloOrg(null, _org2, null);
 		res = org.cli_info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (org info)");
 		
-		org = new KatelloOrg(_org3, null);
+		org = new KatelloOrg(null, _org3, null);
 		res = org.cli_info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (org info)");
 		
-		org = new KatelloOrg(_org4, null);
+		org = new KatelloOrg(null, _org4, null);
 		res = org.cli_info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (org info)");
 	}
@@ -394,63 +387,63 @@ public class MultyOrgManifest implements KatelloConstants {
 			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE}, 
 			groups={TNG_POST_UPGRADE})
 	public void checkEnvironmentsSurvived(){
-		KatelloEnvironment env = new KatelloEnvironment(_env1_1, null, _org1, KatelloEnvironment.LIBRARY);
+		KatelloEnvironment env = new KatelloEnvironment(null, _env1_1, null, _org1, KatelloEnvironment.LIBRARY);
 		SSHCommandResult res = env.cli_info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (env info)");
 
-		env = new KatelloEnvironment(_env1_2, null, _org1, KatelloEnvironment.LIBRARY);
+		env = new KatelloEnvironment(null, _env1_2, null, _org1, KatelloEnvironment.LIBRARY);
 		res = env.cli_info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (env info)");
 		
-		env = new KatelloEnvironment(_env1_3, null, _org1, KatelloEnvironment.LIBRARY);
+		env = new KatelloEnvironment(null, _env1_3, null, _org1, KatelloEnvironment.LIBRARY);
 		res = env.cli_info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (env info)");
 		
-		env = new KatelloEnvironment(_env2_1, null, _org2, KatelloEnvironment.LIBRARY);
+		env = new KatelloEnvironment(null, _env2_1, null, _org2, KatelloEnvironment.LIBRARY);
 		res = env.cli_info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (env info)");
 		
-		env = new KatelloEnvironment(_env2_2, null, _org2, KatelloEnvironment.LIBRARY);
+		env = new KatelloEnvironment(null, _env2_2, null, _org2, KatelloEnvironment.LIBRARY);
 		res = env.cli_info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (env info)");
 		
-		env = new KatelloEnvironment(_env2_3, null, _org2, KatelloEnvironment.LIBRARY);
+		env = new KatelloEnvironment(null, _env2_3, null, _org2, KatelloEnvironment.LIBRARY);
 		res = env.cli_info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (env info)");
 		
-		env = new KatelloEnvironment(_env3_1, null, _org3, KatelloEnvironment.LIBRARY);
+		env = new KatelloEnvironment(null, _env3_1, null, _org3, KatelloEnvironment.LIBRARY);
 		res = env.cli_info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (env info)");
 		
-		env = new KatelloEnvironment(_env3_2, null, _org3, KatelloEnvironment.LIBRARY);
+		env = new KatelloEnvironment(null, _env3_2, null, _org3, KatelloEnvironment.LIBRARY);
 		res = env.cli_info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (env info)");
 		
-		env = new KatelloEnvironment(_env3_3, null, _org3, KatelloEnvironment.LIBRARY);
+		env = new KatelloEnvironment(null, _env3_3, null, _org3, KatelloEnvironment.LIBRARY);
 		res = env.cli_info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (env info)");
 		
-		env = new KatelloEnvironment(_env3_4, null, _org3, KatelloEnvironment.LIBRARY);
+		env = new KatelloEnvironment(null, _env3_4, null, _org3, KatelloEnvironment.LIBRARY);
 		res = env.cli_info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (env info)");
 		
-		env = new KatelloEnvironment(_env3_5, null, _org3, KatelloEnvironment.LIBRARY);
+		env = new KatelloEnvironment(null, _env3_5, null, _org3, KatelloEnvironment.LIBRARY);
 		res = env.cli_info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (env info)");
 		
-		env = new KatelloEnvironment(_env3_6, null, _org3, KatelloEnvironment.LIBRARY);
+		env = new KatelloEnvironment(null, _env3_6, null, _org3, KatelloEnvironment.LIBRARY);
 		res = env.cli_info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (env info)");
 		
-		env = new KatelloEnvironment(_env4_1, null, _org4, KatelloEnvironment.LIBRARY);
+		env = new KatelloEnvironment(null, _env4_1, null, _org4, KatelloEnvironment.LIBRARY);
 		res = env.cli_info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (env info)");
 		
-		env = new KatelloEnvironment(_env4_2, null, _org4, KatelloEnvironment.LIBRARY);
+		env = new KatelloEnvironment(null, _env4_2, null, _org4, KatelloEnvironment.LIBRARY);
 		res = env.cli_info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (env info)");
 		
-		env = new KatelloEnvironment(_env4_3, null, _org4, KatelloEnvironment.LIBRARY);
+		env = new KatelloEnvironment(null, _env4_3, null, _org4, KatelloEnvironment.LIBRARY);
 		res = env.cli_info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (env info)");
 	}
@@ -459,15 +452,15 @@ public class MultyOrgManifest implements KatelloConstants {
 			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE}, 
 			groups={TNG_POST_UPGRADE})
 	public void checkRolesSurvived(){
-		KatelloUserRole role1 = new KatelloUserRole(_role1, null);
+		KatelloUserRole role1 = new KatelloUserRole(null, _role1, null);
 		SSHCommandResult res = role1.cli_info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (role info)");
 		
-		role1 = new KatelloUserRole(_role2, null);
+		role1 = new KatelloUserRole(null, _role2, null);
 		res = role1.cli_info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (role info)");
 		
-		role1 = new KatelloUserRole(_role3, null);
+		role1 = new KatelloUserRole(null, _role3, null);
 		res = role1.cli_info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (role info)");
 	}
@@ -476,7 +469,7 @@ public class MultyOrgManifest implements KatelloConstants {
 			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE}, 
 			groups={TNG_POST_UPGRADE})
 	public void checkPermissionsSurvived() {
-		KatelloPermission perm = new KatelloPermission(null, null, null, null, null, _role1);
+		KatelloPermission perm = new KatelloPermission(null, null, null, null, null, null, _role1);
 		SSHCommandResult res = perm.list();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (role info)");
 		
@@ -486,7 +479,7 @@ public class MultyOrgManifest implements KatelloConstants {
 		Assert.assertTrue(res.getStdout().trim().contains(_perm3_4), "Check - permission is in list");
 		Assert.assertTrue(res.getStdout().trim().contains(_perm4_1), "Check - permission is in list");
 		
-		perm = new KatelloPermission(null, null, null, null, null, _role2);
+		perm = new KatelloPermission(null, null, null, null, null, null, _role2);
 		res = perm.list();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (role info)");
 		
@@ -496,7 +489,7 @@ public class MultyOrgManifest implements KatelloConstants {
 		Assert.assertTrue(res.getStdout().trim().contains(_perm3_5), "Check - permission is in list");
 		Assert.assertTrue(res.getStdout().trim().contains(_perm4_2), "Check - permission is in list");
 		
-		perm = new KatelloPermission(null, null, null, null, null, _role3);
+		perm = new KatelloPermission(null, null, null, null, null, null, _role3);
 		res = perm.list();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (role info)");
 		
@@ -512,7 +505,7 @@ public class MultyOrgManifest implements KatelloConstants {
 			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE}, 
 			groups={TNG_POST_UPGRADE})
 	public void checkUsersSurvived() {
-		KatelloUser user = new KatelloUser(_user1, null, null, false);
+		KatelloUser user = new KatelloUser(null, _user1, null, null, false);
 		SSHCommandResult res = user.cli_info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (user info)");
 		
@@ -522,7 +515,7 @@ public class MultyOrgManifest implements KatelloConstants {
 		Assert.assertTrue(res.getStdout().trim().contains(_role2), "Check - locale");
 		Assert.assertFalse(res.getStdout().trim().contains(_role3), "Check - locale");
 		
-		user = new KatelloUser(_user2, null, null, false);
+		user = new KatelloUser(null, _user2, null, null, false);
 		res = user.cli_info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (user info)");
 		
@@ -532,7 +525,7 @@ public class MultyOrgManifest implements KatelloConstants {
 		Assert.assertTrue(res.getStdout().trim().contains(_role2), "Check - locale");
 		Assert.assertFalse(res.getStdout().trim().contains(_role3), "Check - locale");
 		
-		user = new KatelloUser(_user3, null, null, false);
+		user = new KatelloUser(null, _user3, null, null, false);
 		res = user.cli_info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (user info)");
 		
@@ -547,19 +540,19 @@ public class MultyOrgManifest implements KatelloConstants {
 			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE}, 
 			groups={TNG_POST_UPGRADE})
 	public void checkProvidersSurvived() {
-		KatelloProvider provider = new KatelloProvider(_provider1, _org1, null, null);
+		KatelloProvider provider = new KatelloProvider(null, _provider1, _org1, null, null);
 		SSHCommandResult res = provider.info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (provider info)");
 		
-		provider = new KatelloProvider(_provider2, _org2, null, null);
+		provider = new KatelloProvider(null, _provider2, _org2, null, null);
 		res = provider.info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (provider info)");
 		
-		provider = new KatelloProvider(_provider3, _org3, null, null);
+		provider = new KatelloProvider(null, _provider3, _org3, null, null);
 		res = provider.info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (provider info)");
 		
-		provider = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, _org4, null, null);
+		provider = new KatelloProvider(null, KatelloProvider.PROVIDER_REDHAT, _org4, null, null);
 		res = provider.info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (provider info)");
 	}
@@ -568,25 +561,25 @@ public class MultyOrgManifest implements KatelloConstants {
 			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE}, 
 			groups={TNG_POST_UPGRADE})
 	public void checkProductsSurvived() {
-		KatelloProduct product = new KatelloProduct(null, _org1, _provider1, null, null, null, null, null);
+		KatelloProduct product = new KatelloProduct(null, null, _org1, _provider1, null, null, null, null, null);
 		SSHCommandResult res = product.cli_list();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (product list)");
 		Assert.assertTrue(res.getStdout().trim().contains(_product1_1), "Check - locale");
 		Assert.assertTrue(res.getStdout().trim().contains(_product1_2), "Check - locale");
 		
-		product = new KatelloProduct(null, _org2, _provider2, null, null, null, null, null);
+		product = new KatelloProduct(null, null, _org2, _provider2, null, null, null, null, null);
 		res = product.cli_list();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (product list)");
 		Assert.assertTrue(res.getStdout().trim().contains(_product2_1), "Check - locale");
 		Assert.assertTrue(res.getStdout().trim().contains(_product2_2), "Check - locale");
 		
-		product = new KatelloProduct(null, _org3, _provider3, null, null, null, null, null);
+		product = new KatelloProduct(null, null, _org3, _provider3, null, null, null, null, null);
 		res = product.cli_list();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (product list)");
 		Assert.assertTrue(res.getStdout().trim().contains(_product3_1), "Check - locale");
 		Assert.assertTrue(res.getStdout().trim().contains(_product3_2), "Check - locale");
 		
-		product = new KatelloProduct(null, _org4, KatelloProvider.PROVIDER_REDHAT, null, null, null, null, null);
+		product = new KatelloProduct(null, null, _org4, KatelloProvider.PROVIDER_REDHAT, null, null, null, null, null);
 		res = product.cli_list();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (product list)");
 		Assert.assertTrue(res.getStdout().trim().contains(KatelloProduct.RHEL_SERVER), "Check - locale");
@@ -596,31 +589,31 @@ public class MultyOrgManifest implements KatelloConstants {
 			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE}, 
 			groups={TNG_POST_UPGRADE})
 	public void checkReposSurvived() {
-		KatelloRepo repo = new KatelloRepo(_repo1_1, _org1, _product1_1, null, null, null);
+		KatelloRepo repo = new KatelloRepo(null, _repo1_1, _org1, _product1_1, null, null, null);
 		SSHCommandResult res = repo.info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (repo info)");
 		
-		repo = new KatelloRepo(_repo1_2, _org1, _product1_2, null, null, null);
+		repo = new KatelloRepo(null, _repo1_2, _org1, _product1_2, null, null, null);
 		res = repo.info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (repo info)");
 		
-		repo = new KatelloRepo(_repo2_1, _org2, _product2_1, null, null, null);
+		repo = new KatelloRepo(null, _repo2_1, _org2, _product2_1, null, null, null);
 		res = repo.info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (repo info)");
 
-		repo = new KatelloRepo(_repo2_2, _org2, _product2_2, null, null, null);
+		repo = new KatelloRepo(null, _repo2_2, _org2, _product2_2, null, null, null);
 		res = repo.info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (repo info)");
 		
-		repo = new KatelloRepo(_repo3_1, _org3, _product3_1, null, null, null);
+		repo = new KatelloRepo(null, _repo3_1, _org3, _product3_1, null, null, null);
 		res = repo.info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (repo info)");
 		
-		repo = new KatelloRepo(_repo3_2, _org3, _product3_2, null, null, null);
+		repo = new KatelloRepo(null, _repo3_2, _org3, _product3_2, null, null, null);
 		res = repo.info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (repo info)");
 		
-		repo = new KatelloRepo(KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, _org4, KatelloProduct.RHEL_SERVER, null, null, null);
+		repo = new KatelloRepo(null, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, _org4, KatelloProduct.RHEL_SERVER, null, null, null);
 		res = repo.info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (repo info)");
 	}
@@ -629,76 +622,76 @@ public class MultyOrgManifest implements KatelloConstants {
 			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE}, 
 			groups={TNG_POST_UPGRADE})
 	public void checkPackagesSurvived() {
-		KatelloPackage pack = new KatelloPackage(null, null, _org1, _product1_1, _repo1_1, _env1_1);
+		KatelloPackage pack = new KatelloPackage(null, null, null, _org1, _product1_1, _repo1_1, _env1_1);
 		checkZooPackages(pack.cli_list());
 		
-		pack = new KatelloPackage(null, null, _org1, _product1_2, _repo1_2, _env1_1);
+		pack = new KatelloPackage(null, null, null, _org1, _product1_2, _repo1_2, _env1_1);
 		checkPulpPackages(pack.cli_list());
 		
-		pack = new KatelloPackage(null, null, _org1, _product1_1, _repo1_1, _env1_2);
+		pack = new KatelloPackage(null, null, null, _org1, _product1_1, _repo1_1, _env1_2);
 		checkZooPackages(pack.cli_list());
 		
-		pack = new KatelloPackage(null, null, _org1, _product1_2, _repo1_2, _env1_2);
+		pack = new KatelloPackage(null, null, null, _org1, _product1_2, _repo1_2, _env1_2);
 		checkPulpPackages(pack.cli_list());
 		
-		pack = new KatelloPackage(null, null, _org1, _product1_1, _repo1_1, _env1_3);
+		pack = new KatelloPackage(null, null, null, _org1, _product1_1, _repo1_1, _env1_3);
 		checkZooPackages(pack.cli_list());
 		
-		pack = new KatelloPackage(null, null, _org1, _product1_2, _repo1_2, _env1_3);
+		pack = new KatelloPackage(null, null, null, _org1, _product1_2, _repo1_2, _env1_3);
 		checkPulpPackages(pack.cli_list());
 		
-		pack = new KatelloPackage(null, null, _org2, _product2_1, _repo2_1, _env2_1);
+		pack = new KatelloPackage(null, null, null, _org2, _product2_1, _repo2_1, _env2_1);
 		checkZooPackages(pack.cli_list());
 		
-		pack = new KatelloPackage(null, null, _org2, _product2_2, _repo2_2, _env2_1);
+		pack = new KatelloPackage(null, null, null, _org2, _product2_2, _repo2_2, _env2_1);
 		checkPulpPackages(pack.cli_list());
 		
-		pack = new KatelloPackage(null, null, _org2, _product2_1, _repo2_1, _env2_2);
+		pack = new KatelloPackage(null, null, null, _org2, _product2_1, _repo2_1, _env2_2);
 		checkZooPackages(pack.cli_list());
 		
-		pack = new KatelloPackage(null, null, _org2, _product2_2, _repo2_2, _env2_2);
+		pack = new KatelloPackage(null, null, null, _org2, _product2_2, _repo2_2, _env2_2);
 		checkPulpPackages(pack.cli_list());
 		
-		pack = new KatelloPackage(null, null, _org2, _product2_1, _repo2_1, _env2_3);
+		pack = new KatelloPackage(null, null, null, _org2, _product2_1, _repo2_1, _env2_3);
 		checkZooPackages(pack.cli_list());
 		
-		pack = new KatelloPackage(null, null, _org2, _product2_2, _repo2_2, _env2_3);
+		pack = new KatelloPackage(null, null, null, _org2, _product2_2, _repo2_2, _env2_3);
 		checkPulpPackages(pack.cli_list());
 		
-		pack = new KatelloPackage(null, null, _org3, _product3_1, _repo3_1, _env3_1);
+		pack = new KatelloPackage(null, null, null, _org3, _product3_1, _repo3_1, _env3_1);
 		checkZooPackages(pack.cli_list());
 		
-		pack = new KatelloPackage(null, null, _org3, _product3_2, _repo3_2, _env3_1);
+		pack = new KatelloPackage(null, null, null, _org3, _product3_2, _repo3_2, _env3_1);
 		checkPulpPackages(pack.cli_list());
 		
-		pack = new KatelloPackage(null, null, _org3, _product3_1, _repo3_1, _env3_2);
+		pack = new KatelloPackage(null, null, null, _org3, _product3_1, _repo3_1, _env3_2);
 		checkZooPackages(pack.cli_list());
 		
-		pack = new KatelloPackage(null, null, _org3, _product3_2, _repo3_2, _env3_2);
+		pack = new KatelloPackage(null, null, null, _org3, _product3_2, _repo3_2, _env3_2);
 		checkPulpPackages(pack.cli_list());
 		
-		pack = new KatelloPackage(null, null, _org3, _product3_1, _repo3_1, _env3_3);
+		pack = new KatelloPackage(null, null, null, _org3, _product3_1, _repo3_1, _env3_3);
 		checkZooPackages(pack.cli_list());
 		
-		pack = new KatelloPackage(null, null, _org3, _product3_2, _repo3_2, _env3_3);
+		pack = new KatelloPackage(null, null, null, _org3, _product3_2, _repo3_2, _env3_3);
 		checkPulpPackages(pack.cli_list());
 		
-		pack = new KatelloPackage(null, null, _org3, _product3_1, _repo3_1, _env3_4);
+		pack = new KatelloPackage(null, null, null, _org3, _product3_1, _repo3_1, _env3_4);
 		checkZooPackages(pack.cli_list());
 		
-		pack = new KatelloPackage(null, null, _org3, _product3_2, _repo3_2, _env3_4);
+		pack = new KatelloPackage(null, null, null, _org3, _product3_2, _repo3_2, _env3_4);
 		checkPulpPackages(pack.cli_list());
 		
-		pack = new KatelloPackage(null, null, _org3, _product3_1, _repo3_1, _env3_5);
+		pack = new KatelloPackage(null, null, null, _org3, _product3_1, _repo3_1, _env3_5);
 		checkZooPackages(pack.cli_list());
 		
-		pack = new KatelloPackage(null, null, _org3, _product3_2, _repo3_2, _env3_5);
+		pack = new KatelloPackage(null, null, null, _org3, _product3_2, _repo3_2, _env3_5);
 		checkPulpPackages(pack.cli_list());
 		
-		pack = new KatelloPackage(null, null, _org3, _product3_1, _repo3_1, _env3_6);
+		pack = new KatelloPackage(null, null, null, _org3, _product3_1, _repo3_1, _env3_6);
 		checkZooPackages(pack.cli_list());
 		
-		pack = new KatelloPackage(null, null, _org3, _product3_2, _repo3_2, _env3_6);
+		pack = new KatelloPackage(null, null, null, _org3, _product3_2, _repo3_2, _env3_6);
 		checkPulpPackages(pack.cli_list());
 	}
 	
@@ -706,19 +699,19 @@ public class MultyOrgManifest implements KatelloConstants {
 			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE}, 
 			groups={TNG_POST_UPGRADE})
 	public void checkSystemsSurvived() {
-		KatelloSystem sys = new KatelloSystem(_system1, _org1, _env1_3);
+		KatelloSystem sys = new KatelloSystem(null, _system1, _org1, _env1_3);
 		SSHCommandResult res = sys.info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
 		
-		sys = new KatelloSystem(_system2, _org2, _env2_3);
+		sys = new KatelloSystem(null, _system2, _org2, _env2_3);
 		res = sys.info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
 		
-		sys = new KatelloSystem(_system3, _org3, _env3_3);
+		sys = new KatelloSystem(null, _system3, _org3, _env3_3);
 		res = sys.info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
 		
-		sys = new KatelloSystem(_system4, _org4, _env4_3);
+		sys = new KatelloSystem(null, _system4, _org4, _env4_3);
 		res = sys.info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
 	}
@@ -729,40 +722,40 @@ public class MultyOrgManifest implements KatelloConstants {
 	public void checkCreateNew() {
 		String uid = KatelloUtils.getUniqueID();
 		
-		KatelloOrg org = new KatelloOrg("NewOrg" + uid, null);
+		KatelloOrg org = new KatelloOrg(null, "NewOrg" + uid, null);
 		SSHCommandResult res = org.cli_create();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (org create)");
 		
-		KatelloEnvironment env = new KatelloEnvironment("NewEnv" + uid, null, org.name, KatelloEnvironment.LIBRARY);
+		KatelloEnvironment env = new KatelloEnvironment(null, "NewEnv" + uid, null, org.name, KatelloEnvironment.LIBRARY);
 		res = env.cli_create();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (env create)");
 		
-		KatelloUser user = new KatelloUser("newuser" + uid, "newuser" + uid + "@redhat.com", "redhat", false, "ja");
+		KatelloUser user = new KatelloUser(null, "newuser" + uid, "newuser" + uid + "@redhat.com", "redhat", false, "ja");
 		res = user.cli_create();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (user create)");
 		
-		KatelloUserRole role = new KatelloUserRole("newrole" + uid, null);
+		KatelloUserRole role = new KatelloUserRole(null, "newrole" + uid, null);
 		res = role.create();
         Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (user_role create)");
         
-        KatelloPermission perm = new KatelloPermission("newperm"+uid, org.name, "environments", env.getName(), _perm_actions, role.name);
+        KatelloPermission perm = new KatelloPermission(null, "newperm"+uid, org.name, "environments", env.getName(), _perm_actions, role.name);
         res = perm.create();
         Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (permission create)");
         
-        KatelloProvider provider = new KatelloProvider("newprov" + uid, org.name, null, null);
+        KatelloProvider provider = new KatelloProvider(null, "newprov" + uid, org.name, null, null);
         res = provider.create();
         Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (provider create)");
         
-		KatelloProduct product = new KatelloProduct("newproduct"+uid, org.name, provider.name, null, null, null, null, null);
+		KatelloProduct product = new KatelloProduct(null, "newproduct"+uid, org.name, provider.name, null, null, null, null, null);
 		res = product.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
 		
-		KatelloRepo repo = new KatelloRepo("newrepo"+uid, org.name, product.name, REPO_INECAS_ZOO3, null, null);	
+		KatelloRepo repo = new KatelloRepo(null, "newrepo"+uid, org.name, product.name, REPO_INECAS_ZOO3, null, null);	
 		res = repo.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo create)");
 		
-		KatelloSystem newsystem = new KatelloSystem("SãoPaulonew" + uid, _org3, _env3_3);
-		KatelloUtils.sshOnClient(KatelloSystem.RHSM_CLEAN);
+		KatelloSystem newsystem = new KatelloSystem(null, "SãoPaulonew" + uid, _org3, _env3_3);
+		KatelloUtils.sshOnClient(null, KatelloSystem.RHSM_CLEAN);
 		newsystem.rhsm_registerForce();
 		res = newsystem.info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
@@ -772,7 +765,7 @@ public class MultyOrgManifest implements KatelloConstants {
 			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE}, 
 			groups={TNG_POST_UPGRADE})
 	public void checkEditExisting() {
-		KatelloOrg org = new KatelloOrg(_org1, null);
+		KatelloOrg org = new KatelloOrg(null, _org1, null);
 		SSHCommandResult res = org.update("new description");
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (org update)");
 	}
@@ -781,7 +774,7 @@ public class MultyOrgManifest implements KatelloConstants {
 			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE}, 
 			groups={TNG_POST_UPGRADE})
 	public void checkErrataSurvived() {
-		KatelloErrata errata = new KatelloErrata(null, _org4, KatelloProduct.RHEL_SERVER, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, _env4_3);
+		KatelloErrata errata = new KatelloErrata(null, null, _org4, KatelloProduct.RHEL_SERVER, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, _env4_3);
 		SSHCommandResult res = errata.cli_list();
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(res.getStdout().trim().contains("RHBA-2012:1312")); //telnet errata

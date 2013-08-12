@@ -1,6 +1,8 @@
 package com.redhat.qe.katello.base.obj;
 
 import javax.management.Attribute;
+
+import com.redhat.qe.katello.base.threading.KatelloCliWorker;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class KatelloSyncPlan extends _KatelloObject{
@@ -27,7 +29,8 @@ public class KatelloSyncPlan extends _KatelloObject{
 	public String time;
 	public String interval = null;
 
-	public KatelloSyncPlan(String name, String org, String description, String date, String time, SyncPlanInterval interval){
+	public KatelloSyncPlan(KatelloCliWorker kcr, String name, String org, 
+			String description, String date, String time, SyncPlanInterval interval){
 		this.name = name;
 		this.org = org;
 		this.description = description;
@@ -35,6 +38,7 @@ public class KatelloSyncPlan extends _KatelloObject{
 		this.time = time;
 		if (interval != null)
 			this.interval = interval.toString();// else is null
+		this.kcr = kcr;
 	}
 	
 	public SSHCommandResult create(){

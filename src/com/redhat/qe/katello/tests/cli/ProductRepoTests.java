@@ -9,8 +9,7 @@ import java.util.regex.Pattern;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloGpgKey;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
@@ -21,7 +20,7 @@ import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups={"cfse-cli",TngRunGroups.TNG_KATELLO_Providers_Repos})
-public class ProductRepoTests extends KatelloCliTestScript {
+public class ProductRepoTests extends KatelloCliTestBase {
 
 	protected static Logger log = Logger
 			.getLogger(PackageTests.class.getName());
@@ -48,35 +47,35 @@ public class ProductRepoTests extends KatelloCliTestScript {
 
 
 		// Create org:
-		KatelloOrg org = new KatelloOrg(this.org_name, "Package tests");
+		KatelloOrg org = new KatelloOrg(this.cli_worker, this.org_name, "Package tests");
 		exec_result = org.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
 		// Create provider:
-		KatelloProvider prov = new KatelloProvider(provider_name, org_name,
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, provider_name, org_name,
 				"Package provider", PULP_RHEL6_x86_64_REPO);
 		exec_result = prov.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
 		// Create product:
-		KatelloProduct prod = new KatelloProduct(product_name, org_name,
+		KatelloProduct prod = new KatelloProduct(this.cli_worker, product_name, org_name,
 				provider_name, null, null, null, null, null);
 		exec_result = prod.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		exec_result = prod.cli_list();
-		product_id = KatelloCli.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
+		product_id = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
 
-		prod = new KatelloProduct(product_name, org_name,
+		prod = new KatelloProduct(this.cli_worker, product_name, org_name,
 				provider_name, null, null, null, null, null);
 		prod.create();
 		
 		// wget the gpg file (before creating the key)
 		String cmd = "rm -f "+this.file_name+"; " +
 				"curl -sk "+KatelloGpgKey.REPO_GPG_FILE_ZOO+" -o "+this.file_name;
-		exec_result = KatelloUtils.sshOnClient(cmd);
+		exec_result = sshOnClient(cmd);
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (get gpg file)");
 
-		KatelloGpgKey gpg = new KatelloGpgKey(gpg_key, org_name, file_name);
+		KatelloGpgKey gpg = new KatelloGpgKey(cli_worker, gpg_key, org_name, file_name);
 		exec_result = gpg.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
@@ -106,7 +105,7 @@ public class ProductRepoTests extends KatelloCliTestScript {
 
 		repo_name = "repo"+KatelloUtils.getUniqueID();
 		String url_name = PULP_RHEL6_x86_64_REPO.replace("http://repos.fedorapeople.org", "").replace("/", "_");
-		KatelloRepo repo = new KatelloRepo(repo_name, org_name, null, PULP_RHEL6_x86_64_REPO, null, null, null, product_id);
+		KatelloRepo repo = new KatelloRepo(this.cli_worker, repo_name, org_name, null, PULP_RHEL6_x86_64_REPO, null, null, null, product_id);
 		exec_result = repo.discover(provider_name);
 		repo_name += url_name;
 		repo.name = repo_name;
@@ -124,7 +123,7 @@ public class ProductRepoTests extends KatelloCliTestScript {
 		KatelloRepo repo = createRepo();
 		
 		String repoName1 = repo_name + "1";
-		KatelloRepo repo1 = new KatelloRepo(repoName1, org_name, null, PULP_RHEL6_x86_64_REPO, null, null, null, product_id);
+		KatelloRepo repo1 = new KatelloRepo(this.cli_worker, repoName1, org_name, null, PULP_RHEL6_x86_64_REPO, null, null, null, product_id);
 		exec_result = repo1.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
@@ -212,7 +211,7 @@ public class ProductRepoTests extends KatelloCliTestScript {
 	public void test_commandsInvalidRepo() {
 		repo_name = "repo"+KatelloUtils.getUniqueID();;
 		
-		KatelloRepo repo = new KatelloRepo(repo_name, org_name, null, PULP_RHEL6_x86_64_REPO, null, null, null, product_id);
+		KatelloRepo repo = new KatelloRepo(this.cli_worker, repo_name, org_name, null, PULP_RHEL6_x86_64_REPO, null, null, null, product_id);
 		
 		exec_result = repo.disable();
 		Assert.assertTrue(exec_result.getExitCode() == 65, "Check - return code");
@@ -234,7 +233,6 @@ public class ProductRepoTests extends KatelloCliTestScript {
 		exec_result = repo.update_gpgkey();
 		Assert.assertTrue(exec_result.getExitCode() == 65, "Check - return code");
 		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloRepo.ERR_REPO_NOTFOUND, repo.name, repo.org, product_name, "Library"));
-		
 	}
 
 	private void assert_repoInfo(KatelloRepo repo) {
@@ -274,7 +272,7 @@ public class ProductRepoTests extends KatelloCliTestScript {
 	private KatelloRepo createRepo() {
 		repo_name = "repo"+KatelloUtils.getUniqueID();;
 		
-		KatelloRepo repo = new KatelloRepo(repo_name, org_name, null, PULP_RHEL6_x86_64_REPO, null, null, null, product_id);
+		KatelloRepo repo = new KatelloRepo(this.cli_worker, repo_name, org_name, null, PULP_RHEL6_x86_64_REPO, null, null, null, product_id);
 		exec_result = repo.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloRepo.OUT_CREATE, repo_name)), "Check - output string (repo create)");

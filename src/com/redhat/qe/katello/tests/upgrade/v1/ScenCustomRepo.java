@@ -6,7 +6,6 @@ import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloGpgKey;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
@@ -73,19 +72,19 @@ public class ScenCustomRepo implements KatelloConstants{
 		KatelloUtils.sshOnClient(clients[0], "rpm -e "+KatelloGpgKey.GPG_PUBKEY_RPM_ZOO+" || true");
 		
 		
-		KatelloOrg org = new KatelloOrg(_org, null);
+		KatelloOrg org = new KatelloOrg(null, _org, null);
 		
 		KatelloUtils.sshOnClient(clients[0], "wget "+KatelloGpgKey.REPO_GPG_FILE_ZOO+" -O /tmp/RPM-GPG-KEY-dummy-packages-generator");
-		KatelloGpgKey gpg_key = new KatelloGpgKey(_gpg_key, _org, "/tmp/RPM-GPG-KEY-dummy-packages-generator");
+		KatelloGpgKey gpg_key = new KatelloGpgKey(null, _gpg_key, _org, "/tmp/RPM-GPG-KEY-dummy-packages-generator");
 		gpg_key.runOn(clients[0]);
 		
-		KatelloProvider provider = new KatelloProvider(_provider, _org, null, null);
-		KatelloProduct product = new KatelloProduct(_product, _org, _provider, null, null, null, null, null);
-		KatelloRepo repo = new KatelloRepo(_repo, _org, _product, REPO_INECAS_ZOO3, _gpg_key, null);
+		KatelloProvider provider = new KatelloProvider(null, _provider, _org, null, null);
+		KatelloProduct product = new KatelloProduct(null, _product, _org, _provider, null, null, null, null, null);
+		KatelloRepo repo = new KatelloRepo(null, _repo, _org, _product, REPO_INECAS_ZOO3, _gpg_key, null);
 		
-		KatelloEnvironment env = new KatelloEnvironment(_env, null, _org, KatelloEnvironment.LIBRARY);
-		KatelloUser user1 = new KatelloUser(_user1, _user1+"@redhat.com", "redhat", false);
-		KatelloUserRole role1 = new KatelloUserRole(_role1, null);
+		KatelloEnvironment env = new KatelloEnvironment(null, _env, null, _org, KatelloEnvironment.LIBRARY);
+		KatelloUser user1 = new KatelloUser(null, _user1, _user1+"@redhat.com", "redhat", false);
+		KatelloUserRole role1 = new KatelloUserRole(null, _role1, null);
 		
 		SSHCommandResult res = user1.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");		
@@ -108,12 +107,12 @@ public class ScenCustomRepo implements KatelloConstants{
 		res = repo.synchronize();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		
-		KatelloUtils.promoteProductToEnvironment(_org, _product, _env);
+		KatelloUtils.promoteProductToEnvironment(null, _org, _product, _env);
 
-		KatelloSystem sys = new KatelloSystem(_system, _org, _env);
+		KatelloSystem sys = new KatelloSystem(null, _system, _org, _env);
 		sys.runOn(clients[0]);
 		sys.rhsm_registerForce();
-		String pool = KatelloCli.grepCLIOutput("PoolId", sys.subscriptions_available().getStdout().trim(),1);
+		String pool = KatelloUtils.grepCLIOutput("PoolId", sys.subscriptions_available().getStdout().trim(),1);
 		Assert.assertNotNull(pool);
 		sys.rhsm_subscribe(pool);
 		
@@ -127,15 +126,15 @@ public class ScenCustomRepo implements KatelloConstants{
 			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE}, 
 			groups={TNG_POST_UPGRADE})
 	public void checkOrgSurvived(){
-		KatelloOrg org = new KatelloOrg(_org, null);
+		KatelloOrg org = new KatelloOrg(null, _org, null);
 		SSHCommandResult res = org.cli_info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (org info)");
 		
-		KatelloUserRole role1 = new KatelloUserRole(_role1, null);
+		KatelloUserRole role1 = new KatelloUserRole(null, _role1, null);
 		res = role1.cli_info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (role info)");
 		
-		KatelloUser user = new KatelloUser(_user1, null, null, false);
+		KatelloUser user = new KatelloUser(null, _user1, null, null, false);
 		res = user.cli_info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (user info)");		
 	}
@@ -144,7 +143,7 @@ public class ScenCustomRepo implements KatelloConstants{
 			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE}, 
 			groups={TNG_POST_UPGRADE})
 	public void checkRepoSurvived(){
-		KatelloRepo repo = new KatelloRepo(_repo, _org, _product, REPO_INECAS_ZOO3, null, null);
+		KatelloRepo repo = new KatelloRepo(null, _repo, _org, _product, REPO_INECAS_ZOO3, null, null);
 		SSHCommandResult res = repo.info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (org info)");
 	}
@@ -166,7 +165,7 @@ public class ScenCustomRepo implements KatelloConstants{
 	
 	private void remoteInstall() {
 		
-		KatelloSystem sys = new KatelloSystem(_system, _org, null);
+		KatelloSystem sys = new KatelloSystem(null, _system, _org, null);
 		sys.runOn(clients[0]);
 		SSHCommandResult res = sys.packages_install("lion");
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (remote install lion)");

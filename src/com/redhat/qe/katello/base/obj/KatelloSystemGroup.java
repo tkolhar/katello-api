@@ -1,8 +1,9 @@
 package com.redhat.qe.katello.base.obj;
 
 import javax.management.Attribute;
-
 import com.redhat.qe.katello.base.KatelloCli;
+import com.redhat.qe.katello.base.threading.KatelloCliWorker;
+import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class KatelloSystemGroup extends _KatelloObject{
@@ -27,6 +28,9 @@ public class KatelloSystemGroup extends _KatelloObject{
 	public static final String CMD_REMOVE_SYSTEMS = "system_group remove_systems";
 	public static final String CMD_PACKAGES = "system_group packages";
 	public static final String CMD_ERRATA = "system_group errata";
+	public static final String CMD_JOB_HISTORY = "system_group job_history -v";
+	public static final String CMD_JOB_TASKS = "system_group job_tasks";
+	public static final String CMD_UPDATE_SYSTEMS = "system_group update_systems";
 	
 	public static final String OUT_CREATE = 
 			"Successfully created system group [ %s ]";
@@ -36,26 +40,29 @@ public class KatelloSystemGroup extends _KatelloObject{
 			"Successfully added systems to system group [ %s ]";
 	public static final String OUT_REMOVE_SYSTEMS = 
 			"Successfully removed systems from system group [ %s ]";
+	public static final String OUT_UPDATE_SYSTEMS = "Successfully updated systems in group [ %s ]";
 	
 	public static final String ERR_SYSTEMGROUP_NOTFOUND = 
-			"Could not find system group [ %s ] within organization [ %s ]";
+			"Could not find system group";
+			//"Couldn't find system group ";
 	public static final String ERR_SYSTEMGROUP_EXCEED = 
 			"Validation failed: You cannot have more than %s system(s) associated with system group '%s'.";
 	
 	public static final String REG_SYSTEMGROUP_INFO = ".*ID\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Description\\s*:\\s+%s.*Max Systems\\s*:\\s+%s.*";
 	public static final String REG_SYSTEMGROUP_LIST = ".*\\s+\\d+.*\\s+%s.*";
 	public static final String REG_SYSTEM_LIST = ".*\\s+%s.*\\s+%s.*";
-	public static final String REG_SYSTEMGROUP_ERRATA_INFO = ".*Id:\\s*%s\\s*Title:\\s*%s\\s*Type:\\s*%s#\\s*Systems\\s*:\\s*%s\\s*Systems:\\s*%s.*";
+	public static final String REG_SYSTEMGROUP_ERRATA_INFO = ".*ID\\s*:\\s*%s\\s*Title\\s*:\\s*%s\\s*Type\\s*:\\s*%s#\\s*Systems\\s*:\\s*%s\\s*Systems\\s*:\\s*%s.*";
 	
-	public KatelloSystemGroup(String pName, String pOrg) {
-		this(pName, pOrg, null, null);
+	public KatelloSystemGroup(KatelloCliWorker kcr, String pName, String pOrg) {
+		this(kcr, pName, pOrg, null, null);
 	}
 	
-	public KatelloSystemGroup(String pName, String pOrg, String pDescription, Integer pmaxSystems) {
+	public KatelloSystemGroup(KatelloCliWorker kcr, String pName, String pOrg, String pDescription, Integer pmaxSystems) {
 		this.name = pName;
 		this.org = pOrg;
 		this.description = pDescription;
 		this.maxSystems = pmaxSystems;
+		this.kcr = kcr;
 	}
 	
 	public SSHCommandResult create() {
@@ -64,13 +71,18 @@ public class KatelloSystemGroup extends _KatelloObject{
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("description", description));
 		opts.add(new Attribute("max_systems", maxSystems));
-		return run(CMD_CREATE);
+		SSHCommandResult _res = run(CMD_CREATE); 
+		try{
+			Thread.sleep(1000);
+		}catch (InterruptedException e){}
+		return _res;
 	}
 	
 	public SSHCommandResult info(){
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
+		KatelloUtils.sleepAsHuman();
 		return run(CMD_INFO);
 	}
 	
@@ -113,6 +125,7 @@ public class KatelloSystemGroup extends _KatelloObject{
 	public SSHCommandResult list(){
 		opts.clear();
 		opts.add(new Attribute("org", org));
+		KatelloUtils.sleepAsHuman();
 		return run(CMD_LIST);
 	}
 
@@ -264,5 +277,29 @@ public class KatelloSystemGroup extends _KatelloObject{
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		return run(CMD_PACKAGES);
+	}
+
+	public SSHCommandResult job_history() {
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		return run(CMD_JOB_HISTORY);
+	}
+
+	public SSHCommandResult job_tasks(String jobID) {
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("job_id", jobID));
+		return run(CMD_JOB_TASKS);
+	}
+
+	public SSHCommandResult update_systems(String env, String view) {
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("environment", env));
+		opts.add(new Attribute("view", view));
+		return run(CMD_UPDATE_SYSTEMS);
 	}
 }

@@ -3,12 +3,12 @@ package com.redhat.qe.katello.tests.deltacloud.setup;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 import org.testng.annotations.Test;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.DeltaCloudInstance;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
-public class PrepareDCEnvironment extends KatelloCliTestScript {
+public class PrepareDCEnvironment extends KatelloCliTestBase {
 
 	protected SSHCommandResult res;
 	protected static DeltaCloudInstance server;

@@ -3,17 +3,18 @@ package com.redhat.qe.katello.tests.cli;
 import java.util.Arrays;
 import java.util.List;
 
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloHardwareModel;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups="foreman")
-public class HardwareModelTests extends KatelloCliTestScript {
+public class HardwareModelTests extends KatelloCliTestBase {
 	
 	private String name;
 	private String hwmodel;
@@ -24,8 +25,8 @@ public class HardwareModelTests extends KatelloCliTestScript {
 	private String new_vendorclass;
 	private String new_name;
 	
-	@BeforeClass(description="Prepare an data to work with")
-	public void setup_org(){
+	@BeforeClass(description="Prepare an data to work with", alwaysRun=true)
+	public void setUp(){
 		String uid = KatelloUtils.getUniqueID();
 		this.name = "hwm"+uid;
 		this.hwmodel = "hwmodel";
@@ -41,7 +42,7 @@ public class HardwareModelTests extends KatelloCliTestScript {
 	public void testHardwareModel_create() {
 		SSHCommandResult res;
 		
-		KatelloHardwareModel hwm = new KatelloHardwareModel(name, hwmodel, info, vendorclass);
+		KatelloHardwareModel hwm = new KatelloHardwareModel(cli_worker, name, hwmodel, info, vendorclass);
 		res = hwm.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 		
@@ -52,7 +53,7 @@ public class HardwareModelTests extends KatelloCliTestScript {
 	public void testHardwareModel_createExists() {
 		SSHCommandResult res;
 		
-		KatelloHardwareModel hwm = new KatelloHardwareModel(name, hwmodel, info, vendorclass);
+		KatelloHardwareModel hwm = new KatelloHardwareModel(cli_worker, name, hwmodel, info, vendorclass);
 		res = hwm.cli_create();
 		Assert.assertEquals(res.getExitCode().intValue(), 166, "Check - return code");
 		
@@ -62,7 +63,7 @@ public class HardwareModelTests extends KatelloCliTestScript {
 	@Test(description="info HardwareModel", dependsOnMethods={"testHardwareModel_createExists"})
 	public void testHardwareModel_info() {
 	
-		KatelloHardwareModel hwm = new KatelloHardwareModel(name, hwmodel, info, vendorclass);
+		KatelloHardwareModel hwm = new KatelloHardwareModel(cli_worker, name, hwmodel, info, vendorclass);
 		
 		assert_hardwareModelInfo(hwm);
 	}
@@ -71,7 +72,7 @@ public class HardwareModelTests extends KatelloCliTestScript {
 	public void testHardwareModel_update() {
 		SSHCommandResult res;
 		
-		KatelloHardwareModel hwm = new KatelloHardwareModel(name);
+		KatelloHardwareModel hwm = new KatelloHardwareModel(cli_worker, name);
 		hwm.hw_model = new_hwmodel;
 		hwm.vendor_class = new_vendorclass;
 		hwm.info = new_info;
@@ -86,18 +87,18 @@ public class HardwareModelTests extends KatelloCliTestScript {
 	public void testHardwareModel_list() {
 		SSHCommandResult res;
 		
-		KatelloHardwareModel hwm = new KatelloHardwareModel(new_name, new_hwmodel, new_info, new_vendorclass);
+		KatelloHardwareModel hwm = new KatelloHardwareModel(cli_worker, new_name, new_hwmodel, new_info, new_vendorclass);
 		res = hwm.cli_list();
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 		
-		assert_hardwareModelList(Arrays.asList(hwm), Arrays.asList(new KatelloHardwareModel(name, hwmodel, info, vendorclass)));
+		assert_hardwareModelList(Arrays.asList(hwm), Arrays.asList(new KatelloHardwareModel(cli_worker, name, hwmodel, info, vendorclass)));
 	}
 	
 	@Test(description="info HardwareModel not found", dependsOnMethods={"testHardwareModel_list"})
 	public void testHardwareModel_infoNotFound() {
 		SSHCommandResult res;
 		
-		KatelloHardwareModel hwm = new KatelloHardwareModel(name);
+		KatelloHardwareModel hwm = new KatelloHardwareModel(cli_worker, name);
 		res = hwm.cli_info();
 		Assert.assertTrue(res.getExitCode().intValue() == 148, "Check - return code");
 		
@@ -108,7 +109,7 @@ public class HardwareModelTests extends KatelloCliTestScript {
 	public void testHardwareModel_delete() {
 		SSHCommandResult res;
 		
-		KatelloHardwareModel hwm = new KatelloHardwareModel(new_name);
+		KatelloHardwareModel hwm = new KatelloHardwareModel(cli_worker, new_name);
 		res = hwm.delete();
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 		
@@ -119,7 +120,7 @@ public class HardwareModelTests extends KatelloCliTestScript {
 	public void testHardwareModel_updateNotFound() {
 		SSHCommandResult res;
 		
-		KatelloHardwareModel hwm = new KatelloHardwareModel(new_name);
+		KatelloHardwareModel hwm = new KatelloHardwareModel(cli_worker, new_name);
 		res = hwm.update(name);
 		Assert.assertTrue(res.getExitCode().intValue() == 148, "Check - return code");
 		
@@ -130,13 +131,18 @@ public class HardwareModelTests extends KatelloCliTestScript {
 	public void testHardwareModel_deleteNotFound() {
 		SSHCommandResult res;
 		
-		KatelloHardwareModel hwm = new KatelloHardwareModel(new_name);
+		KatelloHardwareModel hwm = new KatelloHardwareModel(cli_worker, new_name);
 		res = hwm.delete();
 		Assert.assertTrue(res.getExitCode().intValue() == 148, "Check - return code");
 		
 		Assert.assertTrue(getOutput(res).contains(String.format(KatelloHardwareModel.ERR_NOT_FOUND, new_name)),"Check - returned error string");
 	}
 	
+	@AfterClass(description="destroy", alwaysRun=true)
+	public void tearDown(){
+		
+	}
+
 	private void assert_hardwareModelInfo(KatelloHardwareModel hwm) {
 		if (hwm.info == null) hwm.info = "None";
 		if (hwm.vendor_class == null) hwm.vendor_class = "None";
@@ -153,7 +159,7 @@ public class HardwareModelTests extends KatelloCliTestScript {
 		
 	private void assert_hardwareModelList(List<KatelloHardwareModel> hwms, List<KatelloHardwareModel> excludeHwms) {
 
-		SSHCommandResult res = new KatelloHardwareModel(name).cli_list();
+		SSHCommandResult res = new KatelloHardwareModel(cli_worker, name).cli_list();
 
 		//hardware models that exist in list
 		for(KatelloHardwareModel hwm : hwms) {		

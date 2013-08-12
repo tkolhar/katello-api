@@ -3,13 +3,12 @@ package com.redhat.qe.katello.tests.cli;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
-
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.DeltaCloudInstance;
 import com.redhat.qe.katello.common.KatelloUtils;
 
 @Test(groups = { "cfse-cli", "headpin-cli"})
-public class SetupServers extends KatelloCliTestScript {
+public class SetupServers extends KatelloCliTestBase {
 	
 	protected DeltaCloudInstance server;
 	protected DeltaCloudInstance client;
@@ -32,8 +31,6 @@ public class SetupServers extends KatelloCliTestScript {
 			System.setProperty("katello.server.hostname", server.getHostName());
 			System.setProperty("katello.client.hostname", server.getHostName());
 		}
-		KatelloUtils.disableYumRepo("beaker");
-		KatelloUtils.disableYumRepo("epel");
 	}
 	
 	@AfterSuite(alwaysRun=true)
@@ -42,8 +39,6 @@ public class SetupServers extends KatelloCliTestScript {
 			KatelloUtils.destroyDeltaCloudMachine(server);
 			KatelloUtils.destroyDeltaCloudMachine(client);
 		}
-		KatelloUtils.enableYumRepo("beaker");
-		KatelloUtils.enableYumRepo("epel");
 	}
 
 }

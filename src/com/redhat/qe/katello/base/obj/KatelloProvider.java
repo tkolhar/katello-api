@@ -4,6 +4,7 @@ import javax.management.Attribute;
 
 import org.codehaus.jackson.annotate.JsonProperty;
 
+import com.redhat.qe.katello.base.threading.KatelloCliWorker;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class KatelloProvider extends _KatelloObject{
@@ -65,16 +66,18 @@ public class KatelloProvider extends _KatelloObject{
 	
 	public KatelloProvider(){super();}
 	
-	public KatelloProvider(String pName, String pOrg, 
+	public KatelloProvider(KatelloCliWorker kcr, 
+			String pName, String pOrg, 
 			String pDesc, String pUrl){
 		this.name = pName;
 		this.org = pOrg;
 		this.description = pDesc;
 		this.url = pUrl;
+		this.kcr = kcr;
 	}
 	
-	public KatelloProvider(Long id, String name, String org, String desc, String url, Long organizationId, String providerType, String updatedAt) {
-	    this(name, org, desc, url);
+	public KatelloProvider(KatelloCliWorker kcr, Long id, String name, String org, String desc, String url, Long organizationId, String providerType, String updatedAt) {
+	    this(kcr, name, org, desc, url);
 	    this.id = id;
 	    this.organizationId = organizationId;
 	    this.providerType = providerType;

@@ -1,6 +1,8 @@
 package com.redhat.qe.katello.base.obj;
 
 import javax.management.Attribute;
+
+import com.redhat.qe.katello.base.threading.KatelloCliWorker;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class KatelloGpgKey extends _KatelloObject{
@@ -28,10 +30,11 @@ public class KatelloGpgKey extends _KatelloObject{
 	public String org;
 	public String file;
 		
-	public KatelloGpgKey(String pName, String pOrg, String pFile){
+	public KatelloGpgKey(KatelloCliWorker kcr, String pName, String pOrg, String pFile){
 		this.name = pName;
 		this.org = pOrg;
 		this.file = pFile;
+		this.kcr = kcr;
 	}
 	
 	public SSHCommandResult cli_create(){
