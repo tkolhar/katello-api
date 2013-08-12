@@ -31,14 +31,14 @@ public class KatelloMisc {
 //		return null;
 //	}
 	
-	public String cli_getPoolBySubscription(String subscriptionName, int quantity) {
+	public String cli_getPoolBySubscription(String client, String subscriptionName, int quantity) {
 		
-		SSHCommandResult exec_result = KatelloUtils.sshOnClient("subscription-manager list --available --all | sed  -e 's/^ \\{1,\\}//'");
+		SSHCommandResult exec_result = KatelloUtils.sshOnClient(client, "subscription-manager list --available --all | sed  -e 's/^ \\{1,\\}//'");
 		
 		String match_info = null;
 		//Here it is used regular expression to get exact subscription from the list of subscriptions. As there can be several of them by the same name, the difference is used the quantity attribute.
 		if (KatelloConstants.KATELLO_PRODUCT.equals("katello") || KatelloConstants.KATELLO_PRODUCT.equals("headpin")
-				|| !KatelloUtils.sshOnClient("rpm -q subscription-manager").getStdout().contains("0.99")) { //server subscription-manager can be the latest for SAM and CFSE
+				|| !KatelloUtils.sshOnClient(client, "rpm -q subscription-manager").getStdout().contains("0.99")) { //server subscription-manager can be the latest for SAM and CFSE
 			match_info = String.format(KatelloSystem.REG_SUBSCRIPTION, subscriptionName, String.valueOf(quantity)).replaceAll("\"", "");
 		} else {
 			match_info = String.format(KatelloSystem.REG_SUBSCRIPTION_CFSE, subscriptionName, String.valueOf(quantity)).replaceAll("\"", "");

@@ -3,12 +3,12 @@ package com.redhat.qe.katello.tests.i18n;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
-public class OrgTests extends KatelloCliTestScript {
+public class OrgTests extends KatelloCliTestBase {
 	
 	private String orgName;
 	private String orgDescr;
@@ -20,7 +20,7 @@ public class OrgTests extends KatelloCliTestScript {
 		orgName = getText("org.create.name") + uid;
 		orgDescr = getText("org.create.description") + uid;
 		
-		KatelloOrg org = new KatelloOrg(orgName, orgDescr);
+		KatelloOrg org = new KatelloOrg(this.cli_worker, orgName, orgDescr);
 		
 		SSHCommandResult res = org.cli_create();
 		
@@ -32,7 +32,7 @@ public class OrgTests extends KatelloCliTestScript {
 	public void test_updateOrg() {
 		orgNewDescr = getText("org.update.description");
 		
-		KatelloOrg org = new KatelloOrg(orgName, null);
+		KatelloOrg org = new KatelloOrg(this.cli_worker, orgName, null);
 		
 		SSHCommandResult res = org.update(orgNewDescr);
 		
@@ -43,7 +43,7 @@ public class OrgTests extends KatelloCliTestScript {
 	@Test(description = "Retrieves org", dependsOnMethods = {"test_updateOrg"}, groups={"cfse-cli"})
 	public void test_readOrg() {
 		
-		KatelloOrg org = new KatelloOrg(orgName, null);
+		KatelloOrg org = new KatelloOrg(this.cli_worker, orgName, null);
 		
 		SSHCommandResult res = org.cli_info();
 		
@@ -57,7 +57,7 @@ public class OrgTests extends KatelloCliTestScript {
 	@Test(description = "Lists orgs", dependsOnMethods = {"test_readOrg"}, groups={"cfse-cli"})
 	public void test_listOrg() {
 		
-		KatelloOrg org = new KatelloOrg(orgName, null);
+		KatelloOrg org = new KatelloOrg(this.cli_worker, orgName, null);
 		
 		SSHCommandResult res = org.cli_list();
 		
@@ -71,7 +71,7 @@ public class OrgTests extends KatelloCliTestScript {
 	@Test(description = "Deletes org", dependsOnMethods = {"test_listOrg"}, groups={"cfse-cli"})
 	public void test_deleteOrg() {
 		
-		KatelloOrg org = new KatelloOrg(orgName, null);
+		KatelloOrg org = new KatelloOrg(this.cli_worker, orgName, null);
 		
 		SSHCommandResult res = org.delete();
 		

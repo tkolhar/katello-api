@@ -4,6 +4,7 @@ import java.util.logging.Logger;
 
 import javax.management.Attribute;
 
+import com.redhat.qe.katello.base.threading.KatelloCliWorker;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class KatelloHardwareModel extends _KatelloObject{
@@ -39,15 +40,17 @@ public class KatelloHardwareModel extends _KatelloObject{
 	
 	public KatelloHardwareModel(){super();}
 	
-	public KatelloHardwareModel(String pName){
+	public KatelloHardwareModel(KatelloCliWorker kcr, String pName){
 		this.name = pName;
+		this.kcr = kcr;
 	}
 	
-	public KatelloHardwareModel(String pName, String phwModel, String pinfo, String pvendorClass){
+	public KatelloHardwareModel(KatelloCliWorker kcr, String pName, String phwModel, String pinfo, String pvendorClass){
 		this.name = pName;
 		this.hw_model = phwModel;
 		this.info = pinfo;
 		this.vendor_class = pvendorClass;
+		this.kcr = kcr;
 	}
 	
 	public String getName() {

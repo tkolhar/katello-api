@@ -6,18 +6,17 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.tests.e2e.SystemsReport;
-import com.redhat.qe.tools.SCPTools;
+
 import com.redhat.qe.tools.SSHCommandResult;
 
-public class ProviderTests extends KatelloCliTestScript {
+public class ProviderTests extends KatelloCliTestBase {
 	protected static Logger log = Logger.getLogger(ProviderTests.class.getName());
 	
 	private String uid;
@@ -28,7 +27,7 @@ public class ProviderTests extends KatelloCliTestScript {
 		uid = KatelloUtils.getUniqueID();
 		org_name = getText("org.create.name")+" "+uid;
 
-		KatelloOrg org = new KatelloOrg(org_name, null);
+		KatelloOrg org = new KatelloOrg(this.cli_worker, org_name, null);
 		SSHCommandResult res = org.cli_create();
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 	}
@@ -38,7 +37,7 @@ public class ProviderTests extends KatelloCliTestScript {
 		String provider_name = getText("provider.create.name")+" "+uid;
 		String provider_description = getText("provider.create.description");
 		String outSuccess = getText("provider.create.stdout", provider_name);
-		KatelloProvider prov = new KatelloProvider(provider_name, org_name, provider_description, null);
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, provider_name, org_name, provider_description, null);
 		SSHCommandResult res = prov.create();
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(res).equals(outSuccess), "Check - stdout (provider create)");
@@ -47,12 +46,12 @@ public class ProviderTests extends KatelloCliTestScript {
 	@Test(description="provider info", dependsOnMethods={"createProvider"})
 	public void infoProvider(){
 		String provider_name = getText("provider.create.name")+" "+uid;
-		KatelloProvider prov = new KatelloProvider(provider_name, org_name, null, null);
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, provider_name, org_name, null, null);
 		SSHCommandResult res = prov.info();
-		String grepName = KatelloCli.grepCLIOutput(
+		String grepName = KatelloUtils.grepCLIOutput(
 				getText("provider.list.stdout.property.name"), 
 				getOutput(res));
-		String grepDescription = KatelloCli.grepCLIOutput("Description", getOutput(res));
+		String grepDescription = KatelloUtils.grepCLIOutput("Description", getOutput(res));
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(provider_name.equals(grepName), 
 				"Check - stdout (provider info: name)");
@@ -62,7 +61,7 @@ public class ProviderTests extends KatelloCliTestScript {
 	
 	@Test(description="provider list", dependsOnMethods={"createProvider"})
 	public void listProvider(){
-		KatelloProvider prov = new KatelloProvider(
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, 
 				getText("provider.create.name")+" "+uid, org_name, 
 				getText("provider.create.description"), null);
 		SSHCommandResult res = prov.cli_list();
@@ -76,7 +75,7 @@ public class ProviderTests extends KatelloCliTestScript {
 	@Test(description="provider refresh_products")
 	public void refreshProductsProvider(){
 		String outSuccess = getText("provider.refresh_products.stdout", KatelloProvider.PROVIDER_REDHAT);
-		KatelloProvider prov = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT,org_name,null,null);
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, KatelloProvider.PROVIDER_REDHAT,org_name,null,null);
 		SSHCommandResult res = prov.refresh_products();
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(res).equals(outSuccess), "Check - stdout (provider refresh_products)");
@@ -86,12 +85,12 @@ public class ProviderTests extends KatelloCliTestScript {
 	public void statusProvider_RedHat(){
 		String outLastSync = getText("provider.status.last_sync.never");
 		String outSyncState = getText("provider.status.sync_state.not_synced");
-		KatelloProvider prov = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT,org_name,null,null);
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, KatelloProvider.PROVIDER_REDHAT,org_name,null,null);
 		SSHCommandResult res = prov.status();
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
-		Assert.assertTrue(outSyncState.equals(KatelloCli.grepCLIOutput("Sync State", getOutput(res))), 
+		Assert.assertTrue(outSyncState.equals(KatelloUtils.grepCLIOutput("Sync State", getOutput(res))), 
 				"Check - stdout.'Sync State' (provider status: --name Red Hat)");
-		Assert.assertTrue(outLastSync.equals(KatelloCli.grepCLIOutput("Last Sync", getOutput(res))), 
+		Assert.assertTrue(outLastSync.equals(KatelloUtils.grepCLIOutput("Last Sync", getOutput(res))), 
 				"Check - stdout.'Last Sync' (provider status: --name Red Hat)");
 	}
 
@@ -100,12 +99,12 @@ public class ProviderTests extends KatelloCliTestScript {
 		String provider_name = getText("provider.create.name")+" "+uid;
 		String outLastSync = getText("provider.status.last_sync.never");
 		String outSyncState = getText("provider.status.sync_state.not_synced");
-		KatelloProvider prov = new KatelloProvider(provider_name,org_name,null,null);
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, provider_name,org_name,null,null);
 		SSHCommandResult res = prov.status();
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
-		Assert.assertTrue(outSyncState.equals(KatelloCli.grepCLIOutput("Sync State", getOutput(res))), 
+		Assert.assertTrue(outSyncState.equals(KatelloUtils.grepCLIOutput("Sync State", getOutput(res))), 
 				"Check - stdout.'Sync State' (provider status: --name Red Hat)");
-		Assert.assertTrue(outLastSync.equals(KatelloCli.grepCLIOutput("Last Sync", getOutput(res))), 
+		Assert.assertTrue(outLastSync.equals(KatelloUtils.grepCLIOutput("Last Sync", getOutput(res))), 
 				"Check - stdout.'Last Sync' (provider status: --name Red Hat)");
 	}
 
@@ -113,11 +112,11 @@ public class ProviderTests extends KatelloCliTestScript {
 	public void updateProvider(){
 		String provider_name = "todo "+getText("provider.create.name")+" "+uid;
 		String outSuccess = getText("provider.update.stdout", getText("provider.update.name")+" "+uid);
-		KatelloProvider prov = new KatelloProvider(provider_name, org_name, null, null);
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, provider_name, org_name, null, null);
 		SSHCommandResult res = prov.create();
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 		
-		prov = new KatelloProvider(provider_name, org_name, null, null);
+		prov = new KatelloProvider(this.cli_worker, provider_name, org_name, null, null);
 		res = prov.update(getText("provider.update.name")+" "+uid, null, getText("provider.create.description"));
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(res).equals(outSuccess), "Check - stdout (provider create)");
@@ -125,16 +124,8 @@ public class ProviderTests extends KatelloCliTestScript {
 	
 	@Test(description="provider import_manifest", dependsOnMethods={"createProvider"})
 	public void importManifestProvider(){
-		KatelloProvider prov = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, org_name, null, null);
-		
-		SCPTools scp = new SCPTools(
-				System.getProperty("katello.client.hostname", "localhost"), 
-				System.getProperty("katello.client.ssh.user", "root"), 
-				System.getProperty("katello.client.sshkey.private", ".ssh/id_hudson_dsa"), 
-				System.getProperty("katello.client.sshkey.passphrase", "null"));
-		Assert.assertTrue(scp.sendFile(
-				"data"+File.separator+SystemsReport.MANIFEST_2SUBSCRIPTIONS, "/tmp"),
-				SystemsReport.MANIFEST_2SUBSCRIPTIONS+" sent successfully");			
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, KatelloProvider.PROVIDER_REDHAT, org_name, null, null);
+		KatelloUtils.scpOnClient(cli_worker.getClientHostname(), "data/"+SystemsReport.MANIFEST_2SUBSCRIPTIONS, "/tmp");
 		SSHCommandResult res = prov.import_manifest("/tmp"+File.separator+SystemsReport.MANIFEST_2SUBSCRIPTIONS, null);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		Assert.assertTrue(getOutput(res).contains(getText("provider.import_manifest.please_wait")),"provider import_manifest - 1");
@@ -143,7 +134,7 @@ public class ProviderTests extends KatelloCliTestScript {
 	
 	@Test(description="provider refresh_products", dependsOnMethods={"importManifestProvider"})
 	public void refreshProducts(){
-		KatelloProvider prov = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, org_name, null, null);
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, KatelloProvider.PROVIDER_REDHAT, org_name, null, null);
 		SSHCommandResult res;
 		
 		res = prov.refresh_products();
@@ -155,11 +146,11 @@ public class ProviderTests extends KatelloCliTestScript {
 	public void enableRepo(){
 		SSHCommandResult res;
 		
-		KatelloProduct prod=new KatelloProduct(KatelloProduct.RHEL_SERVER,org_name, KatelloProvider.PROVIDER_REDHAT, null, null, null,null, null);
+		KatelloProduct prod=new KatelloProduct(this.cli_worker, KatelloProduct.RHEL_SERVER,org_name, KatelloProvider.PROVIDER_REDHAT, null, null, null,null, null);
 		res = prod.repository_set_enable(KatelloProduct.REPOSET_RHEL6_RPMS);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo set enable)");
 		
-		KatelloRepo repo = new KatelloRepo(KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, org_name, 
+		KatelloRepo repo = new KatelloRepo(this.cli_worker, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, org_name, 
 				KatelloProduct.RHEL_SERVER, null, null, null);
 		log.finest(String.format("Enable the repo: [%s] for synchronization",repo.name));
 		res = repo.enable();
@@ -169,7 +160,7 @@ public class ProviderTests extends KatelloCliTestScript {
 	
 	@Test(description="provider synchronize (nowait)", dependsOnMethods={"enableRepo"})
 	public void synchronizeNowait(){
-		KatelloProvider prov = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, org_name, null, null);
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, KatelloProvider.PROVIDER_REDHAT, org_name, null, null);
 		SSHCommandResult res;
 		
 		log.info("Invoke provider synchronize - nowait");
@@ -183,7 +174,7 @@ public class ProviderTests extends KatelloCliTestScript {
 	
 	@Test(description="provider cancel_sync", dependsOnMethods={"synchronizeNowait"})
 	public void cancel_sync(){
-		KatelloProvider prov = new KatelloProvider(KatelloProvider.PROVIDER_REDHAT, org_name, null, null);
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, KatelloProvider.PROVIDER_REDHAT, org_name, null, null);
 		SSHCommandResult res;
 		
 		log.info("Cacnel synchronization");
@@ -199,7 +190,7 @@ public class ProviderTests extends KatelloCliTestScript {
 	@Test(description="provider delete")
 	public void delete(){
 		String provider_name = "DEL "+getText("provider.create.name")+" "+uid;
-		KatelloProvider prov = new KatelloProvider(provider_name, org_name, null, null);
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, provider_name, org_name, null, null);
 		SSHCommandResult res = prov.create();
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 		res = prov.delete();
@@ -211,7 +202,7 @@ public class ProviderTests extends KatelloCliTestScript {
 	public void destroy(){
 
 		log.info(String.format("Remove the org: [%s] with the manifest related",org_name));
-		KatelloOrg org = new KatelloOrg(org_name,null);
+		KatelloOrg org = new KatelloOrg(this.cli_worker, org_name,null);
 		SSHCommandResult res = org.delete();
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 	}

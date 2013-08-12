@@ -4,8 +4,7 @@ import java.util.logging.Logger;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
@@ -14,7 +13,7 @@ import com.redhat.qe.katello.base.obj.KatelloUser;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
-public class RepoTests extends KatelloCliTestScript {
+public class RepoTests extends KatelloCliTestBase {
 
 	protected static Logger log = Logger
 			.getLogger(RepoTests.class.getName());
@@ -38,24 +37,24 @@ public class RepoTests extends KatelloCliTestScript {
 		product_name = "product" + uid;
 		
 		// Create org:
-		KatelloOrg org = new KatelloOrg(this.org_name, "Package tests");
+		KatelloOrg org = new KatelloOrg(this.cli_worker, this.org_name, "Package tests");
 		exec_result = org.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
 		// Create user:
-		KatelloUser user = new KatelloUser(user_name, "root@localhost",
+		KatelloUser user = new KatelloUser(cli_worker, user_name, "root@localhost",
 				KatelloUser.DEFAULT_USER_PASS, false);
 		exec_result = user.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
 		// Create provider:
-		KatelloProvider prov = new KatelloProvider(provider_name, org_name,
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, provider_name, org_name,
 				"Package provider", null);
 		exec_result = prov.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
 		// Create product:
-		KatelloProduct prod = new KatelloProduct(product_name, org_name,
+		KatelloProduct prod = new KatelloProduct(this.cli_worker, product_name, org_name,
 				provider_name, null, null, null, null, null);
 		exec_result = prod.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
@@ -65,7 +64,7 @@ public class RepoTests extends KatelloCliTestScript {
 	public void test_createRepo() {
 		repo_name = getText("repo.create.name") + KatelloUtils.getUniqueID();
 		
-		KatelloRepo repo = new KatelloRepo(repo_name, org_name, product_name, PULP_RHEL6_x86_64_REPO, null, null);
+		KatelloRepo repo = new KatelloRepo(this.cli_worker, repo_name, org_name, product_name, PULP_RHEL6_x86_64_REPO, null, null);
 		exec_result = repo.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).equals(getText("repo.create.stdout", repo_name)), "Check - output string (repo create)");
@@ -74,7 +73,7 @@ public class RepoTests extends KatelloCliTestScript {
 	@Test(description = "Create repo exists", dependsOnMethods = {"test_createRepo"})
 	public void test_createRepoExists() {
 
-		KatelloRepo repo = new KatelloRepo(repo_name, org_name, product_name, PULP_RHEL6_x86_64_REPO, null, null);
+		KatelloRepo repo = new KatelloRepo(this.cli_worker, repo_name, org_name, product_name, PULP_RHEL6_x86_64_REPO, null, null);
 		
 		exec_result = repo.create();
 		Assert.assertTrue(exec_result.getExitCode() == 153, "Check - return code");
@@ -86,7 +85,7 @@ public class RepoTests extends KatelloCliTestScript {
 
 		repo_name2 = getText("repo.create.name") + KatelloUtils.getUniqueID();
 		String url_name = PULP_RHEL6_x86_64_REPO.replace("http://repos.fedorapeople.org", "").replace("/", "_");
-		KatelloRepo repo = new KatelloRepo(repo_name2, org_name, product_name, PULP_RHEL6_x86_64_REPO, null, null);
+		KatelloRepo repo = new KatelloRepo(this.cli_worker, repo_name2, org_name, product_name, PULP_RHEL6_x86_64_REPO, null, null);
 		exec_result = repo.discover(provider_name);
 		repo_name2 += url_name;
 		repo.name = repo_name2;
@@ -94,12 +93,12 @@ public class RepoTests extends KatelloCliTestScript {
 		Assert.assertTrue(getOutput(exec_result).contains(getText("repo.discover.stdout", repo_name2)), "Check - output string (repo discover)");
 		
 		exec_result = repo.list();
-		repo_id2 = KatelloCli.grepCLIOutput("ID", getOutput(exec_result), 2);
+		repo_id2 = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result), 2);
 	}
 	
 	@Test(description = "List repos", dependsOnMethods = {"test_discoverRepo", "test_createRepo"})
 	public void test_listRepo() {
-		KatelloRepo repo = new KatelloRepo(repo_name, org_name, product_name, PULP_RHEL6_x86_64_REPO, null, null);
+		KatelloRepo repo = new KatelloRepo(this.cli_worker, repo_name, org_name, product_name, PULP_RHEL6_x86_64_REPO, null, null);
 		
 		exec_result = repo.list();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
@@ -111,7 +110,7 @@ public class RepoTests extends KatelloCliTestScript {
 	@Test(description = "Synchronize repository", dependsOnMethods = {"test_createRepo"})
 	public void test_syncRepo() {
 		
-		KatelloRepo repo = new KatelloRepo(repo_name, org_name, product_name, PULP_RHEL6_x86_64_REPO, null, null);
+		KatelloRepo repo = new KatelloRepo(this.cli_worker, repo_name, org_name, product_name, PULP_RHEL6_x86_64_REPO, null, null);
 		
 		exec_result = repo.synchronize();
 		
@@ -123,7 +122,7 @@ public class RepoTests extends KatelloCliTestScript {
 	@Test(description = "Try to enable/disable custom repo, check error", dependsOnMethods = {"test_createRepo"})
 	public void test_enableDisableRepo() {
 
-		KatelloRepo repo = new KatelloRepo(repo_name, org_name, product_name, PULP_RHEL6_x86_64_REPO, null, null);
+		KatelloRepo repo = new KatelloRepo(this.cli_worker, repo_name, org_name, product_name, PULP_RHEL6_x86_64_REPO, null, null);
 		
 		exec_result = repo.enable();
 		Assert.assertTrue(exec_result.getExitCode() == 148, "Check - return code");
@@ -137,7 +136,7 @@ public class RepoTests extends KatelloCliTestScript {
 	@Test(description = "Delete repo", dependsOnMethods = {"test_discoverRepo", "test_listRepo"})
 	public void test_deleteRepo() {
 
-		KatelloRepo repo = new KatelloRepo(repo_name2, org_name, product_name, PULP_RHEL6_x86_64_REPO, null, null);
+		KatelloRepo repo = new KatelloRepo(this.cli_worker, repo_name2, org_name, product_name, PULP_RHEL6_x86_64_REPO, null, null);
 		
 		exec_result = repo.delete();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");

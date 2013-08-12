@@ -10,6 +10,7 @@
 			</run>
 		</groups>
 		<classes>
+			<class name="com.redhat.qe.katello.tests.cli.SetupServers"/>
 			<class name="com.redhat.qe.katello.tests.cli.ActivationKeyTests"/>  	
 			<class name="com.redhat.qe.katello.tests.cli.ProductTests"/>  
 			<class name="com.redhat.qe.katello.tests.cli.UserRoleTests"/> 
@@ -61,6 +62,7 @@
 			</run>
 		</groups>
 		<classes>
+			<class name="com.redhat.qe.katello.tests.upgrade.v1.SetupServers"/>
 			<class name="com.redhat.qe.katello.tests.upgrade.v1.ImportedManifest"/>
 			<class name="com.redhat.qe.katello.tests.upgrade.v1.VirtualSubscriptions"/>
 			<class name="com.redhat.qe.katello.tests.upgrade.v1.KatelloUpgrade"/>
@@ -72,5 +74,28 @@
 			<class name="com.redhat.qe.katello.tests.longrun.ContentTest"/>
 		</classes>
 	</test>
-
+	
+    <test name="Headpin_LDAP_Tests">
+		<groups>
+    			<run>
+      				<include name="headpin-cli"/>
+    			</run>
+ 		</groups>
+		<classes>
+		    <class name="com.redhat.qe.katello.tests.installation.SetupServers"/>
+			<class name="com.redhat.qe.katello.tests.installation.GroupTests"/>
+			<class name="com.redhat.qe.katello.tests.installation.UserTests"/>
+		</classes>
+	</test>
+	<test name="Headpin_ISO_Tests">
+		<groups>
+    			<run>
+      				<include name="cfse-cli"/>
+    			</run>
+ 		</groups>
+		<classes>
+		    <class name="com.redhat.qe.katello.tests.installation.SetupServers"/>
+			<class name="com.redhat.qe.katello.tests.installation.InstallISOTests"/>
+		</classes>
+	</test>
 </suite>

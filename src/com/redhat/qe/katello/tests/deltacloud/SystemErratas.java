@@ -1,5 +1,6 @@
 package com.redhat.qe.katello.tests.deltacloud;
 
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
@@ -9,11 +10,19 @@ import com.redhat.qe.katello.common.KatelloUtils;
 @Test(groups="cfse-dc-errata")
 public class SystemErratas extends BaseDeltacloudTest {
 	
-
-	private void setUpErratas(){	
+	@BeforeClass
+	public void setUp() {
+		rhsm_clean(client_name);
+		
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, system_name, org_name, env_name);
+		sys.runOn(client_name);
+		exec_result = sys.rhsm_registerForce(rhel_act_key); 
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		
+		exec_result = sys.rhsm_identity();
+		system_uuid = KatelloUtils.grepCLIOutput("Current identity is", exec_result.getStdout());
+		
 		configureClient(client_name);
-		configureClient(client_name2);
-		configureClient(client_name3);
 	}
 	
 	private void configureClient(String client) {
@@ -25,9 +34,8 @@ public class SystemErratas extends BaseDeltacloudTest {
 	
 	@Test(description = "List the errata on system")
 	public void test_errataListOnSystem() {
-		setUpErratas();
 		
-		KatelloSystem system = new KatelloSystem(system_name, org_name, env_name);
+		KatelloSystem system = new KatelloSystem(this.cli_worker, system_name, org_name, null);
 		exec_result = system.list_errata_count("RHBA");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertFalse(getOutput(exec_result).replaceAll("\n", "").trim().equals("0"), "Check - erratas are not empty");
@@ -43,9 +51,8 @@ public class SystemErratas extends BaseDeltacloudTest {
 	
 	@Test(description = "List the errata details on system group", dependsOnMethods={"test_errataListOnSystem"})
 	public void test_errataDetailsOnSystemGroup() {
-		setUpErratas();
 		
-		KatelloSystem system = new KatelloSystem(system_name, org_name, env_name);
+		KatelloSystem system = new KatelloSystem(this.cli_worker, system_name, org_name, null);
 		exec_result = system.list_errata_details_count("RHBA");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertFalse(getOutput(exec_result).replaceAll("\n", "").trim().equals("0"), "Check - erratas are not empty");

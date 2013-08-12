@@ -18,13 +18,20 @@ public class BeakerUtils {
 		return KatelloUtils.sshOnClient(hostname, cmds);
 	}
 
-	public static SSHCommandResult Katello_Configuration_KatelloClient(String hostname, String servername, String releaseVersion){
+	public static SSHCommandResult Katello_Configuration_KatelloClient(String hostname, String servername, String releaseVersion, String product){
 		String cmds = 
 				"yum install -y Katello-Katello-Configuration-KatelloClient --disablerepo=* --enablerepo=beaker*; " +
 				"cd /mnt/tests/Katello/Configuration/KatelloClient/; " +
 				"export KATELLO_SERVER_HOSTNAME="+servername+"; " +
+				"export KATELLO_PRODUCT="+product+"; " +
 				"export KATELLO_RELEASE="+releaseVersion+"; make run";
 		return KatelloUtils.sshOnClient(hostname, cmds);
+	}
+	
+	public static void install_CandlepinCert(String hostname, String servername){
+		KatelloUtils.sshOnClient(hostname, "yum -y update subscription-manager python-rhsm --disablerepo=\\*beaker\\*");
+		KatelloUtils.sshOnClient(hostname, "wget http://" + servername + "/pub/candlepin-cert-consumer-" + servername + "-1.0-1.noarch.rpm -O /tmp/candlepin-cert-consumer-" + servername + "-1.0-1.noarch.rpm");
+		KatelloUtils.sshOnClient(hostname, "yum -y --nogpgcheck localinstall /tmp/candlepin-cert-consumer-" + servername + "-1.0-1.noarch.rpm");
 	}
 	
 	public static SSHCommandResult Katello_Installation_ConfigureRepos(String hostname){
@@ -58,10 +65,17 @@ public class BeakerUtils {
 	}
 	
 	public static SSHCommandResult Katello_Installation_Satellite6Latest(String hostname, String releaseVersion){
+		
+		String sat6Url = System.getProperty("SAT6_URL",null);
+		String sat6ToolsUrl = System.getProperty("SAT6_TOOLS_URL",null);
 		String cmds = 
 				"yum install -y Katello-Katello-Installation-Satellite6Latest --disablerepo=\\* --enablerepo=\\*beaker\\*; " +
-				"cd /mnt/tests/Katello/Installation/Satellite6Latest/; " +
-				"export SAT6_RELEASE=" + releaseVersion + "; make run";
+				"cd /mnt/tests/Katello/Installation/Satellite6Latest/";
+		if(sat6Url!=null)
+			cmds +="; export SAT6_URL="+sat6Url;
+		if(sat6ToolsUrl!=null)
+			cmds +="; export SAT6_TOOLS_URL="+sat6ToolsUrl;
+		cmds += "; export SAT6_RELEASE=" + releaseVersion + "; make run";
 		return KatelloUtils.sshOnClient(hostname, cmds);
 	}
 

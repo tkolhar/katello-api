@@ -1,11 +1,11 @@
-package com.redhat.qe.katello.tests.backup;
+package com.redhat.qe.katello.tests.installation;
 
 import java.util.logging.Logger;
 
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloPing;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
@@ -14,8 +14,8 @@ import com.redhat.qe.tools.SSHCommandResult;
  * Test for checking Katello backup/restore by Katello Server backup Guide https://fedorahosted.org/katello/wiki/GuideServerBackups
  * @author hhovsepy
  */
-@Test(groups={"cfse-e2e"})
-public class BackupRecovery extends KatelloCliTestScript {
+@Test(groups = { "cfse-cli", "headpin-cli" })
+public class BackupRecovery extends KatelloCliTestBase {
 	protected static Logger log = Logger.getLogger(BackupRecovery.class.getName());
 	
 	private static final String BDIR = "/backup";
@@ -58,13 +58,8 @@ public class BackupRecovery extends KatelloCliTestScript {
 	@Test(description="backup pulp repos", groups={TNG_BACKUP}, dependsOnGroups={TNG_PRE_BACKUP},
 			enabled=true, dependsOnMethods={"backupSystemFiles"})
 	public void backupRepos() {
-		SSHCommandResult res = KatelloUtils.sshOnServer("service pulp-server stop");
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		
-		res = KatelloUtils.sshOnServer("tar --selinux -cvf " + BDIR + "/pulp_data.tar /var/lib/pulp /var/www/pub");
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		
-		res = KatelloUtils.sshOnServer("service pulp-server start");
+		SSHCommandResult res = KatelloUtils.sshOnServer("tar --selinux -cvf " + BDIR + "/pulp_data.tar /var/lib/pulp /var/www/pub");
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 	}
 	
@@ -114,27 +109,17 @@ public class BackupRecovery extends KatelloCliTestScript {
 		Assert.assertTrue(getOutput(res).contains("pgsql_data.tar.gz"), "Result should contain pgsql_data.tar.gz");
 	}
 	
-	@Test(description="reinstall katello on server", groups={TNG_BACKUP}, dependsOnGroups={TNG_PRE_BACKUP},
+	@Test(description="reset katello on server", groups={TNG_BACKUP}, dependsOnGroups={TNG_PRE_BACKUP},
 			enabled=true, dependsOnMethods={"checkBackup"})
-	public void reinstallKatello() {
-		SSHCommandResult res = KatelloUtils.sshOnServer("wget https://raw.github.com/Katello/katello/master/scripts/katello_remove.sh");
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		
-		KatelloUtils.sshOnServer("chmod a+x katello_remove.sh");
-		res = KatelloUtils.sshOnServer("./katello_remove.sh");
+	public void resetKatello() {
+		SSHCommandResult res = KatelloUtils.sshOnServer(KatelloUtils.getKatelloConfigureCommand() + " --reset-cache=YES --reset-data=YES");
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		
 		KatelloUtils.sshOnServer("subscription-manager clean; yum clean all");
-		
-		res = KatelloUtils.sshOnServer("cd /mnt/tests/Katello/Installation/SystemEngineLatest/; export CFSE_RELEASE=1.1 && make run");
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		
-		res = KatelloUtils.sshOnServer("cd /mnt/tests/Katello/Configuration/KatelloClient/; export CFSE_RELEASE=1.1 && make run");
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 	}
 	
 	@Test(description="prepare for restores", groups={TNG_BACKUP}, dependsOnGroups={TNG_PRE_BACKUP},
-			enabled=true, dependsOnMethods={"reinstallKatello"})
+			enabled=true, dependsOnMethods={"resetKatello"})
 	public void prepareRestore() {
 		SSHCommandResult res = KatelloUtils.sshOnServer("restorecon -Rnv /");
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
@@ -187,7 +172,6 @@ public class BackupRecovery extends KatelloCliTestScript {
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		try{Thread.sleep(10000);}catch(Exception ex){} // waiting for mongod to start
 		res = KatelloUtils.sshOnServer("cd " + BDIR + ";" + "echo 'db.dropDatabase();' | mongo pulp_database");
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		
 		res = KatelloUtils.sshOnServer("cd " + BDIR + ";" + "mongorestore --host localhost mongo_dump/pulp_database/");
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
@@ -196,17 +180,11 @@ public class BackupRecovery extends KatelloCliTestScript {
 	@Test(description="finish restore by restarting services and checking ping", groups={TNG_BACKUP},
 			dependsOnGroups={TNG_PRE_BACKUP}, enabled=true, dependsOnMethods={"restoreMongoDB"})
 	public void finishRestore() {
-		String cmd = 
-				"service elasticsearch start; " +
-				"service tomcat6 start; " +
-				"service pulp-server start; " +
-				"service katello start; " +
-				"service katello-jobs start;";
-		KatelloUtils.sshOnServer(cmd);
+		KatelloUtils.startKatello();
 		
 		try{Thread.sleep(60000);}catch(Exception ex){} // waiting for services to start
 		
-		KatelloPing ping_obj= new KatelloPing();
+		KatelloPing ping_obj= new KatelloPing(cli_worker);
 		SSHCommandResult res = ping_obj.cli_ping(); 
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 	}

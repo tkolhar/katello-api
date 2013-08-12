@@ -3,6 +3,8 @@ package com.redhat.qe.katello.base.obj;
 import java.util.logging.Logger;
 import javax.management.Attribute;
 import org.codehaus.jackson.annotate.JsonProperty;
+
+import com.redhat.qe.katello.base.threading.KatelloCliWorker;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class KatelloEnvironment extends _KatelloObject{
@@ -22,12 +24,15 @@ public class KatelloEnvironment extends _KatelloObject{
 			"Successfully created environment [ %s ]";
 	public static final String OUT_DELETE = 
 			"Successfully deleted environment [ %s ]";
-	public static final String ERROR_INFO =
-			"Could not find environment [ %s ] within organization [ %s ]";
 	public static final String OUT_UPDATE =  
 			"Successfully updated environment [ %s ]";
 	public static final String API_CMD_LIST = "/organizations/%s/environments";
 	public static final String API_CMD_CREATE = "/organizations/%s/environments";
+	
+	public static final String ERROR_INFO =
+			"Could not find environment [ %s ] within organization [ %s ]";
+	public static final String ERROR_BLANK_NAME = "Name can't be blank";
+	public static final String ERROR_LONG_NAME = "Validation failed: Name cannot contain more than 255 characters" ;
 	
 	// ** ** ** ** ** ** ** Class members
 	private String name;
@@ -43,24 +48,25 @@ public class KatelloEnvironment extends _KatelloObject{
 	
 	public KatelloEnvironment(){super();}
 	
-	public KatelloEnvironment(String pName, String pDesc,
+	public KatelloEnvironment(KatelloCliWorker kcr, String pName, String pDesc,
 			String pOrg, String pPrior){
 		this.name = pName;
 		this.description = pDesc;
 		this.org = pOrg;
 		this.prior = pPrior;
+		this.kcr = kcr;
 	}
 	
-	protected KatelloEnvironment(String name, String desc, String org, String prior, Long id, String updatedAt, Long organizationId) {
-	    this(name, desc, org, prior);
+	protected KatelloEnvironment(KatelloCliWorker kcr, String name, String desc, String org, String prior, Long id, String updatedAt, Long organizationId) {
+	    this(kcr, name, desc, org, prior);
 	    this.id = id;
 	    this.updatedAt = updatedAt;
 	    this.organizationId = organizationId;
 	}
 	
-	public KatelloEnvironment(String name, String desc,
+	public KatelloEnvironment(KatelloCliWorker kcr, String name, String desc,
 			String org, String prior, String label){
-		this(name, desc, org, prior);
+		this(kcr, name, desc, org, prior);
 		this.label = label;
 	}
 

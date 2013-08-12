@@ -4,7 +4,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloPermission;
@@ -22,8 +22,8 @@ import com.redhat.qe.tools.SSHCommandResult;
  * @author hhovsepy
  *
  */
-@Test(groups={"cfse-e2e"})
-public class SystemListAccess extends KatelloCliTestScript {
+@Test(groups={"cfse-e2e"}, singleThreaded = true)
+public class SystemListAccess extends KatelloCliTestBase {
 	
 	private SSHCommandResult exec_result;
 
@@ -48,27 +48,27 @@ public class SystemListAccess extends KatelloCliTestScript {
 		rhsm_clean(); // clean - in case of it registered
 		
 		// Create org:
-		KatelloOrg org = new KatelloOrg(this.org_name, "Package tests");
+		KatelloOrg org = new KatelloOrg(this.cli_worker, this.org_name, "Package tests");
 		exec_result = org.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
-		KatelloEnvironment env = new KatelloEnvironment(env_name_Dev, null, org_name, KatelloEnvironment.LIBRARY);
+		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, env_name_Dev, null, org_name, KatelloEnvironment.LIBRARY);
 		exec_result = env.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (env create)");
 		
-		env = new KatelloEnvironment(env_name_Test, null, org_name, KatelloEnvironment.LIBRARY);
+		env = new KatelloEnvironment(this.cli_worker, env_name_Test, null, org_name, KatelloEnvironment.LIBRARY);
 		exec_result = env.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (env create)");
 		
-		KatelloUser user = new KatelloUser(this.user_name, "root@localhost", KatelloUser.DEFAULT_USER_PASS, false);
+		KatelloUser user = new KatelloUser(cli_worker, this.user_name, "root@localhost", KatelloUser.DEFAULT_USER_PASS, false);
 		exec_result = user.cli_create();
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (user create)");
 		
-		KatelloUserRole role = new KatelloUserRole(this.user_role, "Read systems only");
+		KatelloUserRole role = new KatelloUserRole(cli_worker, this.user_role, "Read systems only");
 		exec_result = role.create();
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (user_role create)");
 		
-		KatelloPermission perm = new KatelloPermission(this.user_role, this.org_name, "environments", this.env_name_Dev, 
+		KatelloPermission perm = new KatelloPermission(cli_worker, this.user_role, this.org_name, "environments", this.env_name_Dev, 
 				"read_systems", this.user_role);
 		exec_result = perm.create();
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (permission create)");
@@ -76,17 +76,19 @@ public class SystemListAccess extends KatelloCliTestScript {
 		exec_result = user.assign_role(this.user_role);
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (user assign_role)");
 		
-		KatelloSystem sys = new KatelloSystem(system_name1, this.org_name, env_name_Dev);
+		promoteEmptyContentView(org_name, env_name_Dev, env_name_Test);
+		
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, system_name1, this.org_name, env_name_Dev);
 		exec_result = sys.rhsm_registerForce();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code (register --force)");
 		
 		rhsm_clean_only();
 		
-		sys = new KatelloSystem(system_name2, this.org_name, env_name_Test);
+		sys = new KatelloSystem(this.cli_worker, system_name2, this.org_name, env_name_Test);
 		exec_result = sys.rhsm_registerForce();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code (register --force)");
 		
-		sys = new KatelloSystem(null, this.org_name, null);
+		sys = new KatelloSystem(this.cli_worker, null, this.org_name, null);
 		exec_result = sys.list();
 		Assert.assertTrue(getOutput(exec_result).trim().contains(system_name1), "System 1 should be contained");
 		Assert.assertTrue(getOutput(exec_result).trim().contains(system_name2), "System 2 should be contained");
@@ -94,15 +96,12 @@ public class SystemListAccess extends KatelloCliTestScript {
 	
 	@Test(description = "Login by created user, list the systems and verify that only system in Dev environment is listed")
 	public void test_listSystem(){
-		KatelloUser user = new KatelloUser(this.user_name, "root@localhost", KatelloUser.DEFAULT_USER_PASS, false);
-		KatelloSystem sys = new KatelloSystem(system_name1, this.org_name, null);
+		KatelloUser user = new KatelloUser(cli_worker, this.user_name, "root@localhost", KatelloUser.DEFAULT_USER_PASS, false);
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, system_name1, this.org_name, null);
 		sys.runAs(user);
 		
 		exec_result = sys.list();
 		Assert.assertTrue(getOutput(exec_result).trim().contains(system_name1), "System 1 should be contained");
 		Assert.assertFalse(getOutput(exec_result).trim().contains(system_name2), "System 2 should not be contained");
-		
-		
 	}
-
 }

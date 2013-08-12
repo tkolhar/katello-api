@@ -1,6 +1,7 @@
 bin
 classes
 test-output
+coverage-output
 reports
 testplugin/target
 katello-api.log

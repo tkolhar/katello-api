@@ -4,6 +4,7 @@ import java.util.logging.Logger;
 
 import javax.management.Attribute;
 
+import com.redhat.qe.katello.base.threading.KatelloCliWorker;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class KatelloContentDefinition extends _KatelloObject{
@@ -52,7 +53,7 @@ public class KatelloContentDefinition extends _KatelloObject{
 	public static final String ERR_NAME_EMPTY = 
 			"Name can't be blank, Name must contain at least 1 character";
 	public static final String ERR_NAME_LONG = 
-			"Validation failed: Name cannot contain more than 128 characters, Label cannot contain more than 128 characters";
+			"Validation failed: Name cannot contain more than 255 characters";
 	public static final String ERR_ORG_NOTFOUND = 
 			"Couldn't find organization '%s'";
 	public static final String ERR_CREATE_DENIED = 
@@ -65,7 +66,7 @@ public class KatelloContentDefinition extends _KatelloObject{
 			"Definition cannot contain views with the same repositories.";
 	public static final String ERR_UPDATE = "User %s is not allowed to access api/v1/content_view_definitions/update";
 	
-	public static final String REG_DEF_INFO = ".*ID\\s*:\\s+\\d+.*Name\\s*:\\s+%sLabel\\s*:\\s+%s.*Description\\s*:\\s+%s.*Org\\s*:\\s+%s.*Published Views\\s*:\\s+%s.*Component Views\\s*:\\s+%s.*Products\\s*:\\s+%s.*Repos\\s*:\\s*%s.*";
+	public static final String REG_DEF_INFO = ".*ID\\s*:\\s*\\d+.*Name\\s*:\\s*%sLabel\\s*:\\s*%s.*Description\\s*:\\s*%s.*Org\\s*:\\s*%s.*Published Views\\s*:\\s*%s.*Component Views\\s*:\\s*%s.*Products\\s*:\\s*%s.*Repos\\s*:\\s*%s.*";
 	public static final String REG_DEF_LIST = ".*\\s+\\d+.*\\s+%s.*\\s+%s.*\\s+%s.*\\s+%s.*";
 
 	
@@ -80,13 +81,14 @@ public class KatelloContentDefinition extends _KatelloObject{
 	public String products = "";
 	public String repos = "";
 	
-	private KatelloContentDefinition(String pName, String pDesc){
+	private KatelloContentDefinition(KatelloCliWorker kcr, String pName, String pDesc){
 		this.name = pName;
 		this.description = pDesc;
+		this.kcr = kcr;
 	}
 	
-	public KatelloContentDefinition(String name, String description, String pOrg, String label) {
-	    this(name, description);
+	public KatelloContentDefinition(KatelloCliWorker kcr, String name, String description, String pOrg, String label) {
+	    this(kcr, name, description);
 	    this.org = pOrg;
 	    this.label = label;
 	}
@@ -161,6 +163,14 @@ public class KatelloContentDefinition extends _KatelloObject{
 		opts.add(new Attribute("name", this.name));
 		opts.add(new Attribute("description", new_description));
 		opts.add(new Attribute("org", this.org));
+		return run(CMD_DEFINITION_UPDATE);
+	}
+
+	public SSHCommandResult update_name(String new_name){
+		opts.clear();
+		opts.add(new Attribute("name", this.name));
+		opts.add(new Attribute("org", this.org));
+		opts.add(new Attribute("new_name", new_name));
 		return run(CMD_DEFINITION_UPDATE);
 	}
 

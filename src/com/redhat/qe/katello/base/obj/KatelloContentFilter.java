@@ -9,6 +9,7 @@ import com.redhat.qe.katello.base.obj.helpers.FilterRuleErrataIds;
 import com.redhat.qe.katello.base.obj.helpers.FilterRuleErrataDayType;
 import com.redhat.qe.katello.base.obj.helpers.FilterRulePackage;
 import com.redhat.qe.katello.base.obj.helpers.FilterRulePackageGroups;
+import com.redhat.qe.katello.base.threading.KatelloCliWorker;
 
 public class KatelloContentFilter extends _KatelloObject{
     protected static Logger log = Logger.getLogger(KatelloContentFilter.class.getName());
@@ -54,10 +55,11 @@ public class KatelloContentFilter extends _KatelloObject{
 	
 	public KatelloContentFilter(){super();}
 	
-	public KatelloContentFilter(String pName, String pOrg, String pDefinition){
+	public KatelloContentFilter(KatelloCliWorker kcr, String pName, String pOrg, String pDefinition){
 		this.name = pName;
 		this.org = pOrg;
 		this.definition = pDefinition;
+		this.kcr = kcr;
 	}
 
 	public Long getId() {

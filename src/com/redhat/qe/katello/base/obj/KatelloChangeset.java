@@ -1,6 +1,8 @@
 package com.redhat.qe.katello.base.obj;
 
 import javax.management.Attribute;
+
+import com.redhat.qe.katello.base.threading.KatelloCliWorker;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class KatelloChangeset extends _KatelloObject{
@@ -42,15 +44,21 @@ public class KatelloChangeset extends _KatelloObject{
 	public String state;
 	private boolean isDeletion;
 	
-	public KatelloChangeset(String pName, String pOrg, String pEnv){
-		this(pName, pOrg, pEnv, false);
+	public KatelloChangeset(KatelloCliWorker kcr, String pName, String pOrg, String pEnv){
+		this(kcr, pName, pOrg, pEnv, false);
 	}
 
-	public KatelloChangeset(String pName, String pOrg, String pEnv, boolean pisDeletion){
+	public KatelloChangeset(KatelloCliWorker kcr, String pName, String pOrg, String pEnv, String descr){
+		this(kcr, pName, pOrg, pEnv, false);
+		this.description  = descr;
+	}
+
+	public KatelloChangeset(KatelloCliWorker kcr, String pName, String pOrg, String pEnv, boolean pisDeletion){
 		this.name = pName;
 		this.org = pOrg;
 		this.environment = pEnv;
 		this.isDeletion = pisDeletion; 
+		this.kcr = kcr;
 	}
 	
 	public SSHCommandResult create(){
@@ -61,6 +69,7 @@ public class KatelloChangeset extends _KatelloObject{
 		if (this.isDeletion) {
 			opts.add(new Attribute("deletion", "true"));
 		}
+		opts.add(new Attribute("description", description));
 		return run(CMD_CREATE);
 	}
 
@@ -128,6 +137,24 @@ public class KatelloChangeset extends _KatelloObject{
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("environment", environment));
 		opts.add(new Attribute("name", name));
+		return run(CMD_UPDATE);
+	}
+
+	public SSHCommandResult update_description(String new_descr) {
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("environment", environment));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("description", new_descr));
+		return run(CMD_UPDATE);
+	}
+
+	public SSHCommandResult update_removeView(String viewName){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("environment", environment));
+		opts.add(new Attribute("remove_content_view", viewName));
 		return run(CMD_UPDATE);
 	}
 	

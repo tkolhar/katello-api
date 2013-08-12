@@ -7,8 +7,7 @@ import java.util.Date;
 import java.util.logging.Logger;
 import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloPackage;
@@ -22,8 +21,8 @@ import com.redhat.qe.tools.SSHCommandResult;
 
 //TODO [gkhachik] - I am giving up here for now: too hard for debugging to see why the sync plan not works as expected.
 
-@Test(groups={"cfse-e2e"})
-public class RepoSyncByPlan extends KatelloCliTestScript{
+@Test(groups={"cfse-e2e"}, singleThreaded = true)
+public class RepoSyncByPlan extends KatelloCliTestBase{
 	protected static Logger log = Logger.getLogger(RepoSyncByPlan.class.getName());
 	
 	private SSHCommandResult exec_result;
@@ -44,7 +43,7 @@ public class RepoSyncByPlan extends KatelloCliTestScript{
 		createZooRepo();
 		
 		KatelloSyncPlan sp = createSyncPlan(new Date(), SyncPlanInterval.hourly);
-		KatelloPackage pack = new KatelloPackage(null, null, org_name, product_name, repo_name, null);
+		KatelloPackage pack = new KatelloPackage(cli_worker, null, null, org_name, product_name, repo_name, null);
 		prod.cli_set_plan(sp.name);
 		
 		DateFormat tformat = new SimpleDateFormat("HH:mm:ss");		
@@ -52,7 +51,7 @@ public class RepoSyncByPlan extends KatelloCliTestScript{
 		cal.add(Calendar.MINUTE, 59);
 		
 		exec_result = repo.info();
-		String lastSync = KatelloCli.grepCLIOutput("Last Sync", getOutput(exec_result).trim(),1);
+		String lastSync = KatelloUtils.grepCLIOutput("Last Sync", getOutput(exec_result).trim(),1);
 		Assert.assertEquals(lastSync, "never", "Repo is synced, but should not");
 		
 		try {
@@ -71,7 +70,7 @@ public class RepoSyncByPlan extends KatelloCliTestScript{
 		try{
 			createLocalRepo();
 
-			KatelloPackage pack = new KatelloPackage(null, null, org_name, product_name, repo_name, null);
+			KatelloPackage pack = new KatelloPackage(cli_worker, null, null, org_name, product_name, repo_name, null);
 
 			syncRepoBySyncPlanNow(1);
 
@@ -103,7 +102,7 @@ public class RepoSyncByPlan extends KatelloCliTestScript{
 		DateFormat dformat = new SimpleDateFormat("yyyy-MM-dd");
 		DateFormat tformat = new SimpleDateFormat("HH:mm:ss");
 
-		KatelloSyncPlan sp = new KatelloSyncPlan(spName, org_name, null, dformat.format(date), tformat.format(date), interval);
+		KatelloSyncPlan sp = new KatelloSyncPlan(cli_worker, spName, org_name, null, dformat.format(date), tformat.format(date), interval);
 		exec_result = sp.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
@@ -119,25 +118,25 @@ public class RepoSyncByPlan extends KatelloCliTestScript{
 		env_name = "env"+uid;
 		
 		// Create org:
-		KatelloOrg org = new KatelloOrg(this.org_name,"Package tests");
+		KatelloOrg org = new KatelloOrg(this.cli_worker, this.org_name,"Package tests");
 		exec_result = org.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		// Create provider:
-		KatelloProvider prov = new KatelloProvider(provider_name, org_name, null, null);
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, provider_name, org_name, null, null);
 		exec_result = prov.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		// Create product:
-		prod = new KatelloProduct(product_name, org_name, provider_name, null, null, null, null, null);
+		prod = new KatelloProduct(this.cli_worker, product_name, org_name, provider_name, null, null, null, null, null);
 		exec_result = prod.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	
-		repo = new KatelloRepo(repo_name, org_name, product_name, REPO_INECAS_ZOO3, null, null);
+		repo = new KatelloRepo(this.cli_worker, repo_name, org_name, product_name, REPO_INECAS_ZOO3, null, null);
 		exec_result = repo.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		KatelloEnvironment env = new KatelloEnvironment(env_name, null, org_name, KatelloEnvironment.LIBRARY);
+		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, env_name, null, org_name, KatelloEnvironment.LIBRARY);
 		exec_result = env.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");		
 	}
@@ -163,29 +162,29 @@ public class RepoSyncByPlan extends KatelloCliTestScript{
 		KatelloUtils.sshOnServer(shCmd);
 		
 		// Create org:
-		KatelloOrg org = new KatelloOrg(this.org_name,null);
+		KatelloOrg org = new KatelloOrg(this.cli_worker, this.org_name,null);
 		exec_result = org.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		// Create provider:
-		KatelloProvider prov = new KatelloProvider(provider_name, org_name, null, null);
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, provider_name, org_name, null, null);
 		exec_result = prov.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		// Create product:
-		prod = new KatelloProduct(product_name, org_name, provider_name, null, null, null, null, null);
+		prod = new KatelloProduct(this.cli_worker, product_name, org_name, provider_name, null, null, null, null, null);
 		exec_result = prod.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	
-		repo = new KatelloRepo(repo_name, org_name, product_name, repo_url, null, null);
+		repo = new KatelloRepo(this.cli_worker, repo_name, org_name, product_name, repo_url, null, null);
 		exec_result = repo.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		KatelloEnvironment env = new KatelloEnvironment(env_name, null, org_name, KatelloEnvironment.LIBRARY);
+		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, env_name, null, org_name, KatelloEnvironment.LIBRARY);
 		exec_result = env.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		KatelloUtils.promoteProductToEnvironment(org_name, product_name, env_name);
+		KatelloUtils.promoteProductToEnvironment(cli_worker, org_name, product_name, env_name);
 	}
 	
 	private void updateLocalRepo() {
@@ -204,7 +203,7 @@ public class RepoSyncByPlan extends KatelloCliTestScript{
 		cal.add(Calendar.MINUTE, (hoursAhead*60 - 1));
 		
 		exec_result = repo.info();
-		String lastSync = KatelloCli.grepCLIOutput("Last Sync", getOutput(exec_result).trim(),1);
+		String lastSync = KatelloUtils.grepCLIOutput("Last Sync", getOutput(exec_result).trim(),1);
 		
 		try {
 			KatelloUtils.sshOnServer("date -s " + tformat.format(new Date(cal.getTimeInMillis())));

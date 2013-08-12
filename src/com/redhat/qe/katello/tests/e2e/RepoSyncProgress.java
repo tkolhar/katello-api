@@ -10,8 +10,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCli;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
 import com.redhat.qe.katello.base.obj.KatelloContentView;
@@ -53,8 +52,8 @@ import com.redhat.qe.tools.SSHCommandResult;
  * @author gkhachik
  * @since 07.Nov.2012 
  */
-@Test(groups={"cfse-e2e"})
-public class RepoSyncProgress extends KatelloCliTestScript{
+@Test(groups={"cfse-e2e"}, singleThreaded = true)
+public class RepoSyncProgress extends KatelloCliTestBase{
 	protected static Logger log = Logger.getLogger(RepoSyncProgress.class.getName());
 
 	private String orgName;
@@ -88,12 +87,12 @@ public class RepoSyncProgress extends KatelloCliTestScript{
 		
 		res = KatelloUtils.sshOnServer("hwclock --hctosys"); // do make a sync to hardware clock before the scenario start
 		
-		KatelloOrg org = new KatelloOrg(this.orgName, null);
+		KatelloOrg org = new KatelloOrg(this.cli_worker, this.orgName, null);
 		res = org.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: org.create");
-		res = new KatelloEnvironment(envTesting, null, orgName, KatelloEnvironment.LIBRARY).cli_create();
+		res = new KatelloEnvironment(this.cli_worker, envTesting, null, orgName, KatelloEnvironment.LIBRARY).cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: environment.create");
-		String out = getOutput(KatelloUtils.sshOnClient(
+		String out = getOutput(KatelloUtils.sshOnClient(cli_worker.getClientHostname(),
 				"curl -sk "+AEOLUS_F17_REPO+" | grep -oE \"^<a href=\\\".*.rpm\" | cut -d\\\" -f2"));
 		rpms = out.trim().split("\n");
 	}
@@ -101,11 +100,11 @@ public class RepoSyncProgress extends KatelloCliTestScript{
 	@Test(description="create Katello objects: prov, prod, repo")
 	public void test_prepareRepo(){
 		SSHCommandResult res;
-		res = new KatelloProvider(productName,orgName,null,null).create();
+		res = new KatelloProvider(this.cli_worker, productName,orgName,null,null).create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: provider.create");
-		res = new KatelloProduct(productName, orgName, productName, null, null, null, null, null).create();
+		res = new KatelloProduct(this.cli_worker, productName, orgName, productName, null, null, null, null, null).create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: product.create");
-		res = new KatelloRepo(repoName, orgName, productName, 
+		res = new KatelloRepo(this.cli_worker, repoName, orgName, productName, 
 				"http://"+System.getProperty("katello.server.hostname","localhost")+"/pub/aeolus-f17", 
 				null, null).create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: repo.create");
@@ -128,7 +127,7 @@ public class RepoSyncProgress extends KatelloCliTestScript{
 	@Test(description="first repo sync: without sync_plan", dependsOnMethods={"test_createrepo1"})
 	public void test_syncRepoRound1(){
 		SSHCommandResult res;
-		res = new KatelloRepo(repoName, orgName, productName, 
+		res = new KatelloRepo(this.cli_worker, repoName, orgName, productName, 
 				"http://"+System.getProperty("katello.server.hostname","localhost")+"/pub/aeolus-f17", 
 				null, null).synchronize();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: repo.synchronize");
@@ -139,16 +138,16 @@ public class RepoSyncProgress extends KatelloCliTestScript{
 	@Test(description="subscribe and check packages", dependsOnMethods={"test_syncRepoRound1"})
 	public void test_subscribeToRepo(){
 		SSHCommandResult res;
-		rhsm_clean();
+		rhsm_clean(cli_worker.getClientHostname());
 
-		res = rhsm_register(orgName, envTesting+"/"+contentView, systemName, false);
+		res = rhsm_register(cli_worker.getClientHostname(), orgName, envTesting+"/"+contentView, systemName, false);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: rhsm.register");
 		try{Thread.sleep(3000);}catch(InterruptedException iex){}
-		res = new KatelloOrg(orgName, null).subscriptions();
+		res = new KatelloOrg(this.cli_worker, orgName, null).subscriptions();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: system.subscriptions-available");
-		String poolId = KatelloCli.grepCLIOutput("ID", getOutput(res),1);
+		String poolId = KatelloUtils.grepCLIOutput("ID", getOutput(res),1);
 		Assert.assertTrue(poolId!=null, "Check poolID is returned");
-		res = new KatelloSystem(systemName, orgName, null, null, null, null, null, null, null).rhsm_subscribe(poolId);
+		res = new KatelloSystem(this.cli_worker, systemName, orgName, null, null, null, null, null, null, null).rhsm_subscribe(poolId);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: rhsm.subscribe");
 	}
 	
@@ -157,9 +156,9 @@ public class RepoSyncProgress extends KatelloCliTestScript{
 	public void test_packagesCountRound1(){
 		SSHCommandResult res;
 		
-		yum_clean();
-		res = KatelloUtils.sshOnClient(String.format(
-				"yum list available --disablerepo \\* --enablerepo \\*%s\\* | grep \"%s\" | wc -l",
+		yum_clean(cli_worker.getClientHostname());
+		res = KatelloUtils.sshOnClient(cli_worker.getClientHostname(),
+				String.format("yum list available --disablerepo \\* --enablerepo \\*%s\\* | grep \"%s\" | wc -l",
 				repoName,repoName)); // disablerepo just for speed up the yum list 
 		Assert.assertTrue(getOutput(res).equals("2"),"Check yum list alvailable returns 2 packages");
 	}
@@ -191,15 +190,15 @@ public class RepoSyncProgress extends KatelloCliTestScript{
 			res = KatelloUtils.sshOnServer("date");
 			log.info(String.format("Round2: date on server side now is: [%s]",getOutput(res)));
 
-			KatelloSyncPlan sync = new KatelloSyncPlan(syncPlanName, orgName, null, 
+			KatelloSyncPlan sync = new KatelloSyncPlan(cli_worker, syncPlanName, orgName, null, 
 					syncPlanDateTime[0], syncPlanDateTime[1], SyncPlanInterval.hourly);
 			res = sync.create();
 			Assert.assertTrue(res.getExitCode().intValue()==0, "exit: sync_plan.create");
-			res = new KatelloProduct(productName, orgName, null, null, null, null, null, null).cli_set_plan(syncPlanName);
+			res = new KatelloProduct(this.cli_worker, productName, orgName, null, null, null, null, null, null).cli_set_plan(syncPlanName);
 			Assert.assertTrue(res.getExitCode().intValue()==0, "exit: product.set_plan");
 			log.info("Sleep 3min and wakeup having product synced with 4 packages :)");
 			Assert.assertTrue(res.getExitCode().intValue()==0, "exit: katello jobs restart");
-			waitfor_reposync(new KatelloRepo(repoName, orgName, productName,null, null,null),3);
+			waitfor_reposync(new KatelloRepo(this.cli_worker, repoName, orgName, productName,null, null,null),3);
 		}finally{
 			res = KatelloUtils.sshOnServer("hwclock --hctosys"); // // < --- UNSET back server's date/time !!!
 		}
@@ -212,9 +211,9 @@ public class RepoSyncProgress extends KatelloCliTestScript{
 	public void test_packagesCountRound2(){
 		SSHCommandResult res;
 		
-		KatelloUtils.sshOnClient("yum clean all");
-		res = KatelloUtils.sshOnClient(String.format(
-				"yum list available --disablerepo \\* --enablerepo \\*%s\\* | grep \"%s\" | wc -l",
+		KatelloUtils.sshOnClient(cli_worker.getClientHostname(), "yum clean all");
+		res = KatelloUtils.sshOnClient(cli_worker.getClientHostname(),
+				String.format("yum list available --disablerepo \\* --enablerepo \\*%s\\* | grep \"%s\" | wc -l",
 				repoName,repoName)); // disablerepo just for speed up the yum list 
 		Assert.assertTrue(getOutput(res).equals("4"),"Check yum list alvailable returns 4 packages");
 	}
@@ -246,11 +245,11 @@ public class RepoSyncProgress extends KatelloCliTestScript{
 			res = KatelloUtils.sshOnServer("date");
 			log.info(String.format("Simulate like 58 min passed and set: [%s]",getOutput(res)));
 			log.info("Sleep 3min and wakeup having product synced with 6 packages :)");
-			res = new KatelloRepo(repoName, orgName, productName,null, null,null).info();
-			String lastSynced = KatelloCli.grepCLIOutput("Last Synced", getOutput(res));
+			res = new KatelloRepo(this.cli_worker, repoName, orgName, productName,null, null,null).info();
+			String lastSynced = KatelloUtils.grepCLIOutput("Last Synced", getOutput(res));
 			res = KatelloUtils.sshOnServer("service katello-jobs restart");
 			Assert.assertTrue(res.getExitCode().intValue()==0, "exit: $? 0");
-			waitfor_reposync(new KatelloRepo(repoName, orgName, productName,null, null,null), lastSynced, 3);
+			waitfor_reposync(new KatelloRepo(this.cli_worker, repoName, orgName, productName,null, null,null), lastSynced, 3);
 		}finally{
 			res = KatelloUtils.sshOnServer("hwclock --hctosys"); // // < --- UNSET back server's date/time !!!
 		}
@@ -263,26 +262,26 @@ public class RepoSyncProgress extends KatelloCliTestScript{
 	public void test_packagesCountRound3(){
 		SSHCommandResult res;
 		
-		KatelloUtils.sshOnClient("yum clean all");
-		res = KatelloUtils.sshOnClient(String.format(
-				"yum list available --disablerepo \\* --enablerepo \\*%s\\* | grep \"%s\" | wc -l",
+		KatelloUtils.sshOnClient(cli_worker.getClientHostname(), "yum clean all");
+		res = KatelloUtils.sshOnClient(cli_worker.getClientHostname(),
+				String.format("yum list available --disablerepo \\* --enablerepo \\*%s\\* | grep \"%s\" | wc -l",
 				repoName,repoName)); // disablerepo just for speed up the yum list 
 		Assert.assertTrue(getOutput(res).equals("6"),"Check yum list alvailable returns 6 packages");
 	}
 	
 	@AfterClass(description="cleanup the stuff", alwaysRun=true)
 	public void tearDown(){
-		rhsm_clean();
+		rhsm_clean(cli_worker.getClientHostname());
 		SSHCommandResult res = KatelloUtils.sshOnServer("hwclock --hctosys"); // sync back again - for any case.
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check restored system date to hardware clock");
-		res = new KatelloOrg(this.orgName, null).delete();
+		res = new KatelloOrg(this.cli_worker, this.orgName, null).delete();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit: org.delete");
 	}
 	
 	private void promoteToEnv(){
 		SSHCommandResult res;
 		
-		KatelloContentDefinition _contDef = new KatelloContentDefinition(contDef, null, this.orgName, null);
+		KatelloContentDefinition _contDef = new KatelloContentDefinition(cli_worker, contDef, null, this.orgName, null);
 		if(this.contentView==null){//first time, let's create the objects
 			this.contentView = "contView-"+productName;
 			res = _contDef.create();
@@ -290,16 +289,16 @@ public class RepoSyncProgress extends KatelloCliTestScript{
 			_contDef.add_product(productName);
 			res = _contDef.publish(this.contentView, null, null);
 			Assert.assertTrue(res.getExitCode().intValue()==0, "Check - exit code");
-			KatelloChangeset cs1 = new KatelloChangeset("cs-"+KatelloUtils.getUniqueID(), orgName, envTesting);
+			KatelloChangeset cs1 = new KatelloChangeset(cli_worker, "cs-"+KatelloUtils.getUniqueID(), orgName, envTesting);
 			res = cs1.create();
 			Assert.assertTrue(res.getExitCode().intValue()==0, "Check - exit code");
 			cs1.update_addView(contentView);
 			res = cs1.apply();
 			Assert.assertTrue(res.getExitCode().intValue()==0, "Check - exit code");
 		}else{
-			res = new KatelloContentView(contentView, orgName).refresh_view();
+			res = new KatelloContentView(cli_worker, contentView, orgName).refresh_view();
 			Assert.assertTrue(res.getExitCode().intValue()==0, "Check - exit code");
-			KatelloChangeset cs1 = new KatelloChangeset("cs-"+KatelloUtils.getUniqueID(), orgName, envTesting);
+			KatelloChangeset cs1 = new KatelloChangeset(cli_worker, "cs-"+KatelloUtils.getUniqueID(), orgName, envTesting);
 			res = cs1.create();
 			Assert.assertTrue(res.getExitCode().intValue()==0, "Check - exit code");
 			cs1.update_addView(contentView);

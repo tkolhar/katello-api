@@ -8,12 +8,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
-
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloSyncPlan;
 import com.redhat.qe.katello.base.obj.KatelloSyncPlan.SyncPlanInterval;
@@ -22,7 +20,7 @@ import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups={"cfse-cli",TngRunGroups.TNG_KATELLO_Content})
-public class SyncPlanTests extends KatelloCliTestScript {
+public class SyncPlanTests extends KatelloCliTestBase {
 
 	protected static Logger log = Logger
 			.getLogger(PackageTests.class.getName());
@@ -39,7 +37,7 @@ public class SyncPlanTests extends KatelloCliTestScript {
 		org_name = "org" + uid;
 
 		// Create org:
-		KatelloOrg org = new KatelloOrg(this.org_name, "Package tests");
+		KatelloOrg org = new KatelloOrg(this.cli_worker, this.org_name, "Package tests");
 		exec_result = org.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
@@ -72,7 +70,7 @@ public class SyncPlanTests extends KatelloCliTestScript {
 		
 		DateFormat tformat = new SimpleDateFormat("HH:mm:ss");
 
-		KatelloSyncPlan sp = new KatelloSyncPlan(syncplan_name, org_name, null, "2012-11", tformat.format(new Date()), SyncPlanInterval.hourly);
+		KatelloSyncPlan sp = new KatelloSyncPlan(cli_worker, syncplan_name, org_name, null, "2012-11", tformat.format(new Date()), SyncPlanInterval.hourly);
 		exec_result = sp.create();
 		Assert.assertTrue(exec_result.getExitCode() == 65, "Check - return code");
 		Assert.assertEquals(getOutput(exec_result).trim(), "Date format is invalid. Required: YYYY-MM-DD");
@@ -86,7 +84,7 @@ public class SyncPlanTests extends KatelloCliTestScript {
 		
 		DateFormat dformat = new SimpleDateFormat("yyyy-MM-dd");
 
-		KatelloSyncPlan sp = new KatelloSyncPlan(syncplan_name, org_name, null, dformat.format(new Date()), "11:77:88", SyncPlanInterval.hourly);
+		KatelloSyncPlan sp = new KatelloSyncPlan(cli_worker, syncplan_name, org_name, null, dformat.format(new Date()), "11:77:88", SyncPlanInterval.hourly);
 		exec_result = sp.create();
 		Assert.assertTrue(exec_result.getExitCode() == 65, "Check - return code");
 		Assert.assertEquals(getOutput(exec_result).trim(), "Time format is invalid. Required: HH:MM:SS[+HH:MM]");
@@ -153,7 +151,7 @@ public class SyncPlanTests extends KatelloCliTestScript {
 		DateFormat dformat = new SimpleDateFormat("yyyy-MM-dd");
 		DateFormat tformat = new SimpleDateFormat("HH:mm:ss");
 
-		KatelloSyncPlan sp = new KatelloSyncPlan(syncplan_name, org_name, null, dformat.format(date), tformat.format(date), interval);
+		KatelloSyncPlan sp = new KatelloSyncPlan(cli_worker, syncplan_name, org_name, null, dformat.format(date), tformat.format(date), interval);
 		exec_result = sp.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
@@ -162,7 +160,7 @@ public class SyncPlanTests extends KatelloCliTestScript {
 	
 	private void assert_syncplanList(List<KatelloSyncPlan> splans, List<KatelloSyncPlan> excludeSplans) {
 
-		exec_result = new KatelloSyncPlan(null, org_name, null, null, null, null).list();
+		exec_result = new KatelloSyncPlan(cli_worker, null, org_name, null, null, null, null).list();
 
 		//sync plans that exist in list
 		for(KatelloSyncPlan sp : splans) {

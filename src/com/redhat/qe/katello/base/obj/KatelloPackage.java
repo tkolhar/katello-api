@@ -1,6 +1,8 @@
 package com.redhat.qe.katello.base.obj;
 
 import javax.management.Attribute;
+
+import com.redhat.qe.katello.base.threading.KatelloCliWorker;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class KatelloPackage extends _KatelloObject{
@@ -28,20 +30,22 @@ public class KatelloPackage extends _KatelloObject{
 	public String content_view_label;
 	public String content_view_id;
 	
-	public KatelloPackage(String pId, String pName, String pOrg, String pProd, String pRepo, String pEnv){
+	public KatelloPackage(KatelloCliWorker kcr, String pId, String pName, String pOrg, String pProd, String pRepo, String pEnv){
 		this.id = pId;
 		this.name = pName;
 		this.org = pOrg;
 		this.product = pProd;
 		this.repo = pRepo;
 		this.environment = pEnv;
+		this.kcr = kcr;
 	}
 
-	public KatelloPackage(String pOrg, String pProd, String pRepo, String pContnetView){
+	public KatelloPackage(KatelloCliWorker kcr, String pOrg, String pProd, String pRepo, String pContnetView){
 		this.org = pOrg;
 		this.product = pProd;
 		this.repo = pRepo;
 		this.content_view = pContnetView;
+		this.kcr = kcr;
 	}
 	
 	public void setProductId(String productId) {
@@ -89,6 +93,9 @@ public class KatelloPackage extends _KatelloObject{
 		opts.add(new Attribute("query", query));
 		opts.add(new Attribute("product_label", product_label));
 		opts.add(new Attribute("product_id", product_id));
+		opts.add(new Attribute("content_view", content_view));
+		opts.add(new Attribute("content_view_label", content_view_label));
+		opts.add(new Attribute("content_view_id", content_view_id));
 		return run(CMD_SEARCH);
 	}
 	
@@ -103,9 +110,25 @@ public class KatelloPackage extends _KatelloObject{
 		opts.add(new Attribute("environment", environment));
 		opts.add(new Attribute("product_label", product_label));
 		opts.add(new Attribute("product_id", product_id));
+		opts.add(new Attribute("content_view", content_view));
+		opts.add(new Attribute("content_view_label", content_view_label));
+		opts.add(new Attribute("content_view_id", content_view_id));
 		return runExt(CMD_LIST_V, " | grep -e \"^Name.*\\:\" | wc -l"); // -v option here in the command is really important
 	}
-		
+
+	public String custom_packageId(){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("product", product));
+		opts.add(new Attribute("repo", repo));
+		opts.add(new Attribute("environment", environment));
+		opts.add(new Attribute("product_label", product_label));
+		opts.add(new Attribute("product_id", product_id));
+		opts.add(new Attribute("content_view", content_view));
+		opts.add(new Attribute("content_view_label", content_view_label));
+		opts.add(new Attribute("content_view_id", content_view_id));
+		return runExt(CMD_LIST, " | grep \"" + name + "\" | awk '{print $1}'").getStdout().replaceAll("\n", ",").split(",")[0];
+	}
 	// ** ** ** ** ** ** **
 	// ASSERTS
 	// ** ** ** ** ** ** **	
