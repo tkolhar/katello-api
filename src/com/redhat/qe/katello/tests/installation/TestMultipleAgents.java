@@ -1,12 +1,13 @@
 package com.redhat.qe.katello.tests.installation;
 
 import java.util.ArrayList;
-import java.util.StringTokenizer;
 
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.DeltaCloudInstance;
 import com.redhat.qe.katello.base.obj.KatelloActivationKey;
@@ -46,32 +47,32 @@ public class TestMultipleAgents extends KatelloCliTestBase {
 	protected String rhel5_act_key_name = null;
 	protected String rhel5_package_name = "lion";
 	
-	@Test(description = "setup Deltacloud Server")
-	public void testMultipleClients() {
-
+	
+	@BeforeClass(description = "setup Deltacloud Server")
+	public void setUp() {
 		server = KatelloUtils.getDeltaCloudServer();
 		server_name = server.getHostName();
 		System.setProperty("katello.server.hostname", server_name);
 		System.setProperty("katello.client.hostname", server_name);
 
 		createOrgStuff();
+	}
+	
+	@Test(description = "provision client and run test on it", dataProvider = "multiple_agents", 
+			dataProviderClass = KatelloCliDataProvider.class)
+	public void testMultipleClients(String type) {
+
+		DeltaCloudInstance client = KatelloUtils.getDeltaCloudClientCertOnly(
+				server_name, DELTACLOUD_IMAGES.get(type));
+		clients.add(client);
+				
+		KatelloUtils.disableYumRepo(client.getIpAddress(),"beaker");
+		KatelloUtils.disableYumRepo(client.getIpAddress(),"epel");
+		KatelloUtils.disableYumRepo(client.getIpAddress(),"katello-tools");
 		
-		StringTokenizer tok = new StringTokenizer(
-				System.getProperty("deltacloud.client.imageid"), ",");
-		
-		while (tok.hasMoreTokens()) {
-			String type = tok.nextToken().trim();
-			DeltaCloudInstance client = KatelloUtils.getDeltaCloudClientCertOnly(
-					server_name, DELTACLOUD_IMAGES.get(type));
-			clients.add(client);
-			
-			try {
-				Thread.sleep(300000);
-			} catch (InterruptedException iex) {
-			}
-			
-			testClientConsume(client.getHostName(), type);
-			
+		try {
+			testClientConsume(client.getIpAddress(), type);
+		} finally {
 			KatelloUtils.destroyDeltaCloudMachine(client);
 		}
 	}
@@ -170,6 +171,8 @@ public class TestMultipleAgents extends KatelloCliTestBase {
 			actKey = act_key_name;
 			packName = package_name;
 		}
+		
+		rhsm_clean(client_name);
 		
 		KatelloSystem sys = new KatelloSystem(null, client_name+KatelloUtils.getUniqueID(), org_name, null);
 		sys.runOn(client_name);

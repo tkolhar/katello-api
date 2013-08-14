@@ -1,5 +1,9 @@
 package com.redhat.qe.katello.base;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
+
 import org.testng.annotations.DataProvider;
 
 import com.redhat.qe.katello.base.obj.KatelloActivationKey;
@@ -375,5 +379,16 @@ public class KatelloCliDataProvider {
 				{"html in description", "<h1>changeset description</h1>", new Integer(0), null},
 		};
 
+	}
+
+	@DataProvider(name="multiple_agents")
+	public static Object[][] multiple_agents() {
+		List<Object[]> images = new ArrayList<Object[]>(); 
+		StringTokenizer tok = new StringTokenizer(
+				System.getProperty("deltacloud.client.imageid"), ",");
+		while (tok.hasMoreTokens()) {
+			images.add(new Object[] {tok.nextToken().trim()});
+		}
+		return images.toArray(new Object[images.size()][]);
 	}
 }
