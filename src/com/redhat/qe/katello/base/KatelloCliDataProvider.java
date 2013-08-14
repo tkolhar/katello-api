@@ -324,17 +324,15 @@ public class KatelloCliDataProvider {
 
 	@DataProvider(name="org_add_custom_info")
 	public static Object[][] org_add_custom_info() {
-	
 		return new Object[][] {
 				{"custom-key", new Integer(0), null},
 				{ " ", new Integer(166), KatelloOrg.ERR_BLANK_KEY},
 				{ strRepeat("0123456789", 25)+"abcde", new Integer(0), null},
 				//{ strRepeat("0123456789", 25)+"abcdef", new Integer(166), KatelloOrg.ERR_KEY_TOO_LONG},
 				{ strRepeat("0123456789", 25)+"abcdef", new Integer(0), null},
-				{ "custom-key", new Integer(166), KatelloOrg.ERR_DUPLICATE_DISTRIBUTOR_KEY},
+				{ "custom-key", new Integer(144), KatelloOrg.ERR_DUPLICATE_KEY},
 				{ "special chars \\!@%^&*(_-~+=\\||,.)", new Integer(0), null},
 				{ "special chars <h1>html</h1>", new Integer(0), null},
-				
 		};
 	}
 	
