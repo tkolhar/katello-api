@@ -103,10 +103,15 @@ public class BeakerUtils {
 	}
 
 	public static SSHCommandResult Katello_Installation_SAMLatestWithLdap(String hostname, String releaseVersion, String ldap_type, String user, String password){
+		String samUrl = System.getProperty("SAM_INSTALL_URL",null);
 		String cmds = 
 				"yum install -y Katello-Katello-Installation-SAMLatestWithLdap --disablerepo=* --enablerepo=beaker*; " +
 				"cd /mnt/tests/Katello/Installation/SAMLatestWithLdap/; " +
-				"export SAM_RELEASE=" + releaseVersion + "; export LDAP_SERVER_TYPE=" + ldap_type + "; export LDAP_USERNAME=" + user + "; export LDAP_PASSWORD=" + password + "; make run";
+				"export SAM_RELEASE=" + releaseVersion + "; export LDAP_SERVER_TYPE=" + ldap_type + "; export LDAP_USERNAME=" + user + "; export LDAP_PASSWORD=" + password;
+		if (samUrl != null) {
+			cmds += "; export SAM_INSTALL_URL=" + samUrl; 
+		}
+		cmds += "; make run";
 		return KatelloUtils.sshOnClient(hostname, cmds);
 	}
 	
