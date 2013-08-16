@@ -38,7 +38,7 @@ public class UserRoleTests extends KatelloCliTestBase{
 	public void test_createNegative(){
 		KatelloUserRole user_role = new KatelloUserRole(cli_worker, "", "Blank name. All other cases are covered in: KatelloCliDataProvider. This is for TCMS - don't remove it please.");
 		SSHCommandResult res = user_role.create();
-		Assert.assertTrue(res.getExitCode().intValue() == 166, "Check - return code");
+		Assert.assertTrue(res.getExitCode().intValue() == 2, "Check - return code");
 	}
 
 	@Test(description="e1333c42-9edd-43f6-901f-087d6601624f",groups = {"headpin-cli"})
