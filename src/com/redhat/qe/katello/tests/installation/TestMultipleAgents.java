@@ -9,7 +9,6 @@ import org.testng.annotations.Test;
 
 import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.DeltaCloudInstance;
-import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
@@ -90,7 +89,7 @@ public class TestMultipleAgents extends KatelloCliTestBase {
 	
 	private void testClientConsume(String client_name, String client_type) {
 		
-		KatelloSystem sys = new KatelloSystem(null, client_name+KatelloUtils.getUniqueID(), org_name, KatelloEnvironment.LIBRARY);
+		KatelloSystem sys = new KatelloSystem(null, client_name+KatelloUtils.getUniqueID(), org_name, null);
 		sys.runOn(client_name);
 		exec_result = sys.rhsm_registerForce();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
