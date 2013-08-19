@@ -165,7 +165,34 @@ public class ChangesetTests extends KatelloCliTestBase{
 		Assert.assertFalse(getOutput(exec_result).contains(view_name), "Check output");
 	}
 
-	
+	// TODO bz 997364
+	@Test(description="get dependencies info")
+	public void test_dependencies() {
+		KatelloChangeset chst = createChangeset();
+		exec_result = chst.info_dependencies();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (chset dependencies info)");
+	}
+
+	@Test(description="create promotion changeset explicitly")
+	public void test_createPromotionExplicitly() {
+		String chset_name = "chset"+KatelloUtils.getUniqueID();
+		KatelloChangeset chset = new KatelloChangeset(cli_worker, chset_name, base_org_name, base_dev_env_name);
+		chset.description = "decsription\" --promotion \"true"; // hack
+		exec_result = chset.create();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (chset create)");
+	}
+
+	@Test(description="try to create promotion and deletion changeset at once")
+	public void test_createPromotionDeletionAtOnce() {
+		String cs_name = "chset"+KatelloUtils.getUniqueID();
+		KatelloChangeset chs = new KatelloChangeset(cli_worker, cs_name, "org", "env", true);
+		chs.description = "description\" --promotion \"true"; // hack
+		exec_result = chs.create();
+		Assert.assertTrue(exec_result.getExitCode()==1, "Check exit code (chset create)");
+		Assert.assertTrue(getOutput(exec_result).contains(KatelloChangeset.ERR_PROMOTION_DELETION), "Check output (chset create)");
+	}
+
+
 	private KatelloChangeset createChangeset() {
 		chst_name = "changeset"+KatelloUtils.getUniqueID();
 		
