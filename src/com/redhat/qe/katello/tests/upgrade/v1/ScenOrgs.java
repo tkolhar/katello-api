@@ -109,6 +109,7 @@ public class ScenOrgs implements KatelloConstants {
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (permition create)");
 		
 		KatelloSystem sys = new KatelloSystem(null, _system, _org, _env_1);
+		sys.runOn(SetupServers.client_name);
 		res = sys.rhsm_registerForce(_akey);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit(0) - rhsm register (activationkey)");
 	}
@@ -217,6 +218,7 @@ public class ScenOrgs implements KatelloConstants {
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (system group create)");
 
     	KatelloSystem sys = new KatelloSystem(null, _system, _org, null);
+    	sys.runOn(SetupServers.client_name);
     	res = sys.rhsm_identity();
 		String system_uuid = KatelloUtils.grepCLIOutput("Current identity is", res.getStdout());
 		
@@ -224,6 +226,7 @@ public class ScenOrgs implements KatelloConstants {
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (add system)");
 		
 		sys = new KatelloSystem(null, _newsystem, _org, null);
+		sys.runOn(SetupServers.client_name);
 		res = sys.rhsm_registerForce(_akey);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit(0) - rhsm register (activationkey)");
 		
