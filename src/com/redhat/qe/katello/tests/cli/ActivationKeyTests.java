@@ -94,7 +94,54 @@ public class ActivationKeyTests extends KatelloCliTestBase{
 		
 		ak.asserts_create();
 	}
-		
+
+	@Test(description="list activation keys by environment")
+	public void test_listKeysByEnv() {
+		String uid = KatelloUtils.getUniqueID();
+		String org_name = "org-"+uid;
+		String env_name = "env-"+uid;
+		String def_name = "condef-"+uid;
+		String view_name = "view-"+uid;
+		String key1_name = "key-lib-"+uid;
+		String key2_name = "key-env-"+uid;
+		// prepare org etc.
+		exec_result = new KatelloOrg(cli_worker, org_name, null).cli_create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check exit code (org create)");
+		exec_result = new KatelloEnvironment(cli_worker, env_name, null, org_name, KatelloEnvironment.LIBRARY).cli_create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check exit code (env create)");
+		KatelloContentDefinition def = new KatelloContentDefinition(cli_worker, def_name, null, org_name, null);
+		exec_result = def.create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check exit code (create definition)");
+		exec_result = def.publish(view_name, null, null);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check exit code (publish view)");
+		exec_result = new KatelloContentView(cli_worker, view_name, org_name).promote_view(env_name);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check exit code (promote view)");
+		// list when no keys
+		KatelloActivationKey key = new KatelloActivationKey(cli_worker, org_name, null, null, null);
+		exec_result = key.list();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check exit code (key list)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloActivationKey.ERR_NO_KEYS, org_name)), "Check output (key list)");
+		exec_result = key.list(env_name);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check exit code (key list env)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloActivationKey.ERR_NO_ENV_KEYS, org_name, env_name)), "Check output (key list env)");
+		// create keys
+		KatelloActivationKey key1 = new KatelloActivationKey(cli_worker, org_name, KatelloEnvironment.LIBRARY, key1_name, null, null, view_name);
+		KatelloActivationKey key2 = new KatelloActivationKey(cli_worker, org_name, env_name, key2_name, null, null, view_name);
+		exec_result = key1.create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check exit code (key create)");
+		exec_result = key2.create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check exit code (key create)");
+		// list keys by environment
+		exec_result = key1.list(KatelloEnvironment.LIBRARY);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check exit code (key list library)");
+		Assert.assertTrue(getOutput(exec_result).contains(key1_name), "Check output (key1 listed)");
+		Assert.assertFalse(getOutput(exec_result).contains(key2_name), "Check output (key2 not listed)");
+		exec_result = key2.list(env_name);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check exit code (key list env)");
+		Assert.assertTrue(getOutput(exec_result).contains(key2_name), "Check output (key2 listed)");
+		Assert.assertFalse(getOutput(exec_result).contains(key1_name), "Check output (key1 not list)");
+	}
+
     @Test(description="add subscription to ak, verify that it is shown in info, remove it, verify that is is not shown",groups={"cfse-cli"})
     public void test_update_addremoveSubscription(){
     	String uid = KatelloUtils.getUniqueID();
@@ -423,5 +470,56 @@ public class ActivationKeyTests extends KatelloCliTestBase{
 				"Check - returned output string (activation_key create)");
 
 		ak.asserts_create();
+	}
+
+	@Test(description="create AK - wrong limit")
+	public void test_createWrongLimit() {
+		String limit = "0";
+		String uid = KatelloUtils.getUniqueID();
+		String ak_name = "ak-"+uid;
+		KatelloActivationKey ak = new KatelloActivationKey(this.cli_worker, base_org_name, base_dev_env_name, ak_name, null, limit, content_view);
+		exec_result = ak.create();
+		Assert.assertTrue(exec_result.getExitCode().intValue()==65, "Check exit code (activation_key create)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloActivationKey.ERR_WRONG_LIMIT, limit)), "Check output (activation_key create)");
+	}
+
+	@Test(description="update content view of activation key")
+	public void test_updateContentView() {
+		String ak_name = "ak-"+KatelloUtils.getUniqueID();
+		KatelloActivationKey ak = new KatelloActivationKey(this.cli_worker, base_org_name, KatelloEnvironment.LIBRARY, ak_name, null, null, "Default Organization View");
+		exec_result = ak.update_content_view(content_view);
+		Assert.assertTrue(exec_result.getExitCode()==65, "Check exit code (actkey update)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloActivationKey.ERR_NOT_FOUND, ak_name)), "Check error message (actkey update)");
+		exec_result = ak.create();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (actkey create)");
+		exec_result = ak.update_content_view(content_view);
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (actkey update)");
+		exec_result = ak.info();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (actkey info)");
+		Assert.assertTrue(getOutput(exec_result).contains(content_view), "Check output (actkey info)");
+	}
+
+	@Test(description="add/remove bad system group to activation key")
+	public void test_addRemoveSysgroup() {
+		String ak_name = "ak-"+KatelloUtils.getUniqueID();
+		String group_name = "group-"+ak_name;
+		KatelloActivationKey ak = new KatelloActivationKey(this.cli_worker, base_org_name, KatelloEnvironment.LIBRARY, ak_name, null, null, content_view);
+		exec_result = ak.add_system_group(group_name);
+		Assert.assertTrue(exec_result.getExitCode()==65, "Check exit code (actkey add group)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloActivationKey.ERR_NOT_FOUND, ak_name)), "Check output (actkey add group)");
+		exec_result = ak.create();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (actkey create)");
+		exec_result = ak.remove_system_group(group_name);
+		Assert.assertTrue(exec_result.getExitCode()==65, "Check exit code (actkey remove group)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloActivationKey.ERR_GROUP_NOT_FOUND, group_name)), "Check output (actkey remove group)");
+	}
+
+	@Test(description="delete nonexisting activation key")
+	public void test_deleteBadKey() {
+		String ak_name = "fakekey"+KatelloUtils.getUniqueID();
+		KatelloActivationKey ak = new KatelloActivationKey(this.cli_worker, base_org_name, base_dev_env_name, ak_name, null, null, content_view);
+		exec_result = ak.delete();
+		Assert.assertTrue(exec_result.getExitCode()==65, "Check exit code (actkey delete)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloActivationKey.ERR_NOT_FOUND, ak_name)), "Check error message (actkey delete)");
 	}
 }

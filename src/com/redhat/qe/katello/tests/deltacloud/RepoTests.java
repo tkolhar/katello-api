@@ -29,7 +29,7 @@ public class RepoTests extends BaseDeltacloudTest {
 		KatelloActivationKey act_key = new KatelloActivationKey(this.cli_worker, org_name, envName, activationKey, "Act key created");
 		exec_result = act_key.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");      
-		exec_result = act_key.update_add_content_view(contentView);
+		exec_result = act_key.update_content_view(contentView);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");      
 		exec_result = act_key.update_add_subscription(poolId1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
