@@ -98,4 +98,14 @@
 			<class name="com.redhat.qe.katello.tests.installation.InstallISOTests"/>
 		</classes>
 	</test>
+	<test name="Headpin_MultipleClient_Tests">
+		<groups>
+    			<run>
+      				<include name="headpin-cli"/>
+    			</run>
+ 		</groups>
+		<classes>
+		    <class name="com.redhat.qe.katello.tests.installation.TestMultipleAgents"/>
+		</classes>
+	</test>
 </suite>
