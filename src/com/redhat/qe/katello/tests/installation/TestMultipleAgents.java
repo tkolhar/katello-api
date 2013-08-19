@@ -92,9 +92,9 @@ public class TestMultipleAgents extends KatelloCliTestBase {
 		KatelloSystem sys = new KatelloSystem(null, client_name+KatelloUtils.getUniqueID(), org_name, null);
 		sys.runOn(client_name);
 		exec_result = sys.rhsm_registerForce();
-		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Client " + client_type + " must register to server successfully");
 		exec_result = sys.rhsm_subscribe(poolRhel);
-		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Client " + client_type + " must subscribe to RHEL pool to server successfully");
 		
 		exec_result = sys.list();
 		Assert.assertTrue(exec_result.getStdout().contains(sys.name), "Check system " + sys.name + " is registered correctly to RHEL pool");
