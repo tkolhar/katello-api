@@ -3,6 +3,7 @@ package com.redhat.qe.katello.base;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.logging.Logger;
 
 import org.testng.annotations.DataProvider;
 
@@ -13,6 +14,7 @@ import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.common.KatelloUtils;
+import com.redhat.qe.katello.tests.installation.TestMultipleAgentsDummy;
 
 public class KatelloCliDataProvider {
 
@@ -380,9 +382,12 @@ public class KatelloCliDataProvider {
 		};
 
 	}
-
+	protected static Logger log = Logger.getLogger(TestMultipleAgentsDummy.class.getName());
+	
 	@DataProvider(name="multiple_agents")
 	public static Object[][] multiple_agents() {
+		
+		log.info("** ** ** "+System.getProperty("deltacloud.client.imageid","DUMMY !!!!"));
 		List<Object[]> images = new ArrayList<Object[]>(); 
 		StringTokenizer tok = new StringTokenizer(
 				System.getProperty("deltacloud.client.imageid",""), ",");

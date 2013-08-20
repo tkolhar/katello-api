@@ -1,6 +1,7 @@
 package com.redhat.qe.katello.tests.installation;
 
 import java.util.ArrayList;
+import java.util.logging.Logger;
 
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -27,39 +28,41 @@ public class TestMultipleAgents extends KatelloCliTestBase {
 	
 	@BeforeClass(description = "setup Deltacloud Server")
 	public void setUp() {
-		server = KatelloUtils.getDeltaCloudServer();
-		server_name = server.getHostName();
-		System.setProperty("katello.server.hostname", server_name);
-		System.setProperty("katello.client.hostname", server_name);
-
-		createOrgStuff();
+//		server = KatelloUtils.getDeltaCloudServer();
+//		server_name = server.getHostName();
+//		System.setProperty("katello.server.hostname", server_name);
+//		System.setProperty("katello.client.hostname", server_name);
+//
+//		createOrgStuff();
 	}
+	protected static Logger log = Logger.getLogger(TestMultipleAgentsDummy.class.getName());
 	
 	@Test(description = "provision client and run test on it", dataProvider = "multiple_agents", 
 			dataProviderClass = KatelloCliDataProvider.class)
 	public void testMultipleClients(String type) {
 
-		DeltaCloudInstance client = KatelloUtils.getDeltaCloudClientCertOnly(
-				server_name, DELTACLOUD_IMAGES.get(type));
-		clients.add(client);
-				
-		KatelloUtils.disableYumRepo(client.getIpAddress(),"beaker");
-		KatelloUtils.disableYumRepo(client.getIpAddress(),"epel");
-		KatelloUtils.disableYumRepo(client.getIpAddress(),"katello-tools");
-		
-		try {
-			testClientConsume(client.getIpAddress(), type);
-		} finally {
-			KatelloUtils.destroyDeltaCloudMachine(client);
-		}
+//		DeltaCloudInstance client = KatelloUtils.getDeltaCloudClientCertOnly(
+//				server_name, DELTACLOUD_IMAGES.get(type));
+//		clients.add(client);
+//				
+//		KatelloUtils.disableYumRepo(client.getIpAddress(),"beaker");
+//		KatelloUtils.disableYumRepo(client.getIpAddress(),"epel");
+//		KatelloUtils.disableYumRepo(client.getIpAddress(),"katello-tools");
+//		
+//		try {
+//			testClientConsume(client.getIpAddress(), type);
+//		} finally {
+//			KatelloUtils.destroyDeltaCloudMachine(client);
+//		}
+		log.info(">>>> "+type);
 	}
 
 	@AfterClass(alwaysRun = true)
 	public void tearDown() {
-		KatelloUtils.destroyDeltaCloudMachine(server);
-		for (DeltaCloudInstance client : clients) {
-			KatelloUtils.destroyDeltaCloudMachine(client);
-		}
+//		KatelloUtils.destroyDeltaCloudMachine(server);
+//		for (DeltaCloudInstance client : clients) {
+//			KatelloUtils.destroyDeltaCloudMachine(client);
+//		}
 	}
 	
 	private void createOrgStuff() {
