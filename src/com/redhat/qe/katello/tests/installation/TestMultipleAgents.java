@@ -174,7 +174,7 @@ public class TestMultipleAgents extends KatelloCliTestBase {
 		
 		rhsm_clean(client_name);
 		
-		KatelloSystem sys = new KatelloSystem(null, client_name+KatelloUtils.getUniqueID(), org_name, null);
+		KatelloSystem sys = new KatelloSystem(null, client_type+" "+KatelloUtils.getUniqueID(), org_name, null);
 		sys.runOn(client_name);
 		exec_result = sys.rhsm_registerForce(actKey);
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Client " + client_type + " should be subscribed to server successfully.");

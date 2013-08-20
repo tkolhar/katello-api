@@ -444,11 +444,7 @@ public class KatelloUtils implements KatelloConstants {
 		String ldap = System.getProperty("ldap.server.type", "");
 		String user = System.getProperty("katello.admin.user", KatelloUser.DEFAULT_ADMIN_USER);
 		String password = System.getProperty("katello.admin.password", KatelloUser.DEFAULT_ADMIN_PASS);
-		
-		setupBeakerRepo(hostIP);
-		configureBeaker(hostIP);
-				
-		BeakerUtils.Katello_Sanity_ImportKeys(hostIP);
+	
 		BeakerUtils.Katello_Installation_RegisterRHNClassic(hostIP);
 		
 		configureNtp(hostIP);
@@ -504,11 +500,7 @@ public class KatelloUtils implements KatelloConstants {
 		String hostname = machine.getIpAddress();
 		String version = System.getProperty("katello.product.version", "1.1");
 		String product = System.getProperty("katello.product", "katello");
-		
-		setupBeakerRepo(hostname);
-		configureBeaker(hostname);
-				
-		BeakerUtils.Katello_Sanity_ImportKeys(hostname);
+
 		BeakerUtils.Katello_Installation_RegisterRHNClassic(hostname);
 		configureNtp(hostname);
 		BeakerUtils.Katello_Installation_ConfigureRepos(hostname);
@@ -522,56 +514,12 @@ public class KatelloUtils implements KatelloConstants {
 	 */
 	private static void installCandlepinCert(DeltaCloudInstance machine, String server) {
 		String hostname = machine.getIpAddress();
-		
-		setupBeakerRepo(hostname);
-		configureBeaker(hostname);
-				
-		BeakerUtils.Katello_Sanity_ImportKeys(hostname);
+
 		BeakerUtils.Katello_Installation_RegisterRHNClassic(hostname);
 		configureNtp(hostname);
 		BeakerUtils.install_CandlepinCert(hostname, server);
 	}
-	
-	/**
-	 * @author Garik Khachikyan
-	 * @since 07.Mar.2013 - Katello nightly katello-1.3.14-1.git.817.b5f1eb9.el6.noarch
-	 */
-	private static void setupBeakerRepo(String hostname){
-		String redhatRelease = KatelloCliTestBase.sgetOutput(KatelloUtils.sshOnClient(hostname, "cat /etc/redhat-release"));
-		String bkrRepoUrl = "http://beaker.engineering.redhat.com/harness/RedHatEnterpriseLinux6";
-		if(redhatRelease.startsWith(REDHAT_RELEASE_RHEL5X))
-			bkrRepoUrl = "http://beaker.engineering.redhat.com/harness/RedHatEnterpriseLinuxServer5";
 		
-		String yumrepo = 
-				"[beaker]\\\\n" +
-				"name=Beaker\\\\n" +
-				"baseurl="+bkrRepoUrl+"\\\\n"+
-				"enabled=1\\\\n"+
-				"skip_if_unavailable=1\\\\n"+
-				"gpgcheck=0";
-		KatelloUtils.sshOnClient(hostname, "echo -en \""+yumrepo+"\" > /etc/yum.repos.d/beaker.repo");
-		
-		yumrepo = 
-				"[beaker-tasks]\\\\n" +
-				"name=bkr-tasks\\\\n" +
-				"baseurl=http://beaker-02.app.eng.bos.redhat.com/rpms/\\\\n"+
-				"metadata_expire=3m\\\\n"+
-				"enabled=1\\\\n"+
-				"gpgcheck=0";
-		KatelloUtils.sshOnClient(hostname, "echo -en \""+yumrepo+"\" > /etc/yum.repos.d/beaker-tasks.repo");
-	}
-	
-	private static void configureBeaker(String hostname){
-		String cmds = 
-				"yum -y install beakerlib beakerlib-redhat rhts-python rhts-test-env --disablerepo=* --enablerepo=beaker*; " +
-				"mkdir ~/.beaker_client; " +
-				"touch ~/.beaker_client/config; " +
-				"echo \"HUB_URL = \"https://beaker.engineering.redhat.com\"\" >> ~/.beaker_client/config; " +
-				"echo \"AUTH_METHOD = \"password\"\" >> ~/.beaker_client/config; " +
-				"chmod a+x ~/.beaker_client/config";
-		KatelloUtils.sshOnClient(hostname, cmds);
-	}
-	
 	private static void configureNtp(String hostname){
 		sshOnClient(hostname, "rpm -q ntp || yum -y install ntp");
 		sshOnClient(hostname, "chkconfig --add ntpd; chkconfig ntpd on");
