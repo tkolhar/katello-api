@@ -203,7 +203,7 @@ public class ContentViewTests extends KatelloCliTestBase{
 		install_Packages(cli_worker.getClientHostname(), new String[] {"walrus"});
 	}
 	
-	@Test(description = "delete content view")
+	@Test(description = "delete content view", dependsOnMethods={"init"})
 	public void test_deleteContentView() {
 		KatelloContentView view = new KatelloContentView(cli_worker, view_delete, base_org_name);
 		exec_result = view.delete_view();
@@ -211,7 +211,7 @@ public class ContentViewTests extends KatelloCliTestBase{
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentView.OUT_DELETE, view_delete)), "Check output (delete view)");
 	}
 
-	@Test(description="refresh content view and check new content")
+	@Test(description="refresh content view and check new content", dependsOnMethods={"init"})
 	public void test_refreshContentView() {
 		KatelloContentView view = new KatelloContentView(cli_worker, view_refresh, base_org_name);
 		KatelloPackage pkg = new KatelloPackage(cli_worker, base_org_name, base_zoo_product_name, base_zoo_repo_name, view_refresh);
@@ -220,5 +220,32 @@ public class ContentViewTests extends KatelloCliTestBase{
 		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentView.OUT_REFRESH, view_refresh)), "Check output (refresh view)");
 		exec_result = pkg.cli_list();
 		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code");
+	}
+
+	@Test(description="try to delete promoted content view", dependsOnMethods={"init"})
+	public void test_deletePromotedView() {
+		String view_name = "view-"+KatelloUtils.getUniqueID();
+		exec_result = new KatelloContentDefinition(cli_worker, condef_name, null, base_org_name, null).publish(view_name, null, null);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check exit code (definition publish)");
+		KatelloContentView view = new KatelloContentView(cli_worker, view_name, base_org_name);
+		exec_result = view.promote_view(base_dev_env_name);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check exit code (promote view)");
+		exec_result = view.delete_view();
+		Assert.assertTrue(exec_result.getExitCode() == 65, "Check exit code (promote view)");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentView.ERR_CANNOT_DELETE, view_name)), "Check output (refresh view)");
+	}
+
+	@Test(description="refresh and promote view asynchronously", dependsOnMethods={"init"})
+	public void test_promoteRefreshAsync() {
+		String view_name = "view-1"+KatelloUtils.getUniqueID();
+		exec_result = new KatelloContentDefinition(cli_worker, condef_name, null, base_org_name, null).publish(view_name, null, null);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check exit code (definition publish)");
+		KatelloContentView view = new KatelloContentView(cli_worker, view_name, base_org_name);
+		exec_result = view.promote_async(base_dev_env_name);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check exit code (view promote)");
+		Assert.assertTrue(getOutput(exec_result).matches(KatelloContentView.OUT_REG_PROMOTE_ASYNC), "Check output (promote view)");
+		exec_result = view.refresh_async();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check exit code (view refresh)");
+		Assert.assertTrue(getOutput(exec_result).matches(KatelloContentView.OUT_REG_REFRESH_ASYNC), "Check output (refresh view)");
 	}
 }
