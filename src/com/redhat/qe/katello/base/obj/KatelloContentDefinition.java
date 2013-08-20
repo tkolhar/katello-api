@@ -45,6 +45,7 @@ public class KatelloContentDefinition extends _KatelloObject{
 	public static final String OUT_CLONE_SUCCESSFUL = 
 			"Successfully created cloned definition [ %s ]";
 	public static final String OUT_UPDATE = "Successfully updated definition [ %s ]";
+	public static final String OUT_REG_PUBLISH_ASYNC = "Publish task \\[ [0-9a-f-]+ \\] was successfully created.";
 	
 	public static final String ERR_DEFINITION_EXISTS = 
 			"Validation failed: Label has already been taken, Name has already been taken";
@@ -65,6 +66,7 @@ public class KatelloContentDefinition extends _KatelloObject{
 	public static final String ERR_ADDVIEW =
 			"Definition cannot contain views with the same repositories.";
 	public static final String ERR_UPDATE = "User %s is not allowed to access api/v1/content_view_definitions/update";
+	public static final String ERR_NOT_A_COMPONENT = "Content view [ %s ] is not a component of definition [ %s ]";
 	
 	public static final String REG_DEF_INFO = ".*ID\\s*:\\s*\\d+.*Name\\s*:\\s*%sLabel\\s*:\\s*%s.*Description\\s*:\\s*%s.*Org\\s*:\\s*%s.*Published Views\\s*:\\s*%s.*Component Views\\s*:\\s*%s.*Products\\s*:\\s*%s.*Repos\\s*:\\s*%s.*";
 	public static final String REG_DEF_LIST = ".*\\s+\\d+.*\\s+%s.*\\s+%s.*\\s+%s.*\\s+%s.*";
@@ -253,5 +255,14 @@ public class KatelloContentDefinition extends _KatelloObject{
 		opts.add(new Attribute("description", description));
 		return run(CMD_CLONE);
 	}
-	
+
+	public SSHCommandResult publish_async(String name, String label, String description) {
+		opts.clear();
+		opts.add(new Attribute("name", this.name));
+		opts.add(new Attribute("org", this.org));
+		opts.add(new Attribute("view_name", name));
+		opts.add(new Attribute("view_label", label));
+		opts.add(new Attribute("description", description));
+		return run(CMD_DEFINITION_PUBLISH + " --async");
+	}
 }
