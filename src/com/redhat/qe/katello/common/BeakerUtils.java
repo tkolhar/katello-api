@@ -30,6 +30,7 @@ public class BeakerUtils {
 	
 	public static void install_CandlepinCert(String hostname, String servername){
 		KatelloUtils.sshOnClient(hostname, "rpm -q subscription-manager python-rhsm || yum -y install subscription-manager python-rhsm --disablerepo=\\*beaker\\*");
+		KatelloUtils.sshOnClient(hostname, "yum -y update subscription-manager python-rhsm --disablerepo=\\*beaker\\*");
 		KatelloUtils.sshOnClient(hostname, "wget http://" + servername + "/pub/candlepin-cert-consumer-" + servername + "-1.0-1.noarch.rpm -O /tmp/candlepin-cert-consumer-" + servername + "-1.0-1.noarch.rpm");
 		KatelloUtils.sshOnClient(hostname, "yum -y --nogpgcheck localinstall /tmp/candlepin-cert-consumer-" + servername + "-1.0-1.noarch.rpm");
 	}
@@ -95,10 +96,15 @@ public class BeakerUtils {
 	}
 	
 	public static SSHCommandResult Katello_Installation_SAMLatest(String hostname, String releaseVersion){
+		String samUrl = System.getProperty("SAM_INSTALL_URL",null);
 		String cmds = 
 				"yum install -y Katello-Katello-Installation-SAMLatest --disablerepo=* --enablerepo=beaker*; " +
 				"cd /mnt/tests/Katello/Installation/SAMLatest/; " +
-				"export SAM_RELEASE=" + releaseVersion + "; make run";
+				"export SAM_RELEASE=" + releaseVersion + "";
+		if (samUrl != null) {
+			cmds += "; export SAM_INSTALL_URL=" + samUrl; 
+		}
+		cmds += "; make run";
 		return KatelloUtils.sshOnClient(hostname, cmds);
 	}
 
