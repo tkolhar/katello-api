@@ -35,7 +35,7 @@ public class TestMultipleAgents extends KatelloCliTestBase {
 //
 //		createOrgStuff();
 	}
-	protected static Logger log = Logger.getLogger(TestMultipleAgentsDummy.class.getName());
+	protected static Logger log = Logger.getLogger(TestMultipleAgents.class.getName());
 	
 	@Test(description = "provision client and run test on it", dataProvider = "multiple_agents", 
 			dataProviderClass = KatelloCliDataProvider.class)
