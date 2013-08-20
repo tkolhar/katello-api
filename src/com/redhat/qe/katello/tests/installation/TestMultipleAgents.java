@@ -28,12 +28,12 @@ public class TestMultipleAgents extends KatelloCliTestBase {
 	
 	@BeforeClass(description = "setup Deltacloud Server", alwaysRun=true)
 	public void setUp() {
-//		server = KatelloUtils.getDeltaCloudServer();
-//		server_name = server.getHostName();
-//		System.setProperty("katello.server.hostname", server_name);
-//		System.setProperty("katello.client.hostname", server_name);
-//
-//		createOrgStuff();
+		server = KatelloUtils.getDeltaCloudServer();
+		server_name = server.getHostName();
+		System.setProperty("katello.server.hostname", server_name);
+		System.setProperty("katello.client.hostname", server_name);
+
+		createOrgStuff();
 	}
 	protected static Logger log = Logger.getLogger(TestMultipleAgents.class.getName());
 	
@@ -91,7 +91,7 @@ public class TestMultipleAgents extends KatelloCliTestBase {
 	
 	private void testClientConsume(String client_name, String client_type) {
 		
-		KatelloSystem sys = new KatelloSystem(null, client_type+KatelloUtils.getUniqueID(), org_name, null);
+		KatelloSystem sys = new KatelloSystem(null, client_type+" "+KatelloUtils.getUniqueID(), org_name, null);
 		sys.runOn(client_name);
 		exec_result = sys.rhsm_registerForce();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Client " + client_type + " must register to server successfully");
