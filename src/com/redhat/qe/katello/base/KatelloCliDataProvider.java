@@ -385,7 +385,7 @@ public class KatelloCliDataProvider {
 	public static Object[][] multiple_agents() {
 		List<Object[]> images = new ArrayList<Object[]>(); 
 		StringTokenizer tok = new StringTokenizer(
-				System.getProperty("deltacloud.client.imageid"), ",");
+				System.getProperty("deltacloud.client.imageid", ""), ",");
 		while (tok.hasMoreTokens()) {
 			images.add(new Object[] {tok.nextToken().trim()});
 		}
