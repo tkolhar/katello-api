@@ -47,7 +47,7 @@ public class ScenOrgs implements KatelloConstants {
 		_akey = "akey"+_uid;
 		_neworg = "neworg"+_uid;
 		_user_role = "role" + _uid;
-		_user_role = "role2" + _uid;
+		_user_role2 = "role2" + _uid;
 		_env_1 = "Dev_" + _uid;
 		_env_2 = "QA_" + _uid;
 		_env_3 = "GA_" + _uid;
@@ -90,7 +90,7 @@ public class ScenOrgs implements KatelloConstants {
 		res = key.create();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
 		
-		_init_role_count = Integer.parseInt(new KatelloUserRole(null, null, null).cli_list_count().getStdout());
+		_init_role_count = Integer.parseInt(new KatelloUserRole(null, null, null).cli_list_count().getStdout().trim());
 		
 		KatelloUserRole user_role = new KatelloUserRole(null, _user_role, "User Role Created");
 		res = user_role.create();
@@ -109,6 +109,7 @@ public class ScenOrgs implements KatelloConstants {
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (permition create)");
 		
 		KatelloSystem sys = new KatelloSystem(null, _system, _org, _env_1);
+		sys.runOn(SetupServers.client_name);
 		res = sys.rhsm_registerForce(_akey);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit(0) - rhsm register (activationkey)");
 	}
@@ -144,7 +145,7 @@ public class ScenOrgs implements KatelloConstants {
 		res = user_role.cli_info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (role info)");
 		
-		int count = Integer.parseInt(user_role.cli_list_count().getStdout());
+		int count = Integer.parseInt(user_role.cli_list_count().getStdout().trim());
 		
 		Assert.assertEquals(count, _init_role_count + 2, "Count of roles should remain the same after upgrade");
 	}
@@ -217,6 +218,7 @@ public class ScenOrgs implements KatelloConstants {
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (system group create)");
 
     	KatelloSystem sys = new KatelloSystem(null, _system, _org, null);
+    	sys.runOn(SetupServers.client_name);
     	res = sys.rhsm_identity();
 		String system_uuid = KatelloUtils.grepCLIOutput("Current identity is", res.getStdout());
 		
@@ -224,6 +226,7 @@ public class ScenOrgs implements KatelloConstants {
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (add system)");
 		
 		sys = new KatelloSystem(null, _newsystem, _org, null);
+		sys.runOn(SetupServers.client_name);
 		res = sys.rhsm_registerForce(_akey);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit(0) - rhsm register (activationkey)");
 		
