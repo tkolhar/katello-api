@@ -1,6 +1,7 @@
 package com.redhat.qe.katello.tests.installation;
 
 import java.util.ArrayList;
+import java.util.logging.Logger;
 
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -25,7 +26,7 @@ public class TestMultipleAgents extends KatelloCliTestBase {
 	protected String org_name = null;
 	protected String poolRhel;
 	
-	@BeforeClass(description = "setup Deltacloud Server")
+	@BeforeClass(description = "setup Deltacloud Server", alwaysRun=true)
 	public void setUp() {
 		server = KatelloUtils.getDeltaCloudServer();
 		server_name = server.getHostName();
@@ -34,6 +35,7 @@ public class TestMultipleAgents extends KatelloCliTestBase {
 
 		createOrgStuff();
 	}
+	protected static Logger log = Logger.getLogger(TestMultipleAgents.class.getName());
 	
 	@Test(description = "provision client and run test on it", dataProvider = "multiple_agents", 
 			dataProviderClass = KatelloCliDataProvider.class)
