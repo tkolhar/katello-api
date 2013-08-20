@@ -3,10 +3,7 @@ package com.redhat.qe.katello.base;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
-import java.util.logging.Logger;
-
 import org.testng.annotations.DataProvider;
-
 import com.redhat.qe.katello.base.obj.KatelloActivationKey;
 import com.redhat.qe.katello.base.obj.KatelloDistributor;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
@@ -14,7 +11,6 @@ import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.common.KatelloUtils;
-import com.redhat.qe.katello.tests.installation.TestMultipleAgentsDummy;
 
 public class KatelloCliDataProvider {
 
