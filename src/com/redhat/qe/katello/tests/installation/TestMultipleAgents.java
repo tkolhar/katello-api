@@ -26,7 +26,7 @@ public class TestMultipleAgents extends KatelloCliTestBase {
 	protected String org_name = null;
 	protected String poolRhel;
 	
-	@BeforeClass(description = "setup Deltacloud Server")
+	@BeforeClass(description = "setup Deltacloud Server", alwaysRun=true)
 	public void setUp() {
 //		server = KatelloUtils.getDeltaCloudServer();
 //		server_name = server.getHostName();
@@ -41,28 +41,27 @@ public class TestMultipleAgents extends KatelloCliTestBase {
 			dataProviderClass = KatelloCliDataProvider.class)
 	public void testMultipleClients(String type) {
 
-//		DeltaCloudInstance client = KatelloUtils.getDeltaCloudClientCertOnly(
-//				server_name, DELTACLOUD_IMAGES.get(type));
-//		clients.add(client);
-//				
-//		KatelloUtils.disableYumRepo(client.getIpAddress(),"beaker");
-//		KatelloUtils.disableYumRepo(client.getIpAddress(),"epel");
-//		KatelloUtils.disableYumRepo(client.getIpAddress(),"katello-tools");
-//		
-//		try {
-//			testClientConsume(client.getIpAddress(), type);
-//		} finally {
-//			KatelloUtils.destroyDeltaCloudMachine(client);
-//		}
-		log.info(">>>> "+type);
+		DeltaCloudInstance client = KatelloUtils.getDeltaCloudClientCertOnly(
+				server_name, DELTACLOUD_IMAGES.get(type));
+		clients.add(client);
+				
+		KatelloUtils.disableYumRepo(client.getIpAddress(),"beaker");
+		KatelloUtils.disableYumRepo(client.getIpAddress(),"epel");
+		KatelloUtils.disableYumRepo(client.getIpAddress(),"katello-tools");
+		
+		try {
+			testClientConsume(client.getIpAddress(), type);
+		} finally {
+			KatelloUtils.destroyDeltaCloudMachine(client);
+		}
 	}
 
 	@AfterClass(alwaysRun = true)
 	public void tearDown() {
-//		KatelloUtils.destroyDeltaCloudMachine(server);
-//		for (DeltaCloudInstance client : clients) {
-//			KatelloUtils.destroyDeltaCloudMachine(client);
-//		}
+		KatelloUtils.destroyDeltaCloudMachine(server);
+		for (DeltaCloudInstance client : clients) {
+			KatelloUtils.destroyDeltaCloudMachine(client);
+		}
 	}
 	
 	private void createOrgStuff() {
