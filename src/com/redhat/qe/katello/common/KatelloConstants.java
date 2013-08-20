@@ -179,8 +179,21 @@ public interface KatelloConstants {
 	public static final String REDHAT_RELEASE_RHEL5X = "Red Hat Enterprise Linux Server release 5.";
 	
 	public static final Map<String, String> DELTACLOUD_IMAGES = new HashMap<String, String>(){{
-		put("RHEL 5.9 Server x86_64", "e0b6d040-5757-4b81-b170-f25e8d9472b6");
-		put("RHEL 6.3 Server x86_64", "fc06e21b-8973-48e2-9d64-3b5a90f2717e");
+		put("RHEL 5.7 Server i386", "8716843b-50a8-48fc-add0-3f6ec21aae4a");
+		put("RHEL 5.8 Server i386", "3e5195c3-be05-4850-8c4d-9382e5742fad");
+		put("RHEL 5.9 Server i386", "87c7f04a-1ac0-4218-b02d-f7c95470ee01");
+		put("RHEL 6.0 Server i386", "25dc6565-51e0-4377-b753-e28b17333c61");
+		put("RHEL 6.1 Server i386", "bf307ff9-c1eb-4fab-8aa2-e501f70a1de1");
+		put("RHEL 6.2 Server i386", "9df656c6-26ed-4198-b4b1-35d8bdbf9b46");
+		put("RHEL 6.3 Server i386", "fc06e21b-8973-48e2-9d64-3b5a90f2717e");
+		put("RHEL 6.4 Server i386", "f8d463d4-6e3e-43ba-b3d3-1fccc326442d");
+		put("RHEL 5.7 Server x86_64", "aa792b31-3c45-4fbb-9a6c-092a19a2674f");
+		put("RHEL 5.8 Server x86_64", "06ad3fc6-d879-4a8d-8353-58cf4d4cd579");
+		put("RHEL 5.9 Server x86_64", "d56c6de6-aefd-45c0-81a7-9f0685529f3d");
+		put("RHEL 6.0 Server x86_64", "02b3f53b-27e0-4b1a-897f-f4805c70ce27");
+		put("RHEL 6.1 Server x86_64", "cb77e9b5-a7ab-4fdf-bdf0-5c47897ad671");
+		put("RHEL 6.2 Server x86_64", "b0b5cae3-b703-4412-9fd8-f46f47ae3216");
+		put("RHEL 6.3 Server x86_64", "d927a3cd-342f-4f88-ae1d-f5da9e26a581");
 		put("RHEL 6.4 Server x86_64", "24689ef2-0970-4523-adfc-3a14d4fcc89c");
 	}};
 
