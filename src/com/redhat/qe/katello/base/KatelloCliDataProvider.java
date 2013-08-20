@@ -382,12 +382,8 @@ public class KatelloCliDataProvider {
 		};
 
 	}
-	protected static Logger log = Logger.getLogger(TestMultipleAgentsDummy.class.getName());
-	
 	@DataProvider(name="multiple_agents")
 	public static Object[][] multiple_agents() {
-		
-		log.info("** ** ** "+System.getProperty("deltacloud.client.imageid","DUMMY !!!!"));
 		List<Object[]> images = new ArrayList<Object[]>(); 
 		StringTokenizer tok = new StringTokenizer(
 				System.getProperty("deltacloud.client.imageid",""), ",");
