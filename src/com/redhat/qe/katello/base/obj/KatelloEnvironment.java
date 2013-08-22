@@ -186,13 +186,14 @@ public class KatelloEnvironment extends _KatelloObject{
 		return run(CMD_DELETE);
 	}
 	
-	public SSHCommandResult cli_update(String descr){
+	public SSHCommandResult cli_update(String newName, String descr, String newPrior) {
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("description", descr));
-		opts.add(new Attribute("prior", prior));
+		opts.add(new Attribute("prior", newPrior));
 		opts.add(new Attribute("label", label));
+		opts.add(new Attribute("new-name", newName));
 		return run(CMD_UPDATE);
 	}
 	 

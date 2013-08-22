@@ -62,8 +62,8 @@ public class ContentDefinitionTest extends KatelloCliTestBase{
 	public void test_createContentDefEmptyName() {
 		KatelloContentDefinition content = new KatelloContentDefinition(cli_worker, "", null, base_org_name, null);
 		exec_result = content.create();
-		Assert.assertEquals(exec_result.getExitCode().intValue(), 166, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).contains(KatelloContentDefinition.ERR_NAME_EMPTY), "Check - error string (content create)");
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 2, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).contains("error: Option --name is required"), "Check - error string (content create)");
 	}
 	
 	@Test(description = "Create Content Def with long name, verify error")
@@ -191,6 +191,14 @@ public class ContentDefinitionTest extends KatelloCliTestBase{
 		Assert.assertTrue(KatelloUtils.grepCLIOutput("Name",getOutput(exec_result)).equals(sCvdClone), "Check - stdout (content definition info: Name)");
 		Assert.assertTrue(KatelloUtils.grepCLIOutput("Composite",getOutput(exec_result)).equals("False"), "Check - stdout (content definition info: Composite)");
 		Assert.assertTrue(KatelloUtils.grepCLIOutput("Org",getOutput(exec_result)).equals(base_org_name), "Check - stdout (content definition info: Org)");
+	}
+
+	@Test(description="publish content definition asynchronously")
+	public void test_publishAsync() {
+		KatelloContentDefinition def = createContentDefinition();
+		exec_result = def.publish_async("view-"+def.name, null, null);
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check exit code (def. publish async)");
+		Assert.assertTrue(getOutput(exec_result).matches(KatelloContentDefinition.OUT_REG_PUBLISH_ASYNC), "Check output (def. publish async)");
 	}
 
 	private void assert_contentList(List<KatelloContentDefinition> contents, List<KatelloContentDefinition> excludeContents) {

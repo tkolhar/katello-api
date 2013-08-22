@@ -14,7 +14,7 @@ public class KatelloChangeset extends _KatelloObject{
 	public static final String CMD_UPDATE = "changeset update";
 	public static final String CMD_DELETE = "changeset delete";
 	public static final String CMD_INFO = "changeset info";
-	public static final String CMD_LIST = "changeset list";
+	public static final String CMD_LIST = "changeset list -v";
 	
 	public static final String OUT_CREATE = 
 			"Successfully created changeset [ %s ] for environment [ %s ]";
@@ -26,6 +26,8 @@ public class KatelloChangeset extends _KatelloObject{
 			"Successfully updated changeset [ %s ]";
 	public static final String OUT_APPLIED = 
 			"Changeset [ %s ] applied";
+
+	public static final String ERR_PROMOTION_DELETION = "error: specify either --promotion or --deletion but not both";
 	
 	public static final String REG_CHST_INFO = ".*ID\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Description\\s*:\\s+%s.*State\\s*:\\s+%s.*Environment Name\\s*:\\s+%s.*";
 	public static final String REG_CHST_ID = "ID\\s*:\\s+\\d+\\s+Name\\s*:";
@@ -111,7 +113,15 @@ public class KatelloChangeset extends _KatelloObject{
 		opts.add(new Attribute("environment", environment));
 		return run(CMD_INFO);
 	}
-	
+
+	public SSHCommandResult info_dependencies(){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("environment", environment));
+		return run(CMD_INFO + " --dependencies");
+	}
+
 	public SSHCommandResult update_name(String newname){
 		opts.clear();
 		opts.add(new Attribute("new_name", newname));

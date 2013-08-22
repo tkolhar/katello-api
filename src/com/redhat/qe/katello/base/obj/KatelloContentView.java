@@ -21,11 +21,14 @@ public class KatelloContentView extends _KatelloObject{
 	public static final String OUT_REFRESH =
 			"Content view [ %s ] was successfully refreshed.";
 	public static final String OUT_DELETE = "Content view [ %s ] was successfully deleted.";
+	public static final String OUT_REG_REFRESH_ASYNC = "Refresh task \\[ [0-9a-f-]+ \\] was successfully created.";
+	public static final String OUT_REG_PROMOTE_ASYNC = "Promotion task \\[ [0-9a-f-]+ \\] was successfully created.";
 		
 	public static final String ERR_VIEW_READ =
 			"User %s is not allowed to access api/v1/content_views/index";
 	public static final String ERR_PROMOTE_DENIED =
 			"User %s is not allowed to access api/v1/content_views/promote";
+	public static final String ERR_CANNOT_DELETE = "Content view [ %s ] cannot be deleted since it is in non-library environments.";
 	
 	public static final String REG_VIEW_INFO = ".*ID\\s*:\\s*\\d+.*Name\\s*:\\s*%sLabel\\s*:\\s*%s.*Description\\s*:\\s*%s.*Org\\s*:\\s*%s.*Definition\\s*:\\s*%s.*Environments\\s*:\\s*%s.*Versions\\s*:\\s*%s.*";
 	
@@ -112,6 +115,22 @@ public class KatelloContentView extends _KatelloObject{
 		opts.add(new Attribute("name", name));
 		return run(CMD_VIEW_DELETE);
 	}
+
+	public SSHCommandResult promote_async(String environment) {
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("environment", environment));
+		return run(CMD_PROMOTE_VIEW + " --async");
+	}
+
+	public SSHCommandResult refresh_async() {
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		return run(CMD_REFRESH_VIEW + " --async");
+	}
+
 	// ** ** ** ** ** ** **
 	// ASSERTS
 	// ** ** ** ** ** ** **

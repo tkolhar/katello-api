@@ -1,4 +1,5 @@
 package com.redhat.qe.katello.tests.cli;
+
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -109,6 +110,7 @@ public class EnvironmentTests extends KatelloCliTestBase{
 		SSHCommandResult res;
 		String uid = KatelloUtils.getUniqueID();
 		String name = "env-"+uid;
+		String newName = "env-new-"+uid;
 		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, name,null,base_org_name,KatelloEnvironment.LIBRARY);
 		res = env.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
@@ -118,14 +120,24 @@ public class EnvironmentTests extends KatelloCliTestBase{
 		res = env.cli_info();
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 		String descr = "Updating environment";
-		res = env.cli_update(descr);
+		res = env.cli_update(null, descr, null);
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(res).contains(
 				String.format(KatelloEnvironment.OUT_UPDATE,name)), 
 				"Check - returned output string ("+KatelloEnvironment.CMD_UPDATE+")");
 		res = env.cli_info();
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
-
+		// rename environment
+		res = env.cli_update(newName, null, null);
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
+		env.setName(newName);
+		res = env.cli_info();
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
+		// update prior environment
+		res = env.cli_update(null, null, base_dev_env_name);
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
+		res = env.cli_info();
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 	}
 
 

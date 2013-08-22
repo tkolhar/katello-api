@@ -158,7 +158,7 @@ public class BaseDeltacloudTest extends KatelloCliTestBase {
 		KatelloActivationKey act_key = new KatelloActivationKey(this.cli_worker, org_name,env_name,zoo_act_key,"Act key created");
 		exec_result = act_key.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");      
-		exec_result = act_key.update_add_content_view(zoo_repo_view);
+		exec_result = act_key.update_content_view(zoo_repo_view);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");      
 		exec_result = act_key.update_add_subscription(poolId1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
@@ -168,7 +168,7 @@ public class BaseDeltacloudTest extends KatelloCliTestBase {
 		act_key = new KatelloActivationKey(this.cli_worker, org_name,env_name,rhel_act_key,"Act key created");
 		exec_result = act_key.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");      
-		exec_result = act_key.update_add_content_view(rhel_repo_view);
+		exec_result = act_key.update_content_view(rhel_repo_view);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");      
 		exec_result = act_key.update_add_subscription(poolId1);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");

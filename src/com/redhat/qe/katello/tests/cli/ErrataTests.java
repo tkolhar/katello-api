@@ -31,6 +31,10 @@ public class ErrataTests extends KatelloCliTestBase {
 		exec_result = errata.cli_list();
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (errata list)");
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains(PromoteErrata.ERRATA_ZOO_SEA), "Check - errata list output");
+		// list errata by type
+		errata = new KatelloErrata(cli_worker, null, base_org_name, base_zoo4_product_name, base_zoo4_repo_name, null, "bugfix");
+		exec_result = errata.cli_list();
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (errata list by type)");
 	}
 
 	@Test(description="2542ae61-8de6-40ce-866f-999c39fa9018")

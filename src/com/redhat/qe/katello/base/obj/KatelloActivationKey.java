@@ -42,6 +42,11 @@ public class KatelloActivationKey extends _KatelloObject{
 	public static final String ERROR_NAME_WHITESPACE = "Validation failed: Name must not contain leading or trailing white spaces.";
 	public static final String ERROR_DUPLICATE_NAME = "Validation failed: Name has already been taken";
 	public static final String ERROR_LONG_NAME = "Validation failed: Name cannot contain more than 255 characters";
+	public static final String ERR_NO_KEYS = "No keys found in organization [ %s ]";
+	public static final String ERR_NO_ENV_KEYS = "No keys found in organization [ %s ] environment [ %s ]";
+	public static final String ERR_WRONG_LIMIT = "Usage limit [ %s ] must be higher than one";
+	public static final String ERR_NOT_FOUND = "Could not find activation key [ %s ]";
+	public static final String ERR_GROUP_NOT_FOUND = "Could not find system group [ %s ]";
 	
 	public KatelloActivationKey(KatelloCliWorker kcr, String pOrg, String pEnv, String pName, String pDesc){
 		this(kcr, pOrg,pEnv,pName,pDesc,null);
@@ -86,6 +91,13 @@ public class KatelloActivationKey extends _KatelloObject{
 		return run(CMD_LIST+" -v");
 	}
 
+	public SSHCommandResult list(String environment) {
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("environment", environment));
+		return run(CMD_LIST+" -v");
+	}
+
 	public SSHCommandResult extend_limit(String newlimit){
 		opts.clear();
 		opts.add(new Attribute("org", org));
@@ -110,26 +122,16 @@ public class KatelloActivationKey extends _KatelloObject{
 		opts.add(new Attribute("add_subscription", subscriptionId));
 		return run(CMD_UPDATE);
 	}
-	
-	
-	public SSHCommandResult update_add_content_view(String pubView){
+
+	public SSHCommandResult update_content_view(String view) {
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("environment", environment));
-		opts.add(new Attribute("content_view", pubView));
+		opts.add(new Attribute("content_view", view));
 		return run(CMD_UPDATE);
 	}
 
-	public SSHCommandResult update_remove_content_view(){
-		opts.clear();
-		opts.add(new Attribute("org", org));
-		opts.add(new Attribute("name", name));
-		opts.add(new Attribute("environment", environment));
-		opts.add(new Attribute("remove_content_view", "true"));
-		return run(CMD_UPDATE);
-	}
-	
 	public SSHCommandResult update_remove_subscription(String subscriptionId){
 		opts.clear();
 		opts.add(new Attribute("org", org));

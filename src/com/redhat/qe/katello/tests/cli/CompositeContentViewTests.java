@@ -117,6 +117,10 @@ public class CompositeContentViewTests extends KatelloCliTestBase{
 		Assert.assertFalse(getOutput(exec_result).contains(pubview_name1_2), "Not contains view");
 		Assert.assertFalse(getOutput(exec_result).contains(pubview_name2_2), "Not contains view");
 		
+		exec_result = compcondef.remove_view(pubview_name2_2);
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (Cannot remove when not a component)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentDefinition.ERR_NOT_A_COMPONENT, pubview_name2_2, compcondef.name)), "Check output (not a component)");
+
 		exec_result = compcondef.add_view(pubview_name1_2);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
 
