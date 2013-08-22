@@ -62,7 +62,7 @@ public class EnvironmentTests extends KatelloCliTestBase {
 	@Test(description="environment update", dependsOnMethods={"test_createEnvironment"})
 	public void test_updateEnvironment(){
 		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, env_name, null, org_name, null);
-		SSHCommandResult res= env.cli_update(getText("environment.update.description"));
+		SSHCommandResult res= env.cli_update(null, getText("environment.update.description"), null);
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code (environment update)");
 		Assert.assertTrue(getOutput(res).equals(getText("environment.update.stdout", env_name)), "Check - stdout (environment update)");
 	}
