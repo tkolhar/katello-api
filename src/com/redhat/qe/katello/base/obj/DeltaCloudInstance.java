@@ -1,7 +1,6 @@
 package com.redhat.qe.katello.base.obj;
 
-import org.apache.deltacloud.client.DeltaCloudClientImpl;
-import org.apache.deltacloud.client.Instance;
+import org.ovirt.engine.sdk.entities.VM;
 
 public class DeltaCloudInstance {
 	
@@ -11,10 +10,8 @@ public class DeltaCloudInstance {
 	
 	private String[] configs;
 	
-	private Instance instance;
+	private VM instance;
 	
-	private DeltaCloudClientImpl client;
-
 	public String getIpAddress() {
 		return ipAddress;
 	}
@@ -23,21 +20,13 @@ public class DeltaCloudInstance {
 		this.ipAddress = ipAddress;
 	}
 
-	public Instance getInstance() {
+	public VM getInstance() {
 		return instance;
 	}
 
-	public void setInstance(Instance instance) {
+	public void setInstance(VM instance) {
 		this.instance = instance;
 	}
-
-	public DeltaCloudClientImpl getClient() {
-		return client;
-	}
-
-	public void setClient(DeltaCloudClientImpl client) {
-		this.client = client;
-	}	
 
 	public String getHostName() {
 		return hostName;
@@ -54,5 +43,4 @@ public class DeltaCloudInstance {
 	public void setConfigs(String[] configs) {
 		this.configs = configs;
 	}
-
 }

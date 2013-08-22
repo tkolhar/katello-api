@@ -283,7 +283,7 @@ public class KatelloUtils implements KatelloConstants {
 		
 		DeltaCloudInstance server = DeltaCloudAPI.provideServer(nowait, configs[0]);
 		
-		Assert.assertNotNull(server.getClient());
+		Assert.assertNotNull(server.getInstance());
 		
 		System.setProperty("katello.server.hostname", server.getIpAddress());
 		System.setProperty("katello.client.hostname", server.getIpAddress());
@@ -316,7 +316,7 @@ public class KatelloUtils implements KatelloConstants {
 
 		DeltaCloudInstance client = DeltaCloudAPI.provideClient(false, configs[0],imageId);
 
-		Assert.assertNotNull(client.getClient());
+		Assert.assertNotNull(client.getInstance());
 		
 		configureDDNS(client, configs);
 		
@@ -334,7 +334,7 @@ public class KatelloUtils implements KatelloConstants {
 
 		DeltaCloudInstance client = DeltaCloudAPI.provideClient(false, configs[0],imageId);
 
-		Assert.assertNotNull(client.getClient());
+		Assert.assertNotNull(client.getInstance());
 		
 		configureDDNS(client, configs);
 		
@@ -357,18 +357,18 @@ public class KatelloUtils implements KatelloConstants {
 		_sshClients.remove(machine.getIpAddress());
 	}
 	
-	/**
-	 * Starts, installs CFSE server on provided machine.
-	 * @param machine DeltaCloudInstance server to start.
-	 */
-	public static void  startDeltaCloudServer(DeltaCloudInstance machine) {
-		if (!machine.getInstance().isRunning()) {
-			DeltaCloudAPI.startMachine(machine);
-			configureDDNS(machine, machine.getConfigs());
-			installServer(machine);
-		}
-	}
-	
+//	/**
+//	 * Starts, installs CFSE server on provided machine.
+//	 * @param machine DeltaCloudInstance server to start.
+//	 */
+//	public static void  startDeltaCloudServer(DeltaCloudInstance machine) {
+//		if (!machine.getInstance().getCreationStatus() .getStatus().getState()) {
+//			DeltaCloudAPI.startMachine(machine);
+//			configureDDNS(machine, machine.getConfigs());
+//			installServer(machine);
+//		}
+//	}
+//	
 	public static void scpOnClient(String client, String filename, String destinationDir){
 		String hostname = (client == null ? System.getProperty("katello.client.hostname", "localhost") : client);
 		SCPTools scp = new SCPTools(

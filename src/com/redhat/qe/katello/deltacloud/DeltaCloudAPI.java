@@ -6,6 +6,9 @@ import org.apache.deltacloud.client.DeltaCloudClientException;
 import org.apache.deltacloud.client.DeltaCloudClientImpl;
 import org.apache.deltacloud.client.DeltaCloudNotFoundClientException;
 import org.apache.deltacloud.client.Instance;
+import org.ovirt.engine.sdk.Api;
+import org.ovirt.engine.sdk.entities.Action;
+import org.ovirt.engine.sdk.entities.VM;
 
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.obj.DeltaCloudInstance;
@@ -42,8 +45,29 @@ public class DeltaCloudAPI {
 			Assert.assertNotNull(System.getProperty("deltacloud.hostname"), "Deltacloud hostname shoud be provided in system property \"deltacloud.hostname\"");
 			Assert.assertNotNull(System.getProperty("deltacloud.user"), "Deltacloud username shoud be provided in system property \"deltacloud.user\"");
 			Assert.assertNotNull(System.getProperty("deltacloud.password"), "Deltacloud password shoud be provided in system property \"deltacloud.password\"");
-			DeltaCloudClientImpl dcl = new DeltaCloudClientImpl(System.getProperty("deltacloud.hostname"), System.getProperty("deltacloud.user"), System.getProperty("deltacloud.password"));
-			Instance inst = dcl.createInstance(hostname, image, null, realm, memory, storage);
+			Assert.assertNotNull(System.getProperty("deltacloud.cluster"), "Deltacloud cluster shoud be provided in system property \"deltacloud.cluster\"");
+
+			// ** ** **
+			Api api = new Api("https://rhev-cfse.usersys.redhat.com:443/api", System.getProperty("deltacloud.user"), System.getProperty("deltacloud.password"),true);
+			VM vmParams = new VM();
+			vmParams.setName(hostname.substring(0,hostname.indexOf(".")));
+			vmParams.setCluster(api.getClusters().get(System.getProperty("deltacloud.cluster")));
+			vmParams.setTemplate(api.getTemplates().get(image));
+			vmParams.setMemory(new Long(memory));
+			// TODO - specify the storage too, plus: check the memory --- long value maybe needed to be converted to bytes ~~~
+			org.ovirt.engine.sdk.decorators.VM myVM = api.getVMs().add(vmParams);
+			
+			Action res = myVM.start(new Action() {
+			       {
+			           setVm(new org.ovirt.engine.sdk.entities.VM());
+			       }
+			});
+			// ** ** **
+
+			
+			
+			
+			VM inst = dcl.createInstance(hostname, image, null, realm, memory, storage);
 			machine.setInstance(inst);
 			machine.setClient(dcl);
 			if (nowait) {
@@ -56,7 +80,6 @@ public class DeltaCloudAPI {
 			} else {
 				startMachine(machine);
 			}
-		} catch (DeltaCloudClientException e) {	e.printStackTrace();
 		} catch (MalformedURLException e) { e.printStackTrace();}
 		
 		return machine;
