@@ -308,8 +308,8 @@ public class KatelloCliDataProvider {
 		String dis_name = "distAddCustomInfo-"+uid;
 		return new Object[][]{
 				{"testkey-"+uid,"testvalue-"+uid,dis_name,new Integer(0), String.format(KatelloDistributor.OUT_INFO,"testkey-"+uid,"testvalue-"+uid,dis_name)},
-				{"","blank-key"+uid,dis_name,new Integer(166),"Validation failed: Keyname can't be blank"},
-				{"blank-value"+uid,"",dis_name,new Integer(0),String.format(KatelloDistributor.OUT_INFO,"blank-value"+uid,"",dis_name)},
+				{"","blank-key"+uid,dis_name,new Integer(2), "Option --keyname is required; please see --help"},
+				{"blank-value"+uid,"",dis_name,new Integer(2), "Option --value is required; please see --help"},
 				{strRepeat("0123456789",25)+"abcde","255charKey",dis_name,new Integer(0),String.format(KatelloDistributor.OUT_INFO,strRepeat("0123456789",25)+"abcde","255charKey",dis_name)},
 				{strRepeat("0123456789",25)+"abcdef","256charKey",dis_name,new Integer(166),KatelloDistributor.ERR_KEY_TOO_LONG},
 				{"255charValue"+uid, strRepeat("0123456789",25)+"abcde", dis_name,new Integer(0),String.format(KatelloDistributor.OUT_INFO,"255charValue"+uid, strRepeat("0123456789",25)+"abcde", dis_name)},
@@ -342,7 +342,7 @@ public class KatelloCliDataProvider {
 		String uid = KatelloUtils.getUniqueID();
 		return new Object[][]{
 				{"test_distributor"+uid,new Integer(0), String.format(KatelloDistributor.OUT_CREATE,"test_distributor"+uid)},		
-				{"",new Integer(166),"Validation failed: Name can't be blank"},
+				{"",new Integer(2), "error: Option --name is required; please see --help"},
 				{strRepeat("0123456789",12)+uid,new Integer(0),String.format(KatelloDistributor.OUT_CREATE,strRepeat("0123456789",12)+uid)},
 				{strRepeat("0123456789",30)+uid,new Integer(166),"Validation failed: Name is too long (maximum is 250 characters)"},
 				{"\\!@%^&*(<_-~+=//\\||,.>)"+uid,new Integer(144),""},				
