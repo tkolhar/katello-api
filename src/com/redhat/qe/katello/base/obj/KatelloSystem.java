@@ -105,6 +105,7 @@ public class KatelloSystem extends _KatelloObject{
 	public static final String REG_POOL_ID = "\\s+\\w{32}+\\s+";
 	public static final String REG_SYSTEM_INFO = ".*Name\\s*:\\s+%s.*IPv4 Address\\s*:\\s+\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}.*UUID\\s*:\\s+\\w{8}-\\w{4}-\\w{4}-\\w{4}-\\w{12}.*Location\\s*:\\s+%s.*Description\\s*:\\s+%s.*";
 	public static final String REG_CUSTOM_INFO = ".*Custom Info\\s*:\\s+[\\s+%s\\s+].*";
+	public static final String REG_OS_VERSION = "\\d\\.\\d";
 	
 	public static final String SYSTEM_UUIDS = "system list --org '%s' --noheading -v | grep \"^UUID\\s*:\" | cut -f2 -d: | sed 's/ *$//g' | sed 's/^ *//g'";
 	
@@ -696,6 +697,22 @@ public class KatelloSystem extends _KatelloObject{
 		
 		KatelloCli cli = new KatelloCli(cmd, null);
 		return cli.run();	
+	}
+	
+	public SSHCommandResult yum_errata_list(String query, boolean isRhel5) {
+		String cmd = "";
+		if (isRhel5) {
+			cmd = "yum list-security";
+			if (query != null)
+				cmd += " | grep " + query;
+			cmd += " | cut -d' ' -f1";
+		} else {
+			cmd = "yum updateinfo available  | grep 'Update ID' | cut -d' ' -f6";
+			if (query != null)
+				cmd += " | grep " + query;
+		}
+		
+		return KatelloUtils.sshOnClient(getHostName(), cmd);
 	}
 
 	public SSHCommandResult add_custom_info(String keyname, String value){
