@@ -747,4 +747,13 @@ public class KatelloUtils implements KatelloConstants {
 		result.append(configFile.replaceAll("\\n", " "));
 		return result.toString();
 	}
+	
+	public static boolean isKatelloAvailable(String hostname) {
+		String result = run_local("/bin/ping -i 1 -c 10 " + hostname);				
+		if (result.contains("unknown host")) {
+			return false;
+		}
+		
+		return new KatelloPing(new KatelloCliWorker(hostname, hostname)).cli_ping().getExitCode().intValue()==0;
+	}
 }

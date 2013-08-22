@@ -2,6 +2,8 @@ package com.redhat.qe.katello.tests.installation;
 
 import java.util.ArrayList;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -15,7 +17,6 @@ import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.common.KatelloUtils;
-import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups = { "cfse-cli", "headpin-cli" })
 public class TestMultipleAgents extends KatelloCliTestBase {
@@ -23,16 +24,19 @@ public class TestMultipleAgents extends KatelloCliTestBase {
 	protected DeltaCloudInstance server;
 	protected String server_name;
 	protected ArrayList<DeltaCloudInstance> clients = new ArrayList<DeltaCloudInstance>();
-	protected String org_name = null;
+	protected String org_name = "SAM matrix";
 	protected String poolRhel;
 	
 	@BeforeClass(description = "setup Deltacloud Server", alwaysRun=true)
 	public void setUp() {
-		server = KatelloUtils.getDeltaCloudServer();
-		server_name = server.getHostName();
-		System.setProperty("katello.server.hostname", server_name);
+		server_name = System.getProperty("katello.server.hostname");
+		
+		if (server_name == null || server_name.isEmpty() || !KatelloUtils.isKatelloAvailable(server_name)) {
+			server = KatelloUtils.getDeltaCloudServer();
+			server_name = server.getHostName();
+			System.setProperty("katello.server.hostname", server_name);
+		}
 		System.setProperty("katello.client.hostname", server_name);
-
 		createOrgStuff();
 	}
 	protected static Logger log = Logger.getLogger(TestMultipleAgents.class.getName());
@@ -50,63 +54,85 @@ public class TestMultipleAgents extends KatelloCliTestBase {
 		KatelloUtils.disableYumRepo(client.getIpAddress(),"katello-tools");
 		
 		try {
+			configClient(client.getIpAddress());
 			testClientConsume(client.getIpAddress(), type);
 		} finally {
+			rhsm_clean(client.getIpAddress());
 			KatelloUtils.destroyDeltaCloudMachine(client);
 		}
 	}
 
 	@AfterClass(alwaysRun = true)
 	public void tearDown() {
-		KatelloUtils.destroyDeltaCloudMachine(server);
 		for (DeltaCloudInstance client : clients) {
 			KatelloUtils.destroyDeltaCloudMachine(client);
 		}
 	}
 	
 	private void createOrgStuff() {
-		String uid = KatelloUtils.getUniqueID();
-		org_name = "Test Org " + uid;
-
 		KatelloOrg org = new KatelloOrg(null, org_name, null);
-		exec_result = org.cli_create();
-		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
-		
-		SSHCommandResult res;
-		KatelloUtils.scpOnClient(null, "data/"+KatelloProvider.MANIFEST_12SUBSCRIPTIONS, "/tmp");
-
-		KatelloProvider rh = new KatelloProvider(null, KatelloProvider.PROVIDER_REDHAT, org_name, null, null);
-		res = rh.import_manifest("/tmp/"+KatelloProvider.MANIFEST_12SUBSCRIPTIONS, null);
-		Assert.assertTrue(res.getExitCode().intValue()==0, "exit(0) - provider import_manifest");
-		org = new KatelloOrg(null, org_name, null);
-		res = org.subscriptions();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "exit(0) - org subscriptions");
-		
-		// getting poolid could vary - might be need to make switch case here for different versions...
-		poolRhel = KatelloUtils.grepCLIOutput("ID", KatelloCliTestBase.sgetOutput(res));
-		if (poolRhel == null || poolRhel.isEmpty()) {
-			poolRhel = KatelloUtils.grepCLIOutput("Id", KatelloCliTestBase.sgetOutput(res));
+		if (org.cli_info().getExitCode().intValue() != 0) {
+			exec_result = org.cli_create();
+			Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
 		}
+		
+		exec_result = org.subscriptions();
+		if (!getOutput(exec_result).contains("Red Hat Employee Subscription")) {
+			KatelloUtils.scpOnClient(null, "data/"+KatelloProvider.MANIFEST_SAM_MATRIX, "/tmp");
+
+			KatelloProvider rh = new KatelloProvider(null, KatelloProvider.PROVIDER_REDHAT, org_name, null, null);
+			exec_result = rh.import_manifest("/tmp/"+KatelloProvider.MANIFEST_SAM_MATRIX, null);
+			Assert.assertTrue(exec_result.getExitCode().intValue()==0, "exit(0) - provider import_manifest");	
+		}
+	}
+	
+	private void configClient(String client_name) {
+		KatelloUtils.sshOnClient(client_name, "yum install -y yum-plugin-security yum-security");
+		KatelloUtils.sshOnClient(client_name, "yum erase -y telnet");
 	}
 	
 	private void testClientConsume(String client_name, String client_type) {
 		
+		Pattern pattern = Pattern.compile(KatelloSystem.REG_OS_VERSION);
+		Matcher matcher = pattern.matcher(client_type);
+		Assert.assertTrue(matcher.find(), "Check - Release version should exist in provided client " + client_type);
+		String release = matcher.group();
+		
 		KatelloSystem sys = new KatelloSystem(null, client_type+" "+KatelloUtils.getUniqueID(), org_name, null);
 		sys.runOn(client_name);
-		exec_result = sys.rhsm_registerForce();
+		exec_result = sys.rhsm_registerForce_release(release, true, true);
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Client " + client_type + " must register to server successfully");
-		exec_result = sys.rhsm_subscribe(poolRhel);
-		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Client " + client_type + " must subscribe to RHEL pool to server successfully");
+
+		yum_clean(client_name);
 		
-		sys.runOn(null);
+		// Installing package
+		exec_result = KatelloUtils.sshOnClient(client_name, "yum install -y telnet");
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Return code - telnet package should be installed on client " + client_type);
 		
-		exec_result = sys.list();
-		Assert.assertTrue(exec_result.getStdout().contains(sys.name), "Check system " + sys.name + " is registered correctly to RHEL pool");
+		exec_result = KatelloUtils.sshOnClient(client_name, "rpm -q telnet");
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Return code - telnet package should be installed on client " + client_type);
+		Assert.assertTrue(getOutput(exec_result).trim().contains("telnet-"), "telnet package should be installed on client " + client_type);
 		
-		rhsm_clean(client_name);
+		// Installing errata
+		exec_result = sys.yum_errata_list("RHBA", client_type.matches(".*RHEL\\s+5.*"));
+		String[] erratas = exec_result.getStdout().split("\\n");
 		
-		exec_result = sys.list();
-		Assert.assertFalse(exec_result.getStdout().contains(sys.name), "Check system " + sys.name + " is unregistered");
+		Assert.assertTrue(erratas != null && erratas.length != 0, "Available Errata list is empty for client " + client_type);
+		
+		exec_result = KatelloUtils.sshOnClient(client_name, "yum --advisory " + erratas[0] + " update -y");
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Return code - errata " + erratas[0] + " should be installed on client " + client_type);
+		Assert.assertTrue(exec_result.getStdout().contains("Complete"), "Return text - errata " + erratas[0] + " should be installed on client " + client_type);
+		
+		// Installing package group
+		if (client_type.matches(".*RHEL\\s+5.*")) {
+			exec_result = KatelloUtils.sshOnClient(client_name, "yum -y groupinstall \"DNS Name Server\"");
+			Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Return code - package group \"DNS Name Server\" should be installed on client " + client_type);
+			Assert.assertTrue(exec_result.getStdout().contains("Complete"), "Return text - package group \"DNS Name Server\" should be installed on client " + client_type);
+		} else {
+			exec_result = KatelloUtils.sshOnClient(client_name, "yum -y groupinstall \"SNMP Support\"");
+			Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Return code - package group \"SNMP Support\" should be installed on client " + client_type);
+			Assert.assertTrue(exec_result.getStdout().contains("Complete"), "Return text - package group \"SNMP Support\" should be installed on client " + client_type);
+		}
 	}
 
 }
