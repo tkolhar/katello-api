@@ -10,7 +10,6 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.DeltaCloudInstance;
 import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
 import com.redhat.qe.katello.base.obj.KatelloContentFilter;
@@ -312,9 +311,10 @@ public class KatelloUtils implements KatelloConstants {
 	public static DeltaCloudInstance getDeltaCloudClient(String server, String imageId) {
 		
 		String[] configs = getMachineConfigs(false);
-		Assert.assertNotNull(configs, "No free machine available on Deltacloud");
-
-		DeltaCloudInstance client = DeltaCloudAPI.provideClient(false, configs[0],imageId);
+		if(configs==null)
+			Assert.assertTrue(false, "No free machine available on rhev-m");
+		
+		DeltaCloudInstance client = DeltaCloudAPI.provideClient(configs[0],imageId);
 
 		Assert.assertNotNull(client.getInstance());
 		
@@ -332,7 +332,7 @@ public class KatelloUtils implements KatelloConstants {
 		String[] configs = getMachineConfigs(false);
 		Assert.assertNotNull(configs, "No free machine available on Deltacloud");
 
-		DeltaCloudInstance client = DeltaCloudAPI.provideClient(false, configs[0],imageId);
+		DeltaCloudInstance client = DeltaCloudAPI.provideClient(configs[0],imageId);
 
 		Assert.assertNotNull(client.getInstance());
 		
@@ -401,9 +401,9 @@ public class KatelloUtils implements KatelloConstants {
 		for (String[] config : configs) {
 			boolean isHostDisabled = false;
 			String result = run_local("/bin/ping -i 1 -c 10 "+config[0] + "." + config[1]);				
-			if (result.contains("unknown host") && !DeltaCloudAPI.isMachineExists(config[0])) {
+			if (result.contains("unknown host") && !DeltaCloudAPI.isRhevmInstance(config[0])) {
 				isHostDisabled = true;
-			}	    
+			}
 			if (isHostDisabled) return config;
 		}
 		return null;

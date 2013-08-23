@@ -178,6 +178,7 @@ public interface KatelloConstants {
 
 	public static final String REDHAT_RELEASE_RHEL5X = "Red Hat Enterprise Linux Server release 5.";
 	
+	@SuppressWarnings("serial")
 	public static final Map<String, String> DELTACLOUD_IMAGES = new HashMap<String, String>(){{
 		put("RHEL 5.7 Server i386", "8716843b-50a8-48fc-add0-3f6ec21aae4a");
 		put("RHEL 5.8 Server i386", "3e5195c3-be05-4850-8c4d-9382e5742fad");
@@ -196,5 +197,7 @@ public interface KatelloConstants {
 		put("RHEL 6.3 Server x86_64", "d927a3cd-342f-4f88-ae1d-f5da9e26a581");
 		put("RHEL 6.4 Server x86_64", "24689ef2-0970-4523-adfc-3a14d4fcc89c");
 	}};
+	
+	public static final int RHEVM_MAX_WAIT = 30; // in seconds
 
 }

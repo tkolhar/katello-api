@@ -26,6 +26,8 @@ public class DeltaCloudInstance {
 
 	public void setInstance(VM instance) {
 		this.instance = instance;
+		this.ipAddress = instance.getGuestInfo().getIps().getIPs().get(0).getAddress();
+		// TODO - not sure if we don't need to set the hostname too. 
 	}
 
 	public String getHostName() {
