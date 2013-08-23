@@ -39,7 +39,6 @@ public class GroupTests extends KatelloCliTestBase {
 		Assert.assertTrue(getOutput(res).contains(LDAP_GROUP), LDAP_GROUP + " is in role.");
 	}
 
-	//@ TODO bug 966921
 	@Test(description="Add a invalid ldap group name to the new role. Verify that group is not added and error is shown.")
 	public void test_addInvalidGroup() {
 		KatelloUserRole role = new KatelloUserRole(cli_worker, role_name, "test role");
@@ -48,6 +47,6 @@ public class GroupTests extends KatelloCliTestBase {
 		Assert.assertTrue(getOutput(res).contains("Validation failed: Ldap group does not exist in your current LDAP system. Please choose a different group, or contact your LDAP administrator to have this group created"), "Check error code");
 		res = role.cli_info();
 		Assert.assertTrue(res.getExitCode().intValue() == 0,"Check - return code (user role info)");
-		Assert.assertFalse(getOutput(res).contains(LDAP_GROUP), LDAP_GROUP + " is not in role.");
+		Assert.assertFalse(getOutput(res).contains(INVALID_LDAP_GROUP), INVALID_LDAP_GROUP + " is not in role.");
 	}
 }

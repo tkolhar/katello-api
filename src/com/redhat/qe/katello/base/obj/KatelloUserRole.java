@@ -60,7 +60,11 @@ public class KatelloUserRole extends _KatelloObject{
 		opts.clear();
 		return run(CLI_CMD_LIST);
 	}
-	
+
+	public SSHCommandResult cli_list_count(){
+		opts.clear();
+		return runExt(CLI_CMD_LIST, " | grep Name | wc -l");
+	}
 	
 	public SSHCommandResult cli_update(String new_name){
 		opts.clear();

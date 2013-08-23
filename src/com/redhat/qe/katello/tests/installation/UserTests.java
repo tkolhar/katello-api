@@ -74,7 +74,7 @@ public class UserTests extends KatelloCliTestBase {
 		user.password = "redhat";
 		
 		SSHCommandResult res = user.cli_create();
-		Assert.assertTrue(res.getExitCode().intValue()==144, "Check - error code ("+KatelloUser.CMD_CREATE+")");
+		Assert.assertFalse(res.getExitCode().intValue()==0, "Check - error code ("+KatelloUser.CMD_CREATE+")");
 		Assert.assertTrue(getOutput(res).contains("wrong parameters"), "Check - returned error string ("+KatelloUser.CMD_CREATE+")");
 		
 		KatelloPing ping = new KatelloPing(cli_worker);

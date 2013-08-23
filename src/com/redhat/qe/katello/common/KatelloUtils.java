@@ -10,7 +10,6 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import com.redhat.qe.Assert;
-import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.DeltaCloudInstance;
 import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
 import com.redhat.qe.katello.base.obj.KatelloContentFilter;
@@ -283,7 +282,7 @@ public class KatelloUtils implements KatelloConstants {
 		
 		DeltaCloudInstance server = DeltaCloudAPI.provideServer(nowait, configs[0]);
 		
-		Assert.assertNotNull(server.getClient());
+		Assert.assertNotNull(server.getInstance());
 		
 		System.setProperty("katello.server.hostname", server.getIpAddress());
 		System.setProperty("katello.client.hostname", server.getIpAddress());
@@ -312,11 +311,12 @@ public class KatelloUtils implements KatelloConstants {
 	public static DeltaCloudInstance getDeltaCloudClient(String server, String imageId) {
 		
 		String[] configs = getMachineConfigs(false);
-		Assert.assertNotNull(configs, "No free machine available on Deltacloud");
+		if(configs==null)
+			Assert.assertTrue(false, "No free machine available on rhev-m");
+		
+		DeltaCloudInstance client = DeltaCloudAPI.provideClient(configs[0],imageId);
 
-		DeltaCloudInstance client = DeltaCloudAPI.provideClient(false, configs[0],imageId);
-
-		Assert.assertNotNull(client.getClient());
+		Assert.assertNotNull(client.getInstance());
 		
 		configureDDNS(client, configs);
 		
@@ -332,9 +332,9 @@ public class KatelloUtils implements KatelloConstants {
 		String[] configs = getMachineConfigs(false);
 		Assert.assertNotNull(configs, "No free machine available on Deltacloud");
 
-		DeltaCloudInstance client = DeltaCloudAPI.provideClient(false, configs[0],imageId);
+		DeltaCloudInstance client = DeltaCloudAPI.provideClient(configs[0],imageId);
 
-		Assert.assertNotNull(client.getClient());
+		Assert.assertNotNull(client.getInstance());
 		
 		configureDDNS(client, configs);
 		
@@ -357,18 +357,18 @@ public class KatelloUtils implements KatelloConstants {
 		_sshClients.remove(machine.getIpAddress());
 	}
 	
-	/**
-	 * Starts, installs CFSE server on provided machine.
-	 * @param machine DeltaCloudInstance server to start.
-	 */
-	public static void  startDeltaCloudServer(DeltaCloudInstance machine) {
-		if (!machine.getInstance().isRunning()) {
-			DeltaCloudAPI.startMachine(machine);
-			configureDDNS(machine, machine.getConfigs());
-			installServer(machine);
-		}
-	}
-	
+//	/**
+//	 * Starts, installs CFSE server on provided machine.
+//	 * @param machine DeltaCloudInstance server to start.
+//	 */
+//	public static void  startDeltaCloudServer(DeltaCloudInstance machine) {
+//		if (!machine.getInstance().getCreationStatus() .getStatus().getState()) {
+//			DeltaCloudAPI.startMachine(machine);
+//			configureDDNS(machine, machine.getConfigs());
+//			installServer(machine);
+//		}
+//	}
+//	
 	public static void scpOnClient(String client, String filename, String destinationDir){
 		String hostname = (client == null ? System.getProperty("katello.client.hostname", "localhost") : client);
 		SCPTools scp = new SCPTools(
@@ -401,9 +401,9 @@ public class KatelloUtils implements KatelloConstants {
 		for (String[] config : configs) {
 			boolean isHostDisabled = false;
 			String result = run_local("/bin/ping -i 1 -c 10 "+config[0] + "." + config[1]);				
-			if (result.contains("unknown host") && !DeltaCloudAPI.isMachineExists(config[0])) {
+			if (result.contains("unknown host") && !DeltaCloudAPI.isRhevmInstance(config[0])) {
 				isHostDisabled = true;
-			}	    
+			}
 			if (isHostDisabled) return config;
 		}
 		return null;
@@ -444,7 +444,6 @@ public class KatelloUtils implements KatelloConstants {
 		String ldap = System.getProperty("ldap.server.type", "");
 		String user = System.getProperty("katello.admin.user", KatelloUser.DEFAULT_ADMIN_USER);
 		String password = System.getProperty("katello.admin.password", KatelloUser.DEFAULT_ADMIN_PASS);
-
 		BeakerUtils.Katello_Installation_RegisterRHNClassic(hostIP);
 		
 		configureNtp(hostIP);

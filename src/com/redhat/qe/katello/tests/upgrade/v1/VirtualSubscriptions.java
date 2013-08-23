@@ -222,9 +222,9 @@ public class VirtualSubscriptions implements KatelloConstants {
 		// org subscriptions
 		KatelloOrg org = new KatelloOrg(null, orgName, null); org.runAs(samAdmin);
 		res = org.subscriptions();
-		String block = KatelloUtils.grepOutBlock("Id", poolRhel, KatelloCliTestBase.sgetOutput(res));
+		String block = KatelloUtils.grepOutBlock("ID", poolRhel, KatelloCliTestBase.sgetOutput(res));
 		Assert.assertNotNull(block, "stdout - RHEL subscription returned");
-		block = KatelloUtils.grepOutBlock("Id", poolVirt, KatelloCliTestBase.sgetOutput(res));
+		block = KatelloUtils.grepOutBlock("ID", poolVirt, KatelloCliTestBase.sgetOutput(res));
 		Assert.assertNull(block, "stdout - Virtual subscription has gone");
 		block = KatelloUtils.grepOutBlock("Consumed", "0", KatelloCliTestBase.sgetOutput(res));
 		Assert.assertNotNull(block, "stdout - RHEL consumers == 0");
@@ -265,7 +265,7 @@ public class VirtualSubscriptions implements KatelloConstants {
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit(0) - org subscriptions");
 		Assert.assertTrue(KatelloCliTestBase.sgetOutput(res).contains("(Up to 1 guest)"), "stdout - contains guest");
 
-		String block = KatelloUtils.grepOutBlock("Id", poolRhel, KatelloCliTestBase.sgetOutput(res));
+		String block = KatelloUtils.grepOutBlock("ID", poolRhel, KatelloCliTestBase.sgetOutput(res));
 		String consumedCountRhel = KatelloUtils.grepCLIOutput("Consumed", block);
 		Assert.assertTrue(consumedCountRhel.equals("1"), "stdout - consumed just 1 socket");
 		

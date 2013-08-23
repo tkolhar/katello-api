@@ -68,7 +68,7 @@ public class KatelloOrg extends _KatelloObject{
 	public static final String ERR_LONG_NAME = "Validation failed: Name cannot contain more than 255 characters" ;
 	public static final String ERR_BLANK_KEY = "Validation failed: Default info cannot contain blank keynames";
 	public static final String ERR_KEY_TOO_LONG = "Validation failed: Keyname is too long (maximum is 255 characters)";
-	public static final String ERR_DUPLICATE_DISTRIBUTOR_KEY = "Organization [ %s ] already contains default info [ %s ] for [ Distributors ]";
+	public static final String ERR_DUPLICATE_KEY = "Organization [ %s ] already contains default info [ %s ] for [ %s ]";
 
 	public static final String REG_ORG_LIST = ".*ID\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Description\\s*:\\s+%s.*";
 	public static final String REG_ORG_INFO = ".*ID\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Description\\s*:\\s+%s.*";
