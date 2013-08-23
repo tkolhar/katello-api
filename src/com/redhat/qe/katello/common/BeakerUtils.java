@@ -31,7 +31,7 @@ public class BeakerUtils {
 	public static void install_CandlepinCert(String hostname, String servername){
 		KatelloUtils.sshOnClient(hostname, "rpm -q subscription-manager python-rhsm || yum -y install subscription-manager python-rhsm --disablerepo=\\*beaker\\*");
 		KatelloUtils.sshOnClient(hostname, "yum -y update subscription-manager --disablerepo=\\*beaker\\*");
-		KatelloUtils.sshOnClient(hostname, "yum -y python-rhsm --disablerepo=\\*beaker\\*");
+		KatelloUtils.sshOnClient(hostname, "yum -y update python-rhsm --disablerepo=\\*beaker\\*");
 		KatelloUtils.sshOnClient(hostname, "wget http://" + servername + "/pub/candlepin-cert-consumer-" + servername + "-1.0-1.noarch.rpm -O /tmp/candlepin-cert-consumer-" + servername + "-1.0-1.noarch.rpm");
 		KatelloUtils.sshOnClient(hostname, "yum -y --nogpgcheck localinstall /tmp/candlepin-cert-consumer-" + servername + "-1.0-1.noarch.rpm");
 	}
