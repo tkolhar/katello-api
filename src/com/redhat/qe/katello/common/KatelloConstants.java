@@ -191,7 +191,7 @@ public interface KatelloConstants {
 		put("RHEL 5.7 Server x86_64", "aa792b31-3c45-4fbb-9a6c-092a19a2674f");
 		put("RHEL 5.8 Server x86_64", "06ad3fc6-d879-4a8d-8353-58cf4d4cd579");
 		put("RHEL 5.9 Server x86_64", "d56c6de6-aefd-45c0-81a7-9f0685529f3d");
-		put("RHEL 6.0 Server x86_64", "02b3f53b-27e0-4b1a-897f-f4805c70ce27");
+		put("RHEL 6.0 Server x86_64", "623fce7f-24e5-41a0-af5a-15ce12b09509");
 		put("RHEL 6.1 Server x86_64", "cb77e9b5-a7ab-4fdf-bdf0-5c47897ad671");
 		put("RHEL 6.2 Server x86_64", "b0b5cae3-b703-4412-9fd8-f46f47ae3216");
 		put("RHEL 6.3 Server x86_64", "d927a3cd-342f-4f88-ae1d-f5da9e26a581");
