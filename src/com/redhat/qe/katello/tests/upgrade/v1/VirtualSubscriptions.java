@@ -1,6 +1,8 @@
 package com.redhat.qe.katello.tests.upgrade.v1;
 
 import java.util.logging.Logger;
+
+import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -56,8 +58,12 @@ public class VirtualSubscriptions implements KatelloConstants {
 	@Test(description="init object unique names", 
 			groups={TNG_PRE_UPGRADE})
 	public void init(){
+		String prodName = KatelloCliTestBase.sgetOutput(KatelloUtils.sshOnServer("dmidecode | grep \"Product Name\""));
+		if (prodName.contains("RHEV") || prodName.contains("VM")) {
+			throw new SkipException("Skipping: Server machine is virtual, scenario is reasonless");
+		}
 		uid = KatelloUtils.getUniqueID();
-		orgName = "SAM-QE-"+uid;
+		orgName = "eSAM-QE-"+uid;
 		envTesting = "Testing";
 		envDevelopment = "Development";
 		akRhel = "ak_RHEL-"+uid;
