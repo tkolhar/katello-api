@@ -7,7 +7,6 @@ import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloPing;
 import com.redhat.qe.katello.base.obj.KatelloUser;
-import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @Test(groups = { "cfse-cli", "headpin-cli" })
@@ -17,11 +16,9 @@ public class UserTests extends KatelloCliTestBase {
 	
 	@BeforeClass(description="init: create org stuff")
 	public void setUp(){
-		String uid = KatelloUtils.getUniqueID();
-		this.username = "user"+uid;
+		this.username = "admin-user2";
 	}
 	
-	//@ TODO bug 966263
 	@Test(description="Create user with correct username, verify that it is created, login by that user")
 	public void test_createUser() {
 		
@@ -42,7 +39,6 @@ public class UserTests extends KatelloCliTestBase {
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check services up");
 	}
 
-	//@ TODO bug 966263
 	@Test(description="Create user with invalid username, verify that it is not created, login by that user and verify that error is shown")
 	public void test_createUserInvalid() {
 		
@@ -50,21 +46,20 @@ public class UserTests extends KatelloCliTestBase {
 		user.username = "invalid & username @ ldap";
 		
 		SSHCommandResult res = user.cli_create();
-		Assert.assertTrue(res.getExitCode().intValue()==144, "Check - error code ("+KatelloUser.CMD_CREATE+")");
-		Assert.assertTrue(getOutput(res).contains("Username is invalid"), "Check - returned error string ("+KatelloUser.CMD_CREATE+")");
+		Assert.assertFalse(res.getExitCode().intValue()==0, "Check - error code ("+KatelloUser.CMD_CREATE+")");
+		Assert.assertTrue(getOutput(res).contains("Validation failed: Username does not exist in your current LDAP system. Please choose a different user, or contact your LDAP administrator if you think this message is in error."), "Check - returned error string ("+KatelloUser.CMD_CREATE+")");
 
 		user.password = "redhat";
 		
 		KatelloPing ping = new KatelloPing(cli_worker);
 		ping.runAs(user);
 		res = ping.cli_ping();
-		Assert.assertTrue(res.getExitCode().intValue()==145, 
+		Assert.assertFalse(res.getExitCode().intValue()==0, 
 				"Check - return code (invalid credentials)");
 		Assert.assertTrue(getOutput(res).equals(KatelloUser.ERR_INVALID_CREDENTIALS), 
 				"Check - error string (invalid credentials)");
 	}
 	
-	//@ TODO bug 966263
 	@Test(description="Create user with wrong parameters, verify that it is not created, login by that user and verify that error is shown")
 	public void test_createUserWrongParams() {
 		
@@ -75,12 +70,11 @@ public class UserTests extends KatelloCliTestBase {
 		
 		SSHCommandResult res = user.cli_create();
 		Assert.assertFalse(res.getExitCode().intValue()==0, "Check - error code ("+KatelloUser.CMD_CREATE+")");
-		Assert.assertTrue(getOutput(res).contains("wrong parameters"), "Check - returned error string ("+KatelloUser.CMD_CREATE+")");
 		
 		KatelloPing ping = new KatelloPing(cli_worker);
 		ping.runAs(user);
 		res = ping.cli_ping();
-		Assert.assertTrue(res.getExitCode().intValue()==145, 
+		Assert.assertFalse(res.getExitCode().intValue()==0, 
 				"Check - return code (invalid credentials)");
 		Assert.assertTrue(getOutput(res).equals(KatelloUser.ERR_INVALID_CREDENTIALS), 
 				"Check - error string (invalid credentials)");
