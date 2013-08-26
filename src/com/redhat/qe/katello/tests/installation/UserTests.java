@@ -13,10 +13,15 @@ import com.redhat.qe.tools.SSHCommandResult;
 public class UserTests extends KatelloCliTestBase {
 	
 	private String username;
+	private String ldap_type;
 	
 	@BeforeClass(description="init: create org stuff")
 	public void setUp(){
 		this.username = "admin-user2";
+		ldap_type = System.getProperty("ldap.server.type", "");
+		if ("posix".equals(ldap_type)) {
+			this.username = "omaciel";
+		}
 	}
 	
 	@Test(description="Create user with correct username, verify that it is created, login by that user")
@@ -31,12 +36,14 @@ public class UserTests extends KatelloCliTestBase {
 				String.format(KatelloUser.OUT_CREATE,username)), 
 				"Check - returned output string ("+KatelloUser.CMD_CREATE+")");
 
-		user.password = "redhat";
-		
-		KatelloPing ping = new KatelloPing(cli_worker);
-		ping.runAs(user);
-		res = ping.cli_ping();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check services up");
+		if (!"posix".equals(ldap_type)) {
+			user.password = "redhat";
+			
+			KatelloPing ping = new KatelloPing(cli_worker);
+			ping.runAs(user);
+			res = ping.cli_ping();
+			Assert.assertTrue(res.getExitCode().intValue()==0, "Check services up");
+		}
 	}
 
 	@Test(description="Create user with invalid username, verify that it is not created, login by that user and verify that error is shown")
