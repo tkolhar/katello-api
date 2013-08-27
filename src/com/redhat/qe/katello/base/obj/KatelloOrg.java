@@ -31,12 +31,7 @@ public class KatelloOrg extends _KatelloObject{
 	public static final String CMD_DEFAULT_INFO_ADD = "org default_info add";
 	public static final String CMD_DEFAULT_INFO_APPLY = "org default_info sync";
 	public static final String CMD_DEFAULT_INFO_REMOVE = "org default_info remove";
-//	public static final String CMD_ADD_SYS_INFO = "org default_info add";
-//	public static final String CMD_APPLY_SYS_INFO = "org default_info apply";
-//	public static final String CMD_REMOVE_SYS_INFO = "org default_info remove --type system";
-//	public static final String CMD_ADD_DISTRIBUTOR_INFO = "org default_info add";
-//	public static final String CMD_APPLY_DISTRIBUTOR_INFO = "org default_info apply";
-//	public static final String CMD_REMOVE_DISTRIBUTOR_INFO = "org default_info remove";
+	public static final String CMD_ATTACH_ALL_SYSTEMS = "org attach_all_systems";
 	
 	public static final String API_CMD_INFO = "/organizations/%s";
 	
@@ -67,7 +62,7 @@ public class KatelloOrg extends _KatelloObject{
 			"Type must be one of the following [ system, distributor ]";
 	public static final String ERR_LONG_NAME = "Validation failed: Name cannot contain more than 255 characters" ;
 	public static final String ERR_BLANK_KEY = "Validation failed: Default info cannot contain blank keynames";
-	public static final String ERR_KEY_TOO_LONG = "Validation failed: Keyname is too long (maximum is 255 characters)";
+	public static final String ERR_KEY_TOO_LONG = "Validation failed: Default info must be less than 256 characters";
 	public static final String ERR_DUPLICATE_KEY = "Organization [ %s ] already contains default info [ %s ] for [ %s ]";
 
 	public static final String REG_ORG_LIST = ".*ID\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Description\\s*:\\s+%s.*";
@@ -209,28 +204,19 @@ public class KatelloOrg extends _KatelloObject{
 		return run(CMD_DEFAULT_INFO_REMOVE);
 	}
 
-//	public SSHCommandResult add_distributor_info(String keyname) {
-//		opts.clear();
-//		opts.add(new Attribute("name", this.name));
-//		opts.add(new Attribute("keyname", keyname));
-//		opts.add(new Attribute("type", "distributor"));
-//		return run(CMD_DEFAULT_INFO_ADD);
-//	}
-//
-//	public SSHCommandResult apply_distributor_info() {
-//		opts.clear();
-//		opts.add(new Attribute("name", this.name));
-//		opts.add(new Attribute("type", "distributor"));
-//		return run(CMD_DEFAULT_INFO_APPLY);
-//	}
-//
-//	public SSHCommandResult remove_distributor_info(String keyname) {
-//		opts.clear();
-//		opts.add(new Attribute("name", this.name));
-//		opts.add(new Attribute("keyname", keyname));
-//		opts.add(new Attribute("type", "distributor"));
-//		return run(CMD_DEFAULT_INFO_REMOVE);
-//	}
+	public SSHCommandResult attach_all_systems() {
+		opts.clear();
+		opts.add(new Attribute("name", name));
+		return run(CMD_ATTACH_ALL_SYSTEMS);
+	}
+
+	public SSHCommandResult default_info_apply_noasync(String type) {
+		opts.clear();
+		opts.add(new Attribute("name", this.name));
+		opts.add(new Attribute("type", type));
+		opts.add(new Attribute("no-async", ""));
+		return run(CMD_DEFAULT_INFO_APPLY);
+	}
 
 	public ArrayList<String> custom_listNames(){
 		ArrayList<String> _ret = new ArrayList<String>();

@@ -622,6 +622,39 @@ public class OrgTests extends KatelloCliTestBase{
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");		
 	}
 
+	@Test(description="show organzations certificate")
+	public void test_uebercert() {
+		KatelloOrg org = new KatelloOrg(cli_worker, base_org_name, null);
+		exec_result = org.uebercert();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (org uebercert)");
+	}
+
+	@Test(description="sync default info: no-async")
+	public void test_defaultInfoNoAsync() {
+		String sys_name = "system-"+uid;
+		String default_info = "def-info-"+uid;
+		KatelloOrg org = new KatelloOrg(cli_worker, base_org_name, null);
+		KatelloSystem sys = new KatelloSystem(cli_worker, sys_name, base_org_name, "Library");
+		exec_result = sys.rhsm_registerForce();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (register system)");
+		exec_result = org.default_info_add(default_info, "system");
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (sync default info)");
+		exec_result = org.default_info_apply_noasync("system");
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (sync default info)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloOrg.OUT_APPLY_INFO, base_org_name)), "Check output (sync default info)");
+		exec_result = sys.info();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (system info)");
+		Assert.assertTrue(getOutput(exec_result).contains(default_info), "Check output (system info)");
+	}
+
+	// TODO bz 1001525
+	@Test(description="attach available subscriptions to all systems", dependsOnMethods={"test_defaultInfoNoAsync"})
+	public void test_attachAllSystems() {
+		KatelloOrg org = new KatelloOrg(cli_worker, base_org_name, null);
+		exec_result = org.attach_all_systems();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (attach all systems)");
+	}
+
 	@AfterClass(description="Remove org objects", alwaysRun=true)
 	public void tearDown() {
 		for (KatelloOrg org : orgs) {
