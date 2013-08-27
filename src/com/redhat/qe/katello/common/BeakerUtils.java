@@ -101,7 +101,7 @@ public class BeakerUtils {
 				"yum install -y Katello-Katello-Installation-SAMLatest --disablerepo=* --enablerepo=beaker*; " +
 				"cd /mnt/tests/Katello/Installation/SAMLatest/; " +
 				"export SAM_RELEASE=" + releaseVersion + "";
-		if (samUrl != null) {
+		if (samUrl != null && !samUrl.isEmpty()) {
 			cmds += "; export SAM_INSTALL_URL=" + samUrl; 
 		}
 		cmds += "; make run";
@@ -114,7 +114,7 @@ public class BeakerUtils {
 				"yum install -y Katello-Katello-Installation-SAMLatestWithLdap --disablerepo=* --enablerepo=beaker*; " +
 				"cd /mnt/tests/Katello/Installation/SAMLatestWithLdap/; " +
 				"export SAM_RELEASE=" + releaseVersion + "; export LDAP_SERVER_TYPE=" + ldap_type + "; export LDAP_USERNAME=" + user + "; export LDAP_PASSWORD=" + password;
-		if (samUrl != null) {
+		if (samUrl != null && !samUrl.isEmpty()) {
 			cmds += "; export SAM_INSTALL_URL=" + samUrl; 
 		}
 		cmds += "; make run";
