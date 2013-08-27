@@ -65,7 +65,6 @@
 		<classes>
 			<class name="com.redhat.qe.katello.tests.upgrade.v1.SetupServers"/>
 			<class name="com.redhat.qe.katello.tests.upgrade.v1.ScenOrgs"/>
-			<class name="com.redhat.qe.katello.tests.upgrade.v1.VirtualSubscriptions"/>
 			<class name="com.redhat.qe.katello.tests.upgrade.v1.KatelloUpgrade"/>
 		</classes>
 	</test>
