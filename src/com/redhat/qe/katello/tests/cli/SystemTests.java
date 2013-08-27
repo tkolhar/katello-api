@@ -459,6 +459,8 @@ public class SystemTests extends KatelloCliTestBase{
 		Assert.assertTrue(getOutput(exec_result).contains(
 				String.format(KatelloSystem.OUT_ADD_CUSTOM_INFO, "custom-key", "custom-value", sys.name)),
 				"Check - returned output string");
+		exec_result = sys.list();
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		exec_result = sys.info();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		String customInfoStr = KatelloUtils.grepCLIOutput("Custom Info", getOutput(exec_result));
