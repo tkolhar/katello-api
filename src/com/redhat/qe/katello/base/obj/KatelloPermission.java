@@ -15,6 +15,9 @@ public class KatelloPermission extends _KatelloObject{
 	public static final String OUT_DELETE = "Successfully deleted permission [ %s ] for role [ %s ]";
 	public static final String CMD_LIST = "permission list";
 	
+	public static final String ERR_TAG_ALL_TAGS = "Can not specify a set of tags and use --all_tags";
+	public static final String ERR_INVALID_SCOPE = "Invalid scope [ %s ]";
+	public static final String ERR_TAG_NOT_FOUND = "Could not find tag [ %s ] in scope of [ %s ]";
 	// ** ** ** ** ** ** ** Class members
 	String name;
 	String org;
