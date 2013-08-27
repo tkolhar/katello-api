@@ -8,6 +8,7 @@ katello-api.log
 velocity.log
 src/debug/*
 scripts/*.pyc
+scripts/*.sh
 .pydevproject
 *private.sh
 githash

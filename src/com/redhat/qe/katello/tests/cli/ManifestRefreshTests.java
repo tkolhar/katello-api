@@ -18,28 +18,28 @@ public class ManifestRefreshTests extends KatelloCliTestBase{
 	private String manifest_name;
 	private String subscription_id;
 	private SSHCommandResult res;
-	@BeforeClass(description="Prepare an org to work with", groups = {"headpin-cli","cfse-cli"})
+	@BeforeClass(description="Create distributor & manifest", groups = {"headpin-cli","cfse-cli"})
 	public void setup_org(){
 
 		String uid = KatelloUtils.getUniqueID();
 		this.org_name = "org"+uid;
-		this.distributor_name="Dis-"+ uid;
+		this.distributor_name="Tmp-"+ uid;
 		org = new KatelloOrg(this.cli_worker, this.org_name,null);
 		res = org.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		KatelloUtils.scpOnClient(cli_worker.getServerHostname(), "scripts/my_script.sh", "/tmp");
-		KatelloUtils.sshOnServer("chmod a+x /tmp/my_script.sh");
-		res = KatelloUtils.sshOnServer("sh /tmp/my_script.sh "+System.getProperty("katello.stage.login")+" "+System.getProperty("katello.stage.password")+" "+this.distributor_name);
+		KatelloUtils.scpOnClient(cli_worker.getServerHostname(), "scripts/stgportal-createDistributor.sh", "/tmp");
+		res = KatelloUtils.sshOnServer("chmod a+x /tmp/stgportal-createDistributor.sh;" +
+				"/tmp/stgportal-createDistributor.sh "+this.distributor_name);
 		res = KatelloUtils.sshOnServer("cat /tmp/file.txt | grep 'id' | cut -d':' -f2 | awk \'NR==1\'");
 		this.subscription_id = getOutput(res);
-		KatelloUtils.scpOnClient(cli_worker.getServerHostname(), "scripts/create_manifest.sh", "/tmp");
-		KatelloUtils.sshOnServer("chmod a+x /tmp/create_manifest.sh");
-		res = KatelloUtils.sshOnServer("sh /tmp/create_manifest.sh "+System.getProperty("katello.stage.login")+" "+System.getProperty("katello.stage.password")+" "+this.distributor_name+" "+this.subscription_id);
+		KatelloUtils.scpOnClient(cli_worker.getServerHostname(), "scripts/stgportal-createManifest.sh", "/tmp");
+		res = KatelloUtils.sshOnServer("chmod a+x /tmp/stgportal-createManifest.sh; " +
+				"/tmp/stgportal-createManifest.sh "+this.distributor_name+" "+this.subscription_id);
 		res = KatelloUtils.sshOnServer("cat /tmp/file_name");
 		this.manifest_name = getOutput(res);
 	}	
 
-	@Test(description = "Refresh Manifests - increase no of subscriptions and refresh",groups={"cfse-cli","headpin-cli"})
+	@Test(description = "Refresh manifests - increase no of subscriptions and refresh",groups={"cfse-cli","headpin-cli"})
 	public void test_refreshManifestPortalIncrease(){
 
 		KatelloProvider providerRH;
@@ -50,7 +50,7 @@ public class ManifestRefreshTests extends KatelloCliTestBase{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).trim().contains(KatelloProvider.OUT_MANIFEST_IMPORTED), "Check output");
 
-		res = KatelloUtils.sshOnServer("sh /tmp/create_manifest.sh "+System.getProperty("katello.stage.login")+" "+System.getProperty("katello.stage.password")+" "+this.distributor_name+" "+this.subscription_id);
+		res = KatelloUtils.sshOnServer("/tmp/stgportal-createManifest.sh "+this.distributor_name+" "+this.subscription_id);
 
 		// refresh manifest
 		exec_result = providerRH.refresh_manifest();
@@ -62,12 +62,11 @@ public class ManifestRefreshTests extends KatelloCliTestBase{
 
 	}
 
-	@AfterClass(description="Delete Distributor", alwaysRun=true)
+	@AfterClass(description="Delete distributor", alwaysRun=true)
 	public void tearDown() {
 
-		KatelloUtils.scpOnClient(cli_worker.getServerHostname(), "scripts/cleanup_script.sh", "/tmp");
-		KatelloUtils.sshOnServer("chmod a+x /tmp/cleanup_script.sh");
-		KatelloUtils.sshOnServer("sh /tmp/cleanup_script.sh "+System.getProperty("katello.stage.login")+" "+System.getProperty("katello.stage.password")+" "+distributor_name);
+		KatelloUtils.scpOnClient(cli_worker.getServerHostname(), "scripts/stgportal-deleteDistributor.sh", "/tmp");
+		KatelloUtils.sshOnServer("chmod a+x /tmp/stgportal-deleteDistributor.sh; /tmp/stgportal-deleteDistributor.sh "+distributor_name);
 	}
 
 }
