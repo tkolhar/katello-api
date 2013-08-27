@@ -37,7 +37,7 @@ public class UserTests extends KatelloCliTestBase {
 				"Check - returned output string ("+KatelloUser.CMD_CREATE+")");
 
 		if (!"posix".equals(ldap_type)) {
-			user.password = "redhat";
+			user.password = System.getProperty("katello.admin.password", KatelloUser.DEFAULT_ADMIN_PASS);
 			
 			KatelloPing ping = new KatelloPing(cli_worker);
 			ping.runAs(user);
@@ -56,7 +56,7 @@ public class UserTests extends KatelloCliTestBase {
 		Assert.assertFalse(res.getExitCode().intValue()==0, "Check - error code ("+KatelloUser.CMD_CREATE+")");
 		Assert.assertTrue(getOutput(res).contains("Validation failed: Username does not exist in your current LDAP system. Please choose a different user, or contact your LDAP administrator if you think this message is in error."), "Check - returned error string ("+KatelloUser.CMD_CREATE+")");
 
-		user.password = "redhat";
+		user.password = System.getProperty("katello.admin.password", KatelloUser.DEFAULT_ADMIN_PASS);
 		
 		KatelloPing ping = new KatelloPing(cli_worker);
 		ping.runAs(user);
@@ -73,7 +73,7 @@ public class UserTests extends KatelloCliTestBase {
 		KatelloUser user = new KatelloUser();
 		user.username = "testusername";
 		user.email = "test@example.com";
-		user.password = "redhat";
+		user.password = System.getProperty("katello.admin.password", KatelloUser.DEFAULT_ADMIN_PASS);
 		
 		SSHCommandResult res = user.cli_create();
 		Assert.assertFalse(res.getExitCode().intValue()==0, "Check - error code ("+KatelloUser.CMD_CREATE+")");
