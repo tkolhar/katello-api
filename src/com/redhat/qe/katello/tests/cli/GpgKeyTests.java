@@ -80,4 +80,53 @@ public class GpgKeyTests extends KatelloCliTestBase{
 		Assert.assertTrue(getOutput(res).equals(String.format(KatelloGpgKey.ERR_KEY_NOT_FOUND, this.gpg)),
 				"Check - gpg info error string");
 	}
+
+	@Test(description="update gpg key")
+	public void test_updateKey() {
+		String uid = KatelloUtils.getUniqueID();
+		String gpgkey_name = "gpg-key"+uid;
+		String gpgkey_newname = "gpg-key-new-"+uid;
+		String file_not_exist = "/tmp/gpg-no-such-file-"+uid;
+
+		KatelloGpgKey gpgkey = new KatelloGpgKey(cli_worker, gpgkey_name, org, filename);
+		exec_result = gpgkey.cli_create();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (create key)");
+
+		exec_result = gpgkey.update(null, filename);
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (gpgkey update)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloGpgKey.OUT_UPDATE, gpgkey_name)), "Check output (gpgkey update)");
+
+		exec_result = gpgkey.update(gpgkey_newname, null);
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (gpgkey rename)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloGpgKey.OUT_UPDATE, gpgkey_name)), "Check output (gpgkey update)");
+
+		exec_result = gpgkey.update(null, file_not_exist);
+		Assert.assertTrue(exec_result.getExitCode()==65, "Check exit code (gpgkey rename)");
+		Assert.assertTrue(getOutput(exec_result).equals("No such file or directory"), "Check output (gpgkey update)");
+	}
+
+	@Test(description="call commands on non existing key")
+	public void test_invalidGpgKey() {
+		String uid = KatelloUtils.getUniqueID();
+		String org_name = "org-"+uid;
+		String gpgkey_name = "gpgkey-"+uid;
+		String file_not_exist = "/tmp/gpg-no-such-file-"+uid;
+		KatelloOrg org = new KatelloOrg(cli_worker, org_name, null);
+		exec_result = org.cli_create();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (create org)");
+
+		KatelloGpgKey gpgkey = new KatelloGpgKey(cli_worker, gpgkey_name, org_name, file_not_exist);
+		exec_result = gpgkey.cli_list();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (gpgkey list)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloGpgKey.OUT_NO_KEYS, org_name)), "Check error");
+		exec_result = gpgkey.cli_delete();
+		Assert.assertTrue(exec_result.getExitCode()==65, "Check exit code (gpgkey delete)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloGpgKey.ERR_KEY_NOT_FOUND, gpgkey_name)), "Check error");
+		exec_result = gpgkey.update("new"+gpgkey_name, null);
+		Assert.assertTrue(exec_result.getExitCode()==65, "Check exit code (gpgkey update)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloGpgKey.ERR_KEY_NOT_FOUND, gpgkey_name)), "Check error");
+		exec_result = gpgkey.cli_create();
+		Assert.assertTrue(exec_result.getExitCode()==65, "Check exit code (gpgkey create)");
+		Assert.assertTrue(getOutput(exec_result).equals("No such file or directory"), "Check output (gpgkey cerate)");
+	}
 }
