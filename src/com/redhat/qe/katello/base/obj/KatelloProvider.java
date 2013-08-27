@@ -20,6 +20,7 @@ public class KatelloProvider extends _KatelloObject{
 	public static final String CMD_DELETE = "provider delete";
 	public static final String CMD_STATUS = "provider status";
 	public static final String CMD_DELETE_MANIFEST = "provider delete_manifest";
+	public static final String CMD_REFRESH_MANIFEST = "provider refresh_manifest";
 	public static final String CMD_REFRESH_PRODUCTS = "provider refresh_products";
 	public static final String CMD_CANCEL_SYNC = "provider cancel_sync";
 	
@@ -35,7 +36,8 @@ public class KatelloProvider extends _KatelloObject{
 			"Successfully updated provider [ %s ]";
 	public static final String OUT_MANIFEST_IMPORTED = 
 			"Provider [ Red Hat ] manifest import complete";
-	
+	public static final String OUT_MANIFEST_REFRESH =
+			 "Provider [ Red Hat ] manifest refresh complete";
 	public static final String ERR_PROVIDER_DELETE = 
 			"Provider cannot be deleted since one of its products or repositories has already been promoted. Using a changeset, please delete the repository from existing environments before deleting it.";
 	
@@ -159,7 +161,14 @@ public class KatelloProvider extends _KatelloObject{
 		opts.add(new Attribute("force", ""));
 		return run(CMD_IMPORT_MANIFEST);
 	}
-
+	
+	public SSHCommandResult refresh_manifest(){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		return run(CMD_REFRESH_MANIFEST);
+	}
+	
 	public SSHCommandResult cli_list(){
 		opts.clear();
 		opts.add(new Attribute("org", org));

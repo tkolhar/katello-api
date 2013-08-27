@@ -24,7 +24,7 @@ public class VersionTest extends KatelloCliTestBase{
 		Assert.assertTrue(getOutput(exec_result).trim().matches(KatelloVersion.REG_VERSION), "Check version output format");
 		
 		if (KATELLO_PRODUCT.equals("sam") || KATELLO_PRODUCT.equals("headpin")) {
-			Assert.assertTrue(getOutput(exec_result).trim().contains("Headpin"), "Check version output");
+			Assert.assertTrue(getOutput(exec_result).trim().contains("headpin"), "Check version output");
 		} else if (KATELLO_PRODUCT.equals("katello")) {
 			Assert.assertTrue(getOutput(exec_result).trim().contains("Katello"), "Check version output");
 		} else {
