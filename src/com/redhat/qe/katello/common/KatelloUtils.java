@@ -764,7 +764,7 @@ public class KatelloUtils implements KatelloConstants {
 				sshOnClient(hostname, "rpm -q --queryformat '%{RELEASE}' redhat-release-server | cut -c -3"));
 		String sArch = KatelloCliTestBase.sgetOutput(
 				sshOnClient(hostname, "uname -i"));
-		log.info(hostname+" is running under: "+String.format(_ret, sVer,sArch))
+		log.info(hostname+" is running under: "+String.format(_ret, sVer,sArch));
 		return String.format(_ret, sVer,sArch);
 	}
 }
