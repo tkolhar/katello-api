@@ -10,6 +10,7 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import com.redhat.qe.Assert;
+import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.DeltaCloudInstance;
 import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
 import com.redhat.qe.katello.base.obj.KatelloContentFilter;
@@ -754,5 +755,16 @@ public class KatelloUtils implements KatelloConstants {
 		}
 		
 		return new KatelloPing(new KatelloCliWorker(hostname, hostname)).cli_ping().getExitCode().intValue()==0;
+	}
+	
+	public static String getServerReleaseInfo(String hostname){
+		String _ret = "RHEL %s Server %s";
+		
+		String sVer = KatelloCliTestBase.sgetOutput(
+				sshOnClient(hostname, "rpm -q --queryformat '%{RELEASE}' redhat-release-server | cut -c -3"));
+		String sArch = KatelloCliTestBase.sgetOutput(
+				sshOnClient(hostname, "uname -i"));
+		log.info(hostname+" is running under: "+String.format(_ret, sVer,sArch))
+		return String.format(_ret, sVer,sArch);
 	}
 }
