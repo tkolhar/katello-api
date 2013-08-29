@@ -21,6 +21,7 @@ import com.redhat.qe.katello.common.KatelloUtils;
 @Test(groups = { "cfse-cli", "headpin-cli" })
 public class TestMultipleAgents extends KatelloCliTestBase {
 
+	public static final String IS_BEAKER = "IS BEAKER";
 	protected DeltaCloudInstance server;
 	protected String server_name;
 	protected ArrayList<DeltaCloudInstance> clients = new ArrayList<DeltaCloudInstance>();
@@ -44,7 +45,15 @@ public class TestMultipleAgents extends KatelloCliTestBase {
 	@Test(description = "provision client and run test on it", dataProvider = "multiple_agents", 
 			dataProviderClass = KatelloCliDataProvider.class)
 	public void testMultipleClients(String type) {
-
+		
+		// in case of: IS_BEAKER the data provider will have just 1 loop and it will end within this if scope ONLY.
+		if(type.equals(IS_BEAKER)){
+			String hostname = System.getProperty("katello.client.hostname"); // getting bkr machine hostname
+			testClientConsume(hostname, KatelloUtils.getServerReleaseInfo(hostname)); // collect release/arch info
+			rhsm_clean(hostname);
+			return;
+		}
+		
 		DeltaCloudInstance client = KatelloUtils.getDeltaCloudClientCertOnly(
 				server_name, DELTACLOUD_IMAGES.get(type));
 		clients.add(client);
@@ -135,4 +144,5 @@ public class TestMultipleAgents extends KatelloCliTestBase {
 		}
 	}
 
+	
 }

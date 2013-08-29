@@ -11,6 +11,7 @@ import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.common.KatelloUtils;
+import com.redhat.qe.katello.tests.installation.TestMultipleAgents;
 
 public class KatelloCliDataProvider {
 
@@ -379,10 +380,15 @@ public class KatelloCliDataProvider {
 	@DataProvider(name="multiple_agents")
 	public static Object[][] multiple_agents() {
 		List<Object[]> images = new ArrayList<Object[]>(); 
-		StringTokenizer tok = new StringTokenizer(
-		System.getProperty("deltacloud.client.imageid", ""), ",");
-		while (tok.hasMoreTokens()) {
-			images.add(new Object[] {tok.nextToken().trim()});
+		if(System.getProperty("katello.client.hostname")!=null && 
+				!System.getProperty("katello.client.hostname").isEmpty()){
+			images.add(new Object[]{TestMultipleAgents.IS_BEAKER});
+		}else{
+			StringTokenizer tok = new StringTokenizer(
+					System.getProperty("deltacloud.client.imageid", ""), ",");
+			while (tok.hasMoreTokens()) {
+				images.add(new Object[] {tok.nextToken().trim()});
+			}
 		}
 		return images.toArray(new Object[images.size()][]);
 	}
