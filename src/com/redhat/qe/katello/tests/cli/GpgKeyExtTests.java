@@ -180,4 +180,27 @@ public class GpgKeyExtTests extends KatelloCliTestBase{
 		Assert.assertTrue(repo_gpg!= null && repo_gpg.isEmpty(), "Check - repo info contains no \"GPG Key\" value");
 		Assert.assertTrue(!repo_gpg.equals(gpg), "Check - repo gpg key info is what we expect");
 	}
+
+	@Test(description="product update nogpgkey")
+	public void test_productGpgKeys() {
+		String uid = KatelloUtils.getUniqueID();
+		String prov_name = "provider-"+uid;
+		String prod_name = "product-"+uid;
+		String gpgkey_name = "gpg-key-"+uid;
+		exec_result = new KatelloGpgKey(cli_worker, gpgkey_name, org, filename).cli_create();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (create gpgkey)");
+		KatelloProvider prov = new KatelloProvider(cli_worker, prov_name, org, null, null);
+		exec_result = prov.create();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (create provider)");
+		KatelloProduct prod = new KatelloProduct(cli_worker, prod_name, org, prov_name, null, gpgkey_name, null, null, null);
+		exec_result = prod.create();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (create product)");
+		exec_result = prod.cli_list();
+		Assert.assertTrue(getOutput(exec_result).contains(gpgkey_name), "Check output (gpgkey is set)");
+		exec_result = prod.update_nogpgkey(false);
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (unset gpgkey)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloProduct.OUT_UPDATED, prod_name)), "Check output (unset gpgkey)");
+		exec_result = prod.cli_list();
+		Assert.assertFalse(getOutput(exec_result).contains(gpgkey_name), "Check output (gpgkey is unset)");
+	}
 }
