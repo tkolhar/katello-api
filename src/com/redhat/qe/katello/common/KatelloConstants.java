@@ -198,6 +198,6 @@ public interface KatelloConstants {
 		put("RHEL 6.4 Server x86_64", "24689ef2-0970-4523-adfc-3a14d4fcc89c");
 	}};
 	
-	public static final int RHEVM_MAX_WAIT = 30; // in seconds
+	public static final int RHEVM_MAX_WAIT = 1200; // in seconds, so: 20 min.
 
 }
