@@ -37,7 +37,6 @@ public class TestMultipleAgents extends KatelloCliTestBase {
 			server_name = server.getHostName();
 			System.setProperty("katello.server.hostname", server_name);
 		}
-		System.setProperty("katello.client.hostname", server_name);
 		createOrgStuff();
 	}
 	protected static Logger log = Logger.getLogger(TestMultipleAgents.class.getName());
@@ -80,6 +79,7 @@ public class TestMultipleAgents extends KatelloCliTestBase {
 	
 	private void createOrgStuff() {
 		KatelloOrg org = new KatelloOrg(null, org_name, null);
+		org.runOn(server_name);
 		if (org.cli_info().getExitCode().intValue() != 0) {
 			exec_result = org.cli_create();
 			Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
@@ -90,6 +90,7 @@ public class TestMultipleAgents extends KatelloCliTestBase {
 			KatelloUtils.scpOnClient(null, "data/"+KatelloProvider.MANIFEST_SAM_MATRIX, "/tmp");
 
 			KatelloProvider rh = new KatelloProvider(null, KatelloProvider.PROVIDER_REDHAT, org_name, null, null);
+			rh.runOn(server_name);
 			exec_result = rh.import_manifest("/tmp/"+KatelloProvider.MANIFEST_SAM_MATRIX, null);
 			Assert.assertTrue(exec_result.getExitCode().intValue()==0, "exit(0) - provider import_manifest");	
 		}
