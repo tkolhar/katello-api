@@ -66,6 +66,8 @@ public class DeltaCloudAPI implements KatelloConstants {
 			}
 			log.finest(String.format("RHEV-M guest bring down (disk created) after: [%s] rounds.",(RHEVM_MAX_WAIT - waitForDiskPrepared)));
 
+			try{Thread.sleep(3000);}catch(InterruptedException ex){}
+			
 			// Info prepared. Let's START
 			myVM.start(new Action() {
 				{
@@ -82,9 +84,8 @@ public class DeltaCloudAPI implements KatelloConstants {
 			}
 			log.finest(String.format("RHEV-M guest bring up after: [%s] rounds.",(RHEVM_MAX_WAIT - waitForUp)));
 			// sleep a bit to get IP via rhev-agentd
-			int sleepForIp = 30;
-			log.finest(String.format("RHEV-M guest wait to load rhev-agentd for [%s] sec.", sleepForIp));
-			try{Thread.sleep(sleepForIp*1000);}catch(Exception ex){}
+			log.finest(String.format("RHEV-M guest wait to load rhev-agentd for [%s] sec.", (RHEVM_AGENTD_WAIT/1000)));
+			try{Thread.sleep(RHEVM_AGENTD_WAIT);}catch(InterruptedException ex){}
 			
 			// Set the object and return
 			machine.setInstance(api.getVMs().get(myVM.getName()));
