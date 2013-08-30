@@ -199,5 +199,5 @@ public interface KatelloConstants {
 	}};
 	
 	public static final int RHEVM_MAX_WAIT = 1200; // in seconds, so: 20 min.
-
+	public static final int RHEVM_AGENTD_WAIT = 120; // in seconds, so: 2 min.
 }
