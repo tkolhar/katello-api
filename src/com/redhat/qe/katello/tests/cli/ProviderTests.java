@@ -1,5 +1,6 @@
 package com.redhat.qe.katello.tests.cli;
 
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
@@ -17,7 +18,8 @@ import com.redhat.qe.tools.SSHCommandResult;
 @Test(groups={TngRunGroups.TNG_KATELLO_Providers_Repos})
 public class ProviderTests extends KatelloCliTestBase{
 	private String org_name;
-	
+	private String org_manifest;
+
 	@BeforeClass(description="Prepare an org to work with", groups = {"cli-providers"})
 	public void setup_org(){
 		
@@ -25,6 +27,9 @@ public class ProviderTests extends KatelloCliTestBase{
 		this.org_name = "org"+uid;
 		KatelloOrg org = new KatelloOrg(this.cli_worker, this.org_name,null);
 		SSHCommandResult res = org.cli_create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		org_manifest = "org-manifest"+uid;
+		exec_result = new KatelloOrg(cli_worker, org_manifest, null).cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 	}
 	
@@ -617,5 +622,54 @@ public class ProviderTests extends KatelloCliTestBase{
 		res=prov.delete();
 		Assert.assertTrue(res.getExitCode().intValue()==2, "Check - return code");
 		Assert.assertTrue(getOutput(res).contains("headpin: error: invalid action: please see --help"),"Check - returned error string");
+	}
+
+	@Test(description="test provider cancel_sync")
+	public void test_cancelSync() {
+		String prov_name = "provider"+KatelloUtils.getUniqueID();
+		KatelloProvider prov = new KatelloProvider(cli_worker, prov_name, org_name, null, null);
+		exec_result = prov.create();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (create provider)");
+		exec_result = prov.cancel_sync();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (provider cancel sync)");
+		Assert.assertTrue(getOutput(exec_result).contains(KatelloProvider.OUT_NO_SYNC_RUNNING), "Check output (provider cancel sync)");
+	}
+
+	@Test(description="import manifest tests")
+	public void test_importManifest() {
+		String manifest = "manifest.zip";
+		String bad_manifest = "/tmp/badmanifest"+KatelloUtils.getUniqueID();
+		KatelloUtils.scpOnClient(cli_worker.getClientHostname(), "data/"+manifest, "/tmp");
+
+		KatelloProvider prov = new KatelloProvider(cli_worker, base_zoo_provider_name, base_org_name, null, null);
+		exec_result = prov.import_manifest("/tmp/"+manifest, true);
+		Assert.assertTrue(exec_result.getExitCode()==144, "Check exit code (import manifest)");
+		Assert.assertTrue(getOutput(exec_result).contains(KatelloProvider.ERR_IMPORT_CUSTOM), "Check error message (import manifest)");
+
+		prov = new KatelloProvider(cli_worker, KatelloProvider.PROVIDER_REDHAT, org_manifest, null, null);
+		exec_result = prov.import_manifest(bad_manifest, true);
+		Assert.assertTrue(exec_result.getExitCode()==74, "Check exit code (import manifest)");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloProvider.ERR_FILE_NOT_EXIST, bad_manifest)), "Check error message (import manifest)");
+
+		exec_result = prov.import_manifest("/tmp/"+manifest, true);
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (import manifest)");
+		Assert.assertTrue(getOutput(exec_result).contains(KatelloProvider.OUT_MANIFEST_IMPORTED), "Check output (import manifest)");
+	}
+
+	@Test(description="provider refresh products")
+	public void test_refreshProducts() {
+		KatelloProvider prov = new KatelloProvider(cli_worker, base_zoo_provider_name, base_org_name, null, null);
+		exec_result = prov.refresh_products();
+		Assert.assertTrue(exec_result.getExitCode()==144, "Check exit code (refresh products)");
+		Assert.assertTrue(getOutput(exec_result).contains(KatelloProvider.ERR_REFRESH_CUSTOM), "Check output (refresh products)");
+		prov = new KatelloProvider(cli_worker, KatelloProvider.PROVIDER_REDHAT, org_manifest, null, null);
+		exec_result = prov.refresh_products();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (refresh products)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloProvider.OUT_REFRESH_PRODUCTS, prov.name)), "Check output (refresh products)");
+	}
+
+	@AfterClass()
+	public void tearDown() {
+		new KatelloOrg(cli_worker, org_manifest, null).delete();
 	}
 }
