@@ -94,14 +94,24 @@ public class TestMultipleAgents extends KatelloCliTestBase {
 			exec_result = rh.import_manifest("/tmp/"+KatelloProvider.MANIFEST_SAM_MATRIX, null);
 			Assert.assertTrue(exec_result.getExitCode().intValue()==0, "exit(0) - provider import_manifest");	
 		}
+		exec_result = org.subscriptions();
+		poolRhel = KatelloUtils.grepCLIOutputLatest("ID", getOutput(exec_result).trim());
 	}
 	
 	private void configClient(String client_name) {
-		KatelloUtils.sshOnClient(client_name, "yum install -y yum-plugin-security yum-security");
+		KatelloUtils.sshOnClient(client_name, "yum install -y yum-plugin-security yum-security yum-utils");
 		KatelloUtils.sshOnClient(client_name, "yum erase -y telnet");
 	}
 	
 	private void testClientConsume(String client_name, String client_type) {
+		
+		exec_result = KatelloUtils.sshOnClient(client_name, "rpm -q subscription-manager");
+		Assert.assertTrue(true, "RHSM: Client " + client_type + " contains " + exec_result.getStdout());
+		exec_result = KatelloUtils.sshOnClient(client_name, "rpm -q python-rhsm");
+		Assert.assertTrue(true, "Python RHSM: Client " + client_type + " contains " + exec_result.getStdout());
+		
+		KatelloUtils.sshOnClient(client_name, "subscription-manager clean");
+		KatelloUtils.sshOnClient(client_name, "rm -rf /etc/sysconfig/rhn/systemid");
 		
 		Pattern pattern = Pattern.compile(KatelloSystem.REG_OS_VERSION);
 		Matcher matcher = pattern.matcher(client_type);
@@ -111,8 +121,18 @@ public class TestMultipleAgents extends KatelloCliTestBase {
 		KatelloSystem sys = new KatelloSystem(null, client_type+" "+KatelloUtils.getUniqueID(), org_name, null);
 		sys.runOn(client_name);
 		exec_result = sys.rhsm_registerForce_release(release, true, true);
-		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Client " + client_type + " must register to server successfully");
-
+		if (exec_result.getExitCode().intValue() != 0) {
+			exec_result = sys.rhsm_registerForce_release(release, false, true);
+			Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Client " + client_type + " must register to server successfully");
+			exec_result = sys.rhsm_subscribe(poolRhel);
+			Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Client " + client_type + " must subscribe to pool successfully");
+		}
+		
+		KatelloUtils.sshOnClient(client_name, "yum clean all");
+		KatelloUtils.sshOnClient(client_name, "yum-config-manager --disable \"*\"");
+		KatelloUtils.sshOnClient(client_name, "yum-config-manager --enable \"rhel-*-server-rpms\"");
+		KatelloUtils.sshOnClient(client_name, "rm -rf /var/cache/yum*");
+		
 		yum_clean(client_name);
 		
 		// Installing package
@@ -125,6 +145,7 @@ public class TestMultipleAgents extends KatelloCliTestBase {
 		
 		// Installing errata
 		exec_result = sys.yum_errata_list("RHBA", client_type.matches(".*RHEL\\s+5.*"));
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Return code - Errata list on client " + client_type);
 		String[] erratas = exec_result.getStdout().split("\\n");
 		
 		Assert.assertTrue(erratas != null && erratas.length != 0, "Available Errata list is empty for client " + client_type);

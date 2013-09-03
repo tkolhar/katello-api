@@ -718,24 +718,38 @@ public class KatelloUtils implements KatelloConstants {
 	    return grepCLIOutput(property, output, 1);
 	}
 
+	public static String grepCLIOutputLatest(String property, String output) {
+	    return grepCLIOutput(property, output, -1);
+	}
+	
+	/**
+	 * Grep output and returns the value of property. 
+	 * @param occurence of property, if -1 then it provides the latest one. 
+	 */
+	
 	public static String grepCLIOutput(String property, String output, int occurence) {
 	    int meet_cnt = 0;
+	    String result = null;
 	    String[] lines = output.split("\\n");
 	    for (int i = 0; i < lines.length; i++) {
 	        if (lines[i].startsWith(property)) { // our line
 	            meet_cnt++;
+                String[] split = lines[i].split(":\\s+");
+                if (split.length < 2) {
+                    if(i==lines.length-1) 
+                    	result = "";//last line and has empty value.
+                    else 
+                    	result = lines[i + 1].trim(); // regular one (like Description:). return next line.
+                } else {
+                	result = split[1].trim(); // the one with "property: Value" format.
+                }
 	            if (meet_cnt == occurence) {
-	                String[] split = lines[i].split(":\\s+");
-	                if (split.length < 2) {
-	                    if(i==lines.length-1) 
-	                    	return "";//last line and has empty value.
-	                    else 
-	                    	return lines[i + 1].trim(); // regular one (like Description:). return next line.
-	                } else {
-	                    return split[1].trim(); // the one with "property: Value" format.
-	                }
+	            	return result;
 	            }
 	        }
+	    }
+	    if (occurence == -1 && result != null) {
+	    	return result;
 	    }
 	    log.severe("ERROR: Output can not be extracted for the property: ["+property+"]");
 	    return null;
