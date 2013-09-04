@@ -30,6 +30,8 @@ public class KatelloUserRole extends _KatelloObject{
 			"Successfully added LDAP group [ %s ] to the user role [ %s ]";
 	public static final String  OUT_LDAP_REMOVE =
 			"Successfully removed LDAP group [ %s ] from the user role [ %s ]"; 
+
+	public static final String ERR_NOT_FOUND = "Cannot find user role [ %s ]";
 	
 	// ** ** ** ** ** ** ** Class members
 	public String name;
@@ -53,6 +55,12 @@ public class KatelloUserRole extends _KatelloObject{
 		opts.clear();
 		opts.add(new Attribute("name", name));
 		return run(CMD_INFO);
+	}
+
+	public SSHCommandResult cli_info_details(){
+		opts.clear();
+		opts.add(new Attribute("name", name));
+		return run(CMD_INFO + " --permission_details");
 	}
 	
 
