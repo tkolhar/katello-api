@@ -53,6 +53,16 @@ public class ScenOrgs implements KatelloConstants {
 		String _uid = KatelloUtils.getUniqueID();
 		_org = "torg"+_uid;
 		_user = "tuser"+_uid;
+		_newuser = "newuser" + _uid;
+		String ldap_type = System.getProperty("ldap.server.type", "");		
+		if ("posix".equals(ldap_type)) {
+			_user = "omaciel";
+			_newuser = "sthirugn";
+		} else if ("free_ipa".equals(ldap_type) || "active_directory".equals(ldap_type)) {
+			_user = "admin-user2";
+			_newuser = "admin-user3";
+		}
+		
 		_akey = "akey"+_uid;
 		_akey2 = "akey2"+_uid;
 		_akey3 = "akey3"+_uid;
@@ -70,7 +80,6 @@ public class ScenOrgs implements KatelloConstants {
 		_system2 = "Paris_" + _uid;
 		_system3 = "Madrid_" + _uid;
 		_system_group = "sysgroup" + _uid;
-		_newuser = "newuser" + _uid;
 		_newsystem = "newsystem" + _uid;
 	}
 	
@@ -96,7 +105,7 @@ public class ScenOrgs implements KatelloConstants {
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
 		
 		KatelloUser user = new KatelloUser(null, _user, 
-				KatelloUser.DEFAULT_USER_EMAIL, KatelloUser.DEFAULT_ADMIN_PASS, false);
+				KatelloUser.DEFAULT_USER_EMAIL, System.getProperty("katello.admin.password", KatelloUser.DEFAULT_ADMIN_PASS), false);
 		res = user.cli_create();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
 		
@@ -191,7 +200,7 @@ public class ScenOrgs implements KatelloConstants {
 			groups={TNG_POST_UPGRADE})
 	public void checkUserSurvived(){
 		KatelloUser user = new KatelloUser(null, _user, 
-				KatelloUser.DEFAULT_USER_EMAIL, KatelloUser.DEFAULT_ADMIN_PASS, false);
+				null, null, false);
 		SSHCommandResult res = user.cli_info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (user info)");
 	}
