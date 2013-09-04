@@ -141,7 +141,8 @@ public class PermissionTests extends KatelloCliTestBase{
 		String scope = "providers";
 		String bad_scope = "bad scope" + uid;
 		String bad_tag = "bad tag" + uid;
-		// tags, all tags
+		String bad_role = "bad role" + uid;
+		// tags + all tags
 		KatelloPermission perm = new KatelloPermission(cli_worker, perm_name, null, scope, base_zoo_provider_name, null, usr_role);
 		exec_result = perm.create(true);
 		Assert.assertTrue(exec_result.getExitCode()==65, "Check exit code (perm create)");
@@ -158,5 +159,10 @@ public class PermissionTests extends KatelloCliTestBase{
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloPermission.ERR_TAG_NOT_FOUND, bad_tag, scope)), "Check error message (perm create)");
 		exec_result = perm.available_verbs(null, null);
 		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (perm avail verbs)");
+		// bad role
+		perm = new KatelloPermission(cli_worker, perm_name, null, scope, null, null, bad_role);
+		exec_result = perm.create();
+		Assert.assertTrue(exec_result.getExitCode()==65, "Check exit code (perm create)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloUserRole.ERR_NOT_FOUND, bad_role)), "Check error message (perm create)");
 	}
 }

@@ -288,6 +288,28 @@ public class ContentFilterTests extends KatelloCliTestBase {
 		assert_filterInfo(filter_name, KatelloContentFilter.CONTENT_PACKAGE, KatelloContentFilter.TYPE_EXCLUDES, FilterRulePackage.ruleRegExp(packages));
 	}
 
+	// TODO bz 1004248
+	@Test(description="handle filter by id", dependsOnMethods={"init"})
+	public void test_handleFilterByID() {
+		KatelloContentFilter filter = new KatelloContentFilter(cli_worker, filter_name, base_org_name, condef_name);
+		exec_result = filter.info();
+		String id = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result));
+		Assert.assertNotNull(id, "Check filter ID not null");
+		filter.setId(new Long(id));
+		filter.setName(null);
+		exec_result = filter.info();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (filter info)");
+	}
+
+	@Test(description="filter not found - check error", dependsOnMethods={"init"})
+	public void test_filterNotFound() {
+		String filter_name = "bad filter" + uid;
+		KatelloContentFilter filter = new KatelloContentFilter(cli_worker, filter_name, base_org_name, condef_name);
+		exec_result = filter.info();
+		Assert.assertTrue(exec_result.getExitCode()==65, "Check exit code (filter not found)");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentFilter.ERR_NOT_FOUND, filter_name)), "Check error (filter not found)");
+	}
+	
 	private void assert_filterInfo(String filter_name, String filter_content, String rule_type, String ruleRegExp) {
 		KatelloContentFilter filter = new KatelloContentFilter(cli_worker, filter_name, base_org_name, condef_name);
 		SSHCommandResult res = filter.info();

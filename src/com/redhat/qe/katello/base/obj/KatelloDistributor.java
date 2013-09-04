@@ -32,6 +32,8 @@ public class KatelloDistributor extends _KatelloObject{
 	public static final String ERR_VALUE_TOO_LONG = "Validation failed: Value is too long (maximum is 255 characters)";
 	public static final String ERR_KEY_TOO_LONG = "Validation failed: Keyname is too long (maximum is 255 characters)";
 	public static final String ERR_DUPLICATE_KEY = "Validation failed: Keyname already exists for this object" ;
+	public static final String ERR_NOT_FOUND = "Could not find Distributor [ %s ] in Org [ %s ]";
+	public static final String ERR_NOT_FOUND_IN_ENV = "Could not find Distributor [ %s ] in Environment [ %s ] in Org [ %s ]"; 
 	
 	// ** ** ** ** ** ** ** Class members
 	String org;
@@ -62,6 +64,7 @@ public class KatelloDistributor extends _KatelloObject{
 		opts.clear();
 		opts.add(new Attribute("org", this.org));
 		opts.add(new Attribute("name", this.name));
+		opts.add(new Attribute("environment", this.environment));
 		opts.add(new Attribute("uuid",uuid));
 		return run(CMD_INFO);
 	}

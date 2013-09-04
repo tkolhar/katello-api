@@ -35,7 +35,8 @@ public class KatelloContentFilter extends _KatelloObject{
 	public static final String OUT_REMOVE_RULE = "Successfully removed rule [ %s ]";
 
 	public static final String ERR_ERRATA_DATE = "Validation failed: Parameters Invalid date range. The erratum rule start date must come before the end date";
-
+	public static final String ERR_NOT_FOUND = "Could not find filter [ %s ].";
+	
 	public static final String TYPE_EXCLUDES = "excludes";
 	public static final String TYPE_INCLUDES = "includes";
 	public static final String CONTENT_PACKAGE = "rpm";
@@ -99,6 +100,7 @@ public class KatelloContentFilter extends _KatelloObject{
 		opts.add(new Attribute("org", this.org));
 		opts.add(new Attribute("definition", this.definition));
 		opts.add(new Attribute("name", this.name));
+		opts.add(new Attribute("id", this.id));
 		return run(CMD_INFO);
 	}
 

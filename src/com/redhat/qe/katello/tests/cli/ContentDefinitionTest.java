@@ -201,6 +201,27 @@ public class ContentDefinitionTest extends KatelloCliTestBase{
 		Assert.assertTrue(getOutput(exec_result).matches(KatelloContentDefinition.OUT_REG_PUBLISH_ASYNC), "Check output (def. publish async)");
 	}
 
+	@Test(description="definition does not exist - check error")
+	public void test_definitionNotfound() {
+		String def_name = "definition"+KatelloUtils.getUniqueID();
+		KatelloContentDefinition def = new KatelloContentDefinition(cli_worker, def_name, null, base_org_name, null);
+		exec_result = def.info();
+		Assert.assertTrue(exec_result.getExitCode()==65, "Check exit code (definition not found)");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentDefinition.ERR_NOT_FOUND, def_name, base_org_name)), "Check error (definition not found)");
+	}
+
+	@Test(description="add content view to non composite definition - check error")
+	public void test_addViewNonComposite() {
+		String view_name = "definition"+KatelloUtils.getUniqueID();
+		KatelloContentDefinition def1 = createContentDefinition();
+		KatelloContentDefinition def2 = createContentDefinition();
+		exec_result = def1.publish(view_name, null, null);
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (create definition)");
+		exec_result = def2.add_view(view_name);
+		Assert.assertTrue(exec_result.getExitCode()==65, "Check exit code (add view)");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentDefinition.ERR_NOT_COMPOSITE, def2.name)), "Check error (add view)");
+	}
+
 	private void assert_contentList(List<KatelloContentDefinition> contents, List<KatelloContentDefinition> excludeContents) {
 
 		SSHCommandResult res = new KatelloContentDefinition(cli_worker, null, null, base_org_name, null).list();
