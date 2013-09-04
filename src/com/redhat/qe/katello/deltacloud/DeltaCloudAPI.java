@@ -1,6 +1,7 @@
 package com.redhat.qe.katello.deltacloud;
 
 import java.util.UUID;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.ovirt.engine.sdk.Api;
 import org.ovirt.engine.sdk.entities.Action;
@@ -11,6 +12,10 @@ import com.redhat.qe.katello.common.KatelloConstants;
 
 public class DeltaCloudAPI implements KatelloConstants {
 	protected static Logger log = Logger.getLogger(DeltaCloudAPI.class.getName());
+	static{
+		log.info("Disabling logger for org.ovirt.engine.*");
+		Logger.getLogger("org.ovirt.engine").setLevel(Level.OFF); // turn off that annoying logs.
+	}
 	
 	/**
 	 * @IMPORTANT DO NOT CALL THESE METRODS DIRECTLY, USE KatelloUtils TO CREATE DeltaCloud machines.
