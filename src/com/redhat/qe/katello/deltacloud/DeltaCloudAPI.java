@@ -11,7 +11,7 @@ import com.redhat.qe.katello.common.KatelloConstants;
 
 public class DeltaCloudAPI implements KatelloConstants {
 	protected static Logger log = Logger.getLogger(DeltaCloudAPI.class.getName());
-	
+
 	/**
 	 * @IMPORTANT DO NOT CALL THESE METRODS DIRECTLY, USE KatelloUtils TO CREATE DeltaCloud machines.
 	 */
@@ -27,21 +27,15 @@ public class DeltaCloudAPI implements KatelloConstants {
 	public static DeltaCloudInstance provideClient(String hostname, String imageId) {
 		return provideMachine(hostname, null, imageId);
 	}
-	
+
 	private static DeltaCloudInstance provideMachine(String hostname, Long memory, String image){		
 		DeltaCloudInstance machine = new DeltaCloudInstance();
 		Api api = null;
-		
-		hostname += ".usersys.redhat.com"; // TODO don't hardcode
-		
-		try {
-			String realm = System.getProperty("deltacloud.realm");
-			if (realm != null && realm.trim().isEmpty()) realm = null;
-			Assert.assertNotNull(System.getProperty("deltacloud.hostname"), "Deltacloud hostname shoud be provided in system property \"deltacloud.hostname\"");
-			Assert.assertNotNull(System.getProperty("deltacloud.user"), "Deltacloud username shoud be provided in system property \"deltacloud.user\"");
-			Assert.assertNotNull(System.getProperty("deltacloud.password"), "Deltacloud password shoud be provided in system property \"deltacloud.password\"");
-			Assert.assertNotNull(System.getProperty("deltacloud.cluster"), "Deltacloud cluster shoud be provided in system property \"deltacloud.cluster\"");
 
+		hostname += ".usersys.redhat.com"; // TODO don't hardcode
+
+		try {
+			assertRhevmCredentialsNotNull();
 			api = new Api(System.getProperty("deltacloud.hostname"), 
 					System.getProperty("deltacloud.user"), 
 					System.getProperty("deltacloud.password"),
@@ -53,9 +47,9 @@ public class DeltaCloudAPI implements KatelloConstants {
 			vmParams.setTemplate(api.getTemplates().get(UUID.fromString(image)));
 			if(memory!=null)
 				vmParams.setMemory(new Long(memory.longValue()*1024*1024)); // in Mb
-//			vmParams.setDescription(value) // One day we may find this useful.
+			//			vmParams.setDescription(value) // One day we may find this useful.
 			org.ovirt.engine.sdk.decorators.VM myVM = api.getVMs().add(vmParams);
-			
+
 			// wait until gets 'DOWN' (first step: image_locked, then down)
 			int waitForDiskPrepared = RHEVM_MAX_WAIT;
 			String machineState = api.getVMs().get(myVM.getName()).getStatus().getState();
@@ -67,7 +61,7 @@ public class DeltaCloudAPI implements KatelloConstants {
 			log.finest(String.format("RHEV-M guest bring down (disk created) after: [%s] rounds.",(RHEVM_MAX_WAIT - waitForDiskPrepared)));
 
 			try{Thread.sleep(3000);}catch(InterruptedException ex){}
-			
+
 			// Info prepared. Let's START
 			myVM.start(new Action() {
 				{
@@ -86,37 +80,31 @@ public class DeltaCloudAPI implements KatelloConstants {
 			// sleep a bit to get IP via rhev-agentd
 			log.finest(String.format("RHEV-M guest wait to load rhev-agentd for [%s] sec.", (RHEVM_AGENTD_WAIT)));
 			try{Thread.sleep(RHEVM_AGENTD_WAIT*1000);}catch(InterruptedException ex){}
-			
+
 			// Set the object and return
 			machine.setInstance(api.getVMs().get(myVM.getName()));
-			
+
 		}catch (Exception e){e.printStackTrace();}
 		finally{if(api!=null)api.shutdown();} // REALLY important to have it _always_ executed
-		
+
 		return machine;
 	}
 
 	public static void destroyMachine(DeltaCloudInstance machine) {
 		Api api = null;
 		try {
-			String realm = System.getProperty("deltacloud.realm");
-			if (realm != null && realm.trim().isEmpty()) realm = null;
-			Assert.assertNotNull(System.getProperty("deltacloud.hostname"), "Deltacloud hostname shoud be provided in system property \"deltacloud.hostname\"");
-			Assert.assertNotNull(System.getProperty("deltacloud.user"), "Deltacloud username shoud be provided in system property \"deltacloud.user\"");
-			Assert.assertNotNull(System.getProperty("deltacloud.password"), "Deltacloud password shoud be provided in system property \"deltacloud.password\"");
-			Assert.assertNotNull(System.getProperty("deltacloud.cluster"), "Deltacloud cluster shoud be provided in system property \"deltacloud.cluster\"");
-
+			assertRhevmCredentialsNotNull();
 			api = new Api(System.getProperty("deltacloud.hostname"), 
 					System.getProperty("deltacloud.user"), 
 					System.getProperty("deltacloud.password"),
 					true); //ignore SSL 
-			
+
 			// check if machine exists
 			VM myVM = machine.getInstance();
 			if(api.getVMs().get(myVM.getName())==null){
 				log.warning(String.format("Machine [%s] does not exists in rhev-m list. Nothing to do.",myVM.getName()));return;
 			}
-			
+
 			// if machine is not 'UP' - exception.
 			String machineState = api.getVMs().get(myVM.getName()).getStatus().getState();
 			if(!machineState.equals(RhevStates.up.toString())){
@@ -129,7 +117,7 @@ public class DeltaCloudAPI implements KatelloConstants {
 					setVm(new org.ovirt.engine.sdk.entities.VM());
 				}
 			});
-			
+
 			myVM = machine.getInstance();
 			int waitForDown = RHEVM_MAX_WAIT;
 			machineState = api.getVMs().get(myVM.getName()).getStatus().getState();
@@ -138,23 +126,18 @@ public class DeltaCloudAPI implements KatelloConstants {
 				waitForDown--;
 				machineState = api.getVMs().get(myVM.getName()).getStatus().getState();
 			}
-			
+
 			// Let's DROP it
 			api.getVMs().get(myVM.getName()).delete(); // we don't care when rhev-m will finally clean it from the list.
+			log.info("Destroying RHEV-M instance: "+myVM.getName());
 		}catch(Exception e){e.printStackTrace();}
 		finally{if(api!=null)api.shutdown();} // REALLY important to have it _always_ executed
 	}
-	
+
 	public static boolean isRhevmInstance(String name) {
 		Api api = null;
 		try {
-			String realm = System.getProperty("deltacloud.realm");
-			if (realm != null && realm.trim().isEmpty()) realm = null;
-			Assert.assertNotNull(System.getProperty("deltacloud.hostname"), "Deltacloud hostname shoud be provided in system property \"deltacloud.hostname\"");
-			Assert.assertNotNull(System.getProperty("deltacloud.user"), "Deltacloud username shoud be provided in system property \"deltacloud.user\"");
-			Assert.assertNotNull(System.getProperty("deltacloud.password"), "Deltacloud password shoud be provided in system property \"deltacloud.password\"");
-			Assert.assertNotNull(System.getProperty("deltacloud.cluster"), "Deltacloud cluster shoud be provided in system property \"deltacloud.cluster\"");
-
+			assertRhevmCredentialsNotNull();
 			api = new Api(System.getProperty("deltacloud.hostname"), 
 					System.getProperty("deltacloud.user"), 
 					System.getProperty("deltacloud.password"),
@@ -164,4 +147,28 @@ public class DeltaCloudAPI implements KatelloConstants {
 		finally{if(api!=null)api.shutdown();} // REALLY important to have it _always_ executed
 	}
 
+	public static DeltaCloudInstance getRhevmInstance(String hostname){
+		DeltaCloudInstance dc = null;
+		Api api = null;
+		try {
+			assertRhevmCredentialsNotNull();
+			api = new Api(System.getProperty("deltacloud.hostname"), 
+					System.getProperty("deltacloud.user"), 
+					System.getProperty("deltacloud.password"),
+					true); //ignore SSL
+			VM vm = api.getVMs().get(hostname);
+			dc = new DeltaCloudInstance();
+			dc.setHostName(hostname); dc.setInstance(vm);
+		} catch (Exception e){}
+		finally{if(api!=null)api.shutdown();} // REALLY important to have it _always_ executed
+		return dc;
+	}
+
+	public static void assertRhevmCredentialsNotNull(){
+		if(System.getProperty("deltacloud.hostname")==null ||
+				System.getProperty("deltacloud.user")==null ||
+				System.getProperty("deltacloud.password")==null ||
+				System.getProperty("deltacloud.cluster")==null)
+			Assert.assertTrue(false, "RHEV-M credentials can not be undefined");
+	}
 }
