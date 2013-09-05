@@ -56,7 +56,7 @@ public class KatelloCliDataProvider {
 				{ "prov-"+uid, null, null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,"prov-"+uid)},
 				{ "prov "+uid, "Provider with space in name", null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,"prov "+uid)},
 				{ null, null, null, new Integer(2), System.getProperty("katello.engine", "katello")+": error: Option --name is required; please see --help"},
-				{ " ", null, null, new Integer(166), "Name can't be blank"},
+				{ " ", null, null, new Integer(166), "Validation failed: Name must not contain leading or trailing white spaces."},
 				{ " a", null, null, new Integer(166), "Validation failed: Name must not contain leading or trailing white spaces."},
 				{ "a ", null, null, new Integer(166), "Validation failed: Name must not contain leading or trailing white spaces."},
 				{ "a", null, null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,"a")},

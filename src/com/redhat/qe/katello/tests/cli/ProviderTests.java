@@ -371,19 +371,19 @@ public class ProviderTests extends KatelloCliTestBase{
 		String provDesc = "Simple description";
 		
 		// Create provider
-		KatelloProvider prov = new KatelloProvider(this.cli_worker, provName, this.org_name, provDesc, KATELLO_SMALL_REPO);
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, provName, this.org_name, provDesc, null);
 		res = prov.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		//List
 		res = prov.cli_list();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		String match_info = String.format(KatelloProvider.REG_PROVIDER_LIST,provName,KATELLO_SMALL_REPO,provDesc).replaceAll("\"", "");
+		String match_info = String.format(KatelloProvider.REG_PROVIDER_LIST,provName,"None",provDesc).replaceAll("\"", "");
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info), 
 				String.format("Provider [%s] should be found in the list",provName));
 		// Info
 		res = prov.info();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		match_info = String.format(KatelloProvider.REG_PROVIDER_LIST,provName,KATELLO_SMALL_REPO,provDesc).replaceAll("\"", "");
+		match_info = String.format(KatelloProvider.REG_PROVIDER_LIST,provName,"None",provDesc).replaceAll("\"", "");
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info), 
 				String.format("Provider [%s] should be found in the info",provName));
 	}
@@ -395,20 +395,20 @@ public class ProviderTests extends KatelloCliTestBase{
 		String provName = "listProvURL-"+uid;
 		
 		// Create provider
-		KatelloProvider prov = new KatelloProvider(this.cli_worker, provName, this.org_name, null, KATELLO_SMALL_REPO);
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, provName, this.org_name, null, null);
 		res = prov.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		// List
 		res = prov.cli_list();
 		if (prov.description == null) prov.description = "None";
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		String match_info = String.format(KatelloProvider.REG_PROVIDER_LIST,provName,KATELLO_SMALL_REPO, prov.description).replaceAll("\"", "");
+		String match_info = String.format(KatelloProvider.REG_PROVIDER_LIST,provName,"None", prov.description).replaceAll("\"", "");
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info), 
 				String.format("Provider [%s] should be found in the list with: no description",provName));
 		// Info
 		res = prov.info();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		match_info = String.format(KatelloProvider.REG_PROVIDER_LIST,provName,KATELLO_SMALL_REPO, prov.description).replaceAll("\"", "");
+		match_info = String.format(KatelloProvider.REG_PROVIDER_LIST,provName,"None", prov.description).replaceAll("\"", "");
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info), 
 				String.format("Provider [%s] should be found in the info with: no description",provName));
 	}
@@ -508,6 +508,11 @@ public class ProviderTests extends KatelloCliTestBase{
 		Assert.assertTrue(getOutput(res).contains(KatelloProvider.ERR_REDHAT_UPDATENAME), "Check - returned error string (provider update)");
 	}
 	
+	/**
+	 * TODO
+	 * # bug: 1004759
+	 * @see https://bugzilla.redhat.com/show_bug.cgi?id=1004759
+	 */
 	@Test(description="Try to updateRed Hat provider - url", groups = {"cli-providers"}, dependsOnMethods = {"test_freshOrgDefaultRedHatProvider"}, enabled=true)
 	public void test_updateProvider_RedHat_url(){
 		SSHCommandResult res;
@@ -530,6 +535,11 @@ public class ProviderTests extends KatelloCliTestBase{
 				String.format("Provider [%s] should be found in the info",KatelloProvider.PROVIDER_REDHAT));
 	}
 	
+	/**
+	 * TODO
+	 * # bug: 1004759
+	 * @see https://bugzilla.redhat.com/show_bug.cgi?id=1004759
+	 */
 	@Test(description="Try to update custom provider - url", groups = {"cli-providers"}, enabled=true)
 	public void test_updateProvider_url() {
 		SSHCommandResult res;
