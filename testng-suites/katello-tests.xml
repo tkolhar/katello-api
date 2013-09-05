@@ -38,6 +38,7 @@
 			<class name="com.redhat.qe.katello.tests.e2e.PromoteChangeset"/>
 			<class name="com.redhat.qe.katello.tests.e2e.PromoteProductToDifferentEnvs"/>
 			<class name="com.redhat.qe.katello.tests.e2e.SystemFilteredInstallTest"/>
+			<class name="com.redhat.qe.katello.tests.e2e.SystemGroupErratas"/>
 <!--
 	SECTION OF BROKEN TESTS
 			<class name="com.redhat.qe.katello.tests.e2e.PackagesWithGPGKey"/>
