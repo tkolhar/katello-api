@@ -248,4 +248,13 @@ public class ContentViewTests extends KatelloCliTestBase{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check exit code (view refresh)");
 		Assert.assertTrue(getOutput(exec_result).matches(KatelloContentView.OUT_REG_REFRESH_ASYNC), "Check output (refresh view)");
 	}
+
+	@Test(description="content view not found - check error")
+	public void test_viewNotFound() {
+		String view_name = "bad view" + uid;
+		KatelloContentView view = new KatelloContentView(cli_worker, view_name, base_org_name);
+		exec_result = view.view_info();
+		Assert.assertTrue(exec_result.getExitCode()==65, "Check exit code (view not found)");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentView.ERR_NOT_FOUND, view_name, base_org_name)), "Check error (view not found)");
+	}
 }

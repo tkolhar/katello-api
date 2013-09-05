@@ -25,6 +25,7 @@ public class KatelloErrata extends _KatelloObject{
 	public String content_view;
 	public String content_view_label;
 	public String content_view_id;
+	public String repo_id;
 	
 	public KatelloErrata(KatelloCliWorker kcr, String pId, String pOrg, String pProd, String pRepo, String pEnv){
 		this(kcr, pId, pOrg, pProd, pRepo, pEnv, null);
@@ -61,12 +62,16 @@ public class KatelloErrata extends _KatelloObject{
 		opts.clear();
 		opts.add(new Attribute("id", id));
 		opts.add(new Attribute("org", org));
-		if (this.product_id != null) {
-			opts.add(new Attribute("product_id", product_id));
+		if(repo_id != null) {
+			opts.add(new Attribute("repo_id", repo_id));
 		} else {
-			opts.add(new Attribute("product", product));
+			if (this.product_id != null) {
+				opts.add(new Attribute("product_id", product_id));
+			} else {
+				opts.add(new Attribute("product", product));
+			}
+			opts.add(new Attribute("repo", repo));
 		}
-		opts.add(new Attribute("repo", repo));
 		opts.add(new Attribute("environment", environment));
 		opts.add(new Attribute("content_view", content_view));
 		opts.add(new Attribute("content_view_label", content_view_label));
@@ -77,12 +82,16 @@ public class KatelloErrata extends _KatelloObject{
 	public SSHCommandResult cli_list(){
 		opts.clear();
 		opts.add(new Attribute("org", org));
-		if (this.product_id != null) {
-			opts.add(new Attribute("product_id", product_id));
+		if(repo_id != null) {
+			opts.add(new Attribute("repo_id", repo_id));
 		} else {
-			opts.add(new Attribute("product", product));
+			if (this.product_id != null) {
+				opts.add(new Attribute("product_id", product_id));
+			} else {
+				opts.add(new Attribute("product", product));
+			}
+			opts.add(new Attribute("repo", repo));
 		}
-		opts.add(new Attribute("repo", repo));
 		opts.add(new Attribute("environment", environment));
 		opts.add(new Attribute("type", type));
 		opts.add(new Attribute("content_view", content_view));

@@ -6,6 +6,7 @@ import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloErrata;
+import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.katello.tests.e2e.PromoteErrata;
@@ -35,6 +36,12 @@ public class ErrataTests extends KatelloCliTestBase {
 		errata = new KatelloErrata(cli_worker, null, base_org_name, base_zoo4_product_name, base_zoo4_repo_name, null, "bugfix");
 		exec_result = errata.cli_list();
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (errata list by type)");
+		// list with repo_id
+		KatelloRepo repo = new KatelloRepo(cli_worker, base_zoo4_repo_name, base_org_name, base_zoo4_product_name, null, null, null);
+		exec_result = repo.info();
+		errata.repo_id = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result));
+		exec_result = errata.cli_list();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (errata list repo_id)");
 	}
 
 	@Test(description="2542ae61-8de6-40ce-866f-999c39fa9018")
@@ -46,5 +53,11 @@ public class ErrataTests extends KatelloCliTestBase {
 		exec_result = errata.info();
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (errata info)");
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", "").contains(PromoteErrata.ERRATA_ZOO_SEA), "Check - errata info output");
+		// info with repo_id
+		KatelloRepo repo = new KatelloRepo(cli_worker, base_zoo_repo_name, base_org_name, base_zoo_product_name, null, null, null);
+		exec_result = repo.info();
+		errata.repo_id = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result));
+		exec_result = errata.info();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (errata info repo_id)");
 	}
 }

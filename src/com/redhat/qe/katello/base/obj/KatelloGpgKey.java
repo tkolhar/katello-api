@@ -18,9 +18,13 @@ public class KatelloGpgKey extends _KatelloObject{
 	public static final String CLI_CMD_INFO = "gpg_key info";
 	public static final String CLI_CMD_LIST = "gpg_key list -v";
 	public static final String CLI_CMD_DELETE = "gpg_key delete";
+	public static final String CMD_UPDATE = "gpg_key update";
 	
 	public static final String OUT_CREATE = 
 			"Successfully created GPG key [ %s ]"; 
+	public static final String OUT_UPDATE = "Successfully updated GPG key [ %s ]";
+	public static final String OUT_NO_KEYS = "No GPG keys found in organization [ %s ]";
+
 	public static final String ERR_KEY_NOT_FOUND = 
 			"Could not find GPG key [ %s ]"; 
 
@@ -63,6 +67,15 @@ public class KatelloGpgKey extends _KatelloObject{
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		return run(CLI_CMD_DELETE);
+	}
+
+	public SSHCommandResult update(String newName, String file) {
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("new_name", newName));
+		opts.add(new Attribute("file", file));
+		return run(CMD_UPDATE);
 	}
 
 	// ** ** ** ** ** ** **

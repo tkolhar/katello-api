@@ -283,7 +283,7 @@ public class UserTests extends KatelloCliTestBase{
 	public void test_assignRole(){
 		KatelloUser user = createUser();
 		KatelloUserRole role = createRole();
-		
+
 		SSHCommandResult res = user.assign_role(role.name);
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code (user assign_role)");
 		Assert.assertEquals(getOutput(res).trim(), 
@@ -555,6 +555,35 @@ public class UserTests extends KatelloCliTestBase{
 		res = user.update_locale("foo");
 		Assert.assertTrue(res.getExitCode()==166, "Check exit code (user update)");
 		Assert.assertTrue(getOutput(res).equals(KatelloUser.ERR_LOCALE), "Check error (update bad locale)");
+	}
+
+	@Test(description="test user update no default organization")
+	public void test_updateNoDefaultOrg() {
+		String username = "user"+KatelloUtils.getUniqueID();
+		KatelloUser user = new KatelloUser(cli_worker, username, KatelloUser.DEFAULT_USER_EMAIL, KatelloUser.DEFAULT_USER_PASS, false, base_org_name, base_dev_env_name);
+		exec_result = user.cli_create();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (user create)");
+		exec_result = user.cli_info();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (user info)");
+		Assert.assertTrue(getOutput(exec_result).contains(base_org_name), "Check output (user info)");
+		Assert.assertTrue(getOutput(exec_result).contains(base_dev_env_name), "Check output (user info)");
+		exec_result = user.update_noDefaultOrg();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (user update)");
+		exec_result = user.cli_info();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (user info)");
+		Assert.assertFalse(getOutput(exec_result).contains(base_org_name), "Check output (user info)");
+		Assert.assertFalse(getOutput(exec_result).contains(base_dev_env_name), "Check output (user info)");
+	}
+
+	@Test(description="assign role which does not exist")
+	public void test_assingNonexistRole() {
+		String role_nonexist = "role-nonexist-"+KatelloUtils.getUniqueID();
+		String username = "user"+KatelloUtils.getUniqueID();
+		KatelloUser user = new KatelloUser(cli_worker, username, KatelloUser.DEFAULT_USER_EMAIL, KatelloUser.DEFAULT_USER_PASS, false, base_org_name, base_dev_env_name);
+		exec_result = user.cli_create();
+		exec_result = user.assign_role(role_nonexist);
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 65, "Check exit code (user assign_role)");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloUser.ERR_ROLE_NOT_FOUND, role_nonexist)), "Check error (user assign_role)");
 	}
 
 	private void assert_userInfo(KatelloUser user){

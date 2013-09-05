@@ -50,4 +50,22 @@ public class ClientTests extends KatelloCliTestBase{
 			Assert.assertTrue(getOutput(exec_result).contains(output),"Check - returned error string");
 		}
 	}
+
+	@Test(description="Client remember : overwrite saved option")
+	public void test_clientOverwrite() {
+		String uid = KatelloUtils.getUniqueID();
+		String option = "op-"+uid;
+	    String value = "val-"+uid;
+	    String new_value = "new-val-"+uid;
+		KatelloClient client_obj = new KatelloClient(cli_worker, option, value);
+		exec_result = client_obj.cli_remember();
+		Assert.assertTrue(exec_result.getExitCode()==0, "");
+
+		client_obj = new KatelloClient(cli_worker, option, new_value);
+		exec_result = client_obj.cli_remember();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (client remenber)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloClient.OUT_OVERWROTE, option)), "Check output (client remember)");
+		exec_result = client_obj.cli_saved_options();
+		Assert.assertTrue(getOutput(exec_result).contains(new_value), "Check output (client saved_options)");
+	}
 }

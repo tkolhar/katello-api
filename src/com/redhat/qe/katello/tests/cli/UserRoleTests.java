@@ -5,6 +5,7 @@ import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
+import com.redhat.qe.katello.base.obj.KatelloPermission;
 import com.redhat.qe.katello.base.obj.KatelloUserRole;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
@@ -182,6 +183,21 @@ public class UserRoleTests extends KatelloCliTestBase{
 		res = role.cli_info();
 		Assert.assertTrue(res.getExitCode()==0, "Check exit code (role info)");
 		Assert.assertTrue(getOutput(res).contains(description));
+	}
+
+	@Test(description="role info permission details")
+	public void test_roleInfoDetals() {
+		String uid = KatelloUtils.getUniqueID();
+		String role_name="role"+ uid;
+		String perm_name="perm"+ uid;
+		KatelloUserRole role = new KatelloUserRole(cli_worker, role_name, null);
+		exec_result = role.create();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (create role)");
+		exec_result = new KatelloPermission(cli_worker, perm_name, null, "providers", null, "read", role_name).create();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (create permission)");
+		exec_result = role.cli_info_details();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (role details)");
+		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", " ").matches(".*for: providers\\s*verbs: read\\s*on:.*"), "Check output (role details)");
 	}
 
 	@AfterClass(description="Cleanup the trash we did.", alwaysRun=true, groups = {"headpin-cli"}, enabled=true)

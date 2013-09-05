@@ -124,4 +124,45 @@ public class PermissionTests extends KatelloCliTestBase{
 		res = perm_del.list();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (permission list)");
 	}
+
+	@Test(description="create permission with --all_verbs option")
+	public void test_createPermissionAllVerbs() {
+		String perm_name = "permAllVerbs"+KatelloUtils.getUniqueID();
+		KatelloPermission perm = new KatelloPermission(cli_worker, perm_name, null, "organizations", null, null, userRole_create);
+		exec_result = perm.create(false, true);
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (perm create)");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloPermission.OUT_CREATE, perm_name, userRole_create)), "Check output");
+	}
+
+	@Test(description="invalid parameters for permission create")
+	public void test_invalidParameters() {
+		String uid = KatelloUtils.getUniqueID();
+		String perm_name = "perm" + uid;
+		String scope = "providers";
+		String bad_scope = "bad scope" + uid;
+		String bad_tag = "bad tag" + uid;
+		String bad_role = "bad role" + uid;
+		// tags + all tags
+		KatelloPermission perm = new KatelloPermission(cli_worker, perm_name, null, scope, base_zoo_provider_name, null, usr_role);
+		exec_result = perm.create(true);
+		Assert.assertTrue(exec_result.getExitCode()==65, "Check exit code (perm create)");
+		Assert.assertTrue(getOutput(exec_result).equals(KatelloPermission.ERR_TAG_ALL_TAGS), "Check error message (perm create)");
+		// invalid scope
+		perm = new KatelloPermission(cli_worker, perm_name, null, bad_scope, null, null, usr_role);
+		exec_result = perm.create();
+		Assert.assertTrue(exec_result.getExitCode()==65, "Check exit code (perm create)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloPermission.ERR_INVALID_SCOPE, bad_scope)), "Check error message (perm create)");
+		// invalid tag
+		perm = new KatelloPermission(cli_worker, perm_name, null, scope, bad_tag, null, usr_role);
+		exec_result = perm.create();
+		Assert.assertTrue(exec_result.getExitCode()==65, "Check exit code (perm create)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloPermission.ERR_TAG_NOT_FOUND, bad_tag, scope)), "Check error message (perm create)");
+		exec_result = perm.available_verbs(null, null);
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (perm avail verbs)");
+		// bad role
+		perm = new KatelloPermission(cli_worker, perm_name, null, scope, null, null, bad_role);
+		exec_result = perm.create();
+		Assert.assertTrue(exec_result.getExitCode()==65, "Check exit code (perm create)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloUserRole.ERR_NOT_FOUND, bad_role)), "Check error message (perm create)");
+	}
 }

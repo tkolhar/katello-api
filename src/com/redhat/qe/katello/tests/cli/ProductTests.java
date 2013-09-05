@@ -2,6 +2,8 @@ package com.redhat.qe.katello.tests.cli;
 
 import java.util.Arrays;
 import java.util.List;
+
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
@@ -22,6 +24,7 @@ public class ProductTests  extends KatelloCliTestBase{
 	private String org_name2;
 	private String prov_name2;
 	private String prov_name3;
+	private String org_manifest;
 	
 	@BeforeClass(description="Prepare an org to work with", groups={"cli-products","headpin-cli"}, alwaysRun=true)
 	public void setup_org(){
@@ -36,6 +39,8 @@ public class ProductTests  extends KatelloCliTestBase{
 		org = new KatelloOrg(this.cli_worker, this.org_name2, null);
 		res = org.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (org create)");
+		org_manifest = "org-manifest"+uid;
+		exec_result = new KatelloOrg(this.cli_worker, org_manifest, null).cli_create();
 	}
 
 	@BeforeClass(description="init: katello specific, no headpin", dependsOnMethods={"setup_org"})
@@ -599,6 +604,45 @@ public class ProductTests  extends KatelloCliTestBase{
 		match_info = String.format(KatelloProduct.REG_PROD_LIST, prodName, prov_name, prod.syncPlanName, prod.lastSync, prod.gpgkey).replaceAll("\"", "");
 		Assert.assertFalse(getOutput(res).replaceAll("\n", "").matches(match_info), 
 				"Check - list should NOT contain info about product (deleted already)");		
+	}
+
+	@Test(description="test enable/disable repository sets")
+	public void test_repoSetEnableDisable() {
+		// import manifest
+		String manifest = "manifest.zip";
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (create org");
+		KatelloUtils.scpOnClient(cli_worker.getClientHostname(), "data/"+manifest, "/tmp");
+		exec_result = new KatelloProvider(cli_worker, KatelloProvider.PROVIDER_REDHAT, org_manifest, null, null).import_manifest("/tmp/"+manifest, true);
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (import manifest)");
+		KatelloProduct prod = new KatelloProduct(cli_worker, KatelloProduct.RHEL_SERVER, org_manifest, KatelloProvider.PROVIDER_REDHAT, null, null, null, null, null);
+		// list repo sets
+		exec_result = prod.repository_sets();
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check exit code (repo sets)");
+		// enable reposet
+		exec_result = prod.repository_set_enable(KatelloProduct.REPOSET_RHEL6_RPMS);
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check exit code (repo set enable)");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloProduct.OUT_REPO_SET_ENABLED, KatelloProduct.REPOSET_RHEL6_RPMS)), "Check outpu (enable repo set)");
+		KatelloRepo repo = new KatelloRepo(cli_worker, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, org_manifest, "Red Hat Enterprise Linux Server", null, null, null);
+		exec_result = repo.listAll();
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check exit code (repo list)");
+		Assert.assertTrue(getOutput(exec_result).contains(KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT), "Check outpu (repo list)");
+		// disable repo set
+		exec_result = prod.repository_set_disable(KatelloProduct.REPOSET_RHEL6_RPMS);
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check exit code (repo set enable)");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloProduct.OUT_REPO_SET_DISABLED, KatelloProduct.REPOSET_RHEL6_RPMS)), "Check outpu (enable repo set)");
+	}
+
+	@Test(description="cancel synchronization")
+	public void test_cancelSync() {
+		KatelloProduct prod = new KatelloProduct(cli_worker, base_zoo_product_name, base_org_name, base_zoo_provider_name, null, null, null, null, null);
+		exec_result = prod.cancel_sync();
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check exit code (cancel sync)");
+		Assert.assertTrue(getOutput(exec_result).equals(KatelloProduct.OUT_NO_SYNC_RUNNING), "Check output (cancel sync)");
+	}
+
+	@AfterClass()
+	public void tearDown() {
+		new KatelloOrg(this.cli_worker, org_manifest, null).delete();
 	}
 
 	private void assert_productList(SSHCommandResult exec_result, List<KatelloProduct> products, List<KatelloProduct> excludeProducts) {

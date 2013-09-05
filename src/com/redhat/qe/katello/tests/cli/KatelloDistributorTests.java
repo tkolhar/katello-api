@@ -280,4 +280,26 @@ public class KatelloDistributorTests extends KatelloCliTestBase{
 		exec_result = distributor.unsubscribe(base_zoo_repo_pool);
 		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (distributor subscriptions)");
 	}
+
+	// TODO bz 1004284
+	@Test(description="distributor not found - check error")
+	public void test_distributorNotFound() {
+		String dist_name = "distributor-"+KatelloUtils.getUniqueID();
+		String dist_uuid = "00000000-0000-0000-0000-000000000000";
+		KatelloDistributor distr = new KatelloDistributor(cli_worker, base_org_name, dist_name, base_dev_env_name);
+		exec_result = distr.distributor_info();
+		Assert.assertTrue(exec_result.getExitCode()==65, "Check exit code (distributor not found)");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloDistributor.ERR_NOT_FOUND_IN_ENV, dist_name, base_dev_env_name, base_org_name)), "Check error (distributor not found)");
+		// without env
+		distr.environment = null;
+		exec_result = distr.distributor_info();
+		Assert.assertTrue(exec_result.getExitCode()==65, "Check exit code (distributor not found)");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloDistributor.ERR_NOT_FOUND, dist_name, base_org_name)), "Check error (distributor not found)");
+		// by uuid - bz 1004284
+		distr.name = null;
+		distr.uuid = dist_uuid;
+		exec_result = distr.distributor_info();
+		Assert.assertTrue(exec_result.getExitCode()==65, "Check exit code (distributor not found)");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloDistributor.ERR_NOT_FOUND, dist_uuid, base_org_name)), "Check error (distributor not found)");
+	}
 }

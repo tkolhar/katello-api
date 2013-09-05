@@ -29,7 +29,10 @@ public class KatelloProduct extends _KatelloObject{
 	public static final String CMD_UPDATE = "product update";
 	public static final String CMD_REMOVE_PLAN = "product remove_plan";
 	public static final String CMD_ENABLE_REPO_SET= "product repository_set_enable";
-	
+	public static final String CMD_DISABLE_REPO_SET= "product repository_set_disable";
+	public static final String CMD_REPO_SETS= "product repository_sets";
+	public static final String CMD_CANCEL_SYNC = "product cancel_sync";
+
 	/** Parameters:<BR>1: product_name<BR>2: org_name */
 	public static final String ERR_COULD_NOT_FIND_PRODUCT = 
 		"Could not find product [ %s ] within organization [ %s ]";
@@ -52,7 +55,11 @@ public class KatelloProduct extends _KatelloObject{
 			"Couldn't find GpgKey with name = %s";
 	public static final String ERR_HAS_NO_REPO = 
 			"Product [ %s ] has no repository";
-
+	public static final String OUT_NO_SYNC_RUNNING = "No synchronization is currently running";
+	public static final String OUT_UPDATED = "Successfully updated product [ %s ]";
+	public static final String OUT_REPO_SET_ENABLED = "Repository Set [ %s ] enabled.";
+	public static final String OUT_REPO_SET_DISABLED = "Repository Set [ %s ] disabled.";
+	
 	public static final String API_CMD_LIST = "/organizations/%s/products"; // by org
 	
 	public static final String REG_PROD_LIST = ".*ID\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Provider ID\\s*:\\s+\\d+.*Provider Name\\s*:\\s+%s.*Sync Plan Name\\s*:\\s+%s.*Last Sync\\s*:\\s+%s.*GPG key\\s*:\\s*%s.*";
@@ -161,7 +168,22 @@ public class KatelloProduct extends _KatelloObject{
 		opts.add(new Attribute("set_name",repoSetName));
 		return run(CMD_ENABLE_REPO_SET);
 	}
-	
+
+	public SSHCommandResult repository_set_disable(String repoSetName) {
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("set_name",repoSetName));
+		return run(CMD_DISABLE_REPO_SET);
+	}
+
+	public SSHCommandResult repository_sets() {
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		return run(CMD_REPO_SETS);
+	}
+
 	public SSHCommandResult update_description(String new_description){
 		opts.clear();
 		opts.add(new Attribute("org", org));
@@ -219,6 +241,13 @@ public class KatelloProduct extends _KatelloObject{
 		return run(CMD_SYNC);
 	}
 
+	public SSHCommandResult cancel_sync() {
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", this.name));
+		return run(CMD_CANCEL_SYNC);
+	}
+
 	public SSHCommandResult delete(){
 		opts.clear();
 		opts.add(new Attribute("org", org));
@@ -248,6 +277,16 @@ public class KatelloProduct extends _KatelloObject{
 		return run(CMD_UPDATE);
 	}
 
+	public SSHCommandResult update_nogpgkey(boolean recursive) {
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("nogpgkey", ""));
+		if(recursive)
+			opts.add(new Attribute("recursive", ""));
+		return run(CMD_UPDATE);
+	}
+	
 	public ArrayList<String> custom_listNames(){
 		ArrayList<String> _ret = new ArrayList<String>();
 		opts.clear();
