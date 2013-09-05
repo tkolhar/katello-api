@@ -11,6 +11,7 @@ public class KatelloClient extends _KatelloObject{
 	public static final String CMD_REMEMBER = "client remember";
 	public static final String OUT_REMEMBER = "Successfully remembered option [ %s ]";
 	public static final String OUT_FORGET = "Successfully forgot option [ %s ]";
+	public static final String OUT_OVERWROTE = "Successfully overwrote option [ %s ]";
 	private String option;
 	private String value;
 	
