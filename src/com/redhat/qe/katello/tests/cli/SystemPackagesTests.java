@@ -16,7 +16,7 @@ import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
 
-@Test(groups={"SystemTests",TngRunGroups.TNG_KATELLO_System_Consumer})
+@Test(groups={"sys-group-2",TngRunGroups.TNG_KATELLO_System_Consumer})
 public class SystemPackagesTests extends KatelloCliTestBase {
 
 	private SSHCommandResult exec_result;
@@ -66,7 +66,9 @@ public class SystemPackagesTests extends KatelloCliTestBase {
 		KatelloOrg org = new KatelloOrg(cli_worker, base_org_name, null);
 		exec_result = sys.subscribe(org.custom_getPoolId(prod_unsubscr));
 		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (subscribe)");
-
+		exec_result = sys.rhsm_refresh();// NOTE: this is *mandatory*. Otherwise yum does not recognize repos
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (RHSM refresh)");
+		
 		yum_clean();
 
 		sshOnClient("yum remove -y lion walrus cockateel");
