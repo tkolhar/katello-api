@@ -67,16 +67,20 @@ public class ManifestRefreshTests extends KatelloCliTestBase{
 		providerRH  = new KatelloProvider(this.cli_worker, KatelloProvider.PROVIDER_REDHAT, this.org_name, null, null);
 
 		// import manifest 
+		try{Thread.sleep(5000);}catch(InterruptedException iex){}
 		SSHCommandResult exec_result = providerRH.import_manifest(this.manifest_name,true);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).trim().contains(KatelloProvider.OUT_MANIFEST_IMPORTED), "Check output");
+		try{Thread.sleep(5000);}catch(InterruptedException iex){}
 
 		res = KatelloUtils.sshOnServer("/tmp/stgportal-createManifest.sh "+this.distributor_name+" "+this.subscription_id);
 
 		// refresh manifest
+		try{Thread.sleep(5000);}catch(InterruptedException iex){}
 		exec_result = providerRH.refresh_manifest();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).trim().contains(KatelloProvider.OUT_MANIFEST_REFRESH), "Check output");
+		try{Thread.sleep(5000);}catch(InterruptedException iex){}
 
 		//Register and subscribe the system
 		KatelloSystem sys_reg = new KatelloSystem(this.cli_worker,sys,this.org_name,null);
@@ -111,6 +115,7 @@ public class ManifestRefreshTests extends KatelloCliTestBase{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 
 		this.manifest_name=obtain_distributorManifest(this.distributor_name);
+		try{Thread.sleep(5000);}catch(InterruptedException iex){}
 
 		KatelloProvider providerRH;
 		providerRH  = new KatelloProvider(this.cli_worker, KatelloProvider.PROVIDER_REDHAT, this.org_name, null, null);
@@ -141,9 +146,11 @@ public class ManifestRefreshTests extends KatelloCliTestBase{
 		res = KatelloUtils.sshOnServer("chmod a+x /tmp/stgportal-decreaseSubscription.sh;"+"/tmp/stgportal-decreaseSubscription.sh "+this.distributor_name+" "+this.subscription_id);
 
 		// refresh manifest
+		try{Thread.sleep(5000);}catch(InterruptedException iex){}
 		exec_result = providerRH.refresh_manifest();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).trim().contains(KatelloProvider.OUT_MANIFEST_REFRESH), "Check output");
+		try{Thread.sleep(5000);}catch(InterruptedException iex){}
 
 		// System looses the subscriptions assigned
 		exec_result = sys_reg.subscriptions_available();
@@ -157,9 +164,11 @@ public class ManifestRefreshTests extends KatelloCliTestBase{
 		res = KatelloUtils.sshOnServer("/tmp/stgportal-createManifest.sh "+this.distributor_name+" "+this.subscription_id);
 
 		// refresh manifest
+		try{Thread.sleep(5000);}catch(InterruptedException iex){}
 		exec_result = providerRH.refresh_manifest();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).trim().contains(KatelloProvider.OUT_MANIFEST_REFRESH), "Check output");
+		try{Thread.sleep(5000);}catch(InterruptedException iex){}
 
 		//check available subscription and subscribe the system
 		exec_result = sys_reg.subscriptions_available();
@@ -198,6 +207,7 @@ public class ManifestRefreshTests extends KatelloCliTestBase{
 		SSHCommandResult exec_result = providerRH.import_manifest(this.manifest_name,true);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).trim().contains(KatelloProvider.OUT_MANIFEST_IMPORTED), "Check output");
+		try{Thread.sleep(5000);}catch(InterruptedException iex){}
 
 		exec_result = org.subscriptions();
 		Assert.assertTrue(exec_result.getExitCode() == 0,"Check - return code");
@@ -220,8 +230,10 @@ public class ManifestRefreshTests extends KatelloCliTestBase{
 		KatelloUtils.sshOnServer("chmod a+x /tmp/stgportal-deleteDistributor.sh; /tmp/stgportal-deleteDistributor.sh "+this.distributor_name);
 
 		// refresh manifest
+		try{Thread.sleep(5000);}catch(InterruptedException iex){}
 		exec_result = providerRH.refresh_manifest();
 		Assert.assertTrue(exec_result.getExitCode() == 65, "Check - return code");
+		try{Thread.sleep(5000);}catch(InterruptedException iex){}
 
 		// System looses the subscriptions assigned
 		exec_result = sys_reg.subscriptions_available();
