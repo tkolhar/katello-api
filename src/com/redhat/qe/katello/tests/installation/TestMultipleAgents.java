@@ -87,7 +87,7 @@ public class TestMultipleAgents extends KatelloCliTestBase {
 		
 		exec_result = org.subscriptions();
 		if (!getOutput(exec_result).contains("Red Hat Employee Subscription")) {
-			KatelloUtils.scpOnClient(null, "data/"+KatelloProvider.MANIFEST_SAM_MATRIX, "/tmp");
+			KatelloUtils.scpOnClient(server_name, "data/"+KatelloProvider.MANIFEST_SAM_MATRIX, "/tmp");
 
 			KatelloProvider rh = new KatelloProvider(null, KatelloProvider.PROVIDER_REDHAT, org_name, null, null);
 			rh.runOn(server_name);
