@@ -416,6 +416,7 @@ public class KatelloUtils implements KatelloConstants {
 	 * @param configs configuration array which should be from KatelloConstants.DELTACLOUD_SERVERS or KatelloConstants.DELTACLOUD_CLIENTS
 	 */
 	private static void configureDDNS(DeltaCloudInstance machine, String[] configs) {
+		sshOnClient(machine.getIpAddress(), "rm -rf /tmp/pems/; mkdir /tmp/pems/; cp /etc/pki/product/*.pem /tmp/pems/");
 		sshOnClient(machine.getIpAddress(), "rm -f /etc/yum.repos.d/rhevm.repo");		
 		sshOnClient(machine.getIpAddress(), "wget http://hdn.corp.redhat.com/rhel6-csb/RPMS/noarch/redhat-ddns-client-1.3-4.noarch.rpm");
 		sshOnClient(machine.getIpAddress(), "yum -y localinstall redhat-ddns-client-1.3-4.noarch.rpm --nogpgcheck --disablerepo=*");		
@@ -428,6 +429,8 @@ public class KatelloUtils implements KatelloConstants {
 		sshOnClient(machine.getIpAddress(), String.format("sed -i \"s/^HOSTNAME=.*/HOSTNAME=%s.%s/\" /etc/sysconfig/network",configs[0],configs[1]));
 		sshOnClient(machine.getIpAddress(), "hostname " + configs[0] + "." + configs[1]);
 		sshOnClient(machine.getIpAddress(), "service network restart");
+
+		sshOnClient(machine.getIpAddress(), "rm -f /etc/pki/product/*.pem; cp /tmp/pems/*.pem /etc/pki/product/");
 		
 		KatelloUtils.sleepAsHuman();
 		
