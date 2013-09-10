@@ -45,7 +45,7 @@ public class SystemGroupTests extends KatelloCliTestBase{
 		
 		sshOnClient(KatelloSystem.RHSM_CLEAN);
 	}
-	
+
 	@BeforeClass(description="init: katello specific, no headpin",groups={"cfse-cli"}, dependsOnMethods={"setUp"})
 	public void setUp_katelloOnly(){
 		this.envName = "Dev-"+uid;
@@ -69,7 +69,7 @@ public class SystemGroupTests extends KatelloCliTestBase{
 		
 		
 	}
-	
+
 	@Test(description = "Create system group", groups = { "cli-systemgroup", "cfse-cli", "headpin-cli" })
 	public void test_createSystemGroup() {
 		KatelloSystemGroup systemGroup = createSystemGroup();
@@ -153,14 +153,26 @@ public class SystemGroupTests extends KatelloCliTestBase{
 	public void test_addSystemToSystemGroup() {
 		
 		KatelloSystem sys = addSystemToSystemGroup();
-
 		KatelloSystemGroup systemGroup = new KatelloSystemGroup(this.cli_worker, systemGroupName, orgName);
 		systemGroup.totalSystems = 1;
 		assert_SystemGroupInfo(systemGroup);
 		
 		assert_systemList(Arrays.asList(sys), new ArrayList<KatelloSystem>());
 	}
-
+	
+	// TODO: BZ 990487
+	@Test(description = "Add already added system to the system group", groups = {"cli-systemgroup", "cfse-cli", "headpin-cli"})
+	public void test_addExistentSystemToSystemGroup() {
+		
+		KatelloSystem sys = addSystemToSystemGroup();
+		KatelloSystemGroup systemGroup = new KatelloSystemGroup(this.cli_worker, systemGroupName, orgName);
+		assert_systemList(Arrays.asList(sys), new ArrayList<KatelloSystem>());
+		exec_result = systemGroup.add_systems(sys.uuid);
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 148, "Check - return code");
+		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloSystemGroup.ERR_SYSTEM_EXISTS, system_uuid));
+		
+	}
+	
 	@Test(description = "Remove system group", groups = { "cli-systemgroup", "cfse-cli", "headpin-cli" })
 	public void test_removeSystemFromSystemGroup() {
 		KatelloSystem sys = addSystemToSystemGroup();
@@ -175,6 +187,50 @@ public class SystemGroupTests extends KatelloCliTestBase{
 		assert_SystemGroupInfo(systemGroup);
 		
 		assert_systemList(new ArrayList<KatelloSystem>(), Arrays.asList(sys));
+	}
+	
+	//TODO : BZ 990476
+	@Test(description = "Attempt to remove a system from the systm group more than once", groups={"cli-systemgroup", "cfse-cli", "headpin-cli"}, dependsOnMethods={"test_removeSystemFromSystemGroup"})
+	public void test_removeSystemMoreThanOnce() {
+		// Add a system to system group
+		KatelloSystem sys = addSystemToSystemGroup();
+		KatelloSystemGroup systemGroup = new KatelloSystemGroup(this.cli_worker, systemGroupName, orgName);
+		// remove the system
+		exec_result = systemGroup.remove_systems(system_uuid);
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloSystemGroup.OUT_REMOVE_SYSTEMS, systemGroupName));
+		// remove the system again
+		exec_result = systemGroup.remove_systems(system_uuid);
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 148, "Check - return code for remove system more than once");
+		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloSystemGroup.ERR_SYSTEM_NOT_FOUND, system_uuid));
+	}
+	
+	//TODO : BZ 990476
+	@Test(description = "Attempt to remove invalid system uuid", groups={"cli-systemgroup", "cfse-cli", "headpin-cli"})
+	public void test_removeInvalidSystem() {
+		
+		String registeredSys = "registered-sys-"+ KatelloUtils.getUniqueID();
+		String invalidUUID = KatelloUtils.getUniqueID();
+		KatelloSystemGroup systemGroup = new KatelloSystemGroup(this.cli_worker, systemGroupName, orgName);
+		
+		// Register a system. Do not add it to the system group
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, registeredSys , this.orgName, this.envName);
+		exec_result = sys.rhsm_registerForce();
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		Assert.assertTrue(exec_result.getStdout().trim().contains(KatelloSystem.OUT_CREATE),
+				"Check - output (success)");
+		exec_result = sys.info();
+		sys.uuid = KatelloUtils.grepCLIOutput("UUID", getOutput(exec_result).trim(),1);
+		
+		// Try to remove an invalid system uuid
+		exec_result = systemGroup.remove_systems(invalidUUID);
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 148, "Check - return code");
+		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloSystemGroup.ERR_SYSTEM_NOT_FOUND, invalidUUID));
+		// Try to remove a registered system that is not present in the System group
+		exec_result = systemGroup.remove_systems(sys.uuid);
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 148, "Check - return code");
+		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloSystemGroup.ERR_SYSTEM_NOT_FOUND, sys.uuid));
+
 	}
 	
 	@Test(description = "Add 2 systems to system group which has max systems 1, verify the error", groups = { "cli-systemgroup", "cfse-cli", "headpin-cli" })

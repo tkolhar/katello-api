@@ -47,6 +47,10 @@ public class KatelloSystemGroup extends _KatelloObject{
 			//"Couldn't find system group ";
 	public static final String ERR_SYSTEMGROUP_EXCEED = 
 			"Validation failed: You cannot have more than %s system(s) associated with system group '%s'.";
+	public static final String ERR_SYSTEM_NOT_FOUND =
+			"Systems [%s] not found.";
+	public static final String ERR_SYSTEM_EXISTS =
+			"Systems [%s] already already added";
 	
 	public static final String REG_SYSTEMGROUP_INFO = ".*ID\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Description\\s*:\\s+%s.*Max Systems\\s*:\\s+%s.*";
 	public static final String REG_SYSTEMGROUP_LIST = ".*\\s+\\d+.*\\s+%s.*";
