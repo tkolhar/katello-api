@@ -136,4 +136,11 @@ public class BeakerUtils {
 				"export LDAP_SERVER_TYPE=" + ldap_type + "; export LDAP_USERNAME=" + user + "; export LDAP_PASSWORD=" + password + "; make run";
 		return KatelloUtils.sshOnClient(hostname, cmds);
 	}
+	
+	public static SSHCommandResult Katello_Installation_HammerCLI(String hostname){
+		String cmds = 
+				"yum install -y Katello-Katello-Installation-HammerCLI --disablerepo=* --enablerepo=beaker*; " +
+				"cd /mnt/tests/Katello/Installation/HammerCLI; make run";
+		return KatelloUtils.sshOnClient(hostname, cmds);
+	}
 }
