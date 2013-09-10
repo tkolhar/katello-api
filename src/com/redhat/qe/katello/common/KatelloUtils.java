@@ -461,6 +461,9 @@ public class KatelloUtils implements KatelloConstants {
 				} else{
 					BeakerUtils.Katello_Installation_KatelloWithLdap(hostIP, ldap, user, password);
 				}
+				if (Boolean.parseBoolean(System.getProperty("katello.install.hammercli", "false"))) {
+					BeakerUtils.Katello_Installation_HammerCLI(hostIP);
+				}
 			} else if (product.equals("cfse")) {
 				BeakerUtils.Katello_Installation_SystemEngineLatest(hostIP, version);
 			} else if (product.equals("sam")) {
@@ -482,10 +485,9 @@ public class KatelloUtils implements KatelloConstants {
 				} else{
 					BeakerUtils.Katello_Installation_Satellite6WithLdap(hostIP, version, ldap, user, password);
 				}
-			}
-			
-			if (Boolean.parseBoolean(System.getProperty("katello.install.hammercli", "false"))) {
-				BeakerUtils.Katello_Installation_HammerCLI(hostIP);
+				if (Boolean.parseBoolean(System.getProperty("katello.install.hammercli", "false"))) {
+					BeakerUtils.Katello_Installation_HammerCLI(hostIP);
+				}
 			}
 			
 			// Configure the server as a self-client
