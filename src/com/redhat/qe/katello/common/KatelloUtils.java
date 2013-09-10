@@ -484,6 +484,10 @@ public class KatelloUtils implements KatelloConstants {
 				}
 			}
 			
+			if (Boolean.parseBoolean(System.getProperty("katello.install.hammercli", "false"))) {
+				BeakerUtils.Katello_Installation_HammerCLI(hostIP);
+			}
+			
 			// Configure the server as a self-client
 			BeakerUtils.Katello_Configuration_KatelloClient(hostIP, machine.getHostName(), version, product); // at this time DDNS should return the hostname already! It takes ~5 min.
 			
