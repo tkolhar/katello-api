@@ -17,7 +17,10 @@ public class DisconnectedTests {
 		disc = new KatelloDisconnected();		
 	}
 	
-	@Test(description="setup --oauth-secret <grep from /etc/pulp/server.conf>")
+	/**
+	 * setup --oauth-secret <grep from /etc/pulp/server.conf>
+	 */
+	@Test(description="bb9dbe17-222d-4b4a-b779-ec2f968c4ac4")
 	public void test_setupMinimal(){
 		SSHCommandResult res = KatelloUtils.sshOnServer("egrep \"^oauth_secret: \" /etc/pulp/server.conf | cut -f2 -d' '");
 		String oauth_secret = KatelloCliTestBase.sgetOutput(res);
