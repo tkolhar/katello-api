@@ -332,13 +332,14 @@ public class ScenOrgs implements KatelloConstants {
 		Assert.assertFalse(res.getStdout().contains(_system), "System name is not in list output");
 	}
 	
-	@Test(description="verify permission survived the upgrade", 
+	@Test(description="verify that permissions not related to environments survived the upgrade", 
 			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE}, 
 			groups={TNG_POST_UPGRADE})
 	public void checkPermissionSurvived(){
 		KatelloPermission perm = new KatelloPermission(null, null, null, null, null, null, _user_role);
 		SSHCommandResult res = perm.list();
-		Assert.assertTrue(res.getStdout().contains(_perm_1), "permission must be listed");
+		// permissions for environments must be gone
+		Assert.assertFalse(res.getStdout().contains(_perm_1), "permission must be listed");
 		
 		perm = new KatelloPermission(null, null, null, null, null, null, _user_role2);
 		res = perm.list();
