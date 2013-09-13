@@ -11,7 +11,7 @@ import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups=TngRunGroups.TNG_KATELLO_Users_Roles)
+@Test(groups={TngRunGroups.TNG_KATELLO_Users_Roles, "cli-PermissionTests"})
 public class PermissionTests extends KatelloCliTestBase{
 	private String organization;
 	private String usr_role;

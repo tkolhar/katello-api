@@ -16,7 +16,7 @@ import com.redhat.qe.katello.base.obj.KatelloUserRole;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 
-@Test(groups=TngRunGroups.TNG_KATELLO_Organizations)
+@Test(groups={TngRunGroups.TNG_KATELLO_Organizations,"cli-UserOrgDeleteTests"})
 public class UserOrgDeleteTests extends KatelloCliTestBase {
 	List<KatelloOrg> orgs = Collections.synchronizedList(new ArrayList<KatelloOrg>());
 	String uid = KatelloUtils.getUniqueID();

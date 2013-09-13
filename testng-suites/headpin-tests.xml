@@ -1,13 +1,27 @@
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
 <suite name="SAM Test Suite">
-		
 	<!-- Test group that could be run on SAM server(s) as well -->
-	<test name="SAM_Tests" preserve-order="true">
+	<test name="SAM_Tests">
 		<groups>
 			<run>
-      				<include name="headpin-cli"/>
+				<include name="headpin-cli"/>
 			</run>
+                        <dependencies>
+                                <group name="cli-UserOrgDeleteTests" depends-on="cli-ManifestRefreshTests"/>
+                                <group name="cli-ManifestRefreshTests" depends-on="cli-SystemGroupTests"/>
+                                <group name="cli-SystemGroupTests" depends-on="cli-SystemTests"/>
+                                <group name="cli-SystemTests" depends-on="cli-UserNoRoleNoAccess"/>
+                                <group name="cli-UserNoRoleNoAccess" depends-on="cli-ProviderTests"/>
+                                <group name="cli-ProviderTests" depends-on="cli-ClientTests"/>
+                                <group name="cli-ClientTests" depends-on="cli-OrgTests"/>
+                                <group name="cli-OrgTests" depends-on="cli-UserTests"/>
+                                <group name="cli-UserTests" depends-on="cli-PermissionTests"/>
+                                <group name="cli-PermissionTests" depends-on="cli-VersionTest"/>
+                                <group name="cli-PingTest" depends-on="cli-UserRoleTests"/>
+                                <group name="cli-UserRoleTests" depends-on="cli-ProductTests"/>
+                                <group name="cli-ProductTests" depends-on="cli-ActivationKeyTests"/>
+                        </dependencies>
 		</groups>
 		<classes>
 			<class name="com.redhat.qe.katello.tests.cli.SetupServers"/>

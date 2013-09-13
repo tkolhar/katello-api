@@ -10,7 +10,7 @@ import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups={TngRunGroups.TNG_KATELLO_Users_Roles})
+@Test(groups={TngRunGroups.TNG_KATELLO_Users_Roles, "cli-UserRoleTests"})
 public class UserRoleTests extends KatelloCliTestBase{
 
 //	@BeforeClass(description="setup",alwaysRun=true)

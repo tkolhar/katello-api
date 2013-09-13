@@ -19,7 +19,7 @@ import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups={"cfse-cli",TngRunGroups.TNG_KATELLO_Users_Roles})
+@Test(groups={"cfse-cli",TngRunGroups.TNG_KATELLO_Users_Roles, "cli-UserTests"})
 public class UserTests extends KatelloCliTestBase{
 	
 	List<KatelloUser> users;

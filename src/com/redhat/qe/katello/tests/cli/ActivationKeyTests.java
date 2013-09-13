@@ -16,7 +16,7 @@ import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups={TngRunGroups.TNG_KATELLO_Activation_Key})
+@Test(groups={TngRunGroups.TNG_KATELLO_Activation_Key,"cli-ActivationKeyTests"})
 public class ActivationKeyTests extends KatelloCliTestBase{
 	private String systemgroup;
 	private String content_view;

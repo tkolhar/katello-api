@@ -7,7 +7,7 @@ import com.redhat.qe.katello.base.obj.KatelloClient;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
-@Test(groups={"headpin-cli",TngRunGroups.TNG_KATELLO_Install_Configuration})
+@Test(groups={"headpin-cli",TngRunGroups.TNG_KATELLO_Install_Configuration,"cli-ClientTests"})
 public class ClientTests extends KatelloCliTestBase{
 	
 	@Test(description = "Saved_options list options saved in the client config")
