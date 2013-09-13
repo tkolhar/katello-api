@@ -21,4 +21,76 @@ public class KatelloDisconnected extends _KatelloObject{
 			cmd += " --oauth-secret "+oauth_secret;
 		return new KatelloDisconnectedCli(cmd).run();
 	}
+
+	public SSHCommandResult importManifest(String manifest_zip){ // import is java reserved keyword, what a pity :D
+		cmd = "import";
+		if(manifest_zip!=null)
+			cmd += " -m "+manifest_zip;
+		return new KatelloDisconnectedCli(cmd).run();
+	}
+	
+	public SSHCommandResult list(Boolean disabled){
+		cmd = "list";
+		if(disabled.booleanValue())
+			cmd += " --disabled";
+		return new KatelloDisconnectedCli(cmd).run();
+	}
+
+	public SSHCommandResult custom_listRepo(Boolean disabled, String reponame){
+		cmd = "list";
+		if(disabled.booleanValue())
+			cmd += " --disabled";
+		cmd +="|grep \""+reponame+"\"";
+		return new KatelloDisconnectedCli(cmd).run();
+	}
+
+	public SSHCommandResult custom_listCount(Boolean disabled){
+		cmd = "list";
+		if(disabled.booleanValue())
+			cmd += " --disabled";
+		cmd +="|wc -l";
+		return new KatelloDisconnectedCli(cmd).run();
+	}
+	
+	public SSHCommandResult disable(String reponame, Boolean all){
+		cmd = "disable";
+		if(reponame!=null)
+			cmd += " -r "+reponame;
+		if(all.booleanValue())
+			cmd += " --all";
+		return new KatelloDisconnectedCli(cmd).run();
+	}
+
+	public SSHCommandResult configure(){
+		cmd = "configure";
+		return new KatelloDisconnectedCli(cmd).run();
+	}
+
+	public SSHCommandResult enable(String reponame){
+		cmd = "enable";
+		if(reponame!=null)
+			cmd += " -r "+reponame;
+		return new KatelloDisconnectedCli(cmd).run();
+	}
+	
+	public SSHCommandResult sync(String reponame){
+		cmd = "sync";
+		if(reponame!=null)
+			cmd += " -r "+reponame;
+		return new KatelloDisconnectedCli(cmd).run();		
+	}
+	
+	public SSHCommandResult watch(){
+		cmd = "watch";
+		return new KatelloDisconnectedCli(cmd).run();		
+	}
+	
+	public SSHCommandResult export(String reponame, String filename){
+		cmd = "export";
+		if(reponame!=null)
+			cmd += " -r "+reponame;
+		if(filename!=null)
+			cmd += " -t "+filename;
+		return new KatelloDisconnectedCli(cmd).run();		
+	}
 }

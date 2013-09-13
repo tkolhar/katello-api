@@ -19,13 +19,9 @@ public class KatelloDisconnectedCli implements KatelloConstants {
 	}
 	
 	public SSHCommandResult run(){
-		return runExt("");
-	}
-
-	public SSHCommandResult runExt(String cmdTail){
 		String cmd = "katello-disconnected "+command;		
 		try {
-			return KatelloUtils.sshOnClient(hostName, cmd+cmdTail);
+			return KatelloUtils.sshOnClient(hostName, cmd);
 		}
 		catch (Exception e) {
 			log.warning(String.format("ERROR running the command: [%s]",cmd));
@@ -45,5 +41,4 @@ public class KatelloDisconnectedCli implements KatelloConstants {
 			e.printStackTrace();
 		}
 	}
-
 }
