@@ -128,9 +128,19 @@ public class TestMultipleAgents extends KatelloCliTestBase {
 			Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Client " + client_type + " must subscribe to pool successfully");
 		}
 		
+		sys.runOn(server_name);
+		exec_result = sys.reportSystemCompliance();
+		if (client_type.contains("x86_64") || client_type.contains("i386")) {
+			Assert.assertTrue(getOutput(exec_result).contains("green"), "Client " + client_type + " compliance must be green");
+		} else {
+			//Assert.assertTrue(getOutput(exec_result).contains("yellow"), "Client " + client_type + " compliance must be yellow");
+		}
+		sys.runOn(client_name);
+		
 		KatelloUtils.sshOnClient(client_name, "yum clean all");
 		KatelloUtils.sshOnClient(client_name, "yum-config-manager --disable \"*\"");
 		KatelloUtils.sshOnClient(client_name, "yum-config-manager --enable \"rhel-*-server-rpms\"");
+		KatelloUtils.sshOnClient(client_name, "yum-config-manager --enable \"rhel-*-for-power-rpms\"");
 		KatelloUtils.sshOnClient(client_name, "rm -rf /var/cache/yum*");
 		
 		yum_clean(client_name);

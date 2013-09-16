@@ -19,7 +19,7 @@ public class KatelloSystem extends _KatelloObject{
 	public static final String CMD_UPDATE = "system update";
 	public static final String CMD_SUBSCRIPTIONS = "system subscriptions";
 	public static final String CMD_PACKAGES = "system packages";
-	public static final String CMD_REPORT = "system report";
+	public static final String CMD_REPORT = "system report -v";
 	public static final String CMD_REMOVE = "system remove_deletion";
 	public static final String CMD_SUBSCRIBE = "system subscribe";
 	public static final String CMD_RELEASES = "system releases";
@@ -410,8 +410,17 @@ public class KatelloSystem extends _KatelloObject{
 		if(format != null)
 		{
 			opts.add(new Attribute("format",format));
-		}	
-		return run(CMD_REPORT+" -v");
+		}
+	
+		return run(CMD_REPORT);
+	}
+	
+	public SSHCommandResult reportSystemCompliance() {
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("environment", env));
+		
+		return runExt(CMD_REPORT, " | grep \"" + name + "\" | cut -f9 -d\"|\"");
 	}
 	
 	public SSHCommandResult subscriptions_available(){
