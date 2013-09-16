@@ -68,7 +68,8 @@ public class ConsumeFilteredPackageGroup extends KatelloCliTestBase {
 		exec_result = filter.add_rule(KatelloContentFilter.TYPE_EXCLUDES, new FilterRulePackageGroups("birds"));
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
-		condef.publish(pubview_name,pubview_name,null);
+		exec_result = condef.publish(pubview_name,pubview_name,null);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
 		conview = new KatelloContentView(cli_worker, pubview_name, base_org_name);
 		exec_result = conview.promote_view(base_dev_env_name);

@@ -1,7 +1,6 @@
 package com.redhat.qe.katello.deltacloud;
 
 import java.util.UUID;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.ovirt.engine.sdk.Api;
 import org.ovirt.engine.sdk.entities.Action;

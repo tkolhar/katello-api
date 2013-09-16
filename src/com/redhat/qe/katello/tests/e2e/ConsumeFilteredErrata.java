@@ -112,7 +112,8 @@ public class ConsumeFilteredErrata extends KatelloCliTestBase {
 		exec_result = filter.add_rule(KatelloContentFilter.TYPE_EXCLUDES, new FilterRuleErrataDayType("2012-04-01", "2012-05-01", null) );// MONKEY_ERRATA, EAGLE_ERRATA
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		condef.publish(pubview_name,pubview_name,null);
+		exec_result = condef.publish(pubview_name,pubview_name,null);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
 		conview = new KatelloContentView(cli_worker, pubview_name, base_org_name);
 		exec_result = conview.promote_view(base_test_env_name);
