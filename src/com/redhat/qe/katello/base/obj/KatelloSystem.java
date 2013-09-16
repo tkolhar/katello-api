@@ -590,6 +590,14 @@ public class KatelloSystem extends _KatelloObject{
 		return run("system unsubscribe");
 	}
 
+	public SSHCommandResult unsubscribe_serial(String serialID){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("serial", serialID));
+		return run("system unsubscribe");
+	}
+
 	public SSHCommandResult unregister(){
 		opts.clear();
 		return run(String.format(KatelloSystem.SYSTEM_UNREGISTER, uuid, org));
