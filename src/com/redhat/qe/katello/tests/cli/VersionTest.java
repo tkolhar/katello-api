@@ -7,7 +7,7 @@ import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloVersion;
 
 import com.redhat.qe.tools.SSHCommandResult;
-@Test(groups={"headpin-cli","Install / Configuration"})
+@Test(groups={"headpin-cli","Install / Configuration", "cli-VersionTest"})
 public class VersionTest extends KatelloCliTestBase{
 	private SSHCommandResult exec_result;
 	

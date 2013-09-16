@@ -7,7 +7,7 @@ import com.redhat.qe.katello.common.TngRunGroups;
 
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups={"headpin-cli",TngRunGroups.TNG_KATELLO_Install_Configuration})
+@Test(groups={"headpin-cli",TngRunGroups.TNG_KATELLO_Install_Configuration, "cli-PingTest"})
 public class PingTest extends KatelloCliTestBase{
 	private SSHCommandResult exec_result;
 

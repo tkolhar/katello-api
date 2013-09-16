@@ -20,7 +20,7 @@ import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 import java.io.File;
 
-@Test(groups=TngRunGroups.TNG_KATELLO_Organizations)
+@Test(groups={TngRunGroups.TNG_KATELLO_Organizations,"cli-OrgTests"})
 public class OrgTests extends KatelloCliTestBase{
 	List<KatelloOrg> orgs = Collections.synchronizedList(new ArrayList<KatelloOrg>());
 	String uid = KatelloUtils.getUniqueID();

@@ -34,7 +34,7 @@ import com.redhat.qe.tools.SSHCommandResult;
  * @author gkhachik
  *
  */
-@Test(groups={"SystemTests",TngRunGroups.TNG_KATELLO_System_Consumer})
+@Test(groups={"SystemTests",TngRunGroups.TNG_KATELLO_System_Consumer,"cli-SystemTests"})
 public class SystemTests extends KatelloCliTestBase{	
 	protected static Logger log = Logger.getLogger(SystemTests.class.getName());
 

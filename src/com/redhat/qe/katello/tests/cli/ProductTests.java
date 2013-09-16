@@ -15,7 +15,7 @@ import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups={TngRunGroups.TNG_KATELLO_Providers_Repos})
+@Test(groups={TngRunGroups.TNG_KATELLO_Providers_Repos, "cli-ProductTests"})
 public class ProductTests  extends KatelloCliTestBase{
 	private String org_name;
 	private String prov_name;

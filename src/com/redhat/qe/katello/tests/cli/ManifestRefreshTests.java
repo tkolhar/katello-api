@@ -13,6 +13,7 @@ import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
+@Test(groups="cli-ManifestRefreshTests")
 public class ManifestRefreshTests extends KatelloCliTestBase{
 	private String org_name;
 	private KatelloOrg org;

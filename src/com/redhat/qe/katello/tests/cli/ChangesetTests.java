@@ -16,7 +16,7 @@ import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
 
 
-@Test(groups={"cfse-cli",TngRunGroups.TNG_KATELLO_Content})
+@Test(groups={"cfse-cli",TngRunGroups.TNG_KATELLO_Content,"cli-ChangesetTests"})
 public class ChangesetTests extends KatelloCliTestBase{
 
 	protected static Logger log = Logger.getLogger(ChangesetTests.class.getName());

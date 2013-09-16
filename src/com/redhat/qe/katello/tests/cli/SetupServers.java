@@ -7,7 +7,7 @@ import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.DeltaCloudInstance;
 import com.redhat.qe.katello.common.KatelloUtils;
 
-@Test(groups = { "cfse-cli", "headpin-cli"})
+@Test(groups = { "cfse-cli", "headpin-cli", "cli-SetupServers"})
 public class SetupServers extends KatelloCliTestBase {
 	
 	protected DeltaCloudInstance server;
