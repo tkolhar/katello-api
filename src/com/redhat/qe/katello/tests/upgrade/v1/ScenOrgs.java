@@ -439,7 +439,7 @@ public class ScenOrgs implements KatelloConstants {
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");	
 	}
 
-	@Test(description="verify the existence of manifest org", 
+	@Test(description="verify the existence of manifest org, re-create deleted org and re-import manifest", 
 			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE}, 
 			groups={TNG_POST_UPGRADE})
 	public void checkOrgsManifestSurvived(){
@@ -459,6 +459,18 @@ public class ScenOrgs implements KatelloConstants {
 		res = org.cli_create();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
 		KatelloProvider rh = new KatelloProvider(null, KatelloProvider.PROVIDER_REDHAT, _del_org[1], null, null);
+		res = rh.import_manifest("/tmp/"+KatelloProvider.MANIFEST_SAM_MATRIX, null);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "exit(0) - provider import_manifest");
+		res = org.subscriptions();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "exit(0) - org subscriptions");
+		
+		//again delete the org and re-create it with re-importing manifest
+		res = org.delete();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");	
+		
+		res = org.cli_create();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
+		rh = new KatelloProvider(null, KatelloProvider.PROVIDER_REDHAT, _del_org[1], null, null);
 		res = rh.import_manifest("/tmp/"+KatelloProvider.MANIFEST_SAM_MATRIX, null);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit(0) - provider import_manifest");
 		res = org.subscriptions();
