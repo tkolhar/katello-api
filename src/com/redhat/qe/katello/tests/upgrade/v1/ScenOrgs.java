@@ -5,6 +5,7 @@ import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloActivationKey;
+import com.redhat.qe.katello.base.obj.KatelloDistributor;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloGpgKey;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
@@ -33,6 +34,10 @@ public class ScenOrgs implements KatelloConstants {
 	String _system2;
 	String _system3;
 	String _system_group;
+	String _system_group2;
+	String _system_group3;
+	String _distributor_name;
+	String _distributor_name2;
 	String _org;
 	String _user;
 	String _akey;
@@ -83,6 +88,10 @@ public class ScenOrgs implements KatelloConstants {
 		_system2 = "Paris_" + _uid;
 		_system3 = "Madrid_" + _uid;
 		_system_group = "sysgroup" + _uid;
+		_system_group2 = "sysgroup2" + _uid;
+		_system_group3 = "sysgroup3" + _uid;
+		_distributor_name = "distro" + _uid;
+		_distributor_name2 = "distro2" + _uid;
 		_newsystem = "newsystem" + _uid;
 	}
 	
@@ -582,7 +591,7 @@ public class ScenOrgs implements KatelloConstants {
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (user remove)");		
 	}
 	
-	@Test(description="verify it is possible to create system group, and add systems into it", 
+	@Test(description="verify it is possible to create system group, and add systems into it and delete system and group", 
 			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE}, 
 			groups={TNG_POST_UPGRADE}, dependsOnMethods={"checkSystemsSurvived"})
 	public void checkSysGroupCreate(){
@@ -608,5 +617,45 @@ public class ScenOrgs implements KatelloConstants {
 		
 		res = systemGroup.add_systems(system_uuid2);
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (add system)");
+		
+		res = systemGroup.remove_systems(system_uuid2);
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (reomve system)");
+		
+		KatelloSystemGroup systemGroup2 = new KatelloSystemGroup(null, _system_group2, _org);
+		res = systemGroup2.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (system group create)");
+		
+		res = systemGroup2.add_systems(system_uuid);
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (add system)");
+		
+		res = systemGroup2.add_systems(system_uuid2);
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (add system)");
+		
+		res = systemGroup.delete();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (delete system group)");
 	}
+	
+	@Test(description="Add multiple SAM Distributors. Delete some of them", 
+			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE}, 
+			groups={TNG_POST_UPGRADE})
+	public void checkDistroCreate(){
+		KatelloDistributor distributor = new KatelloDistributor(null, _org, _distributor_name);
+		SSHCommandResult res = distributor.distributor_create();
+		Assert.assertTrue(res.getExitCode() == 0, "Check - return code (create distributor)");
+
+		res = distributor.subscribe(_poolRhel);
+		Assert.assertTrue(res.getExitCode() == 0, "Check - return code (subscribe)");
+		
+		KatelloDistributor distributor2 = new KatelloDistributor(null, _org, _distributor_name2);
+		res = distributor2.distributor_create();
+		Assert.assertTrue(res.getExitCode() == 0, "Check - return code (create distributor)");
+		
+		res = distributor2.subscribe(_poolRhel);
+		Assert.assertTrue(res.getExitCode() == 0, "Check - return code (subscribe)");
+		
+		res = distributor2.distributor_delete();
+		Assert.assertTrue(res.getExitCode() == 0, "Check - return code (delete distributor)");
+	}
+	
+	
 }
