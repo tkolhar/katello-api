@@ -165,5 +165,12 @@ public class KatelloUpgrade extends KatelloCliTestBase{
 		KatelloPing ping = new KatelloPing(null);
 		SSHCommandResult res = ping.cli_ping();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check services up");
+		
+		KatelloUtils.run_local("rm -f machines.prop");
+		if (Boolean.parseBoolean(System.getProperty("deltacloud.keepserver", "false"))) {
+			//write server and client config parameters into file for later processing in trigger jobs
+			KatelloUtils.run_local("echo SAM_SERVER_HOSTNAME=" + System.getProperty("katello.server.hostname") + " > machines.prop");
+			KatelloUtils.run_local("echo SAM_CLIENT_HOSTNAME=" + System.getProperty("katello.client.hostname") + " >> machines.prop");
+		}
 	}
 }
