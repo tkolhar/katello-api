@@ -50,6 +50,9 @@ public class ScenOrgs implements KatelloConstants {
 	String _newuser;
 	String _newsystem;
 	String _poolRhel;
+	String[] _permorg = new String[3];
+	String[] _permrole = new String[3];
+	String[] _perm = new String[3];
 	String[] _del_org= new String[2];
 	String[] _multorg =  new String[5];
 	String[] _multuser = new String[5];
@@ -398,12 +401,87 @@ public class ScenOrgs implements KatelloConstants {
 		user_role = new KatelloUserRole(null, _multuser_role[3], null);
 		res = user_role.cli_info();
 		Assert.assertTrue(res.getExitCode()==65, "Check - exit code (role info)");
-		Assert.assertTrue(res.getStdout().contains(_multuser_role[3]), "Role name is in info output");
+		Assert.assertFalse(res.getStdout().contains(_multuser_role[3]), "Role does not exist");
 
 		user_role = new KatelloUserRole(null, _multuser_role[4], null);
 		res = user_role.cli_info();
 		Assert.assertTrue(res.getExitCode()==65, "Check - exit code (role info)");
-		Assert.assertTrue(res.getStdout().contains(_multuser_role[4]), "Role name is in info output");		
+		Assert.assertFalse(res.getStdout().contains(_multuser_role[4]), "Role does not exist");
+	}
+
+	@Test(description="Multiple Permission - Delete some of them", 
+			groups={TNG_PRE_UPGRADE})
+	public void addMultiplePermissions(){
+
+		String uid = KatelloUtils.getUniqueID(); 
+		_permorg[0] = "perm-org0-"+ uid;
+		KatelloOrg org = new KatelloOrg(null,_permorg[0], null);
+		SSHCommandResult res = org.cli_create();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
+
+		_permrole[0] = "perm-user_role0-"+ uid;
+		KatelloUserRole user_role = new KatelloUserRole(null, _permrole[0], "User Roles to add Permissions");
+		res = user_role.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (user role create)");
+
+		_perm[0] = "perm0-"+uid;
+		KatelloPermission perm = new KatelloPermission(null, _perm[0], _permorg[0], "users", null, "create, delete, update, read",_permrole[0]);
+		res = perm.create();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (permission create)");
+
+		_permorg[1] = "perm-org1-"+ uid;
+		org = new KatelloOrg(null,_permorg[1], null);
+		res = org.cli_create();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
+
+		_permrole[1] = "perm-user_role1-"+ uid;
+		user_role = new KatelloUserRole(null, _permrole[1], "User Roles to add Permissions");
+		res = user_role.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (user role create)");
+
+		_perm[1] = "perm1-"+uid;
+		perm = new KatelloPermission(null, _perm[1], _permorg[1], "activation_keys", null, "manage_all", _permrole[1]);
+		res = perm.create();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (permission create)");
+
+		_permorg[2] = "perm-org2-"+ uid;
+		org = new KatelloOrg(null,_permorg[2], null);
+		res = org.cli_create();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
+
+		_permrole[2] = "perm-user_role2-"+ uid;
+		user_role = new KatelloUserRole(null, _permrole[2], "User Roles to add Permissions");
+		res = user_role.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (user role create)");
+
+		_perm[2] = "perm2-"+uid;
+		perm = new KatelloPermission(null, _perm[2], _permorg[2], "roles", null,"create, delete, update, read", _permrole[2]);
+		res = perm.create();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (permission create)");
+		res = perm.delete();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (permission delete)");			
+	}
+
+	@Test(description="verify multiply permissions survived the upgrade - delete some of them", 
+			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE}, 
+			groups={TNG_POST_UPGRADE})
+	public void checkMultPermissionsSurvived(){
+
+		KatelloPermission perm = new KatelloPermission(null, _perm[0], _permorg[0],"users", null, "create, delete, update, read",_permrole[0]);
+		SSHCommandResult res = perm.list();
+		Assert.assertTrue(res.getStdout().contains(_perm[0]), "permission must be listed");
+
+		//Delete some of the permissions after upgrade
+		perm = new KatelloPermission(null, _perm[1], _permorg[1], "activation_keys", null, "manage_all", _permrole[1]);
+		res = perm.list();
+		Assert.assertTrue(res.getStdout().contains(_perm[1]), "permission must be listed");
+		res = perm.delete();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (permission delete)");		
+
+		// Check the non-existence of deleted permissions
+		perm = new KatelloPermission(null, _perm[2], _permorg[2], "roles", null,"create, delete, update, read", _permrole[2]);
+		res = perm.list();
+		Assert.assertFalse(res.getStdout().contains(_perm[2]), "permission not listed");	
 	}
 
 	@Test(description="Import Manifest in Org - Delete the manifest,and the org", 
