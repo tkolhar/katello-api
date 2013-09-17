@@ -336,7 +336,7 @@ public class RepoTests extends KatelloCliTestBase {
 		KatelloRepo _repo = new KatelloRepo(this.cli_worker, "pulp-v2", this.org_name, this.productAutoDiscoverHttpPulpV2, url, null, null);
 		SSHCommandResult res = _repo.discover(this.providerAutoDiscoverHttpPulpV2);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check  -return code");
-		Assert.assertTrue(getOutput(_repo.custom_reposCount(null,null)).equals("10"), "Check - 10 repos were prepared");
+		Assert.assertTrue(getOutput(_repo.custom_reposCount(null,null)).equals("8"), "Check - 8 repos were prepared");
 	}
 	
 	/**
@@ -419,7 +419,7 @@ public class RepoTests extends KatelloCliTestBase {
 		KatelloRepo _repo = new KatelloRepo(this.cli_worker, "pulp-v2", this.org_name, productname, url, null, null);
 		res = _repo.discover(providername);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check  -return code");
-		Assert.assertTrue(getOutput(_repo.custom_reposCount(null,null)).equals("10"), "Check - 10 repos were prepared");
+		Assert.assertTrue(getOutput(_repo.custom_reposCount(null,null)).equals("8"), "Check - 8 repos were prepared");
 		
 		assert_allReposGPGAssigned(this.org_name, productname, key.name);
 	}
