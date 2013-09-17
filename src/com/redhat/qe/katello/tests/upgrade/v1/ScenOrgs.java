@@ -45,6 +45,9 @@ public class ScenOrgs implements KatelloConstants {
 	String _newuser;
 	String _newsystem;
 	String _poolRhel;
+	String[] _multorg =  new String[5];
+	String[] _multuser = new String[5];
+	String[] _multuser_role = new String[5];
 	int _init_role_count;
 
 	@Test(description="init object unique names", 
@@ -186,6 +189,199 @@ public class ScenOrgs implements KatelloConstants {
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit(0) - rhsm subscribe");
 	}
 	
+	@Test(description="Multiple Orgs - Delete some of them", 
+			groups={TNG_PRE_UPGRADE})
+	public void addMultipleOrgs(){
+		String uid = KatelloUtils.getUniqueID(); 
+		_multorg[0] = "mult-org0-"+ uid;
+		KatelloOrg org = new KatelloOrg(null,_multorg[0], null);
+		SSHCommandResult res = org.cli_create();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
+		_multorg[1] = "mult-org1-"+ uid;
+		org = new KatelloOrg(null,_multorg[1],null);
+		res = org.cli_create();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
+		_multorg[2] = "mult-org2" + uid;
+		org = new KatelloOrg(null,_multorg[2],null);
+		res = org.cli_create();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
+		_multorg[3] = "mult-org3" + uid;
+		org = new KatelloOrg(null,_multorg[3],null);
+		res = org.cli_create();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
+		_multorg[4] = "mult-org4" + uid;
+		org = new KatelloOrg(null,_multorg[4],null);
+		res = org.cli_create();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
+	}
+
+	@Test(description="verify multiply orgs survived the upgrade - delete some of them", 
+			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE}, 
+			groups={TNG_POST_UPGRADE})
+	public void checkMultOrgsSurvived(){
+		KatelloOrg org = new KatelloOrg(null, _multorg[0], null);
+		SSHCommandResult res = org.cli_info();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (org info)");
+		org = new KatelloOrg(null, _multorg[1], null);
+		res = org.cli_info();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (org info)");
+		org = new KatelloOrg(null, _multorg[2], null);
+		res = org.cli_info();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (org info)");
+
+		//Deleting some of the orgs
+		org = new KatelloOrg(null, _multorg[3], null);
+		res = org.cli_info();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (org info)");
+		res = org.delete();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (org delete)");
+
+		org = new KatelloOrg(null, _multorg[4], null);
+		res = org.cli_info();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (org info)");
+		res = org.delete();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (org delete)");		
+	}
+
+	@Test(description="Multiple Users - Delete some of them", 
+			groups={TNG_PRE_UPGRADE})
+	public void addMultipleUsers(){
+		String uid = KatelloUtils.getUniqueID(); 
+		_multuser[0] = "mult-user0-"+ uid;
+		KatelloUser user = new KatelloUser(null, _multuser[0], 
+				KatelloUser.DEFAULT_USER_EMAIL, System.getProperty("katello.admin.password", KatelloUser.DEFAULT_ADMIN_PASS), false);
+		SSHCommandResult res = user.cli_create();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
+
+		_multuser[1] = "mult-user1-"+ uid;
+		user = new KatelloUser(null, _multuser[1], 
+				KatelloUser.DEFAULT_USER_EMAIL, System.getProperty("katello.admin.password", KatelloUser.DEFAULT_ADMIN_PASS), false);
+		res = user.cli_create();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
+
+		_multuser[2] = "mult-user2-"+ uid;
+		user = new KatelloUser(null, _multuser[2], 
+				KatelloUser.DEFAULT_USER_EMAIL, System.getProperty("katello.admin.password", KatelloUser.DEFAULT_ADMIN_PASS), false);
+		res = user.cli_create();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
+
+		_multuser[3] = "mult-user3-"+ uid;
+		user = new KatelloUser(null, _multuser[3], 
+				KatelloUser.DEFAULT_USER_EMAIL, System.getProperty("katello.admin.password", KatelloUser.DEFAULT_ADMIN_PASS), false);
+		res = user.cli_create();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
+
+		_multuser[4] = "mult-user4-"+ uid;
+		user = new KatelloUser(null, _multuser[4], 
+				KatelloUser.DEFAULT_USER_EMAIL, System.getProperty("katello.admin.password", KatelloUser.DEFAULT_ADMIN_PASS), false);
+		res = user.cli_create();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");	
+	}
+
+	@Test(description="verify multiply users survived the upgrade - delete some of them", 
+			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE}, 
+			groups={TNG_POST_UPGRADE})
+	public void checkMultUsersSurvived(){
+		KatelloUser user = new KatelloUser(null, _multuser[0], 
+				null, null, false);
+		SSHCommandResult res = user.cli_info();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (user info)");
+
+		user = new KatelloUser(null, _multuser[1], 
+				null, null, false);
+		res = user.cli_info();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (user info)");
+
+		user = new KatelloUser(null, _multuser[2], 
+				null, null, false);
+		res = user.cli_info();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (user info)");
+
+		// Delete some of the users
+
+		user = new KatelloUser(null, _multuser[3], 
+				null, null, false);
+		res = user.cli_info();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (user info)");
+		res = user.delete();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (user delete)");
+
+		user = new KatelloUser(null, _multuser[4], 
+				null, null, false);
+		res = user.cli_info();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (user info)");
+		res = user.delete();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (user delete)");
+
+	}
+
+	@Test(description="Multiple UserRole - Delete some of them", 
+			groups={TNG_PRE_UPGRADE})
+	public void addMultipleUserRole(){
+		String uid = KatelloUtils.getUniqueID(); 
+		_multuser_role[0] = "mult-user_role0-"+ uid;
+		KatelloUserRole user_role = new KatelloUserRole(null, _multuser_role[0], "Multiple User Roles");
+		SSHCommandResult res = user_role.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (user role create)");
+
+		_multuser_role[1] = "mult-user_role1-"+ uid;
+		user_role = new KatelloUserRole(null, _multuser_role[1], "Multiple User Roles");
+		res = user_role.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (user role create)");
+
+		_multuser_role[2] = "mult-user_role2-"+ uid;
+		user_role = new KatelloUserRole(null, _multuser_role[2], "Multiple User Roles");
+		res = user_role.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (user role create)");
+
+		_multuser_role[3] = "mult-user_role3-"+ uid;
+		user_role = new KatelloUserRole(null, _multuser_role[3], "Multiple User Roles");
+		res = user_role.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (user role create)");
+
+		_multuser_role[4] = "mult-user_role4-"+ uid;
+		user_role = new KatelloUserRole(null, _multuser_role[4], "Multiple User Roles");
+		res = user_role.create();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (user role create)");
+
+	}
+
+	@Test(description="verify multiply user_roles survived the upgrade - delete some of them", 
+			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE}, 
+			groups={TNG_POST_UPGRADE})
+	public void checkMultUserRoleSurvived(){
+
+		// Delete some of the user roles created
+		KatelloUserRole user_role = new KatelloUserRole(null, _multuser_role[0], null);
+		SSHCommandResult res = user_role.cli_info();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (role info)");
+		Assert.assertTrue(res.getStdout().contains(_multuser_role[0]), "Role name is in info output");
+		res = user_role.cli_delete();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (role delete)");
+
+		user_role = new KatelloUserRole(null, _multuser_role[1], null);
+		res = user_role.cli_info();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (role info)");
+		Assert.assertTrue(res.getStdout().contains(_multuser_role[1]), "Role name is in info output");
+		res = user_role.cli_delete();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (role delete)");
+
+		user_role = new KatelloUserRole(null, _multuser_role[2], null);
+		res = user_role.cli_info();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (role info)");
+		Assert.assertTrue(res.getStdout().contains(_multuser_role[2]), "Role name is in info output");
+
+		user_role = new KatelloUserRole(null, _multuser_role[3], null);
+		res = user_role.cli_info();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (role info)");
+		Assert.assertTrue(res.getStdout().contains(_multuser_role[3]), "Role name is in info output");
+
+		user_role = new KatelloUserRole(null, _multuser_role[4], null);
+		res = user_role.cli_info();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (role info)");
+		Assert.assertTrue(res.getStdout().contains(_multuser_role[4]), "Role name is in info output");		
+	}
+
 	@Test(description="verify orgs survived the upgrade", 
 			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE}, 
 			groups={TNG_POST_UPGRADE})
