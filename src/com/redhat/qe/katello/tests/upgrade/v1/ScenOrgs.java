@@ -30,6 +30,8 @@ public class ScenOrgs implements KatelloConstants {
 	String _perm_1;
 	String _perm_2;
 	String _perm_3;
+	String _del_system;
+	String _del_system2;
 	String _system;
 	String _system2;
 	String _system3;
@@ -85,6 +87,8 @@ public class ScenOrgs implements KatelloConstants {
 		_perm_1 = "Perm1_" + _uid;
 		_perm_2 = "Perm2_" + _uid;
 		_perm_3 = "Perm3_" + _uid;
+		_del_system = "deletable" + _uid;
+		_del_system2 = "deletable2" + _uid;
 		_system = "Dakar_" + _uid;
 		_system2 = "Paris_" + _uid;
 		_system3 = "Madrid_" + _uid;
@@ -177,7 +181,29 @@ public class ScenOrgs implements KatelloConstants {
 			_poolRhel = KatelloUtils.grepCLIOutput("Id", KatelloCliTestBase.sgetOutput(res));
 		}
 		
-		KatelloSystem sys = new KatelloSystem(null, _system, _org, _env_1);
+		KatelloSystem sys = new KatelloSystem(null, _del_system, _org, null);
+		sys.runOn(SetupServers.client_name);
+		res = sys.rhsm_registerForce();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "exit(0) - rhsm register");
+		res = sys.info();
+		String uuid1 = KatelloUtils.grepCLIOutput("UUID", res.getStdout().trim(),1);
+		
+		sys = new KatelloSystem(null, _del_system2, _org, null);
+		sys.runOn(SetupServers.client_name);
+		res = sys.rhsm_registerForce();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "exit(0) - rhsm register");
+		res = sys.info();
+		String uuid2 = KatelloUtils.grepCLIOutput("UUID", res.getStdout().trim(),1);
+				
+		sys.setUuid(uuid1);
+		res = sys.remove();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "exit(0) - system remove");
+		
+		sys.setUuid(uuid2);
+		res = sys.remove();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "exit(0) - system remove");
+		
+		sys = new KatelloSystem(null, _system, _org, _env_1);
 		sys.runOn(SetupServers.client_name);
 		res = sys.rhsm_registerForce(_akey);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit(0) - rhsm register (activationkey)");
@@ -743,5 +769,11 @@ public class ScenOrgs implements KatelloConstants {
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code (delete distributor)");
 	}
 	
-	
+	@Test(description="Deleted created orgs from upgrade scenarios which contains manifests",
+			dependsOnGroups={TNG_POST_UPGRADE})
+	public void removeOrgs() {
+		new KatelloOrg(null, _org, null).delete();
+		new KatelloOrg(null, _del_org[0], null).delete();
+		new KatelloOrg(null, _del_org[1], null).delete();
+	}
 }
