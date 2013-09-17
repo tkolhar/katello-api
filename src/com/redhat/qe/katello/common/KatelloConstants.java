@@ -160,20 +160,32 @@ public interface KatelloConstants {
 		{"cfseclient16", "usersys.redhat.com", "80195d5a9af29e541281cff016871546"}
 	};
 
-	public static final String[][] DELTACLOUD_SERVERS = new String[][]{{
-		"cfseserver1", "usersys.redhat.com", "502f89b3921dcff92ccdfcf91a6e7db9", "10.16.120.72", "00:1a:4a:10:78:36"},
+	public static final String[][] DELTACLOUD_SERVERS = new String[][]{
+		{"aphrodite",	"usersys.redhat.com", "4508fc3c40226af78bc623802bc60845", "", ""},
+		{"apollo",		"usersys.redhat.com", "2ceb3e999f8cabd855a99b6cdc9ad8f7", "", ""},
+		{"ares",		"usersys.redhat.com", "dfd3be64c7249a253255131230a9e1e9", "", ""},
+		{"artemis",		"usersys.redhat.com", "c3a80832d424b116a542dc17d4629ff6", "", ""},
+		{"demeter",		"usersys.redhat.com", "4d2aaae0bf38f62a972a2ed73a7a954f", "", ""},
+		{"dionysus",	"usersys.redhat.com", "155886a1175e8a76de1a1e3725c23d65", "", ""},
+		{"hades",		"usersys.redhat.com", "24a1fb3436fbd257d6595b3cbdc031c7", "", ""},
+		{"hephaestus",	"usersys.redhat.com", "b4ece38c057192894b8b95c0057812d3", "", ""},
+		{"hera",		"usersys.redhat.com", "d2e9e980919c0fce3d8c971b02344f93", "", ""},
+		{"poseidon",	"usersys.redhat.com", "cf5d3e604683328ea4df4d2d5538c3f1", "", ""},
+		{"zeus",		"usersys.redhat.com", "53eaf7a7c6c21f4d37b71c61e0a3d23d", "", ""},
+
+		{"surya",		"usersys.redhat.com", "9e546ec429ac34ec15532353e423e9e1", "", ""},
+		{"budha",		"usersys.redhat.com", "fec210404083b85a07ba800dca7ae8b1", "", ""},
+		{"sukra",		"usersys.redhat.com", "9581e7b17e3a2f6a45670f9883b52fb8", "", ""},
+		{"dhara",		"usersys.redhat.com", "8a701607877b5ec8f9ba7b3c8932c471", "", ""},
+		{"chandra",		"usersys.redhat.com", "66a69fa255f01040f2bc9506a4e0b65d", "", ""},
+		{"mangala",		"usersys.redhat.com", "e8a3af226d9ee02ff43e6f674eace8b2", "", ""},
+		
+		{"cfseserver1", "usersys.redhat.com", "502f89b3921dcff92ccdfcf91a6e7db9", "10.16.120.72", "00:1a:4a:10:78:36"},
 		{"cfseserver2", "usersys.redhat.com", "b948f4f5b2c262f8a1ba508389e51998", "10.16.120.72", "00:1a:4a:10:78:36"},
 		{"cfseserver3", "usersys.redhat.com", "1b97363ff962d8602af1124226da25d8", "10.16.120.72", "00:1a:4a:10:78:36"},
 		{"cfseserver4", "usersys.redhat.com", "33b9babe86485c6a0c63ff013552933d", "10.16.120.72", "00:1a:4a:10:78:36"},
 		{"cfseserver5", "usersys.redhat.com", "a70017101d57379c611a30cea1f76182", "10.16.120.72", "00:1a:4a:10:78:36"},
-		{"cfseserver6", "usersys.redhat.com", "08d568db541879e2f684bcf637cf1375", "10.16.120.72", "00:1a:4a:10:78:36"},
-		// adding more below: gkhachik
-		{"surya", "usersys.redhat.com", "9e546ec429ac34ec15532353e423e9e1", "", ""},
-		{"budha", "usersys.redhat.com", "fec210404083b85a07ba800dca7ae8b1", "", ""},
-		{"sukra", "usersys.redhat.com", "9581e7b17e3a2f6a45670f9883b52fb8", "", ""},
-		{"dhara", "usersys.redhat.com", "8a701607877b5ec8f9ba7b3c8932c471", "", ""},
-		{"chandra", "usersys.redhat.com", "66a69fa255f01040f2bc9506a4e0b65d", "", ""},
-		{"mangala", "usersys.redhat.com", "e8a3af226d9ee02ff43e6f674eace8b2", "", ""}
+		{"cfseserver6", "usersys.redhat.com", "08d568db541879e2f684bcf637cf1375", "10.16.120.72", "00:1a:4a:10:78:36"}
 	};
 
 	public static final String REDHAT_RELEASE_RHEL5X = "Red Hat Enterprise Linux Server release 5.";
