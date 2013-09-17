@@ -50,6 +50,7 @@ public class ScenOrgs implements KatelloConstants {
 	String _newuser;
 	String _newsystem;
 	String _poolRhel;
+	String[] _del_org= new String[2];
 	String[] _multorg =  new String[5];
 	String[] _multuser = new String[5];
 	String[] _multuser_role = new String[5];
@@ -206,9 +207,13 @@ public class ScenOrgs implements KatelloConstants {
 		KatelloOrg org = new KatelloOrg(null,_multorg[0], null);
 		SSHCommandResult res = org.cli_create();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
+		res = org.delete();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
 		_multorg[1] = "mult-org1-"+ uid;
 		org = new KatelloOrg(null,_multorg[1],null);
 		res = org.cli_create();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
+		res = org.delete();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
 		_multorg[2] = "mult-org2" + uid;
 		org = new KatelloOrg(null,_multorg[2],null);
@@ -228,12 +233,13 @@ public class ScenOrgs implements KatelloConstants {
 			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE}, 
 			groups={TNG_POST_UPGRADE})
 	public void checkMultOrgsSurvived(){
+		// Check the non-existence of deleted orgs
 		KatelloOrg org = new KatelloOrg(null, _multorg[0], null);
 		SSHCommandResult res = org.cli_info();
-		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (org info)");
+		Assert.assertTrue(res.getExitCode()==148, "Check - exit code (org info)");
 		org = new KatelloOrg(null, _multorg[1], null);
 		res = org.cli_info();
-		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (org info)");
+		Assert.assertTrue(res.getExitCode()==148, "Check - exit code (org info)");
 		org = new KatelloOrg(null, _multorg[2], null);
 		res = org.cli_info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (org info)");
@@ -261,11 +267,15 @@ public class ScenOrgs implements KatelloConstants {
 				KatelloUser.DEFAULT_USER_EMAIL, System.getProperty("katello.admin.password", KatelloUser.DEFAULT_ADMIN_PASS), false);
 		SSHCommandResult res = user.cli_create();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
+		res = user.delete();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
 
 		_multuser[1] = "mult-user1-"+ uid;
 		user = new KatelloUser(null, _multuser[1], 
 				KatelloUser.DEFAULT_USER_EMAIL, System.getProperty("katello.admin.password", KatelloUser.DEFAULT_ADMIN_PASS), false);
 		res = user.cli_create();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
+		res = user.delete();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
 
 		_multuser[2] = "mult-user2-"+ uid;
@@ -294,12 +304,12 @@ public class ScenOrgs implements KatelloConstants {
 		KatelloUser user = new KatelloUser(null, _multuser[0], 
 				null, null, false);
 		SSHCommandResult res = user.cli_info();
-		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (user info)");
+		Assert.assertTrue(res.getExitCode()==65, "Check - exit code (user info)");
 
 		user = new KatelloUser(null, _multuser[1], 
 				null, null, false);
 		res = user.cli_info();
-		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (user info)");
+		Assert.assertTrue(res.getExitCode()==65, "Check - exit code (user info)");
 
 		user = new KatelloUser(null, _multuser[2], 
 				null, null, false);
@@ -347,11 +357,15 @@ public class ScenOrgs implements KatelloConstants {
 		user_role = new KatelloUserRole(null, _multuser_role[3], "Multiple User Roles");
 		res = user_role.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (user role create)");
+		res = user_role.cli_delete();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (user role delete)");
 
 		_multuser_role[4] = "mult-user_role4-"+ uid;
 		user_role = new KatelloUserRole(null, _multuser_role[4], "Multiple User Roles");
 		res = user_role.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (user role create)");
+		res = user_role.cli_delete();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (user role delete)");
 
 	}
 
@@ -380,15 +394,75 @@ public class ScenOrgs implements KatelloConstants {
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (role info)");
 		Assert.assertTrue(res.getStdout().contains(_multuser_role[2]), "Role name is in info output");
 
+		//Check non-existing deleted user roles
 		user_role = new KatelloUserRole(null, _multuser_role[3], null);
 		res = user_role.cli_info();
-		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (role info)");
+		Assert.assertTrue(res.getExitCode()==65, "Check - exit code (role info)");
 		Assert.assertTrue(res.getStdout().contains(_multuser_role[3]), "Role name is in info output");
 
 		user_role = new KatelloUserRole(null, _multuser_role[4], null);
 		res = user_role.cli_info();
-		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (role info)");
+		Assert.assertTrue(res.getExitCode()==65, "Check - exit code (role info)");
 		Assert.assertTrue(res.getStdout().contains(_multuser_role[4]), "Role name is in info output");		
+	}
+
+	@Test(description="Import Manifest in Org - Delete the manifest,and the org", 
+			groups={TNG_PRE_UPGRADE})
+	public void deleteOrgManifest(){
+		String uid = KatelloUtils.getUniqueID(); 
+		_del_org[0] = "del-org0-"+ uid;
+		KatelloOrg org = new KatelloOrg(null,_del_org[0], null);
+		SSHCommandResult res = org.cli_create();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
+		KatelloUtils.scpOnClient(null, "data/"+KatelloProvider.MANIFEST_2SUBSCRIPTIONS, "/tmp");
+
+		KatelloProvider rh = new KatelloProvider(null, KatelloProvider.PROVIDER_REDHAT, _del_org[0], null, null);
+		res = rh.import_manifest("/tmp/"+KatelloProvider.MANIFEST_2SUBSCRIPTIONS, null);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "exit(0) - provider import_manifest");
+		res = org.subscriptions();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "exit(0) - org subscriptions");
+
+		_del_org[1] = "del-org1-"+ uid;
+		org = new KatelloOrg(null,_del_org[1], null);
+		res = org.cli_create();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
+		KatelloUtils.scpOnClient(null, "data/"+KatelloProvider.MANIFEST_SAM_MATRIX, "/tmp");
+
+		rh = new KatelloProvider(null, KatelloProvider.PROVIDER_REDHAT, _del_org[1], null, null);
+		res = rh.import_manifest("/tmp/"+KatelloProvider.MANIFEST_SAM_MATRIX, null);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "exit(0) - provider import_manifest");
+		res = org.subscriptions();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "exit(0) - org subscriptions");
+		res = rh.delete_manifest();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "exit(0) - provider import_manifest");
+		res = org.delete();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");	
+	}
+
+	@Test(description="verify the existence of manifest org", 
+			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE}, 
+			groups={TNG_POST_UPGRADE})
+	public void checkOrgsManifestSurvived(){
+
+		KatelloOrg org = new KatelloOrg(null, _del_org[0], null);
+		SSHCommandResult res = org.cli_info();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (org info)");
+		res = org.subscriptions();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "exit(0) - org subscriptions");
+
+		// Check the non-existence of deleted Org,manifest
+		org = new KatelloOrg(null, _del_org[1], null);
+		res = org.cli_info();
+		Assert.assertTrue(res.getExitCode()==148, "Check - exit code (org info)");
+
+		//Reimport the deleted manifest to check it works
+		res = org.cli_create();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
+		KatelloProvider rh = new KatelloProvider(null, KatelloProvider.PROVIDER_REDHAT, _del_org[1], null, null);
+		res = rh.import_manifest("/tmp/"+KatelloProvider.MANIFEST_SAM_MATRIX, null);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "exit(0) - provider import_manifest");
+		res = org.subscriptions();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "exit(0) - org subscriptions");
 	}
 
 	@Test(description="verify orgs survived the upgrade", 
