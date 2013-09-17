@@ -360,7 +360,6 @@ public class SystemTests extends KatelloCliTestBase{
 		Assert.assertTrue(getOutput(exec_result).contains("Invalid credentials"), "Check - output (error)");
 	}
 
-	// TODO - bz#896074 failing due to this
 	@Test(description = "delete registered system by user who has not permissions", 
 			groups={"cfse-cli"})
 	public void test_deleteSystemInvalidAccess(){
@@ -381,7 +380,7 @@ public class SystemTests extends KatelloCliTestBase{
 
 		sys.runAs(user);
 		exec_result = sys.remove();
-		Assert.assertTrue(exec_result.getExitCode().intValue()>0, "Check - return code");
+		Assert.assertTrue(exec_result.getExitCode().intValue()==147, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloSystem.ERR_DELETE_ACCESS, user.username)),
 				"Check - output (error)");
 	}
@@ -664,7 +663,6 @@ public class SystemTests extends KatelloCliTestBase{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - exit code (list packages)");
 		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloSystem.OUT_LIST_PACKAGES, sysname, orgNameMain)), "Check output (list packages)");
 	}
-
 
 
 	// TODO bz#974486

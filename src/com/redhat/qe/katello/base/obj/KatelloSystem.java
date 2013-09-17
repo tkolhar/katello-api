@@ -59,7 +59,7 @@ public class KatelloSystem extends _KatelloObject{
 	public static final String ERR_GUEST_HAS_DIFFERENT_HOST = 
 			"Guest's host does not match owner of pool: '%s'.";
 	public static final String ERR_DELETE_ACCESS = 
-			"Invalid credentials";
+			"User %s is not allowed to access api/v1/candlepin_proxies/delete";
 	public static final String ERR_UPDATE = "User %s is not allowed to access api/v1/systems/update";
 	public static final String ERR_BLANK_KEYNAME = "Validation failed: Keyname can't be blank";
 	public static final String ERR_DUPLICATE_KEYNAME = "Validation failed: Keyname already exists for this object";
