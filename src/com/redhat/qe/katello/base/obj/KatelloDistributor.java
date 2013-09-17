@@ -14,6 +14,7 @@ public class KatelloDistributor extends _KatelloObject{
 	public static final String CMD_REMOVE_CUSTOM_INFO = "distributor remove_custom_info";
 	public static final String CMD_UPDATE_CUSTOM_INFO = "distributor update_custom_info";
 	public static final String CMD_DELETE = "distributor delete";
+	public static final String CMD_SUBSCRIBE = "distributor subscribe";
 	
 	public static final String OUT_CREATE = "Successfully created distributor [ %s ]";
 	public static final String OUT_INFO = "Successfully added Custom Information [ %s : %s ] to Distributor [ %s ]";
@@ -86,6 +87,14 @@ public class KatelloDistributor extends _KatelloObject{
 		opts.clear();
 		opts.add(new Attribute("org", this.org));
 		opts.add(new Attribute("name", this.name));
+		return run(CMD_DELETE);
+	}
+	
+	public SSHCommandResult subscribe(String pool){
+		opts.clear();
+		opts.add(new Attribute("org", this.org));
+		opts.add(new Attribute("name", this.name));
+		opts.add(new Attribute("pool", pool));
 		return run(CMD_DELETE);
 	}
 }
