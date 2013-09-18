@@ -41,6 +41,7 @@ public class ScenOrgs implements KatelloConstants {
 	String _distributor_name;
 	String _distributor_name2;
 	String _org;
+	String _org2;
 	String _user;
 	String _akey;
 	String _akey2;
@@ -70,6 +71,7 @@ public class ScenOrgs implements KatelloConstants {
 	public void init(){
 		String _uid = KatelloUtils.getUniqueID();
 		_org = "torg"+_uid;
+		_org2 = "distorg1"+_uid;
 		_user = "tuser"+_uid;
 		_newuser = "newuser" + _uid;
 		String ldap_type = System.getProperty("ldap.server.type", "");		
@@ -155,14 +157,17 @@ public class ScenOrgs implements KatelloConstants {
 		KatelloUserRole user_role = new KatelloUserRole(null, _user_role, "Environments");
 		res = user_role.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (user role create)");
+		_init_role_count++;
 		
 		user_role = new KatelloUserRole(null, _user_role2, "Activation Keys");
 		res = user_role.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (user role create)");	
+		_init_role_count++;
 		
 		user_role = new KatelloUserRole(null, _user_role3, "Roles");
 		res = user_role.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (user role create)");	
+		_init_role_count++;
 		
 		KatelloPermission perm = new KatelloPermission(null, _perm_1, _org, "environments", null, "read_contents,update_systems", _user_role);
 		res = perm.create();
@@ -381,17 +386,20 @@ public class ScenOrgs implements KatelloConstants {
 		KatelloUserRole user_role = new KatelloUserRole(null, _multuser_role[0], "Multiple User Roles");
 		SSHCommandResult res = user_role.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (user role create)");
+		_init_role_count++;
 
 		_multuser_role[1] = "mult-user_role1-"+ uid;
 		user_role = new KatelloUserRole(null, _multuser_role[1], "Multiple User Roles");
 		res = user_role.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (user role create)");
-
+		_init_role_count++;
+		
 		_multuser_role[2] = "mult-user_role2-"+ uid;
 		user_role = new KatelloUserRole(null, _multuser_role[2], "Multiple User Roles");
 		res = user_role.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (user role create)");
-
+		_init_role_count++;
+		
 		_multuser_role[3] = "mult-user_role3-"+ uid;
 		user_role = new KatelloUserRole(null, _multuser_role[3], "Multiple User Roles");
 		res = user_role.create();
@@ -420,14 +428,16 @@ public class ScenOrgs implements KatelloConstants {
 		Assert.assertTrue(res.getStdout().contains(_multuser_role[0]), "Role name is in info output");
 		res = user_role.cli_delete();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (role delete)");
-
+		_init_role_count--;
+		
 		user_role = new KatelloUserRole(null, _multuser_role[1], null);
 		res = user_role.cli_info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (role info)");
 		Assert.assertTrue(res.getStdout().contains(_multuser_role[1]), "Role name is in info output");
 		res = user_role.cli_delete();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (role delete)");
-
+		_init_role_count--;
+		
 		user_role = new KatelloUserRole(null, _multuser_role[2], null);
 		res = user_role.cli_info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (role info)");
@@ -459,7 +469,8 @@ public class ScenOrgs implements KatelloConstants {
 		KatelloUserRole user_role = new KatelloUserRole(null, _permrole[0], "User Roles to add Permissions");
 		res = user_role.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (user role create)");
-
+		_init_role_count++;
+		
 		_perm[0] = "perm0-"+uid;
 		KatelloPermission perm = new KatelloPermission(null, _perm[0], _permorg[0], "users", null, "create, delete, update, read",_permrole[0]);
 		res = perm.create();
@@ -474,7 +485,8 @@ public class ScenOrgs implements KatelloConstants {
 		user_role = new KatelloUserRole(null, _permrole[1], "User Roles to add Permissions");
 		res = user_role.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (user role create)");
-
+		_init_role_count++;
+		
 		_perm[1] = "perm1-"+uid;
 		perm = new KatelloPermission(null, _perm[1], _permorg[1], "activation_keys", null, "manage_all", _permrole[1]);
 		res = perm.create();
@@ -489,7 +501,8 @@ public class ScenOrgs implements KatelloConstants {
 		user_role = new KatelloUserRole(null, _permrole[2], "User Roles to add Permissions");
 		res = user_role.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (user role create)");
-
+		_init_role_count++;
+		
 		_perm[2] = "perm2-"+uid;
 		perm = new KatelloPermission(null, _perm[2], _permorg[2], "roles", null,"create, delete, update, read", _permrole[2]);
 		res = perm.create();
@@ -554,16 +567,12 @@ public class ScenOrgs implements KatelloConstants {
 	public void checkDefaultOrgInfoSurvived(){
 		String uid = KatelloUtils.getUniqueID();
 		KatelloOrg org = new KatelloOrg(null,_org_default_info[0], null);
-		SSHCommandResult res = org.cli_create();
-		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
-		res = org.cli_info();
+		SSHCommandResult res = org.cli_info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
 		Assert.assertTrue(res.getStdout().contains(_keyname[0]), "Default Info keyname is in output");
 
 		//Check the non-existence of deleted default info for org
 		org = new KatelloOrg(null,_org_default_info[1], null);
-		res = org.cli_create();
-		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
 		res = org.cli_info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
 		Assert.assertFalse(res.getStdout().contains(_keyname[1]), "Default Info keyname is not in output");
@@ -727,7 +736,7 @@ public class ScenOrgs implements KatelloConstants {
 	
 	@Test(description="verify role survived the upgrade", 
 			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE}, 
-			groups={TNG_POST_UPGRADE})
+			groups={TNG_POST_UPGRADE}, dependsOnMethods={"checkMultUserRoleSurvived"})
 	public void checkRoleSurvived(){
 		KatelloUserRole user_role = new KatelloUserRole(null, _user_role, null);
 		SSHCommandResult res = user_role.cli_info();
@@ -752,7 +761,7 @@ public class ScenOrgs implements KatelloConstants {
 		
 		int count = Integer.parseInt(user_role.cli_list_count().getStdout().trim());
 		
-		Assert.assertEquals(count, _init_role_count + 3, "Count of roles should remain the same after upgrade");
+		Assert.assertEquals(count, _init_role_count, "Count of roles should remain the same after upgrade");
 	}
 	
 	@Test(description="verify activation key survived the upgrade", 
@@ -928,8 +937,11 @@ public class ScenOrgs implements KatelloConstants {
 			groups={TNG_POST_UPGRADE})
 	public void checkDistroCreate(){
 		
-		KatelloOrg org = new KatelloOrg(null, _org, null);
-		SSHCommandResult res = org.default_info_add(_keyname1, "distributor");
+		KatelloOrg org = new KatelloOrg(null, _org2, null);
+		SSHCommandResult res = org.cli_create();
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
+		
+		res = org.default_info_add(_keyname1, "distributor");
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 		res = org.default_info_apply("distributor");
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
