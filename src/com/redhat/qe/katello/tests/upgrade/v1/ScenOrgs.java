@@ -50,6 +50,8 @@ public class ScenOrgs implements KatelloConstants {
 	String _newuser;
 	String _newsystem;
 	String _poolRhel;
+	String[] _org_default_info= new String[2];
+	String[] _keyname= new String[2];
 	String[] _permorg = new String[3];
 	String[] _permrole = new String[3];
 	String[] _perm = new String[3];
@@ -482,6 +484,94 @@ public class ScenOrgs implements KatelloConstants {
 		perm = new KatelloPermission(null, _perm[2], _permorg[2], "roles", null,"create, delete, update, read", _permrole[2]);
 		res = perm.list();
 		Assert.assertFalse(res.getStdout().contains(_perm[2]), "permission not listed");	
+	}
+
+	@Test(description="Create a Org Add default info - Check the existence after upgrade", 
+			groups={TNG_PRE_UPGRADE})
+	public void addDefaultOrgInfo(){
+		String uid = KatelloUtils.getUniqueID();
+		_org_default_info[0] = "org_default_info0-"+uid;
+		_keyname[0] = "test_key_before_upgrade0_"+ uid;
+		KatelloOrg org = new KatelloOrg(null,_org_default_info[0], null);
+		SSHCommandResult res = org.cli_create();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
+		res = org.default_info_add_old(_keyname[0]);
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
+		res = org.default_info_apply_old();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
+
+		//Remove info before upgrade 
+		_org_default_info[1] = "org_default_info1-"+uid;
+		_keyname[1] = "test_key_before_upgrade1_"+ uid;
+		org = new KatelloOrg(null,_org_default_info[1], null);
+		res = org.cli_create();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
+		res = org.default_info_add_old(_keyname[1]);
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
+		res = org.default_info_apply_old();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
+		res = org.default_info_remove_old(_keyname[1]);
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
+	}
+
+	@Test(description="verify default info for org survived,Add new default info,Add distributor info", 
+			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE}, 
+			groups={TNG_POST_UPGRADE})
+	public void checkDefaultOrgInfoSurvived(){
+		String uid = KatelloUtils.getUniqueID();
+		KatelloOrg org = new KatelloOrg(null,_org_default_info[0], null);
+		SSHCommandResult res = org.cli_create();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
+		res = org.cli_info();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
+		Assert.assertTrue(res.getStdout().contains(_keyname[0]), "Default Info keyname is in output");
+
+		//Check the non-existence of deleted default info for org
+		org = new KatelloOrg(null,_org_default_info[1], null);
+		res = org.cli_create();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
+		res = org.cli_info();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
+		Assert.assertFalse(res.getStdout().contains(_keyname[1]), "Default Info keyname is not in output");
+
+		//Add new default info to Org after upgrade
+		_keyname[1] = "keyname_after_upgrade0_" + uid;
+		res = org.default_info_add(_keyname[1], "system");
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
+		res = org.default_info_apply("system");
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
+		res = org.cli_info();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
+		Assert.assertTrue(res.getStdout().contains(_keyname[1]), "Default Info keyname is in output");	
+
+		//Delete default info for Org after upgrade
+		_keyname[1] = "keyname_after_upgrade1_" + uid;
+		res = org.default_info_add(_keyname[1], "system");
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
+		res = org.default_info_apply("system");
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
+		res = org.cli_info();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
+		Assert.assertTrue(res.getStdout().contains(_keyname[1]), "Default Info keyname is in output");	
+		res = org.default_info_remove(_keyname[1], "system");
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
+		res = org.cli_info();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
+		Assert.assertFalse(res.getStdout().contains(_keyname[1]), "Default Info keyname is not in output");
+
+		//Add default custom info for distributor at Org level
+		_keyname[1] = "dist_key_after_upgrade0" + uid;
+		res = org.default_info_add(_keyname[1], "distributor");
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
+		res = org.default_info_apply("distributor");
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
+		String _distname = "dist_name_"+uid;
+		KatelloDistributor dist = new KatelloDistributor(null,_org_default_info[1],_distname);
+		res = dist.distributor_create();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
+		res = dist.distributor_info();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
+		Assert.assertTrue(res.getStdout().contains(_keyname[1]), "Default Info keyname is in output");	
 	}
 
 	@Test(description="Import Manifest in Org - Delete the manifest,and the org", 
