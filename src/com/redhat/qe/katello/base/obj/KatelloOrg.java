@@ -31,6 +31,9 @@ public class KatelloOrg extends _KatelloObject{
 	public static final String CMD_DEFAULT_INFO_ADD = "org default_info add";
 	public static final String CMD_DEFAULT_INFO_APPLY = "org default_info sync";
 	public static final String CMD_DEFAULT_INFO_REMOVE = "org default_info remove";
+	public static final String CMD_DEFAULT_INFO_ADD_OLD = "org add_default_system_info";
+	public static final String CMD_DEFAULT_INFO_APPLY_OLD = "org apply_default_system_info";
+	public static final String CMD_DEFAULT_INFO_REMOVE_OLD = "org remove_default_system_info";
 //	public static final String CMD_ADD_SYS_INFO = "org default_info add";
 //	public static final String CMD_APPLY_SYS_INFO = "org default_info apply";
 //	public static final String CMD_REMOVE_SYS_INFO = "org default_info remove --type system";
@@ -207,6 +210,26 @@ public class KatelloOrg extends _KatelloObject{
 		opts.add(new Attribute("keyname", keyname));
 		opts.add(new Attribute("type", type));
 		return run(CMD_DEFAULT_INFO_REMOVE);
+	}
+
+	public SSHCommandResult default_info_add_old(String keyname){
+		opts.clear();
+		opts.add(new Attribute("name", this.name));
+		opts.add(new Attribute("keyname", keyname));
+		return run(CMD_DEFAULT_INFO_ADD_OLD);
+	}
+
+	public SSHCommandResult default_info_apply_old(){
+		opts.clear();
+		opts.add(new Attribute("name", this.name));
+		return run(CMD_DEFAULT_INFO_APPLY_OLD);
+	}
+
+	public SSHCommandResult default_info_remove_old(String keyname){
+		opts.clear();
+		opts.add(new Attribute("name", this.name));
+		opts.add(new Attribute("keyname", keyname));
+		return run(CMD_DEFAULT_INFO_REMOVE_OLD);
 	}
 
 //	public SSHCommandResult add_distributor_info(String keyname) {
