@@ -30,6 +30,8 @@ public class ScenOrgs implements KatelloConstants {
 	String _perm_1;
 	String _perm_2;
 	String _perm_3;
+	String _del_system;
+	String _del_system2;
 	String _system;
 	String _system2;
 	String _system3;
@@ -50,6 +52,8 @@ public class ScenOrgs implements KatelloConstants {
 	String _newuser;
 	String _newsystem;
 	String _poolRhel;
+	String _keyname1;
+	String _keyname2;
 	String[] _org_default_info= new String[2];
 	String[] _keyname= new String[2];
 	String[] _permorg = new String[3];
@@ -80,6 +84,8 @@ public class ScenOrgs implements KatelloConstants {
 		_akey = "akey"+_uid;
 		_akey2 = "akey2"+_uid;
 		_akey3 = "akey3"+_uid;
+		_keyname1 = "testkey1"+_uid;
+		_keyname2 = "testkey2"+_uid;
 		_neworg = "neworg"+_uid;
 		_user_role = "role" + _uid;
 		_user_role2 = "role2" + _uid;
@@ -90,6 +96,8 @@ public class ScenOrgs implements KatelloConstants {
 		_perm_1 = "Perm1_" + _uid;
 		_perm_2 = "Perm2_" + _uid;
 		_perm_3 = "Perm3_" + _uid;
+		_del_system = "deletable" + _uid;
+		_del_system2 = "deletable2" + _uid;
 		_system = "Dakar_" + _uid;
 		_system2 = "Paris_" + _uid;
 		_system3 = "Madrid_" + _uid;
@@ -182,7 +190,33 @@ public class ScenOrgs implements KatelloConstants {
 			_poolRhel = KatelloUtils.grepCLIOutput("Id", KatelloCliTestBase.sgetOutput(res));
 		}
 		
-		KatelloSystem sys = new KatelloSystem(null, _system, _org, _env_1);
+		KatelloSystem sys = new KatelloSystem(null, _del_system, _org, _env_1);
+		sys.runOn(SetupServers.client_name);
+		res = sys.rhsm_registerForce();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "exit(0) - rhsm register");
+		res = sys.rhsm_identity();
+		String uuid1 = KatelloUtils.grepCLIOutput("Current identity is", res.getStdout());
+		sys.rhsm_unregister();
+		
+		sys = new KatelloSystem(null, _del_system2, _org, _env_2);
+		sys.runOn(SetupServers.client_name2);
+		res = sys.rhsm_registerForce();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "exit(0) - rhsm register");
+		res = sys.rhsm_identity();
+		String uuid2 = KatelloUtils.grepCLIOutput("Current identity is", res.getStdout());
+		sys.rhsm_unregister();
+		
+		sys.setUuid(uuid1);
+		sys.runOn(null);
+		res = sys.remove();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "exit(0) - system remove");
+		
+		sys.setUuid(uuid2);
+		sys.runOn(null);
+		res = sys.remove();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "exit(0) - system remove");
+		
+		sys = new KatelloSystem(null, _system, _org, _env_1);
 		sys.runOn(SetupServers.client_name);
 		res = sys.rhsm_registerForce(_akey);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit(0) - rhsm register (activationkey)");
@@ -893,11 +927,27 @@ public class ScenOrgs implements KatelloConstants {
 			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE}, 
 			groups={TNG_POST_UPGRADE})
 	public void checkDistroCreate(){
+		
+		KatelloOrg org = new KatelloOrg(null, _org, null);
+		SSHCommandResult res = org.default_info_add(_keyname1, "distributor");
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
+		res = org.default_info_apply("distributor");
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
+		
 		KatelloDistributor distributor = new KatelloDistributor(null, _org, _distributor_name);
-		SSHCommandResult res = distributor.distributor_create();
+		res = distributor.distributor_create();
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code (create distributor)");
 
+		res = distributor.add_info(_keyname2, "testvalue", null);
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
+		
 		res = distributor.subscribe(_poolRhel);
+		Assert.assertTrue(res.getExitCode() == 0, "Check - return code (subscribe)");
+		
+		res = distributor.remove_info(_keyname1);
+		Assert.assertTrue(res.getExitCode() == 0, "Check - return code (subscribe)");
+		
+		res = distributor.remove_info(_keyname2);
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code (subscribe)");
 		
 		KatelloDistributor distributor2 = new KatelloDistributor(null, _org, _distributor_name2);
@@ -907,9 +957,18 @@ public class ScenOrgs implements KatelloConstants {
 		res = distributor2.subscribe(_poolRhel);
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code (subscribe)");
 		
+		res = distributor2.add_info(_keyname2, "testvalue", null);
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
+		
 		res = distributor2.distributor_delete();
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code (delete distributor)");
 	}
 	
-	
+	@Test(description="Deleted created orgs from upgrade scenarios which contains manifests",
+			dependsOnGroups={TNG_POST_UPGRADE})
+	public void removeOrgs() {
+		new KatelloOrg(null, _org, null).delete();
+		new KatelloOrg(null, _del_org[0], null).delete();
+		new KatelloOrg(null, _del_org[1], null).delete();
+	}
 }
