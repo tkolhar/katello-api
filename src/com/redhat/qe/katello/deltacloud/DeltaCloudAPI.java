@@ -51,6 +51,7 @@ public class DeltaCloudAPI implements KatelloConstants {
 			vmParams.setName(hostname.substring(0,hostname.indexOf(".")));
 			vmParams.setCluster(api.getClusters().get(System.getProperty("deltacloud.cluster")));
 			vmParams.setTemplate(api.getTemplates().get(UUID.fromString(image)));
+			vmParams.setDescription(System.getProperty("deltacloud.description", ""));//maybe making some note here to make rhevm cleaner's life easier?
 			if(memory!=null)
 				vmParams.setMemory(new Long(memory.longValue()*1024*1024)); // in Mb
 //			vmParams.setDescription(value) // One day we may find this useful.
