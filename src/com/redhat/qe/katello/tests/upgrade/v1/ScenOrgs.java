@@ -41,7 +41,6 @@ public class ScenOrgs implements KatelloConstants {
 	String _distributor_name;
 	String _distributor_name2;
 	String _org;
-	String _org2;
 	String _user;
 	String _akey;
 	String _akey2;
@@ -71,7 +70,6 @@ public class ScenOrgs implements KatelloConstants {
 	public void init(){
 		String _uid = KatelloUtils.getUniqueID();
 		_org = "torg"+_uid;
-		_org2 = "distorg1"+_uid;
 		_user = "tuser"+_uid;
 		_newuser = "newuser" + _uid;
 		String ldap_type = System.getProperty("ldap.server.type", "");		
@@ -905,7 +903,7 @@ public class ScenOrgs implements KatelloConstants {
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code (add system)");
 		
 		sys = new KatelloSystem(null, _newsystem, _org, null);
-		sys.runOn(SetupServers.client_name);
+		sys.runOn(SetupServers.client_name2);
 		res = sys.rhsm_registerForce(_akey);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "exit(0) - rhsm register (activationkey)");
 		
@@ -935,13 +933,10 @@ public class ScenOrgs implements KatelloConstants {
 	@Test(description="Add multiple SAM Distributors. Delete some of them", 
 			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE}, 
 			groups={TNG_POST_UPGRADE})
-	public void checkDistroCreate(){
+	public void checkDistroCreate() {
+		KatelloOrg org = new KatelloOrg(null, _org, null);
 		
-		KatelloOrg org = new KatelloOrg(null, _org2, null);
-		SSHCommandResult res = org.cli_create();
-		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
-		
-		res = org.default_info_add(_keyname1, "distributor");
+		SSHCommandResult res = org.default_info_add(_keyname1, "distributor");
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 		res = org.default_info_apply("distributor");
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");

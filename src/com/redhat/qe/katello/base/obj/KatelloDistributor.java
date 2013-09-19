@@ -95,6 +95,6 @@ public class KatelloDistributor extends _KatelloObject{
 		opts.add(new Attribute("org", this.org));
 		opts.add(new Attribute("name", this.name));
 		opts.add(new Attribute("pool", pool));
-		return run(CMD_DELETE);
+		return run(CMD_SUBSCRIBE);
 	}
 }
