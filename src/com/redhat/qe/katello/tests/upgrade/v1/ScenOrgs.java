@@ -55,6 +55,10 @@ public class ScenOrgs implements KatelloConstants {
 	String _poolRhel;
 	String _keyname1;
 	String _keyname2;
+	String[] _act_key = new String[2];
+	String[] _org_act_key = new String[2];
+	String[] _env_act_key = new String[2];
+	String[] _sys_act_key = new String[2];
 	String[] _org_default_info= new String[2];
 	String[] _keyname= new String[2];
 	String[] _permorg = new String[3];
@@ -64,6 +68,12 @@ public class ScenOrgs implements KatelloConstants {
 	String[] _multorg =  new String[5];
 	String[] _multuser = new String[5];
 	String[] _multuser_role = new String[5];
+	String _user_default_org;
+	String _org_default;
+	String _role_default;
+	KatelloOrg orgDefault;
+	KatelloUser userOrgDefault;
+	KatelloUserRole userRoleAssign;
 	int _init_role_count;
 
 	@Test(description="init object unique names", 
@@ -615,6 +625,173 @@ public class ScenOrgs implements KatelloConstants {
 		res = dist.distributor_info();
 		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
 		Assert.assertTrue(res.getStdout().contains(_keyname[1]), "Default Info keyname is in output");	
+	}
+
+	@Test(description="Add user default Org,Assign user role - Perform operations before upgrade", 
+			groups={TNG_PRE_UPGRADE})
+	public void addUserDefaultOrg(){
+		String uid = KatelloUtils.getUniqueID();
+		_org_default = "org-default-"+ uid;
+		orgDefault = new KatelloOrg(null,_org_default, null);
+		SSHCommandResult res = orgDefault.cli_create();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
+
+		_user_default_org = "user-org-default" + uid;
+		userOrgDefault = new KatelloUser(null, _user_default_org, 
+				KatelloUser.DEFAULT_USER_EMAIL, System.getProperty("katello.admin.password", KatelloUser.DEFAULT_ADMIN_PASS), false , _org_default , KatelloEnvironment.LIBRARY);
+		res = userOrgDefault.cli_create();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");		
+		res = userOrgDefault.cli_info();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");		
+		Assert.assertTrue(res.getStdout().contains(_org_default), "User info has default Org Assigned");
+
+		_role_default = "user_role_" + uid;
+		userRoleAssign = new KatelloUserRole(null,_role_default ,null);
+		res = userRoleAssign.create();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");		
+
+		// Assign a user role to the user
+		res = userOrgDefault.assign_role(_role_default);
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");		
+		res = userOrgDefault.list_roles();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");		
+		Assert.assertTrue(res.getStdout().contains(_role_default), "User role found in the list");
+	}
+
+	@Test(description="verify user with default Org and User role assigned- Perform operations after upgrade", 
+			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE}, 
+			groups={TNG_POST_UPGRADE})
+	public void checkUserDefaultOrgSurvived(){
+		// Check the user details after upgrade
+		SSHCommandResult res = userOrgDefault.cli_info();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");		
+		res = userOrgDefault.cli_info();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");		
+		Assert.assertTrue(res.getStdout().contains(_org_default), "User info has default Org Assigned after upgrade");
+
+		// Delete the assigned default org
+		res = orgDefault.delete();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
+
+		//Check the user info - details
+		res = userOrgDefault.cli_info();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");		
+		Assert.assertFalse(res.getStdout().contains(_org_default), "User info has default Org unAssigned");
+
+		//Delete the user role and Check that it is unassigned to user after upgrade
+		res = userRoleAssign.cli_delete();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");		
+		res = userOrgDefault.list_roles();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");		
+		Assert.assertFalse(res.getStdout().contains(_role_default), "User role not found in the list");
+	}
+
+	@Test(description="Activation keys - Perform operations before upgrade", 
+			groups={TNG_PRE_UPGRADE})
+	public void activationKeyOperation(){
+		String uid = KatelloUtils.getUniqueID();
+		_act_key[0] = "act_key_" + uid;
+		_org_act_key[0] = "org_act_key_" + uid;
+		_env_act_key[0] = "env_act_key_" + uid;
+		_sys_act_key[0] = "sys_Act_key_" + uid;
+
+		KatelloOrg org = new KatelloOrg(null,_org_act_key[0], null);
+		SSHCommandResult res = org.cli_create();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
+
+		KatelloEnvironment env = new KatelloEnvironment(null, _env_act_key[0], null, _org_act_key[0], KatelloEnvironment.LIBRARY);
+		res = env.cli_create();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
+
+		KatelloActivationKey key = new KatelloActivationKey(null, 
+				_org_act_key[0], _env_act_key[0], _act_key[0], null, null);
+		res = key.create();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
+
+		KatelloUtils.scpOnClient(null, "data/manifest_org_sla.zip", "/tmp");
+
+		KatelloProvider rh = new KatelloProvider(null, KatelloProvider.PROVIDER_REDHAT, _org_act_key[0], null, null);
+		res = rh.import_manifest("/tmp/manifest_org_sla.zip", null);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "exit(0) - provider import_manifest");
+		org = new KatelloOrg(null, _org_act_key[0], null);
+		res = org.subscriptions();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "exit(0) - org subscriptions");
+		// getting poolid could vary - might be need to make switch case here for different versions...
+		_poolRhel = KatelloUtils.grepCLIOutput("ID", KatelloCliTestBase.sgetOutput(res));
+		if (_poolRhel == null || _poolRhel.isEmpty()) {
+			_poolRhel = KatelloUtils.grepCLIOutput("Id", KatelloCliTestBase.sgetOutput(res));
+		}
+
+		KatelloSystem sys = new KatelloSystem(null, _sys_act_key[0], _org_act_key[0], _env_act_key[0]);
+		sys.runOn(SetupServers.client_name);
+		res = sys.rhsm_registerForce(_act_key[0]);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "exit(0) - rhsm register");
+		res = sys.subscribe(_poolRhel);
+
+		// Setup the system which can be removed after upgrade
+		uid = KatelloUtils.getUniqueID();
+		_act_key[1] = "act_key_" + uid;
+		_org_act_key[1] = "org_act_key_" + uid;
+		_env_act_key[1] = "env_act_key_" + uid;
+		_sys_act_key[1] = "sys_Act_key_" + uid;
+
+		org = new KatelloOrg(null,_org_act_key[1], null);
+		res = org.cli_create();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
+
+		env = new KatelloEnvironment(null, _env_act_key[1], null, _org_act_key[1], KatelloEnvironment.LIBRARY);
+		res = env.cli_create();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
+
+		key = new KatelloActivationKey(null, 
+				_org_act_key[1], _env_act_key[1], _act_key[1], null, null);
+		res = key.create();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
+
+		KatelloUtils.scpOnClient(null, "data/manifest.zip", "/tmp");
+
+		rh = new KatelloProvider(null, KatelloProvider.PROVIDER_REDHAT, _org_act_key[1], null, null);
+		res = rh.import_manifest("/tmp/manifest.zip", null);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "exit(0) - provider import_manifest");
+		org = new KatelloOrg(null, _org_act_key[1], null);
+		res = org.subscriptions();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "exit(0) - org subscriptions");
+		// getting poolid could vary - might be need to make switch case here for different versions...
+		_poolRhel = KatelloUtils.grepCLIOutput("ID", KatelloCliTestBase.sgetOutput(res));
+		if (_poolRhel == null || _poolRhel.isEmpty()) {
+			_poolRhel = KatelloUtils.grepCLIOutput("Id", KatelloCliTestBase.sgetOutput(res));
+		}
+
+		sys = new KatelloSystem(null, _sys_act_key[1], _org_act_key[1], _env_act_key[1]);
+		sys.runOn(SetupServers.client_name2);
+		res = sys.rhsm_registerForce(_act_key[1]);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "exit(0) - rhsm register");
+		res = sys.subscribe(_poolRhel);
+
+	}
+
+	@Test(description="verify the existence of scenarios performed on activation keys", 
+			dependsOnGroups={TNG_PRE_UPGRADE, TNG_UPGRADE}, 
+			groups={TNG_POST_UPGRADE})
+	public void checkActKeyOperationsSurvived(){
+
+		//Delete the activation keys and check the system is still registered after upgrade
+
+		KatelloActivationKey key = new KatelloActivationKey(null, 
+				_org_act_key[0], _env_act_key[0], _act_key[0], null, null);
+		SSHCommandResult res = key.delete();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
+
+		KatelloSystem sys = new KatelloSystem(null, _sys_act_key[0], _org_act_key[0], _env_act_key[0]);
+		res = sys.list();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
+		Assert.assertTrue(res.getStdout().contains(_sys_act_key[0]), "Check the system is still registered");
+
+		//Remove the system after upgrade
+		sys = new KatelloSystem(null, _sys_act_key[1], _org_act_key[1], _env_act_key[1]);
+		res = sys.unregister();
+		Assert.assertTrue(res.getExitCode()==0, "Check - exit code");
+		Assert.assertFalse(res.getStdout().contains(_sys_act_key[1]), "System removed succesfully");
 	}
 
 	@Test(description="Import Manifest in Org - Delete the manifest,and the org", 
