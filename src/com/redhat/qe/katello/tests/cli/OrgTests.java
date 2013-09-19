@@ -653,6 +653,7 @@ public class OrgTests extends KatelloCliTestBase{
 		KatelloOrg org = new KatelloOrg(cli_worker, base_org_name, null);
 		exec_result = org.attach_all_systems();
 		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (attach all systems)");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloOrg.OUT_ATTACH_ALL, base_org_name)), "Check output (attach all systems)");
 	}
 
 	@AfterClass(description="Remove org objects", alwaysRun=true)
