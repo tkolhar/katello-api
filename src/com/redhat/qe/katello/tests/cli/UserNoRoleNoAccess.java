@@ -9,10 +9,12 @@ import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloUser;
 import com.redhat.qe.katello.base.obj.KatelloUserRole;
+import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
+@TngPriority(14)
 @Test(groups={TngRunGroups.TNG_KATELLO_Users_Roles, "cli-UserNoRoleNoAccess"})
 public class UserNoRoleNoAccess extends KatelloCliTestBase {
 	

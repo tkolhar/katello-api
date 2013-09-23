@@ -5,8 +5,10 @@ import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloVersion;
-
+import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.tools.SSHCommandResult;
+
+@TngPriority(10)
 @Test(groups={"headpin-cli","Install / Configuration", "cli-VersionTest"})
 public class VersionTest extends KatelloCliTestBase{
 	private SSHCommandResult exec_result;

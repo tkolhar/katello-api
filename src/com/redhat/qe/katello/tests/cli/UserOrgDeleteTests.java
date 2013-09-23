@@ -13,9 +13,10 @@ import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloUser;
 import com.redhat.qe.katello.base.obj.KatelloUserRole;
+import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
-
+@TngPriority(7)
 @Test(groups={TngRunGroups.TNG_KATELLO_Organizations,"cli-UserOrgDeleteTests"})
 public class UserOrgDeleteTests extends KatelloCliTestBase {
 	List<KatelloOrg> orgs = Collections.synchronizedList(new ArrayList<KatelloOrg>());

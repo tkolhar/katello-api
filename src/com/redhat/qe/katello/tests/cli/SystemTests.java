@@ -25,6 +25,7 @@ import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.base.obj.KatelloSystemGroup;
 import com.redhat.qe.katello.base.obj.KatelloUser;
 import com.redhat.qe.katello.base.obj.KatelloUserRole;
+import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
@@ -34,6 +35,7 @@ import com.redhat.qe.tools.SSHCommandResult;
  * @author gkhachik
  *
  */
+@TngPriority(1)
 @Test(groups={"SystemTests",TngRunGroups.TNG_KATELLO_System_Consumer,"cli-SystemTests"})
 public class SystemTests extends KatelloCliTestBase{	
 	protected static Logger log = Logger.getLogger(SystemTests.class.getName());
@@ -447,7 +449,7 @@ public class SystemTests extends KatelloCliTestBase{
 
 	/** TCMS scenario is: <a href="https://tcms.engineering.redhat.com/case/243212/?from_plan=7771">here</a> */
 	@Test(description="2f43f492-8e03-4424-8eb8-b9cd2745cf94", 
-			groups={"cfse-cli","headpin-cli","system-customInfo"}, dependsOnGroups={"rhsmRegs"})
+			groups={"cfse-cli","headpin-cli","system-customInfo"})
 	public void test_system_customInfo_add(){
 		rhsm_clean();
 		
@@ -471,7 +473,7 @@ public class SystemTests extends KatelloCliTestBase{
 	
 	/** TCMS scenario is: <a href="https://tcms.engineering.redhat.com/case/243183/?from_plan=7771">here</a> */
 	@Test(description = "cf618455-2f04-4994-844f-e3da4369d900",groups={"cfse-cli","headpin-cli","system-customInfo"},
-			dependsOnMethods={"test_system_customInfo_add"}, dependsOnGroups={"rhsmRegs"})
+			dependsOnMethods={"test_system_customInfo_add"})
 	public void test_system_customInfo_update(){
 		
 		KatelloSystem sys = new KatelloSystem(this.cli_worker, this.systemNameCustomInfo, this.orgNameMain, this.envName_Dev);
@@ -489,7 +491,7 @@ public class SystemTests extends KatelloCliTestBase{
 
 	
 	@Test(description="65037d2b-a924-4f36-8e72-25056d80d097",groups={"cfse-cli","headpin-cli","system-customInfo"},
-			dependsOnMethods={"test_system_customInfo_update"}, dependsOnGroups={"rhsmRegs"})
+			dependsOnMethods={"test_system_customInfo_update"})
 	public void test_system_customInfo_remove(){
 		KatelloSystem sys = new KatelloSystem(this.cli_worker, this.systemNameCustomInfo, this.orgNameMain, this.envName_Dev);
 		exec_result = sys.remove_custom_info("custom-key");
@@ -503,8 +505,7 @@ public class SystemTests extends KatelloCliTestBase{
 	
 	@Test(description = "Add Custom Info - Create custom information for a system - different inputs",
 			dataProviderClass = KatelloCliDataProvider.class,dataProvider = "add_custom_info",
-			groups={"cfse-cli","headpin-cli","system-customInfo"}, dependsOnMethods={"test_system_customInfo_remove"},
-			dependsOnGroups={"rhsmRegs"})
+			groups={"cfse-cli","headpin-cli","system-customInfo"}, dependsOnMethods={"test_system_customInfo_remove"})
 	public void test_system_customInfo_addVariations(String keyname,String value,Integer exitCode,String output){
 		
 		KatelloSystem sys = new KatelloSystem(this.cli_worker, this.systemNameCustomInfo, this.orgNameMain, this.envName_Dev);

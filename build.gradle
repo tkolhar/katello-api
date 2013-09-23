@@ -253,7 +253,7 @@ task run_sam(dependsOn: 'testClasses') << {
     main = 'org.testng.TestNG'
     args '-d',"${outputDir}"
     args "${TESTNG_HEADPIN_SUITE}"
-    args '-listener','com.redhat.qe.auto.testng.TestNGListener,org.uncommons.reportng.HTMLReporter,org.uncommons.reportng.JUnitXMLReporter,org.testng.reporters.XMLReporter'
+    args '-listener','com.redhat.qe.auto.testng.TestNGListener,org.uncommons.reportng.HTMLReporter,org.uncommons.reportng.JUnitXMLReporter,org.testng.reporters.XMLReporter,com.redhat.qe.katello.base.threading.TngPriorityInterceptor'
     args '-configfailurepolicy','continue'
     args '-testnames',"${testnames}"
     args '-excludegroups',"${excludegroups}"

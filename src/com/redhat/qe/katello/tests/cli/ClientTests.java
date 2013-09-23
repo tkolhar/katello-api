@@ -4,9 +4,12 @@ import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloClient;
+import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
+
+@TngPriority(12)
 @Test(groups={"headpin-cli",TngRunGroups.TNG_KATELLO_Install_Configuration,"cli-ClientTests"})
 public class ClientTests extends KatelloCliTestBase{
 	

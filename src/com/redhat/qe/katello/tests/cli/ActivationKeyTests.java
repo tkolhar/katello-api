@@ -12,10 +12,11 @@ import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.base.obj.KatelloSystemGroup;
+import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
-
+@TngPriority(5)
 @Test(groups={TngRunGroups.TNG_KATELLO_Activation_Key,"cli-ActivationKeyTests"})
 public class ActivationKeyTests extends KatelloCliTestBase{
 	private String systemgroup;
