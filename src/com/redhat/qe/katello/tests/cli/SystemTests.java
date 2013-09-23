@@ -477,6 +477,10 @@ public class SystemTests extends KatelloCliTestBase{
 	public void test_system_customInfo_update(){
 		
 		KatelloSystem sys = new KatelloSystem(this.cli_worker, this.systemNameCustomInfo, this.orgNameMain, this.envName_Dev);
+		exec_result = sys.rhsm_registerForce();
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		exec_result = sys.add_custom_info("custom-key","custom-value");
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		exec_result = sys.update_custom_info("custom-key", "updated-value");
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(
@@ -494,6 +498,10 @@ public class SystemTests extends KatelloCliTestBase{
 			dependsOnMethods={"test_system_customInfo_update"})
 	public void test_system_customInfo_remove(){
 		KatelloSystem sys = new KatelloSystem(this.cli_worker, this.systemNameCustomInfo, this.orgNameMain, this.envName_Dev);
+		exec_result = sys.rhsm_registerForce();
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		exec_result = sys.add_custom_info("custom-key","custom-value");
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		exec_result = sys.remove_custom_info("custom-key");
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(
