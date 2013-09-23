@@ -15,13 +15,13 @@ import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
-import com.redhat.qe.katello.base.threading.TngPriority;
+import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 import java.io.File;
 
-@TngPriority()
+@TngPriority(11)
 @Test(groups={TngRunGroups.TNG_KATELLO_Organizations,"cli-OrgTests"})
 public class OrgTests extends KatelloCliTestBase{
 	List<KatelloOrg> orgs = Collections.synchronizedList(new ArrayList<KatelloOrg>());

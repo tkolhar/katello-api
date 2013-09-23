@@ -194,7 +194,7 @@ public class SystemGroupTests extends KatelloCliTestBase{
 	@Test(description = "Attempt to remove a system from the systm group more than once", groups={"cli-systemgroup", "cfse-cli", "headpin-cli"}, dependsOnMethods={"test_removeSystemFromSystemGroup"})
 	public void test_removeSystemMoreThanOnce() {
 		// Add a system to system group
-		KatelloSystem sys = addSystemToSystemGroup();
+		addSystemToSystemGroup();
 		KatelloSystemGroup systemGroup = new KatelloSystemGroup(this.cli_worker, systemGroupName, orgName);
 		// remove the system
 		exec_result = systemGroup.remove_systems(system_uuid);
