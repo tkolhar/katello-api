@@ -1,5 +1,6 @@
 package com.redhat.qe.katello.tests.installation;
 
+import org.testng.SkipException;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
@@ -19,8 +20,10 @@ public class InstallISOTests extends KatelloCliTestBase {
 	public void test_install() {
 		
 		String login = System.getProperty("cdn.username", "qa@redhat.com");
-		String password = System.getProperty("cdn.password", "redhatqa");
-		String iso_url = System.getProperty("iso.file.url", "http://download.devel.redhat.com/devel/candidate-trees/SAM/SAM-1.2-RHEL-6-20121130.n.0/compose/SAM/x86_64/iso/SAM-1.2-RHEL-6-20121130.n.0-SAM-x86_64-dvd1.iso");
+		String password = System.getProperty("cdn.password"); // let user define the password!~
+		String iso_url = System.getProperty("iso.file.url"); // iso file too... otherwise exit.
+		if(password==null || iso_url==null)
+			new SkipException("Following parameters are required: cdn.password; iso.file.url"); // and quit here.
 		
 		exec_result = KatelloUtils.sshOnServer("subscription-manager register --force --username=" + login + " --password=" + password + " --autosubscribe");
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
@@ -49,9 +52,11 @@ public class InstallISOTests extends KatelloCliTestBase {
 		
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		if (deployment.equals("sam") || deployment.equals("headpin")) {
+		if (deployment.equals("sam")) {
 			KatelloUtils.sshOnServer("katello-configure --deployment=sam --user-name=admin --user-pass=admin --katello-web-workers=2 --job-workers=2 --es-min-mem=512M --es-max-mem=1024M");
-		} else {
+		}else if(deployment.equals("headpin")){
+			KatelloUtils.sshOnServer("katello-configure --deployment=headpin --user-name=admin --user-pass=admin --katello-web-workers=2 --job-workers=2 --es-min-mem=512M --es-max-mem=1024M");
+		}else { // Katello || Sat6
 			KatelloUtils.sshOnServer("katello-configure --db-name=katello --db-user=katello --db-password=katello --deployment=katello --user-name=admin --user-pass=admin --katello-web-workers=2 --job-workers=2 --es-min-mem=512M --es-max-mem=1024M");
 		}
 		
