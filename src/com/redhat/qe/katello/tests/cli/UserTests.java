@@ -434,7 +434,7 @@ public class UserTests extends KatelloCliTestBase{
 		SSHCommandResult res = org.cli_list();
 		Assert.assertTrue(res.getExitCode().intValue()==145, 
 				"Check - return code (invalid credentials)");
-		Assert.assertTrue(getOutput(res).equals(KatelloUser.ERR_INVALID_CREDENTIALS), 
+		Assert.assertTrue(getOutput(res).startsWith(KatelloUser.ERR_INVALID_CREDENTIALS), 
 				"Check - error string (invalid credentials)");
 	}
 
@@ -447,7 +447,7 @@ public class UserTests extends KatelloCliTestBase{
 		SSHCommandResult res = org.cli_list();
 		Assert.assertTrue(res.getExitCode().intValue()==145, 
 				"Check - return code (invalid credentials)");
-		Assert.assertTrue(getOutput(res).equals(KatelloUser.ERR_INVALID_CREDENTIALS), 
+		Assert.assertTrue(getOutput(res).startsWith(KatelloUser.ERR_INVALID_CREDENTIALS), 
 				"Check - error string (invalid credentials)");
 	}
 	
