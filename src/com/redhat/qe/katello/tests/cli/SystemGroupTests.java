@@ -257,7 +257,7 @@ public class SystemGroupTests extends KatelloCliTestBase{
 		
 		exec_result = systemGroup.add_systems(system_uuid);
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
-		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloSystemGroup.OUT_ADD_SYSTEMS, systemGroupName));
+		Assert.assertTrue(getOutput(exec_result).trim().matches(String.format(KatelloSystemGroup.OUT_ADD_SYSTEMS, systemGroupName)));
 	}
 	
 	@Test(description = "Copy system group with system", groups = { "cli-systemgroup", "cfse-cli", "headpin-cli" })
