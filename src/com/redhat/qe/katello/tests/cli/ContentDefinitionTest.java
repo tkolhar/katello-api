@@ -221,7 +221,18 @@ public class ContentDefinitionTest extends KatelloCliTestBase{
 		Assert.assertTrue(exec_result.getExitCode()==65, "Check exit code (add view)");
 		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentDefinition.ERR_NOT_COMPOSITE, def2.name)), "Check error (add view)");
 	}
-
+	
+	@Test(description="remove content view from a non composite definition - check error")
+	public void test_removeViewNonComposite() {
+		String view_name = "view-"+KatelloUtils.getUniqueID();
+		KatelloContentDefinition def1 = createContentDefinition();
+		exec_result = def1.publish(view_name, null, null);
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (publish view)");
+		exec_result = def1.remove_view(view_name);
+		Assert.assertTrue(exec_result.getExitCode()==65, "Check exit code (remove view)");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentDefinition.ERR_NOT_COMPOSITE, def1.name)), "Check error (remove view)");
+	}
+	
 	private void assert_contentList(List<KatelloContentDefinition> contents, List<KatelloContentDefinition> excludeContents) {
 
 		SSHCommandResult res = new KatelloContentDefinition(cli_worker, null, null, base_org_name, null).list();
