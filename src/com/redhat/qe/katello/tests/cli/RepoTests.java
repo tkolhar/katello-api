@@ -93,7 +93,7 @@ public class RepoTests extends KatelloCliTestBase {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
 
-	@Test(description = "Create repo", groups = { "cli-repo" })
+	@Test(description = "Create repo")
 	public void test_createRepo() {
 
 		KatelloRepo repo = createRepo();
@@ -102,7 +102,7 @@ public class RepoTests extends KatelloCliTestBase {
 		assert_repoStatus(repo);
 	}
 	
-	@Test(description = "Create repo exists", groups = { "cli-repo" })
+	@Test(description = "Create repo exists")
 	public void test_createRepoExists() {
 
 		KatelloRepo repo = createRepo();
@@ -114,7 +114,7 @@ public class RepoTests extends KatelloCliTestBase {
 		//Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloRepo.ERR_REPO_EXISTS, repo.name, repo.product));
 	}
 	
-	@Test(description = "Discover repo", groups = { "cli-repo" })
+	@Test(description = "Discover repo")
 	public void test_discoverRepo() {
 
 		repo_name = "repo"+KatelloUtils.getUniqueID();
@@ -131,7 +131,7 @@ public class RepoTests extends KatelloCliTestBase {
 		assert_repoStatus(repo);
 	}
 	
-	@Test(description = "List repos", groups = { "cli-repo" })
+	@Test(description = "List repos")
 	public void test_listRepo() {
 		
 		KatelloRepo repo = createRepo();
@@ -148,7 +148,7 @@ public class RepoTests extends KatelloCliTestBase {
 		assert_repoList(getOutput(exec_result).replaceAll("\n", " "), repo1);
 	}
 	
-	@Test(description = "Update repo gpg key", groups = { "cli-repo" })
+	@Test(description = "Update repo gpg key")
 	public void test_updateRepo() {
 
 		KatelloRepo repo = createRepo();
@@ -160,7 +160,7 @@ public class RepoTests extends KatelloCliTestBase {
 		assert_repoStatus(repo);
 	}
 	
-	@Test(description = "Synchronize repository", groups = { "cli-repo" })
+	@Test(description = "Synchronize repository")
 	public void test_syncRepo() {
 
 		DateFormat format = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
@@ -195,7 +195,7 @@ public class RepoTests extends KatelloCliTestBase {
 		assert_repoList(getOutput(exec_result).replaceAll("\n", " "), repo);
 	}
 	
-	@Test(description = "Try to enable/disable custom repo, check error", groups = { "cli-repo" })
+	@Test(description = "Try to enable/disable custom repo, check error")
 	public void test_enableDisableRepo() {
 
 		KatelloRepo repo = createRepo();
@@ -209,7 +209,7 @@ public class RepoTests extends KatelloCliTestBase {
 		Assert.assertEquals(getOutput(exec_result).trim(), "Disable/enable is not supported for custom repositories.");
 	}
 	
-	@Test(description = "Delete repo", groups = { "cli-repo" })
+	@Test(description = "Delete repo")
 	public void test_deleteRepo() {
 
 		KatelloRepo repo = createRepo();
@@ -222,7 +222,7 @@ public class RepoTests extends KatelloCliTestBase {
 		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloRepo.ERR_REPO_NOTFOUND, repo.name, repo.org, repo.product, "Library"));
 	}
 
-	@Test(description = "Delete synced repo", groups = { "cli-repo" })
+	@Test(description = "Delete synced repo")
 	public void test_deleteSyncedRepo() {
 
 		KatelloRepo repo = createRepo();
@@ -292,7 +292,7 @@ public class RepoTests extends KatelloCliTestBase {
 		Assert.assertTrue(getOutput(exec_result).contains(KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT), "Check output (repo listed)");
 	}
 
-	@Test(description = "Call commands on non existing repo", groups = { "cli-repo" })
+	@Test(description = "Call commands on non existing repo")
 	public void test_commandsInvalidRepo() {
 		
 		repo_name = "repo"+KatelloUtils.getUniqueID();;

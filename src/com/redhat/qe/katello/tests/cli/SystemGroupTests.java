@@ -169,7 +169,7 @@ public class SystemGroupTests extends KatelloCliTestBase{
 		
 		exec_result = systemGroup.remove_systems(system_uuid);
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
-		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloSystemGroup.OUT_REMOVE_SYSTEMS, systemGroupName));
+		Assert.assertTrue(getOutput(exec_result).trim().matches(String.format(KatelloSystemGroup.OUT_REMOVE_SYSTEMS, systemGroupName)));
 
 		systemGroup.totalSystems = 0;
 		assert_SystemGroupInfo(systemGroup);
@@ -242,7 +242,7 @@ public class SystemGroupTests extends KatelloCliTestBase{
 		
 		exec_result = systemGroup.remove_systems(system_uuid);
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
-		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloSystemGroup.OUT_REMOVE_SYSTEMS, systemGroupName));
+		Assert.assertTrue(getOutput(exec_result).trim().matches(String.format(KatelloSystemGroup.OUT_REMOVE_SYSTEMS, systemGroupName)));
 		
 		sshOnClient(KatelloSystem.RHSM_CLEAN);
 		
@@ -376,7 +376,7 @@ public class SystemGroupTests extends KatelloCliTestBase{
 		
 		exec_result = systemGroup2.remove_systems(system_uuid);
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
-		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloSystemGroup.OUT_REMOVE_SYSTEMS, systemGroupName));
+		Assert.assertTrue(getOutput(exec_result).trim().matches(String.format(KatelloSystemGroup.OUT_REMOVE_SYSTEMS, systemGroupName)));
 		
 		assert_systemList(new ArrayList<KatelloSystem>(), Arrays.asList(system));
 	}

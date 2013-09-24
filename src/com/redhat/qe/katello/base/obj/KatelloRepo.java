@@ -214,7 +214,7 @@ public class KatelloRepo extends _KatelloObject{
 		opts.add(new Attribute("assumeyes", "y"));
 		opts.add(new Attribute("product_label", product_label));
 		opts.add(new Attribute("product_id", product_id));
-		opts.add(new Attribute("provider", provider));
+//		opts.add(new Attribute("provider", provider));
 		return run(CMD_DISCOVER);
 	}
 	public SSHCommandResult list(){
