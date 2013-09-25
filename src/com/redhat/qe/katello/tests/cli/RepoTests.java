@@ -146,6 +146,10 @@ public class RepoTests extends KatelloCliTestBase {
 		
 		assert_repoList(getOutput(exec_result).replaceAll("\n", " "), repo);
 		assert_repoList(getOutput(exec_result).replaceAll("\n", " "), repo1);
+
+		repo1.product = null;
+		exec_result = repo1.list();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
 	
 	@Test(description = "Update repo gpg key")
