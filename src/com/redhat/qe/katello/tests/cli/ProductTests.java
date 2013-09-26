@@ -609,10 +609,9 @@ public class ProductTests  extends KatelloCliTestBase{
 	@Test(description="test enable/disable repository sets")
 	public void test_repoSetEnableDisable() {
 		// import manifest
-		String manifest = "manifest.zip";
 		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (create org");
-		KatelloUtils.scpOnClient(cli_worker.getClientHostname(), "data/"+manifest, "/tmp");
-		exec_result = new KatelloProvider(cli_worker, KatelloProvider.PROVIDER_REDHAT, org_manifest, null, null).import_manifest("/tmp/"+manifest, true);
+		KatelloUtils.scpOnClient(cli_worker.getClientHostname(), "data/"+MANIFEST_MANIFEST_ZIP, "/tmp");
+		exec_result = new KatelloProvider(cli_worker, KatelloProvider.PROVIDER_REDHAT, org_manifest, null, null).import_manifest("/tmp/"+MANIFEST_MANIFEST_ZIP, true);
 		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (import manifest)");
 		KatelloProduct prod = new KatelloProduct(cli_worker, KatelloProduct.RHEL_SERVER, org_manifest, KatelloProvider.PROVIDER_REDHAT, null, null, null, null, null);
 		// list repo sets
@@ -640,7 +639,7 @@ public class ProductTests  extends KatelloCliTestBase{
 		Assert.assertTrue(getOutput(exec_result).equals(KatelloProduct.OUT_NO_SYNC_RUNNING), "Check output (cancel sync)");
 	}
 
-	@AfterClass()
+	@AfterClass(alwaysRun=true)
 	public void tearDown() {
 		new KatelloOrg(this.cli_worker, org_manifest, null).delete();
 	}

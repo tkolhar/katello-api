@@ -647,23 +647,32 @@ public class ProviderTests extends KatelloCliTestBase{
 
 	@Test(description="import manifest tests")
 	public void test_importManifest() {
-		String manifest = "manifest.zip";
 		String bad_manifest = "/tmp/badmanifest"+KatelloUtils.getUniqueID();
-		KatelloUtils.scpOnClient(cli_worker.getClientHostname(), "data/"+manifest, "/tmp");
+		KatelloUtils.scpOnClient(cli_worker.getClientHostname(), "data/"+MANIFEST_MANIFEST_ZIP, "/tmp");
+		String org = "impManifest-"+KatelloUtils.getUniqueID(); 
+		String providerZoo = "zoo-"+KatelloUtils.getUniqueID();
 
-		KatelloProvider prov = new KatelloProvider(cli_worker, base_zoo_provider_name, base_org_name, null, null);
-		exec_result = prov.import_manifest("/tmp/"+manifest, true);
-		Assert.assertTrue(exec_result.getExitCode()==144, "Check exit code (import manifest)");
-		Assert.assertTrue(getOutput(exec_result).contains(KatelloProvider.ERR_IMPORT_CUSTOM), "Check error message (import manifest)");
+		try{
+			exec_result = new KatelloOrg(cli_worker, org, null).cli_create();
+			Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (org create)");
+			exec_result = new KatelloProvider(cli_worker, providerZoo, org, null, null).create();
+			Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (provider create)");
+			KatelloProvider prov = new KatelloProvider(cli_worker, providerZoo, org, null, null);
+			exec_result = prov.import_manifest("/tmp/"+MANIFEST_MANIFEST_ZIP, true);
+			Assert.assertTrue(exec_result.getExitCode()==144, "Check exit code (import manifest)");
+			Assert.assertTrue(getOutput(exec_result).contains(KatelloProvider.ERR_IMPORT_CUSTOM), "Check error message (import manifest)");
 
-		prov = new KatelloProvider(cli_worker, KatelloProvider.PROVIDER_REDHAT, org_manifest, null, null);
-		exec_result = prov.import_manifest(bad_manifest, true);
-		Assert.assertTrue(exec_result.getExitCode()==74, "Check exit code (import manifest)");
-		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloProvider.ERR_FILE_NOT_EXIST, bad_manifest)), "Check error message (import manifest)");
+			prov = new KatelloProvider(cli_worker, KatelloProvider.PROVIDER_REDHAT, org, null, null);
+			exec_result = prov.import_manifest(bad_manifest, true);
+			Assert.assertTrue(exec_result.getExitCode()==74, "Check exit code (import manifest)");
+			Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloProvider.ERR_FILE_NOT_EXIST, bad_manifest)), "Check error message (import manifest)");
 
-		exec_result = prov.import_manifest("/tmp/"+manifest, true);
-		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (import manifest)");
-		Assert.assertTrue(getOutput(exec_result).contains(KatelloProvider.OUT_MANIFEST_IMPORTED), "Check output (import manifest)");
+			exec_result = prov.import_manifest("/tmp/"+MANIFEST_MANIFEST_ZIP, true);
+			Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (import manifest)");
+			Assert.assertTrue(getOutput(exec_result).contains(KatelloProvider.OUT_MANIFEST_IMPORTED), "Check output (import manifest)");
+		}finally{
+			new KatelloOrg(cli_worker, org, null).delete(); // remove the org with manifest. Let manifest be reused
+		}
 	}
 
 	@Test(description="provider refresh products")

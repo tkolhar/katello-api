@@ -34,7 +34,6 @@ public class ContentTest extends KatelloCliLongrunBase {
 
 	@BeforeClass(description="init: create initial stuff")
 	public void setUp(){
-		String manifestZip = "manifest.zip";
 		this.base_org_name = "Awesome Org "+uid;
 		this.envTesting = "Testing-"+uid;
 		this.contView = "RHEL6-"+uid;
@@ -43,8 +42,8 @@ public class ContentTest extends KatelloCliLongrunBase {
 		if(!findSyncedRhelToUse()){
 			res = new KatelloOrg(this.cli_worker, base_org_name, null).cli_create();
 			Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - exit.Code");
-			KatelloUtils.scpOnClient(cli_worker.getClientHostname(), "data/"+manifestZip, "/tmp");
-			res = new KatelloProvider(this.cli_worker, KatelloProvider.PROVIDER_REDHAT, base_org_name, null, null).import_manifest("/tmp/"+manifestZip, new Boolean(true));
+			KatelloUtils.scpOnClient(cli_worker.getClientHostname(), "data/"+MANIFEST_MANIFEST_ZIP, "/tmp");
+			res = new KatelloProvider(this.cli_worker, KatelloProvider.PROVIDER_REDHAT, base_org_name, null, null).import_manifest("/tmp/"+MANIFEST_MANIFEST_ZIP, new Boolean(true));
 			Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 			KatelloProduct prod=new KatelloProduct(this.cli_worker, KatelloProduct.RHEL_SERVER, base_org_name, KatelloProvider.PROVIDER_REDHAT, null, null, null,null, null);
 			res = prod.repository_set_enable(KatelloProduct.REPOSET_RHEL6_RPMS);

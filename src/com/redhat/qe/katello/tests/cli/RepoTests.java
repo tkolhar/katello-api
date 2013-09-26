@@ -260,6 +260,7 @@ public class RepoTests extends KatelloCliTestBase {
 		Assert.assertTrue(key.isEmpty(), "Check exit code (repo info - no key)");
 	}
 
+	// TODO bugzilla 1011557
 	@Test(description="Enable, disable Red Hat repository", dependsOnMethods={"test_listRedHatProductRepos"})
 	public void test_enableDisableRedHatRepo() {
 		String product_name = KatelloProduct.RHEL_SERVER;
@@ -346,7 +347,7 @@ public class RepoTests extends KatelloCliTestBase {
 	public void test_discoverRepo_SingleRepo_FileMethod(){
 		String uid = KatelloUtils.getUniqueID();
 
-		KatelloUtils.sshOnServer("rpm -q grinder || yum -y install grinder"); // it's part of katello-pulp yum repo.
+		KatelloUtils.sshOnServer("rpm -q grinder || yum -y install "+RPM_GRINDER_RHEL6);
 		String url = "/var/www/html/auto-discover-"+uid;
 		String cmd = String.format(
 				"mkdir %s; " +
@@ -460,10 +461,9 @@ public class RepoTests extends KatelloCliTestBase {
 	 */
 	@Test(description="95fd7f1c-711d-4e47-a5fb-76cf04caeb71")
 	public void test_listRedHatProductRepos(){
-		String manifest = "manifest.zip";
 		exec_result = new KatelloOrg(this.cli_worker, this.orgWithManifest, null).cli_create();
-		KatelloUtils.scpOnClient(cli_worker.getClientHostname(), "data/"+manifest, "/tmp");
-		exec_result = new KatelloProvider(this.cli_worker, KatelloProvider.PROVIDER_REDHAT, this.orgWithManifest, null, null).import_manifest("/tmp/"+manifest, true);
+		KatelloUtils.scpOnClient(cli_worker.getClientHostname(), "data/"+MANIFEST_MANIFEST_ZIP, "/tmp");
+		exec_result = new KatelloProvider(this.cli_worker, KatelloProvider.PROVIDER_REDHAT, this.orgWithManifest, null, null).import_manifest("/tmp/"+MANIFEST_MANIFEST_ZIP, true);
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check  -return code");
 		exec_result = new KatelloProduct(this.cli_worker, KatelloProduct.RHEL_SERVER, this.orgWithManifest, KatelloProvider.PROVIDER_REDHAT, null, null, null, null, null).repository_set_enable(
 				KatelloProduct.REPOSET_RHEL6_RPMS);
@@ -547,7 +547,7 @@ public class RepoTests extends KatelloCliTestBase {
 
 	@AfterClass(description="remove the org(s) with manifests", alwaysRun=true)
 	public void tearDown(){
-		exec_result = new KatelloOrg(this.cli_worker, this.orgWithManifest, null).delete(); // we don't care with the result.
+		new KatelloOrg(this.cli_worker, this.orgWithManifest, null).delete(); // we don't care with the result.
 		new KatelloOrg(cli_worker, org_name, null).delete();
 	}
 }

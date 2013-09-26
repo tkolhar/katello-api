@@ -44,7 +44,12 @@ public interface KatelloConstants {
 
 	public static final String REPO_HHOVSEPY_ZOO4 = "http://hhovsepy.fedorapeople.org/fakerepos/zoo4/";
 
-
+	public static final String RPM_GRINDER_RHEL6 = "http://repos.fedorapeople.org/repos/pulp/pulp/stable/2/6Server/x86_64/grinder-0.1.16-1.el6.noarch.rpm http://dl.fedoraproject.org/pub/epel/6/x86_64/PyYAML-3.10-3.el6.x86_64.rpm";
+	
+	// MANIFEST NAMES
+	public static final String MANIFEST_MANIFEST_ZIP = "manifest.zip";
+	
+	
 	/** curl -sk -u {username}:{password} 
 	 * https://${servername}/api${call} */
 	public static final String KATELLO_HTTP_GET =
