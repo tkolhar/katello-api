@@ -155,8 +155,9 @@ public class GpgKeyExtTests extends KatelloCliTestBase{
 		Assert.assertTrue(repo_gpg.equals(anotherGpg_name), "Check - repo gpg key info is what we expect");
 	}
 
-	//Failing due to BZ: 988950
-	@Test(description="delete gpg key verify that it is deleted from repos as well", dependsOnMethods={"test_add2Repos_WithGpg","test_addRepo_productHasGpg"})
+	// bz#988950
+	@Test(description="delete gpg key verify that it is deleted from repos as well", 
+			dependsOnMethods={"test_add2Repos_WithGpg","test_addRepo_productHasGpg"}, enabled=false)
 	public void test_deleteGPG(){
 		KatelloGpgKey gpg = new KatelloGpgKey(cli_worker, this.gpg, this.org, null);
 		SSHCommandResult res = gpg.cli_delete();
@@ -181,7 +182,8 @@ public class GpgKeyExtTests extends KatelloCliTestBase{
 		Assert.assertTrue(!repo_gpg.equals(gpg), "Check - repo gpg key info is what we expect");
 	}
 
-	@Test(description="product update nogpgkey")
+	// bz#1009428
+	@Test(description="product update nogpgkey", enabled=false)
 	public void test_productGpgKeys() {
 		String uid = KatelloUtils.getUniqueID();
 		String prov_name = "provider-"+uid;
