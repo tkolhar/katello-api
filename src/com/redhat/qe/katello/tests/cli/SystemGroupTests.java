@@ -409,7 +409,7 @@ public class SystemGroupTests extends KatelloCliTestBase{
 		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (sysgroup job_tasks)");
 	}
 
-	// TODO bug 985412
+	// TODO bz#985412
 	@Test(description="system_group job_tasks test - bad id", dependsOnMethods={"test_jobHistory"})
 	public void test_jobTasksBadID() {
 		KatelloSystemGroup group = new KatelloSystemGroup(cli_worker, sysgroup_name, orgName);

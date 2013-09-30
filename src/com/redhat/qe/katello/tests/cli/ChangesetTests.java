@@ -165,7 +165,7 @@ public class ChangesetTests extends KatelloCliTestBase{
 		Assert.assertFalse(getOutput(exec_result).contains(view_name), "Check output");
 	}
 
-	// TODO bz 997364
+	// TODO bz#997364
 	@Test(description="get dependencies info")
 	public void test_dependencies() {
 		KatelloChangeset chst = createChangeset();

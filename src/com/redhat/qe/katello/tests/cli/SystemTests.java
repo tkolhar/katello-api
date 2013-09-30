@@ -667,7 +667,7 @@ public class SystemTests extends KatelloCliTestBase{
 
 
 
-	// TODO bug 974486
+	// TODO bz#974486
 	@Test(description="system tasks - wrong system given")
 	public void test_badSystemTasks() {
 		KatelloSystem sys =  new KatelloSystem(cli_worker, sys_nonexist_name, org_name, null);
@@ -676,7 +676,7 @@ public class SystemTests extends KatelloCliTestBase{
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloSystem.ERR_NOT_FOUND, "boosystem", orgNameMain)), "Check error message (system tasks)");
 	}
 
-	// TODO bug 974503
+	// TODO bz#974503
 	@Test(description="system task test")
 	public void test_systemTask() {
 		KatelloSystem sys =  new KatelloSystem(cli_worker, sys_name, org_name, KatelloEnvironment.LIBRARY);
@@ -689,7 +689,7 @@ public class SystemTests extends KatelloCliTestBase{
 		Assert.assertTrue(exec_result.getExitCode()==0, "Check return code (system task)");
 	}
 
-	// TODO bug 974486
+	// TODO bz#974486
 	@Test(description="system tasks", dependsOnMethods={"test_systemTask"})
 	public void test_systemTasks() {
 		KatelloSystem sys =  new KatelloSystem(cli_worker, sys_name, org_name, null);
@@ -706,7 +706,7 @@ public class SystemTests extends KatelloCliTestBase{
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloSystem.ERR_NO_TASK, "007")), "Check error message (system task)");
 	}
 
-	// TODO bug 983428
+	// TODO bz#983428
 	@Test(description="system remove_deletion - invalid uuid given")
 	public void test_removeDeletionBadUUID() {
 		KatelloSystem sys = new KatelloSystem(cli_worker, null, null, null);
@@ -745,7 +745,7 @@ public class SystemTests extends KatelloCliTestBase{
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloSystem.OUT_ADD_TO_GROUPS, sys_name)), "Check output (add system to group)");
 	}
 
-	// TODO bug 974098
+	// TODO bz#974098
 	@Test(description="add system to nonexisting group")
 	public void test_addToNonexistGroup() {
 		KatelloSystem sys = new KatelloSystem(cli_worker, sys_name, org_name, "Library");
@@ -754,7 +754,7 @@ public class SystemTests extends KatelloCliTestBase{
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloSystemGroup.ERR_SYSTEMGROUP_NOTFOUND, grp_nonexist_name, org_name)), "Check output (add system to group)");
 	}
 
-	// TODO bug 982572
+	// TODO bz#982572
 	@Test(description="add nonexisting system to group")
 	public void test_addNonexistSystemToGroup() {
 		KatelloSystem sys = new KatelloSystem(cli_worker, sys_nonexist_name, org_name, "Library");
@@ -771,7 +771,7 @@ public class SystemTests extends KatelloCliTestBase{
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloSystem.OUT_REMOVE_FROM_GROUPS, sys_name)), "Check output (remove system from group)");
 	}
 
-	// TODO bug 974098
+	// TODO bz#974098
 	@Test(description="remove system from system group - group not found")
 	public void test_removeFromNonexistGroup() {
 		KatelloSystem sys = new KatelloSystem(cli_worker, sys_name, org_name, "Library");
@@ -780,7 +780,7 @@ public class SystemTests extends KatelloCliTestBase{
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloSystemGroup.ERR_SYSTEMGROUP_NOTFOUND, grp_nonexist_name, org_name)), "Check output (remove system from group)");
 	}
 
-	// TODO bug 982572
+	// TODO bz#982572
 	@Test(description="remove system from system group - system not found")
 	public void test_removeNonexistSystemFromGroup() {
 		KatelloSystem sys = new KatelloSystem(cli_worker, sys_nonexist_name, org_name, "Library");

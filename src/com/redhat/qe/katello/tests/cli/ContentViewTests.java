@@ -179,7 +179,7 @@ public class ContentViewTests extends KatelloCliTestBase{
 		verify_PackagesNotAvailable(cli_worker.getClientHostname(), new String[] {"walrus"});
 	}
 
-	//@ TODO bug 956690
+	// TODO bz#956690
 	@Test(description = "removed content view on previous scenario promote back by changeset to environment, verify that packages are already availble",
 			groups={"cfse-cli"}, dependsOnMethods={"test_deletePromotedContentView"})
 	public void test_RePromoteContentView() {

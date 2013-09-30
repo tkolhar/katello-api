@@ -264,7 +264,7 @@ public class ProductTests  extends KatelloCliTestBase{
 		assert_productList(exec_result, Arrays.asList(prod1, prod2), Arrays.asList(prod3));
 	}
 
-        //@ TODO 961780  repo list should be changed to accept option --content_view
+    //@ TODO bz#961780  repo list should be changed to accept option --content_view
 	@Test(description="list the products by environment", groups = {"cli-products"}, enabled=false) //TODO - gkhachik via content views
 	public void test_listProduct_environment() {
 		String prodName1 = "prod1-"+KatelloUtils.getUniqueID();
@@ -537,7 +537,7 @@ public class ProductTests  extends KatelloCliTestBase{
 		Assert.assertFalse(getOutput(res).matches(match_info),"Repo list of the product - should not contain package count 0 (after product synchronize)");
 	}
 	
-        //@ TODO 961780  repo list should be changed to accept option --content_view
+	//@ TODO bz#961780  repo list should be changed to accept option --content_view
 	@Test(description="delete product - included in some changeset", groups = {"cli-products"}, enabled=false) // TODO - gkhachik via content views
 	public void test_deleteProduct_InChangeset(){
 		String uid = KatelloUtils.getUniqueID();

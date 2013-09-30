@@ -288,7 +288,7 @@ public class ContentFilterTests extends KatelloCliTestBase {
 		assert_filterInfo(filter_name, KatelloContentFilter.CONTENT_PACKAGE, KatelloContentFilter.TYPE_EXCLUDES, FilterRulePackage.ruleRegExp(packages));
 	}
 
-	// TODO bz 1004248
+	// TODO bz#1004248
 	@Test(description="handle filter by id", dependsOnMethods={"init"})
 	public void test_handleFilterByID() {
 		KatelloContentFilter filter = new KatelloContentFilter(cli_worker, filter_name, base_org_name, condef_name);

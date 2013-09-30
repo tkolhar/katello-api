@@ -78,7 +78,6 @@ public class UserTests extends KatelloCliTestBase{
 	}
 	
 	// TODO - with dataProvider provide more variations of user names in create action.
-
 	@Test(description="create user - for default org (disabled)", groups={"headpin-cli"})
 	public void test_createDisabled_DefaultOrg(){
 		SSHCommandResult res;
@@ -96,7 +95,7 @@ public class UserTests extends KatelloCliTestBase{
 		
 		usr.asserts_create();
 	}
-	//TODO: BZ: 993588 
+	//TODO: bz#993588 
 	@Test(description="update user info - valid username", groups={"headpin-only"})
 	public void test_updateUserInfo(){
 		
@@ -129,7 +128,6 @@ public class UserTests extends KatelloCliTestBase{
 		defaultInfoStr = KatelloUtils.grepCLIOutput("Default Environment", getOutput(res));
 		Assert.assertTrue(defaultInfoStr.contains(this.env), "Check - stdout contains updated default environment");
 	}
-
 
 	@Test(description = "List all users - admin should be there", groups={"headpin-cli"})
 	public void test_listUsers_admin(){
@@ -517,7 +515,7 @@ public class UserTests extends KatelloCliTestBase{
 		Assert.assertTrue(locale.equals("fr"), "Check output (user info locale)");
 	}
 
-	// TODO bug 974998
+	// TODO bz#974998
 	@Test(description="create user with bad default locale")
 	public void test_createUserLocaleBad() {
 		SSHCommandResult res;
