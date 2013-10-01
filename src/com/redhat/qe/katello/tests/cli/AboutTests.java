@@ -10,7 +10,7 @@ public class AboutTests extends KatelloCliTestBase {
 
 	public SSHCommandResult exec_result;
 
-	// TODO bz 996895 
+	// TODO bz# 996895 
 	@Test(description="test about command")
 	public void test_about() {
 		KatelloAbout about = new KatelloAbout(cli_worker);

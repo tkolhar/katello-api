@@ -260,7 +260,7 @@ public class RepoTests extends KatelloCliTestBase {
 		Assert.assertTrue(key.isEmpty(), "Check exit code (repo info - no key)");
 	}
 
-	// TODO bugzilla 1011557
+	// TODO bz#1011557
 	@Test(description="Enable, disable Red Hat repository", dependsOnMethods={"test_listRedHatProductRepos"})
 	public void test_enableDisableRedHatRepo() {
 		String product_name = KatelloProduct.RHEL_SERVER;
@@ -367,7 +367,7 @@ public class RepoTests extends KatelloCliTestBase {
 	
 	/**
 	 * @see https://github.com/gkhachik/katello-api/issues/283
-	 * @TODO 961780  repo list should be changed to accept option --content_view
+	 * TODO: bz#961780  repo list should be changed to accept option --content_view
 	 */
 	@Test(description="Auto-discovered repositories can be synced and promoted",
 			dependsOnMethods={"test_discoverRepo_MultiRepos_HttpMethod","test_discoverRepo_SingleRepo_FileMethod"})

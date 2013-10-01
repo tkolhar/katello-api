@@ -54,7 +54,7 @@ public class KatelloDistributorTests extends KatelloCliTestBase{
 			Assert.assertTrue(getOutput(exec_result).contains(output),"Check - returned error string");
 		}
 	}
-	//TODO: failing due to bz#990299
+	//TODO: bz#990299
 	@Test(description="distributor remove custom info",enabled=true,groups={"cfse-cli","headpin-cli"})
 	public void test_distributorRemoveCustomInfo(){
 		SSHCommandResult exec_result;
@@ -89,7 +89,7 @@ public class KatelloDistributorTests extends KatelloCliTestBase{
 		Assert.assertEquals(getOutput(exec_result).trim(),String.format(KatelloDistributor.OUT_INVALID_KEY,invalid_key));
 	
 	}
-	//TODO: failing due to bz#990299
+	//TODO: bz#990299
 	@Test(description="distributor remove custom info using uuid",enabled=true,groups={"cfse-cli","headpin-cli"})
 	public void test_removeCustomInfoUUID(){
 		SSHCommandResult exec_result;
@@ -179,6 +179,8 @@ public class KatelloDistributorTests extends KatelloCliTestBase{
 		Assert.assertEquals(getOutput(exec_result).trim(),String.format(KatelloDistributor.OUT_INVALID_KEY,invalid_key));
 	}
 	
+	// TODO: bz#974452
+	// TODO: bz#974466
 	@Test(description = "Delete Distributor after attaching/downloading/uploading subscription", enabled=true,groups={"cfse-cli","headpin-cli"})
 	public void test_distributorDelete()
 	{
@@ -188,7 +190,6 @@ public class KatelloDistributorTests extends KatelloCliTestBase{
 	  Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (create distributor)");
 	  Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloDistributor.OUT_CREATE, distributor_name)), "Check - output for create distributor");
 
-	  //TODO: Attach subscription to distributor. BZ: 974452, 974466
 	  //delete distributor
 	  exec_result = distributor.distributor_delete();
 	  Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code (delete distributor)");
@@ -217,7 +218,7 @@ public class KatelloDistributorTests extends KatelloCliTestBase{
 		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (list distributors)");
 	}
 
-	// TODO bug 994977
+	// TODO bz#994977
 	@Test(description="create distributor in non-Library environment")
 	public void test_createInEnvironment() {
 		String dist_env_name = "distributor-env-"+uid;
@@ -226,7 +227,7 @@ public class KatelloDistributorTests extends KatelloCliTestBase{
 		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (create distributor)");
 	}
 
-	// TODO bz 994977
+	// TODO bz#994977
 	@Test(description="update distributor tests")
 	public void test_updateDistributor() {
 		String uid = KatelloUtils.getUniqueID();
@@ -249,7 +250,7 @@ public class KatelloDistributorTests extends KatelloCliTestBase{
 		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (update distributor env)");
 	}
 
-	// TODO bz 974447
+	// TODO bz#974447
 	@Test(description="list available subscriptions")
 	public void test_listAvailableSubscriptions() {
 		KatelloDistributor distributor = new KatelloDistributor(cli_worker, base_org_name, dist_subscriptions_name, KatelloEnvironment.LIBRARY);
@@ -257,7 +258,7 @@ public class KatelloDistributorTests extends KatelloCliTestBase{
 		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (distributor subscriptions)");
 	}
 
-	// TODO bz 974452
+	// TODO bz#974452
 	@Test(description="subscribe")
 	public void test_subscribe() {
 		KatelloDistributor distributor = new KatelloDistributor(cli_worker, base_org_name, dist_subscriptions_name, KatelloEnvironment.LIBRARY);
@@ -265,7 +266,7 @@ public class KatelloDistributorTests extends KatelloCliTestBase{
 		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (distributor subscriptions)");
 	}
 
-	// TODO bz 974447
+	// TODO bz#974447
 	@Test(description="list subscriptions", dependsOnMethods={"test_subscribe"})
 	public void test_listSubscriptions() {
 		KatelloDistributor distributor = new KatelloDistributor(cli_worker, base_org_name, dist_subscriptions_name, KatelloEnvironment.LIBRARY);
@@ -273,7 +274,7 @@ public class KatelloDistributorTests extends KatelloCliTestBase{
 		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (distributor subscriptions)");
 	}
 
-	// TODO bz 974466
+	// TODO bz#974466
 	@Test(description="unsubscribe", dependsOnMethods={"test_listSubscriptions"})
 	public void test_unsubscribe() {
 		KatelloDistributor distributor = new KatelloDistributor(cli_worker, base_org_name, dist_subscriptions_name, KatelloEnvironment.LIBRARY);
@@ -281,7 +282,7 @@ public class KatelloDistributorTests extends KatelloCliTestBase{
 		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (distributor subscriptions)");
 	}
 
-	// TODO bz 1004284
+	// TODO bz#1004284
 	@Test(description="distributor not found - check error")
 	public void test_distributorNotFound() {
 		String dist_name = "distributor-"+KatelloUtils.getUniqueID();

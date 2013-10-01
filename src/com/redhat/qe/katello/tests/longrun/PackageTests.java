@@ -25,6 +25,7 @@ public class PackageTests extends KatelloCliLongrunBase {
 	private String env_name;
 	private String uid = KatelloUtils.getUniqueID();
 	private String sys_name;
+	private String sys_name2;
 	private String poolId1;
 	
 	private boolean repoSynced = false;
@@ -34,12 +35,13 @@ public class PackageTests extends KatelloCliLongrunBase {
 		this.base_org_name = "Awesome Org "+uid;
 		this.env_name = "Dev-"+uid;
 		this.sys_name = "testsystem-"+uid;
+		this.sys_name2 = "testsystem2-"+uid;
 		
 		if(!findSyncedRhelToUse()){
 			exec_result = new KatelloOrg(this.cli_worker, base_org_name, null).cli_create();
 			Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - exit.Code");
-			KatelloUtils.scpOnClient(cli_worker.getClientHostname(), "data/"+MANIFEST_MANIFEST_ZIP, "/tmp");
-			exec_result = new KatelloProvider(this.cli_worker, KatelloProvider.PROVIDER_REDHAT, base_org_name, null, null).import_manifest("/tmp/"+MANIFEST_MANIFEST_ZIP, new Boolean(true));
+			KatelloUtils.scpOnClient(cli_worker.getClientHostname(), "data/"+KatelloProvider.MANIFEST_12SUBSCRIPTIONS, "/tmp");
+			exec_result = new KatelloProvider(this.cli_worker, KatelloProvider.PROVIDER_REDHAT, base_org_name, null, null).import_manifest("/tmp/"+KatelloProvider.MANIFEST_12SUBSCRIPTIONS, new Boolean(true));
 			Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 			KatelloProduct prod=new KatelloProduct(this.cli_worker, KatelloProduct.RHEL_SERVER, base_org_name, KatelloProvider.PROVIDER_REDHAT, null, null, null,null, null);
 			exec_result = prod.repository_set_enable(KatelloProduct.REPOSET_RHEL6_RPMS);
@@ -68,8 +70,9 @@ public class PackageTests extends KatelloCliLongrunBase {
 		exec_result = repo.info();
 		Assert.assertFalse(KatelloUtils.grepCLIOutput("Package Count", getOutput(exec_result)).equals("0"), "Check - package count is NOT 0");
 		
-		exec_result = new KatelloOrg(this.cli_worker, base_org_name, null).subscriptions();
-		poolId1 = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
+		//@ TODO bug 1012480
+		//exec_result = new KatelloOrg(this.cli_worker, base_org_name, null).subscriptions();
+		//poolId1 = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
 	}
 	
 	@Test(description="promote rhel packages", dependsOnMethods={"test_syncRhel6"})
@@ -97,10 +100,9 @@ public class PackageTests extends KatelloCliLongrunBase {
 	public void test_deleteRHELPackages() {
 		content_view_remove_package = KatelloUtils.removePackagesFromEnvironment(cli_worker, base_org_name, KatelloProduct.RHEL_SERVER, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, new String[] {"zsh"}, env_name);
 		
-		configureClient("actkeypackageremove" + uid, content_view_remove_package, sys_name, env_name);
+		configureClient("actkeypackageremove" + uid, content_view_remove_package, sys_name2, env_name);
 	}
 	
-	//@ TODO bug 976400
 	@Test(description="list rhel repo packages deleted to test environment", dependsOnMethods={"test_deleteRHELPackages"}, enabled=true)
 	public void test_listRHELRepoPackagesDeleted() {
 		KatelloPackage pack = new KatelloPackage(cli_worker, base_org_name, KatelloProduct.RHEL_SERVER, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, content_view_remove_package);
@@ -114,18 +116,26 @@ public class PackageTests extends KatelloCliLongrunBase {
 
 	private void configureClient(String activationKey, String contentView, String systemName, String envName) {
 		rhsm_clean();
+		KatelloUtils.sshOnClient(null, "rm -rf /etc/sysconfig/rhn/systemid");
 		
-		KatelloActivationKey act_key = new KatelloActivationKey(this.cli_worker, base_org_name, envName, activationKey, "Act key created");
+		KatelloActivationKey act_key = new KatelloActivationKey(this.cli_worker, base_org_name, envName, activationKey, "Act key created", null, contentView);
 		exec_result = act_key.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");      
-		exec_result = act_key.update_content_view(contentView);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");      
-		exec_result = act_key.update_add_subscription(poolId1);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		// @ TODO bug 1012875
+//		exec_result = act_key.update_add_subscription(poolId1);
+//		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		KatelloSystem sys = new KatelloSystem(this.cli_worker, systemName, base_org_name, envName);
 			exec_result = sys.rhsm_registerForce(activationKey); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		
+		//@ TODO bug 1012480
+		poolId1 = KatelloUtils.grepCLIOutput("Pool ID",
+				KatelloUtils.sshOnClient(null, "subscription-manager list --available --all | sed  -e 's/^ \\{1,\\}//'").getStdout().trim(),1);
+		Assert.assertNotNull(poolId1);
+		exec_result = sys.rhsm_subscribe(poolId1);
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		
 		exec_result = sys.rhsm_identity();
 		
 		sshOnClient("sed -i -e \"s/certFrequency.*/certFrequency = 1/\" /etc/rhsm/rhsm.conf");

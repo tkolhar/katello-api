@@ -510,7 +510,7 @@ public class ProviderTests extends KatelloCliTestBase{
 	
 	/**
 	 * TODO
-	 * # bug: 1004759
+	 * bz#1004759
 	 * @see https://bugzilla.redhat.com/show_bug.cgi?id=1004759
 	 */
 	@Test(description="Try to updateRed Hat provider - url", groups = {"cli-providers"}, dependsOnMethods = {"test_freshOrgDefaultRedHatProvider"}, enabled=true)
@@ -537,7 +537,7 @@ public class ProviderTests extends KatelloCliTestBase{
 	
 	/**
 	 * TODO
-	 * # bug: 1004759
+	 * # bz#1004759
 	 * @see https://bugzilla.redhat.com/show_bug.cgi?id=1004759
 	 */
 	@Test(description="Try to update custom provider - url", groups = {"cli-providers"}, enabled=true)
