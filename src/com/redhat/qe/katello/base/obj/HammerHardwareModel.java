@@ -7,8 +7,8 @@ import javax.management.Attribute;
 import com.redhat.qe.katello.base.threading.KatelloCliWorker;
 import com.redhat.qe.tools.SSHCommandResult;
 
-public class KatelloHardwareModel extends _KatelloObject{
-    protected static Logger log = Logger.getLogger(KatelloHardwareModel.class.getName());
+public class HammerHardwareModel extends _HammerObject {
+    protected static Logger log = Logger.getLogger(HammerHardwareModel.class.getName());
 
 	// ** ** ** ** ** ** ** Public constants
 	public static final String CLI_CMD_CREATE = "hw_model create";
@@ -38,14 +38,14 @@ public class KatelloHardwareModel extends _KatelloObject{
 	public String info;
 	public String vendor_class;
 	
-	public KatelloHardwareModel(){super();}
+	public HammerHardwareModel(){super();}
 	
-	public KatelloHardwareModel(KatelloCliWorker kcr, String pName){
+	public HammerHardwareModel(KatelloCliWorker kcr, String pName){
 		this.name = pName;
 		this.kcr = kcr;
 	}
 	
-	public KatelloHardwareModel(KatelloCliWorker kcr, String pName, String phwModel, String pinfo, String pvendorClass){
+	public HammerHardwareModel(KatelloCliWorker kcr, String pName, String phwModel, String pinfo, String pvendorClass){
 		this.name = pName;
 		this.hw_model = phwModel;
 		this.info = pinfo;
