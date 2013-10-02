@@ -59,7 +59,7 @@ public class KatelloSystem extends _KatelloObject{
 	public static final String ERR_GUEST_HAS_DIFFERENT_HOST = 
 			"Guest's host does not match owner of pool: '%s'.";
 	public static final String ERR_DELETE_ACCESS = 
-			"Invalid credentials";
+			"User %s is not allowed to access api/v1/candlepin_proxies/delete";
 	public static final String ERR_UPDATE = "User %s is not allowed to access api/v1/systems/update";
 	public static final String ERR_BLANK_KEYNAME = "Validation failed: Keyname can't be blank";
 	public static final String ERR_DUPLICATE_KEYNAME = "Validation failed: Keyname already exists for this object";
@@ -95,6 +95,7 @@ public class KatelloSystem extends _KatelloObject{
 	public static final String OUT_UNSUBSCRIBE = "Successfully removed subscription from System [ %s ]";
 	public static final String OUT_REGISTRED = "Successfully registered system [ %s ]";
 	public static final String OUT_UNREGISTRED = "Successfully unregistered System [ %s ]";
+	public static final String OUT_NO_POOLS_FOUND = "No Pools found for System [ %s ] in Org [ %s ]";
 	
 	public static final String API_CMD_INFO = "/consumers/%s";
 	public static final String API_CMD_GET_SERIALS = "/consumers/%s/certificates/serials";
@@ -124,6 +125,7 @@ public class KatelloSystem extends _KatelloObject{
 	private Map<String, String> facts;
 	private KatelloIdCert idCert;
 	private KatelloEnvironment environment;
+	public String contentview;
 	
 	public KatelloSystem(KatelloCliWorker kcr, String pName, String pOrg, String pEnv){
 		this.name = pName;
@@ -378,8 +380,10 @@ public class KatelloSystem extends _KatelloObject{
 	public SSHCommandResult info(){
 		opts.clear();
 		opts.add(new Attribute("org", org));
-		opts.add(new Attribute("name", name));
-		if (env != null) {
+		if(uuid != null) {
+			opts.add(new Attribute("uuid", uuid));
+		} else {
+			opts.add(new Attribute("name", name));
 			opts.add(new Attribute("environment", env));
 		}
 		return run(CMD_INFO+" -v");
@@ -430,7 +434,10 @@ public class KatelloSystem extends _KatelloObject{
 	public SSHCommandResult releases() {
 		opts.clear();
 		opts.add(new Attribute("org", org));
-		opts.add(new Attribute("name", name));
+		if(uuid != null)
+			opts.add(new Attribute("uuid", uuid));
+		else
+			opts.add(new Attribute("name", name));
 		return run(CMD_RELEASES);
 	}
 	
@@ -438,6 +445,7 @@ public class KatelloSystem extends _KatelloObject{
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("environment", env));
 		return run(CMD_FACTS);
 	}
 	
@@ -590,6 +598,14 @@ public class KatelloSystem extends _KatelloObject{
 		return run("system unsubscribe");
 	}
 
+	public SSHCommandResult unsubscribe_serial(String serialID){
+		opts.clear();
+		opts.add(new Attribute("org", org));
+		opts.add(new Attribute("name", name));
+		opts.add(new Attribute("serial", serialID));
+		return run("system unsubscribe");
+	}
+
 	public SSHCommandResult unregister(){
 		opts.clear();
 		return run(String.format(KatelloSystem.SYSTEM_UNREGISTER, uuid, org));
@@ -652,7 +668,10 @@ public class KatelloSystem extends _KatelloObject{
 	public SSHCommandResult tasks() {
 		opts.clear();
 		opts.add(new Attribute("org", org));
-		opts.add(new Attribute("name", name));
+		if(uuid != null)
+			opts.add(new Attribute("uuid", uuid));
+		else
+			opts.add(new Attribute("name", name));
 		return run(CMD_TASKS);
 	}
 
@@ -762,6 +781,7 @@ public class KatelloSystem extends _KatelloObject{
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("environment", env));
+		opts.add(new Attribute("content_view", contentview));
 		return run(CMD_REGISTER);
 	}
 }

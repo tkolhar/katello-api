@@ -24,7 +24,8 @@ public class SystemPackagesTests extends KatelloCliTestBase {
 	private String def_name;
 	private String view_name;
 	private String sys_name;
-	private String prod_unsubscr;
+	private String prod_unsubscr1;
+	private String prod_unsubscr2;
 
 
 	@BeforeClass(description="Generate unique names")
@@ -34,7 +35,8 @@ public class SystemPackagesTests extends KatelloCliTestBase {
 		def_name = "def"+uid;
 		view_name = "def"+uid;
 		sys_name = "sys"+uid;
-		prod_unsubscr = "prod-unsubscr"+uid;
+		prod_unsubscr1 = "prod-unsubscr-1-"+uid;
+		prod_unsubscr2 = "prod-unsubscr-2-"+uid;
 
 		KatelloContentDefinition def = new KatelloContentDefinition(cli_worker, def_name, null, base_org_name, null);
 		exec_result = def.create();
@@ -57,14 +59,19 @@ public class SystemPackagesTests extends KatelloCliTestBase {
 		sys.rhsm_clean();
 		sys.rhsm_registerForce(actkey_name);
 
-		KatelloProduct prod = new KatelloProduct(cli_worker, prod_unsubscr, base_org_name, base_zoo_provider_name, null, null, null, null, null);
+		KatelloProduct prod = new KatelloProduct(cli_worker, prod_unsubscr1, base_org_name, base_zoo_provider_name, null, null, null, null, null);
+		exec_result = prod.create();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (product create)");
+		prod = new KatelloProduct(cli_worker, prod_unsubscr2, base_org_name, base_zoo_provider_name, null, null, null, null, null);
 		exec_result = prod.create();
 		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (product create)");
 
 		exec_result = sys.subscribe(base_zoo_repo_pool);
 		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (subscribe)");
 		KatelloOrg org = new KatelloOrg(cli_worker, base_org_name, null);
-		exec_result = sys.subscribe(org.custom_getPoolId(prod_unsubscr));
+		exec_result = sys.subscribe(org.custom_getPoolId(prod_unsubscr1));
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (subscribe)");
+		exec_result = sys.subscribe(org.custom_getPoolId(prod_unsubscr2));
 		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (subscribe)");
 		exec_result = sys.rhsm_refresh();// NOTE: this is *mandatory*. Otherwise yum does not recognize repos
 		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (RHSM refresh)");
@@ -80,7 +87,7 @@ public class SystemPackagesTests extends KatelloCliTestBase {
 		KatelloSystem sys = new KatelloSystem(cli_worker, sys_name, base_org_name, base_dev_env_name);
 		exec_result = sys.packages_install("lion");
 		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (install package)");
-		Assert.assertTrue(getOutput(exec_result).contains("lion"), "Check output");
+		Assert.assertTrue(getOutput(exec_result).contains("lion"), "Check output (install package)");
 	}
 
 	@Test(description="system install package group", dependsOnMethods={"test_systemPackageInstall"})
@@ -88,7 +95,7 @@ public class SystemPackagesTests extends KatelloCliTestBase {
 		KatelloSystem sys = new KatelloSystem(cli_worker, sys_name, base_org_name, base_dev_env_name);
 		exec_result = sys.packages_install_group("birds");
 		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (install package group)");
-		Assert.assertTrue(getOutput(exec_result).contains("cockateel"), "Check output (update package)");
+		Assert.assertTrue(getOutput(exec_result).contains("cockateel"), "Check output (install package group)");
 	}
 
 	@Test(description="system update package")
@@ -113,27 +120,29 @@ public class SystemPackagesTests extends KatelloCliTestBase {
 	public void test_systemPackageRemoveGroups() {
 		KatelloSystem sys = new KatelloSystem(cli_worker, sys_name, base_org_name, base_dev_env_name);
 		exec_result = sys.packages_remove_groups("birds");
-		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (remove group)");
-		Assert.assertTrue(getOutput(exec_result).contains("cockateel"), "Check output (update package)");
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (remove package group)");
+		Assert.assertTrue(getOutput(exec_result).contains("cockateel"), "Check output (remove package group)");
 	}
 
 	@Test(description="system unsubscribe product")
 	public void test_systemUnsubscribe() {
 		KatelloSystem sys = new KatelloSystem(cli_worker, sys_name, base_org_name, base_dev_env_name);
 		exec_result = sys.subscriptions();
-		String subID = null;
-		// find subscription id by product name
-		for(int i = 1;; ++i) {
-			String name = KatelloUtils.grepCLIOutput("Pool Name", getOutput(exec_result), i);
-			Assert.assertTrue(true, name);
-			if(name == null)
-				break;
-			else if(prod_unsubscr.equals(name)) {
-				subID = KatelloUtils.grepCLIOutput("Subscription ID", getOutput(exec_result), i);
-				break;
-			}
-		}
-		exec_result = sys.unsubscribe(subID);
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (system subscriptions)");
+		// get pool id
+		String outBlock = KatelloUtils.grepOutBlock("Pool Name", prod_unsubscr1, KatelloCliTestBase.sgetOutput(exec_result));
+		Assert.assertNotNull(outBlock, "Check output not null");
+		String poolID = KatelloUtils.grepCLIOutput("Subscription ID", outBlock);
+		// get serial id
+		outBlock = KatelloUtils.grepOutBlock("Pool Name", prod_unsubscr2, KatelloCliTestBase.sgetOutput(exec_result));
+		Assert.assertNotNull(outBlock, "Check output not null");
+		String serialID = KatelloUtils.grepCLIOutput("Serial ID", outBlock);
+		// unsubscribe - pool id
+		exec_result = sys.unsubscribe(poolID);
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (system unsubscribe)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloSystem.OUT_UNSUBSCRIBE, sys_name)), "Check output (system unsubscribe)");
+		// unsubscribe - serial id
+		exec_result = sys.unsubscribe_serial(serialID);
 		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (system unsubscribe)");
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloSystem.OUT_UNSUBSCRIBE, sys_name)), "Check output (system unsubscribe)");
 	}

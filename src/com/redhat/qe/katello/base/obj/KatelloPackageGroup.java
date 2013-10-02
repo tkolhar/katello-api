@@ -13,7 +13,11 @@ public class KatelloPackageGroup extends _KatelloObject{
 	public static final String CMD_CATEGORY_LIST = "package_group category_list -v";
 	public static final String CMD_CATEGORY_INFO = "package_group category_info";
 
-	
+	public static final String ERR_NO_GROUPS = "No package groups found in repo [%s]";
+	public static final String ERR_NO_CATEGORIES = "No package group categories found in repo [%s]";
+	public static final String ERR_GROUP_NOT_FOUND = "Package group [%s] not found in repo [%s]";
+	public static final String ERR_CATEGORY_NOT_FOUND = "Package group category [%s] not found in repo [%s]";
+
 	// ** ** ** ** ** ** ** Class members
 	public String id;
 	public String name;
