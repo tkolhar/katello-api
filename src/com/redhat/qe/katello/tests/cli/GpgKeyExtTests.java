@@ -183,7 +183,7 @@ public class GpgKeyExtTests extends KatelloCliTestBase{
 	}
 
 	// bz#1009428
-	@Test(description="product update nogpgkey", enabled=false)
+	@Test(description="product update nogpgkey", enabled=true)
 	public void test_productGpgKeys() {
 		String uid = KatelloUtils.getUniqueID();
 		String prov_name = "provider-"+uid;
