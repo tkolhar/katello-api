@@ -95,8 +95,8 @@ public class UserTests extends KatelloCliTestBase{
 		
 		usr.asserts_create();
 	}
-	//TODO: bz#993588 
-	@Test(description="update user info - valid username", groups={"headpin-only"})
+
+	@Test(description="update user info - valid username", groups={"headpin-cli"})
 	public void test_updateUserInfo(){
 		
 		SSHCommandResult res;

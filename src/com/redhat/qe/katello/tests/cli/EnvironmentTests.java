@@ -25,7 +25,6 @@ public class EnvironmentTests extends KatelloCliTestBase{
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 	}
 
-	//TODO bz#987670
 	@Test(description="create Environment",  
 			dataProvider="environment_create", dataProviderClass = KatelloCliDataProvider.class, enabled=true)
 	public void testEnv_create(String name, String descr, Integer exitCode, String output){
@@ -77,7 +76,6 @@ public class EnvironmentTests extends KatelloCliTestBase{
 
 	}
 
-	// TODO bz#961112
 	@Test(description="delete a environment",enabled=true)
 	public void test_delete_environment(){
 		String uid = KatelloUtils.getUniqueID();

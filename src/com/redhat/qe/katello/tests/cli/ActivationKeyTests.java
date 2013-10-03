@@ -252,7 +252,6 @@ public class ActivationKeyTests extends KatelloCliTestBase{
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
     }
 
-    //@ TODO bz#927215
     /** TCMS scenario is: <a href="https://tcms.engineering.redhat.com/case/189166/?from_plan=7793">here</a> */
 	@Test(description="fc228a30-c0e8-46d3-a254-681222993bd5",groups={"cfse-cli","headpin-cli"})
     public void test_unregisterRegister() {

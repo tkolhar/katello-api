@@ -301,7 +301,6 @@ public class RepoTests extends KatelloCliTestBase {
 		Assert.assertTrue(key.isEmpty(), "Check exit code (repo info - no key)");
 	}
 
-	// TODO bz#1011557
 	@Test(description="Enable, disable Red Hat repository", dependsOnMethods={"test_listRedHatProductRepos"})
 	public void test_enableDisableRedHatRepo() {
 		String product_name = KatelloProduct.RHEL_SERVER;
