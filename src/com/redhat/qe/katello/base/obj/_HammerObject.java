@@ -14,7 +14,7 @@ import com.redhat.qe.tools.SSHCommandResult;
 class _HammerObject {
 
 	protected HammerUser user;
-	protected String hostName = System.getProperty("hammer.client.hostname", "localhost");
+	protected String hostName = System.getProperty("katello.client.hostname", "localhost");
 	protected ArrayList<Attribute> opts;
 	protected KatelloCliWorker kcr = null;
 	

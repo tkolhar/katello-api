@@ -18,7 +18,7 @@ public class HammerArchitecture extends _HammerObject{
 	public static final String CMD_UPDATE = "architecture update";
 	
 	public static final String OUT_CREATE = 
-			"Architecture [ %s ] created.";
+			"Architecture created";
 	public static final String OUT_UPDATE = 
 			"Architecture [ %s ] updated.";
 	public static final String OUT_DELETE = 

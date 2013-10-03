@@ -22,7 +22,7 @@ public class HammerCli implements KatelloConstants {
 	private String command;
 	private List<Attribute> args;
 	private List<Attribute> opts;
-	private String hostName = System.getProperty("hammer.client.hostname", "localhost");
+	private String hostName = System.getProperty("katello.client.hostname", "localhost");
 	
 	public HammerCli(String command,List<Attribute> args,List<Attribute> options){
 		this.command = command;
@@ -35,8 +35,9 @@ public class HammerCli implements KatelloConstants {
 	public HammerCli(String command,List<Attribute> options){
 		this.command = command;
 		this.args = new ArrayList<Attribute>();
-		this.args.add(new Attribute("username", System.getProperty("hammer.admin.user", HammerUser.DEFAULT_ADMIN_USER)));
-		this.args.add(new Attribute("password", System.getProperty("hammer.admin.password", HammerUser.DEFAULT_ADMIN_PASS)));
+		// @ TODO disable for now as hammer uses default user credentials from internal config file 
+//		this.args.add(new Attribute("username", System.getProperty("hammer.admin.user", HammerUser.DEFAULT_ADMIN_USER)));
+//		this.args.add(new Attribute("password", System.getProperty("hammer.admin.password", HammerUser.DEFAULT_ADMIN_PASS)));
 		this.opts = options;
 		if(this.opts==null) this.opts = new ArrayList<Attribute>();
 	}
@@ -50,9 +51,10 @@ public class HammerCli implements KatelloConstants {
 				this.args.add(new Attribute("username", user.username));
 			if(user.getPassword()!=null)
 				this.args.add(new Attribute("password", user.password));
-		} else {		
-			this.args.add(new Attribute("username", System.getProperty("hammer.admin.user", HammerUser.DEFAULT_ADMIN_USER)));
-			this.args.add(new Attribute("password", System.getProperty("hammer.admin.password", HammerUser.DEFAULT_ADMIN_PASS)));
+		} else {	
+			// @ TODO disable for now as hammer uses default user credentials from internal config file
+//			this.args.add(new Attribute("username", System.getProperty("hammer.admin.user", HammerUser.DEFAULT_ADMIN_USER)));
+//			this.args.add(new Attribute("password", System.getProperty("hammer.admin.password", HammerUser.DEFAULT_ADMIN_PASS)));
 		}
 		this.hostName = hostName;
 		this.opts = options;

@@ -8,7 +8,6 @@ import com.redhat.qe.katello.base.obj.HammerArchitecture;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups={"foreman"})
 public class ArchitectureTests extends KatelloCliTestBase {
 	
 	private String name;
@@ -38,7 +37,7 @@ public class ArchitectureTests extends KatelloCliTestBase {
 		
 		HammerArchitecture arch = new HammerArchitecture(cli_worker, name);
 		res = arch.cli_create();
-		Assert.assertEquals(res.getExitCode().intValue(), 166, "Check - return code");
+		Assert.assertEquals(res.getExitCode().intValue(), 65, "Check - return code");
 		
 		Assert.assertTrue(getOutput(res).contains(String.format(HammerArchitecture.ERR_NAME_EXISTS, name)),"Check - returned error string");
 	}

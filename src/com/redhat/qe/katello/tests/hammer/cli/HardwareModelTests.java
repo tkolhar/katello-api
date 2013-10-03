@@ -13,7 +13,6 @@ import com.redhat.qe.katello.base.obj.HammerHardwareModel;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups="foreman")
 public class HardwareModelTests extends KatelloCliTestBase {
 	
 	private String name;
@@ -55,7 +54,7 @@ public class HardwareModelTests extends KatelloCliTestBase {
 		
 		HammerHardwareModel hwm = new HammerHardwareModel(cli_worker, name, hwmodel, info, vendorclass);
 		res = hwm.cli_create();
-		Assert.assertEquals(res.getExitCode().intValue(), 166, "Check - return code");
+		Assert.assertEquals(res.getExitCode().intValue(), 65, "Check - return code");
 		
 		Assert.assertTrue(getOutput(res).contains(String.format(HammerHardwareModel.ERR_NAME_EXISTS, name)),"Check - returned error string");
 	}
