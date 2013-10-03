@@ -203,12 +203,17 @@ public class ContentViewTests extends KatelloCliTestBase{
 		install_Packages(cli_worker.getClientHostname(), new String[] {"walrus"});
 	}
 	
-	@Test(description = "delete content view", dependsOnMethods={"init"})
+	@Test(description = "delete content view. Check that it is removed from the content definition as well", dependsOnMethods={"init"})
 	public void test_deleteContentView() {
 		KatelloContentView view = new KatelloContentView(cli_worker, view_delete, base_org_name);
 		exec_result = view.delete_view();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check exit code (delete view)");
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentView.OUT_DELETE, view_delete)), "Check output (delete view)");
+		exec_result = condef.info();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check exit code (info)");
+		String viewsList = KatelloUtils.grepCLIOutput("Published Views", getOutput(exec_result).trim());
+		Assert.assertFalse(viewsList.contains(view_delete), "Check view name note present");
+		   
 	}
 
 	@Test(description="refresh content view and check new content", dependsOnMethods={"init"})
