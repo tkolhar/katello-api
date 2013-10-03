@@ -135,7 +135,8 @@ public class SystemTests extends KatelloCliTestBase{
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check exit code (system group create)");
 
 		KatelloSystem sys =  new KatelloSystem(cli_worker, sys_name, org_name, "Library");
-		sys.register();
+		exec_result = sys.register();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (sys register)");
 	}
 	
 	@BeforeClass(description="init: katello specific, no headpin", dependsOnMethods={"setUp"})
@@ -360,7 +361,6 @@ public class SystemTests extends KatelloCliTestBase{
 		Assert.assertTrue(getOutput(exec_result).contains("Invalid credentials"), "Check - output (error)");
 	}
 
-	// TODO - bz#896074 failing due to this
 	@Test(description = "delete registered system by user who has not permissions", 
 			groups={"cfse-cli"})
 	public void test_deleteSystemInvalidAccess(){
@@ -381,7 +381,7 @@ public class SystemTests extends KatelloCliTestBase{
 
 		sys.runAs(user);
 		exec_result = sys.remove();
-		Assert.assertTrue(exec_result.getExitCode().intValue()>0, "Check - return code");
+		Assert.assertTrue(exec_result.getExitCode().intValue()==147, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloSystem.ERR_DELETE_ACCESS, user.username)),
 				"Check - output (error)");
 	}
@@ -552,6 +552,10 @@ public class SystemTests extends KatelloCliTestBase{
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		exec_result = sys.facts();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+
+		sys.setEnvironmentName(null);
+		exec_result = sys.facts();
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 	}
 
 	@Test(description = "System report Review",groups={"cfse-cli","headpin-cli"})
@@ -627,6 +631,11 @@ public class SystemTests extends KatelloCliTestBase{
 		Assert.assertTrue(getOutput(exec_result).contains("6.3"), "Check - stdout contains system release 6.3");
 		Assert.assertTrue(getOutput(exec_result).contains("6.4"), "Check - stdout contains system release 6.4");
 		Assert.assertTrue(getOutput(exec_result).contains("6Server"), "Check - stdout contains system release 6Server");
+
+		exec_result = sys.info();
+		sys.uuid = KatelloUtils.grepCLIOutput("UUID", getOutput(exec_result));
+		exec_result = sys.releases();
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 	}
 	
 	/**
@@ -664,7 +673,6 @@ public class SystemTests extends KatelloCliTestBase{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - exit code (list packages)");
 		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloSystem.OUT_LIST_PACKAGES, sysname, orgNameMain)), "Check output (list packages)");
 	}
-
 
 
 	// TODO bz#974486
@@ -722,6 +730,21 @@ public class SystemTests extends KatelloCliTestBase{
 		exec_result = sys.register();
 		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (system register)");
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloSystem.OUT_REGISTRED, sys_reg_name)), "Check output (system register)");
+
+		String def_name = "definition"+KatelloUtils.getUniqueID();
+		String view_name = "view "+def_name;
+		KatelloContentDefinition def = new KatelloContentDefinition(cli_worker, def_name, null, org_name, null);
+		exec_result = def.create();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (create definition)");
+		exec_result = def.publish(view_name, null, null);
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (publish definition)");
+		sys = new KatelloSystem(cli_worker, sys_reg_name+"X", org_name, KatelloEnvironment.LIBRARY);
+		sys.contentview = view_name;
+		exec_result = sys.register();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (register system)");
+		exec_result = sys.info();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (system info)");
+		Assert.assertTrue(getOutput(exec_result).contains(view_name), "Check output (system info)");
 	}
 
 	@Test(description="system unregister", dependsOnMethods={"test_systemRegister"})

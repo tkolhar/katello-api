@@ -63,11 +63,13 @@ public class ProductTests  extends KatelloCliTestBase{
 
     @Test(description = "List all product for orgs", groups = {"headpin-cli"})
 	public void test_listProductDefaultOrg(){
-      
     	  String providername = KatelloProvider.PROVIDER_REDHAT;
 	 	  KatelloProduct list_product = new KatelloProduct(this.cli_worker, null,KatelloOrg.getDefaultOrg(),providername,null,null,null,null,null);
-	 	  SSHCommandResult res = list_product.cli_list();
-	 	  Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
+	 	  exec_result = list_product.cli_list();
+	 	  Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
+	 	  KatelloProduct prod = new KatelloProduct(cli_worker, null, null, base_org_name, null, null, null, null, null, null);
+	 	  exec_result = prod.cli_list();
+	 	  Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (product list)");
  	}
 
 

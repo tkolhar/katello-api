@@ -17,6 +17,7 @@ import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloPackage;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
+import com.redhat.qe.katello.base.obj.KatelloPuppetModule;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.base.obj.KatelloUser;
 import com.redhat.qe.katello.common.KatelloUtils;
@@ -45,6 +46,10 @@ public class RepoTests extends KatelloCliTestBase {
 	private String productAutoDiscoverFileZoo5;
 	
 	private String orgWithManifest;
+	private String repo_upload_yum;
+	private String repo_upload_puppet;
+	private String rpm_pkg_name;
+	private String puppet_module_name;
 	
 	@BeforeClass(description = "Generate unique objects")
 	public void setUp() {
@@ -53,6 +58,8 @@ public class RepoTests extends KatelloCliTestBase {
 		user_name = "user" + uid;
 		provider_name = "provider" + uid;
 		product_name = "product" + uid;
+		repo_upload_yum = "repo-yum-"+uid;
+		repo_upload_puppet = "repo-puppet-"+uid;
 
 		file_name = "/tmp/RPM-GPG-KEY-dummy-packages-generator";
 		gpg_key = "gpgkey-"+uid;
@@ -91,6 +98,19 @@ public class RepoTests extends KatelloCliTestBase {
 		KatelloGpgKey gpg = new KatelloGpgKey(cli_worker, gpg_key, org_name, file_name);
 		exec_result = gpg.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+
+		// create repos and wget files for content upload
+		KatelloRepo repo = new KatelloRepo(cli_worker, repo_upload_yum, org_name, product_name, null, null, null);
+		exec_result = repo.create();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (repo create)");
+		repo = new KatelloRepo(cli_worker, repo_upload_puppet, org_name, product_name, null, null, null);
+		repo.content_type = "puppet";
+		exec_result = repo.create();
+		puppet_module_name = "adob-good-2.0.0.tar.gz";
+		rpm_pkg_name = "bat-3.10.7-1.noarch.rpm";
+		sshOnClient(String.format("rm -f /tmp/%s; wget %s%s -O /tmp/%s", rpm_pkg_name, REPO_HHOVSEPY_ZOO4, rpm_pkg_name, rpm_pkg_name));
+		String puppetmodule_url = "https://raw.github.com/pulp/pulp_puppet/master/pulp_puppet_plugins/test/data/good-modules/adob-good/pkg/adob-good-2.0.0.tar.gz";
+		sshOnClient(String.format("rm -f /tmp/%s; wget %s -O /tmp/%s", puppet_module_name, puppetmodule_url, puppet_module_name));
 	}
 
 	@Test(description = "Create repo")
@@ -113,7 +133,24 @@ public class RepoTests extends KatelloCliTestBase {
 		//@ TODO switch to correct check when output is fixed
 		//Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloRepo.ERR_REPO_EXISTS, repo.name, repo.product));
 	}
-	
+
+	@Test(description = "Create repo without url. Try to sync the repo.")
+	public void test_createRepoWithoutURL() {
+		
+		repo_name = "repoNoURL-"+KatelloUtils.getUniqueID();;
+		
+		KatelloRepo repo = new KatelloRepo(this.cli_worker, repo_name, org_name, product_name, null, null, null);
+		exec_result = repo.create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloRepo.OUT_CREATE, repo_name)), "Check - output string (repo create without URL)");	
+		
+		exec_result = repo.synchronize();
+		
+		Assert.assertTrue(exec_result.getExitCode() == 65, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).trim().contains(String.format(KatelloRepo.ERR_REPO_SYNC_FAIL, repo.name)));
+
+	}
+
 	@Test(description = "Discover repo")
 	public void test_discoverRepo() {
 
@@ -146,6 +183,10 @@ public class RepoTests extends KatelloCliTestBase {
 		
 		assert_repoList(getOutput(exec_result).replaceAll("\n", " "), repo);
 		assert_repoList(getOutput(exec_result).replaceAll("\n", " "), repo1);
+
+		repo1.product = null;
+		exec_result = repo1.list();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
 	
 	@Test(description = "Update repo gpg key")
@@ -260,7 +301,6 @@ public class RepoTests extends KatelloCliTestBase {
 		Assert.assertTrue(key.isEmpty(), "Check exit code (repo info - no key)");
 	}
 
-	// TODO bz#1011557
 	@Test(description="Enable, disable Red Hat repository", dependsOnMethods={"test_listRedHatProductRepos"})
 	public void test_enableDisableRedHatRepo() {
 		String product_name = KatelloProduct.RHEL_SERVER;
@@ -322,7 +362,7 @@ public class RepoTests extends KatelloCliTestBase {
 		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloRepo.ERR_REPO_NOTFOUND, repo.name, repo.org, repo.product, "Library"));
 		
 	}
-	
+
 	/**
 	 * @see https://github.com/gkhachik/katello-api/issues/278
 	 */
@@ -339,7 +379,7 @@ public class RepoTests extends KatelloCliTestBase {
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check  -return code");
 		Assert.assertTrue(getOutput(_repo.custom_reposCount(null,null)).equals("8"), "Check - 8 repos were prepared");
 	}
-	
+
 	/**
 	 * @see https://github.com/gkhachik/katello-api/issues/282 
 	 */
@@ -364,7 +404,7 @@ public class RepoTests extends KatelloCliTestBase {
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check  -return code");
 		Assert.assertTrue(getOutput(_repo.custom_reposCount(null,null)).equals("1"), "Check - 1 repo was prepared");
 	}
-	
+
 	/**
 	 * @see https://github.com/gkhachik/katello-api/issues/283
 	 * TODO: bz#961780  repo list should be changed to accept option --content_view
@@ -394,7 +434,7 @@ public class RepoTests extends KatelloCliTestBase {
 		// FTP. Check - packages synced and promoted too.
 		assert_allRepoPackagesSynced(this.org_name, this.productAutoDiscoverFileZoo5, env_testing, 1);
 	}
-	
+
 	/**
 	 * @see https://github.com/gkhachik/katello-api/issues/284
 	 */
@@ -424,7 +464,7 @@ public class RepoTests extends KatelloCliTestBase {
 		
 		assert_allReposGPGAssigned(this.org_name, productname, key.name);
 	}
-	
+
 	/**
 	 * @see https://github.com/gkhachik/katello-api/issues/285
 	 */
@@ -471,7 +511,46 @@ public class RepoTests extends KatelloCliTestBase {
 		exec_result = new KatelloRepo(this.cli_worker, null, this.orgWithManifest, KatelloProduct.RHEL_SERVER, null, null, null).custom_reposCount(null, true);
 		Assert.assertTrue(new Integer(getOutput(exec_result)).intValue()>0, "Check - repos count >0");
 	}
-	
+
+	@Test(description="upload rmp to yum repository")
+	public void test_uploadContentYum() {
+		KatelloRepo repo = new KatelloRepo(cli_worker, repo_upload_yum, org_name, product_name, REPO_INECAS_ZOO3, null, null);
+		exec_result = repo.content_upload("/tmp/"+rpm_pkg_name, "yum", null);
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (repo upload rpm)");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloRepo.OUT_CONTENT_UPLOADED, rpm_pkg_name)), "Check output (repo upload rpm)");
+		KatelloPackage pkg = new KatelloPackage(cli_worker, org_name, product_name, repo_upload_yum, null);
+		exec_result = pkg.cli_list();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (package list)");
+		Assert.assertTrue(getOutput(exec_result).contains(rpm_pkg_name), "Check output (package list)");
+	}
+
+	@Test(description="upload puppet module to puppet repository")
+	public void test_uploadContentPuppet() {
+		KatelloRepo repo = new KatelloRepo(cli_worker, repo_upload_puppet, org_name, product_name, null, null, null);
+		exec_result = repo.content_upload("/tmp/" + puppet_module_name, "puppet", null);
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (upload puppet module)");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloRepo.OUT_CONTENT_UPLOADED, puppet_module_name)), "Check output (upload puppet module)");
+		KatelloPuppetModule module = new KatelloPuppetModule(cli_worker, org_name, repo_upload_puppet, product_name);
+		exec_result = module.list();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (list modules)");
+		Assert.assertTrue(getOutput(exec_result).contains(puppet_module_name.split("-")[0]), "Check output (list modules)");
+	}
+
+	// TODO bz#1012572
+	@Test(description="try to upload wrong type of content to repository - check errors")
+	public void test_uploadContentInvalidContent() {
+		KatelloRepo repo = new KatelloRepo(cli_worker, repo_upload_yum, org_name, product_name, null, null, null);
+		exec_result = repo.content_upload("/tmp/"+puppet_module_name, "puppet", null);
+		Assert.assertTrue(exec_result.getExitCode()!=0, "Check exit code (upload puppet to yum repo)");
+		exec_result = repo.content_upload("/tmp/"+puppet_module_name, "yum", null);
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloRepo.ERR_INVALID_RPM, puppet_module_name)), "Check error (invlid rpm)");
+		repo = new KatelloRepo(cli_worker, repo_upload_puppet, org_name, product_name, null, null, null);
+		exec_result = repo.content_upload("/tmp/"+rpm_pkg_name, "puppet", null);
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloRepo.ERR_INVALID_MODULE, rpm_pkg_name)), "Check error (invlid puppet)");
+		exec_result = repo.content_upload("/tmp/"+rpm_pkg_name, "yum", null);
+		Assert.assertTrue(exec_result.getExitCode()!=0, "Check exit code (upload rpm to puppet repo)");
+	}
+
 	private void assert_repoInfo(KatelloRepo repo) {
 		if (repo.gpgkey == null) repo.gpgkey = "";
 		if (repo.lastSync == null) repo.lastSync = "never";

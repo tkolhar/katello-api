@@ -36,6 +36,7 @@ public class KatelloContentFilter extends _KatelloObject{
 
 	public static final String ERR_ERRATA_DATE = "Validation failed: Parameters Invalid date range. The erratum rule start date must come before the end date";
 	public static final String ERR_NOT_FOUND = "Could not find filter [ %s ].";
+	public static final String ERR_PRODUCT_NOT_FOUND = "Could not find product [ %s ] within organization [ %s ] and definition [%s]"; 
 	
 	public static final String TYPE_EXCLUDES = "excludes";
 	public static final String TYPE_INCLUDES = "includes";

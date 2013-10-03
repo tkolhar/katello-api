@@ -76,6 +76,15 @@ public class ContentFilterTests extends KatelloCliTestBase {
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentFilter.OUT_ADD_PRODUCT, base_zoo_product_name.replaceAll(" ", "_"), filter_name)), "Check output");
 	}
 
+	@Test(description="add nonexisting product to filter - check error", dependsOnMethods={"init"})
+	public void test_filterAddNonexistProduct() {
+		String dummy_product = "product"+KatelloUtils.getUniqueID();
+		KatelloContentFilter filter = new KatelloContentFilter(cli_worker, filter_name, base_org_name, condef_name);
+		exec_result = filter.add_product(dummy_product);
+		Assert.assertTrue(exec_result.getExitCode() == 65, "Check exit code (filter add product)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentFilter.ERR_PRODUCT_NOT_FOUND, dummy_product, base_org_name, condef_name)), "Check output (filter add product)");
+	}
+
 	@Test(description="remove product from filter",dependsOnMethods={"test_filterAddProduct"})
 	public void test_filterRemoveProduct() {
 		KatelloContentFilter filter = new KatelloContentFilter(cli_worker, filter_name, base_org_name, condef_name);
@@ -309,7 +318,15 @@ public class ContentFilterTests extends KatelloCliTestBase {
 		Assert.assertTrue(exec_result.getExitCode()==65, "Check exit code (filter not found)");
 		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentFilter.ERR_NOT_FOUND, filter_name)), "Check error (filter not found)");
 	}
-	
+
+	@Test(description="list filters", dependsOnMethods={"init"})
+	public void test_listFilters() {
+		KatelloContentFilter filter = new KatelloContentFilter(cli_worker, null, base_org_name, condef_name);
+		exec_result = filter.list();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (list filters)");
+		Assert.assertTrue(getOutput(exec_result).contains(filter_name), "Check output (list filters)");
+	}
+
 	private void assert_filterInfo(String filter_name, String filter_content, String rule_type, String ruleRegExp) {
 		KatelloContentFilter filter = new KatelloContentFilter(cli_worker, filter_name, base_org_name, condef_name);
 		SSHCommandResult res = filter.info();
