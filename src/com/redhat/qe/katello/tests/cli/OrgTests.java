@@ -61,7 +61,6 @@ public class OrgTests extends KatelloCliTestBase{
 		Assert.assertTrue(getOutput(res).contains(KatelloOrg.getDefaultOrg()), "Check - contains default org");
 	}
 
-	//TODO: bz#987670
 	@Test(description = "Create org - different variations",
 			dataProviderClass = KatelloCliDataProvider.class,
 			dataProvider = "org_create",groups={"cfse-cli","headpin-cli"})
@@ -214,7 +213,6 @@ public class OrgTests extends KatelloCliTestBase{
 		Assert.assertEquals(getOutput(res).trim(), KatelloOrg.ERR_ORG_EXISTS_MUST_BE_UNIQUE);
 	}
 
-	//TODO: bz#987670
 	@Test(description = "Create org - name with special characters",groups={"cfse-cli","headpin-cli"})
 	public void test_createOrgNameSpecialCharacters(){
 		String uniqueID = KatelloUtils.getUniqueID();
@@ -482,7 +480,7 @@ public class OrgTests extends KatelloCliTestBase{
 		else
 			Assert.assertTrue(getOutput(exec_result).contains(String.format(output, org_name, keyname, "Systems")), "Check error (add custom info)");
 	}
-    // TODO: bz#990687
+
 	@Test(description="add distributor custom information key",
 			dataProviderClass=KatelloCliDataProvider.class, dataProvider="org_add_custom_info")
 	public void test_addDistributorCustomKey(String keyname, Integer exitCode, String output) {

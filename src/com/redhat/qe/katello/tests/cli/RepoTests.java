@@ -134,7 +134,24 @@ public class RepoTests extends KatelloCliTestBase {
 		//@ TODO switch to correct check when output is fixed
 		//Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloRepo.ERR_REPO_EXISTS, repo.name, repo.product));
 	}
-	
+
+	@Test(description = "Create repo without url. Try to sync the repo.")
+	public void test_createRepoWithoutURL() {
+		
+		repo_name = "repoNoURL-"+KatelloUtils.getUniqueID();;
+		
+		KatelloRepo repo = new KatelloRepo(this.cli_worker, repo_name, org_name, product_name, null, null, null);
+		exec_result = repo.create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloRepo.OUT_CREATE, repo_name)), "Check - output string (repo create without URL)");	
+		
+		exec_result = repo.synchronize();
+		
+		Assert.assertTrue(exec_result.getExitCode() == 65, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).trim().contains(String.format(KatelloRepo.ERR_REPO_SYNC_FAIL, repo.name)));
+
+	}
+
 	@Test(description = "Discover repo")
 	public void test_discoverRepo() {
 
@@ -285,7 +302,6 @@ public class RepoTests extends KatelloCliTestBase {
 		Assert.assertTrue(key.isEmpty(), "Check exit code (repo info - no key)");
 	}
 
-	// TODO bz#1011557
 	@Test(description="Enable, disable Red Hat repository", dependsOnMethods={"test_listRedHatProductRepos"})
 	public void test_enableDisableRedHatRepo() {
 		String product_name = KatelloProduct.RHEL_SERVER;
@@ -347,7 +363,7 @@ public class RepoTests extends KatelloCliTestBase {
 		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloRepo.ERR_REPO_NOTFOUND, repo.name, repo.org, repo.product, "Library"));
 		
 	}
-	
+
 	/**
 	 * @see https://github.com/gkhachik/katello-api/issues/278
 	 */
@@ -364,7 +380,7 @@ public class RepoTests extends KatelloCliTestBase {
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check  -return code");
 		Assert.assertTrue(getOutput(_repo.custom_reposCount(null,null)).equals("8"), "Check - 8 repos were prepared");
 	}
-	
+
 	/**
 	 * @see https://github.com/gkhachik/katello-api/issues/282 
 	 */
@@ -389,7 +405,7 @@ public class RepoTests extends KatelloCliTestBase {
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check  -return code");
 		Assert.assertTrue(getOutput(_repo.custom_reposCount(null,null)).equals("1"), "Check - 1 repo was prepared");
 	}
-	
+
 	/**
 	 * @see https://github.com/gkhachik/katello-api/issues/283
 	 * TODO: bz#961780  repo list should be changed to accept option --content_view
@@ -419,7 +435,7 @@ public class RepoTests extends KatelloCliTestBase {
 		// FTP. Check - packages synced and promoted too.
 		assert_allRepoPackagesSynced(this.org_name, this.productAutoDiscoverFileZoo5, env_testing, 1);
 	}
-	
+
 	/**
 	 * @see https://github.com/gkhachik/katello-api/issues/284
 	 */
@@ -449,7 +465,7 @@ public class RepoTests extends KatelloCliTestBase {
 		
 		assert_allReposGPGAssigned(this.org_name, productname, key.name);
 	}
-	
+
 	/**
 	 * @see https://github.com/gkhachik/katello-api/issues/285
 	 */
