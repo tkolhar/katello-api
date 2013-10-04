@@ -486,7 +486,7 @@ public class RepoTests extends KatelloCliTestBase {
 		KatelloRepo _repo = new KatelloRepo(this.cli_worker, "pulp-v2", this.org_name, productname, url, null, null);
 		exec_result = _repo.discover(providername);
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check  -return code");
-		Assert.assertTrue(getOutput(_repo.custom_reposCount(null,null)).equals("10"), "Check - 10 repos were prepared");
+		Assert.assertTrue(getOutput(_repo.custom_reposCount(null,null)).equals("8"), "Check - 8 repos were prepared");
 		
 		assert_allReposGPGAssigned(this.org_name, productname, "");
 
