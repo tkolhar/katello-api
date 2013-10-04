@@ -7,8 +7,8 @@ import javax.management.Attribute;
 import com.redhat.qe.katello.base.threading.KatelloCliWorker;
 import com.redhat.qe.tools.SSHCommandResult;
 
-public class KatelloArchitecture extends _KatelloObject{
-    protected static Logger log = Logger.getLogger(KatelloArchitecture.class.getName());
+public class HammerArchitecture extends _HammerObject{
+    protected static Logger log = Logger.getLogger(HammerArchitecture.class.getName());
 
 	// ** ** ** ** ** ** ** Public constants
 	public static final String CLI_CMD_CREATE = "architecture create";
@@ -18,7 +18,7 @@ public class KatelloArchitecture extends _KatelloObject{
 	public static final String CMD_UPDATE = "architecture update";
 	
 	public static final String OUT_CREATE = 
-			"Architecture [ %s ] created.";
+			"Architecture created";
 	public static final String OUT_UPDATE = 
 			"Architecture [ %s ] updated.";
 	public static final String OUT_DELETE = 
@@ -32,9 +32,9 @@ public class KatelloArchitecture extends _KatelloObject{
 	// ** ** ** ** ** ** ** Class members
 	public String name;
 	
-	public KatelloArchitecture(){super();}
+	public HammerArchitecture(){super();}
 	
-	public KatelloArchitecture(KatelloCliWorker kcr, String pName){
+	public HammerArchitecture(KatelloCliWorker kcr, String pName){
 		this.name = pName;
 		this.kcr = kcr;
 	}

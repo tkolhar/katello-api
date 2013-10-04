@@ -7,18 +7,18 @@ import javax.management.Attribute;
 import com.redhat.qe.katello.base.threading.KatelloCliWorker;
 import com.redhat.qe.tools.SSHCommandResult;
 
-public class KatelloHardwareModel extends _KatelloObject{
-    protected static Logger log = Logger.getLogger(KatelloHardwareModel.class.getName());
+public class HammerHardwareModel extends _HammerObject {
+    protected static Logger log = Logger.getLogger(HammerHardwareModel.class.getName());
 
 	// ** ** ** ** ** ** ** Public constants
-	public static final String CLI_CMD_CREATE = "hw_model create";
-	public static final String CLI_CMD_INFO = "hw_model info";
-	public static final String CLI_CMD_LIST = "hw_model list";
-	public static final String CMD_DELETE = "hw_model delete";
-	public static final String CMD_UPDATE = "hw_model update";
+	public static final String CLI_CMD_CREATE = "model create";
+	public static final String CLI_CMD_INFO = "model info";
+	public static final String CLI_CMD_LIST = "model list";
+	public static final String CMD_DELETE = "model delete";
+	public static final String CMD_UPDATE = "model update";
 	
 	public static final String OUT_CREATE = 
-			"Hardware Model [ %s ] created";
+			"Hardware model created";
 	public static final String OUT_UPDATE = 
 			"Hardware Model [ %s ] updated";
 	public static final String OUT_DELETE = 
@@ -38,14 +38,14 @@ public class KatelloHardwareModel extends _KatelloObject{
 	public String info;
 	public String vendor_class;
 	
-	public KatelloHardwareModel(){super();}
+	public HammerHardwareModel(){super();}
 	
-	public KatelloHardwareModel(KatelloCliWorker kcr, String pName){
+	public HammerHardwareModel(KatelloCliWorker kcr, String pName){
 		this.name = pName;
 		this.kcr = kcr;
 	}
 	
-	public KatelloHardwareModel(KatelloCliWorker kcr, String pName, String phwModel, String pinfo, String pvendorClass){
+	public HammerHardwareModel(KatelloCliWorker kcr, String pName, String phwModel, String pinfo, String pvendorClass){
 		this.name = pName;
 		this.hw_model = phwModel;
 		this.info = pinfo;
@@ -65,8 +65,8 @@ public class KatelloHardwareModel extends _KatelloObject{
 		opts.clear();
 		opts.add(new Attribute("name", this.name));
 		opts.add(new Attribute("info", this.info));
-		opts.add(new Attribute("hw_model", this.hw_model));
-		opts.add(new Attribute("vendor_class", this.vendor_class));
+		opts.add(new Attribute("hardware-model", this.hw_model));
+		opts.add(new Attribute("vendor-class", this.vendor_class));
 		return run(CLI_CMD_CREATE);
 	}
 	
@@ -92,8 +92,8 @@ public class KatelloHardwareModel extends _KatelloObject{
 		opts.add(new Attribute("name", this.name));
 		opts.add(new Attribute("new_name", new_name));
 		opts.add(new Attribute("info", this.info));
-		opts.add(new Attribute("hw_model", this.hw_model));
-		opts.add(new Attribute("vendor_class", this.vendor_class));
+		opts.add(new Attribute("hardware-model", this.hw_model));
+		opts.add(new Attribute("vendor-class", this.vendor_class));
 		return run(CMD_UPDATE);
 	}
 	

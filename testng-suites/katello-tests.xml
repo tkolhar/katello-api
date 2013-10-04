@@ -187,4 +187,9 @@
 			<class name="com.redhat.qe.katello.tests.deltacloud.DestroyServers"/>
 		</classes>
 	</test>
+	<test name="Hammer_CLI_Tests">
+		<packages>
+			<package name="com.redhat.qe.katello.tests.hammer.cli"/>
+		</packages>
+	</test>
 </suite>
