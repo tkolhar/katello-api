@@ -46,6 +46,7 @@ public class RepoTests extends KatelloCliTestBase {
 	private String productAutoDiscoverFileZoo5;
 	
 	private String orgWithManifest;
+	private String secondOrg;
 	private String repo_upload_yum;
 	private String repo_upload_puppet;
 	private String rpm_pkg_name;
@@ -551,6 +552,31 @@ public class RepoTests extends KatelloCliTestBase {
 		Assert.assertTrue(exec_result.getExitCode()!=0, "Check exit code (upload rpm to puppet repo)");
 	}
 
+	/*
+	 * https://github.com/gkhachik/katello-api/issues/418
+	 */
+	@Test(description="Repo list for Red Hat product should be displayed", dependsOnMethods={"test_listRedHatProductRepos"})
+	public void test_listEnabledRepos(){
+		String uid = KatelloUtils.getUniqueID();
+		this.secondOrg = "anotherORg-"+uid;
+		String manifest = "manifest-automation-CLI-2subscriptions.zip";
+		//create second org
+		exec_result = new KatelloOrg(this.cli_worker, this.secondOrg, null).cli_create();
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check  -return code");
+		//import another manifest for the second org
+		KatelloUtils.scpOnClient(cli_worker.getClientHostname(), "data/"+manifest, "/tmp");
+		exec_result = new KatelloProvider(this.cli_worker, KatelloProvider.PROVIDER_REDHAT, this.secondOrg, null, null).import_manifest("/tmp/"+manifest, true);
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check  -return code");
+		//enable different set of repos for the two orgs
+		exec_result = new KatelloProduct(this.cli_worker, KatelloProduct.RHEL_SERVER, this.secondOrg, KatelloProvider.PROVIDER_REDHAT, null, null, null, null, null).repository_set_enable("Red Hat Enterprise Linux 6 Server (ISOs)");
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check  -return code");
+		//list repos - check count
+		exec_result = new KatelloRepo(this.cli_worker, null, this.secondOrg, KatelloProduct.RHEL_SERVER, null, null, null).custom_reposCount(null, true);
+		Assert.assertTrue(new Integer(getOutput(exec_result)).intValue()>0, "Check - repos count >0");
+		exec_result = new KatelloRepo(this.cli_worker, null, this.orgWithManifest, KatelloProduct.RHEL_SERVER, null, null, null).custom_reposCount(null, true);
+		Assert.assertTrue(new Integer(getOutput(exec_result)).intValue()>0, "Check - repos count >0");  
+	} 
+
 	private void assert_repoInfo(KatelloRepo repo) {
 		if (repo.gpgkey == null) repo.gpgkey = "";
 		if (repo.lastSync == null) repo.lastSync = "never";
@@ -628,5 +654,6 @@ public class RepoTests extends KatelloCliTestBase {
 	public void tearDown(){
 		new KatelloOrg(this.cli_worker, this.orgWithManifest, null).delete(); // we don't care with the result.
 		new KatelloOrg(cli_worker, org_name, null).delete();
+		new KatelloOrg(cli_worker, this.secondOrg, null).delete();
 	}
 }
