@@ -35,7 +35,8 @@ public class SetupServers extends KatelloCliTestBase {
 
 	@AfterSuite(alwaysRun=true)
 	public void tearDown() {
-		if (isDeltacloud) {
+		boolean keepAlive = Boolean.getBoolean(System.getProperty("deltacloud.keepalive", "false"));
+		if (isDeltacloud && !keepAlive) {
 			KatelloUtils.destroyDeltaCloudMachine(server);
 		}
 	}
