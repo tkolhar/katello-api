@@ -17,17 +17,10 @@ public class InstallISOTests extends KatelloCliTestBase {
 	
 	@Test(description="Download ISO file and install to server, configure server and test ping command")
 	public void test_install() {
-		
-//		String loginCDN = System.getProperty("cdn.username", "qa@redhat.com");
-//		String passCDN = System.getProperty("cdn.password"); // let user define the password!~
 		String iso_url = System.getProperty("iso.file.url"); // iso file too... otherwise exit.
-//		if(passCDN==null || iso_url==null)
 		if(iso_url==null)
 			new SkipException("Following parameters are required: cdn.password; iso.file.url"); // and quit here.
 		
-//		exec_result = KatelloUtils.sshOnServer("subscription-manager register --force --username=" + loginCDN + " --password=" + passCDN + " --autosubscribe");
-//		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-//		
 		exec_result = KatelloUtils.sshOnServer("wget " + iso_url);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
@@ -80,9 +73,6 @@ public class InstallISOTests extends KatelloCliTestBase {
 	}
 	@AfterClass(alwaysRun=true)
 	public void cleanup(){
-//		String cmdToRun = "subscription-manager unregister; subscription-manager clean";
-//		log.info("ISO install: unregister from live CDN");
-//		KatelloUtils.sshOnServer(cmdToRun);
 		KatelloUtils.enableYumRepo(System.getProperty("katello.server.hostname", "localhost"), "beaker");
 	}
 	
