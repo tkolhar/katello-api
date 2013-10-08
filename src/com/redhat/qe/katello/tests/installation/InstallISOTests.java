@@ -1,7 +1,8 @@
 package com.redhat.qe.katello.tests.installation;
 
 import org.testng.SkipException;
-import org.testng.annotations.AfterTest;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
@@ -17,15 +18,16 @@ public class InstallISOTests extends KatelloCliTestBase {
 	@Test(description="Download ISO file and install to server, configure server and test ping command")
 	public void test_install() {
 		
-		String loginCDN = System.getProperty("cdn.username", "qa@redhat.com");
-		String passCDN = System.getProperty("cdn.password"); // let user define the password!~
+//		String loginCDN = System.getProperty("cdn.username", "qa@redhat.com");
+//		String passCDN = System.getProperty("cdn.password"); // let user define the password!~
 		String iso_url = System.getProperty("iso.file.url"); // iso file too... otherwise exit.
-		if(passCDN==null || iso_url==null)
+//		if(passCDN==null || iso_url==null)
+		if(iso_url==null)
 			new SkipException("Following parameters are required: cdn.password; iso.file.url"); // and quit here.
 		
-		exec_result = KatelloUtils.sshOnServer("subscription-manager register --force --username=" + loginCDN + " --password=" + passCDN + " --autosubscribe");
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
+//		exec_result = KatelloUtils.sshOnServer("subscription-manager register --force --username=" + loginCDN + " --password=" + passCDN + " --autosubscribe");
+//		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+//		
 		exec_result = KatelloUtils.sshOnServer("wget " + iso_url);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
@@ -72,11 +74,16 @@ public class InstallISOTests extends KatelloCliTestBase {
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 	}
 	
-	@AfterTest(alwaysRun=true)
+	@BeforeClass(alwaysRun=true)
+	public void setup(){
+		KatelloUtils.disableYumRepo(System.getProperty("katello.server.hostname", "localhost"), "beaker");
+	}
+	@AfterClass(alwaysRun=true)
 	public void cleanup(){
-		String cmdToRun = "subscription-manager unregister; subscription-manager clean";
-		log.info("ISO install: unregister from live CDN");
-		KatelloUtils.sshOnServer(cmdToRun);		
+//		String cmdToRun = "subscription-manager unregister; subscription-manager clean";
+//		log.info("ISO install: unregister from live CDN");
+//		KatelloUtils.sshOnServer(cmdToRun);
+		KatelloUtils.enableYumRepo(System.getProperty("katello.server.hostname", "localhost"), "beaker");
 	}
 	
 	private void install_sat6(){
