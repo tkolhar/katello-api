@@ -159,7 +159,6 @@ public class SystemInfoTests extends KatelloCliTestBase{
 
 	@Test(description="trying to remove an invalid parameter from org, verifies the error message", dependsOnMethods={"addOrgInfo"})
 	public void test_removeOrgInvalidInfo() {
-
 		KatelloOrg org = new KatelloOrg(this.cli_worker, this.org, "Default org");
 		exec_result = org.default_info_remove(keyInvalid, "system");
 		Assert.assertTrue(exec_result.getExitCode().intValue()==148, "Check - return code");
@@ -170,7 +169,7 @@ public class SystemInfoTests extends KatelloCliTestBase{
 
 		//TODO: AssertTrue for the exact exitCode
 		Assert.assertTrue(exec_result.getExitCode().intValue()==144, "Check - return code");
-		
+
 		//TODO: Assert for the correct Error Message. Feature yet to be added
 		Assert.assertEquals(getOutput(exec_result).trim(), 
 				String.format(KatelloOrg.ERR_WRONG_TYPE, keyname, org.name),
