@@ -160,6 +160,11 @@ public class SystemInfoTests extends KatelloCliTestBase{
 	@Test(description="trying to remove an invalid parameter from org, verifies the error message", dependsOnMethods={"addOrgInfo"})
 	public void test_removeOrgInvalidInfo() {
 		KatelloOrg org = new KatelloOrg(this.cli_worker, this.org, "Default org");
+		exec_result = org.default_info_remove(keyInvalid, "system");
+		Assert.assertTrue(exec_result.getExitCode().intValue()==148, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).trim().contains("Couldn't find default_info with keyname [ " + keyInvalid + " ]"));
+		
+		org = new KatelloOrg(this.cli_worker, this.org, "Default org");
 		exec_result = org.default_info_remove(keyInvalid, "ASDF");
 
 		//TODO: AssertTrue for the exact exitCode
