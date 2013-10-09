@@ -7,6 +7,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.Assert;
+import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.HammerSubnet;
 import com.redhat.qe.katello.common.KatelloUtils;
@@ -19,10 +20,10 @@ public class SubnetTests extends KatelloCliTestBase {
 	private String network = randomNetwork();
 	private String new_name;
 	private String[] base_names;
+	private String uid = KatelloUtils.getUniqueID().substring(7);
 	
 	@BeforeClass(description="Prepare an data to work with")
-	public void setUp(){
-		String uid = KatelloUtils.getUniqueID().substring(7);
+	public void setUp() {
 		this.name = "subn"+uid;
 		this.name2 = "allparams";
 		this.new_name = "new" + uid;
@@ -55,12 +56,47 @@ public class SubnetTests extends KatelloCliTestBase {
 		sub.setDns_secondary("251.10.12.255");
 		sub.setFrom("251.10.10.10");
 		sub.setTo("251.10.10.12");
+		sub.setDomain_id("1");
+		sub.setVlanid("2");
 		res = sub.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 		
 		Assert.assertTrue(getOutput(res).contains(String.format(HammerSubnet.OUT_CREATE, name)),"Check - returned output string");
 		
 		assert_SubnetInfo(sub);
+	}
+
+	// @ TODO bug, update other params
+	@Test(description="update Subnet with all parameters", dependsOnMethods={"testSubnet_createAllParams"})
+	public void testSubnet_updateAllParams() {
+		SSHCommandResult res;
+		
+		HammerSubnet sub = new HammerSubnet(cli_worker, name2, "251.10.9.11", "255.255.254.0");
+		sub.setGateway("251.10.10.250");
+		sub.setDns_primary("251.10.11.250");
+		sub.setDns_secondary("251.10.12.250");
+		sub.setFrom("251.10.9.10");
+		sub.setTo("251.10.9.12");
+		sub.setDomain_id("3");
+		sub.setVlanid("4");
+		res = sub.update(null);
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
+		
+		// @ TODO error message
+		//Assert.assertTrue(getOutput(res).contains(String.format(HammerSubnet.OUT_UPDATE, name)),"Check - returned output string");
+		
+		assert_SubnetInfo(sub);
+	}
+	
+	@Test(description="update Subnet with wrong network range", dependsOnMethods={"testSubnet_updateAllParams"})
+	public void testSubnet_updateNetworkRangeFail() {
+		SSHCommandResult res;
+		
+		HammerSubnet sub = new HammerSubnet(cli_worker, name2, "251.11.9.16", "255.255.255.0");
+		sub.setFrom("251.10.9.13");
+		sub.setTo("251.10.9.14");
+		res = sub.update(null);
+		Assert.assertFalse(res.getExitCode().intValue() == 0, "Check - return code");
 	}
 	
 	@Test(description="create Subnet which name exists", dependsOnMethods={"testSubnet_create"})
@@ -73,6 +109,42 @@ public class SubnetTests extends KatelloCliTestBase {
 		
 		// @ TODO error message
 		//Assert.assertTrue(getOutput(res).contains(String.format(HammerSubnet.ERR_NAME_EXISTS, name)),"Check - returned error string");
+	}
+
+	@Test(description="create Subnet with wrong params", 
+			dataProvider="subnet_create", dataProviderClass = KatelloCliDataProvider.class, enabled=true)
+	public void testSubnet_createWrongParams(String name, String network, String mask, String gateway, String dns_primary, String dns_secondary,
+			String from, String to, String domain, String vlan) {
+		SSHCommandResult res;
+		
+		HammerSubnet sub = new HammerSubnet(cli_worker, name, network, mask);
+		sub.setGateway(gateway);
+		sub.setDns_primary(dns_primary);
+		sub.setDns_secondary(dns_secondary);
+		sub.setFrom(from);
+		sub.setTo(to);
+		sub.setDomain_id(domain);
+		sub.setVlanid(vlan);
+		
+		res = sub.cli_create();
+		Assert.assertFalse(res.getExitCode().intValue() == 0, "Check - return code");		
+		
+		// @ TODO error message
+		//Assert.assertTrue(getOutput(res).contains(output),"Check - returned error string");
+		
+		res = sub.cli_info();
+		Assert.assertFalse(res.getExitCode().intValue() == 0, "Check - return code");
+	}
+	
+	@Test(description="create Subnet with all parameters")
+	public void testSubnet_createNetworkRangeFail() {
+		SSHCommandResult res;
+		
+		HammerSubnet sub = new HammerSubnet(cli_worker, "wrongnetworkrange", "251.11.9.16", "255.255.255.0");
+		sub.setFrom("251.10.9.13");
+		sub.setTo("251.10.9.14");
+		res = sub.cli_create();
+		Assert.assertFalse(res.getExitCode().intValue() == 0, "Check - return code");
 	}
 	
 	@Test(description="info Subnet", dependsOnMethods={"testSubnet_createExists"})
