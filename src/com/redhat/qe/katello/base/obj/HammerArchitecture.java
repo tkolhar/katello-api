@@ -61,9 +61,23 @@ public class HammerArchitecture extends _HammerObject{
 	
 	public SSHCommandResult cli_list(){
 		opts.clear();
-		return run(CLI_CMD_LIST+" -v");
+		return run(CLI_CMD_LIST);
 	}
 
+	public SSHCommandResult cli_search(String search){
+		opts.clear();
+		opts.add(new Attribute("search", search));
+		return run(CLI_CMD_LIST);
+	}
+	
+	public SSHCommandResult cli_list(String order, Integer page, Integer per_page){
+		opts.clear();
+		opts.add(new Attribute("order", order));
+		opts.add(new Attribute("page", page));
+		opts.add(new Attribute("per-page", per_page));
+		return run(CLI_CMD_LIST);
+	}
+	
 	public SSHCommandResult delete(){
 		opts.clear();
 		opts.add(new Attribute("name", this.name));
@@ -73,7 +87,7 @@ public class HammerArchitecture extends _HammerObject{
 	public SSHCommandResult update(String new_name){
 		opts.clear();
 		opts.add(new Attribute("name", this.name));
-		opts.add(new Attribute("new_name", new_name));
+		opts.add(new Attribute("new-name", new_name));
 		return run(CMD_UPDATE);
 	}
 
