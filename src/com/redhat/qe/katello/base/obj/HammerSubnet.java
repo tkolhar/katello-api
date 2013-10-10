@@ -171,7 +171,7 @@ public class HammerSubnet extends _HammerObject{
 		opts.add(new Attribute("from", this.from));
 		opts.add(new Attribute("to", this.to));
 		opts.add(new Attribute("vlanid", this.vlanid));
-		opts.add(new Attribute("domain-id", this.domain_id));
+		opts.add(new Attribute("domain-ids", this.domain_id));
 		opts.add(new Attribute("dhcp-id", this.dhcp_id));
 		opts.add(new Attribute("tftp-id", this.tftp_id));
 		opts.add(new Attribute("dns-id", this.dns_id));
@@ -214,16 +214,17 @@ public class HammerSubnet extends _HammerObject{
 		opts.add(new Attribute("name", this.name));
 		opts.add(new Attribute("new-name", new_name));
 		opts.add(new Attribute("network", this.network));
+		opts.add(new Attribute("mask", this.mask));
 		opts.add(new Attribute("gateway", this.gateway));
-		opts.add(new Attribute("dns_primary", this.dns_primary));
-		opts.add(new Attribute("dns_secondary", this.dns_secondary));
+		opts.add(new Attribute("dns-primary", this.dns_primary));
+		opts.add(new Attribute("dns-secondary", this.dns_secondary));
 		opts.add(new Attribute("from", this.from));
 		opts.add(new Attribute("to", this.to));
 		opts.add(new Attribute("vlanid", this.vlanid));
-		opts.add(new Attribute("domain_id", this.domain_id));
-		opts.add(new Attribute("dhcp_id", this.dhcp_id));
-		opts.add(new Attribute("tftp_id", this.tftp_id));
-		opts.add(new Attribute("dns_id", this.dns_id));
+		opts.add(new Attribute("domain-ids", this.domain_id));
+		opts.add(new Attribute("dhcp-id", this.dhcp_id));
+		opts.add(new Attribute("tftp-id", this.tftp_id));
+		opts.add(new Attribute("dns-id", this.dns_id));
 		return run(CMD_UPDATE);
 	}
 

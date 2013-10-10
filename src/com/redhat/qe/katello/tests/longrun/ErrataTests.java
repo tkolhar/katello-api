@@ -83,7 +83,7 @@ public class ErrataTests extends KatelloCliLongrunBase {
 		exec_result = repo.info();
 		Assert.assertFalse(KatelloUtils.grepCLIOutput("Package Count", getOutput(exec_result)).equals("0"), "Check - package count is NOT 0");
 		
-		//@ TODO bug 1012480
+		//@ TODO bz#1012480
 		//exec_result = new KatelloOrg(this.cli_worker, base_org_name, null).subscriptions();
 		//poolId1 = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
 	}
@@ -117,6 +117,7 @@ public class ErrataTests extends KatelloCliLongrunBase {
 		Assert.assertFalse(getOutput(exec_result).replaceAll("\n", "").trim().equals("0"), "Check - erratas are not empty");
 	}
 	
+	// @ TODO bz#1013685
 	@Test(description="promote rhel errata", dependsOnMethods={"test_listRHELErratas"})
 	public void test_promoteRHELErrata() {
 		content_view_promote_errata = KatelloUtils.promoteErratasToEnvironment(cli_worker, base_org_name, KatelloProduct.RHEL_SERVER, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, new String[] {ert1}, env_name);	
@@ -188,7 +189,7 @@ public class ErrataTests extends KatelloCliLongrunBase {
 		Assert.assertFalse(getOutput(exec_result).trim().contains(ert1), "Errata " + ert1 + " is not listed in environment errata list");
 	}
 	
-	//@ TODO bug 970720
+	//@ TODO bz#970720
 	@Test(description="install errata which was excluded by filter, verify that it fails", dependsOnMethods={"test_listRHELRepoErrataDeleted"})
 	public void test_installRHELRepoExcludedErrata() {
 		sshOnClient("yum clean all");
@@ -212,7 +213,7 @@ public class ErrataTests extends KatelloCliLongrunBase {
 		KatelloActivationKey act_key = new KatelloActivationKey(this.cli_worker, base_org_name, envName, activationKey, "Act key created", null, contentView);
 		exec_result = act_key.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");  
-		// @ TODO bug 1012875
+		// @ TODO bz#1012875
 //		exec_result = act_key.update_add_subscription(poolId1);
 //		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
@@ -222,7 +223,7 @@ public class ErrataTests extends KatelloCliLongrunBase {
 		exec_result = sys.rhsm_identity();
 		system_uuid = KatelloUtils.grepCLIOutput("Current identity is", exec_result.getStdout());
 		
-		//@ TODO bug 1012480 remove below section when bug is fixed
+		//@ TODO bz#1012480 remove below section when bug is fixed
 		poolId1 = KatelloUtils.grepCLIOutput("Pool ID",
 				KatelloUtils.sshOnClient(null, "subscription-manager list --available --all | sed  -e 's/^ \\{1,\\}//'").getStdout().trim(),1);
 		Assert.assertNotNull(poolId1);

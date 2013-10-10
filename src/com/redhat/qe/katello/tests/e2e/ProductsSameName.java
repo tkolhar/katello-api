@@ -126,7 +126,7 @@ public class ProductsSameName extends KatelloCliTestBase {
 		Assert.assertNotNull(package_id2, "Package ID is not null");
 	}
 
-	//@ TODO Bug 921103
+	//@ TODO bz#921103
 	@Test(description="package info of two repos", dependsOnMethods={"test_packageList"})
 	public void test_packageInfo() {
 		
