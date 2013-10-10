@@ -1,6 +1,7 @@
 package com.redhat.qe.katello.base.obj;
 
 import javax.management.Attribute;
+
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.threading.KatelloCliWorker;
@@ -50,6 +51,14 @@ public class HammerUser extends _HammerObject {
 	public static final String API_CMD_INFO = "/users/%s";
 	public static final String API_CMD_LIST = "/users";
 	public static final String API_CMD_CREATE = "/users";
+	//Hammer constants
+	public static final String HAMMER_OUT_CREATE = "User created";
+	public static final String HAMMER_OUT_UPDATE = "User updated";
+	public static final String HAMMER_OUT_DELETE = "User deleted";
+	
+	public static final String HAMMER_ERR_CREATE = "Could not create the user:";
+	
+	public static final String REG_USER_INFO = ".*Id\\s*:\\s+%s.*Login\\s*:\\s+%s.*Name\\s*:\\s+%s.*Email\\s*:\\s+%s.*";
 
 	// ** ** ** ** ** ** ** Class members
 	public String username;
@@ -60,10 +69,27 @@ public class HammerUser extends _HammerObject {
 	public String envname = "";
 	private Long id;
 	public String locale = "";
-	
+	//Hammer members
+	public String login;
+	public String firstName;
+	public String lastName;
+	public String mail;
+	public boolean isAdmin = false;
 	
 	public HammerUser() {super();} // For resteasy
 
+	public HammerUser(KatelloCliWorker kcr, String pLogin, String pPassword, String pMail) {
+		this.login = pLogin;
+		this.password = pPassword;
+		this.mail = pMail;
+	}
+	
+	public HammerUser(KatelloCliWorker kcr, String pLogin, String pPassword, String pMail, String pFirstName, String pLastName, boolean pIsAdmin ) {
+		this(kcr, pLogin, pPassword, pMail);
+		this.firstName = pFirstName;
+		this.lastName = pLastName;
+		this.isAdmin = pIsAdmin;
+	}
 	public HammerUser(KatelloCliWorker kcr, String pName, String pEmail, String pPassword, boolean pDisabled){
 		this.username = pName;
 		this.email = pEmail;
@@ -135,16 +161,44 @@ public class HammerUser extends _HammerObject {
 			opts.add(new Attribute("default_locale",locale));
 		return run(CMD_CREATE);
 	}
+	
+	public SSHCommandResult create(String pAuthId) {
+		opts.clear();
+		opts.add(new Attribute("login", this.login));
+		opts.add(new Attribute("password", this.password));
+		opts.add(new Attribute("mail", this.mail));
+		opts.add(new Attribute("auth-source-id", pAuthId));
+		opts.add(new Attribute("firstname", this.firstName));
+		opts.add(new Attribute("lastname", this.lastName));
+		if(this.isAdmin) {
+			opts.add(new Attribute("admin", "true"));
+		}
+		return run(CMD_CREATE);
+	}
 
 	public SSHCommandResult cli_info(){
 		opts.clear();
 		opts.add(new Attribute("username", username));
 		return run(CLI_CMD_INFO);
 	}
+	
+	public SSHCommandResult info() {
+		opts.clear();
+		opts.add(new Attribute("id", this.id));
+		return run(CLI_CMD_INFO);
+	}
 
 	public SSHCommandResult cli_list(){
 		opts.clear();
 		return run(CLI_CMD_LIST+" -v");
+	}
+	
+	public SSHCommandResult list(String searchStr, String order, String page) {
+		opts.clear();
+		opts.add(new Attribute("search", searchStr));
+		opts.add(new Attribute("order", order));
+		opts.add(new Attribute("page", page));
+		return run(CLI_CMD_LIST);
 	}
 
 	public SSHCommandResult assign_role(String role){
@@ -173,6 +227,24 @@ public class HammerUser extends _HammerObject {
 		return run(CMD_DELETE_USER);
 	}
 	
+	public SSHCommandResult delete(String id) {
+		opts.clear();
+		opts.add(new Attribute("id", id));
+		return run(CMD_DELETE_USER);
+	}
+	
+	public SSHCommandResult update() {
+		opts.clear();
+		opts.add(new Attribute("id", this.id));
+		opts.add(new Attribute("firstname", this.firstName));
+		opts.add(new Attribute("lastname", this.lastName));
+		opts.add(new Attribute("login", this.login));
+		opts.add(new Attribute("password", this.password));
+		opts.add(new Attribute("mail", this.mail));
+		if(this.isAdmin)
+			opts.add(new Attribute("admin", "true"));
+		return run(CMD_UPDATE);
+	}
 	public SSHCommandResult update_defaultOrgEnv(String org, String env){
 		opts.clear();
 		opts.add(new Attribute("username", username));
