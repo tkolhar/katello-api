@@ -81,7 +81,7 @@ public class SystemEnvironments extends KatelloCliTestBase {
 		Assert.assertTrue(getOutput(exec_result).trim().contains(String.format("Validation failed: Content view '%s' is not in environment '%s'", this.contentView_name, this.env_name_Test)));
 	}
 
-	//@ TODO bug 980948
+	//@ TODO bz#980948
 	@Test(description = "Install some package in system after moving to another environment", dependsOnMethods={"test_moveSystem"})
 	public void test_installPackageOnMovedSystem() {
 		sshOnClient("yum -y erase wolf lion");

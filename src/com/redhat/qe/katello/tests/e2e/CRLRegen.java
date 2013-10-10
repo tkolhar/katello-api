@@ -90,7 +90,7 @@ public class CRLRegen extends KatelloCliTestBase{
 	 * Subscribe client.
 	 * Verify that "yum install" works.
 	 */
-	//@ TODO bug 896600
+	//@ TODO bz#896600
 	@Test(description="CRL Regeneration")
 	public void test_crl_regen() {
 		

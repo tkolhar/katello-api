@@ -159,7 +159,7 @@ public class TestMultipleAgents extends KatelloCliTestBase {
 
 	}
 	
-	//TODO bug fails for RHEL 5 988776
+	//TODO bug fails for RHEL 5 bz#988776
 	private void testClientConsume(String client_name, String client_type) {
 		String actKey = null;
 		String packName = null;

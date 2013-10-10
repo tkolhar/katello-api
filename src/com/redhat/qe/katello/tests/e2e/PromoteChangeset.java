@@ -51,7 +51,7 @@ public class PromoteChangeset extends KatelloCliTestBase {
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").contains("lion"), "Check - package list output");
 	}
 
-	//@ TODO 1013685
+	//@ TODO bz#1013685
 	@Test(description="Promote errata to DEV")
 	public void test_promoteErrataToDEV(){
 		errata_content_view = KatelloUtils.promoteErratasToEnvironment(cli_worker, base_org_name, base_zoo_product_name, base_zoo_repo_name, new String[] {PromoteErrata.ERRATA_ZOO_SEA}, this.env1);
@@ -72,7 +72,7 @@ public class PromoteChangeset extends KatelloCliTestBase {
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").contains("lion"), "Check - package list output");
 	}
 
-	//@ TODO 1013685
+	//@ TODO bz#1013685
 	@Test(description="Promote errata to GA", dependsOnMethods={"test_promoteErrataToDEV"})
 	public void test_promoteErrataToGA(){
 		KatelloContentView view = new KatelloContentView(cli_worker, errata_content_view, base_org_name);

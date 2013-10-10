@@ -47,7 +47,7 @@ public class ConsumeFilteredPackageGroup extends KatelloCliTestBase {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
     
-	// @ TODO fails because of bug 957057
+	// @ TODO fails because of bz#957057
 	@Test(description="Consume content from filtered package group")
 	public void test_consumePackageGroupContent() {
 
