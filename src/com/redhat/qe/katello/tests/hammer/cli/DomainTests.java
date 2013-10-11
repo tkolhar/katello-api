@@ -67,14 +67,28 @@ public class DomainTests extends KatelloCliTestBase {
 		domain.name = newName;
 		assert_DomainInfo(domain);
 	}
+	//TODO: search, page, order
+	@Test(description="List domains. Check if updated name is present", dependsOnMethods={"test_domainUpdate"})
+	public void test_domianList()
+	{
+		HammerDomain domain = new HammerDomain(cli_worker, newName, fullName, null);
+		exec_result = domain.cli_list(null, null, null);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).contains(newName), "Check - updated domain name is listed");
+		Assert.assertFalse(getOutput(exec_result).contains(name), "Check - previous namenot present");
+	}
 	
-	@Test(description="delete domain", dependsOnMethods={"test_domainUpdate"})
+	@Test(description="delete domain", dependsOnMethods={"test_domianList"})
 	public void test_domainDelete()
 	{
-		exec_result = new HammerDomain(cli_worker, newName, fullName, null).delete();
+		HammerDomain domain = new HammerDomain(cli_worker, newName, fullName, null);
+		exec_result = domain.delete();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(HammerDomain.OUT_DELETE), "Check - returned output string");
-		//TODO: should not be listed
+		//should not be listed
+		exec_result = domain.cli_list(null, null, null);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertFalse(getOutput(exec_result).contains(newName), "Check - deleted domain is not listed");
 	}
 	
 	private void assert_DomainInfo(HammerDomain domain) {
@@ -85,7 +99,6 @@ public class DomainTests extends KatelloCliTestBase {
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 
 		String match_info = String.format(HammerDomain.REG_DOMAIN_INFO, domain.name, domain.fullName, domain.dns_id).replaceAll("\"", "");
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		log.finest(String.format("Domain (info) match regex: [%s]", match_info));
 		Assert.assertTrue(getOutput(exec_result).replaceAll("\n", " ").matches(match_info), "Domain info should match the provided info");
 	}

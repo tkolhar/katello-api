@@ -70,6 +70,14 @@ public class HammerDomain extends _HammerObject {
 		return run(CMD_INFO);
 	}
 	
+	public SSHCommandResult cli_list(String searchStr, String order, String page) {
+		opts.clear();
+		opts.add(new Attribute("search", searchStr));
+		opts.add(new Attribute("order", order));
+		opts.add(new Attribute("page", page));
+		return run(CMD_LIST);
+	}
+	
 	public SSHCommandResult update(String newName) {
 		opts.clear();
 		opts.add(new Attribute("name", this.name));
