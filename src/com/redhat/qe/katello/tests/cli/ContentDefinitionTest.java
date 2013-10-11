@@ -233,6 +233,20 @@ public class ContentDefinitionTest extends KatelloCliTestBase{
 		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentDefinition.ERR_NOT_COMPOSITE, def1.name)), "Check error (remove view)");
 	} 
 
+	@Test(description="remove repo and product from empty definition - check error")
+	public void test_EmptyDefRemoveRepoProduct() {
+		String def_name = "definition-"+KatelloUtils.getUniqueID();
+		KatelloContentDefinition def = new KatelloContentDefinition(cli_worker, def_name, null, base_org_name, null);
+		exec_result = def.create();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (create definition)");
+		exec_result = def.remove_product(base_zoo_product_name);
+		Assert.assertTrue(exec_result.getExitCode()==65, "Check exit code (remove product)");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentDefinition.ERR_CANNOT_REMOVE_PRODUCT, base_zoo_product_name, def_name)), "Check error (remove product)");
+		exec_result = def.remove_repo(base_zoo_product_name, base_zoo_repo_name);
+		Assert.assertTrue(exec_result.getExitCode()==65, "Check exit code (remove repo)");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentDefinition.ERR_CANNOT_REMOVE_REPO, base_zoo_repo_name, def_name)), "Check error (remove repo)");
+	}
+
 	private void assert_contentList(List<KatelloContentDefinition> contents, List<KatelloContentDefinition> excludeContents) {
 
 		SSHCommandResult res = new KatelloContentDefinition(cli_worker, null, null, base_org_name, null).list();
