@@ -70,9 +70,8 @@ public class PackageTests extends KatelloCliLongrunBase {
 		exec_result = repo.info();
 		Assert.assertFalse(KatelloUtils.grepCLIOutput("Package Count", getOutput(exec_result)).equals("0"), "Check - package count is NOT 0");
 		
-		//@ TODO bz#1012480
-		//exec_result = new KatelloOrg(this.cli_worker, base_org_name, null).subscriptions();
-		//poolId1 = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
+		exec_result = new KatelloOrg(this.cli_worker, base_org_name, null).subscriptions();
+		poolId1 = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
 	}
 	
 	@Test(description="promote rhel packages", dependsOnMethods={"test_syncRhel6"})
@@ -121,22 +120,12 @@ public class PackageTests extends KatelloCliLongrunBase {
 		KatelloActivationKey act_key = new KatelloActivationKey(this.cli_worker, base_org_name, envName, activationKey, "Act key created", null, contentView);
 		exec_result = act_key.create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");      
-		// @ TODO bz#1012875
-//		exec_result = act_key.update_add_subscription(poolId1);
-//		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		exec_result = act_key.update_add_subscription(poolId1);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		KatelloSystem sys = new KatelloSystem(this.cli_worker, systemName, base_org_name, envName);
 			exec_result = sys.rhsm_registerForce(activationKey); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
-		
-		//@ TODO bz#1012480
-		poolId1 = KatelloUtils.grepCLIOutput("Pool ID",
-				KatelloUtils.sshOnClient(null, "subscription-manager list --available --all | sed  -e 's/^ \\{1,\\}//'").getStdout().trim(),1);
-		Assert.assertNotNull(poolId1);
-		exec_result = sys.rhsm_subscribe(poolId1);
-		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
-		
-		exec_result = sys.rhsm_identity();
 		
 		sshOnClient("sed -i -e \"s/certFrequency.*/certFrequency = 1/\" /etc/rhsm/rhsm.conf");
 		sshOnClient("service rhsmcertd restart");

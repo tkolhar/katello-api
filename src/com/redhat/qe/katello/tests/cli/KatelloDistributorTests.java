@@ -162,6 +162,11 @@ public class KatelloDistributorTests extends KatelloCliTestBase{
 		exec_result = dis_update.update_info(invalid_key, test_val, null);
 		Assert.assertTrue(exec_result.getExitCode() == 148, "Check - return code");
 		Assert.assertEquals(getOutput(exec_result).trim(),String.format(KatelloDistributor.OUT_INVALID_KEY,invalid_key));
+		exec_result = dis_update.distributor_info();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		customInfoStr = KatelloUtils.grepCLIOutput("Custom Info", getOutput(exec_result));
+		Assert.assertFalse(customInfoStr.contains(invalid_key+": "+test_val), "Check - custom value update");
+		
 		
 		//using uuid
 		dis_update_name=null;
