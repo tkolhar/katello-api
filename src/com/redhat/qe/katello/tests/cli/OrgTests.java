@@ -508,6 +508,7 @@ public class OrgTests extends KatelloCliTestBase{
 		String prodName = "prod-"+uid;
 		String desc = "Simple description";
 		String orgName = "org."+uid;
+		String orgLabel = "org_"+uid;
 		String sysName = "Sys-"+uid;
 		SSHCommandResult res;
 
@@ -516,7 +517,7 @@ public class OrgTests extends KatelloCliTestBase{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
 		// Create Environment
-		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, envName, desc, orgName, KatelloEnvironment.LIBRARY);
+		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, envName, desc, orgLabel, KatelloEnvironment.LIBRARY);
 		res = env.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code (Enviornment - create)");
 		//List
@@ -533,7 +534,7 @@ public class OrgTests extends KatelloCliTestBase{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (System - list)");
 
 		// Create provider
-		KatelloProvider prov = new KatelloProvider(this.cli_worker, provName, orgName, desc, KATELLO_SMALL_REPO);
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, provName, orgLabel, desc, KATELLO_SMALL_REPO);
 		res = prov.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (Provider - create)");
 		//List
@@ -544,7 +545,7 @@ public class OrgTests extends KatelloCliTestBase{
 				String.format("Provider [%s] should be found in the list",provName));
 
 		// Create Product
-		KatelloProduct prod = new KatelloProduct(this.cli_worker, prodName, orgName, provName, desc, null, null, null, null);
+		KatelloProduct prod = new KatelloProduct(this.cli_worker, prodName, orgLabel, provName, desc, null, null, null, null);
 		res = prod.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (Product - create)");
 		//List

@@ -166,7 +166,9 @@ public class ChangesetTests extends KatelloCliTestBase{
 	}
 
 	// TODO bz#997364
-	@Test(description="get dependencies info")
+	@Test(description="get dependencies info", enabled = false) 
+	// TODO complete remove it once we remove that feature, see Justin comment:
+	// https://bugzilla.redhat.com/show_bug.cgi?id=997364#c2
 	public void test_dependencies() {
 		KatelloChangeset chst = createChangeset();
 		exec_result = chst.info_dependencies();

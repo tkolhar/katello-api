@@ -497,6 +497,7 @@ public class RepoTests extends KatelloCliTestBase {
 		assert_allReposGPGAssigned(this.org_name, productname, key.name);
 	}
 
+	//TODO bz#1015057
 	/**
 	 * @see https://github.com/gkhachik/katello-api/issues/405
 	 */
@@ -537,17 +538,16 @@ public class RepoTests extends KatelloCliTestBase {
 		Assert.assertTrue(getOutput(exec_result).contains(puppet_module_name.split("-")[0]), "Check output (list modules)");
 	}
 
-	// TODO bz#1012572
 	@Test(description="try to upload wrong type of content to repository - check errors")
 	public void test_uploadContentInvalidContent() {
 		KatelloRepo repo = new KatelloRepo(cli_worker, repo_upload_yum, org_name, product_name, null, null, null);
 		exec_result = repo.content_upload("/tmp/"+puppet_module_name, "puppet", null);
 		Assert.assertTrue(exec_result.getExitCode()!=0, "Check exit code (upload puppet to yum repo)");
 		exec_result = repo.content_upload("/tmp/"+puppet_module_name, "yum", null);
-		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloRepo.ERR_INVALID_RPM, puppet_module_name)), "Check error (invlid rpm)");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloRepo.ERR_INVALID_RPM, "/tmp/"+puppet_module_name)), "Check error (invlid rpm)");
 		repo = new KatelloRepo(cli_worker, repo_upload_puppet, org_name, product_name, null, null, null);
 		exec_result = repo.content_upload("/tmp/"+rpm_pkg_name, "puppet", null);
-		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloRepo.ERR_INVALID_MODULE, rpm_pkg_name)), "Check error (invlid puppet)");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloRepo.ERR_INVALID_MODULE, "/tmp/"+rpm_pkg_name)), "Check error (invlid puppet)");
 		exec_result = repo.content_upload("/tmp/"+rpm_pkg_name, "yum", null);
 		Assert.assertTrue(exec_result.getExitCode()!=0, "Check exit code (upload rpm to puppet repo)");
 	}

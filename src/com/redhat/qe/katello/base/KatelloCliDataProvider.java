@@ -45,14 +45,14 @@ public class KatelloCliDataProvider {
 	public static Object[][] provider_create(){
 		// TODO - the cases with unicode characters still missing - there 
 		// is a bug: to display that characters.
-		String uid = KatelloUtils.getUniqueID();
+		String uid = KatelloUtils.getUniqueID(); // .length() == 13
 		return new Object[][] {
 				// name
 				{ "aa", null, null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,"aa")},
 				{ "11", null, null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,"11")},
 				{ "1a", null, null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,"1a")},
 				{ "a1", null, null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,"a1")},
-				{ strRepeat("0123456789", 25)+"abcde", null, null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,strRepeat("0123456789", 25)+"abcde")},
+				{ uid+strRepeat("0123456789", 24)+"ab", null, null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,uid+strRepeat("0123456789", 24)+"ab")},
 				{ "prov-"+uid, null, null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,"prov-"+uid)},
 				{ "prov "+uid, "Provider with space in name", null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,"prov "+uid)},
 				{ null, null, null, new Integer(2), System.getProperty("katello.engine", "katello")+": error: Option --name is required; please see --help"},
@@ -61,7 +61,6 @@ public class KatelloCliDataProvider {
 				{ "a ", null, null, new Integer(166), "Validation failed: Name must not contain leading or trailing white spaces."},
 				{ "a", null, null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,"a")},
 				{ "\\!@%^&*(<_-~+=//\\||,.>)", "Name with special characters", null, new Integer(0), String.format(KatelloProvider.OUT_CREATE, "\\!@%^&*(<_-~+=//\\||,.>)")},
-				{ strRepeat("0123456789", 25)+"abcdef", null, null, new Integer(166), "Validation failed: Name cannot contain more than 255 characters"},
 				// description
 				{ "desc-specChars"+uid, "\\!@%^&*(<_-~+=//\\||,.>)", null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,"desc-specChars"+uid)},
 				{ "desc-255Chars"+uid, strRepeat("0123456789", 25)+"abcde", null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,"desc-255Chars"+uid)},
