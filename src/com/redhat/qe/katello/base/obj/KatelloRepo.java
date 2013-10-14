@@ -44,7 +44,7 @@ public class KatelloRepo extends _KatelloObject{
 	public static final String OUT_CONTENT_UPLOADED = "Successfully uploaded '%s' into repository";
 	
 	public static final String ERR_REPO_SYNC_FAIL = "Repo [ %s ] failed to sync:";
-	public static final String ERR_INVALID_MODULE = "Invalid puppet module '%s'.";
+	public static final String ERR_INVALID_MODULE = "Invalid puppet module '%s'. Please make sure the file is valid and is named author-name-version.tar.gz";
 	public static final String ERR_INVALID_RPM = "Invalid rpm '%s'. Please check the file and try again.";
 	public static final String ERR_INVALID_TYPE = "Content type '%s' not valid. Must be one of: yum, puppet.";
 	public static final String ERR_NOT_ACCEPT_PUPPET = "Repo [ %s ] does not accept puppet uploads.";

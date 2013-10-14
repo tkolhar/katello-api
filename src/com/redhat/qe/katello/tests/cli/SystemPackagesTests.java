@@ -81,7 +81,7 @@ public class SystemPackagesTests extends KatelloCliTestBase {
 		sshOnClient("yum remove -y lion walrus cockateel");
 	}
 
-
+	// bz#1016624
 	@Test(description="system install package")
 	public void test_systemPackageInstall() {
 		KatelloSystem sys = new KatelloSystem(cli_worker, sys_name, base_org_name, base_dev_env_name);
@@ -98,6 +98,7 @@ public class SystemPackagesTests extends KatelloCliTestBase {
 		Assert.assertTrue(getOutput(exec_result).contains("cockateel"), "Check output (install package group)");
 	}
 
+	// bz#1016624
 	@Test(description="system update package")
 	public void test_systemPackageUpdate() {
 		String walrus_updated = "walrus-5.21-1";
