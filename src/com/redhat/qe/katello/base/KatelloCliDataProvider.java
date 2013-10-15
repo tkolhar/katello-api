@@ -25,8 +25,7 @@ public class KatelloCliDataProvider {
 		return new Object[][] {
 				{ "orgNoDescr_"+uniqueID1,null, null, new Integer(0), String.format(KatelloOrg.OUT_CREATE, "orgNoDescr_"+uniqueID1)},
 				{ "org "+uniqueID2+"", null, "Org with space", new Integer(0), String.format(KatelloOrg.OUT_CREATE, "org "+uniqueID2+"")},
-				{strRepeat("0123456789", 25)+"abcde", null, "Org name with 255 characters", new Integer(0), String.format(KatelloOrg.OUT_CREATE, strRepeat("0123456789", 25)+"abcde")},
-				//{"\\!@%^&*(<_-~+=//\\||,.>)"+uniqueID1, null, "Org name with special characters", new Integer(0), String.format(KatelloOrg.OUT_CREATE, "\\!@%^&*(<_-~+=//\\||,.>)"+uniqueID1)},
+				{uniqueID1+strRepeat("0123456789", 24)+"ab", null, "Org name with 255 characters", new Integer(0), String.format(KatelloOrg.OUT_CREATE, uniqueID1+strRepeat("0123456789", 24)+"ab")},
 				{"!@#$%^&*()_+{}|:?[];.,"+uniqueID1, null, "Org name with special characters", new Integer(0), String.format(KatelloOrg.OUT_CREATE, "!@#$%^&*()_+{}|:?[];.,"+uniqueID1)}
 		};
 	}
