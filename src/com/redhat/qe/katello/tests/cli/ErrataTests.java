@@ -24,6 +24,7 @@ public class ErrataTests extends KatelloCliTestBase {
 				cli_worker, base_org_name, base_zoo_product_name, base_zoo_repo_name, base_test_env_name);
 	}
 	
+	// bz#918157
 	@Test(description="8782a6e0-f41a-48d5-8599-bfe7f24078f6")
 	public void test_errataList() {
 		KatelloErrata errata = new KatelloErrata(cli_worker, base_org_name, base_zoo_product_name, base_zoo_repo_name, content_view);

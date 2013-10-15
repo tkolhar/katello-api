@@ -198,8 +198,8 @@ public class UserPermissionTests extends KatelloCliTestBase {
 		group.runAs(user2);
 		res = group.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		group = new KatelloSystemGroup(this.cli_worker, this.group, org);
-		prov.runAs(user2);
+		group = new KatelloSystemGroup(this.cli_worker, group.name, org);
+		group.runAs(user2);
 		res = group.update(null, "new descr", 5);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		res = group.info();

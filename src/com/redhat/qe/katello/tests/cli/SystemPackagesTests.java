@@ -81,7 +81,7 @@ public class SystemPackagesTests extends KatelloCliTestBase {
 		sshOnClient("yum remove -y lion walrus cockateel");
 	}
 
-
+	// bz#1016624
 	@Test(description="system install package")
 	public void test_systemPackageInstall() {
 		KatelloSystem sys = new KatelloSystem(cli_worker, sys_name, base_org_name, base_dev_env_name);

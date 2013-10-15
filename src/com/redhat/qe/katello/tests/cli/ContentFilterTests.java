@@ -327,6 +327,15 @@ public class ContentFilterTests extends KatelloCliTestBase {
 		Assert.assertTrue(getOutput(exec_result).contains(filter_name), "Check output (list filters)");
 	}
 
+	@Test(description="create rule with wrong inclusion type - check error")
+	public void test_createRulewrongType() {
+		KatelloContentFilter filter = new KatelloContentFilter(cli_worker, filter_name, base_org_name, condef_name);
+		String wrong_type = "wrongtype";
+		exec_result = filter.add_rule("{}", "rpm", wrong_type);
+		Assert.assertTrue(exec_result.getExitCode()==65, "Check exit code (add rule)");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentFilter.ERR_WRONG_TYPE, wrong_type)), "Check error (add rule)");
+	}
+
 	private void assert_filterInfo(String filter_name, String filter_content, String rule_type, String ruleRegExp) {
 		KatelloContentFilter filter = new KatelloContentFilter(cli_worker, filter_name, base_org_name, condef_name);
 		SSHCommandResult res = filter.info();

@@ -84,7 +84,11 @@ public class ContentViewTests extends KatelloCliTestBase{
 		
 		act_key = new KatelloActivationKey(this.cli_worker, base_org_name,base_dev_env_name,act_key_name,"Act key created", null, pubview_name);
 		exec_result = act_key.create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");		
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		act_key.update_add_subscription(base_zoo_repo_pool);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		act_key.update_add_subscription(base_pulp_repo_pool);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		exec_result = act_key.info();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
 		Assert.assertTrue(getOutput(exec_result).contains(this.pubview_name), "Content view name is in output.");
@@ -99,12 +103,13 @@ public class ContentViewTests extends KatelloCliTestBase{
 		
 		exec_result = sys.rhsm_identity();
 		system_uuid1 = KatelloUtils.grepCLIOutput("Current identity is", exec_result.getStdout());
-		
-		exec_result = sys.subscribe(base_zoo_repo_pool);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		exec_result = sys.subscribe(base_pulp_repo_pool);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+
+		// TODO - seems activation key adds the subscription there. CHECK it once it working pls
+//		exec_result = sys.subscribe(base_zoo_repo_pool);
+//		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+//		
+//		exec_result = sys.subscribe(base_pulp_repo_pool);
+//		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
 	
 	@Test(description = "List the packages of content view",groups={"cfse-cli"}, dependsOnMethods={"test_registerClient"})
@@ -131,6 +136,7 @@ public class ContentViewTests extends KatelloCliTestBase{
 		Assert.assertTrue(getOutput(exec_result).trim().contains("No package pulp-agent available."));
 	}
 	
+	// bz#918157
 	@Test(description = "List the erratas of content view",groups={"cfse-cli"}, dependsOnMethods={"test_consumeContent"})
 	public void test_errataList() {
 		KatelloErrata errata = new KatelloErrata(cli_worker, base_org_name, base_zoo_product_name, base_zoo_repo_name, pubview_name);
