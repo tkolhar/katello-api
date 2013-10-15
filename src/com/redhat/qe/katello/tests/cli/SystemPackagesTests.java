@@ -98,7 +98,6 @@ public class SystemPackagesTests extends KatelloCliTestBase {
 		Assert.assertTrue(getOutput(exec_result).contains("cockateel"), "Check output (install package group)");
 	}
 
-	// bz#1016624
 	@Test(description="system update package")
 	public void test_systemPackageUpdate() {
 		String walrus_updated = "walrus-5.21-1";

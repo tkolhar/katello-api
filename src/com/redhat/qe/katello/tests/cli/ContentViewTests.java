@@ -136,6 +136,7 @@ public class ContentViewTests extends KatelloCliTestBase{
 		Assert.assertTrue(getOutput(exec_result).trim().contains("No package pulp-agent available."));
 	}
 	
+	// bz#918157
 	@Test(description = "List the erratas of content view",groups={"cfse-cli"}, dependsOnMethods={"test_consumeContent"})
 	public void test_errataList() {
 		KatelloErrata errata = new KatelloErrata(cli_worker, base_org_name, base_zoo_product_name, base_zoo_repo_name, pubview_name);
