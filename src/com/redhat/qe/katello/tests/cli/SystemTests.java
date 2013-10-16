@@ -768,13 +768,12 @@ public class SystemTests extends KatelloCliTestBase{
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloSystem.OUT_ADD_TO_GROUPS, sys_name)), "Check output (add system to group)");
 	}
 
-	// TODO bz#974098
 	@Test(description="add system to nonexisting group")
 	public void test_addToNonexistGroup() {
 		KatelloSystem sys = new KatelloSystem(cli_worker, sys_name, org_name, "Library");
 		exec_result = sys.add_to_groups(grp_nonexist_name);
 		Assert.assertTrue(exec_result.getExitCode()==65, "Check exit code (add system to group)");
-		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloSystemGroup.ERR_SYSTEMGROUP_NOTFOUND, grp_nonexist_name, org_name)), "Check output (add system to group)");
+		Assert.assertTrue(getOutput(exec_result).equals(KatelloSystem.ERR_COULD_NOT_FIND_GROUP), "Check output (add system to group)");
 	}
 
 	// TODO bz#982572
@@ -794,13 +793,12 @@ public class SystemTests extends KatelloCliTestBase{
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloSystem.OUT_REMOVE_FROM_GROUPS, sys_name)), "Check output (remove system from group)");
 	}
 
-	// TODO bz#974098
 	@Test(description="remove system from system group - group not found")
 	public void test_removeFromNonexistGroup() {
 		KatelloSystem sys = new KatelloSystem(cli_worker, sys_name, org_name, "Library");
 		exec_result = sys.remove_from_groups(grp_nonexist_name);
 		Assert.assertTrue(exec_result.getExitCode()==65, "Check exit code (remove system from group)");
-		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloSystemGroup.ERR_SYSTEMGROUP_NOTFOUND, grp_nonexist_name, org_name)), "Check output (remove system from group)");
+		Assert.assertTrue(getOutput(exec_result).equals(KatelloSystem.ERR_COULD_NOT_FIND_GROUP), "Check output (remove system from group)");
 	}
 
 	// TODO bz#982572
