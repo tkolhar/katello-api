@@ -33,11 +33,11 @@ public class KatelloContentDefinition extends _KatelloObject{
 	public static final String OUT_ADD_PRODUCT = 
 			"Added product [ %s ] to definition [ %s ]";
 	public static final String OUT_REMOVE_PRODUCT = 
-			"Removed product [ %s ] to definition [ %s ]";
+			"Removed product [ %s ] from definition [ %s ]";
 	public static final String OUT_ADD_REPO = 
 			"Added repository [ %s ] to definition [ %s ]";
 	public static final String OUT_REMOVE_REPO = 
-			"Removed repository [ %s ] to definition [ %s ]";
+			"Removed repository [ %s ] from definition [ %s ]";
 	public static final String OUT_APPLY_SYS_INFO = 
 			"Successfully applied default custom info keys to [ %s ] systems in Org [ %s ]";
 	public static final String OUT_REMOVE_SYS_INFO = 
@@ -46,6 +46,7 @@ public class KatelloContentDefinition extends _KatelloObject{
 			"Successfully created cloned definition [ %s ]";
 	public static final String OUT_UPDATE = "Successfully updated definition [ %s ]";
 	public static final String OUT_REG_PUBLISH_ASYNC = "Publish task \\[ [0-9a-f-]+ \\] was successfully created.";
+	public static final String OUT_REMOVE_VIEW = "Removed content view [ %s ] from definition [ %s ]";
 	
 	public static final String ERR_DEFINITION_EXISTS = 
 			"Validation failed: Label has already been taken, Name has already been taken";
