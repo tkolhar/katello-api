@@ -66,7 +66,7 @@ public class HammerCli implements KatelloConstants {
 	}
 
 	public SSHCommandResult runExt(String cmdTail){
-		String cmd = "/usr/bin/hammer";
+		String cmd = "/usr/bin/hammer --output base"; //the output we all know from katello cli ;)
 		String locale = System.getProperty("katello.locale", KATELLO_DEFAULT_LOCALE);
 		for(int i=0;i<this.args.size();i++){
 			cmd = cmd + " --" + args.get(i).getName()+" \""+args.get(i).getValue().toString()+"\"";
