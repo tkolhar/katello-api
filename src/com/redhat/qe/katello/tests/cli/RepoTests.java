@@ -121,7 +121,7 @@ public class RepoTests extends KatelloCliTestBase {
 		repo_name = "repo"+KatelloUtils.getUniqueID();
 		String url_name = PULP_RHEL6_x86_64_REPO.replace("http://repos.fedorapeople.org", "").replace("/", "_");
 		KatelloRepo repo = new KatelloRepo(this.cli_worker, repo_name, org_name, product_name, PULP_RHEL6_x86_64_REPO, null, null);
-		exec_result = repo.discover(provider_name);
+		exec_result = repo.discover();
 		repo_name += url_name;
 		repo.name = repo_name;
 		repo.url = repo.url.substring(0, repo.url.length() - 1);
@@ -335,9 +335,9 @@ public class RepoTests extends KatelloCliTestBase {
 		new KatelloProvider(this.cli_worker, this.providerAutoDiscoverHttpPulpV2, this.org_name, "Pulp provider - autodiscovery via http", null).create();
 		new KatelloProduct(this.cli_worker, this.productAutoDiscoverHttpPulpV2, this.org_name, this.providerAutoDiscoverHttpPulpV2, null, null, null, null, null).create();
 		KatelloRepo _repo = new KatelloRepo(this.cli_worker, "pulp-v2", this.org_name, this.productAutoDiscoverHttpPulpV2, url, null, null);
-		SSHCommandResult res = _repo.discover(this.providerAutoDiscoverHttpPulpV2);
+		SSHCommandResult res = _repo.discover();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check  -return code");
-		Assert.assertTrue(getOutput(_repo.custom_reposCount(null,null)).equals("10"), "Check - 10 repos were prepared");
+		Assert.assertTrue(getOutput(_repo.custom_reposCount(null,null)).equals("8"), "Check - 8 repos were prepared");
 	}
 	
 	/**
@@ -360,7 +360,7 @@ public class RepoTests extends KatelloCliTestBase {
 		new KatelloProvider(this.cli_worker, this.providerAutoDiscoverFileZoo5, this.org_name, "Zoo provider - autodiscovery via file", null).create();
 		new KatelloProduct(this.cli_worker, this.productAutoDiscoverFileZoo5, this.org_name, this.providerAutoDiscoverFileZoo5, null, null, null, null, null).create();
 		KatelloRepo _repo = new KatelloRepo(this.cli_worker, "_zoo5", this.org_name, this.productAutoDiscoverFileZoo5, "file://"+url, null, null);
-		SSHCommandResult res = _repo.discover(this.providerAutoDiscoverFileZoo5);
+		SSHCommandResult res = _repo.discover();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check  -return code");
 		Assert.assertTrue(getOutput(_repo.custom_reposCount(null,null)).equals("1"), "Check - 1 repo was prepared");
 	}
@@ -389,7 +389,7 @@ public class RepoTests extends KatelloCliTestBase {
 		KatelloUtils.promoteProductToEnvironment(cli_worker, org_name, productAutoDiscoverFileZoo5, env_testing);
 		
 		// HTTP. Check - packages synced and promoted too.
-		assert_allRepoPackagesSynced(this.org_name, this.productAutoDiscoverHttpPulpV2, env_testing, 10);
+		assert_allRepoPackagesSynced(this.org_name, this.productAutoDiscoverHttpPulpV2, env_testing, 8);
 		
 		// FTP. Check - packages synced and promoted too.
 		assert_allRepoPackagesSynced(this.org_name, this.productAutoDiscoverFileZoo5, env_testing, 1);
@@ -418,9 +418,9 @@ public class RepoTests extends KatelloCliTestBase {
 				providername, null, null, null, null, null).update_gpgkey(key.name);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check  -return code");
 		KatelloRepo _repo = new KatelloRepo(this.cli_worker, "pulp-v2", this.org_name, productname, url, null, null);
-		res = _repo.discover(providername);
+		res = _repo.discover();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check  -return code");
-		Assert.assertTrue(getOutput(_repo.custom_reposCount(null,null)).equals("10"), "Check - 10 repos were prepared");
+		Assert.assertTrue(getOutput(_repo.custom_reposCount(null,null)).equals("8"), "Check - 8 repos were prepared");
 		
 		assert_allReposGPGAssigned(this.org_name, productname, key.name);
 	}
@@ -443,9 +443,9 @@ public class RepoTests extends KatelloCliTestBase {
 		new KatelloProduct(this.cli_worker, productname, this.org_name, providername, null, null, null, null, null).create();
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check  -return code");
 		KatelloRepo _repo = new KatelloRepo(this.cli_worker, "pulp-v2", this.org_name, productname, url, null, null);
-		exec_result = _repo.discover(providername);
+		exec_result = _repo.discover();
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check  -return code");
-		Assert.assertTrue(getOutput(_repo.custom_reposCount(null,null)).equals("10"), "Check - 10 repos were prepared");
+		Assert.assertTrue(getOutput(_repo.custom_reposCount(null,null)).equals("8"), "Check - 8 repos were prepared");
 		
 		assert_allReposGPGAssigned(this.org_name, productname, "");
 
