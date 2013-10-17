@@ -66,10 +66,12 @@ public class KatelloDisconnected extends _KatelloObject{
 		return new KatelloDisconnectedCli(cmd).run();
 	}
 
-	public SSHCommandResult enable(String reponame){
+	public SSHCommandResult enable(String reponame, Boolean all){
 		cmd = "enable";
 		if(reponame!=null)
 			cmd += " -r "+reponame;
+		if(all.booleanValue())
+			cmd += " --all";
 		return new KatelloDisconnectedCli(cmd).run();
 	}
 	
