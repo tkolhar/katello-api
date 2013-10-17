@@ -387,8 +387,8 @@ public class SystemGroupTests extends KatelloCliTestBase{
 		KatelloSystemGroup group = createSystemGroup();
 		sysgroup_name = group.name;
 		// create dumy job just to list job history
-		KatelloSystem sys = new KatelloSystem(cli_worker, sys_name, orgName, "Library");
-		exec_result = sys.register();
+		KatelloSystem sys = new KatelloSystem(cli_worker, sys_name, orgName, envName);
+		exec_result = sys.rhsm_registerForce();
 		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (system reg)");
 		exec_result = sys.add_to_groups(sysgroup_name);
 		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (system add group)");
