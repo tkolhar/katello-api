@@ -685,7 +685,8 @@ public class SystemTests extends KatelloCliTestBase{
 	}
 
 	// TODO bz#974503
-	@Test(description="system task test")
+	// TODO bz#1019748
+	@Test(description="system task test", enabled=false)
 	public void test_systemTask() {
 		KatelloSystem sys =  new KatelloSystem(cli_worker, sys_name, org_name, KatelloEnvironment.LIBRARY);
 		// create task to get ID
@@ -698,7 +699,7 @@ public class SystemTests extends KatelloCliTestBase{
 	}
 
 	// TODO bz#974486
-	@Test(description="system tasks", dependsOnMethods={"test_systemTask"})
+	@Test(description="system tasks", dependsOnMethods={"test_systemTask"}, enabled=false)
 	public void test_systemTasks() {
 		KatelloSystem sys =  new KatelloSystem(cli_worker, sys_name, org_name, null);
 		exec_result = sys.tasks();

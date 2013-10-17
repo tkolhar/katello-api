@@ -95,6 +95,7 @@ public class ErrataTests extends KatelloCliLongrunBase {
 		configureClient("actkeywholerepopromote" + uid, content_view_promote, sys_name, env_name);
 	}
 	
+	//@ TODO bz#918157
 	@Test(description="list RHEL repo erratas on content view", dependsOnMethods={"test_promoteRHELRepo"})
 	public void test_listRHELErratas() {
 		KatelloErrata err = new KatelloErrata(cli_worker, base_org_name, KatelloProduct.RHEL_SERVER, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, null);
