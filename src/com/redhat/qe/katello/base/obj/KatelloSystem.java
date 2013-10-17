@@ -69,6 +69,7 @@ public class KatelloSystem extends _KatelloObject{
 	public static final String ERR_NOT_FOUND = "Could not find System [ %s ] in Org [ %s ]";
 	public static final String ERR_NO_DELETION_RECORD = "Deletion record for hypervisor %s not found.";
 	public static final String ERR_NO_TASK = "Couldn't find TaskStatus with uuid = %s";
+	public static final String ERR_COULD_NOT_FIND_GROUP = "Could not find any system groups by that name.";
 	
 	public static final String OUT_REMOTE_ACTION_DONE = "Remote action finished:";
 	public static final String OUT_RHSM_SUBSCRIBED_OK = 
