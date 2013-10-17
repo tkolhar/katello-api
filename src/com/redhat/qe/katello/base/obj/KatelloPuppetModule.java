@@ -7,9 +7,11 @@ import com.redhat.qe.tools.SSHCommandResult;
 
 public class KatelloPuppetModule extends _KatelloObject {
 
-	public static final String CMD_LIST = "puppet_module list";
+	public static final String CMD_LIST = "puppet_module list -v";
 	public static final String CMD_INFO = "puppet_module info";
 	public static final String CMD_SEARCH = "puppet_module search";
+
+	public static final String ERR_NOT_FOUND = "Puppet module with id '%s' not found";
 
 	public String id;
 	public String org;
