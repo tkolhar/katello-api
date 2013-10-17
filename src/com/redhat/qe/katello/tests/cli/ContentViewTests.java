@@ -105,6 +105,8 @@ public class ContentViewTests extends KatelloCliTestBase{
 		
 		exec_result = sys.subscribe(base_pulp_repo_pool);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		KatelloUtils.sshOnClient(cli_worker.getClientHostname(), "subscription-manager refresh; service rhsmcertd restart");
 	}
 	
 	@Test(description = "List the packages of content view",groups={"cfse-cli"}, dependsOnMethods={"test_registerClient"})
@@ -131,6 +133,7 @@ public class ContentViewTests extends KatelloCliTestBase{
 		Assert.assertTrue(getOutput(exec_result).trim().contains("No package pulp-agent available."));
 	}
 	
+	//@ TODO bz#1020217
 	@Test(description = "List the erratas of content view",groups={"cfse-cli"}, dependsOnMethods={"test_consumeContent"})
 	public void test_errataList() {
 		KatelloErrata errata = new KatelloErrata(cli_worker, base_org_name, base_zoo_product_name, base_zoo_repo_name, pubview_name);

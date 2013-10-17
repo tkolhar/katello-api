@@ -170,6 +170,7 @@ public class CompositeContentViewTests extends KatelloCliTestBase{
 		exec_result = sys2.subscribe(base_zoo4_repo_pool);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
+		KatelloUtils.sshOnClient(cli_worker.getClientHostname(), "subscription-manager refresh; service rhsmcertd restart");
 		yum_clean(cli_worker.getClientHostname());
 		
 		//install packages from content view 1 and 2
