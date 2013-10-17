@@ -415,7 +415,7 @@ public class UserTests extends KatelloCliTestBase{
 	@Test(description="fb2f0a12-b2e8-4654-a20f-d986080d5f05", groups={"headpin-cli"}, enabled=true) // TODO - try to find out why it fails on group running - TODO for gkhachik
 	public void test_loginIncorrectUsername() {
 		KatelloUser userAdmin = new KatelloUser(cli_worker, "wrong", 
-				null, System.getProperty("katello.admin.password"), false);
+				null, System.getProperty("katello.admin.password", KatelloUser.DEFAULT_ADMIN_PASS), false);
 		KatelloOrg org = new KatelloOrg(this.cli_worker, organization, null);
 		org.runAs(userAdmin);
 		SSHCommandResult res = org.cli_list();
@@ -427,7 +427,7 @@ public class UserTests extends KatelloCliTestBase{
 
 	@Test(description="78b4fdca-479d-4022-9b28-3eda1455bbff", groups={"headpin-cli"}, enabled=true) // TODO - try to find out why it fails on group running - TODO for gkhachik
 	public void test_loginIncorrectPassword() {
-		KatelloUser userAdmin = new KatelloUser(cli_worker, System.getProperty("katello.admin.user"), 
+		KatelloUser userAdmin = new KatelloUser(cli_worker, System.getProperty("katello.admin.user", KatelloUser.DEFAULT_ADMIN_USER), 
 				null, "wrong", false);
 		KatelloOrg org = new KatelloOrg(this.cli_worker, organization, null);
 		org.runAs(userAdmin);

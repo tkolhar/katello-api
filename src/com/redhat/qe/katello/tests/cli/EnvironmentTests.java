@@ -45,7 +45,7 @@ public class EnvironmentTests extends KatelloCliTestBase{
 	@Test(description="create Environment which name is Library, verify error es shown")
 	public void testCreateEnvironmentError() {
 		SSHCommandResult res;
-		String output = "Validation failed: Name : 'Library' is a built-in environment, Name of environment must be unique within one organization, Label : 'Library' is a built-in environment, Label of environment must be unique within one organization";
+		String output = "Validation failed: Name of environment must be unique within one organization, Name : 'Library' is a built-in environment, Label of environment must be unique within one organization, Label : 'Library' is a built-in environment";
 
 		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, KatelloEnvironment.LIBRARY, "Library env", base_org_name, KatelloEnvironment.LIBRARY);
 		res = env.cli_create();
