@@ -106,7 +106,7 @@ public class ProductRepoTests extends KatelloCliTestBase {
 		repo_name = "repo"+KatelloUtils.getUniqueID();
 		String url_name = PULP_RHEL6_x86_64_REPO.replace("http://repos.fedorapeople.org", "").replace("/", "_");
 		KatelloRepo repo = new KatelloRepo(this.cli_worker, repo_name, org_name, null, PULP_RHEL6_x86_64_REPO, null, null, null, product_id);
-		exec_result = repo.discover(provider_name);
+		exec_result = repo.discover();
 		repo_name += url_name;
 		repo.name = repo_name;
 		repo.url = repo.url.substring(0, repo.url.length() - 1);

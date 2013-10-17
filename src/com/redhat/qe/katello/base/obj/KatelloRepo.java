@@ -205,7 +205,7 @@ public class KatelloRepo extends _KatelloObject{
 	}
 
 	
-	public SSHCommandResult discover(String provider){
+	public SSHCommandResult discover(){
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
@@ -214,7 +214,6 @@ public class KatelloRepo extends _KatelloObject{
 		opts.add(new Attribute("assumeyes", "y"));
 		opts.add(new Attribute("product_label", product_label));
 		opts.add(new Attribute("product_id", product_id));
-		opts.add(new Attribute("provider", provider));
 		return run(CMD_DISCOVER);
 	}
 	public SSHCommandResult list(){
