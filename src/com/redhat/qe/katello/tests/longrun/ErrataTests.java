@@ -117,7 +117,6 @@ public class ErrataTests extends KatelloCliLongrunBase {
 		Assert.assertFalse(getOutput(exec_result).replaceAll("\n", "").trim().equals("0"), "Check - erratas are not empty");
 	}
 	
-	// @ TODO bz#1013685
 	@Test(description="promote rhel errata", dependsOnMethods={"test_listRHELErratas"})
 	public void test_promoteRHELErrata() {
 		content_view_promote_errata = KatelloUtils.promoteErratasToEnvironment(cli_worker, base_org_name, KatelloProduct.RHEL_SERVER, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, new String[] {ert1}, env_name);	

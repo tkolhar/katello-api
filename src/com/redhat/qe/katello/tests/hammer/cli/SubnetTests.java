@@ -232,7 +232,6 @@ public class SubnetTests extends KatelloCliTestBase {
 		//Assert.assertTrue(getOutput(res).contains(String.format(HammerSubnet.ERR_NOT_FOUND, new_name)),"Check - returned error string");
 	}
 
-	// @ TODO bz#1016458
 	@Test(description="search Subnet")
 	public void testSubnet_search() {
 		SSHCommandResult res;
@@ -246,7 +245,6 @@ public class SubnetTests extends KatelloCliTestBase {
 		Assert.assertEquals(names.length, 1, "Count of returned subs must be 1.");
 	}
 	
-	// @ TODO bz#1016458
 	@Test(description="list Subnet by order and pagination")
 	public void testSubnet_listOrder() {
 		SSHCommandResult res;

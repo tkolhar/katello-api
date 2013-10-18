@@ -646,7 +646,6 @@ public class OrgTests extends KatelloCliTestBase{
 		Assert.assertTrue(getOutput(exec_result).contains(default_info), "Check output (system info)");
 	}
 
-	// TODO bz#1001525
 	@Test(description="attach available subscriptions to all systems", dependsOnMethods={"test_defaultInfoNoAsync"})
 	public void test_attachAllSystems() {
 		KatelloOrg org = new KatelloOrg(cli_worker, base_org_name, null);

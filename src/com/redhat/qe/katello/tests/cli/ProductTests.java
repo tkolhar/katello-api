@@ -87,8 +87,7 @@ public class ProductTests  extends KatelloCliTestBase{
 		prod.assert_productExists(null,false);
 	}
 	
-	//TODO bz#1012927
-	@Test(description="create product - with single repo", groups = {"cli-products"}, enabled=false)
+	@Test(description="create product - with single repo", groups = {"cli-products"}, enabled=true)
 	public void test_createProduct_urlSingleRepo(){
 		String uid = KatelloUtils.getUniqueID();
 		String prodName = "prod1Repo-"+uid;
@@ -110,8 +109,7 @@ public class ProductTests  extends KatelloCliTestBase{
 				"Repo list should contain info about just created repo (requested by: org, product)");
 	}
 	
-	//TODO bz#1012927
-	@Test(description="create product - with multiple repos", groups = {"cli-products"}, enabled=false)
+	@Test(description="create product - with multiple repos", groups = {"cli-products"}, enabled=true)
 	public void test_createProduct_urlMultipleRepo(){
 		String uid = KatelloUtils.getUniqueID();
 		String prodName = "prod2Repos-"+uid;
@@ -155,8 +153,7 @@ public class ProductTests  extends KatelloCliTestBase{
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info),"Repo list of the product - should contain package count 0");
 	}
 	
-	//TODO bz#1012927
-	@Test(description="create product by existing name", groups = {"cli-products"}, enabled=false)
+	@Test(description="create product by existing name", groups = {"cli-products"}, enabled=true)
 	public void test_createProduct_exists(){
 		String uid = KatelloUtils.getUniqueID();
 		String prodName = "existing-"+uid;
@@ -176,8 +173,7 @@ public class ProductTests  extends KatelloCliTestBase{
 		Assert.assertTrue(_prod2.equals(prodName), "Check - there are 2 products with same name");
 	}
 	
-	//TODO bz#1012927
-	@Test(description="create product by the same name which is in other org", groups = {"cli-products"}, enabled=false)
+	@Test(description="create product by the same name which is in other org", groups = {"cli-products"}, enabled=true)
 	public void test_createProduct_sameName(){
 		String uid = KatelloUtils.getUniqueID();
 		String prodName = "existing-"+uid;
@@ -370,7 +366,6 @@ public class ProductTests  extends KatelloCliTestBase{
 	}
 	
 	//TODO bz#961780  repo list should be changed to accept option --content_view
-	//TODO bz#1012927
 	@Test(description="promote product", groups = {"cli-products"}, enabled=false)
 	public void test_promoteProduct_OneRepo(){
 		String uid = KatelloUtils.getUniqueID();
@@ -418,7 +413,6 @@ public class ProductTests  extends KatelloCliTestBase{
 	}
 	
 	//TODO bz#961780  repo list should be changed to accept option --content_view
-	//TODO bz#1012927
 	@Test(description="promote product", groups = {"cli-products"}, enabled=false)
 	public void test_promoteProduct_MultipleRepos(){
 		String uid = KatelloUtils.getUniqueID();
@@ -467,8 +461,7 @@ public class ProductTests  extends KatelloCliTestBase{
 				"Repo list should contain info about just created repo (requested by: org, product - x86_64)");
 	}
 
-	//TODO bz#1012927
-	@Test(description="sync product - single repo", groups = {"cli-products"}, enabled=false)
+	@Test(description="sync product - single repo", groups = {"cli-products"}, enabled=true)
 	public void test_syncronizeProduct_SingleRepo(){
 		String uid = KatelloUtils.getUniqueID();
 		String prodName = "sync1Repo-"+uid;
@@ -500,8 +493,7 @@ public class ProductTests  extends KatelloCliTestBase{
 				"Repo list of the product - should not contain package count 0 (after product synchronize)");
 	}
 
-	//TODO bz#1012927
-	@Test(description="sync product - multiple repos", groups = {"cli-products"}, enabled=false)
+	@Test(description="sync product - multiple repos", groups = {"cli-products"}, enabled=true)
 	public void test_syncronizeProduct_MultipleRepos(){
 		String uid = KatelloUtils.getUniqueID();
 		String prodName = "syncManyRepos-"+uid;
