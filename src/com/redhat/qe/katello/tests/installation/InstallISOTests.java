@@ -106,25 +106,25 @@ public class InstallISOTests extends KatelloCliTestBase {
 		log.info("ISO install: run katello-configure (with parameters)");
 		KatelloUtils.sshOnServer(cmdToRun);
 		
-		// TODO bz#1016134 (remove this workaround once get this fixed.)
-		cmdToRun = "[ -d /tmp/new_ISO/ ]; echo \"$?\"";
-		exec_result = KatelloUtils.sshOnServer(cmdToRun);
-		String repoURL = "file:///tmp/ISO"; String gpgCheck = "1";
-		if(KatelloCliTestBase.sgetOutput(exec_result).equals("0")){ // not signed rpms
-			repoURL = "file:///tmp/new_ISO";
-			gpgCheck = "0";
-		}
-		
-		cmdToRun = "echo -e \"" +
-			"[sat6-local]\\n" +
-			"name=Satellite 6 Local Install\\n" +
-			"baseurl="+repoURL+"\\n" +
-			"enabled=1\\n" +
-			"gpgcheck="+gpgCheck +
-			"\" > /etc/yum.repos.d/sat6-iso.repo; rpm -q node-installer || (yum clean all && yum -y install node-installer)";
-		log.info("ISO install: workaround: install node-installer");
-		KatelloUtils.sshOnServer(cmdToRun);
-		
+//		cmdToRun = "[ -d /tmp/new_ISO/ ]; echo \"$?\"";
+//		exec_result = KatelloUtils.sshOnServer(cmdToRun);
+//		String repoURL = "file:///tmp/ISO"; String gpgCheck = "1";
+//		if(KatelloCliTestBase.sgetOutput(exec_result).equals("0")){ // not signed rpms
+//			repoURL = "file:///tmp/new_ISO";
+//			gpgCheck = "0";
+//		}
+//
+		// not needed anymore. This was a workaround and seems fixed (usual installer worked just fine) [gkhachik]
+//		cmdToRun = "echo -e \"" +
+//			"[sat6-local]\\n" +
+//			"name=Satellite 6 Local Install\\n" +
+//			"baseurl="+repoURL+"\\n" +
+//			"enabled=1\\n" +
+//			"gpgcheck="+gpgCheck +
+//			"\" > /etc/yum.repos.d/sat6-iso.repo; rpm -q node-installer || (yum clean all && yum -y install node-installer)";
+//		log.info("ISO install: workaround: install node-installer");
+//		KatelloUtils.sshOnServer(cmdToRun);
+//		
 		cmdToRun = 
 			"setenforce 0;" +
 			"export FORWARDERS=\"$(rm -rf /tmp/forwarders;for i in $(cat /etc/resolv.conf |grep nameserver|awk '{print $2}'); do echo --dns-forwarders $i>>/tmp/forwarders;done; sed '{:q;N;s/\\n/ /g;t q}' /tmp/forwarders;)\";" +
