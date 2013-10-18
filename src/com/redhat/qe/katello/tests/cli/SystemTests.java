@@ -674,54 +674,13 @@ public class SystemTests extends KatelloCliTestBase{
 		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloSystem.OUT_LIST_PACKAGES, sysname, orgNameMain)), "Check output (list packages)");
 	}
 
-
-	// TODO bz#974486
-	@Test(description="system tasks - wrong system given")
-	public void test_badSystemTasks() {
-		KatelloSystem sys =  new KatelloSystem(cli_worker, sys_nonexist_name, org_name, null);
-		exec_result = sys.tasks();
-		Assert.assertTrue(exec_result.getExitCode()==65, "Check exit code (system tasks)");
-		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloSystem.ERR_NOT_FOUND, "boosystem", orgNameMain)), "Check error message (system tasks)");
-	}
-
-	// TODO bz#974503
-	@Test(description="system task test")
-	public void test_systemTask() {
-		KatelloSystem sys =  new KatelloSystem(cli_worker, sys_name, org_name, KatelloEnvironment.LIBRARY);
-		// create task to get ID
-		exec_result = sys.packages_install("fakepackage");
-		Assert.assertTrue(getOutput(exec_result).contains("Performing remote action"), "(create task)");
-		String taskId = getOutput(exec_result).substring(27, 63); // TODO grep ID
-		// get task info
-		exec_result = sys.task(taskId);
-		Assert.assertTrue(exec_result.getExitCode()==0, "Check return code (system task)");
-	}
-
-	// TODO bz#974486
-	@Test(description="system tasks", dependsOnMethods={"test_systemTask"})
-	public void test_systemTasks() {
-		KatelloSystem sys =  new KatelloSystem(cli_worker, sys_name, org_name, null);
-		exec_result = sys.tasks();
-		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (system tasks)");
-		Assert.assertTrue(getOutput(exec_result).contains("Package Install"), "Check output (system tasks)");
-	}
-
-	@Test(description="system task - bad id given")
-	public void test_systemBadTask() {
-		KatelloSystem sys =  new KatelloSystem(cli_worker, null, null, null);
-		exec_result = sys.task("007");
-		Assert.assertTrue(exec_result.getExitCode()==148, "Check return code (system task)");
-		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloSystem.ERR_NO_TASK, "007")), "Check error message (system task)");
-	}
-
-	// TODO bz#983428
 	@Test(description="system remove_deletion - invalid uuid given")
 	public void test_removeDeletionBadUUID() {
 		KatelloSystem sys = new KatelloSystem(cli_worker, null, null, null);
 		sys.uuid = "007";
 		exec_result = sys.remove();
 		Assert.assertTrue(exec_result.getExitCode()==148, "Check exit code (system remove_deletion)");
-		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloSystem.ERR_NO_DELETION_RECORD,sys.uuid)), "Check exit code (system remove_deletion)");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloSystem.ERR_NO_DELETION_RECORD,sys.uuid)), "Check exit code (system remove_deletion)");
 	}
 
 	@Test(description="system register")
@@ -809,7 +768,6 @@ public class SystemTests extends KatelloCliTestBase{
 		Assert.assertTrue(exec_result.getExitCode()==65, "Check exit code (remove system from group)");
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloSystem.ERR_NOT_FOUND, sys_nonexist_name, org_name)), "Check output (system remove from group)");
 	}
-
 
 	private void assert_systemInfo(KatelloSystem system) {
 		if (system.description == null) system.description = "Initial Registration Params";
