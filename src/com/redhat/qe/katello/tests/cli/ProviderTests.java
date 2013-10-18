@@ -647,7 +647,7 @@ public class ProviderTests extends KatelloCliTestBase{
 
 	@Test(description="import manifest tests")
 	public void test_importManifest() {
-		String manifest = "manifest.zip";
+		String manifest = "katello-CLI-2.zip";
 		String bad_manifest = "/tmp/badmanifest"+KatelloUtils.getUniqueID();
 		KatelloUtils.scpOnClient(cli_worker.getClientHostname(), "data/"+manifest, "/tmp");
 
@@ -678,8 +678,9 @@ public class ProviderTests extends KatelloCliTestBase{
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloProvider.OUT_REFRESH_PRODUCTS, prov.name)), "Check output (refresh products)");
 	}
 
-	@AfterClass()
+	@AfterClass(description="remove the org(s) with manifests", alwaysRun=true)
 	public void tearDown() {
-		new KatelloOrg(cli_worker, org_manifest, null).delete();
+		exec_result = new KatelloOrg(cli_worker, org_manifest, null).delete();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (delete org)");
 	}
 }

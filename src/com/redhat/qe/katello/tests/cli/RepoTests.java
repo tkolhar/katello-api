@@ -461,7 +461,7 @@ public class RepoTests extends KatelloCliTestBase {
 	 */
 	@Test(description="95fd7f1c-711d-4e47-a5fb-76cf04caeb71")
 	public void test_listRedHatProductRepos(){
-		String manifest = "manifest.zip";
+		String manifest = "katello-CLI-3.zip";
 		exec_result = new KatelloOrg(this.cli_worker, this.orgWithManifest, null).cli_create();
 		KatelloUtils.scpOnClient(cli_worker.getClientHostname(), "data/"+manifest, "/tmp");
 		exec_result = new KatelloProvider(this.cli_worker, KatelloProvider.PROVIDER_REDHAT, this.orgWithManifest, null, null).import_manifest("/tmp/"+manifest, true);
@@ -575,7 +575,10 @@ public class RepoTests extends KatelloCliTestBase {
 	@AfterClass(description="remove the org(s) with manifests", alwaysRun=true)
 	public void tearDown(){
 		exec_result = new KatelloOrg(this.cli_worker, this.orgWithManifest, null).delete(); // we don't care with the result.
-		new KatelloOrg(cli_worker, org_name, null).delete();
-		new KatelloOrg(cli_worker, this.secondOrg, null).delete();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (delete org)");
+		exec_result = new KatelloOrg(cli_worker, org_name, null).delete();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (delete org)");
+		exec_result = new KatelloOrg(cli_worker, this.secondOrg, null).delete();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (delete org)");
 	}
 }
