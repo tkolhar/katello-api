@@ -67,7 +67,7 @@ public class KatelloSystem extends _KatelloObject{
 	public static final String ERR_KEY_TOO_LONG = "Validation failed: Keyname is too long (maximum is 255 characters)";
 	public static final String ERR_VALUE_TOO_LONG = "Validation failed: Value is too long (maximum is 255 characters)";
 	public static final String ERR_NOT_FOUND = "Could not find System [ %s ] in Org [ %s ]";
-	public static final String ERR_NO_DELETION_RECORD = "Deletion record for hypervisor %s not found.";
+	public static final String ERR_NO_DELETION_RECORD = "Consumer with id %s could not be found.";
 	public static final String ERR_NO_TASK = "Couldn't find TaskStatus with uuid = %s";
 	public static final String ERR_COULD_NOT_FIND_GROUP = "Could not find any system groups by that name.";
 	
@@ -658,22 +658,6 @@ public class KatelloSystem extends _KatelloObject{
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		return run(CMD_LIST_ERRATA_DETAILS);
-	}
-	
-	public SSHCommandResult task(String taskId) {
-		opts.clear();
-		opts.add(new Attribute("id", taskId));
-		return run(CMD_TASK);
-	}
-
-	public SSHCommandResult tasks() {
-		opts.clear();
-		opts.add(new Attribute("org", org));
-		if(uuid != null)
-			opts.add(new Attribute("uuid", uuid));
-		else
-			opts.add(new Attribute("name", name));
-		return run(CMD_TASKS);
 	}
 
 	public SSHCommandResult list_errata_count(String query) {
