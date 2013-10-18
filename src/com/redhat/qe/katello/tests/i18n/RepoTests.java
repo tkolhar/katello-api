@@ -86,7 +86,7 @@ public class RepoTests extends KatelloCliTestBase {
 		repo_name2 = getText("repo.create.name") + KatelloUtils.getUniqueID();
 		String url_name = PULP_RHEL6_x86_64_REPO.replace("http://repos.fedorapeople.org", "").replace("/", "_");
 		KatelloRepo repo = new KatelloRepo(this.cli_worker, repo_name2, org_name, product_name, PULP_RHEL6_x86_64_REPO, null, null);
-		exec_result = repo.discover(provider_name);
+		exec_result = repo.discover();
 		repo_name2 += url_name;
 		repo.name = repo_name2;
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
