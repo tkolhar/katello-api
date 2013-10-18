@@ -188,7 +188,7 @@ public class ErrataTests extends KatelloCliLongrunBase {
 		Assert.assertFalse(getOutput(exec_result).trim().contains(ert1), "Errata " + ert1 + " is not listed in environment errata list");
 	}
 	
-	//@ TODO bz#970720
+	//@ TODO bz ...#... 970720 (gkhachik - I made it with this format, we may skip tracking this in case one really wants to run this long scenario)
 	@Test(description="install errata which was excluded by filter, verify that it fails", dependsOnMethods={"test_listRHELRepoErrataDeleted"})
 	public void test_installRHELRepoExcludedErrata() {
 		sshOnClient("yum clean all");

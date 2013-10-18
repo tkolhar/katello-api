@@ -499,7 +499,8 @@ public class OrgTests extends KatelloCliTestBase{
 	}
 
 	//TODO: bz#973907
-	@Test(description = "Org name with a dot, verify that providers, product, environments are handled normally",groups={"katello-cli"})
+	@Test(description = "Org name with a dot, verify that providers, product, environments are handled normally",
+			groups={"katello-cli"}, enabled=false)
 	public void test_OrgNameContainsDot(){
 
 		String uid = KatelloUtils.getUniqueID();
