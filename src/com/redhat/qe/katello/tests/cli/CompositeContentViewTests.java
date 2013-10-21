@@ -18,22 +18,32 @@ public class CompositeContentViewTests extends KatelloCliTestBase{
 	String del_changeset_name = "del_changeset-" + uid;
 	String condef_name1 = "condef1-" + uid;
 	String condef_name2 = "condef2-" + uid;
+	String condef_name3 = "condef3-" + uid;
 	String condef_composite_name = "condefcomposite-" + uid;
+	String condef_composite_name2 = "condefcomposite2-" + uid;
 	String pubview_name1_1 = "pubview1-1" + uid;
 	String pubview_name1_2 = "pubview1-2" + uid;
 	String pubview_name2_1 = "pubview2-1" + uid;
 	String pubview_name2_2 = "pubview2-2" + uid;
+	String pubview_name3_1 = "pubview3-1" + uid;
+	String pubview_name3_2 = "pubview3-2" + uid;
 	String pubcompview_name1 = "pubcompview1" + uid;
+	String pubcompview_name2 = "pubcompview2" + uid;
 	String act_key_name2 = "act_key2" + uid;
 	String system_name2 = "system2" + uid;
 
 	KatelloChangeset del_changeset;
 	KatelloContentDefinition condef1;
 	KatelloContentDefinition condef2;
+	KatelloContentDefinition condef3;
 	KatelloContentDefinition compcondef;
+	KatelloContentDefinition compcondef2;
 	KatelloContentView compconview;
+	KatelloContentView compconview2;
 	KatelloContentView conview1;
 	KatelloContentView conview2;
+	KatelloContentView conview3_1;
+	KatelloContentView conview3_2;
 	KatelloActivationKey act_key2;
 	KatelloSystem sys2;
 	
@@ -69,6 +79,16 @@ public class CompositeContentViewTests extends KatelloCliTestBase{
 		
 		conview2 = new KatelloContentView(cli_worker, pubview_name2_2, base_org_name);
 		exec_result = conview2.promote_view(base_dev_env_name);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		condef3 = new KatelloContentDefinition(cli_worker, condef_name3,null, base_org_name, null);
+		exec_result = condef3.create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		exec_result = condef3.publish(pubview_name3_1, pubview_name3_1, "Publish Content");
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		exec_result = condef3.publish(pubview_name3_2, pubview_name3_2, "Publish Content");
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 			
 		KatelloUtils.sshOnClient(cli_worker.getClientHostname(),"sed -i -e \"s/certFrequency.*/certFrequency = 1/\" /etc/rhsm/rhsm.conf");
@@ -199,6 +219,7 @@ public class CompositeContentViewTests extends KatelloCliTestBase{
 		exec_result = sys2.subscribe(base_zoo4_repo_pool);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
+		KatelloUtils.sshOnClient(cli_worker.getClientHostname(), "subscription-manager refresh; service rhsmcertd restart");
 		yum_clean(cli_worker.getClientHostname());
 		
 		//install packages from content view 1 and 2
@@ -238,4 +259,32 @@ public class CompositeContentViewTests extends KatelloCliTestBase{
 				"Content view promote output.");
 		install_Packages(cli_worker.getClientHostname(),new String [] {"tiger"});
 	}	
+	
+	@Test(description="Create composite content view definition, add content views, add repos into them, refresh views and try to publish composite view", dependsOnMethods={"init"})
+	public void test_publishCompositeFail() {
+		compcondef2 = new KatelloContentDefinition(cli_worker, condef_composite_name2, null, base_org_name, null);
+		exec_result = compcondef2.create(true);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		exec_result = compcondef2.add_view(pubview_name3_1);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");	
+		
+		exec_result = compcondef2.add_view(pubview_name3_2);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		exec_result = condef3.add_repo(base_zoo_product_name, base_zoo_repo_name);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		conview3_1 = new KatelloContentView(cli_worker, pubview_name3_1, base_org_name);
+		exec_result = conview3_1.refresh_view();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		conview3_2 = new KatelloContentView(cli_worker, pubview_name3_2, base_org_name);
+		exec_result = conview3_2.refresh_view();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
+		exec_result = compcondef2.publish(pubcompview_name2, pubcompview_name2, null);
+		Assert.assertFalse(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).trim().contains("Cannot publish definition. Please check for repository conflicts"), "Error message in publishing");
+	}
 }
