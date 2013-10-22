@@ -62,7 +62,7 @@ public class PackageTests extends KatelloCliLongrunBase {
 		KatelloRepo repo = new KatelloRepo(this.cli_worker, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, base_org_name, KatelloProduct.RHEL_SERVER, null, null, null);
 
 		exec_result = repo.status();
-		this.repoSynced = !getOutput(exec_result).equals("Not synced");
+		this.repoSynced = !KatelloUtils.grepCLIOutput("Last Sync", getOutput(exec_result)).equals("never");
 		if(!repoSynced){
 			exec_result = repo.synchronize();
 			Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (repo synchronize)");

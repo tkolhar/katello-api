@@ -6,8 +6,6 @@ import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliLongrunBase;
 import com.redhat.qe.katello.base.obj.KatelloActivationKey;
-import com.redhat.qe.katello.base.obj.KatelloContentFilter;
-import com.redhat.qe.katello.base.obj.KatelloContentView;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloErrata;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
@@ -16,7 +14,6 @@ import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.base.obj.KatelloSystemGroup;
-import com.redhat.qe.katello.base.obj.helpers.FilterRuleErrataIds;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
@@ -24,8 +21,10 @@ import com.redhat.qe.tools.SSHCommandResult;
 public class ErrataTests extends KatelloCliLongrunBase {
 	
 	private String ert1;
+	private String ert2;
 	private String content_view_promote;
 	private String content_view_promote_errata;
+	private String content_view_remove_errata;
 
 	private SSHCommandResult exec_result;
 	private String env_name;
@@ -75,7 +74,7 @@ public class ErrataTests extends KatelloCliLongrunBase {
 		KatelloRepo repo = new KatelloRepo(this.cli_worker, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, base_org_name, KatelloProduct.RHEL_SERVER, null, null, null);
 
 		exec_result = repo.status();
-		this.repoSynced = !getOutput(exec_result).equals("Not synced");
+		this.repoSynced = !KatelloUtils.grepCLIOutput("Last Sync", getOutput(exec_result)).equals("never");
 		if(!repoSynced){
 			exec_result = repo.synchronize();
 			Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (repo synchronize)");
@@ -95,12 +94,12 @@ public class ErrataTests extends KatelloCliLongrunBase {
 		configureClient("actkeywholerepopromote" + uid, content_view_promote, sys_name, env_name);
 	}
 	
-	//@ TODO bz#918157
 	@Test(description="list RHEL repo erratas on content view", dependsOnMethods={"test_promoteRHELRepo"})
 	public void test_listRHELErratas() {
 		KatelloErrata err = new KatelloErrata(cli_worker, base_org_name, KatelloProduct.RHEL_SERVER, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, null);
 		exec_result = err.custom_list_errata_names("RHBA");
 		ert1 = getOutput(exec_result).replaceAll("\n", ",").split(",")[0];
+		ert2 = getOutput(exec_result).replaceAll("\n", ",").split(",")[1];
 		
 		KatelloErrata errata = new KatelloErrata(cli_worker, base_org_name, KatelloProduct.RHEL_SERVER, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, content_view_promote);
 		
@@ -148,47 +147,34 @@ public class ErrataTests extends KatelloCliLongrunBase {
 		Assert.assertTrue(getOutput(exec_result).trim().contains("Remote action finished"));
 		Assert.assertTrue(getOutput(exec_result).trim().contains("Erratum Install Complete"));
 		
-		sshOnClient("service rhsmcertd restart");
-		try { Thread.sleep(3000); } catch (Exception ex) {}
+		sshOnClient("service rhsmcertd restart; service goferd restart");
+		try { Thread.sleep(30000); } catch (Exception ex) {}
 		
 		exec_result = group.list_erratas();
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
-		Assert.assertFalse(getOutput(exec_result).replaceAll("\n", "").contains(ert1), "Check - errata list output");
+		Assert.assertFalse(getOutput(exec_result).replaceAll("\n", "").contains(ert1), "Check - errata list output must not contain " + ert1);
+		
+		KatelloSystem sys = new KatelloSystem(this.cli_worker, sys_name2, base_org_name, null);
+		exec_result = sys.list_erratas();
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
+		Assert.assertFalse(getOutput(exec_result).replaceAll("\n", "").contains(ert1), "Check - errata list output must not contain " + ert1);
 	}
 
 	@Test(description="delete promoted rhel errata", dependsOnMethods={"test_installRHELRepoErrata"})
 	public void test_deleteRHELErrata() {
-		KatelloContentView view = new KatelloContentView(cli_worker, content_view_promote, base_org_name);		
-		String def_name = KatelloUtils.grepCLIOutput("Definition", getOutput(view.view_info()).trim(),1);
-		
-		KatelloContentFilter filter = new KatelloContentFilter(cli_worker, "Filter"+uid, base_org_name, def_name);
-		exec_result = filter.create();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		exec_result = filter.add_repo(KatelloProduct.RHEL_SERVER, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		FilterRuleErrataIds errata1 = new FilterRuleErrataIds(ert1);
-		exec_result = filter.add_rule(KatelloContentFilter.TYPE_EXCLUDES, errata1);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-
-		exec_result = view.refresh_view();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		exec_result = view.promote_view(env_name);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		content_view_remove_errata = KatelloUtils.removeErratasFromEnvironment(cli_worker, base_org_name, KatelloProduct.RHEL_SERVER, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, new String[] {ert2}, env_name);
 
 		configureClient("actkeyerrataremove" + uid, content_view_promote, sys_name3, env_name);
 	}
 	
 	@Test(description="list rhel repo errata deleted to test environment", dependsOnMethods={"test_deleteRHELErrata"})
 	public void test_listRHELRepoErrataDeleted() {
-		KatelloErrata errata = new KatelloErrata(cli_worker, base_org_name, KatelloProduct.RHEL_SERVER, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, content_view_promote);
+		KatelloErrata errata = new KatelloErrata(cli_worker, base_org_name, KatelloProduct.RHEL_SERVER, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, content_view_remove_errata);
 		exec_result = errata.cli_list();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertFalse(getOutput(exec_result).trim().contains(ert1), "Errata " + ert1 + " is not listed in environment errata list");
+		Assert.assertFalse(getOutput(exec_result).trim().contains(ert2), "Errata " + ert2 + " is not listed in environment errata list");
 	}
 	
-	//@ TODO bz ...#... 970720 (gkhachik - I made it with this format, we may skip tracking this in case one really wants to run this long scenario)
 	@Test(description="install errata which was excluded by filter, verify that it fails", dependsOnMethods={"test_listRHELRepoErrataDeleted"})
 	public void test_installRHELRepoExcludedErrata() {
 		sshOnClient("yum clean all");
@@ -200,7 +186,7 @@ public class ErrataTests extends KatelloCliLongrunBase {
 		exec_result = group.add_systems(system_uuid);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
-		exec_result = group.erratas_install(ert1);
+		exec_result = group.erratas_install(ert2);
 		Assert.assertFalse(exec_result.getExitCode().intValue()==0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).trim().contains("Remote action failed"));
 	}

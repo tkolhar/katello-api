@@ -64,7 +64,7 @@ public class ContentTest extends KatelloCliLongrunBase {
 		KatelloRepo repo = new KatelloRepo(this.cli_worker, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, base_org_name, KatelloProduct.RHEL_SERVER, null, null, null);
 
 		res = repo.status();
-		this.repoSynced = !(getOutput(res).equals("Not synced") || KatelloUtils.grepCLIOutput("Last Sync", getOutput(res)).equals("never"));
+		this.repoSynced = !KatelloUtils.grepCLIOutput("Last Sync", getOutput(res)).equals("never");
 		if(!repoSynced){
 			res = repo.synchronize();
 			Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo synchronize)");
