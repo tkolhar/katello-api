@@ -70,10 +70,7 @@ public class EnvironmentTests extends KatelloCliTestBase{
 		Assert.assertTrue(getOutput(res).contains(
 				String.format(KatelloEnvironment.OUT_CREATE,name)), 
 				"Check - returned output string ("+KatelloEnvironment.CMD_CREATE+")");
-		res = env.cli_info();
-		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
-
-
+		assert_envInfo(env);
 	}
 
 	@Test(description="delete a environment",enabled=true)
@@ -100,6 +97,7 @@ public class EnvironmentTests extends KatelloCliTestBase{
 				"Check - returned output string ("+KatelloEnvironment.CMD_INFO+")");	
 		res = env.cli_list();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (environment list)");
+		Assert.assertFalse(getOutput(res).contains(envName), "Check - deleted org is not listed");
 	}    
 
 	@Test(description="Environment update")
@@ -115,27 +113,25 @@ public class EnvironmentTests extends KatelloCliTestBase{
 		Assert.assertTrue(getOutput(res).contains(
 				String.format(KatelloEnvironment.OUT_CREATE,name)), 
 				"Check - returned output string ("+KatelloEnvironment.CMD_CREATE+")");
-		res = env.cli_info();
-		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
+		assert_envInfo(env);
 		String descr = "Updating environment";
 		res = env.cli_update(null, descr, null);
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(res).contains(
 				String.format(KatelloEnvironment.OUT_UPDATE,name)), 
 				"Check - returned output string ("+KatelloEnvironment.CMD_UPDATE+")");
-		res = env.cli_info();
-		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
+		env.setDescription(descr);
+		assert_envInfo(env);
 		// rename environment
 		res = env.cli_update(newName, null, null);
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 		env.setName(newName);
-		res = env.cli_info();
-		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
+		assert_envInfo(env);
 		// update prior environment
 		res = env.cli_update(null, null, base_dev_env_name);
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
-		res = env.cli_info();
-		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
+		env.setPrior(base_dev_env_name);
+		assert_envInfo(env);
 	}
 
 
@@ -210,5 +206,17 @@ public class EnvironmentTests extends KatelloCliTestBase{
 		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, KatelloEnvironment.LIBRARY, null, orgname, null);
 		res = env.cli_delete();
 		Assert.assertTrue(res.getExitCode() != 0, "check exit code (delete Library)");
+	}
+	
+	private void assert_envInfo(KatelloEnvironment env){
+		SSHCommandResult res;
+		if (env.getDescription() == null) env.setDescription("");
+		
+		res = env.cli_info();
+		String match_info = String.format(KatelloEnvironment.REG_ENV_INFO,env.getName(), env.getDescription(), env.getOrg(), env.getPrior()).replaceAll("\"", "");
+		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
+		log.finest(String.format("Env (info) match regex: [%s]",match_info));
+		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info), 
+				String.format("Env [%s] should be found in the result info",env.getName()));		
 	}
 }
