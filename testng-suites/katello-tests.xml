@@ -52,14 +52,9 @@
 	</test>
 
 	<test name="Longrun_Tests">
-		<groups>
-    			<run>
-      				<include name="cfse-cli"/>
-    			</run>
- 		</groups>
-		<classes>
-		    <class name="com.redhat.qe.katello.tests.longrun.ErrataTests"/>
-		</classes>
+		<packages>
+			<package name="com.redhat.qe.katello.tests.longrun"/>
+		</packages>
 	</test>
 
 	<test name="i18n_Tests">
