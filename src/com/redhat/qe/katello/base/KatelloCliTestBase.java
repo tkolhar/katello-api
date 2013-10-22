@@ -127,6 +127,24 @@ implements KatelloConstants {
 		String cnt = KatelloUtils.grepCLIOutput("Package Count", res.getStdout());
 		Assert.assertTrue(new Integer(cnt).intValue()>0, "Repo should contain packages count: >0");
 	}
+
+	protected void waitfor_packagecount(KatelloRepo repo, int timeoutMinutes){
+		long now = Calendar.getInstance().getTimeInMillis() / 1000;
+		long start = now;
+		long maxWaitSec = start + (timeoutMinutes * 60);
+		log.fine("Waiting repo package count available for: minutes=["+timeoutMinutes+"]; " +
+				"org=["+repo.org+"]; product=["+repo.product+"]; repo=["+repo.name+"]");
+		while(now<maxWaitSec){
+			now = Calendar.getInstance().getTimeInMillis() / 1000;
+			if(!KatelloUtils.grepCLIOutput("Package Count", getOutput(repo.status())).equals("0"))
+				break;
+			try{Thread.sleep(60000);}catch (Exception e){}
+		}
+		if(now<=maxWaitSec)
+			log.fine("Repo package count available in: ["+String.valueOf((Calendar.getInstance().getTimeInMillis() / 1000) - start)+"] sec");
+		else
+			log.warning("Repo package count still not available after: ["+String.valueOf(maxWaitSec - start)+"] sec");
+	}
 	
 	protected void waitfor_reposync(KatelloRepo repo, int timeoutMinutes){
 		SSHCommandResult res;

@@ -70,6 +70,7 @@ public class ContentTest extends KatelloCliLongrunBase {
 			Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo synchronize)");
 		}
 		
+		waitfor_packagecount(repo, 10);
 		res = repo.status();
 		Assert.assertFalse(KatelloUtils.grepCLIOutput("Package Count", getOutput(res)).equals("0"), "Check - package count is NOT 0");
 		
