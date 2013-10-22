@@ -146,11 +146,21 @@ public interface KatelloConstants {
 
 	public static final String KATELLO_DEFAULT_LOCALE = "en_US";
 
-	public static final String[][] DELTACLOUD_CLIENTS = new String[][]{{
-		"cfseclient1", "usersys.redhat.com", "335f800994d9adc5947b49728b14d527"}, 
-		{"cfseclient2", "usersys.redhat.com", "c9c0395f0730624541d8d26f7eb11be8"}, 
-		{"cfseclient3", "usersys.redhat.com", "edcf8c472ca601e33326f50f5d46ba8e"},
-		{"cfseclient4", "usersys.redhat.com", "948e04c477cbbe239860c67eefe8e9c8"},
+	public static final String[][] DELTACLOUD_CLIENTS = new String[][]{
+		{"cliandhra", "usersys.redhat.com", "7b316bd9ba131d9d4dd5a8e19fe7ff9a"},
+		{"clibihar", "usersys.redhat.com", "7344b34135854a6bc9e715011173a4b3"},
+		{"cliharyana", "usersys.redhat.com", "f82f5f15b88d6a4691d4e0b8e2eb890a"},
+		{"clijharkhand", "usersys.redhat.com", "43ca73f3f0b2bf9edc17640fbf991747"},
+		{"clikerala", "usersys.redhat.com", "845efd66564fd131de56195c179f5f36"},
+		{"climanipur", "usersys.redhat.com", "25c1267c44a2d95e82f561ffcbcd2d66"},
+		{"climeghalaya", "usersys.redhat.com", "5818c44f9f0502bce6e9ac8b41d53f50"},
+		{"cliodisha", "usersys.redhat.com", "09c4bff19d65e42870bf38b005058871"},
+		{"clitripura", "usersys.redhat.com", "c48fbe955a850727e89667da41df6fc1"},
+		
+//		{"cfseclient1", "usersys.redhat.com", "335f800994d9adc5947b49728b14d527"}, 
+//		{"cfseclient2", "usersys.redhat.com", "c9c0395f0730624541d8d26f7eb11be8"}, 
+//		{"cfseclient3", "usersys.redhat.com", "edcf8c472ca601e33326f50f5d46ba8e"},
+//		{"cfseclient4", "usersys.redhat.com", "948e04c477cbbe239860c67eefe8e9c8"},
 		{"cfseclient5", "usersys.redhat.com", "b42c3213817e650718011f825ca4a67a"},
 		{"cfseclient6", "usersys.redhat.com", "4cf6fd9dc5906e0b7c20a755ed703ed9"},
 		{"cfseclient7", "usersys.redhat.com", "74f91b196150c2531a665694cee6db4e"},
