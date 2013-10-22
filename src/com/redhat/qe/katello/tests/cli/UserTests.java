@@ -515,7 +515,6 @@ public class UserTests extends KatelloCliTestBase{
 		Assert.assertTrue(locale.equals("fr"), "Check output (user info locale)");
 	}
 
-	// TODO bz#974998
 	@Test(description="create user with bad default locale")
 	public void test_createUserLocaleBad() {
 		SSHCommandResult res;

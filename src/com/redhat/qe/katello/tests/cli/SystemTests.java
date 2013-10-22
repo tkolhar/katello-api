@@ -735,13 +735,13 @@ public class SystemTests extends KatelloCliTestBase{
 		Assert.assertTrue(getOutput(exec_result).equals(KatelloSystem.ERR_COULD_NOT_FIND_GROUP), "Check output (add system to group)");
 	}
 
-	// TODO bz#982572
 	@Test(description="add nonexisting system to group")
 	public void test_addNonexistSystemToGroup() {
 		KatelloSystem sys = new KatelloSystem(cli_worker, sys_nonexist_name, org_name, "Library");
 		exec_result = sys.add_to_groups(sysgroup_name);
 		Assert.assertTrue(exec_result.getExitCode()==65, "Check exit code (add system to group)");
-		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloSystem.ERR_NOT_FOUND, sys_nonexist_name, org_name)), "Check output (add system to group)");
+		//Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloSystem.ERR_NOT_FOUND, sys_nonexist_name, org_name)), "Check output (add system to group)");
+		Assert.assertTrue(getOutput(exec_result).equals(""), "Check output (add system to group)");
 	}
 
 	@Test(description="remove system from sytem groups")
@@ -760,13 +760,13 @@ public class SystemTests extends KatelloCliTestBase{
 		Assert.assertTrue(getOutput(exec_result).equals(KatelloSystem.ERR_COULD_NOT_FIND_GROUP), "Check output (remove system from group)");
 	}
 
-	// TODO bz#982572
 	@Test(description="remove system from system group - system not found")
 	public void test_removeNonexistSystemFromGroup() {
 		KatelloSystem sys = new KatelloSystem(cli_worker, sys_nonexist_name, org_name, "Library");
 		exec_result = sys.remove_from_groups(sysgroup_name);
 		Assert.assertTrue(exec_result.getExitCode()==65, "Check exit code (remove system from group)");
-		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloSystem.ERR_NOT_FOUND, sys_nonexist_name, org_name)), "Check output (system remove from group)");
+		Assert.assertTrue(getOutput(exec_result).equals(""), "Check output (system remove from group)");
+		//Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloSystem.ERR_NOT_FOUND, sys_nonexist_name, org_name)), "Check output (system remove from group)");
 	}
 
 	private void assert_systemInfo(KatelloSystem system) {

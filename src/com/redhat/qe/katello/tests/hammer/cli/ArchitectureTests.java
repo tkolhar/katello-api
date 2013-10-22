@@ -134,7 +134,6 @@ public class ArchitectureTests extends KatelloCliTestBase {
 		//Assert.assertTrue(getOutput(res).contains(String.format(HammerArchitecture.ERR_NOT_FOUND, new_name)),"Check - returned error string");
 	}
 
-	// @ TODO bz#1016458
 	@Test(description="search Architecture")
 	public void testArchitecture_search() {
 		SSHCommandResult res;
@@ -148,7 +147,6 @@ public class ArchitectureTests extends KatelloCliTestBase {
 		Assert.assertEquals(names.length, 1, "Count of returned archs must be 1.");
 	}
 	
-	// @ TODO bz#1016458
 	@Test(description="list Architecture by order and pagination")
 	public void testArchitecture_listOrder() {
 		SSHCommandResult res;

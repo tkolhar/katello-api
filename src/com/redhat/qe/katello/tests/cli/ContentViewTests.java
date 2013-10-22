@@ -184,7 +184,6 @@ public class ContentViewTests extends KatelloCliTestBase{
 		verify_PackagesNotAvailable(cli_worker.getClientHostname(), new String[] {"walrus"});
 	}
 
-	// TODO bz#956690
 	@Test(description = "removed content view on previous scenario promote back by changeset to environment, verify that packages are already availble",
 			groups={"cfse-cli"}, dependsOnMethods={"test_deletePromotedContentView"})
 	public void test_RePromoteContentView() {
@@ -198,11 +197,6 @@ public class ContentViewTests extends KatelloCliTestBase{
 		exec_result = sys.rhsm_registerForce(act_key_name);
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 	
-		exec_result = sys.subscribe(base_zoo_repo_pool);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		exec_result = sys.subscribe(base_pulp_repo_pool);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
 		KatelloUtils.sshOnClient(cli_worker.getClientHostname(), "subscription-manager refresh; service rhsmcertd restart");
 		yum_clean();
 		install_Packages(cli_worker.getClientHostname(), new String[] {"walrus"});
