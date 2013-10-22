@@ -79,7 +79,8 @@ public class ErrataTests extends KatelloCliLongrunBase {
 			exec_result = repo.synchronize();
 			Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (repo synchronize)");
 		}
-		exec_result = repo.info();
+		waitfor_packagecount(repo, 10);
+		exec_result = repo.status();
 		Assert.assertFalse(KatelloUtils.grepCLIOutput("Package Count", getOutput(exec_result)).equals("0"), "Check - package count is NOT 0");
 		
 		exec_result = new KatelloOrg(this.cli_worker, base_org_name, null).subscriptions();

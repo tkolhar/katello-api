@@ -97,7 +97,7 @@ public class ContentViewTests extends KatelloCliTestBase{
 	@Test(description = "register client via activation key",groups={"cfse-cli"}, dependsOnMethods={"test_addContentView"})
 	public void test_registerClient(){
 		sshOnClient(KatelloSystem.RHSM_CLEAN);
-		sys = new KatelloSystem(this.cli_worker, system_name1, base_org_name, null);
+		sys = new KatelloSystem(this.cli_worker, system_name1, base_org_name, base_dev_env_name);
 		exec_result = sys.rhsm_registerForce(act_key_name);
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		
