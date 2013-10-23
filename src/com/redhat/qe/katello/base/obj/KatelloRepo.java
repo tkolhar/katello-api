@@ -166,12 +166,13 @@ public class KatelloRepo extends _KatelloObject{
 		return run(CMD_INFO);
 	}
 	
-	public SSHCommandResult info(String environment){
+	public SSHCommandResult info(String environment, String contentview){
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("product", product));
 		opts.add(new Attribute("environment", environment));
+		opts.add(new Attribute("content_view", contentview));
 		opts.add(new Attribute("product_label", product_label));
 		opts.add(new Attribute("product_id", product_id));
 		return run(CMD_INFO);
@@ -238,10 +239,11 @@ public class KatelloRepo extends _KatelloObject{
 		return run(CMD_LIST);
 	}
 
-	public SSHCommandResult list(String environment){
+	public SSHCommandResult list(String environment, String contentview){
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("environment", environment));
+		opts.add(new Attribute("content_view", contentview));
 		opts.add(new Attribute("product", product)); // gkhachik - added, seems was missing.
 		opts.add(new Attribute("product_label", product_label));
 		opts.add(new Attribute("product_id", product_id));
@@ -256,7 +258,11 @@ public class KatelloRepo extends _KatelloObject{
 		return run(CMD_LIST);
 	}
 
-	public SSHCommandResult custom_reposCount(String environment, Boolean includeDisabled){
+	public SSHCommandResult custom_reposCount(){
+		return custom_reposCount(null, null, null);
+	}
+	
+	public SSHCommandResult custom_reposCount(String environment, String contentview, Boolean includeDisabled){
 		opts.clear();
 		if(environment == null) 
 			environment = KatelloEnvironment.LIBRARY;
@@ -264,6 +270,7 @@ public class KatelloRepo extends _KatelloObject{
 			opts.add(new Attribute("include_disabled", ""));
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("environment", environment));
+		opts.add(new Attribute("content_view", contentview));
 		opts.add(new Attribute("product", product));
 		opts.add(new Attribute("product_label", product_label));
 		opts.add(new Attribute("product_id", product_id));

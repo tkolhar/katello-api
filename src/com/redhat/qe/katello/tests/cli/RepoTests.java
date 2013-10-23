@@ -6,9 +6,11 @@ import java.text.SimpleDateFormat;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
@@ -378,7 +380,7 @@ public class RepoTests extends KatelloCliTestBase {
 		KatelloRepo _repo = new KatelloRepo(this.cli_worker, "pulp-v2", this.org_name, this.productAutoDiscoverHttpPulpV2, url, null, null);
 		SSHCommandResult res = _repo.discover(this.providerAutoDiscoverHttpPulpV2);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check  -return code");
-		Assert.assertTrue(getOutput(_repo.custom_reposCount(null,null)).equals("8"), "Check - 8 repos were prepared");
+		Assert.assertTrue(getOutput(_repo.custom_reposCount()).equals("8"), "Check - 8 repos were prepared");
 	}
 
 	/**
@@ -403,12 +405,11 @@ public class RepoTests extends KatelloCliTestBase {
 		KatelloRepo _repo = new KatelloRepo(this.cli_worker, "_zoo5", this.org_name, this.productAutoDiscoverFileZoo5, "file://"+url, null, null);
 		SSHCommandResult res = _repo.discover(this.providerAutoDiscoverFileZoo5);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check  -return code");
-		Assert.assertTrue(getOutput(_repo.custom_reposCount(null,null)).equals("1"), "Check - 1 repo was prepared");
+		Assert.assertTrue(getOutput(_repo.custom_reposCount()).equals("1"), "Check - 1 repo was prepared");
 	}
 
 	/**
 	 * @see https://github.com/gkhachik/katello-api/issues/283
-	 * TODO: bz#961780  repo list should be changed to accept option --content_view
 	 */
 	@Test(description="Auto-discovered repositories can be synced and promoted",
 			dependsOnMethods={"test_discoverRepo_MultiRepos_HttpMethod","test_discoverRepo_SingleRepo_FileMethod"})
@@ -426,14 +427,14 @@ public class RepoTests extends KatelloCliTestBase {
 		res = prodZoo5.synchronize();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check  -return code");
 		
-		KatelloUtils.promoteProductToEnvironment(cli_worker, org_name, productAutoDiscoverHttpPulpV2, env_testing);
-		KatelloUtils.promoteProductToEnvironment(cli_worker, org_name, productAutoDiscoverFileZoo5, env_testing);
+		String pulpContentView = KatelloUtils.promoteProductToEnvironment(cli_worker, org_name, productAutoDiscoverHttpPulpV2, env_testing);
+		String zooContentView = KatelloUtils.promoteProductToEnvironment(cli_worker, org_name, productAutoDiscoverFileZoo5, env_testing);
 		
 		// HTTP. Check - packages synced and promoted too.
-		assert_allRepoPackagesSynced(this.org_name, this.productAutoDiscoverHttpPulpV2, env_testing, 10);
+		assert_allRepoPackagesSynced(this.org_name, this.productAutoDiscoverHttpPulpV2, env_testing, pulpContentView, 8);
 		
 		// FTP. Check - packages synced and promoted too.
-		assert_allRepoPackagesSynced(this.org_name, this.productAutoDiscoverFileZoo5, env_testing, 1);
+		assert_allRepoPackagesSynced(this.org_name, this.productAutoDiscoverFileZoo5, env_testing, zooContentView, 1);
 	}
 
 	/**
@@ -461,7 +462,7 @@ public class RepoTests extends KatelloCliTestBase {
 		KatelloRepo _repo = new KatelloRepo(this.cli_worker, "pulp-v2", this.org_name, productname, url, null, null);
 		res = _repo.discover(providername);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check  -return code");
-		Assert.assertTrue(getOutput(_repo.custom_reposCount(null,null)).equals("8"), "Check - 8 repos were prepared");
+		Assert.assertTrue(getOutput(_repo.custom_reposCount()).equals("8"), "Check - 8 repos were prepared");
 		
 		assert_allReposGPGAssigned(this.org_name, productname, key.name);
 	}
@@ -486,7 +487,7 @@ public class RepoTests extends KatelloCliTestBase {
 		KatelloRepo _repo = new KatelloRepo(this.cli_worker, "pulp-v2", this.org_name, productname, url, null, null);
 		exec_result = _repo.discover(providername);
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check  -return code");
-		Assert.assertTrue(getOutput(_repo.custom_reposCount(null,null)).equals("8"), "Check - 8 repos were prepared");
+		Assert.assertTrue(getOutput(_repo.custom_reposCount()).equals("8"), "Check - 8 repos were prepared");
 		
 		assert_allReposGPGAssigned(this.org_name, productname, "");
 
@@ -510,7 +511,7 @@ public class RepoTests extends KatelloCliTestBase {
 		exec_result = new KatelloProduct(this.cli_worker, KatelloProduct.RHEL_SERVER, this.orgWithManifest, KatelloProvider.PROVIDER_REDHAT, null, null, null, null, null).repository_set_enable(
 				KatelloProduct.REPOSET_RHEL6_RPMS);
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check  -return code");
-		exec_result = new KatelloRepo(this.cli_worker, null, this.orgWithManifest, KatelloProduct.RHEL_SERVER, null, null, null).custom_reposCount(null, true);
+		exec_result = new KatelloRepo(this.cli_worker, null, this.orgWithManifest, KatelloProduct.RHEL_SERVER, null, null, null).custom_reposCount(null, null, true);
 		Assert.assertTrue(new Integer(getOutput(exec_result)).intValue()>0, "Check - repos count >0");
 	}
 
@@ -576,9 +577,9 @@ public class RepoTests extends KatelloCliTestBase {
 		exec_result = new KatelloProduct(this.cli_worker, KatelloProduct.RHEL_SERVER, this.secondOrg, KatelloProvider.PROVIDER_REDHAT, null, null, null, null, null).repository_set_enable("Red Hat Enterprise Linux 6 Server (ISOs)");
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check  -return code");
 		//list repos - check count
-		exec_result = new KatelloRepo(this.cli_worker, null, this.secondOrg, KatelloProduct.RHEL_SERVER, null, null, null).custom_reposCount(null, true);
+		exec_result = new KatelloRepo(this.cli_worker, null, this.secondOrg, KatelloProduct.RHEL_SERVER, null, null, null).custom_reposCount(null, null, true);
 		Assert.assertTrue(new Integer(getOutput(exec_result)).intValue()>0, "Check - repos count >0");
-		exec_result = new KatelloRepo(this.cli_worker, null, this.orgWithManifest, KatelloProduct.RHEL_SERVER, null, null, null).custom_reposCount(null, true);
+		exec_result = new KatelloRepo(this.cli_worker, null, this.orgWithManifest, KatelloProduct.RHEL_SERVER, null, null, null).custom_reposCount(null, null, true);
 		Assert.assertTrue(new Integer(getOutput(exec_result)).intValue()>0, "Check - repos count >0");  
 	} 
 
@@ -627,18 +628,22 @@ public class RepoTests extends KatelloCliTestBase {
 		return repo;
 	}
 	
-	private void assert_allRepoPackagesSynced(String orgname, String productname, String envname, int repoCount){
+	private void assert_allRepoPackagesSynced(String orgname, String productname, String envname, String contentview, int repoCount){
 		if(envname==null) envname = KatelloEnvironment.LIBRARY;
 		KatelloRepo repo = new KatelloRepo(this.cli_worker, null, orgname, productname, null, null, null);
-		SSHCommandResult res = repo.list(envname);
-		int repoCnt = new Integer(getOutput(repo.custom_reposCount(envname,null))).intValue();
+		SSHCommandResult res = repo.list(envname, contentview);
+		int repoCnt = new Integer(getOutput(repo.custom_reposCount(envname,contentview,null))).intValue();
 		Assert.assertTrue(repoCnt==repoCount, "Assert - all repos are promoted");
 		String repoName; int pkgCount;
 		for(int i=0;i<repoCnt;i++){
 			repoName = KatelloUtils.grepCLIOutput("Name", getOutput(res), (i+1));
-			pkgCount = new Integer(getOutput(new KatelloPackage(cli_worker, null, null, orgname, 
-					productname, repoName, envname).custom_packagesCount(null))).intValue();
+			pkgCount = new Integer(getOutput(new KatelloPackage(cli_worker, orgname,
+					productname, repoName, contentview).custom_packagesCount(envname))).intValue();
 			Assert.assertTrue(pkgCount>0, "Check - packages are synced for: "+repoName);
+			KatelloRepo loaded_repo = new KatelloRepo(cli_worker, repoName, orgname, productname, null, null, null);
+			exec_result = loaded_repo.info(envname, contentview);
+			Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+			Assert.assertEquals(repoName, KatelloUtils.grepCLIOutput("Name", getOutput(exec_result), 1), "Repo name must be returned corrrectly");
 		}
 	}
 	
@@ -646,7 +651,7 @@ public class RepoTests extends KatelloCliTestBase {
 		String repoName; SSHCommandResult res;
 		KatelloRepo repo = new KatelloRepo(this.cli_worker, null, orgname, productname, null, null, null);
 		SSHCommandResult resRepoList = repo.list();
-		int repoCount = new Integer(getOutput(repo.custom_reposCount(null,null))).intValue();
+		int repoCount = new Integer(getOutput(repo.custom_reposCount())).intValue();
 		for(int i=0;i<repoCount;i++){
 			repoName = KatelloUtils.grepCLIOutput("Name", getOutput(resRepoList), (i+1));
 			res = new KatelloRepo(this.cli_worker, repoName, orgname, productname, null, null, null).info();

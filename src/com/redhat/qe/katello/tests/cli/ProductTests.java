@@ -166,11 +166,7 @@ public class ProductTests  extends KatelloCliTestBase{
 		
 		// try to create product second time by the same name
 		res = prod.create();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
-		
-		res = prod.cli_list();
-		String _prod2 = KatelloUtils.grepCLIOutput("Name", getOutput(res), 2);
-		Assert.assertTrue(_prod2.equals(prodName), "Check - there are 2 products with same name");
+		Assert.assertFalse(res.getExitCode().intValue()==0, "Check - return code (product create)");
 	}
 	
 	@Test(description="create product by the same name which is in other org", groups = {"cli-products"}, enabled=true)
@@ -262,8 +258,7 @@ public class ProductTests  extends KatelloCliTestBase{
 		assert_productList(exec_result, Arrays.asList(prod1, prod2), Arrays.asList(prod3));
 	}
 
-    //@ TODO bz#961780  repo list should be changed to accept option --content_view
-	@Test(description="list the products by environment", groups = {"cli-products"}, enabled=false) //TODO - gkhachik via content views
+	@Test(description="list the products by environment", groups = {"cli-products"}, enabled=false)
 	public void test_listProduct_environment() {
 		String prodName1 = "prod1-"+KatelloUtils.getUniqueID();
 		String prodName2 = "prod2-"+KatelloUtils.getUniqueID();
@@ -292,8 +287,7 @@ public class ProductTests  extends KatelloCliTestBase{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product synchronize)");
 		
 		// promote product to the env.
-//		res = prod1.promote(envName1);
-//		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product promote)");
+		KatelloUtils.promoteProductToEnvironment(this.cli_worker, this.org_name, prodName1, envName1);
 
 		// create product
 		KatelloProduct prod2 = new KatelloProduct(this.cli_worker, prodName2, this.org_name, this.prov_name, null, null, REPO_INECAS_ZOO3, null, true);
@@ -314,8 +308,7 @@ public class ProductTests  extends KatelloCliTestBase{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product synchronize)");
 		
 		// promote product to the env.
-//		res = prod2.promote(envName2);
-//		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product promote)");
+		KatelloUtils.promoteProductToEnvironment(this.cli_worker, this.org_name, prodName2, envName2);
 
 		KatelloProduct prod3 = new KatelloProduct(this.cli_worker, prodName3, this.org_name, this.prov_name3, null, null, null, null, true);
 		res = prod3.create();
@@ -329,11 +322,11 @@ public class ProductTests  extends KatelloCliTestBase{
 		String lastSync2 = KatelloUtils.grepCLIOutput("Last Sync", getOutput(res).trim(),1);
 		prod2.lastSync = lastSync2;
 		
-		res = prod1.cli_list(envName1);
+		res = prod1.cli_list();
 		
 		assert_productList(res, Arrays.asList(prod1), Arrays.asList(prod2, prod3));
 		
-		res = prod1.cli_list(envName2);
+		res = prod1.cli_list();
 		
 		assert_productList(res, Arrays.asList(prod2), Arrays.asList(prod1, prod3));
 	}
@@ -365,7 +358,6 @@ public class ProductTests  extends KatelloCliTestBase{
 		KatelloUtils.promoteProductToEnvironment(cli_worker, org_name, prodName, envName);
 	}
 	
-	//TODO bz#961780  repo list should be changed to accept option --content_view
 	@Test(description="promote product", groups = {"cli-products"}, enabled=false)
 	public void test_promoteProduct_OneRepo(){
 		String uid = KatelloUtils.getUniqueID();
@@ -390,10 +382,10 @@ public class ProductTests  extends KatelloCliTestBase{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product synchronize)");
 		
 		// promote product to the env.
-		KatelloUtils.promoteProductToEnvironment(cli_worker, org_name, prodName, envName);
+		String contentView = KatelloUtils.promoteProductToEnvironment(cli_worker, org_name, prodName, envName);
 
 		// product list --environment (1 result - just the product promoted)
-		res = prod.cli_list(envName);
+		res = prod.cli_list();
 		if (prod.syncPlanName == null) prod.syncPlanName = "None";
 		if (prod.lastSync == null) prod.lastSync = "";
 		if (prod.gpgkey == null) prod.gpgkey = "";
@@ -402,17 +394,16 @@ public class ProductTests  extends KatelloCliTestBase{
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info),
 				"Product list by environment - just promoted product");
 		
-		// repo list --environment (1 result).
+		// repo list --environment --content_view (1 result).
 		// check - repo created - we don't know the exact repo name.
 		KatelloRepo repo = new KatelloRepo(this.cli_worker, null,this.org_name,prodName,null,null,null);
-		res = repo.list(envName);
+		res = repo.list(envName, contentView);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo list by product)");		
 		match_info = String.format(KatelloRepo.REG_REPO_LIST_ARCH, prodName, "x86_64").replaceAll("\"", "");
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info),
 				"Repo list should contain info about just created repo (requested by: org, environment)");
 	}
 	
-	//TODO bz#961780  repo list should be changed to accept option --content_view
 	@Test(description="promote product", groups = {"cli-products"}, enabled=false)
 	public void test_promoteProduct_MultipleRepos(){
 		String uid = KatelloUtils.getUniqueID();
@@ -437,10 +428,10 @@ public class ProductTests  extends KatelloCliTestBase{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product synchronize)");
 		
 		// promote product to the env.
-		KatelloUtils.promoteProductToEnvironment(cli_worker, org_name, prodName, envName);
+		String contentView = KatelloUtils.promoteProductToEnvironment(cli_worker, org_name, prodName, envName);
 
 		// product list --environment (1 result - just the product promoted)
-		res = prod.cli_list(envName);
+		res = prod.cli_list();
 		if (prod.syncPlanName == null) prod.syncPlanName = "None";
 		if (prod.lastSync == null) prod.lastSync = "";
 		if (prod.gpgkey == null) prod.gpgkey = "";
@@ -449,9 +440,9 @@ public class ProductTests  extends KatelloCliTestBase{
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info),
 				"Product list by environment - just promoted product");
 		
-		// repo list --environment (2 entries).
+		// repo list --environment --content_view (2 entries).
 		KatelloRepo repo = new KatelloRepo(this.cli_worker, null,this.org_name,prodName,null,null,null);
-		res = repo.list(envName);
+		res = repo.list(envName, contentView);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo list by product)");
 		match_info = String.format(KatelloRepo.REG_REPO_LIST_ARCH, prodName, "i386").replaceAll("\"", "");
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info),
@@ -530,8 +521,7 @@ public class ProductTests  extends KatelloCliTestBase{
 		// our line to analyze - should not contain: 0
 		Assert.assertFalse(getOutput(res).matches(match_info),"Repo list of the product - should not contain package count 0 (after product synchronize)");
 	}
-	
-	//@ TODO bz#961780  repo list should be changed to accept option --content_view
+
 	@Test(description="delete product - included in some changeset", groups = {"cli-products"}, enabled=false) // TODO - gkhachik via content views
 	public void test_deleteProduct_InChangeset(){
 		String uid = KatelloUtils.getUniqueID();
@@ -551,17 +541,17 @@ public class ProductTests  extends KatelloCliTestBase{
 		res = env.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (environment create)");
 		
-		KatelloUtils.promoteProductToEnvironment(cli_worker, org_name, prodName, envName_dev);
+		String contentView = KatelloUtils.promoteProductToEnvironment(cli_worker, org_name, prodName, envName_dev);
 		
-		// Assertions - repo list by env
+		// Assertions - repo list by env and content view
 		KatelloRepo repo = new KatelloRepo(this.cli_worker, null,this.org_name,prodName,null,null,null);
-		res = repo.list(envName_dev);
+		res = repo.list(envName_dev, contentView);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo list --environment)");
 		String match_info = String.format(KatelloRepo.REG_REPO_LIST_ARCH, prodName, "x86_64").replaceAll("\"", "");
 		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info),
 				"Repo list by environment - should contain info");
-		// Assertions - product list by env
-		res = prod.cli_list(envName_dev);
+		// Assertions - product list
+		res = prod.cli_list();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product list --environment)");
 		if (prod.syncPlanName == null) prod.syncPlanName = "None";
 		if (prod.lastSync == null) prod.lastSync = "";
@@ -592,16 +582,16 @@ public class ProductTests  extends KatelloCliTestBase{
 		Assert.assertTrue(res.getExitCode().intValue()==65, "Check - return code (repo list --product)"); // Bug#750464
 		Assert.assertTrue(getOutput(res).equals(String.format(KatelloProduct.ERR_COULD_NOT_FIND_PRODUCT, prodName,org_name)), "Check - `repo list --product` output string");
 		
-		// Assertions - repo list by env.
+		// Assertions - repo list by env and content view.
 		repo = new KatelloRepo(this.cli_worker, null,this.org_name,prodName,null,null,null);
-		res = repo.list(envName_dev);
+		res = repo.list(envName_dev, contentView);
 		Assert.assertTrue(res.getExitCode().intValue()==65, "Check - return code (repo list --environment)");
 		Assert.assertTrue(getOutput(res).equals(String.format(KatelloProduct.ERR_COULD_NOT_FIND_PRODUCT, prodName,org_name)), "Check - `repo list --environment` output string");
 		match_info = String.format(KatelloRepo.REG_REPO_LIST_ARCH, prodName, "x86_64").replaceAll("\"", "");
 		Assert.assertFalse(getOutput(res).replaceAll("\n", "").matches(match_info), "Check - `repo list --environment` output string");
 		
-		// Assertions - product list of env.
-		res = prod.cli_list(envName_dev);
+		// Assertions - product list.
+		res = prod.cli_list();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product list --environment)");
 		match_info = String.format(KatelloProduct.REG_PROD_LIST, prodName, prov_name, prod.syncPlanName, prod.lastSync, prod.gpgkey).replaceAll("\"", "");
 		Assert.assertFalse(getOutput(res).replaceAll("\n", "").matches(match_info), 
