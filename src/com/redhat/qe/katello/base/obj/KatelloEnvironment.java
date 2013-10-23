@@ -1,7 +1,9 @@
 package com.redhat.qe.katello.base.obj;
 
 import java.util.logging.Logger;
+
 import javax.management.Attribute;
+
 import org.codehaus.jackson.annotate.JsonProperty;
 
 import com.redhat.qe.katello.base.threading.KatelloCliWorker;
@@ -34,6 +36,7 @@ public class KatelloEnvironment extends _KatelloObject{
 	public static final String ERROR_BLANK_NAME = "Name can't be blank";
 	public static final String ERROR_LONG_NAME = "Validation failed: Name cannot contain more than 255 characters" ;
 	
+	public static final String REG_ENV_INFO = ".*ID\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Description\\s*:\\s+%s.*Org\\s*:\\s+%s.*Prior Environment\\s*:\\s+%s.*";
 	// ** ** ** ** ** ** ** Class members
 	private String name;
 	String description;
@@ -84,6 +87,14 @@ public class KatelloEnvironment extends _KatelloObject{
 
 	public void setName(String name) {
 	    this.name = name;
+	}
+	
+	public String getOrg() {
+	    return org;
+	}
+
+	public void setOrg(String orgName) {
+	    this.org = orgName;
 	}
 
 	@JsonProperty("updated_at")
