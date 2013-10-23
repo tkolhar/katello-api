@@ -13,6 +13,7 @@ import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloPuppetModule;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.common.KatelloUtils;
+import com.redhat.qe.katello.common.TngRunGroups;
 
 public class PuppetModuleTests extends KatelloCliTestBase {
 
@@ -48,13 +49,13 @@ public class PuppetModuleTests extends KatelloCliTestBase {
 	public void test_puppetmoduleList() {
 		KatelloPuppetModule puppet = new KatelloPuppetModule(cli_worker, base_org_name, repo_name, prod_name);
 		exec_result = puppet.list();
-		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code ()");
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (puppet module list)");
 		for(String module: module_names) {
 			Assert.assertTrue(getOutput(exec_result).contains(module), "Check output (module listed)");
 		}
 	}
 
-	@Test(description="info")
+	@Test(description="puppet module info")
 	public void test_puppetmoduleInfo() {
 		KatelloPuppetModule puppet = new KatelloPuppetModule(cli_worker, base_org_name, repo_name, prod_name);
 		exec_result = puppet.list();
@@ -68,8 +69,7 @@ public class PuppetModuleTests extends KatelloCliTestBase {
 		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloPuppetModule.ERR_NOT_FOUND, puppet.id)), "Check error (puppet module info)");
 	}
 
-	// TODO bz#1019172
-	@Test(description="search")
+	@Test(description="search puppet modules")
 	public void test_puppetmoduleSearch() {
 		KatelloPuppetModule puppet = new KatelloPuppetModule(cli_worker, base_org_name, repo_name, prod_name);
 		exec_result = puppet.search("*");
@@ -86,6 +86,6 @@ public class PuppetModuleTests extends KatelloCliTestBase {
 		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (wget puppet module)");
 		exec_result = repo.content_upload(file, "puppet", null);
 		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (upload puppet module)");
-		return moduleAuthor+"-"+moduleName;
+		return moduleName;
 	}
 }
