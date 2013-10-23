@@ -90,7 +90,6 @@ public class SyncPlanTests extends KatelloCliTestBase {
 		Assert.assertEquals(getOutput(exec_result).trim(), "Time format is invalid. Required: HH:MM:SS[+HH:MM]");
 	}
 
-	//@ TODO bz#920187
 	@Test(description = "Create sync plan update it's name", groups = { "cli-sync_plan" })
 	public void test_updateSyncPlanName() {
 		KatelloSyncPlan sp = createSyncPlan(new Date(), SyncPlanInterval.hourly);
