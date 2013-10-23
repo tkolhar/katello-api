@@ -47,7 +47,7 @@ public class ProductsSameName extends KatelloCliTestBase {
 		org_name = "org"+uid;
 		provider_name = "provider"+uid;
 		product_name = "product"+uid;
-		product_name2 = product_name;
+		product_name2 = "product2"+uid;
 		repo_name = "repo-1-"+uid;
 		repo_name2 = "repo-2-"+uid;
 		env_name = "env"+uid;
@@ -126,7 +126,6 @@ public class ProductsSameName extends KatelloCliTestBase {
 		Assert.assertNotNull(package_id2, "Package ID is not null");
 	}
 
-	//@ TODO bz#921103
 	@Test(description="package info of two repos", dependsOnMethods={"test_packageList"})
 	public void test_packageInfo() {
 		
