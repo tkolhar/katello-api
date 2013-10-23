@@ -508,11 +508,6 @@ public class ProviderTests extends KatelloCliTestBase{
 		Assert.assertTrue(getOutput(res).contains(KatelloProvider.ERR_REDHAT_UPDATENAME), "Check - returned error string (provider update)");
 	}
 	
-	/**
-	 * TODO
-	 * bz#1004759
-	 * @see https://bugzilla.redhat.com/show_bug.cgi?id=1004759
-	 */
 	@Test(description="Try to updateRed Hat provider - url", groups = {"cli-providers"}, dependsOnMethods = {"test_freshOrgDefaultRedHatProvider"}, enabled=true)
 	public void test_updateProvider_RedHat_url(){
 		SSHCommandResult res;
@@ -535,11 +530,6 @@ public class ProviderTests extends KatelloCliTestBase{
 				String.format("Provider [%s] should be found in the info",KatelloProvider.PROVIDER_REDHAT));
 	}
 	
-	/**
-	 * TODO
-	 * # bz#1004759
-	 * @see https://bugzilla.redhat.com/show_bug.cgi?id=1004759
-	 */
 	@Test(description="Try to update custom provider - url", groups = {"cli-providers"}, enabled=true)
 	public void test_updateProvider_url() {
 		SSHCommandResult res;
