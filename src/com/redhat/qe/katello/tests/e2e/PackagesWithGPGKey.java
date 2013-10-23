@@ -66,7 +66,6 @@ public class PackagesWithGPGKey extends KatelloCliTestBase{
 		gpg_key.cli_create();
 	}
 	
-	//@ TODO bz#918452
 	@Test(description="Create org, provider, product and repo", dependsOnMethods={"test_prepareEnvGpgKey"}, enabled=true)
 	public void test_prepareRepo(){
 		log.info("E2E - Create provider/product/repo");

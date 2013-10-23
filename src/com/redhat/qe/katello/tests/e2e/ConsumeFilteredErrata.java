@@ -13,6 +13,7 @@ import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.base.obj.KatelloSystemGroup;
 import com.redhat.qe.katello.base.obj.helpers.FilterRuleErrataDayType;
 import com.redhat.qe.katello.base.obj.helpers.FilterRuleErrataIds;
+import com.redhat.qe.katello.base.obj.helpers.FilterRulePackage;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 
@@ -89,6 +90,25 @@ public class ConsumeFilteredErrata extends KatelloCliTestBase {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentFilter.OUT_ADD_REPO, base_zoo4_repo_name, errata_filter)), "Check output");
 		
+		// add package rules there     
+		FilterRulePackage [] include_packages = {
+				new FilterRulePackage("kangaroo", "3.6.6-1", null, null),
+				new FilterRulePackage("sheep", "1.3.6-1", null, null),
+				new FilterRulePackage("zebra", "10.0.7-1", null, null),
+				new FilterRulePackage("bird", "5.1.10-1", null, null),
+				new FilterRulePackage("rat", "7.7.0-1", null, null),
+				new FilterRulePackage("ferret", "1.2.0-1", null, null),
+				new FilterRulePackage("crab", "5.5.1-1", null, null),
+				new FilterRulePackage("fish", "4.10.2-1", null, null),
+				new FilterRulePackage("monkey", "2.8.9-1", null, null),
+				new FilterRulePackage("polecat", "9.4.6-1", null, null),
+				new FilterRulePackage("fox", "10.8.0-1", null, null),
+				new FilterRulePackage("seal", "3.10.0-1", null, null),
+				new FilterRulePackage("bat", "3.10.6-1", null, null)
+		};
+
+		exec_result = filter.add_rule(KatelloContentFilter.TYPE_INCLUDES, include_packages);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		exec_result = filter.add_rule(KatelloContentFilter.TYPE_INCLUDES, new FilterRuleErrataIds(KANGAROO_ERRATA, FISH_ERRATA));
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");

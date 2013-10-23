@@ -200,7 +200,6 @@ public class BPMTests extends KatelloCliTestBase{
 				"Check - returned message (pool ID)");
 	}
 	
-	//@ TODO bz#896600
 	@Test(description="Yum should work - yum info pulp-admin-client", 
 			dependsOnMethods={"test_BPMTests_rhsm_subscribeToPool"}, priority=100)
 	public void test_BPMTests_yuminfo(){
