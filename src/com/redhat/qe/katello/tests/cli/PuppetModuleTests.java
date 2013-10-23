@@ -15,7 +15,6 @@ import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 
-@Test(groups={TngRunGroups.TNG_KATELLO_Content})
 public class PuppetModuleTests extends KatelloCliTestBase {
 
 	String prov_name;
