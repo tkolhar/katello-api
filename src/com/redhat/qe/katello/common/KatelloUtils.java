@@ -78,7 +78,8 @@ public class KatelloUtils implements KatelloConstants {
      * @since 15.Feb.2011
      */
     public static synchronized String getUniqueID(){
-        KatelloUtils.sleepAsHuman();
+        try{Thread.sleep(1000);}catch(InterruptedException ex){} // guaranteed sleep of a sec.
+    	KatelloUtils.sleepAsHuman();
         String uid = String.valueOf(
                 Calendar.getInstance().getTimeInMillis()); 
         log.fine(String.format("Generating unique ID: [%s]",uid));
