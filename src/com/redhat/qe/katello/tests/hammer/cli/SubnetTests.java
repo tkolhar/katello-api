@@ -1,11 +1,8 @@
 package com.redhat.qe.katello.tests.hammer.cli;
 
-import java.util.Arrays;
 import java.util.Random;
-
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
@@ -252,23 +249,18 @@ public class SubnetTests extends KatelloCliTestBase {
 		HammerSubnet sub = new HammerSubnet(cli_worker, null, null, null);
 		res = sub.cli_list("name", 1, 5);
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
-		String[] names = getOutput(res).trim().split("\n");
-		String[] sortedNames = Arrays.copyOf(names, names.length);
-		Arrays.sort(sortedNames);
-		
-		Assert.assertEquals(names.length, 5, "Count of returned subs must be 5.");
-		Assert.assertEquals(names, sortedNames, "Returned subs are sorted.");
+		String name_1 = KatelloUtils.grepCLIOutput("Name", getOutput(res), 1);
+		String name5 = KatelloUtils.grepCLIOutput("Name", getOutput(res), 5);
+		String name6 = KatelloUtils.grepCLIOutput("Name", getOutput(res), 6);
+		Assert.assertTrue(name5!=null && name6==null, "Count of returned subs must be 5.");
 		
 		res = sub.cli_list("name", 2, 5);
+		String name_2 = KatelloUtils.grepCLIOutput("Name", getOutput(res), 1);
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
-		String[] second_names = getOutput(res).trim().split("\n");
-		String[] second_sortedNames = Arrays.copyOf(second_names, second_names.length);
-		Arrays.sort(second_sortedNames);
-		
-		Assert.assertEquals(second_names.length, 5, "Count of returned subs must be 5.");
-		Assert.assertEquals(second_names, second_sortedNames, "Returned subs are sorted.");
-		
-		Assert.assertEquals(sortedNames, second_sortedNames, "Returned subs in first and second list must not be the same.");
+		name5 = KatelloUtils.grepCLIOutput("Name", getOutput(res), 5);
+		name6 = KatelloUtils.grepCLIOutput("Name", getOutput(res), 6);
+		Assert.assertTrue(name5!=null && name6==null, "Count of returned subs must be 5.");
+		Assert.assertTrue(!name_1.equals(name_2), "Returned subs in first and second list must not be the same.");
 	}
 	
 	public static String randomNetwork() {

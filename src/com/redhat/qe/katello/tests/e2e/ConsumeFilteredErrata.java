@@ -74,7 +74,6 @@ public class ConsumeFilteredErrata extends KatelloCliTestBase {
 		sshOnClient("service goferd restart;");
 	}
     
-	//@ TODO bz#955706
 	@Test(description="Consume content from filtered errata")
 	public void test_consumeErrataContent() {
 

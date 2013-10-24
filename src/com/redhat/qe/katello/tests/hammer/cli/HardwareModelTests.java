@@ -150,7 +150,7 @@ public class HardwareModelTests extends KatelloCliTestBase {
 		SSHCommandResult res = hwm.cli_info();
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 
-		String match_info = String.format(HammerHardwareModel.REG_HWM_INFO, hwm.name, hwm.info, hwm.vendor_class, hwm.hw_model).replaceAll("\"", "");
+		String match_info = String.format(HammerHardwareModel.REG_HWM_INFO, hwm.name, hwm.vendor_class, hwm.hw_model, hwm.info).replaceAll("\"", "");
 		Assert.assertTrue(res.getExitCode() == 0, "Check - return code");
 		log.finest(String.format("Changeset (info) match regex: [%s]", match_info));
 		Assert.assertTrue(getOutput(res).replaceAll("\n", " ").matches(match_info), String.format("Hardware model [%s] should be found in the result info", hwm.name));

@@ -48,46 +48,46 @@ public class HammerArchitecture extends _HammerObject{
 	}
 
 	public SSHCommandResult cli_create(){		
-		opts.clear();
-		opts.add(new Attribute("name", this.name));
+		args.clear();
+		args.add(new Attribute("name", this.name));
 		return run(CLI_CMD_CREATE);
 	}
 	
 	public SSHCommandResult cli_info(){
-		opts.clear();
-		opts.add(new Attribute("name", this.name));
+		args.clear();
+		args.add(new Attribute("name", this.name));
 		return run(CLI_CMD_INFO);
 	}
 	
 	public SSHCommandResult cli_list(){
-		opts.clear();
+		args.clear();
 		return run(CLI_CMD_LIST);
 	}
 
 	public SSHCommandResult cli_search(String search){
-		opts.clear();
-		opts.add(new Attribute("search", search));
+		args.clear();
+		args.add(new Attribute("search", search));
 		return run(CLI_CMD_LIST);
 	}
 	
 	public SSHCommandResult cli_list(String order, Integer page, Integer per_page){
-		opts.clear();
-		opts.add(new Attribute("order", order));
-		opts.add(new Attribute("page", page));
-		opts.add(new Attribute("per-page", per_page));
+		args.clear();
+		args.add(new Attribute("order", order));
+		args.add(new Attribute("page", page));
+		args.add(new Attribute("per-page", per_page));
 		return run(CLI_CMD_LIST);
 	}
 	
 	public SSHCommandResult delete(){
-		opts.clear();
-		opts.add(new Attribute("name", this.name));
+		args.clear();
+		args.add(new Attribute("name", this.name));
 		return run(CMD_DELETE);
 	}
 	
 	public SSHCommandResult update(String new_name){
-		opts.clear();
-		opts.add(new Attribute("name", this.name));
-		opts.add(new Attribute("new-name", new_name));
+		args.clear();
+		args.add(new Attribute("name", this.name));
+		args.add(new Attribute("new-name", new_name));
 		return run(CMD_UPDATE);
 	}
 
