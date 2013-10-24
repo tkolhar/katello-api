@@ -174,10 +174,12 @@ public class SubnetTests extends KatelloCliTestBase {
 		SSHCommandResult res;
 		
 		HammerSubnet sub = new HammerSubnet(cli_worker, name, null, null);
-		res = sub.cli_list();
-		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
+		res = sub.cli_info();
+		Assert.assertTrue(res.getExitCode().intValue() == 128, "Check - return code");
+		Assert.assertTrue(!getOutput(res).contains(name),"Check - old name is not listed");
 		
-		Assert.assertFalse(getOutput(res).contains(name),"Check - old name is not listed");
+		sub = new HammerSubnet(cli_worker, new_name, null, null);
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(res).contains(new_name),"Check - new name is listed");
 	}
 	
