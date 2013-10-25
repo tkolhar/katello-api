@@ -45,6 +45,7 @@ public class SubnetTests extends KatelloCliTestBase {
 		Assert.assertTrue(getOutput(res).contains(String.format(HammerSubnet.OUT_CREATE, name)),"Check - returned output string");
 	}
 
+	// bz#1023393
 	@Test(description="create Subnet with all parameters")
 	public void testSubnet_createAllParams() {
 		SSHCommandResult res;
@@ -170,7 +171,7 @@ public class SubnetTests extends KatelloCliTestBase {
 		//Assert.assertTrue(getOutput(res).contains(String.format(HammerSubnet.OUT_UPDATE, name)),"Check - returned output string");
 	}
 	
-	// @ TODO bug
+	// bz#1023379
 	@Test(description="list Subnet", dependsOnMethods={"testSubnet_update"})
 	public void testSubnet_list() {
 		SSHCommandResult res;

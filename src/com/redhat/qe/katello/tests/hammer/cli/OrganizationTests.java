@@ -30,6 +30,7 @@ public class OrganizationTests extends KatelloCliTestBase {
 		Assert.assertTrue(getOutput(exec_result).equals(HammerOrganization.OUT_CREATE), "Check - returned output string");
 	}
 	
+	// bz#1023125
 	@Test(description="Create duplicate organization", dependsOnMethods={"test_organizationCreate"})
 	public void test_duplicateOrgCreate() {
 		//Duplicate name
