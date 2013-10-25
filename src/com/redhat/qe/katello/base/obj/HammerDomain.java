@@ -57,39 +57,39 @@ public class HammerDomain extends _HammerObject {
 	}
 	
 	public SSHCommandResult cli_create() {
-		opts.clear();
-		opts.add(new Attribute("name", this.name));
-		opts.add(new Attribute("fullname", this.fullName));
-		opts.add(new Attribute("dns-id", this.dns_id));
+		args.clear();
+		args.add(new Attribute("name", this.name));
+		args.add(new Attribute("fullname", this.fullName));
+		args.add(new Attribute("dns-id", this.dns_id));
 		return run(CMD_CREATE);
 	}
 	
 	public SSHCommandResult cli_info() {
-		opts.clear();
-		opts.add(new Attribute("name", this.name));
+		args.clear();
+		args.add(new Attribute("name", this.name));
 		return run(CMD_INFO);
 	}
 	
 	public SSHCommandResult cli_list(String searchStr, String order, String page) {
-		opts.clear();
-		opts.add(new Attribute("search", searchStr));
-		opts.add(new Attribute("order", order));
-		opts.add(new Attribute("page", page));
+		args.clear();
+		args.add(new Attribute("search", searchStr));
+		args.add(new Attribute("order", order));
+		args.add(new Attribute("page", page));
 		return run(CMD_LIST);
 	}
 	
 	public SSHCommandResult update(String newName) {
-		opts.clear();
-		opts.add(new Attribute("name", this.name));
-		opts.add(new Attribute("fullname", this.fullName));
-		opts.add(new Attribute("dns-id", this.dns_id));
-		opts.add(new Attribute("new-name", newName));
+		args.clear();
+		args.add(new Attribute("name", this.name));
+		args.add(new Attribute("fullname", this.fullName));
+		args.add(new Attribute("dns-id", this.dns_id));
+		args.add(new Attribute("new-name", newName));
 		return run(CMD_UPDATE);
 	}
 	
 	public SSHCommandResult delete() {
-		opts.clear();
-		opts.add(new Attribute("name", this.name));
+		args.clear();
+		args.add(new Attribute("name", this.name));
 		return run(CMD_DELETE);
 	}
 }

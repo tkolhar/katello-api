@@ -7,13 +7,11 @@ import com.redhat.qe.katello.base.obj.KatelloActivationKey;
 import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
 import com.redhat.qe.katello.base.obj.KatelloContentView;
-import com.redhat.qe.katello.base.obj.KatelloErrata;
 import com.redhat.qe.katello.base.obj.KatelloPackage;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.base.obj.KatelloSystemGroup;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
-import com.redhat.qe.katello.tests.e2e.PromoteErrata;
 
 @Test(groups=TngRunGroups.TNG_KATELLO_Content)
 public class ContentViewTests extends KatelloCliTestBase{
@@ -136,38 +134,8 @@ public class ContentViewTests extends KatelloCliTestBase{
 		Assert.assertTrue(getOutput(exec_result).trim().contains("No package pulp-agent available."));
 	}
 	
-	@Test(description = "List the erratas of content view",groups={"cfse-cli"}, dependsOnMethods={"test_consumeContent"})
-	public void test_errataList() {
-		KatelloErrata errata = new KatelloErrata(cli_worker, base_org_name, base_zoo_product_name, base_zoo_repo_name, pubview_name);
-		
-		exec_result = errata.cli_list();
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		Assert.assertTrue(getOutput(exec_result).contains(ERRATA_ZOO_SEA),"is package in the list: " + ERRATA_ZOO_SEA);
-	}
-	
-	@Test(description = "consume Errata content",groups={"cfse-cli"}, dependsOnMethods={"test_errataList"})
-	public void test_ConsumeErrata(){
-		sshOnClient("yum erase -y walrus");
-		exec_result = sshOnClient("yum install -y walrus-0.71-1.noarch");
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		KatelloErrata ert = new KatelloErrata(cli_worker, ERRATA_ZOO_SEA, base_org_name, base_zoo_product_name, base_zoo_repo_name, null);
-		ert.content_view = pubview_name;
-		exec_result = ert.info();
-		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code (errata info --environment Dev)");
-		
-		exec_result = group.add_systems(system_uuid1);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		exec_result = group.erratas_install(PromoteErrata.ERRATA_ZOO_SEA);
-		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
-		Assert.assertTrue(getOutput(exec_result).trim().contains("Remote action finished"));
-		Assert.assertTrue(getOutput(exec_result).trim().contains("Erratum Install Complete"));
-	}
-
 	@Test(description = "promoted content view delete by changeset from environment, " +
-			"verify that packages are not availble anymore",groups={"cfse-cli"}, dependsOnMethods={"test_ConsumeErrata"})
+			"verify that packages are not availble anymore",groups={"cfse-cli"}, dependsOnMethods={"test_consumeContent"})
 	public void test_deletePromotedContentView() {
 		sshOnClient("yum erase -y walrus");
 		rhsm_clean();

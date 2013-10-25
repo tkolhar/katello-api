@@ -15,11 +15,13 @@ class _HammerObject {
 
 	protected HammerUser user;
 	protected String hostName = System.getProperty("katello.client.hostname", "localhost");
-	protected ArrayList<Attribute> opts;
+	protected ArrayList<Attribute> options;
+	protected ArrayList<Attribute> args;
 	protected KatelloCliWorker kcr = null;
 	
 	public _HammerObject(){
-		this.opts = new ArrayList<Attribute>();
+		this.args = new ArrayList<Attribute>();
+		this.options = new ArrayList<Attribute>();
 		this.user = null;
 	}
 	
@@ -41,27 +43,27 @@ class _HammerObject {
 	protected SSHCommandResult run(String cmd){
 		HammerCli cli;
 		if(kcr!=null)
-			cli = new HammerCli(cmd, opts, user, kcr.getClientHostname());
+			cli = new HammerCli(cmd, options, args, user, kcr.getClientHostname());
 		else
-			cli = new HammerCli(cmd, opts, user, hostName); // as the user specified on specified host
+			cli = new HammerCli(cmd, options, args, user, hostName); // as the user specified on specified host
 		return cli.run();
 	}
 
 	protected void runNowait(String cmd){
 		HammerCli cli;
 		if(kcr!=null)
-			cli = new HammerCli(cmd, opts, user, kcr.getClientHostname());
+			cli = new HammerCli(cmd, options, args, user, kcr.getClientHostname());
 		else
-			cli = new HammerCli(cmd, opts, user, hostName); // as the user specified on specified host
+			cli = new HammerCli(cmd, options, args, user, hostName); // as the user specified on specified host
 		cli.runNowait();
 	}
 
 	protected SSHCommandResult runExt(String cmd, String cmdTail){
 		HammerCli cli;
 		if(kcr!=null)
-			cli = new HammerCli(cmd, opts, user, kcr.getClientHostname());
+			cli = new HammerCli(cmd, options, args, user, kcr.getClientHostname());
 		else
-			cli = new HammerCli(cmd, opts, user, hostName); // as the user specified on specified host
+			cli = new HammerCli(cmd, options, args, user, hostName); // as the user specified on specified host
 		return cli.runExt(cmdTail);
 	}
 }

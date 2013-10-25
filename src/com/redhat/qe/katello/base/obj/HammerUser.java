@@ -142,138 +142,138 @@ public class HammerUser extends _HammerObject {
 
 	public SSHCommandResult report(String format)
 	{
-		opts.clear();
+		args.clear();
 		if(!(format.isEmpty()))
-			opts.add(new Attribute("format",format));
+			args.add(new Attribute("format",format));
 		return run(CMD_REPORT);
 	}
 
 	public SSHCommandResult cli_create(){
-		opts.clear();
-		opts.add(new Attribute("username", username));
-		opts.add(new Attribute("password", password));
-		opts.add(new Attribute("email", email));
+		args.clear();
+		args.add(new Attribute("username", username));
+		args.add(new Attribute("password", password));
+		args.add(new Attribute("email", email));
 		if(disabled)
-			opts.add(new Attribute("disabled", "true"));
+			args.add(new Attribute("disabled", "true"));
 		if(!(orgname.isEmpty()))
-			opts.add(new Attribute("default_organization",orgname));
+			args.add(new Attribute("default_organization",orgname));
 		if(!(envname.isEmpty()))
-			opts.add(new Attribute("default_environment",envname));
+			args.add(new Attribute("default_environment",envname));
 		if(!(locale.isEmpty()))
-			opts.add(new Attribute("default_locale",locale));
+			args.add(new Attribute("default_locale",locale));
 		return run(CMD_CREATE);
 	}
 	
 	public SSHCommandResult create(String pAuthId) {
-		opts.clear();
-		opts.add(new Attribute("login", this.login));
-		opts.add(new Attribute("password", this.password));
-		opts.add(new Attribute("mail", this.mail));
-		opts.add(new Attribute("auth-source-id", pAuthId));
-		opts.add(new Attribute("firstname", this.firstName));
-		opts.add(new Attribute("lastname", this.lastName));
+		args.clear();
+		args.add(new Attribute("login", this.login));
+		args.add(new Attribute("password", this.password));
+		args.add(new Attribute("mail", this.mail));
+		args.add(new Attribute("auth-source-id", pAuthId));
+		args.add(new Attribute("firstname", this.firstName));
+		args.add(new Attribute("lastname", this.lastName));
 		if(this.isAdmin) {
-			opts.add(new Attribute("admin", "true"));
+			args.add(new Attribute("admin", "true"));
 		}
 		return run(CMD_CREATE);
 	}
 
 	public SSHCommandResult cli_info(){
-		opts.clear();
-		opts.add(new Attribute("username", username));
+		args.clear();
+		args.add(new Attribute("username", username));
 		return run(CLI_CMD_INFO);
 	}
 	
 	public SSHCommandResult info() {
-		opts.clear();
-		opts.add(new Attribute("id", this.id));
+		args.clear();
+		args.add(new Attribute("id", this.id));
 		return run(CLI_CMD_INFO);
 	}
 
 	public SSHCommandResult cli_list(){
-		opts.clear();
+		args.clear();
 		return run(CLI_CMD_LIST+" -v");
 	}
 	
 	public SSHCommandResult list(String searchStr, String order, String page) {
-		opts.clear();
-		opts.add(new Attribute("search", searchStr));
-		opts.add(new Attribute("order", order));
-		opts.add(new Attribute("page", page));
+		args.clear();
+		args.add(new Attribute("search", searchStr));
+		args.add(new Attribute("order", order));
+		args.add(new Attribute("page", page));
 		return run(CLI_CMD_LIST);
 	}
 
 	public SSHCommandResult assign_role(String role){
-		opts.clear();
-		opts.add(new Attribute("username", username));
-		opts.add(new Attribute("role", role));
+		args.clear();
+		args.add(new Attribute("username", username));
+		args.add(new Attribute("role", role));
 		return run(CMD_ASSIGN_ROLE);
 	}
 
 	public SSHCommandResult unassign_role(String role){
-		opts.clear();
-		opts.add(new Attribute("username", username));
-		opts.add(new Attribute("role", role));
+		args.clear();
+		args.add(new Attribute("username", username));
+		args.add(new Attribute("role", role));
 		return run(CMD_UNASSIGN_ROLE);
 	}
 
 	public SSHCommandResult list_roles(){
-		opts.clear();
-		opts.add(new Attribute("username", username));
+		args.clear();
+		args.add(new Attribute("username", username));
 		return run(CMD_LIST_ROLES);
 	}
 
 	public SSHCommandResult delete(){
-		opts.clear();
-		opts.add(new Attribute("username", this.username));
+		args.clear();
+		args.add(new Attribute("username", this.username));
 		return run(CMD_DELETE_USER);
 	}
 	
 	public SSHCommandResult delete(String id) {
-		opts.clear();
-		opts.add(new Attribute("id", id));
+		args.clear();
+		args.add(new Attribute("id", id));
 		return run(CMD_DELETE_USER);
 	}
 	
 	public SSHCommandResult update() {
-		opts.clear();
-		opts.add(new Attribute("id", this.id));
-		opts.add(new Attribute("firstname", this.firstName));
-		opts.add(new Attribute("lastname", this.lastName));
-		opts.add(new Attribute("login", this.login));
-		opts.add(new Attribute("password", this.password));
-		opts.add(new Attribute("mail", this.mail));
+		args.clear();
+		args.add(new Attribute("id", this.id));
+		args.add(new Attribute("firstname", this.firstName));
+		args.add(new Attribute("lastname", this.lastName));
+		args.add(new Attribute("login", this.login));
+		args.add(new Attribute("password", this.password));
+		args.add(new Attribute("mail", this.mail));
 		if(this.isAdmin)
-			opts.add(new Attribute("admin", "true"));
+			args.add(new Attribute("admin", "true"));
 		return run(CMD_UPDATE);
 	}
 	public SSHCommandResult update_defaultOrgEnv(String org, String env){
-		opts.clear();
-		opts.add(new Attribute("username", username));
-		opts.add(new Attribute("default_organization", org));
-		opts.add(new Attribute("default_environment", env));
+		args.clear();
+		args.add(new Attribute("username", username));
+		args.add(new Attribute("default_organization", org));
+		args.add(new Attribute("default_environment", env));
 		return run(CMD_UPDATE);
 	}
 
 	public SSHCommandResult update_noDefaultOrg() {
-		opts.clear();
-		opts.add(new Attribute("username", username));
+		args.clear();
+		args.add(new Attribute("username", username));
 		return run(CMD_UPDATE+" --no_default_environment");
 	}
 	
 	public SSHCommandResult update_userCredentials(String password, String email, boolean isDisabled){
-		opts.clear();
-		opts.add(new Attribute("username", username));
-		opts.add(new Attribute("password", password));
-		opts.add(new Attribute("email", email));
-		opts.add(new Attribute("disabled", isDisabled));
+		args.clear();
+		args.add(new Attribute("username", username));
+		args.add(new Attribute("password", password));
+		args.add(new Attribute("email", email));
+		args.add(new Attribute("disabled", isDisabled));
 		return run(CMD_UPDATE);
 	}
 
 	public SSHCommandResult update_locale(String loc) {
-		opts.clear();
-		opts.add(new Attribute("username", username));
-		opts.add(new Attribute("default_locale", loc));
+		args.clear();
+		args.add(new Attribute("username", username));
+		args.add(new Attribute("default_locale", loc));
 		return run(CMD_UPDATE);
 	}
 

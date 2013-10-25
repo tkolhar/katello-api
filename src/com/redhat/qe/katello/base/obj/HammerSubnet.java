@@ -161,70 +161,70 @@ public class HammerSubnet extends _HammerObject{
 	}
 
 	public SSHCommandResult cli_create(){		
-		opts.clear();
-		opts.add(new Attribute("name", this.name));
-		opts.add(new Attribute("network", this.network));
-		opts.add(new Attribute("mask", this.mask));
-		opts.add(new Attribute("gateway", this.gateway));
-		opts.add(new Attribute("dns-primary", this.dns_primary));
-		opts.add(new Attribute("dns-secondary", this.dns_secondary));
-		opts.add(new Attribute("from", this.from));
-		opts.add(new Attribute("to", this.to));
-		opts.add(new Attribute("vlanid", this.vlanid));
-		opts.add(new Attribute("domain-ids", this.domain_id));
-		opts.add(new Attribute("dhcp-id", this.dhcp_id));
-		opts.add(new Attribute("tftp-id", this.tftp_id));
-		opts.add(new Attribute("dns-id", this.dns_id));
+		args.clear();
+		args.add(new Attribute("name", this.name));
+		args.add(new Attribute("network", this.network));
+		args.add(new Attribute("mask", this.mask));
+		args.add(new Attribute("gateway", this.gateway));
+		args.add(new Attribute("dns-primary", this.dns_primary));
+		args.add(new Attribute("dns-secondary", this.dns_secondary));
+		args.add(new Attribute("from", this.from));
+		args.add(new Attribute("to", this.to));
+		args.add(new Attribute("vlanid", this.vlanid));
+		args.add(new Attribute("domain-ids", this.domain_id));
+		args.add(new Attribute("dhcp-id", this.dhcp_id));
+		args.add(new Attribute("tftp-id", this.tftp_id));
+		args.add(new Attribute("dns-id", this.dns_id));
 		return run(CLI_CMD_CREATE);
 	}
 	
 	public SSHCommandResult cli_info(){
-		opts.clear();
-		opts.add(new Attribute("name", this.name));
+		args.clear();
+		args.add(new Attribute("name", this.name));
 		return run(CLI_CMD_INFO);
 	}
 	
 	public SSHCommandResult cli_list(){
-		opts.clear();
+		args.clear();
 		return run(CLI_CMD_LIST);
 	}
 
 	public SSHCommandResult cli_search(String search){
-		opts.clear();
-		opts.add(new Attribute("search", search));
+		args.clear();
+		args.add(new Attribute("search", search));
 		return run(CLI_CMD_LIST);
 	}
 	
 	public SSHCommandResult cli_list(String order, Integer page, Integer per_page){
-		opts.clear();
-		opts.add(new Attribute("order", order));
-		opts.add(new Attribute("page", page));
-		opts.add(new Attribute("per-page", per_page));
+		args.clear();
+		args.add(new Attribute("order", order));
+		args.add(new Attribute("page", page));
+		args.add(new Attribute("per-page", per_page));
 		return run(CLI_CMD_LIST);
 	}
 	
 	public SSHCommandResult delete(){
-		opts.clear();
-		opts.add(new Attribute("name", this.name));
+		args.clear();
+		args.add(new Attribute("name", this.name));
 		return run(CMD_DELETE);
 	}
 	
 	public SSHCommandResult update(String new_name){
-		opts.clear();
-		opts.add(new Attribute("name", this.name));
-		opts.add(new Attribute("new-name", new_name));
-		opts.add(new Attribute("network", this.network));
-		opts.add(new Attribute("mask", this.mask));
-		opts.add(new Attribute("gateway", this.gateway));
-		opts.add(new Attribute("dns-primary", this.dns_primary));
-		opts.add(new Attribute("dns-secondary", this.dns_secondary));
-		opts.add(new Attribute("from", this.from));
-		opts.add(new Attribute("to", this.to));
-		opts.add(new Attribute("vlanid", this.vlanid));
-		opts.add(new Attribute("domain-ids", this.domain_id));
-		opts.add(new Attribute("dhcp-id", this.dhcp_id));
-		opts.add(new Attribute("tftp-id", this.tftp_id));
-		opts.add(new Attribute("dns-id", this.dns_id));
+		args.clear();
+		args.add(new Attribute("name", this.name));
+		args.add(new Attribute("new-name", new_name));
+		args.add(new Attribute("network", this.network));
+		args.add(new Attribute("mask", this.mask));
+		args.add(new Attribute("gateway", this.gateway));
+		args.add(new Attribute("dns-primary", this.dns_primary));
+		args.add(new Attribute("dns-secondary", this.dns_secondary));
+		args.add(new Attribute("from", this.from));
+		args.add(new Attribute("to", this.to));
+		args.add(new Attribute("vlanid", this.vlanid));
+		args.add(new Attribute("domain-ids", this.domain_id));
+		args.add(new Attribute("dhcp-id", this.dhcp_id));
+		args.add(new Attribute("tftp-id", this.tftp_id));
+		args.add(new Attribute("dns-id", this.dns_id));
 		return run(CMD_UPDATE);
 	}
 
