@@ -46,6 +46,7 @@ public class ConsumeFilteredPackage extends KatelloCliTestBase {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
     
+	//@ TODO bz#1022959
 	@Test(description="Consume content from filtered package")
 	public void test_consumePackageContent() {
 
