@@ -13,7 +13,7 @@ public class HammerHardwareModel extends _HammerObject {
 	// ** ** ** ** ** ** ** Public constants
 	public static final String CLI_CMD_CREATE = "model create";
 	public static final String CLI_CMD_INFO = "model info";
-	public static final String CLI_CMD_LIST = "model list";
+	public static final String CMD_LIST = "model list";
 	public static final String CMD_DELETE = "model delete";
 	public static final String CMD_UPDATE = "model update";
 	
@@ -33,6 +33,7 @@ public class HammerHardwareModel extends _HammerObject {
 	public static final String REG_HWM_LIST = ".*\\s+%s.*\\s+%s.*\\s+%s.*";
 	
 	// ** ** ** ** ** ** ** Class members
+	public String Id;
 	public String name;
 	public String hw_model;
 	public String info;
@@ -78,13 +79,16 @@ public class HammerHardwareModel extends _HammerObject {
 	
 	public SSHCommandResult cli_list(){
 		args.clear();
-		return run(CLI_CMD_LIST);
+		return run(CMD_LIST);
 	}
-
-	public SSHCommandResult delete(){
+	
+	public SSHCommandResult cli_list(String searchStr, String order, String page, Integer per_page) {
 		args.clear();
-		args.add(new Attribute("name", this.name));
-		return run(CMD_DELETE);
+		args.add(new Attribute("search", searchStr));
+		args.add(new Attribute("order", order));
+		args.add(new Attribute("page", page));
+		args.add(new Attribute("per-page", per_page));
+		return run(CMD_LIST);
 	}
 	
 	public SSHCommandResult update(String new_name){
@@ -101,7 +105,16 @@ public class HammerHardwareModel extends _HammerObject {
 		return update(null);
 	}
 
-
+	public SSHCommandResult delete() {
+		args.clear();
+		if (this.Id != null) {
+			args.add(new Attribute("id", this.Id));	
+		} else {
+			args.add(new Attribute("name", this.name));
+		}
+		return run(CMD_DELETE);
+	}
+	
 	// ** ** ** ** ** ** **
 	// ASSERTS
 	// ** ** ** ** ** ** **

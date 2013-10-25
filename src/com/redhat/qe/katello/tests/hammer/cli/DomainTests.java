@@ -72,7 +72,7 @@ public class DomainTests extends KatelloCliTestBase {
 	public void test_domianList()
 	{
 		HammerDomain domain = new HammerDomain(cli_worker, newName, fullName, null);
-		exec_result = domain.cli_list(null, null, null);
+		exec_result = domain.cli_list();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(newName), "Check - updated domain name is listed");
 		Assert.assertFalse(getOutput(exec_result).contains(name), "Check - previous namenot present");
@@ -86,7 +86,7 @@ public class DomainTests extends KatelloCliTestBase {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(HammerDomain.OUT_DELETE), "Check - returned output string");
 		//should not be listed
-		exec_result = domain.cli_list(null, null, null);
+		exec_result = domain.cli_list();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertFalse(getOutput(exec_result).contains(newName), "Check - deleted domain is not listed");
 	}

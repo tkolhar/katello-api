@@ -13,7 +13,7 @@ public class HammerArchitecture extends _HammerObject{
 	// ** ** ** ** ** ** ** Public constants
 	public static final String CLI_CMD_CREATE = "architecture create";
 	public static final String CLI_CMD_INFO = "architecture info";
-	public static final String CLI_CMD_LIST = "architecture list";
+	public static final String CMD_LIST = "architecture list";
 	public static final String CMD_DELETE = "architecture delete";
 	public static final String CMD_UPDATE = "architecture update";
 	
@@ -30,6 +30,7 @@ public class HammerArchitecture extends _HammerObject{
 			"Architecture with id '%s' not found";
 	
 	// ** ** ** ** ** ** ** Class members
+	public String Id;
 	public String name;
 	
 	public HammerArchitecture(){super();}
@@ -61,13 +62,13 @@ public class HammerArchitecture extends _HammerObject{
 	
 	public SSHCommandResult cli_list(){
 		args.clear();
-		return run(CLI_CMD_LIST);
+		return run(CMD_LIST);
 	}
 
 	public SSHCommandResult cli_search(String search){
 		args.clear();
 		args.add(new Attribute("search", search));
-		return run(CLI_CMD_LIST);
+		return run(CMD_LIST);
 	}
 	
 	public SSHCommandResult cli_list(String order, Integer page, Integer per_page){
@@ -75,13 +76,16 @@ public class HammerArchitecture extends _HammerObject{
 		args.add(new Attribute("order", order));
 		args.add(new Attribute("page", page));
 		args.add(new Attribute("per-page", per_page));
-		return run(CLI_CMD_LIST);
+		return run(CMD_LIST);
 	}
 	
-	public SSHCommandResult delete(){
+	public SSHCommandResult cli_list(String searchStr, String order, String page, Integer per_page) {
 		args.clear();
-		args.add(new Attribute("name", this.name));
-		return run(CMD_DELETE);
+		args.add(new Attribute("search", searchStr));
+		args.add(new Attribute("order", order));
+		args.add(new Attribute("page", page));
+		args.add(new Attribute("per-page", per_page));
+		return run(CMD_LIST);
 	}
 	
 	public SSHCommandResult update(String new_name){
@@ -91,6 +95,15 @@ public class HammerArchitecture extends _HammerObject{
 		return run(CMD_UPDATE);
 	}
 
+	public SSHCommandResult delete() {
+		args.clear();
+		if (this.Id != null) {
+			args.add(new Attribute("id", this.Id));	
+		} else {
+			args.add(new Attribute("name", this.name));
+		}
+		return run(CMD_DELETE);
+	}
 
 	// ** ** ** ** ** ** **
 	// ASSERTS

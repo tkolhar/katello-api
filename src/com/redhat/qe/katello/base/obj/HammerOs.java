@@ -94,11 +94,12 @@ public class HammerOs extends _HammerObject {
 		return run(CMD_LIST);
 	}
 	
-	public SSHCommandResult cli_list(String searchStr, String order, String page) {
+	public SSHCommandResult cli_list(String searchStr, String order, String page, Integer per_page) {
 		args.clear();
 		args.add(new Attribute("search", searchStr));
 		args.add(new Attribute("order", order));
 		args.add(new Attribute("page", page));
+		args.add(new Attribute("per-page", per_page));
 		return run(CMD_LIST);
 	}
 	
@@ -119,7 +120,11 @@ public class HammerOs extends _HammerObject {
 	
 	public SSHCommandResult delete() {
 		args.clear();
-		args.add(new Attribute("Id", this.Id));
+		if (this.Id != null) {
+			args.add(new Attribute("id", this.Id));	
+		} else {
+			args.add(new Attribute("name", this.name));
+		}
 		return run(CMD_DELETE);
 	}
 	
