@@ -49,7 +49,8 @@ public class KatelloUtils implements KatelloConstants {
             FileOutputStream fout = 
                 new FileOutputStream(tmp_cmdFile);
             fout.write((command+"\n").getBytes());fout.flush();fout.close();
-            log.finest(String.format("Executing local: [%s]",command));
+            if(showLogResults)
+            	log.finest(String.format("Executing local: [%s]",command));
             out = localRunner.submitCommandToLocalWithReturn(
                     false, "/bin/bash "+tmp_cmdFile, ""); // HERE is the run
             
@@ -80,9 +81,8 @@ public class KatelloUtils implements KatelloConstants {
     public static synchronized String getUniqueID(){
         try{Thread.sleep(1000);}catch(InterruptedException ex){} // guaranteed sleep of a sec.
     	KatelloUtils.sleepAsHuman();
-        String uid = String.valueOf(
-                Calendar.getInstance().getTimeInMillis()); 
-        log.fine(String.format("Generating unique ID: [%s]",uid));
+        String uid = String.valueOf(Calendar.getInstance().getTimeInMillis()); 
+//        log.fine(String.format("Generating unique ID: [%s]",uid)); // log looks with this so annoying! [gkhachik]
         return uid;
     }
     
