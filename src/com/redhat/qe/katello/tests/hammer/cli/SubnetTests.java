@@ -1,8 +1,10 @@
 package com.redhat.qe.katello.tests.hammer.cli;
 
 import java.util.Random;
+
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
@@ -43,6 +45,7 @@ public class SubnetTests extends KatelloCliTestBase {
 		Assert.assertTrue(getOutput(res).contains(String.format(HammerSubnet.OUT_CREATE, name)),"Check - returned output string");
 	}
 
+	// bz#1023393
 	@Test(description="create Subnet with all parameters")
 	public void testSubnet_createAllParams() {
 		SSHCommandResult res;
@@ -168,7 +171,7 @@ public class SubnetTests extends KatelloCliTestBase {
 		//Assert.assertTrue(getOutput(res).contains(String.format(HammerSubnet.OUT_UPDATE, name)),"Check - returned output string");
 	}
 	
-	// @ TODO bug
+	// bz#1023379
 	@Test(description="list Subnet", dependsOnMethods={"testSubnet_update"})
 	public void testSubnet_list() {
 		SSHCommandResult res;
@@ -238,10 +241,8 @@ public class SubnetTests extends KatelloCliTestBase {
 		HammerSubnet sub = new HammerSubnet(cli_worker, name, null, null);
 		res = sub.cli_search(base_names[1]);
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
-		String[] names = getOutput(res).trim().split("\n");
-		
-		Assert.assertFalse(getOutput(res).contains(names[1]),"Check - name is listed");
-		Assert.assertEquals(names.length, 1, "Count of returned subs must be 1.");
+		String cnt = KatelloUtils.run_local(false, String.format("echo -e \"%s\"|grep \"Name:\"|wc -l",getOutput(res)));
+		Assert.assertTrue(cnt.equals("1"), "Count of returned archs must be 1.");
 	}
 	
 	@Test(description="list Subnet by order and pagination")

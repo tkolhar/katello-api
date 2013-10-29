@@ -93,6 +93,7 @@ public class HardwareModelTests extends KatelloCliTestBase {
 		assert_hardwareModelList(Arrays.asList(hwm), Arrays.asList(new HammerHardwareModel(cli_worker, name, hwmodel, info, vendorclass)));
 	}
 	
+	// bz#1023379
 	@Test(description="info HardwareModel not found", dependsOnMethods={"testHardwareModel_list"})
 	public void testHardwareModel_infoNotFound() {
 		SSHCommandResult res;
