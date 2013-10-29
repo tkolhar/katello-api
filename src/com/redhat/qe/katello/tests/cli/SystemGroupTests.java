@@ -408,7 +408,7 @@ public class SystemGroupTests extends KatelloCliTestBase{
 		KatelloSystemGroup group = new KatelloSystemGroup(cli_worker, sysgroup_name, orgName);
 		exec_result = group.job_tasks("0");
 		Assert.assertTrue(exec_result.getExitCode()!=0, "Check exit code (sysgroup job_tasks)");
-		Assert.assertFalse(getOutput(exec_result).contains("error: 'tasks'"), "Check error (sysgroup job_tasks)");
+		Assert.assertTrue(getOutput(exec_result).contains("error: 'tasks'"), "Check error (sysgroup job_tasks)");
 	}
 
 	@Test(description="system_group update systems - change systems environment and content view")
