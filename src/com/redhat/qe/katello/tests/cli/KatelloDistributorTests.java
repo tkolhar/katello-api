@@ -54,7 +54,7 @@ public class KatelloDistributorTests extends KatelloCliTestBase{
 			Assert.assertTrue(getOutput(exec_result).contains(output),"Check - returned error string");
 		}
 	}
-	//TODO: bz#990299
+
 	@Test(description="distributor remove custom info",enabled=true,groups={"cfse-cli","headpin-cli"})
 	public void test_distributorRemoveCustomInfo(){
 		SSHCommandResult exec_result;
@@ -79,7 +79,7 @@ public class KatelloDistributorTests extends KatelloCliTestBase{
 		exec_result = dis_rm.remove_info(test_key);
 		System.out.println("OUT_REMOVE : CODE: "+exec_result.getExitCode() + " STRING: "+getOutput(exec_result));
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertEquals(getOutput(exec_result).trim(),String.format(KatelloDistributor.OUT_REMOVE_INFO,test_key, dis_rm_name));
+		Assert.assertEquals(getOutput(exec_result).trim(),String.format(KatelloDistributor.OUT_REMOVE_INFO, dis_rm_name));
 		exec_result = dis_rm.distributor_info();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		String customInfoStr = KatelloUtils.grepCLIOutput("Custom Info", getOutput(exec_result));
@@ -89,7 +89,7 @@ public class KatelloDistributorTests extends KatelloCliTestBase{
 		Assert.assertEquals(getOutput(exec_result).trim(),String.format(KatelloDistributor.OUT_INVALID_KEY,invalid_key));
 	
 	}
-	//TODO: bz#990299
+
 	@Test(description="distributor remove custom info using uuid",enabled=true,groups={"cfse-cli","headpin-cli"})
 	public void test_removeCustomInfoUUID(){
 		SSHCommandResult exec_result;
@@ -114,7 +114,7 @@ public class KatelloDistributorTests extends KatelloCliTestBase{
 		exec_result = dis_rm.remove_info(test_key);
 		System.out.println("OUT_UUID_REMOVE : CODE: "+exec_result.getExitCode() + " STRING: "+getOutput(exec_result));
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		Assert.assertEquals(getOutput(exec_result).trim(),String.format(KatelloDistributor.OUT_REMOVE_INFO,test_key, dis_uuid));
+		Assert.assertEquals(getOutput(exec_result).trim(),String.format(KatelloDistributor.OUT_REMOVE_INFO, dis_uuid));
 		exec_result = dis_rm.distributor_info();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		String customInfoStr = KatelloUtils.grepCLIOutput("Custom Info", getOutput(exec_result));
