@@ -602,8 +602,8 @@ public class ProductTests  extends KatelloCliTestBase{
 	public void test_repoSetEnableDisable() {
 		// import manifest
 		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (create org");
-		KatelloUtils.scpOnClient(cli_worker.getClientHostname(), "data/"+MANIFEST_MANIFEST_ZIP, "/tmp");
-		exec_result = new KatelloProvider(cli_worker, KatelloProvider.PROVIDER_REDHAT, org_manifest, null, null).import_manifest("/tmp/"+MANIFEST_MANIFEST_ZIP, true);
+		KatelloUtils.scpOnClient(cli_worker.getClientHostname(), "data/"+KatelloProvider.MANIFEST_CLI2, "/tmp");
+		exec_result = new KatelloProvider(cli_worker, KatelloProvider.PROVIDER_REDHAT, org_manifest, null, null).import_manifest("/tmp/"+KatelloProvider.MANIFEST_CLI2, true);
 		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (import manifest)");
 		KatelloProduct prod = new KatelloProduct(cli_worker, KatelloProduct.RHEL_SERVER, org_manifest, KatelloProvider.PROVIDER_REDHAT, null, null, null, null, null);
 		// list repo sets
