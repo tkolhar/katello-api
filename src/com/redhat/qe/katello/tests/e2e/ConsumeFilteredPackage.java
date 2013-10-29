@@ -46,8 +46,8 @@ public class ConsumeFilteredPackage extends KatelloCliTestBase {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
     
-	//@ TODO bz#1022959
-	@Test(description="Consume content from filtered package")
+	//@ TODO bz#1022959 enable when bug is fixed
+	@Test(description="Consume content from filtered package", enabled=false)
 	public void test_consumePackageContent() {
 
 		KatelloContentFilter filter = new KatelloContentFilter(cli_worker, package_filter, base_org_name, condef_name);

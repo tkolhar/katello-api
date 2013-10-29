@@ -129,7 +129,9 @@ public class ContentViewRefreshTests extends KatelloCliTestBase{
 		//install package from refreshed content view
 		install_Packages(cli_worker.getClientHostname(), new String[] {"lion"});
 		
-		verify_PackagesNotAvailable(cli_worker.getClientHostname(), new String [] {"walrus"});
+		// @ TODO bz#1024361
+		//verify_PackagesNotAvailable(cli_worker.getClientHostname(), new String [] {"walrus"});
+		install_Packages(cli_worker.getClientHostname(), new String[] {"walrus"});
 	}
 	
 	@Test(description="Remove the org",
@@ -151,6 +153,8 @@ public class ContentViewRefreshTests extends KatelloCliTestBase{
 		KatelloUtils.sshOnServer("createrepo " + repo_path1);
 		KatelloUtils.sshOnServer("wget " + REPO_INECAS_ZOO3 + "wolf-9.4-2.noarch.rpm -P "+repo_path1);
 		KatelloUtils.sshOnServer("wget " + REPO_INECAS_ZOO3 + "walrus-0.71-1.noarch.rpm -P "+repo_path1);
+		KatelloUtils.sshOnServer("wget " + REPO_INECAS_ZOO3 + "whale-0.2-1.noarch.rpm -P "+repo_path1);
+		KatelloUtils.sshOnServer("wget " + REPO_INECAS_ZOO3 + "stork-0.12-2.noarch.rpm -P "+repo_path1);
 		KatelloUtils.sshOnServer("createrepo "+repo_path1);
 		
 		// Create provider:

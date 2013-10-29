@@ -10,6 +10,7 @@ import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
 import com.redhat.qe.katello.base.obj.KatelloContentFilter;
 import com.redhat.qe.katello.base.obj.KatelloContentView;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
+import com.redhat.qe.katello.base.obj.helpers.FilterRulePackage;
 import com.redhat.qe.katello.base.obj.helpers.FilterRulePackageGroups;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
@@ -61,6 +62,14 @@ public class ConsumeFilteredPackageGroup extends KatelloCliTestBase {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentFilter.OUT_ADD_REPO, base_zoo_repo_name, packageGroup_filter)), "Check output");
 		
+		// add package rules there     
+		FilterRulePackage [] include_packages = {
+				new FilterRulePackage("pike")
+		};
+
+		exec_result = filter.add_rule(KatelloContentFilter.TYPE_INCLUDES, include_packages);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
 		exec_result = filter.add_rule(KatelloContentFilter.TYPE_INCLUDES, new FilterRulePackageGroups("mammals"));
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
@@ -97,7 +106,7 @@ public class ConsumeFilteredPackageGroup extends KatelloCliTestBase {
 
 		KatelloUtils.sshOnClient(cli_worker.getClientHostname(), "subscription-manager refresh; service rhsmcertd restart");
 		yum_clean();		
-		
+
 		// consume packages from group mammals, verify that they are available
 		install_Packages(cli_worker.getClientHostname(), new String[] {"lion", "zebra"});
 		

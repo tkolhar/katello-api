@@ -58,6 +58,7 @@ public class ConsumerAccess extends KatelloCliTestBase{
 		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, env_name, null, org_name, KatelloEnvironment.LIBRARY);
 		exec_result = env.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		promoteEmptyContentView(org_name, env_name);
 		
 		KatelloUser user = null;
         try {
