@@ -282,7 +282,7 @@ public class KatelloCliDataProvider {
 				{strRepeat("0123456789", 25)+"abcdef", "desc-256Chars", new Integer(166), "Validation failed: Keyname is too long (maximum is 255 characters)"},
 				{ "special chars <h1>html</h1>", "html in keyname", new Integer(0), null},
 				{ "html in value", "special chars <h1>html</h1>", new Integer(0), null},
-				{"key-blank-val", "", new Integer(0), null},
+				{"key-blank-val", "", new Integer(2), "Option --value is required; please see --help"},
 				{strRepeat("0123456789", 25)+"abcdef", "desc-256Chars", new Integer(166), KatelloSystem.ERR_KEY_TOO_LONG},
 				{strRepeat("0123456789", 25)+"abcde", "desc-255Chars", new Integer(0), null},
 				{"desc-255Chars", strRepeat("0123456789", 25)+"abcde", new Integer(0), null},
