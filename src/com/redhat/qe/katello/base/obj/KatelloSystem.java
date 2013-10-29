@@ -89,7 +89,7 @@ public class KatelloSystem extends _KatelloObject{
 	public static final String OUT_REMOVE_CUSTOM_INFO =
 			"Successfully removed Custom Information from System [ %s ]";
 	public static final String OUT_RHSM_REGISTERED_OK = 
-			"The system has been registered with id:";
+			"The system has been registered with ID:";
 	public static final String OUT_LIST_PACKAGES = "Package Information for System [ %s ] in Org [ %s ]";
 	public static final String OUT_ADD_TO_GROUPS = "Successfully added system groups to system [ %s ]";
 	public static final String OUT_REMOVE_FROM_GROUPS = "Successfully removed system groups from system [ %s ]";
