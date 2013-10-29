@@ -60,6 +60,7 @@ public class KatelloProvider extends _KatelloObject{
 		
 	public static final String MANIFEST_12SUBSCRIPTIONS = "manifest-automation-CLI-12subscriptions.zip";
 	public static final String MANIFEST_2SUBSCRIPTIONS  = "manifest-automation-CLI-2subscriptions.zip";
+	public static final String MANIFEST_KATELLO_QA_ORG 	= "manifest-KatelloQAOrg-gkhachik-BRQ-30subscriptions.zip"; // access.redhat.com; ( gkhachik-BRQ-30subscriptions )
 
 	// ** ** ** ** ** ** ** Class members
 	public String name;
