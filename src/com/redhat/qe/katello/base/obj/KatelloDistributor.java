@@ -22,7 +22,7 @@ public class KatelloDistributor extends _KatelloObject{
 	
 	public static final String OUT_CREATE = "Successfully created distributor [ %s ]";
 	public static final String OUT_INFO = "Successfully added Custom Information [ %s : %s ] to Distributor [ %s ]";
-	public static final String OUT_REMOVE_INFO = "Successfully removed Custom Information [ %s ] from Distributor [ %s ]";
+	public static final String OUT_REMOVE_INFO = "Successfully removed Custom Information from Distributor [ %s ]";
 	public static final String OUT_UPDATE_INFO = "Successfully updated Custom Information [ %s ] for Distributor [ %s ]";
 	public static final String OUT_INVALID_KEY = "Couldn't find custom info with keyname '%s'";
 	public static final String OUT_DELETE = "Successfully deleted Distributor [ %s ]";

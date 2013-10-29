@@ -396,13 +396,6 @@ public class SystemGroupTests extends KatelloCliTestBase{
 
 		exec_result = group.job_history();
 		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (sysgroup job_tasks)");
-	}
-
-	@Test(description="system_group job_tasks test - ok id", dependsOnMethods={"test_jobHistory"})
-	public void test_jobTasks() {
-		KatelloSystemGroup group = new KatelloSystemGroup(cli_worker, sysgroup_name, orgName);
-		// need job!
-		exec_result = group.job_history();
 		String jobID = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result));
 		Assert.assertNotNull(jobID, "Check job id not null");
 		exec_result = group.job_tasks(jobID);
