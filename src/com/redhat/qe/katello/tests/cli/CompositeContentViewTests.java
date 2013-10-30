@@ -161,34 +161,6 @@ public class CompositeContentViewTests extends KatelloCliTestBase{
 		// at the end: both version2 of zoo and zoo4 are back in composite content def.
 	}
 	
-	@Test(description="remove view from content definition", dependsOnMethods={"test_consumeCompositeContent"})
-	public void test_removeViewFromDefinition()
-	{
-		//Remove published view (not a component) - verify error
-		exec_result = compositeContentDef.remove_view(pubcompview_name1);
-		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (Cannot remove when not a component)");
-		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentDefinition.ERR_NOT_A_COMPONENT, pubcompview_name1, compositeContentDef.name)), "Check output (not a component)");
-		// TODO - add here completely NE content view. And then remove it.
-		
-		exec_result = compositeContentDef.add_view(contViewName3_2);
-		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (add component view)");
-		exec_result = compositeContentDef.remove_view(contViewName3_2);
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check exit code (remove view)");
-		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentDefinition.OUT_REMOVE_VIEW, contViewName3_2, compositeContentDef.name)), "Check output (remove component)");
-
-		exec_result = compositeContentDef.info();
-		String viewsList = KatelloUtils.grepCLIOutput("Published Views", getOutput(exec_result).trim());
-		Assert.assertTrue(viewsList.contains(contViewName3_2), "Check view name present");
-		viewsList = KatelloUtils.grepCLIOutput("Composite Views", getOutput(exec_result).trim());
-		Assert.assertFalse(viewsList.contains(contViewName3_2), "Check view name present");
-		//Try to remove an existing View but not associated with the definition - verify error
-		exec_result = _contDef2.publish("new-view", "new view", "Publish Content");
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		exec_result = compositeContentDef.remove_view("new-view");
-		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (Cannot remove when not a component)");
-		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentDefinition.ERR_NOT_A_COMPONENT, "new-view", compositeContentDef.name)), "Check output (not a component)");
-	} 
-	
 	@Test(description="Consume content from composite content view definition", dependsOnMethods={"test_addRemoveViewsIntoComposite"})
 	public void test_consumeCompositeContent() {
 		// erase packages
@@ -233,8 +205,33 @@ public class CompositeContentViewTests extends KatelloCliTestBase{
 		Assert.assertTrue(getOutput(exec_result).trim().contains("No package pulp-agent available."));
 	}
 
+	@Test(description="remove view from content definition", dependsOnMethods={"test_consumeCompositeContent"})
+	public void test_removeViewFromDefinition()
+	{
+		//Remove published view (not a component) - verify error
+		exec_result = compositeContentDef.remove_view(pubcompview_name1);
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (Cannot remove when not a component)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentDefinition.ERR_NOT_A_COMPONENT, pubcompview_name1, compositeContentDef.name)), "Check output (not a component)");
+
+		exec_result = compositeContentDef.add_view(contViewName3_2);
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (add component view)");
+		exec_result = compositeContentDef.remove_view(contViewName3_2);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check exit code (remove view)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentDefinition.OUT_REMOVE_VIEW, contViewName3_2, compositeContentDef.name)), "Check output (remove component)");
+
+		exec_result = compositeContentDef.info();
+		String viewsList = KatelloUtils.grepCLIOutput("Component Views", getOutput(exec_result).trim());
+		Assert.assertFalse(viewsList.contains(contViewName3_2), "Check view name present");
+		//Try to remove an existing View but not associated with the definition - verify error
+		exec_result = _contDef2.publish("new-view", "new_view", "Publish Content");
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		exec_result = compositeContentDef.remove_view("new-view");
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (Cannot remove when not a component)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentDefinition.ERR_NOT_A_COMPONENT, "new-view", compositeContentDef.name)), "Check output (not a component)");
+	} 
+	
 	@Test(description = "part of promoted composite content view delete by changeset from environment, then repromote composite view, verify that packages are still availble",
-			groups={"cfse-cli"}, dependsOnMethods={"test_consumeCompositeContent"})
+			groups={"cfse-cli"}, dependsOnMethods={"test_removeViewFromDefinition"})
 	public void test_deletePromotedContentViewPart() {
 		KatelloUtils.sshOnClient(cli_worker.getClientHostname(),"yum erase -y zebra");
 		
@@ -263,7 +260,7 @@ public class CompositeContentViewTests extends KatelloCliTestBase{
 		install_Packages(cli_worker.getClientHostname(),new String [] {"tiger"});
 	}	
 	
-	@Test(description="Create composite content view definition, add content views, add repos into them, refresh views and try to publish composite view", dependsOnMethods={"init"})
+	@Test(description="Create composite content view definition, add content views, add repos into them, refresh views and try to publish composite view", dependsOnMethods={"init","test_RePromoteContentViewPart"})
 	public void test_publishCompositeFail() {
 		compcondef2 = new KatelloContentDefinition(cli_worker, cdCompositeName2, null, base_org_name, null);
 		exec_result = compcondef2.create(true);
