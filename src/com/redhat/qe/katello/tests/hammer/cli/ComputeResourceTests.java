@@ -29,4 +29,12 @@ public class ComputeResourceTests extends KatelloCliTestBase {
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains(HammerComputeResource.OUT_CREATE), "Check - returned output string");
 	}
+	
+	@Test(description="Create a compute resource duplicate name", dependsOnMethods={"test_computeResourceCreate"})
+	public void test_computeResourceCreateDuplicate() {
+		HammerComputeResource compRes = new HammerComputeResource(cli_worker, name, "test resource", "Ovirt", "http://localhost/ovirt", "admin", "admin");
+		exec_result = compRes.cli_create();
+		Assert.assertFalse(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).contains("Name has already been taken"), "Check - returned output string");
+	}
 }
