@@ -66,7 +66,12 @@ implements KatelloConstants {
 		cliPool = KatelloCliWorkersPool.getInstance(null);
 		
 		// Eclipse mode - get default from property file; init base org and exit.
-		if(cliPool==null){ cli_worker = KatelloCliWorker.getSingleMode(); createBaseOrg(this.getClass().getName(), cli_worker); return;}
+		if(cliPool==null){ 
+			cli_worker = KatelloCliWorker.getSingleMode(); 
+			checkKatelloOperational(cli_worker);
+			createBaseOrg(this.getClass().getName(), cli_worker);
+			return;
+		}
 		
 		cli_worker = cliPool.getWorker(Thread.currentThread().getName(),this.getClass().getName());
 		if(cli_worker == null && cliPool.running()){
@@ -79,6 +84,7 @@ implements KatelloConstants {
 		if(!cliPool.running()){
 			throw new SkipException("Timeout happened on requesting worker for: "+this.getClass().getName());
 		}
+		checkKatelloOperational(cli_worker);
 		createBaseOrg(this.getClass().getName(), cli_worker); // wait worker to be initialized and invoke it at the very end. there is if (null) - so it would work only on the first invoking. 
 	}
 	
@@ -461,6 +467,28 @@ implements KatelloConstants {
 			base_zoo4_product_id = prod.custom_getProductId();
 			Assert.assertNotNull(base_zoo4_product_id, "Check - base_zoo_product_id is not null");
 		}	
+	}
+	
+	private static synchronized final void checkKatelloOperational(KatelloCliWorker cli_worker){
+		String clientHostname = cli_worker.getClientHostname();
+		String adminUsername = System.getProperty("katello.admin.user", "admin");
+		String adminPassword = System.getProperty("katello.admin.password", "admin");
+		
+		SSHCommandResult exec_result;
+		exec_result = KatelloUtils.sshOnClient(clientHostname, String.format(
+				"rpm -q katello-cli && katello -u%s -p%s ping",adminUsername,adminPassword));
+		if(exec_result.getExitCode().intValue()!=0) 
+			throw new SkipException("Your Katello system seems not operational. Katello CLI ping fails.");
+		
+		exec_result = KatelloUtils.sshOnClient(clientHostname, String.format(
+				"rpm -q subscription-manager && subscription-manager orgs --username %s --password %s",adminUsername,adminPassword));
+		if(exec_result.getExitCode().intValue()!=0) 
+			throw new SkipException("Your Katello system seems not operational. RHSM fails.");
+
+		exec_result = KatelloUtils.sshOnClient(clientHostname, 
+				"rpm -q rubygem-hammer_cli rubygem-hammer_cli_foreman && hammer --output base organization list");
+		if(exec_result.getExitCode().intValue()!=0) 
+			throw new SkipException("Your Katello system seems not operational. Hammer CLI ping fails.");
 	}
 	
 	protected void promoteEmptyContentView(String org_name, String... env_names) {
