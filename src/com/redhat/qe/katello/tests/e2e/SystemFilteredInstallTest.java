@@ -10,6 +10,7 @@ import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
 import com.redhat.qe.katello.base.obj.KatelloContentFilter;
 import com.redhat.qe.katello.base.obj.KatelloContentView;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
+import com.redhat.qe.katello.base.obj.helpers.FilterRulePackage;
 import com.redhat.qe.katello.base.obj.helpers.FilterRulePackageGroups;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
@@ -53,10 +54,20 @@ public class SystemFilteredInstallTest extends KatelloCliTestBase{
 		exec_result = filter.add_repo(base_zoo_product_name, base_zoo_repo_name);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentFilter.OUT_ADD_REPO, base_zoo_repo_name, packageGroup_filter)), "Check output");
+		
+		// add package rules there     
+		FilterRulePackage [] include_packages = {
+				new FilterRulePackage("trout"),
+				new FilterRulePackage("penguin"),
+				new FilterRulePackage("cheetah"),
+				new FilterRulePackage("stork")
+		};
+		exec_result = filter.add_rule(KatelloContentFilter.TYPE_INCLUDES, include_packages);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		
 		exec_result = filter.add_rule(KatelloContentFilter.TYPE_INCLUDES, new FilterRulePackageGroups("mammals"));
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		exec_result = filter.add_rule(KatelloContentFilter.TYPE_EXCLUDES, new FilterRulePackageGroups("birds"));
-		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+
 		condef.publish(pubview_name,pubview_name,null);
 		conview = new KatelloContentView(cli_worker, pubview_name, base_org_name);
 		exec_result = conview.promote_view(base_dev_env_name);
@@ -77,24 +88,24 @@ public class SystemFilteredInstallTest extends KatelloCliTestBase{
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		exec_result = sys.rhsm_identity();
 		system_uuid1 = KatelloUtils.grepCLIOutput("Current identity is", exec_result.getStdout());
-		exec_result = sys.subscriptions_available();
-		String poolId1 = KatelloUtils.grepCLIOutput("ID", getOutput(exec_result).trim(),1);
-		Assert.assertNotNull(poolId1, "Check - pool Id is not null");
-		exec_result = sys.subscribe(poolId1);
+		exec_result = sys.subscribe(base_zoo_repo_pool);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		KatelloUtils.sshOnClient(cli_worker.getClientHostname(), "subscription-manager refresh; service rhsmcertd restart");
 		yum_clean();
-		sshOnClient("yum erase -y lion zebra stork cockateel");
+		sshOnClient("yum erase -y lion zebra stork cockateel whale wolf trout");
 
 		// consume packages from group mammals, verify that they are available
 		exec_result=sys.packages_install_group("mammals");
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+
 		check_install_Package("lion");
 		check_install_Package("zebra");
 
 		// consume packages from group birds, verify that they are NOT available
+		//@ TODO bz#1024929
 		exec_result=sys.packages_install_group("birds");
-		Assert.assertTrue(getOutput(exec_result).trim().contains("No Group named birds exists"));
+		Assert.assertTrue(getOutput(exec_result).trim().contains("No new packages installed"));
+		//Assert.assertTrue(getOutput(exec_result).trim().contains("No Group named birds exists"));
 	}
 
 	private void check_install_Package(String pkgName)
