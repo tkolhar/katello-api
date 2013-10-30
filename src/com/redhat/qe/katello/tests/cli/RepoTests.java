@@ -22,10 +22,12 @@ import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloPuppetModule;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.base.obj.KatelloUser;
+import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
+@TngPriority(30)
 @Test(groups={"cfse-cli",TngRunGroups.TNG_KATELLO_Providers_Repos})
 public class RepoTests extends KatelloCliTestBase {
 

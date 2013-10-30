@@ -5,10 +5,12 @@ import java.util.Calendar;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
+
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.testng.Assert;
 import org.testng.SkipException;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeSuite;
 
 import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
 import com.redhat.qe.katello.base.obj.KatelloContentView;
@@ -68,7 +70,6 @@ implements KatelloConstants {
 		// Eclipse mode - get default from property file; init base org and exit.
 		if(cliPool==null){ 
 			cli_worker = KatelloCliWorker.getSingleMode(); 
-			checkKatelloOperational(cli_worker);
 			createBaseOrg(this.getClass().getName(), cli_worker);
 			return;
 		}
@@ -84,7 +85,6 @@ implements KatelloConstants {
 		if(!cliPool.running()){
 			throw new SkipException("Timeout happened on requesting worker for: "+this.getClass().getName());
 		}
-		checkKatelloOperational(cli_worker);
 		createBaseOrg(this.getClass().getName(), cli_worker); // wait worker to be initialized and invoke it at the very end. there is if (null) - so it would work only on the first invoking. 
 	}
 	
@@ -374,6 +374,8 @@ implements KatelloConstants {
 			if(!classname.contains("tests.cli.")&&
 				!classname.contains("tests.e2e.")) 
 				return;
+			
+			checkKatelloOperational(cli_worker); // CHECK if system is not operational: SkipException ;)
 			
 			String uid = KatelloUtils.getUniqueID();
 			base_org_name = "CLI Test Org " + uid;

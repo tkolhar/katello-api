@@ -3,6 +3,7 @@ package com.redhat.qe.katello.tests.cli;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloActivationKey;
@@ -11,11 +12,12 @@ import com.redhat.qe.katello.base.obj.KatelloContentView;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
+import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
-
+@TngPriority(2)
 @Test(groups={"sys-group-2",TngRunGroups.TNG_KATELLO_System_Consumer})
 public class SystemPackagesTests extends KatelloCliTestBase {
 

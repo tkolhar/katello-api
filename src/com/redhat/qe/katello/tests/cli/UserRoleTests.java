@@ -2,15 +2,18 @@ package com.redhat.qe.katello.tests.cli;
 import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloPermission;
 import com.redhat.qe.katello.base.obj.KatelloUserRole;
+import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
+@TngPriority(35)
 @Test(groups={TngRunGroups.TNG_KATELLO_Users_Roles})
 public class UserRoleTests extends KatelloCliTestBase{
 

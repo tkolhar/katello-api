@@ -7,15 +7,17 @@ import java.util.logging.Logger;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
+import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
 
-
+@TngPriority(700)
 @Test(groups={"cfse-cli",TngRunGroups.TNG_KATELLO_Content})
 public class ChangesetTests extends KatelloCliTestBase{
 

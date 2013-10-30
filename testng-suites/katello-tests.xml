@@ -1,16 +1,46 @@
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
 <suite name="Katello Test Suite">
-	<test name="CLI_Tests" order-by-instances="true">
-		<packages>
-			<package name="com.redhat.qe.katello.tests.cli"/>
-		</packages>
-		<groups>
-			<dependencies>
-				<group name="sys-group-2" depends-on="sys-group-1"/>
-				<group name="sys-group-3" depends-on="sys-group-2"/>
-			</dependencies>
-                </groups>
+	<test name="CLI_Tests">
+	<classes>
+		<class name="com.redhat.qe.katello.tests.cli.SetupServers"/>
+		<class name="com.redhat.qe.katello.tests.cli.SystemInfoTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.SystemPackagesTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.SystemTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.SystemGroupTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.AboutTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.ActivationKeyTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.ChangesetTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.ClientTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.CompositeContentViewTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.ContentDefAccessTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.ContentDefinitionTest"/>
+		<class name="com.redhat.qe.katello.tests.cli.ContentFilterTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.ContentViewTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.DistributionTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.EnvironmentTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.ErrataTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.GpgKeyExtTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.GpgKeyTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.KatelloDistributorTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.OrgTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.PackageGroupTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.PackageTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.PermissionTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.PingTest"/>
+		<class name="com.redhat.qe.katello.tests.cli.ProductRepoTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.ProductTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.ProviderTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.PuppetModuleTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.RepoTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.SyncPlanTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.TaskTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.UserNoRoleNoAccess"/>
+		<class name="com.redhat.qe.katello.tests.cli.UserPermissionTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.UserRoleTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.UserTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.VersionTest"/>
+	</classes>
 	</test>
 
 	<test name="E2E_Tests" order-by-instances="true">

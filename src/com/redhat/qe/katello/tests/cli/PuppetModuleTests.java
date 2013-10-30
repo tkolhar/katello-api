@@ -2,19 +2,18 @@ package com.redhat.qe.katello.tests.cli;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloPuppetModule;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
+import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
-import com.redhat.qe.katello.common.TngRunGroups;
 
+@TngPriority(29)
 public class PuppetModuleTests extends KatelloCliTestBase {
 
 	String prov_name;
