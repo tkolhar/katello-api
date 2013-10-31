@@ -8,9 +8,9 @@ import org.testng.annotations.Test;
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
+import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
 
-@Test(groups={"cfse-e2e"}, singleThreaded = true)
 public class PromoteProductToDifferentEnvs extends KatelloCliTestBase {
 	protected static Logger log = Logger.getLogger(PromoteProductToDifferentEnvs.class.getName());
 

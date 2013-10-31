@@ -11,12 +11,12 @@ import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
+import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
-
-@Test(groups={TngRunGroups.TNG_KATELLO_Organizations}, singleThreaded=true, priority=300) // there is scenario in TCMS under Organizations plan.
+@Test(groups={TngRunGroups.TNG_KATELLO_Organizations}) // there is scenario in TCMS under Organizations plan.
 public class OrgDeletion extends KatelloCliTestBase{
 	protected static Logger log = Logger.getLogger(BPMTests.class.getName());
 	

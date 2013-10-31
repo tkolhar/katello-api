@@ -1,6 +1,7 @@
 package com.redhat.qe.katello.tests.cli;
 
 import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloActivationKey;
@@ -8,9 +9,11 @@ import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
 import com.redhat.qe.katello.base.obj.KatelloContentView;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
+import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 
+@TngPriority(900)
 @Test(groups=TngRunGroups.TNG_KATELLO_Content)
 public class CompositeContentViewTests extends KatelloCliTestBase{
 	

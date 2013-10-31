@@ -9,8 +9,10 @@ import com.redhat.qe.katello.base.obj.KatelloDistribution;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
+import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
 
+@TngPriority(14)
 public class DistributionTests extends KatelloCliTestBase {
 
 	String prov_name;

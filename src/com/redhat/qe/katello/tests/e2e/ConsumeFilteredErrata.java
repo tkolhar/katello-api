@@ -17,7 +17,7 @@ import com.redhat.qe.katello.base.obj.helpers.FilterRulePackage;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 
-@Test(groups=TngRunGroups.TNG_KATELLO_Content, singleThreaded = true)
+@Test(groups=TngRunGroups.TNG_KATELLO_Content)
 public class ConsumeFilteredErrata extends KatelloCliTestBase {
 	
 	String uid = KatelloUtils.getUniqueID();

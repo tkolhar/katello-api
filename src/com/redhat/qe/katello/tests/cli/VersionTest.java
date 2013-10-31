@@ -2,11 +2,14 @@ package com.redhat.qe.katello.tests.cli;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloVersion;
-
+import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.tools.SSHCommandResult;
+
+@TngPriority(37)
 @Test(groups={"headpin-cli","Install / Configuration"})
 public class VersionTest extends KatelloCliTestBase{
 	private SSHCommandResult exec_result;

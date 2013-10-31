@@ -33,7 +33,6 @@ import com.redhat.qe.tools.SSHCommandResult;
  * </pre>
  * @author gkhachik
  */
-@Test(groups={"cfse-e2e"}, singleThreaded = true)
 public class PromoteWithFilters extends KatelloCliTestBase{
 	protected static Logger log = Logger.getLogger(PromoteWithFilters.class.getName());
 

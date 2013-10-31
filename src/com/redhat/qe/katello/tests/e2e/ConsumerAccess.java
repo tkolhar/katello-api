@@ -20,8 +20,6 @@ import com.redhat.qe.katello.guice.PlainSSLContext;
 import com.redhat.qe.katello.tasks.KatelloTasks;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups={"cfse-e2e"}, singleThreaded = true)
-@Guice(modules={KatelloApiModule.class})
 public class ConsumerAccess extends KatelloCliTestBase{
 	protected static Logger log = Logger.getLogger(BPMTests.class.getName());
 	

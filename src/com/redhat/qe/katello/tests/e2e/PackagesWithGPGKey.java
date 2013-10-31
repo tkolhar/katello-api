@@ -23,7 +23,6 @@ import com.redhat.qe.tools.SSHCommandResult;
  * GPG Keys: End to end "If I sign it can I install it"?<BR>
  * @author gkhachik
  */
-@Test(groups={"cfse-e2e"}, singleThreaded = true)
 public class PackagesWithGPGKey extends KatelloCliTestBase{
 	protected static Logger log = Logger.getLogger(PackagesWithGPGKey.class.getName());
 

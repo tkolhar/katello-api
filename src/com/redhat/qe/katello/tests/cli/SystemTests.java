@@ -25,6 +25,7 @@ import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.base.obj.KatelloSystemGroup;
 import com.redhat.qe.katello.base.obj.KatelloUser;
 import com.redhat.qe.katello.base.obj.KatelloUserRole;
+import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
@@ -34,6 +35,7 @@ import com.redhat.qe.tools.SSHCommandResult;
  * @author gkhachik
  *
  */
+@TngPriority(3)
 @Test(groups={"sys-group-3",TngRunGroups.TNG_KATELLO_System_Consumer})
 public class SystemTests extends KatelloCliTestBase{	
 	protected static Logger log = Logger.getLogger(SystemTests.class.getName());

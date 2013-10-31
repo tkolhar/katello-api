@@ -12,10 +12,10 @@ import com.redhat.qe.katello.base.obj.KatelloContentView;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloErrata;
 import com.redhat.qe.katello.base.obj.KatelloPackage;
+import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups={"cfse-e2e"}, singleThreaded = true)
 public class PromoteChangeset extends KatelloCliTestBase {
 	protected static Logger log = Logger.getLogger(PromoteChangeset.class.getName());
 	
