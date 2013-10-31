@@ -9,6 +9,7 @@ import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
 import com.redhat.qe.katello.base.obj.KatelloContentView;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
+import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
 
 /**
@@ -20,7 +21,6 @@ import com.redhat.qe.katello.common.KatelloUtils;
  * @see <a href='https://github.com/gkhachik/katello-api/issues/396'>github issue</a><br>
  * 	<a href='https://tcms.engineering.redhat.com/case/268913/?from_plan=4785'>TCMS</a>
  */
-@Test(groups={"cfse-e2e"}, singleThreaded = true)
 public class RhsmAkWithSubscription extends KatelloCliTestBase{
 	
 	private final String uid = KatelloUtils.getUniqueID(); 

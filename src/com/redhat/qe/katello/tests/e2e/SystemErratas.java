@@ -7,10 +7,11 @@ import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloActivationKey;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
+import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 
-@Test(groups={"cfse-e2e",TngRunGroups.TNG_KATELLO_Errata}, singleThreaded = true)
+@Test(groups={TngRunGroups.TNG_KATELLO_Errata})
 public class SystemErratas extends KatelloCliTestBase {
 
 	// Katello objects below

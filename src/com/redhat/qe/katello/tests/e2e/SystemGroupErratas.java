@@ -8,9 +8,9 @@ import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloActivationKey;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.base.obj.KatelloSystemGroup;
+import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
 
-@Test(groups={"cfse-e2e"}, singleThreaded = true)
 public class SystemGroupErratas extends KatelloCliTestBase {
 
 	// Katello objects below
@@ -57,7 +57,7 @@ public class SystemGroupErratas extends KatelloCliTestBase {
 		sshOnClient("service rhsmcertd restart");
 		yum_clean();
 		sshOnClient("service goferd restart;");
-		try { Thread.sleep(3000); } catch (Exception ex) {}
+		try { Thread.sleep(30000); } catch (Exception ex) {}
 	}
 	
 	@Test(description = "List the errata on system group")

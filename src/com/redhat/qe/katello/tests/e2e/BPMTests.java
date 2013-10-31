@@ -1,9 +1,11 @@
 package com.redhat.qe.katello.tests.e2e;
 
 import java.util.logging.Logger;
+
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloChangeset;
@@ -17,6 +19,7 @@ import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.base.obj.KatelloUser;
 import com.redhat.qe.katello.base.obj.KatelloUserRole;
+import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
@@ -34,7 +37,7 @@ import com.redhat.qe.tools.SSHCommandResult;
  * 9) Unsubsribe the machine, see that the machine no longer subscribed in the UI.<BR>
  * 10) Verify that yum can no longer access the content.
  */
-@Test(singleThreaded = true, groups={"BPMTests"}) //, singleThreaded = true
+@TngPriority(6)
 public class BPMTests extends KatelloCliTestBase{
 	protected static Logger log = Logger.getLogger(BPMTests.class.getName());
 	

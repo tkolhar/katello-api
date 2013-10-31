@@ -15,10 +15,10 @@ import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
+import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(singleThreaded = true)
 public class ProductsSameName extends KatelloCliTestBase {
 	
 	protected static Logger log = Logger.getLogger(ProductsSameName.class.getName());

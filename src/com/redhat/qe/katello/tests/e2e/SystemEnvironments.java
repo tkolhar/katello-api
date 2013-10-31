@@ -9,9 +9,10 @@ import com.redhat.qe.katello.base.obj.KatelloActivationKey;
 import com.redhat.qe.katello.base.obj.KatelloContentView;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
+import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
 
-@Test(groups={"cfse-e2e"}, singleThreaded = true)
+@TngPriority(3)
 public class SystemEnvironments extends KatelloCliTestBase {
 
 	// Katello objects below

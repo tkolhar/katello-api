@@ -11,10 +11,11 @@ import com.redhat.qe.katello.base.obj.KatelloContentFilter;
 import com.redhat.qe.katello.base.obj.KatelloContentView;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.base.obj.helpers.FilterRulePackageGroups;
+import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 
-@Test(groups=TngRunGroups.TNG_KATELLO_Content, singleThreaded = true)
+@Test(groups=TngRunGroups.TNG_KATELLO_Content)
 public class SystemFilteredInstallTest extends KatelloCliTestBase{
 	String uid = KatelloUtils.getUniqueID();
 	String condef_name = "condef-" + uid;

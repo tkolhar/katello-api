@@ -11,7 +11,6 @@ import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.DeltaCloudInstance;
 import com.redhat.qe.katello.common.KatelloUtils;
 
-@Test(groups = { "cfse-e2e" }, singleThreaded = true)
 public class SetupServers extends KatelloCliTestBase {
 	
 	protected DeltaCloudInstance server;

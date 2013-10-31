@@ -2,9 +2,11 @@ package com.redhat.qe.katello.tests.e2e;
 
 import java.io.File;
 import java.util.logging.Logger;
+
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
@@ -14,6 +16,7 @@ import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
+import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
@@ -23,7 +26,6 @@ import com.redhat.qe.tools.SSHCommandResult;
  * Create system (and user) reports. 
  * @author gkhachik
  */
-@Test(groups={"SystemsReport"}, singleThreaded = true)
 public class SystemsReport extends KatelloCliTestBase{
 	protected static Logger log = Logger.getLogger(SystemsReport.class.getName());
 

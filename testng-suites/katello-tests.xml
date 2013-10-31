@@ -43,16 +43,13 @@
 	</classes>
 	</test>
 
-	<test name="E2E_Tests" order-by-instances="true">
+	<test name="E2E_Tests">
 		<classes>
 			<class name="com.redhat.qe.katello.tests.e2e.SetupServers"/>
-			<class name="com.redhat.qe.katello.tests.e2e.BPMTests"/>
 			<class name="com.redhat.qe.katello.tests.e2e.RhsmOnlyPermissions"/>
 			<class name="com.redhat.qe.katello.tests.e2e.ConsumeCombineContent"/>
 			<class name="com.redhat.qe.katello.tests.e2e.ConsumeFilteredPackage"/>
-<!--			<class name="com.redhat.qe.katello.tests.e2e.ConsumeFilteredErrata"/> -->
 			<class name="com.redhat.qe.katello.tests.e2e.ConsumeFilteredPackageGroup"/>
-			<class name="com.redhat.qe.katello.tests.e2e.CRLRegen"/>
 			<class name="com.redhat.qe.katello.tests.e2e.MultyManifest"/>
 			<class name="com.redhat.qe.katello.tests.e2e.ConsumerAccess"/>
 			<class name="com.redhat.qe.katello.tests.e2e.ContentViewRefreshTests"/>
@@ -68,16 +65,20 @@
 			<class name="com.redhat.qe.katello.tests.e2e.PromoteChangeset"/>
 			<class name="com.redhat.qe.katello.tests.e2e.PromoteProductToDifferentEnvs"/>
 			<class name="com.redhat.qe.katello.tests.e2e.SystemFilteredInstallTest"/>
-			<class name="com.redhat.qe.katello.tests.e2e.SystemGroupErratas"/>
-<!--
-	SECTION OF BROKEN TESTS
-			<class name="com.redhat.qe.katello.tests.e2e.PackagesWithGPGKey"/>
-			<class name="com.redhat.qe.katello.tests.e2e.PromoteErrata"/>
-			<class name="com.redhat.qe.katello.tests.e2e.PromotePackageWithDashes"/>
-			<class name="com.redhat.qe.katello.tests.e2e.PromoteWithFilters"/>
-			<class name="com.redhat.qe.katello.tests.e2e.RepoSyncByPlan"/>
-			<class name="com.redhat.qe.katello.tests.e2e.RepoSyncProgress"/>
--->
+			<class name="com.redhat.qe.katello.tests.e2e.CRLRegen"/>
+			<class name="com.redhat.qe.katello.tests.e2e.BPMTests"/>
+		</classes>
+	</test>
+
+	<test name="E2E_Tests_Ordered">
+		<classes>
+			<class name="com.redhat.qe.katello.tests.e2e.SetupServers"/>
+			<class name="com.redhat.qe.katello.tests.e2e.RhsmOnlyPermissions"/>
+			<class name="com.redhat.qe.katello.tests.e2e.ConsumeFilteredPackage"/>
+			<class name="com.redhat.qe.katello.tests.e2e.SystemEnvironments"/>
+			<class name="com.redhat.qe.katello.tests.e2e.ConsumeFilteredPackageGroup"/>
+			<class name="com.redhat.qe.katello.tests.e2e.CRLRegen"/>
+			<class name="com.redhat.qe.katello.tests.e2e.BPMTests"/>
 		</classes>
 	</test>
 
