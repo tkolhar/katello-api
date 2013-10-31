@@ -12,10 +12,12 @@ import com.redhat.qe.katello.base.obj.KatelloContentView;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.base.obj.helpers.FilterRulePackage;
 import com.redhat.qe.katello.base.obj.helpers.FilterRulePackageGroups;
+import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 
-@Test(groups=TngRunGroups.TNG_KATELLO_Content, singleThreaded = true)
+@TngPriority(4)
+@Test(groups=TngRunGroups.TNG_KATELLO_Content)
 public class ConsumeFilteredPackageGroup extends KatelloCliTestBase {
 	
 	public static final String ERRATA_ZOO_SEA = "RHEA-2012:0002";

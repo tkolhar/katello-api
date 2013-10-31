@@ -1,9 +1,11 @@
 package com.redhat.qe.katello.tests.e2e;
 
 import java.util.logging.Logger;
+
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloChangeset;
@@ -17,6 +19,7 @@ import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.base.obj.KatelloUser;
 import com.redhat.qe.katello.base.obj.KatelloUserRole;
+import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
@@ -34,7 +37,7 @@ import com.redhat.qe.tools.SSHCommandResult;
  * 9) Unsubsribe the machine, see that the machine no longer subscribed in the UI.<BR>
  * 10) Verify that yum can no longer access the content.
  */
-@Test(singleThreaded = true, groups={"BPMTests"}) //, singleThreaded = true
+@TngPriority(3000)
 public class BPMTests extends KatelloCliTestBase{
 	protected static Logger log = Logger.getLogger(BPMTests.class.getName());
 	
@@ -67,7 +70,7 @@ public class BPMTests extends KatelloCliTestBase{
 		rhsmPoolId = null; // going to be set after listing avail. subscriptions.
 	}
 	
-	@Test(description="Create a new Org and create an admin user having default org/environment.", priority=1)
+	@Test(description="Create a new Org and create an admin user having default org/environment.")
 	public void test_BPMTests_createOrgUser(){
 		// Create org:
 		KatelloOrg org = new KatelloOrg(this.cli_worker, this.awesomeOrg,"BPM tests");
@@ -82,7 +85,7 @@ public class BPMTests extends KatelloCliTestBase{
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 	}
 	
-	@Test(description="Create permossions/roles as needed for the org Admin user", dependsOnMethods={"test_BPMTests_createOrgUser"}, priority=100)
+	@Test(description="Create permossions/roles as needed for the org Admin user", dependsOnMethods={"test_BPMTests_createOrgUser"})
 	public void test_BPMTests_orgAdminRolesPermissions(){
 		String uid = KatelloUtils.getUniqueID();
 		KatelloUserRole roleOrgAdmin = new KatelloUserRole(cli_worker, "role-"+awesomeAdmin, "Administrator for "+awesomeOrg);
@@ -110,7 +113,7 @@ public class BPMTests extends KatelloCliTestBase{
 	}
 	
 	@Test(description="Create a Custom Provider, Product and Repo",
-			dependsOnMethods={"test_BPMTests_orgAdminRolesPermissions"}, priority=100)
+			dependsOnMethods={"test_BPMTests_orgAdminRolesPermissions"})
 	public void test_BPMTests_createProviderProductRepo(){		
 		// Create provider
 		KatelloProvider prov = new KatelloProvider(this.cli_worker, providerPulp, awesomeOrg, "Pulp provider", null);
@@ -131,7 +134,7 @@ public class BPMTests extends KatelloCliTestBase{
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 	}
 	
-	@Test(description="Sync the content.", dependsOnMethods={"test_BPMTests_createProviderProductRepo"}, priority=100)
+	@Test(description="Sync the content.", dependsOnMethods={"test_BPMTests_createProviderProductRepo"})
 	public void test_BPMTests_syncRepo(){
 		// Repo synchronize:
 		KatelloRepo repo = new KatelloRepo(this.cli_worker, repoPulp64Bit, awesomeOrg, productPulp64Bit, PULP_RHEL6_x86_64_REPO, null, null);
@@ -140,7 +143,7 @@ public class BPMTests extends KatelloCliTestBase{
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 	}
 	
-	@Test(description="Promote the content to the new environment.", dependsOnMethods={"test_BPMTests_syncRepo"}, priority=100)
+	@Test(description="Promote the content to the new environment.", dependsOnMethods={"test_BPMTests_syncRepo"})
 	public void test_BPMTests_promoteContent(){
 		String uid = KatelloUtils.getUniqueID();
 		KatelloContentDefinition contDef = new KatelloContentDefinition(cli_worker, "cd-"+uid, null, awesomeOrg, null);
@@ -161,7 +164,7 @@ public class BPMTests extends KatelloCliTestBase{
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 	}
 	
-	@Test(description="From a client machine RHSM register to Katello.", dependsOnMethods={"test_BPMTests_promoteContent"}, priority=100)
+	@Test(description="From a client machine RHSM register to Katello.", dependsOnMethods={"test_BPMTests_promoteContent"})
 	public void test_BPMTests_rhsmRegister(){
 		log.info("Clean RHSM registration");
 		rhsm_clean();
@@ -174,7 +177,7 @@ public class BPMTests extends KatelloCliTestBase{
 		try{Thread.sleep(3000);}catch(InterruptedException iex){}
 	}
 	
-	@Test(description="List available subscriptions", dependsOnMethods={"test_BPMTests_rhsmRegister"}, priority=100)
+	@Test(description="List available subscriptions", dependsOnMethods={"test_BPMTests_rhsmRegister"})
 	public void test_BPMTests_rhsm_listAvailableSubscriptions(){
 		KatelloSystem sys = new KatelloSystem(this.cli_worker, this.awesomeSystem, this.awesomeOrg, this.envDev);
 		sys.runAs(ktlOrgAdmin);
@@ -188,7 +191,7 @@ public class BPMTests extends KatelloCliTestBase{
 				productPulp64Bit,rhsmPoolId));
 	}
 	
-	@Test(description="Subscribe to pool", dependsOnMethods={"test_BPMTests_rhsm_listAvailableSubscriptions"}, priority=100)
+	@Test(description="Subscribe to pool", dependsOnMethods={"test_BPMTests_rhsm_listAvailableSubscriptions"})
 	public void test_BPMTests_rhsm_subscribeToPool(){
 		KatelloSystem sys = new KatelloSystem(this.cli_worker, this.awesomeSystem, this.awesomeOrg, this.envDev);
 		sys.runAs(ktlOrgAdmin);
@@ -201,7 +204,7 @@ public class BPMTests extends KatelloCliTestBase{
 	}
 	
 	@Test(description="Yum should work - yum info pulp-admin-client", 
-			dependsOnMethods={"test_BPMTests_rhsm_subscribeToPool"}, priority=100)
+			dependsOnMethods={"test_BPMTests_rhsm_subscribeToPool"})
 	public void test_BPMTests_yuminfo(){
 		String pkg_pulp_consumer = "pulp-admin-client";
 		exec_result = sshOnClient("yum info "+pkg_pulp_consumer+" --disablerepo=* --enablerepo=*"+repoPulp64Bit+"*");

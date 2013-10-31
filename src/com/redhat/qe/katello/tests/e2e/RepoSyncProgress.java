@@ -52,7 +52,6 @@ import com.redhat.qe.tools.SSHCommandResult;
  * @author gkhachik
  * @since 07.Nov.2012 
  */
-@Test(groups={"cfse-e2e"}, singleThreaded = true)
 public class RepoSyncProgress extends KatelloCliTestBase{
 	protected static Logger log = Logger.getLogger(RepoSyncProgress.class.getName());
 
