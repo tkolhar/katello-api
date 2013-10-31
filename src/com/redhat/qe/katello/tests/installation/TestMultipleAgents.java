@@ -47,14 +47,16 @@ public class TestMultipleAgents extends KatelloCliTestBase {
 	protected String rhel5_act_key_name = null;
 	protected String rhel5_package_name = "lion";
 	
-	
-	@BeforeClass(description = "setup Deltacloud Server")
+	@BeforeClass(description = "setup Deltacloud Server", alwaysRun=true)
 	public void setUp() {
-		server = KatelloUtils.getDeltaCloudServer();
-		server_name = server.getHostName();
-		System.setProperty("katello.server.hostname", server_name);
+		server_name = System.getProperty("katello.server.hostname");
+		
+		if (server_name == null || server_name.isEmpty() || !KatelloUtils.isKatelloAvailable(server_name)) {
+			server = KatelloUtils.getDeltaCloudServer();
+			server_name = server.getHostName();
+			System.setProperty("katello.server.hostname", server_name);
+		}
 		System.setProperty("katello.client.hostname", server_name);
-
 		createOrgStuff();
 	}
 	
@@ -73,13 +75,13 @@ public class TestMultipleAgents extends KatelloCliTestBase {
 		try {
 			testClientConsume(client.getIpAddress(), type);
 		} finally {
+			rhsm_clean(client.getIpAddress());
 			KatelloUtils.destroyDeltaCloudMachine(client);
 		}
 	}
 
 	@AfterClass(alwaysRun = true)
 	public void tearDown() {
-		KatelloUtils.destroyDeltaCloudMachine(server);
 		for (DeltaCloudInstance client : clients) {
 			KatelloUtils.destroyDeltaCloudMachine(client);
 		}
