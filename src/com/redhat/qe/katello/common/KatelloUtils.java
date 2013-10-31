@@ -449,7 +449,7 @@ public class KatelloUtils implements KatelloConstants {
 		String user = System.getProperty("katello.admin.user", KatelloUser.DEFAULT_ADMIN_USER);
 		String password = System.getProperty("katello.admin.password", KatelloUser.DEFAULT_ADMIN_PASS);
 	
-		BeakerUtils.Katello_Installation_RegisterRHNClassic(hostIP);
+		BeakerUtils.Katello_Installation_RegisterCDN(hostIP);
 		
 		configureNtp(hostIP);
 		
@@ -509,7 +509,7 @@ public class KatelloUtils implements KatelloConstants {
 		String version = System.getProperty("katello.product.version", "1.1");
 		String product = System.getProperty("katello.product", "katello");
 
-		BeakerUtils.Katello_Installation_RegisterRHNClassic(hostname);
+		BeakerUtils.Katello_Installation_RegisterCDN(hostname);
 		configureNtp(hostname);
 		BeakerUtils.Katello_Installation_ConfigureRepos(hostname);
 		BeakerUtils.Katello_Configuration_KatelloClient(hostname, server, version, product);
@@ -523,7 +523,7 @@ public class KatelloUtils implements KatelloConstants {
 	private static void installCandlepinCert(DeltaCloudInstance machine, String server) {
 		String hostname = machine.getIpAddress();
 
-		BeakerUtils.Katello_Installation_RegisterRHNClassic(hostname);
+		BeakerUtils.Katello_Installation_RegisterCDN(hostname);
 		configureNtp(hostname);
 		BeakerUtils.install_CandlepinCert(hostname, server);
 	}
