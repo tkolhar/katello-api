@@ -3,6 +3,7 @@ package com.redhat.qe.katello.tests.e2e;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloActivationKey;
@@ -12,9 +13,11 @@ import com.redhat.qe.katello.base.obj.KatelloContentView;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.base.obj.helpers.FilterRulePackage;
 import com.redhat.qe.katello.base.obj.helpers.FilterRulePackageGroups;
+import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 
+@TngPriority(4000)
 @Test(groups=TngRunGroups.TNG_KATELLO_Content)
 public class ConsumeCombineContent extends KatelloCliTestBase{
 

@@ -26,6 +26,7 @@ import com.redhat.qe.tools.SSHCommandResult;
  * Create system (and user) reports. 
  * @author gkhachik
  */
+@TngPriority(2000)
 public class SystemsReport extends KatelloCliTestBase{
 	protected static Logger log = Logger.getLogger(SystemsReport.class.getName());
 

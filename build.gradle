@@ -214,6 +214,27 @@ task run_katello(dependsOn: 'testClasses') << {
   }
 }
 
+task run_katello_ordered(dependsOn: 'testClasses') << {
+  javaexec {
+    def testnames = System.getProperty("testng.testnames", "${TESTNG_KATELLO_DEFAULT_TESTS}")
+    def testclasses = System.getProperty("testng.testclasses","")
+    def excludegroups = System.getProperty("testng.excludegroups", "${TESTNG_KATELLO_EXCLUDE_GROUPS}")
+    def workspace = System.getProperty("workspace.dir", System.getenv("WORKSPACE") ?: System.properties["user.dir"])
+    def outputDir = "${workspace}/test-output"
+    def groups = System.getProperty("testng.groups", "")
+
+    systemProperties = System.properties
+    workingDir = "${workspace}"
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'org.testng.TestNG'
+    args '-d',"${outputDir}"
+    args "${TESTNG_KATELLO_SUITE}"
+    args '-listener','com.redhat.qe.auto.testng.TestNGListener,org.uncommons.reportng.HTMLReporter,org.uncommons.reportng.JUnitXMLReporter,org.testng.reporters.XMLReporter,com.redhat.qe.katello.base.tngext.TngPriorityInterceptor'
+    args '-configfailurepolicy','continue'
+    args '-testnames',"${testnames}"
+    args '-testclass',"${testclasses}"
+  }
+}
 
 task run_katello_parallel(dependsOn: 'testClasses') << {
   javaexec {

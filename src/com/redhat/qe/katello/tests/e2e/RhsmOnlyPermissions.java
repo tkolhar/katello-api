@@ -27,7 +27,7 @@ import com.redhat.qe.tools.SSHCommandResult;
  * @author gkhachik
  *
  */
-@TngPriority(1)
+@TngPriority(1000)
 public class RhsmOnlyPermissions extends KatelloCliTestBase{
 	private static Logger log = Logger.getLogger(RhsmOnlyPermissions.class.getName());
 

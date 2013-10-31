@@ -74,11 +74,10 @@
 		<classes>
 			<class name="com.redhat.qe.katello.tests.e2e.SetupServers"/>
 			<class name="com.redhat.qe.katello.tests.e2e.RhsmOnlyPermissions"/>
-			<class name="com.redhat.qe.katello.tests.e2e.ConsumeFilteredPackage"/>
-			<class name="com.redhat.qe.katello.tests.e2e.SystemEnvironments"/>
-			<class name="com.redhat.qe.katello.tests.e2e.ConsumeFilteredPackageGroup"/>
-			<class name="com.redhat.qe.katello.tests.e2e.CRLRegen"/>
+			<class name="com.redhat.qe.katello.tests.e2e.SystemsReport"/>
 			<class name="com.redhat.qe.katello.tests.e2e.BPMTests"/>
+			<class name="com.redhat.qe.katello.tests.e2e.ConsumeCombineContent"/>
+			<class name="com.redhat.qe.katello.tests.e2e.MultyManifest"/>
 		</classes>
 	</test>
 
