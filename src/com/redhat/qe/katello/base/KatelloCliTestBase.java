@@ -68,7 +68,6 @@ implements KatelloConstants {
 		// Eclipse mode - get default from property file; init base org and exit.
 		if(cliPool==null){ 
 			cli_worker = KatelloCliWorker.getSingleMode(); 
-			checkKatelloOperational(cli_worker);
 			createBaseOrg(this.getClass().getName(), cli_worker);
 			return;
 		}
@@ -84,7 +83,6 @@ implements KatelloConstants {
 		if(!cliPool.running()){
 			throw new SkipException("Timeout happened on requesting worker for: "+this.getClass().getName());
 		}
-		checkKatelloOperational(cli_worker);
 		createBaseOrg(this.getClass().getName(), cli_worker); // wait worker to be initialized and invoke it at the very end. there is if (null) - so it would work only on the first invoking. 
 	}
 	
@@ -374,6 +372,8 @@ implements KatelloConstants {
 			if(!classname.contains("tests.cli.")&&
 				!classname.contains("tests.e2e.")) 
 				return;
+			
+			checkKatelloOperational(cli_worker); // return if system not operational.
 			
 			String uid = KatelloUtils.getUniqueID();
 			base_org_name = "CLI Test Org " + uid;
