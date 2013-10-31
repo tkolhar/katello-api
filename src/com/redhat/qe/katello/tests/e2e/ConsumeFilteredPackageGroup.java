@@ -16,7 +16,7 @@ import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 
-@TngPriority(4)
+@TngPriority(7000)
 @Test(groups=TngRunGroups.TNG_KATELLO_Content)
 public class ConsumeFilteredPackageGroup extends KatelloCliTestBase {
 	

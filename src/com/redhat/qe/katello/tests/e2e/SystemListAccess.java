@@ -23,6 +23,7 @@ import com.redhat.qe.tools.SSHCommandResult;
  * @author hhovsepy
  *
  */
+@TngPriority(16000)
 public class SystemListAccess extends KatelloCliTestBase {
 	
 	private SSHCommandResult exec_result;

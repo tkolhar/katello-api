@@ -16,6 +16,7 @@ import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
+@TngPriority(13000)
 @Test(groups={TngRunGroups.TNG_KATELLO_Organizations}) // there is scenario in TCMS under Organizations plan.
 public class OrgDeletion extends KatelloCliTestBase{
 	protected static Logger log = Logger.getLogger(BPMTests.class.getName());

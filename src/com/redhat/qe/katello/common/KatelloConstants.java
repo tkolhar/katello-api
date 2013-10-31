@@ -15,7 +15,7 @@ public interface KatelloConstants {
 	 * # == == == == == == == == == == == == == #
 	 */
 	public static final int SSH_SLEEP_INTERVAL = 
-			new Integer(System.getProperty("general.ssh.sleep","200")).intValue();
+			new Integer(System.getProperty("general.ssh.sleep","20")).intValue();
 	public static final String KATELLO_PRODUCT = 
 			System.getProperty("katello.product", "katello");
 	public static final int NOWORKER_SLEEP = 10000;
