@@ -73,6 +73,7 @@ public class TestMultipleAgents extends KatelloCliTestBase {
 		KatelloUtils.disableYumRepo(client.getIpAddress(),"katello-tools");
 		
 		try {
+			configClient(client.getIpAddress(), type);
 			testClientConsume(client.getIpAddress(), type);
 		} finally {
 			rhsm_clean(client.getIpAddress());
@@ -161,7 +162,12 @@ public class TestMultipleAgents extends KatelloCliTestBase {
 
 	}
 	
-	//TODO bug fails for RHEL 5 bz#988776
+	private void configClient(String client_name, String client_type) {
+		if (client_type.matches(".*RHEL\\s+5.*")) {
+			KatelloUtils.sshOnClient(client_name, "yum install -y python-hashlib-20081119-7.el5");
+		}
+	}
+	
 	private void testClientConsume(String client_name, String client_type) {
 		String actKey = null;
 		String packName = null;
