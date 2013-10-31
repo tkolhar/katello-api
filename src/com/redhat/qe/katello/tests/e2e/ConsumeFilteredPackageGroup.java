@@ -66,7 +66,8 @@ public class ConsumeFilteredPackageGroup extends KatelloCliTestBase {
 		
 		// add package rules there     
 		FilterRulePackage [] include_packages = {
-				new FilterRulePackage("pike")
+				new FilterRulePackage("pike"),
+				new FilterRulePackage("crow")
 		};
 
 		exec_result = filter.add_rule(KatelloContentFilter.TYPE_INCLUDES, include_packages);
