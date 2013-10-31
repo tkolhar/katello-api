@@ -62,6 +62,36 @@ implements KatelloConstants {
 	protected static String base_pulp_repo_name = null;
 	protected static String base_pulp_repo_pool = null;
 	
+	@BeforeSuite(alwaysRun=true)
+	public void checkOperational(){
+		String tngSuite = System.getProperty("testng.testnames", "unknown"); 
+		if(!(tngSuite.equals("CLI_Tests")||
+				tngSuite.equals("E2E_Tests")||
+				tngSuite.equals("Hammer_CLI_Tests")||
+				tngSuite.equals("Longrun_Tests"))) return; // not one of them... return
+		
+		String clientHostname = System.getProperty("katello.client.hostname", "localhost");
+		String adminUsername = System.getProperty("katello.admin.user", "admin");
+		String adminPassword = System.getProperty("katello.admin.password", "admin");
+
+		SSHCommandResult exec_result;
+		exec_result = KatelloUtils.sshOnClient(clientHostname, String.format(
+				"rpm -q katello-cli && katello -u%s -p%s ping",adminUsername,adminPassword));
+		if(exec_result.getExitCode().intValue()!=0) 
+			throw new SkipException("Your Katello system seems not operational. Katello CLI ping fails.");
+
+		exec_result = KatelloUtils.sshOnClient(clientHostname, String.format(
+				"rpm -q subscription-manager && subscription-manager orgs --username %s --password %s",
+				adminUsername,adminPassword));
+		if(exec_result.getExitCode().intValue()!=0) 
+			throw new SkipException("Your Katello system seems not operational. RHSM fails.");
+
+		exec_result = KatelloUtils.sshOnClient(clientHostname, 
+				"rpm -q rubygem-hammer_cli rubygem-hammer_cli_foreman && hammer --output base organization list");
+		if(exec_result.getExitCode().intValue()!=0) 
+			throw new SkipException("Your Katello system seems not operational. Hammer CLI ping fails.");
+	}
+	
 	@BeforeClass(alwaysRun=true)
 	public void setUpSuper(){
 		KatelloUtils.sleepAsHuman();
@@ -374,9 +404,7 @@ implements KatelloConstants {
 			if(!classname.contains("tests.cli.")&&
 				!classname.contains("tests.e2e.")) 
 				return;
-			
-			checkKatelloOperational(cli_worker); // CHECK if system is not operational: SkipException ;)
-			
+
 			String uid = KatelloUtils.getUniqueID();
 			base_org_name = "CLI Test Org " + uid;
 			base_dev_env_name = "CLI Dev env " + uid;
@@ -469,28 +497,6 @@ implements KatelloConstants {
 			base_zoo4_product_id = prod.custom_getProductId();
 			Assert.assertNotNull(base_zoo4_product_id, "Check - base_zoo_product_id is not null");
 		}	
-	}
-	
-	private static synchronized final void checkKatelloOperational(KatelloCliWorker cli_worker){
-		String clientHostname = cli_worker.getClientHostname();
-		String adminUsername = System.getProperty("katello.admin.user", "admin");
-		String adminPassword = System.getProperty("katello.admin.password", "admin");
-		
-		SSHCommandResult exec_result;
-		exec_result = KatelloUtils.sshOnClient(clientHostname, String.format(
-				"rpm -q katello-cli && katello -u%s -p%s ping",adminUsername,adminPassword));
-		if(exec_result.getExitCode().intValue()!=0) 
-			throw new SkipException("Your Katello system seems not operational. Katello CLI ping fails.");
-		
-		exec_result = KatelloUtils.sshOnClient(clientHostname, String.format(
-				"rpm -q subscription-manager && subscription-manager orgs --username %s --password %s",adminUsername,adminPassword));
-		if(exec_result.getExitCode().intValue()!=0) 
-			throw new SkipException("Your Katello system seems not operational. RHSM fails.");
-
-		exec_result = KatelloUtils.sshOnClient(clientHostname, 
-				"rpm -q rubygem-hammer_cli rubygem-hammer_cli_foreman && hammer --output base organization list");
-		if(exec_result.getExitCode().intValue()!=0) 
-			throw new SkipException("Your Katello system seems not operational. Hammer CLI ping fails.");
 	}
 	
 	protected void promoteEmptyContentView(String org_name, String... env_names) {
