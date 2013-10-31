@@ -286,9 +286,8 @@ public class ContentDefinitionTest extends KatelloCliTestBase{
 		
 		KatelloContentView view = new KatelloContentView(cli_worker, "view-"+def.name, base_org_name);
 		exec_result = view.refresh_view();
-		//@ TODO bz#1024863
-		Assert.assertFalse(exec_result.getExitCode() == 0, "Check exit code (refresh view)");
-		//Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentView.OUT_REFRESH, "view-"+def.name)), "Check output (refresh view)");
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check exit code (refresh view)");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentView.OUT_REFRESH, "view-"+def.name)), "Check output (refresh view)");
 	}
 	
 	private void assert_contentList(List<KatelloContentDefinition> contents, List<KatelloContentDefinition> excludeContents) {
