@@ -498,7 +498,6 @@ public class RepoTests extends KatelloCliTestBase {
 		assert_allReposGPGAssigned(this.org_name, productname, key.name);
 	}
 
-	//TODO bz#1002495
 	/**
 	 * @see https://github.com/gkhachik/katello-api/issues/405
 	 */
