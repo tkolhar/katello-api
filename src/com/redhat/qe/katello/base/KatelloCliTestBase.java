@@ -5,11 +5,13 @@ import java.util.Calendar;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
+
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.testng.Assert;
 import org.testng.SkipException;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeSuite;
+
 import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
 import com.redhat.qe.katello.base.obj.KatelloContentView;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
@@ -62,6 +64,12 @@ implements KatelloConstants {
 	
 	@BeforeSuite(alwaysRun=true)
 	public void checkOperational(){
+		String tngSuite = System.getProperty("testng.testnames", "unknown"); 
+		if(!(tngSuite.equals("CLI_Tests")||
+				tngSuite.equals("E2E_Tests")||
+				tngSuite.equals("Hammer_CLI_Tests")||
+				tngSuite.equals("Longrun_Tests"))) return; // not one of them... return
+		
 		String clientHostname = System.getProperty("katello.client.hostname", "localhost");
 		String adminUsername = System.getProperty("katello.admin.user", "admin");
 		String adminPassword = System.getProperty("katello.admin.password", "admin");
@@ -73,12 +81,13 @@ implements KatelloConstants {
 			throw new SkipException("Your Katello system seems not operational. Katello CLI ping fails.");
 
 		exec_result = KatelloUtils.sshOnClient(clientHostname, String.format(
-				"rpm -q subscription-manager && subscription-manager orgs --username %s --password %s",adminUsername,adminPassword));
+				"rpm -q subscription-manager && subscription-manager orgs --username %s --password %s",
+				adminUsername,adminPassword));
 		if(exec_result.getExitCode().intValue()!=0) 
 			throw new SkipException("Your Katello system seems not operational. RHSM fails.");
 
 		exec_result = KatelloUtils.sshOnClient(clientHostname, 
-				"rpm -q rubygem-hammer_cli rubygem-hammer_cli_foreman && hammer --output base organization list");
+				"rpm -q rubygem-hammer_cli rubygem-hammer_cli_foreman && export LC_ALL=%s; export LANG=%s; hammer --output base organization list");
 		if(exec_result.getExitCode().intValue()!=0) 
 			throw new SkipException("Your Katello system seems not operational. Hammer CLI ping fails.");
 	}
