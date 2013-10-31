@@ -18,6 +18,7 @@ import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
+@TngPriority(11000)
 public class StackedSubscriptions extends KatelloCliTestBase {
 	
 	protected static Logger log = Logger.getLogger(StackedSubscriptions.class.getName());

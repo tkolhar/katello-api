@@ -12,7 +12,7 @@ import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
 
-@TngPriority(99)
+@TngPriority(15000)
 public class SystemEnvironments extends KatelloCliTestBase {
 
 	// Katello objects below

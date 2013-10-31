@@ -1,11 +1,9 @@
 package com.redhat.qe.katello.tests.e2e;
 
 import java.util.logging.Logger;
-
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
@@ -19,6 +17,7 @@ import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
+@TngPriority(10000)
 public class ProductsSameName extends KatelloCliTestBase {
 	
 	protected static Logger log = Logger.getLogger(ProductsSameName.class.getName());

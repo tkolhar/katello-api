@@ -16,6 +16,7 @@ import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
+@TngPriority(18000)
 public class PromoteChangeset extends KatelloCliTestBase {
 	protected static Logger log = Logger.getLogger(PromoteChangeset.class.getName());
 	

@@ -11,6 +11,7 @@ import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 
+@TngPriority(14000)
 @Test(groups={TngRunGroups.TNG_KATELLO_Errata})
 public class SystemErratas extends KatelloCliTestBase {
 

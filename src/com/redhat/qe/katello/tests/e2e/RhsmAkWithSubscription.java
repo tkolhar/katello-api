@@ -21,6 +21,8 @@ import com.redhat.qe.katello.common.KatelloUtils;
  * @see <a href='https://github.com/gkhachik/katello-api/issues/396'>github issue</a><br>
  * 	<a href='https://tcms.engineering.redhat.com/case/268913/?from_plan=4785'>TCMS</a>
  */
+
+@TngPriority(12000)
 public class RhsmAkWithSubscription extends KatelloCliTestBase{
 	
 	private final String uid = KatelloUtils.getUniqueID(); 

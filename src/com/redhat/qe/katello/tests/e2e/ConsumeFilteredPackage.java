@@ -15,7 +15,8 @@ import com.redhat.qe.katello.base.obj.helpers.FilterRulePackage;
 import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
-@TngPriority(2)
+
+@TngPriority(6000)
 @Test(groups=TngRunGroups.TNG_KATELLO_Content)
 public class ConsumeFilteredPackage extends KatelloCliTestBase {
 	

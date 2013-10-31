@@ -11,6 +11,7 @@ import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
 
+@TngPriority(19000)
 public class PromoteProductToDifferentEnvs extends KatelloCliTestBase {
 	protected static Logger log = Logger.getLogger(PromoteProductToDifferentEnvs.class.getName());
 
