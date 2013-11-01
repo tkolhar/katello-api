@@ -19,7 +19,7 @@ import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @TngPriority(34)
-@Test(groups={"cfse-cli",TngRunGroups.TNG_KATELLO_Users_Roles})
+@Test(groups={TngRunGroups.TNG_KATELLO_Users_Roles})
 public class UserPermissionTests extends KatelloCliTestBase {
 	
 	private String org;

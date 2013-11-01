@@ -75,7 +75,7 @@ public class ContentViewRefreshTests extends KatelloCliTestBase{
 		assert_ContentViewInfo(condef1, conview1, "Publish Content", "Library", "1");
 	}
 	
-	@Test(description = "Adding a published content view to an activation key",groups={"cfse-cli"})
+	@Test(description = "Adding a published content view to an activation key")
 	public void test_addContentView() {
 		exec_result = conview1.promote_view(env_name2);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
@@ -90,7 +90,7 @@ public class ContentViewRefreshTests extends KatelloCliTestBase{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
 	
-	@Test(description = "register client via activation key",groups={"cfse-cli"}, dependsOnMethods={"test_addContentView"})
+	@Test(description = "register client via activation key",dependsOnMethods={"test_addContentView"})
 	public void test_registerClient() {
 		rhsm_clean();
 		sys2 = new KatelloSystem(this.cli_worker, system_name2, this.org_name2, null);
@@ -102,7 +102,7 @@ public class ContentViewRefreshTests extends KatelloCliTestBase{
 		install_Packages(cli_worker.getClientHostname(), new String[] {"wolf"});
 	}
 
-	@Test(description = "refesh content view, verify version is changed", groups={"cfse-cli"}, dependsOnMethods={"test_registerClient"})
+	@Test(description = "refesh content view, verify version is changed", dependsOnMethods={"test_registerClient"})
 	public void test_refreshContentView() {
 		//install non available package from composite content view
 		verify_PackagesNotAvailable(cli_worker.getClientHostname(), new String [] {"lion"});

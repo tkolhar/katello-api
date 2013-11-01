@@ -10,7 +10,7 @@ import com.redhat.qe.katello.base.obj.KatelloPing;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups = { "cfse-cli", "headpin-cli" })
+@Test(groups = {"headpin-cli" })
 public class InstallISOTests extends KatelloCliTestBase {
 	
 	private SSHCommandResult exec_result;

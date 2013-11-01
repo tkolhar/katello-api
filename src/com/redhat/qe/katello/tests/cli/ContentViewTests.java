@@ -72,7 +72,7 @@ public class ContentViewTests extends KatelloCliTestBase{
 		sshOnClient("service goferd restart;");
 	}
 
-	@Test(description="promote content view to environment",groups={"cfse-cli"}, dependsOnMethods={"init"})
+	@Test(description="promote content view to environment",dependsOnMethods={"init"})
 	public void test_promoteContentView() {
 		conview = new KatelloContentView(cli_worker, pubview_name, base_org_name);
 		exec_result = conview.promote_view(base_dev_env_name);
@@ -80,7 +80,7 @@ public class ContentViewTests extends KatelloCliTestBase{
 		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentView.OUT_PROMOTE, this.pubview_name, base_dev_env_name)), "Content view promote output.");
 	}
 	
-	@Test(description = "Adding a published content view to an activation key",groups={"cfse-cli"}, dependsOnMethods={"test_promoteContentView"})
+	@Test(description = "Adding a published content view to an activation key",dependsOnMethods={"test_promoteContentView"})
 	public void test_addContentView() {
 		
 		act_key = new KatelloActivationKey(this.cli_worker, base_org_name,base_dev_env_name,act_key_name,"Act key created", null, pubview_name);
@@ -95,7 +95,7 @@ public class ContentViewTests extends KatelloCliTestBase{
 		Assert.assertTrue(getOutput(exec_result).contains(this.pubview_name), "Content view name is in output.");
 	}
 	
-	@Test(description = "register client via activation key",groups={"cfse-cli"}, dependsOnMethods={"test_addContentView"})
+	@Test(description = "register client via activation key",dependsOnMethods={"test_addContentView"})
 	public void test_registerClient(){
 		sshOnClient(KatelloSystem.RHSM_CLEAN);
 		sys = new KatelloSystem(this.cli_worker, system_name1, base_org_name, base_dev_env_name);
@@ -113,7 +113,7 @@ public class ContentViewTests extends KatelloCliTestBase{
 //		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
 	
-	@Test(description = "List the packages of content view",groups={"cfse-cli"}, dependsOnMethods={"test_registerClient"})
+	@Test(description = "List the packages of content view",dependsOnMethods={"test_registerClient"})
 	public void test_packageList() {
 		KatelloPackage pack = new KatelloPackage(cli_worker, base_org_name, base_zoo_product_name, base_zoo_repo_name, pubview_name);
 		
@@ -125,7 +125,7 @@ public class ContentViewTests extends KatelloCliTestBase{
 		Assert.assertTrue(getOutput(exec_result).contains("zebra"),"is package in the list: zebra");
 	}
 	
-	@Test(description = "Consuming content using an activation key that has a content view definition",groups={"cfse-cli"}, dependsOnMethods={"test_packageList"})
+	@Test(description = "Consuming content using an activation key that has a content view definition",dependsOnMethods={"test_packageList"})
 	public void test_consumeContent()
 	{
 		sshOnClient("yum erase -y lion");
@@ -138,7 +138,7 @@ public class ContentViewTests extends KatelloCliTestBase{
 	}
 	
 	@Test(description = "promoted content view delete by changeset from environment, " +
-			"verify that packages are not availble anymore",groups={"cfse-cli"}, dependsOnMethods={"test_consumeContent"})
+			"verify that packages are not availble anymore",dependsOnMethods={"test_consumeContent"})
 	public void test_deletePromotedContentView() {
 		sshOnClient("yum erase -y walrus");
 		rhsm_clean();
@@ -156,7 +156,7 @@ public class ContentViewTests extends KatelloCliTestBase{
 	}
 
 	@Test(description = "removed content view on previous scenario promote back by changeset to environment, verify that packages are already availble",
-			groups={"cfse-cli"}, dependsOnMethods={"test_deletePromotedContentView"})
+			dependsOnMethods={"test_deletePromotedContentView"})
 	public void test_RePromoteContentView() {
 		sshOnClient("yum erase -y walrus");
 		

@@ -16,7 +16,6 @@ import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups={"cfse-cli"})
 public class PackageTests extends KatelloCliLongrunBase {
 	
 	private String content_view_promote_package;

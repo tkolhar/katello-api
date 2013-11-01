@@ -234,7 +234,7 @@ public class CompositeContentViewTests extends KatelloCliTestBase{
 	} 
 	
 	@Test(description = "part of promoted composite content view delete by changeset from environment, then repromote composite view, verify that packages are still availble",
-			groups={"cfse-cli"}, dependsOnMethods={"test_removeViewFromDefinition"})
+			dependsOnMethods={"test_removeViewFromDefinition"})
 	public void test_deletePromotedContentViewPart() {
 		KatelloUtils.sshOnClient(cli_worker.getClientHostname(),"yum erase -y zebra");
 		
@@ -250,7 +250,7 @@ public class CompositeContentViewTests extends KatelloCliTestBase{
 	}
 
 	@Test(description = "removed content view on previous scenario promote back by changeset to environment, verify that packages are availble",
-			groups={"cfse-cli"}, dependsOnMethods={"test_deletePromotedContentViewPart"})
+			dependsOnMethods={"test_deletePromotedContentViewPart"})
 	public void test_RePromoteContentViewPart() {
 		KatelloUtils.sshOnClient(cli_worker.getClientHostname(),"yum erase -y tiger");
 		

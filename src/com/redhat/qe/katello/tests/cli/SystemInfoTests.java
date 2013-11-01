@@ -3,11 +3,8 @@ package com.redhat.qe.katello.tests.cli;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
-
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
@@ -20,10 +17,10 @@ import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@TngPriority(1)
-@Test(groups={"sys-group-1","cfse-cli","headpin-cli",TngRunGroups.TNG_KATELLO_System_Consumer})
+@TngPriority(500)
+@Test(groups={"headpin-cli",TngRunGroups.TNG_KATELLO_System_Consumer})
 public class SystemInfoTests extends KatelloCliTestBase{	
-	protected static Logger log = Logger.getLogger(SystemTests.class.getName());
+	protected static Logger log = Logger.getLogger(SystemBasicTests.class.getName());
 
 	private SSHCommandResult exec_result;
 	private String org;
@@ -325,16 +322,9 @@ public class SystemInfoTests extends KatelloCliTestBase{
 		assert_orgInfo(org, orgparamsList);
 	}
 
-	@AfterClass(description="destroy", alwaysRun=true)
-	public void tearDown(){
-		
-	}
-
 	private void assert_systemInfo(KatelloSystem system, List<String[]> paramsList) {
-
 		SSHCommandResult res;
 		res = system.info();
-
 		String params = "";
 
 		int i = 0;
@@ -353,10 +343,8 @@ public class SystemInfoTests extends KatelloCliTestBase{
 	}
 
 	private void assert_orgInfo(KatelloOrg org, List<String> paramsList) {
-
 		SSHCommandResult res;
 		res = org.cli_info();
-
 		String params = "";
 
 		int i = 0;

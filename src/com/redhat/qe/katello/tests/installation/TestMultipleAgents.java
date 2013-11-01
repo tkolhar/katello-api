@@ -20,7 +20,7 @@ import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups = { "cfse-cli", "headpin-cli" })
+@Test(groups = {"headpin-cli" })
 public class TestMultipleAgents extends KatelloCliTestBase {
 
 	protected DeltaCloudInstance server;

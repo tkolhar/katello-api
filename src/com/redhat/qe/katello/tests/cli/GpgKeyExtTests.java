@@ -21,7 +21,7 @@ import com.redhat.qe.tools.SSHCommandResult;
  *
  */
 @TngPriority(17)
-@Test(groups={KatelloConstants.TNG_CFSE_CLI,TngRunGroups.TNG_KATELLO_Providers_Repos})
+@Test(groups={TngRunGroups.TNG_KATELLO_Providers_Repos})
 public class GpgKeyExtTests extends KatelloCliTestBase{
 	private String uid;
 	private String org;
