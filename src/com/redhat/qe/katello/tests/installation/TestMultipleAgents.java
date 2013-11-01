@@ -164,7 +164,7 @@ public class TestMultipleAgents extends KatelloCliTestBase {
 	
 	private void configClient(String client_name, String client_type) {
 		if (client_type.matches(".*RHEL\\s+5.*")) {
-			KatelloUtils.sshOnClient(client_name, "yum install -y python-hashlib-20081119-7.el5");
+			KatelloUtils.sshOnClient(client_name, "rpm -q python-hashlib || yum install -y python-hashlib");
 		}
 	}
 	
