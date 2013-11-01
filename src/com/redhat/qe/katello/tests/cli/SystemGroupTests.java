@@ -45,7 +45,7 @@ public class SystemGroupTests extends KatelloCliTestBase{
 		
 		sshOnClient(KatelloSystem.RHSM_CLEAN);
 	}
-	
+
 	@BeforeClass(description="init: katello specific, no headpin",groups={"cfse-cli"}, dependsOnMethods={"setUp"})
 	public void setUp_katelloOnly(){
 		this.envName = "Dev-"+uid;
@@ -66,8 +66,6 @@ public class SystemGroupTests extends KatelloCliTestBase{
 		KatelloContentView contentView = new KatelloContentView(this.cli_worker, this.contentView, this.orgName);
 		exec_result = contentView.promote_view(this.envName);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		
 	}
 	
 	@Test(description = "Create system group", groups = { "cli-systemgroup", "cfse-cli", "headpin-cli" })

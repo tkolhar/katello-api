@@ -30,7 +30,7 @@ public class ProviderTests extends KatelloCliTestBase{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		org_manifest = "org-manifest"+uid;
 		exec_result = new KatelloOrg(cli_worker, org_manifest, null).cli_create();
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
 	}
 	
 	@Test(description="Fresh org - check default provider status/info", groups = {"cli-providers"}, enabled=true)

@@ -69,6 +69,7 @@ public class SystemTests extends KatelloCliTestBase{
 	private String sys_reg_name;
 	private String grp_nonexist_name;
 
+	//BZ:1011748
 	@BeforeClass(description="Generate unique names",groups={"cfse-cli","headpin-cli"})
 	public void setUp(){
 		String uid = KatelloUtils.getUniqueID();
