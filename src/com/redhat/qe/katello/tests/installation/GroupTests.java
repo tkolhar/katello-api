@@ -9,7 +9,7 @@ import com.redhat.qe.katello.base.obj.KatelloUserRole;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups = { "cfse-cli", "headpin-cli" })
+@Test(groups = {"headpin-cli" })
 public class GroupTests extends KatelloCliTestBase {
 	
 	private String role_name;

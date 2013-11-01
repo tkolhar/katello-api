@@ -15,7 +15,7 @@ import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.katello.tests.e2e.PromoteErrata;
 
 @TngPriority(16)
-@Test(groups={"cfse-cli",TngRunGroups.TNG_KATELLO_Errata})
+@Test(groups={TngRunGroups.TNG_KATELLO_Errata})
 public class ErrataTests extends KatelloCliTestBase {
 
 	protected static Logger log = Logger.getLogger(ErrataTests.class.getName());

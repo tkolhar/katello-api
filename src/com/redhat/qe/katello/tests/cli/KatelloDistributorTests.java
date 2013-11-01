@@ -21,7 +21,7 @@ public class KatelloDistributorTests extends KatelloCliTestBase{
 	String distributor_name = null;
 	String dist_subscriptions_name = "distributor-"+uid;
 	
-	@BeforeClass(description="Generate unique objects", groups={"cfse-cli","headpin-cli"})
+	@BeforeClass(description="Generate unique objects", groups={"headpin-cli"})
 	public void setUp() {
 		exec_result = new KatelloOrg(this.cli_worker, org_name,"Creating Org for a distributor").cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
@@ -32,7 +32,7 @@ public class KatelloDistributorTests extends KatelloCliTestBase{
 	}
 
 	@Test(description="distributor add custom info", dataProvider="add_distributor_custom_info", 
-			dataProviderClass = KatelloCliDataProvider.class, enabled=true,groups={"cfse-cli","headpin-cli"})
+			dataProviderClass = KatelloCliDataProvider.class, enabled=true,groups={"headpin-cli"})
 	public void test_distributorAddCustomInfo(String keyname, String value,String dis_name,Integer exitCode,String output){
 		KatelloDistributor distributor=new KatelloDistributor(cli_worker, org_name,dis_name);
 		if(distributor_name==null){
@@ -58,7 +58,7 @@ public class KatelloDistributorTests extends KatelloCliTestBase{
 		}
 	}
 
-	@Test(description="distributor remove custom info",enabled=true,groups={"cfse-cli","headpin-cli"})
+	@Test(description="distributor remove custom info",enabled=true,groups={"headpin-cli"})
 	public void test_distributorRemoveCustomInfo(){
 		SSHCommandResult exec_result;
 		uid = KatelloUtils.getUniqueID();
@@ -93,7 +93,7 @@ public class KatelloDistributorTests extends KatelloCliTestBase{
 	
 	}
 
-	@Test(description="distributor remove custom info using uuid",enabled=true,groups={"cfse-cli","headpin-cli"})
+	@Test(description="distributor remove custom info using uuid",enabled=true,groups={"headpin-cli"})
 	public void test_removeCustomInfoUUID(){
 		SSHCommandResult exec_result;
 		uid = KatelloUtils.getUniqueID();
@@ -128,7 +128,7 @@ public class KatelloDistributorTests extends KatelloCliTestBase{
 		
 	}
 
-	@Test(description="distributor update custom info",enabled=true,groups={"cfse-cli","headpin-cli"})
+	@Test(description="distributor update custom info",enabled=true,groups={"headpin-cli"})
 	public void test_distributorUpdateCustomInfo(){		
 		SSHCommandResult exec_result;
 		uid = KatelloUtils.getUniqueID();
@@ -189,7 +189,7 @@ public class KatelloDistributorTests extends KatelloCliTestBase{
 	
 	// TODO: bz#974452
 	// TODO: bz#974466
-	@Test(description = "Delete Distributor after attaching/downloading/uploading subscription", enabled=true,groups={"cfse-cli","headpin-cli"})
+	@Test(description = "Delete Distributor after attaching/downloading/uploading subscription", enabled=true,groups={"headpin-cli"})
 	public void test_distributorDelete()
 	{
 	  distributor_name = "newDistributor-"+KatelloUtils.getUniqueID();

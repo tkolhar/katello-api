@@ -21,7 +21,7 @@ import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @TngPriority(11)
-@Test(groups={"cfse-cli",TngRunGroups.TNG_KATELLO_Content})
+@Test(groups={TngRunGroups.TNG_KATELLO_Content})
 public class ContentDefinitionTest extends KatelloCliTestBase{
 	private String content_name;
 	private String content_name_edit;

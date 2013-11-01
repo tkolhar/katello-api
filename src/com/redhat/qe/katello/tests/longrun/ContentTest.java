@@ -21,7 +21,6 @@ import com.redhat.qe.tools.SSHCommandResult;
  * @author gkhachik
  *
  */
-@Test(groups={"cfse-cli"})
 public class ContentTest extends KatelloCliLongrunBase {
 
 	private SSHCommandResult res;

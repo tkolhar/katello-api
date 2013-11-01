@@ -16,7 +16,7 @@ import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 
 @TngPriority(10)
-@Test(groups={"cfse-cli",TngRunGroups.TNG_KATELLO_Content})
+@Test(groups={TngRunGroups.TNG_KATELLO_Content})
 public class ContentDefAccessTests extends KatelloCliTestBase{
 	private String user_create;
 	private String role_create;

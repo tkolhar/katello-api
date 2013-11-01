@@ -17,7 +17,6 @@ import com.redhat.qe.katello.base.obj.KatelloSystemGroup;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups={"cfse-cli"})
 public class ErrataTests extends KatelloCliLongrunBase {
 	
 	private String ert1;

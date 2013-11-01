@@ -17,8 +17,8 @@ import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@TngPriority(2)
-@Test(groups={"sys-group-2",TngRunGroups.TNG_KATELLO_System_Consumer})
+@TngPriority(600)
+@Test(groups={TngRunGroups.TNG_KATELLO_System_Consumer})
 public class SystemPackagesTests extends KatelloCliTestBase {
 
 	private SSHCommandResult exec_result;
@@ -28,7 +28,6 @@ public class SystemPackagesTests extends KatelloCliTestBase {
 	private String sys_name;
 	private String prod_unsubscr1;
 	private String prod_unsubscr2;
-
 
 	@BeforeClass(description="Generate unique names")
 	public void setUp() {
@@ -48,8 +47,6 @@ public class SystemPackagesTests extends KatelloCliTestBase {
 		exec_result = def.publish(view_name, null, null);
 		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (publish view)");
 
-		sshOnClient("service goferd restart;");
-
 		KatelloContentView view = new KatelloContentView(cli_worker, view_name, base_org_name);
 		exec_result = view.promote_view(base_dev_env_name);
 		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (promote view)");
@@ -57,6 +54,11 @@ public class SystemPackagesTests extends KatelloCliTestBase {
 		exec_result = key.create();
 		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (update key)");
 
+		sshOnClient("service goferd restart; yum remove -y lion walrus cockateel");
+	}
+	
+	@Test(description="system subscribe")
+	public void test_systemSubscribe(){
 		KatelloSystem sys = new KatelloSystem(cli_worker, sys_name, base_org_name, base_dev_env_name);
 		sys.rhsm_clean();
 		sys.rhsm_registerForce(actkey_name);
@@ -77,13 +79,9 @@ public class SystemPackagesTests extends KatelloCliTestBase {
 		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (subscribe)");
 		exec_result = sys.rhsm_refresh();// NOTE: this is *mandatory*. Otherwise yum does not recognize repos
 		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (RHSM refresh)");
-		
-		yum_clean();
-
-		sshOnClient("yum remove -y lion walrus cockateel");
 	}
 
-	@Test(description="system install package")
+	@Test(description="system install package", dependsOnMethods={"test_systemSubscribe"})
 	public void test_systemPackageInstall() {
 		KatelloSystem sys = new KatelloSystem(cli_worker, sys_name, base_org_name, base_dev_env_name);
 		exec_result = sys.packages_install("lion");
@@ -99,7 +97,7 @@ public class SystemPackagesTests extends KatelloCliTestBase {
 		Assert.assertTrue(getOutput(exec_result).contains("cockateel"), "Check output (install package group)");
 	}
 
-	@Test(description="system update package")
+	@Test(description="system update package", dependsOnMethods={"test_systemSubscribe"})
 	public void test_systemPackageUpdate() {
 		String walrus_updated = "walrus-5.21-1";
 		KatelloSystem sys = new KatelloSystem(cli_worker, sys_name, base_org_name, base_dev_env_name);
@@ -125,7 +123,7 @@ public class SystemPackagesTests extends KatelloCliTestBase {
 		Assert.assertTrue(getOutput(exec_result).contains("cockateel"), "Check output (remove package group)");
 	}
 
-	@Test(description="system unsubscribe product")
+	@Test(description="system unsubscribe product",dependsOnMethods={"test_systemSubscribe","test_systemPackageRemoveGroups","test_systemPackageRemove"})
 	public void test_systemUnsubscribe() {
 		KatelloSystem sys = new KatelloSystem(cli_worker, sys_name, base_org_name, base_dev_env_name);
 		exec_result = sys.subscriptions();

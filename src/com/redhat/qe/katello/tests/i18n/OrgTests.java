@@ -14,7 +14,7 @@ public class OrgTests extends KatelloCliTestBase {
 	private String orgDescr;
 	private String orgNewDescr;
 	
-	@Test(description = "Create org - name in different locale", groups={"cfse-cli"})
+	@Test(description = "Create org - name in different locale")
 	public void test_createOrg() {
 		String uid = KatelloUtils.getUniqueID();
 		orgName = getText("org.create.name") + uid;
@@ -28,7 +28,7 @@ public class OrgTests extends KatelloCliTestBase {
 		Assert.assertTrue(getOutput(res).trim().contains(getText("org.create.stdout", orgName)));
 	}
 	
-	@Test(description = "Update org description", dependsOnMethods = {"test_createOrg"}, groups={"cfse-cli"})
+	@Test(description = "Update org description", dependsOnMethods = {"test_createOrg"})
 	public void test_updateOrg() {
 		orgNewDescr = getText("org.update.description");
 		
@@ -40,7 +40,7 @@ public class OrgTests extends KatelloCliTestBase {
 		Assert.assertTrue(getOutput(res).trim().contains(getText("org.update.stdupdate", orgName)));
 	}
 
-	@Test(description = "Retrieves org", dependsOnMethods = {"test_updateOrg"}, groups={"cfse-cli"})
+	@Test(description = "Retrieves org", dependsOnMethods = {"test_updateOrg"})
 	public void test_readOrg() {
 		
 		KatelloOrg org = new KatelloOrg(this.cli_worker, orgName, null);
@@ -54,7 +54,7 @@ public class OrgTests extends KatelloCliTestBase {
 				String.format("Org [%s] should be found in the result info",org.name));		
 	}
 
-	@Test(description = "Lists orgs", dependsOnMethods = {"test_readOrg"}, groups={"cfse-cli"})
+	@Test(description = "Lists orgs", dependsOnMethods = {"test_readOrg"})
 	public void test_listOrg() {
 		
 		KatelloOrg org = new KatelloOrg(this.cli_worker, orgName, null);
@@ -68,7 +68,7 @@ public class OrgTests extends KatelloCliTestBase {
 				String.format("Org [%s] should be found in the result list",org.name));		
 	}
 	
-	@Test(description = "Deletes org", dependsOnMethods = {"test_listOrg"}, groups={"cfse-cli"})
+	@Test(description = "Deletes org", dependsOnMethods = {"test_listOrg"})
 	public void test_deleteOrg() {
 		
 		KatelloOrg org = new KatelloOrg(this.cli_worker, orgName, null);

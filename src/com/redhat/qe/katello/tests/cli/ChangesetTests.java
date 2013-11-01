@@ -18,7 +18,7 @@ import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
 
 @TngPriority(700)
-@Test(groups={"cfse-cli",TngRunGroups.TNG_KATELLO_Content})
+@Test(groups={TngRunGroups.TNG_KATELLO_Content})
 public class ChangesetTests extends KatelloCliTestBase{
 
 	protected static Logger log = Logger.getLogger(ChangesetTests.class.getName());

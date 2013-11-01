@@ -23,7 +23,7 @@ import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @TngPriority(25)
-@Test(groups={"cfse-cli",TngRunGroups.TNG_KATELLO_Providers_Repos})
+@Test(groups={TngRunGroups.TNG_KATELLO_Providers_Repos})
 public class ProductRepoTests extends KatelloCliTestBase {
 
 	protected static Logger log = Logger
