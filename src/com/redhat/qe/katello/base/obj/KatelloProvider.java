@@ -39,6 +39,8 @@ public class KatelloProvider extends _KatelloObject{
 	public static final String OUT_NO_SYNC_RUNNING = "No synchronization is currently running";
 	public static final String OUT_REFRESH_MANIFEST = "Provider [ %s ] manifest refresh complete";
 	public static final String OUT_REFRESH_PRODUCTS = "Provider successfully refreshed [ %s ]";
+	public static final String OUT_MANIFEST_REFRESH =
+			 "Provider [ Red Hat ] manifest refresh complete";
 	
 	public static final String ERR_IMPORT_CUSTOM = "Manifests cannot be imported for a custom provider.";
 	public static final String ERR_REFRESH_CUSTOM = "Products cannot be refreshed for custom provider.";

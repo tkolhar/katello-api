@@ -663,6 +663,9 @@ public class ProviderTests extends KatelloCliTestBase{
 			exec_result = prov.import_manifest("/tmp/"+MANIFEST_MANIFEST_ZIP, true);
 			Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (import manifest)");
 			Assert.assertTrue(getOutput(exec_result).contains(KatelloProvider.OUT_MANIFEST_IMPORTED), "Check output (import manifest)");
+			exec_result = prov.refresh_manifest();
+			Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+			Assert.assertTrue(getOutput(exec_result).trim().contains(KatelloProvider.OUT_MANIFEST_REFRESH), "Check output");
 		}finally{
 			new KatelloOrg(cli_worker, org, null).delete(); // remove the org with manifest. Let manifest be reused
 		}
