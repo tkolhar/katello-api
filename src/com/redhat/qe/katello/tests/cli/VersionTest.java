@@ -15,7 +15,7 @@ public class VersionTest extends KatelloCliTestBase{
 	public void setUp(){
 		
 	}
-	
+	//BZ: 1025884
 	@Test(description = "Version - get the version of the server")
 	public void test_Version(){
 		KatelloVersion version_obj= new KatelloVersion(cli_worker);
