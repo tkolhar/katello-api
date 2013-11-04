@@ -7,35 +7,35 @@ import javax.management.Attribute;
 import com.redhat.qe.katello.base.threading.KatelloCliWorker;
 import com.redhat.qe.tools.SSHCommandResult;
 
-public class HammerArchitecture extends _HammerObject{
-    protected static Logger log = Logger.getLogger(HammerArchitecture.class.getName());
+public class HammerEnvironment extends _HammerObject{
+    protected static Logger log = Logger.getLogger(HammerEnvironment.class.getName());
 
 	// ** ** ** ** ** ** ** Public constants
-	public static final String CLI_CMD_CREATE = "architecture create";
-	public static final String CLI_CMD_INFO = "architecture info";
-	public static final String CMD_LIST = "architecture list";
-	public static final String CMD_DELETE = "architecture delete";
-	public static final String CMD_UPDATE = "architecture update";
+	public static final String CLI_CMD_CREATE = "environment create";
+	public static final String CLI_CMD_INFO = "environment info";
+	public static final String CMD_LIST = "environment list";
+	public static final String CMD_DELETE = "environment delete";
+	public static final String CMD_UPDATE = "environment update";
 	
 	public static final String OUT_CREATE = 
-			"Architecture created";
+			"Environment created";
 	public static final String OUT_UPDATE = 
-			"Architecture updated";
+			"Environment updated";
 	public static final String OUT_DELETE = 
-			"Architecture deleted";
+			"Environment deleted";
 	
 	public static final String ERR_NAME_EXISTS = 
 			"Name has already been taken";
 	public static final String ERR_NOT_FOUND =
-			"Architecture with id '%s' not found";
+			"Environment with id '%s' not found";
 	
 	// ** ** ** ** ** ** ** Class members
 	public String Id;
 	public String name;
 	
-	public HammerArchitecture(){super();}
+	public HammerEnvironment(){super();}
 	
-	public HammerArchitecture(KatelloCliWorker kcr, String pName){
+	public HammerEnvironment(KatelloCliWorker kcr, String pName){
 		this.name = pName;
 		this.kcr = kcr;
 	}

@@ -83,9 +83,13 @@ public class HammerOs extends _HammerObject {
 		return run(CMD_CREATE);
 	}
 	
-	public SSHCommandResult cli_info() {
+	public SSHCommandResult cli_info(String label) {
 		args.clear();
-		args.add(new Attribute("id", this.Id));
+		if (this.Id != null) {
+			args.add(new Attribute("id", this.Id));
+		} else {
+			args.add(new Attribute("label", label));
+		}
 		return run(CMD_INFO);
 	}
 

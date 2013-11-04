@@ -7,37 +7,42 @@ import javax.management.Attribute;
 import com.redhat.qe.katello.base.threading.KatelloCliWorker;
 import com.redhat.qe.tools.SSHCommandResult;
 
-public class HammerArchitecture extends _HammerObject{
-    protected static Logger log = Logger.getLogger(HammerArchitecture.class.getName());
+public class HammerPartitionTable extends _HammerObject{
+    protected static Logger log = Logger.getLogger(HammerPartitionTable.class.getName());
 
 	// ** ** ** ** ** ** ** Public constants
-	public static final String CLI_CMD_CREATE = "architecture create";
-	public static final String CLI_CMD_INFO = "architecture info";
-	public static final String CMD_LIST = "architecture list";
-	public static final String CMD_DELETE = "architecture delete";
-	public static final String CMD_UPDATE = "architecture update";
+	public static final String CLI_CMD_CREATE = "partition_table create";
+	public static final String CLI_CMD_INFO = "partition_table info";
+	public static final String CMD_LIST = "partition_table list";
+	public static final String CMD_DELETE = "partition_table delete";
+	public static final String CMD_UPDATE = "partition_table update";
+	public static final String CMD_DUMP = "partition_table dump";
+	public static final String CMD_REMOVEOS = "partition_table remove_operatingsystem";
+	public static final String CMD_ADDOS = "partition_table add_operatingsystem";
 	
 	public static final String OUT_CREATE = 
-			"Architecture created";
+			"Partition table created";
 	public static final String OUT_UPDATE = 
-			"Architecture updated";
+			"Partition table updated";
 	public static final String OUT_DELETE = 
-			"Architecture deleted";
+			"Partition table deleted";
 	
 	public static final String ERR_NAME_EXISTS = 
 			"Name has already been taken";
 	public static final String ERR_NOT_FOUND =
-			"Architecture with id '%s' not found";
+			"Partition table with id '%s' not found";
 	
 	// ** ** ** ** ** ** ** Class members
 	public String Id;
 	public String name;
+	public String os_family;
 	
-	public HammerArchitecture(){super();}
+	public HammerPartitionTable(){super();}
 	
-	public HammerArchitecture(KatelloCliWorker kcr, String pName){
+	public HammerPartitionTable(KatelloCliWorker kcr, String pName, String posFamily){
 		this.name = pName;
 		this.kcr = kcr;
+		this.os_family = posFamily;
 	}
 	
 	public String getName() {
@@ -48,9 +53,11 @@ public class HammerArchitecture extends _HammerObject{
 	    this.name = name;
 	}
 
-	public SSHCommandResult cli_create(){		
+	public SSHCommandResult cli_create(String file){		
 		args.clear();
 		args.add(new Attribute("name", this.name));
+		args.add(new Attribute("os-family", this.os_family));
+		args.add(new Attribute("file", file));
 		return run(CLI_CMD_CREATE);
 	}
 	
@@ -88,13 +95,41 @@ public class HammerArchitecture extends _HammerObject{
 		return run(CMD_LIST);
 	}
 	
-	public SSHCommandResult update(String new_name){
+	public SSHCommandResult update(String new_name, String file){
 		args.clear();
-		args.add(new Attribute("name", this.name));
+		if (this.Id != null) {
+			args.add(new Attribute("id", this.Id));	
+		} else {
+			args.add(new Attribute("name", this.name));
+		}
 		args.add(new Attribute("new-name", new_name));
+		args.add(new Attribute("os-family", this.os_family));
+		args.add(new Attribute("file", file));
 		return run(CMD_UPDATE);
 	}
 
+	public SSHCommandResult add_os(String os_id){
+		args.clear();
+		if (this.Id != null) {
+			args.add(new Attribute("id", this.Id));	
+		} else {
+			args.add(new Attribute("name", this.name));
+		}
+		args.add(new Attribute("operatingsystem-id", os_id));
+		return run(CMD_ADDOS);
+	}
+
+	public SSHCommandResult remove_os(String os_id){
+		args.clear();
+		if (this.Id != null) {
+			args.add(new Attribute("id", this.Id));	
+		} else {
+			args.add(new Attribute("name", this.name));
+		}
+		args.add(new Attribute("operatingsystem-id", os_id));
+		return run(CMD_REMOVEOS);
+	}
+	
 	public SSHCommandResult delete() {
 		args.clear();
 		if (this.Id != null) {
