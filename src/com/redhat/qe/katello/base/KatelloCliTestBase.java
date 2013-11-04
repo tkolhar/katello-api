@@ -86,10 +86,11 @@ implements KatelloConstants {
 		if(exec_result.getExitCode().intValue()!=0) 
 			throw new SkipException("Your Katello system seems not operational. RHSM fails.");
 
-		exec_result = KatelloUtils.sshOnClient(clientHostname, 
-				"rpm -q rubygem-hammer_cli rubygem-hammer_cli_foreman && hammer --output base organization list");
-		if(exec_result.getExitCode().intValue()!=0) 
-			throw new SkipException("Your Katello system seems not operational. Hammer CLI ping fails.");
+		// TODO - Hammer CLI is broken on Katello Nightly. 
+//		exec_result = KatelloUtils.sshOnClient(clientHostname, 
+//				"rpm -q rubygem-hammer_cli rubygem-hammer_cli_foreman && hammer --output base organization list");
+//		if(exec_result.getExitCode().intValue()!=0) 
+//			throw new SkipException("Your Katello system seems not operational. Hammer CLI ping fails.");
 	}
 	
 	@BeforeClass(alwaysRun=true)
