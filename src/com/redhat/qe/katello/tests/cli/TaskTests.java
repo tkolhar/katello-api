@@ -1,13 +1,16 @@
 package com.redhat.qe.katello.tests.cli;
 
 import com.redhat.qe.Assert;
+
 import org.testng.annotations.Test;
 
 import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloTask;
+import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
+@TngPriority(32)
 public class TaskTests extends KatelloCliTestBase {
 
 	public SSHCommandResult exec_result;

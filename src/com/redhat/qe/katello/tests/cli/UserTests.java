@@ -15,11 +15,13 @@ import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloUser;
 import com.redhat.qe.katello.base.obj.KatelloUserRole;
+import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups={"cfse-cli",TngRunGroups.TNG_KATELLO_Users_Roles})
+@TngPriority(36)
+@Test(groups={TngRunGroups.TNG_KATELLO_Users_Roles})
 public class UserTests extends KatelloCliTestBase{
 	
 	List<KatelloUser> users;
@@ -29,7 +31,7 @@ public class UserTests extends KatelloCliTestBase{
 	private String env;
 	private String env2;
 	
-	@BeforeClass(description="init: create org stuff", groups={"cfse-cli","headpin-cli"})
+	@BeforeClass(description="init: create org stuff", groups={"headpin-cli"})
 	public void setUp(){
 		SSHCommandResult res;
 		this.organization = "org-"+uid;
@@ -48,7 +50,7 @@ public class UserTests extends KatelloCliTestBase{
 		res = env.cli_create();
 	}
 
-	@BeforeClass(description="init: katello specific, no headpin", dependsOnMethods={"setUp"}, groups={"cfse-cli"})
+	@BeforeClass(description="init: katello specific, no headpin", dependsOnMethods={"setUp"})
 	public void setUp_katelloOnly(){
 		this.env = "ak-"+uid;
 		SSHCommandResult exec_result = new KatelloEnvironment(this.cli_worker, this.env, null, organization, KatelloEnvironment.LIBRARY).cli_create();
@@ -78,7 +80,6 @@ public class UserTests extends KatelloCliTestBase{
 	}
 	
 	// TODO - with dataProvider provide more variations of user names in create action.
-
 	@Test(description="create user - for default org (disabled)", groups={"headpin-cli"})
 	public void test_createDisabled_DefaultOrg(){
 		SSHCommandResult res;
@@ -96,8 +97,8 @@ public class UserTests extends KatelloCliTestBase{
 		
 		usr.asserts_create();
 	}
-	//TODO: BZ: 993588 
-	@Test(description="update user info - valid username", groups={"headpin-only"})
+
+	@Test(description="update user info - valid username", groups={"headpin-cli"})
 	public void test_updateUserInfo(){
 		
 		SSHCommandResult res;
@@ -129,7 +130,6 @@ public class UserTests extends KatelloCliTestBase{
 		defaultInfoStr = KatelloUtils.grepCLIOutput("Default Environment", getOutput(res));
 		Assert.assertTrue(defaultInfoStr.contains(this.env), "Check - stdout contains updated default environment");
 	}
-
 
 	@Test(description = "List all users - admin should be there", groups={"headpin-cli"})
 	public void test_listUsers_admin(){
@@ -408,7 +408,7 @@ public class UserTests extends KatelloCliTestBase{
 		SSHCommandResult res = org.cli_list();
 		Assert.assertTrue(res.getExitCode().intValue()==145, 
 				"Check - return code (invalid credentials)");
-		Assert.assertTrue(getOutput(res).equals(KatelloUser.ERR_INVALID_CREDENTIALS), 
+		Assert.assertTrue(getOutput(res).startsWith(KatelloUser.ERR_INVALID_CREDENTIALS), 
 				"Check - error string (invalid credentials)");
 	}
 	
@@ -421,7 +421,7 @@ public class UserTests extends KatelloCliTestBase{
 		SSHCommandResult res = org.cli_list();
 		Assert.assertTrue(res.getExitCode().intValue()==145, 
 				"Check - return code (invalid credentials)");
-		Assert.assertTrue(getOutput(res).equals(KatelloUser.ERR_INVALID_CREDENTIALS), 
+		Assert.assertTrue(getOutput(res).startsWith(KatelloUser.ERR_INVALID_CREDENTIALS), 
 				"Check - error string (invalid credentials)");
 	}
 
@@ -434,7 +434,7 @@ public class UserTests extends KatelloCliTestBase{
 		SSHCommandResult res = org.cli_list();
 		Assert.assertTrue(res.getExitCode().intValue()==145, 
 				"Check - return code (invalid credentials)");
-		Assert.assertTrue(getOutput(res).equals(KatelloUser.ERR_INVALID_CREDENTIALS), 
+		Assert.assertTrue(getOutput(res).startsWith(KatelloUser.ERR_INVALID_CREDENTIALS), 
 				"Check - error string (invalid credentials)");
 	}
 
@@ -447,7 +447,7 @@ public class UserTests extends KatelloCliTestBase{
 		SSHCommandResult res = org.cli_list();
 		Assert.assertTrue(res.getExitCode().intValue()==145, 
 				"Check - return code (invalid credentials)");
-		Assert.assertTrue(getOutput(res).equals(KatelloUser.ERR_INVALID_CREDENTIALS), 
+		Assert.assertTrue(getOutput(res).startsWith(KatelloUser.ERR_INVALID_CREDENTIALS), 
 				"Check - error string (invalid credentials)");
 	}
 	
@@ -466,7 +466,7 @@ public class UserTests extends KatelloCliTestBase{
 		res = org.cli_list();
 		Assert.assertTrue(res.getExitCode().intValue()==145, 
 				"Check - return code (invalid credentials)");
-		Assert.assertTrue(getOutput(res).equals(KatelloUser.ERR_INVALID_CREDENTIALS), 
+		Assert.assertTrue(getOutput(res).startsWith(KatelloUser.ERR_INVALID_CREDENTIALS), 
 				"Check - error string (invalid credentials)");	
 	}
 	
@@ -517,7 +517,6 @@ public class UserTests extends KatelloCliTestBase{
 		Assert.assertTrue(locale.equals("fr"), "Check output (user info locale)");
 	}
 
-	// TODO bug 974998
 	@Test(description="create user with bad default locale")
 	public void test_createUserLocaleBad() {
 		SSHCommandResult res;

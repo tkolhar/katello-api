@@ -65,6 +65,9 @@ public class KatelloPackage extends _KatelloObject{
 		opts.add(new Attribute("product", product));
 		opts.add(new Attribute("repo", repo));
 		opts.add(new Attribute("environment", environment));
+		opts.add(new Attribute("content_view", content_view));
+		opts.add(new Attribute("content_view_label", content_view_label));
+		opts.add(new Attribute("content_view_id", content_view_id));
 		opts.add(new Attribute("product_label", product_label));
 		opts.add(new Attribute("product_id", product_id));
 		return run(CMD_INFO);

@@ -20,8 +20,6 @@ import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
 //TODO [gkhachik] - I am giving up here for now: too hard for debugging to see why the sync plan not works as expected.
-
-@Test(groups={"cfse-e2e"}, singleThreaded = true)
 public class RepoSyncByPlan extends KatelloCliTestBase{
 	protected static Logger log = Logger.getLogger(RepoSyncByPlan.class.getName());
 	

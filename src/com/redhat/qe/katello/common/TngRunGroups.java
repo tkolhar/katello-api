@@ -22,5 +22,6 @@ public interface TngRunGroups {
 	public static final String TNG_KATELLO_Manifests_CDN = "Manifests / CDN"; // tcms++
 	public static final String TNG_KATELLO_Users_Roles = "Users / Roles"; // tcms++
 	public static final String TNG_KATELLO_Install_Configuration = "Install / Configuration";
+	public static final String TNG_KATELLO_Foreman = "Foreman";
 	public static final String TNG_KATELLO_DEFAULT = "--default--";
 }

@@ -14,7 +14,6 @@ import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups={"cfse-e2e"}, singleThreaded = true)
 public class RemovePromotedProvider  extends KatelloCliTestBase {
 	
 	private SSHCommandResult exec_result;

@@ -14,10 +14,11 @@ import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
+import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups={"cfse-e2e"}, singleThreaded = true)
+@TngPriority(21000)
 public class CRLRegen extends KatelloCliTestBase{
 	protected static Logger log = Logger.getLogger(BPMTests.class.getName());
 	
@@ -90,7 +91,6 @@ public class CRLRegen extends KatelloCliTestBase{
 	 * Subscribe client.
 	 * Verify that "yum install" works.
 	 */
-	//@ TODO bug 896600
 	@Test(description="CRL Regeneration")
 	public void test_crl_regen() {
 		

@@ -3,9 +3,7 @@ package com.redhat.qe.katello.tests.e2e;
 import java.util.logging.Logger;
 
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
-
 import com.google.inject.Inject;
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloApiException;
@@ -14,14 +12,13 @@ import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.base.obj.KatelloUser;
+import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
-import com.redhat.qe.katello.guice.KatelloApiModule;
 import com.redhat.qe.katello.guice.PlainSSLContext;
 import com.redhat.qe.katello.tasks.KatelloTasks;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups={"cfse-e2e"}, singleThreaded = true)
-@Guice(modules={KatelloApiModule.class})
+@TngPriority(8000)
 public class ConsumerAccess extends KatelloCliTestBase{
 	protected static Logger log = Logger.getLogger(BPMTests.class.getName());
 	
@@ -58,6 +55,7 @@ public class ConsumerAccess extends KatelloCliTestBase{
 		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, env_name, null, org_name, KatelloEnvironment.LIBRARY);
 		exec_result = env.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		promoteEmptyContentView(org_name, env_name);
 		
 		KatelloUser user = null;
         try {

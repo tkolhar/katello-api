@@ -49,6 +49,8 @@ public class KatelloOrg extends _KatelloObject{
 			"Organization [ %s ] completed syncing default info";
 	public static final String OUT_REMOVE_SYS_INFO = 
 			"Successfully removed [ System ] default custom info [ %s ] for Org [ %s ]";
+	public static final String OUT_ATTACH_ALL =
+			"Organzation [ %s ] completed attachment of subscriptions to all systems";
 	
 	public static final String ERR_NAME_INVALID = 
 			"Validation failed: Name cannot contain characters other than alpha numerals, space, '_', '-', '.'";

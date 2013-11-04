@@ -2,17 +2,20 @@ package com.redhat.qe.katello.tests.cli;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCli;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloGpgKey;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
+import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloConstants;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups={KatelloConstants.TNG_CFSE_CLI, TngRunGroups.TNG_KATELLO_Providers_Repos})
+@TngPriority(18)
+@Test(groups={TngRunGroups.TNG_KATELLO_Providers_Repos})
 public class GpgKeyTests extends KatelloCliTestBase{
 	private String rand;
 	private String org;

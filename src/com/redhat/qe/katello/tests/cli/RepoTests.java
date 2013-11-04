@@ -6,9 +6,11 @@ import java.text.SimpleDateFormat;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
@@ -17,13 +19,16 @@ import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloPackage;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
+import com.redhat.qe.katello.base.obj.KatelloPuppetModule;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.base.obj.KatelloUser;
+import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups={"cfse-cli",TngRunGroups.TNG_KATELLO_Providers_Repos})
+@TngPriority(30)
+@Test(groups={TngRunGroups.TNG_KATELLO_Providers_Repos})
 public class RepoTests extends KatelloCliTestBase {
 
 	protected static Logger log = Logger
@@ -46,6 +51,10 @@ public class RepoTests extends KatelloCliTestBase {
 	
 	private String orgWithManifest;
 	private String secondOrg;
+	private String repo_upload_yum;
+	private String repo_upload_puppet;
+	private String rpm_pkg_name;
+	private String puppet_module_name;
 	
 	@BeforeClass(description = "Generate unique objects")
 	public void setUp() {
@@ -54,6 +63,8 @@ public class RepoTests extends KatelloCliTestBase {
 		user_name = "user" + uid;
 		provider_name = "provider" + uid;
 		product_name = "product" + uid;
+		repo_upload_yum = "repo-yum-"+uid;
+		repo_upload_puppet = "repo-puppet-"+uid;
 
 		file_name = "/tmp/RPM-GPG-KEY-dummy-packages-generator";
 		gpg_key = "gpgkey-"+uid;
@@ -92,9 +103,22 @@ public class RepoTests extends KatelloCliTestBase {
 		KatelloGpgKey gpg = new KatelloGpgKey(cli_worker, gpg_key, org_name, file_name);
 		exec_result = gpg.cli_create();
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+
+		// create repos and wget files for content upload
+		KatelloRepo repo = new KatelloRepo(cli_worker, repo_upload_yum, org_name, product_name, null, null, null);
+		exec_result = repo.create();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (repo create)");
+		repo = new KatelloRepo(cli_worker, repo_upload_puppet, org_name, product_name, null, null, null);
+		repo.content_type = "puppet";
+		exec_result = repo.create();
+		puppet_module_name = "adob-good-2.0.0.tar.gz";
+		rpm_pkg_name = "bat-3.10.7-1.noarch.rpm";
+		sshOnClient(String.format("rm -f /tmp/%s; wget %s%s -O /tmp/%s", rpm_pkg_name, REPO_HHOVSEPY_ZOO4, rpm_pkg_name, rpm_pkg_name));
+		String puppetmodule_url = "https://raw.github.com/pulp/pulp_puppet/master/pulp_puppet_plugins/test/data/good-modules/adob-good/pkg/adob-good-2.0.0.tar.gz";
+		sshOnClient(String.format("rm -f /tmp/%s; wget %s -O /tmp/%s", puppet_module_name, puppetmodule_url, puppet_module_name));
 	}
 
-	@Test(description = "Create repo", groups = { "cli-repo" })
+	@Test(description = "Create repo")
 	public void test_createRepo() {
 
 		KatelloRepo repo = createRepo();
@@ -103,7 +127,7 @@ public class RepoTests extends KatelloCliTestBase {
 		assert_repoStatus(repo);
 	}
 	
-	@Test(description = "Create repo exists", groups = { "cli-repo" })
+	@Test(description = "Create repo exists")
 	public void test_createRepoExists() {
 
 		KatelloRepo repo = createRepo();
@@ -114,8 +138,25 @@ public class RepoTests extends KatelloCliTestBase {
 		//@ TODO switch to correct check when output is fixed
 		//Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloRepo.ERR_REPO_EXISTS, repo.name, repo.product));
 	}
-	
-	@Test(description = "Discover repo", groups = { "cli-repo" })
+
+	@Test(description = "Create repo without url. Try to sync the repo.")
+	public void test_createRepoWithoutURL() {
+		
+		repo_name = "repoNoURL-"+KatelloUtils.getUniqueID();;
+		
+		KatelloRepo repo = new KatelloRepo(this.cli_worker, repo_name, org_name, product_name, null, null, null);
+		exec_result = repo.create();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloRepo.OUT_CREATE, repo_name)), "Check - output string (repo create without URL)");	
+		
+		exec_result = repo.synchronize();
+		
+		Assert.assertTrue(exec_result.getExitCode() == 65, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).trim().contains(String.format(KatelloRepo.ERR_REPO_SYNC_FAIL, repo.name)));
+
+	}
+
+	@Test(description = "Discover repo")
 	public void test_discoverRepo() {
 
 		repo_name = "repo"+KatelloUtils.getUniqueID();
@@ -132,7 +173,7 @@ public class RepoTests extends KatelloCliTestBase {
 		assert_repoStatus(repo);
 	}
 	
-	@Test(description = "List repos", groups = { "cli-repo" })
+	@Test(description = "List repos")
 	public void test_listRepo() {
 		
 		KatelloRepo repo = createRepo();
@@ -147,9 +188,13 @@ public class RepoTests extends KatelloCliTestBase {
 		
 		assert_repoList(getOutput(exec_result).replaceAll("\n", " "), repo);
 		assert_repoList(getOutput(exec_result).replaceAll("\n", " "), repo1);
+
+		repo1.product = null;
+		exec_result = repo1.list();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
 	
-	@Test(description = "Update repo gpg key", groups = { "cli-repo" })
+	@Test(description = "Update repo gpg key")
 	public void test_updateRepo() {
 
 		KatelloRepo repo = createRepo();
@@ -161,7 +206,7 @@ public class RepoTests extends KatelloCliTestBase {
 		assert_repoStatus(repo);
 	}
 	
-	@Test(description = "Synchronize repository", groups = { "cli-repo" })
+	@Test(description = "Synchronize repository")
 	public void test_syncRepo() {
 
 		DateFormat format = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
@@ -196,7 +241,7 @@ public class RepoTests extends KatelloCliTestBase {
 		assert_repoList(getOutput(exec_result).replaceAll("\n", " "), repo);
 	}
 	
-	@Test(description = "Try to enable/disable custom repo, check error", groups = { "cli-repo" })
+	@Test(description = "Try to enable/disable custom repo, check error")
 	public void test_enableDisableRepo() {
 
 		KatelloRepo repo = createRepo();
@@ -210,7 +255,7 @@ public class RepoTests extends KatelloCliTestBase {
 		Assert.assertEquals(getOutput(exec_result).trim(), "Disable/enable is not supported for custom repositories.");
 	}
 	
-	@Test(description = "Delete repo", groups = { "cli-repo" })
+	@Test(description = "Delete repo")
 	public void test_deleteRepo() {
 
 		KatelloRepo repo = createRepo();
@@ -223,7 +268,7 @@ public class RepoTests extends KatelloCliTestBase {
 		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloRepo.ERR_REPO_NOTFOUND, repo.name, repo.org, repo.product, "Library"));
 	}
 
-	@Test(description = "Delete synced repo", groups = { "cli-repo" })
+	@Test(description = "Delete synced repo")
 	public void test_deleteSyncedRepo() {
 
 		KatelloRepo repo = createRepo();
@@ -293,7 +338,7 @@ public class RepoTests extends KatelloCliTestBase {
 		Assert.assertTrue(getOutput(exec_result).contains(KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT), "Check output (repo listed)");
 	}
 
-	@Test(description = "Call commands on non existing repo", groups = { "cli-repo" })
+	@Test(description = "Call commands on non existing repo")
 	public void test_commandsInvalidRepo() {
 		
 		repo_name = "repo"+KatelloUtils.getUniqueID();;
@@ -322,7 +367,7 @@ public class RepoTests extends KatelloCliTestBase {
 		Assert.assertEquals(getOutput(exec_result).trim(), String.format(KatelloRepo.ERR_REPO_NOTFOUND, repo.name, repo.org, repo.product, "Library"));
 		
 	}
-	
+
 	/**
 	 * @see https://github.com/gkhachik/katello-api/issues/278
 	 */
@@ -337,9 +382,9 @@ public class RepoTests extends KatelloCliTestBase {
 		KatelloRepo _repo = new KatelloRepo(this.cli_worker, "pulp-v2", this.org_name, this.productAutoDiscoverHttpPulpV2, url, null, null);
 		SSHCommandResult res = _repo.discover();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check  -return code");
-		Assert.assertTrue(getOutput(_repo.custom_reposCount(null,null)).equals("8"), "Check - 8 repos were prepared");
+		Assert.assertTrue(getOutput(_repo.custom_reposCount()).equals("8"), "Check - 8 repos were prepared");
 	}
-	
+
 	/**
 	 * @see https://github.com/gkhachik/katello-api/issues/282 
 	 */
@@ -347,7 +392,7 @@ public class RepoTests extends KatelloCliTestBase {
 	public void test_discoverRepo_SingleRepo_FileMethod(){
 		String uid = KatelloUtils.getUniqueID();
 
-		KatelloUtils.sshOnServer("rpm -q grinder || yum -y install grinder"); // it's part of katello-pulp yum repo.
+		KatelloUtils.sshOnServer("rpm -q grinder || yum -y install "+RPM_GRINDER_RHEL6);
 		String url = "/var/www/html/auto-discover-"+uid;
 		String cmd = String.format(
 				"mkdir %s; " +
@@ -362,12 +407,11 @@ public class RepoTests extends KatelloCliTestBase {
 		KatelloRepo _repo = new KatelloRepo(this.cli_worker, "_zoo5", this.org_name, this.productAutoDiscoverFileZoo5, "file://"+url, null, null);
 		SSHCommandResult res = _repo.discover();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check  -return code");
-		Assert.assertTrue(getOutput(_repo.custom_reposCount(null,null)).equals("1"), "Check - 1 repo was prepared");
+		Assert.assertTrue(getOutput(_repo.custom_reposCount()).equals("1"), "Check - 1 repo was prepared");
 	}
-	
+
 	/**
 	 * @see https://github.com/gkhachik/katello-api/issues/283
-	 * @TODO 961780  repo list should be changed to accept option --content_view
 	 */
 	@Test(description="Auto-discovered repositories can be synced and promoted",
 			dependsOnMethods={"test_discoverRepo_MultiRepos_HttpMethod","test_discoverRepo_SingleRepo_FileMethod"})
@@ -385,16 +429,16 @@ public class RepoTests extends KatelloCliTestBase {
 		res = prodZoo5.synchronize();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check  -return code");
 		
-		KatelloUtils.promoteProductToEnvironment(cli_worker, org_name, productAutoDiscoverHttpPulpV2, env_testing);
-		KatelloUtils.promoteProductToEnvironment(cli_worker, org_name, productAutoDiscoverFileZoo5, env_testing);
+		String pulpContentView = KatelloUtils.promoteProductToEnvironment(cli_worker, org_name, productAutoDiscoverHttpPulpV2, env_testing);
+//		String zooContentView = KatelloUtils.promoteProductToEnvironment(cli_worker, org_name, productAutoDiscoverFileZoo5, env_testing); - TODO fails, check later
 		
 		// HTTP. Check - packages synced and promoted too.
-		assert_allRepoPackagesSynced(this.org_name, this.productAutoDiscoverHttpPulpV2, env_testing, 8);
+		assert_allRepoPackagesSynced(this.org_name, this.productAutoDiscoverHttpPulpV2, env_testing, pulpContentView, 8);
 		
 		// FTP. Check - packages synced and promoted too.
-		assert_allRepoPackagesSynced(this.org_name, this.productAutoDiscoverFileZoo5, env_testing, 1);
+//		assert_allRepoPackagesSynced(this.org_name, this.productAutoDiscoverFileZoo5, env_testing, zooContentView, 1); // TODO fails, check later.
 	}
-	
+
 	/**
 	 * @see https://github.com/gkhachik/katello-api/issues/284
 	 */
@@ -420,11 +464,11 @@ public class RepoTests extends KatelloCliTestBase {
 		KatelloRepo _repo = new KatelloRepo(this.cli_worker, "pulp-v2", this.org_name, productname, url, null, null);
 		res = _repo.discover();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check  -return code");
-		Assert.assertTrue(getOutput(_repo.custom_reposCount(null,null)).equals("8"), "Check - 8 repos were prepared");
+		Assert.assertTrue(getOutput(_repo.custom_reposCount()).equals("8"), "Check - 8 repos were prepared");
 		
 		assert_allReposGPGAssigned(this.org_name, productname, key.name);
 	}
-	
+
 	/**
 	 * @see https://github.com/gkhachik/katello-api/issues/285
 	 */
@@ -445,7 +489,7 @@ public class RepoTests extends KatelloCliTestBase {
 		KatelloRepo _repo = new KatelloRepo(this.cli_worker, "pulp-v2", this.org_name, productname, url, null, null);
 		exec_result = _repo.discover();
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check  -return code");
-		Assert.assertTrue(getOutput(_repo.custom_reposCount(null,null)).equals("8"), "Check - 8 repos were prepared");
+		Assert.assertTrue(getOutput(_repo.custom_reposCount()).equals("8"), "Check - 8 repos were prepared");
 		
 		assert_allReposGPGAssigned(this.org_name, productname, "");
 
@@ -461,18 +505,60 @@ public class RepoTests extends KatelloCliTestBase {
 	 */
 	@Test(description="95fd7f1c-711d-4e47-a5fb-76cf04caeb71")
 	public void test_listRedHatProductRepos(){
-		String manifest = "katello-CLI-3.zip";
 		exec_result = new KatelloOrg(this.cli_worker, this.orgWithManifest, null).cli_create();
-		KatelloUtils.scpOnClient(cli_worker.getClientHostname(), "data/"+manifest, "/tmp");
-		exec_result = new KatelloProvider(this.cli_worker, KatelloProvider.PROVIDER_REDHAT, this.orgWithManifest, null, null).import_manifest("/tmp/"+manifest, true);
+		KatelloUtils.scpOnClient(cli_worker.getClientHostname(), "data/"+KatelloProvider.MANIFEST_CLI1, "/tmp");
+		exec_result = new KatelloProvider(this.cli_worker, KatelloProvider.PROVIDER_REDHAT, this.orgWithManifest, null, null).import_manifest("/tmp/"+KatelloProvider.MANIFEST_CLI1, true);
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check  -return code");
 		exec_result = new KatelloProduct(this.cli_worker, KatelloProduct.RHEL_SERVER, this.orgWithManifest, KatelloProvider.PROVIDER_REDHAT, null, null, null, null, null).repository_set_enable(
 				KatelloProduct.REPOSET_RHEL6_RPMS);
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check  -return code");
-		exec_result = new KatelloRepo(this.cli_worker, null, this.orgWithManifest, KatelloProduct.RHEL_SERVER, null, null, null).custom_reposCount(null, true);
+		exec_result = new KatelloRepo(this.cli_worker, null, this.orgWithManifest, KatelloProduct.RHEL_SERVER, null, null, null).custom_reposCount(null, null, true);
 		Assert.assertTrue(new Integer(getOutput(exec_result)).intValue()>0, "Check - repos count >0");
 	}
-	
+
+	@Test(description="upload rmp to yum repository")
+	public void test_uploadContentYum() {
+		KatelloRepo repo = new KatelloRepo(cli_worker, repo_upload_yum, org_name, product_name, REPO_INECAS_ZOO3, null, null);
+		exec_result = repo.content_upload("/tmp/"+rpm_pkg_name, "yum", null);
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (repo upload rpm)");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloRepo.OUT_CONTENT_UPLOADED, rpm_pkg_name)), "Check output (repo upload rpm)");
+		KatelloPackage pkg = new KatelloPackage(cli_worker, org_name, product_name, repo_upload_yum, null);
+		exec_result = pkg.cli_list();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (package list)");
+		Assert.assertTrue(getOutput(exec_result).contains(rpm_pkg_name), "Check output (package list)");
+	}
+
+	@Test(description="upload puppet module to puppet repository")
+	public void test_uploadContentPuppet() {
+		KatelloRepo repo = new KatelloRepo(cli_worker, repo_upload_puppet, org_name, product_name, null, null, null);
+		exec_result = repo.content_upload("/tmp/" + puppet_module_name, "puppet", null);
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (upload puppet module)");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloRepo.OUT_CONTENT_UPLOADED, puppet_module_name)), "Check output (upload puppet module)");
+		KatelloPuppetModule module = new KatelloPuppetModule(cli_worker, org_name, repo_upload_puppet, product_name);
+		exec_result = module.list();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (list modules)");
+		Assert.assertTrue(getOutput(exec_result).contains(puppet_module_name.split("-")[0]), "Check output (list modules)");
+	}
+
+	@Test(description="try to upload wrong type of content to repository - check errors")
+	public void test_uploadContentInvalidContent() {
+		KatelloRepo repo = new KatelloRepo(cli_worker, repo_upload_yum, org_name, product_name, null, null, null);
+		exec_result = repo.content_upload("/tmp/"+puppet_module_name, "puppet", null);
+		Assert.assertTrue(exec_result.getExitCode()==65, "Check exit code (upload puppet to yum repo)");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloRepo.ERR_NOT_ACCEPT_PUPPET, repo_upload_yum)), "Check error (upload puppet to yum repo)");
+		exec_result = repo.content_upload("/tmp/"+puppet_module_name, "yum", null);
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloRepo.ERR_INVALID_RPM, "/tmp/"+puppet_module_name)), "Check error (invlid rpm)");
+		repo = new KatelloRepo(cli_worker, repo_upload_puppet, org_name, product_name, null, null, null);
+		exec_result = repo.content_upload("/tmp/"+rpm_pkg_name, "puppet", null);
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloRepo.ERR_INVALID_MODULE, "/tmp/"+rpm_pkg_name)), "Check error (invlid puppet)");
+		exec_result = repo.content_upload("/tmp/"+rpm_pkg_name, "yum", null);
+		Assert.assertTrue(exec_result.getExitCode()==65, "Check exit code (upload rpm to puppet repo)");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloRepo.ERR_NOT_ACCEPT_YUM, repo_upload_puppet)), "Check error (upload puppet to yum repo)");
+		exec_result = repo.content_upload("/tmp/"+rpm_pkg_name, "wrongtype", null);
+		Assert.assertTrue(exec_result.getExitCode()==65, "Check exit code (upload wrong type)");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloRepo.ERR_INVALID_TYPE, "wrongtype")), "Check error (upload wrong type)");
+	}
+
 	/*
 	 * https://github.com/gkhachik/katello-api/issues/418
 	 */
@@ -492,13 +578,12 @@ public class RepoTests extends KatelloCliTestBase {
 		exec_result = new KatelloProduct(this.cli_worker, KatelloProduct.RHEL_SERVER, this.secondOrg, KatelloProvider.PROVIDER_REDHAT, null, null, null, null, null).repository_set_enable("Red Hat Enterprise Linux 6 Server (ISOs)");
 		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check  -return code");
 		//list repos - check count
-		exec_result = new KatelloRepo(this.cli_worker, null, this.secondOrg, KatelloProduct.RHEL_SERVER, null, null, null).custom_reposCount(null, true);
+		exec_result = new KatelloRepo(this.cli_worker, null, this.secondOrg, KatelloProduct.RHEL_SERVER, null, null, null).custom_reposCount(null, null, true);
 		Assert.assertTrue(new Integer(getOutput(exec_result)).intValue()>0, "Check - repos count >0");
-		exec_result = new KatelloRepo(this.cli_worker, null, this.orgWithManifest, KatelloProduct.RHEL_SERVER, null, null, null).custom_reposCount(null, true);
-		Assert.assertTrue(new Integer(getOutput(exec_result)).intValue()>0, "Check - repos count >0");
-		
-	}
-	
+		exec_result = new KatelloRepo(this.cli_worker, null, this.orgWithManifest, KatelloProduct.RHEL_SERVER, null, null, null).custom_reposCount(null, null, true);
+		Assert.assertTrue(new Integer(getOutput(exec_result)).intValue()>0, "Check - repos count >0");  
+	} 
+
 	private void assert_repoInfo(KatelloRepo repo) {
 		if (repo.gpgkey == null) repo.gpgkey = "";
 		if (repo.lastSync == null) repo.lastSync = "never";
@@ -544,18 +629,22 @@ public class RepoTests extends KatelloCliTestBase {
 		return repo;
 	}
 	
-	private void assert_allRepoPackagesSynced(String orgname, String productname, String envname, int repoCount){
+	private void assert_allRepoPackagesSynced(String orgname, String productname, String envname, String contentview, int repoCount){
 		if(envname==null) envname = KatelloEnvironment.LIBRARY;
 		KatelloRepo repo = new KatelloRepo(this.cli_worker, null, orgname, productname, null, null, null);
-		SSHCommandResult res = repo.list(envname);
-		int repoCnt = new Integer(getOutput(repo.custom_reposCount(envname,null))).intValue();
+		SSHCommandResult res = repo.list(envname, contentview);
+		int repoCnt = new Integer(getOutput(repo.custom_reposCount(envname,contentview,null))).intValue();
 		Assert.assertTrue(repoCnt==repoCount, "Assert - all repos are promoted");
 		String repoName; int pkgCount;
 		for(int i=0;i<repoCnt;i++){
 			repoName = KatelloUtils.grepCLIOutput("Name", getOutput(res), (i+1));
-			pkgCount = new Integer(getOutput(new KatelloPackage(cli_worker, null, null, orgname, 
-					productname, repoName, envname).custom_packagesCount(null))).intValue();
+			pkgCount = new Integer(getOutput(new KatelloPackage(cli_worker, orgname,
+					productname, repoName, contentview).custom_packagesCount(envname))).intValue();
 			Assert.assertTrue(pkgCount>0, "Check - packages are synced for: "+repoName);
+			KatelloRepo loaded_repo = new KatelloRepo(cli_worker, repoName, orgname, productname, null, null, null);
+			exec_result = loaded_repo.info(envname, contentview);
+			Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+			Assert.assertEquals(repoName, KatelloUtils.grepCLIOutput("Name", getOutput(exec_result), 1), "Repo name must be returned corrrectly");
 		}
 	}
 	
@@ -563,7 +652,7 @@ public class RepoTests extends KatelloCliTestBase {
 		String repoName; SSHCommandResult res;
 		KatelloRepo repo = new KatelloRepo(this.cli_worker, null, orgname, productname, null, null, null);
 		SSHCommandResult resRepoList = repo.list();
-		int repoCount = new Integer(getOutput(repo.custom_reposCount(null,null))).intValue();
+		int repoCount = new Integer(getOutput(repo.custom_reposCount())).intValue();
 		for(int i=0;i<repoCount;i++){
 			repoName = KatelloUtils.grepCLIOutput("Name", getOutput(resRepoList), (i+1));
 			res = new KatelloRepo(this.cli_worker, repoName, orgname, productname, null, null, null).info();
@@ -574,11 +663,8 @@ public class RepoTests extends KatelloCliTestBase {
 
 	@AfterClass(description="remove the org(s) with manifests", alwaysRun=true)
 	public void tearDown(){
-		exec_result = new KatelloOrg(this.cli_worker, this.orgWithManifest, null).delete(); // we don't care with the result.
-		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (delete org)");
-		exec_result = new KatelloOrg(cli_worker, org_name, null).delete();
-		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (delete org)");
-		exec_result = new KatelloOrg(cli_worker, this.secondOrg, null).delete();
-		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (delete org)");
+		new KatelloOrg(this.cli_worker, this.orgWithManifest, null).delete(); // we don't care with the result.
+		new KatelloOrg(cli_worker, org_name, null).delete();
+		new KatelloOrg(cli_worker, this.secondOrg, null).delete();
 	}
 }

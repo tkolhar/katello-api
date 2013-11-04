@@ -3,6 +3,7 @@ package com.redhat.qe.katello.tests.cli;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
@@ -12,11 +13,13 @@ import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloSystemGroup;
 import com.redhat.qe.katello.base.obj.KatelloUser;
 import com.redhat.qe.katello.base.obj.KatelloUserRole;
+import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups={"cfse-cli",TngRunGroups.TNG_KATELLO_Users_Roles})
+@TngPriority(34)
+@Test(groups={TngRunGroups.TNG_KATELLO_Users_Roles})
 public class UserPermissionTests extends KatelloCliTestBase {
 	
 	private String org;
@@ -198,8 +201,8 @@ public class UserPermissionTests extends KatelloCliTestBase {
 		group.runAs(user2);
 		res = group.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		group = new KatelloSystemGroup(this.cli_worker, this.group, org);
-		prov.runAs(user2);
+		group = new KatelloSystemGroup(this.cli_worker, group.name, org);
+		group.runAs(user2);
 		res = group.update(null, "new descr", 5);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		res = group.info();

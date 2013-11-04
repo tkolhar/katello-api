@@ -13,6 +13,7 @@ public class DisconnectedTests {
 	public static final String DISCONNECTED_MAIN_MANIFEST = "disconnected.manifest.zip";
 	public static final String DISCONNECTED_REPO_TO_SYNC = "rhel-6-server-sam-rpms-6_4-x86_64";
 	public static final String DISCONNECTED_EXPORT_DIR = "/tmp/export";
+	public static final String DISCONNECTED_HACKED_MANIFEST = "manifest-hacked.zip";
 	
 	private KatelloDisconnected disc;
 	private SSHCommandResult res;
@@ -52,10 +53,41 @@ public class DisconnectedTests {
 		Assert.assertTrue(Integer.valueOf(KatelloCliTestBase.sgetOutput(res)).intValue()>70, "Check repos - default are all enabled");
 	}
 	
+	// TODO: verify the error message. BZ 1009110
+		@Test(description="import invalid/hacked manifest", dependsOnMethods={"test_importManifest"})
+		public void test_importInvalidManifest() {
+			KatelloUtils.scpOnClient(System.getProperty("katello.server.hostname", "localhost"), 
+					"data/"+DISCONNECTED_HACKED_MANIFEST, "/tmp");
+			res = disc.importManifest("/tmp/"+DISCONNECTED_HACKED_MANIFEST);
+			Assert.assertTrue(res.getExitCode().intValue()==1, "Check - return code");
+			Assert.assertTrue(KatelloCliTestBase.sgetOutput(res).isEmpty(), "Check - output string");
+		}
+		
+		@Test(description="disable a particular repo", dependsOnMethods={"test_importManifest"})
+		public void test_disableRepo() {
+			res = disc.disable(DISCONNECTED_REPO_TO_SYNC, false);
+			Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
+			res = disc.custom_listRepo(false, DISCONNECTED_REPO_TO_SYNC);
+			Assert.assertTrue(KatelloCliTestBase.sgetOutput(res).isEmpty(), "Check - output string");
+			res = disc.custom_listRepo(true, DISCONNECTED_REPO_TO_SYNC);
+			Assert.assertTrue(KatelloCliTestBase.sgetOutput(res).contains(DISCONNECTED_REPO_TO_SYNC), "Check - output string");
+		}
+		
+		//TODO: BZ 1020476
+		@Test(description="disable non-existing repo", dependsOnMethods={"test_disableRepo"})
+		public void test_disableInvalidRepo() {
+			//try to disable an already disabled repo
+			res = disc.disable(DISCONNECTED_REPO_TO_SYNC, false);
+			Assert.assertTrue(res.getExitCode().intValue() == 1, "Check - return code");
+			//try to disable a non-existing repo
+			String invalidRepo = "rhel-6-server-sam-rpms-6_4-x64_86";
+			res = disc.disable(invalidRepo, false);
+			Assert.assertTrue(res.getExitCode().intValue() == 1, "Check - return code");
+		}
 	/**
 	 * disable --all
 	 */
-	@Test(description="TODO", dependsOnMethods={"test_importManifest"})
+	@Test(description="TODO", dependsOnMethods={"test_disableRepo"})
 	public void test_disableAll(){
 		res = disc.custom_listCount(false);
 		int beforeDisable = Integer.valueOf(KatelloCliTestBase.sgetOutput(res)).intValue();
@@ -72,7 +104,7 @@ public class DisconnectedTests {
 	
 	@Test(description="TODO", dependsOnMethods={"test_disableAll"})
 	public void test_enableRepo(){
-		res = disc.enable(DISCONNECTED_REPO_TO_SYNC);
+		res = disc.enable(DISCONNECTED_REPO_TO_SYNC, false);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		res = disc.configure();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
@@ -81,7 +113,27 @@ public class DisconnectedTests {
 		Assert.assertTrue(KatelloCliTestBase.sgetOutput(res).contains(DISCONNECTED_REPO_TO_SYNC), "Check - repo is in enabled repo list");
 	}
 	
-	@Test(description="TODO", dependsOnMethods={"test_enableRepo"})
+	//TODO: BZ 1020476
+	@Test(description="enable invalid repo", dependsOnMethods={"test_enableRepo"})
+	public void test_enableInvalidRepo() {
+		//try to enable an already enabled repo
+		res = disc.enable(DISCONNECTED_REPO_TO_SYNC, false);
+		Assert.assertTrue(res.getExitCode().intValue() == 1, "Check - return code");
+		//try to disable a non-existing repo
+		String invalidRepo = "rhel-6-server-sam-rpms-6_4-x64_86";
+		res = disc.enable(invalidRepo, false);
+		Assert.assertTrue(res.getExitCode().intValue() == 1, "Check - return code");
+	}
+	
+	@Test(description="enable all repos", dependsOnMethods={"test_enableRepo"})
+	public void test_enableAll() {
+		res = disc.enable(null, true);
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
+		res = disc.custom_listCount(false);
+		Assert.assertTrue(Integer.valueOf(KatelloCliTestBase.sgetOutput(res)).intValue()>70, "Check repos - all enabled");
+	}
+	
+	@Test(description="TODO", dependsOnMethods={"test_enableAll"})
 	public void test_syncRepo(){
 		res = disc.sync(DISCONNECTED_REPO_TO_SYNC);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");

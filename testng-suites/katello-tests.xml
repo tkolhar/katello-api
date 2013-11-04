@@ -1,53 +1,74 @@
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
 <suite name="Katello Test Suite">
-	<test name="CLI_Tests" order-by-instances="true">
-		<packages>
-			<package name="com.redhat.qe.katello.tests.cli"/>
-		</packages>
-		<groups>
-			<dependencies>
-				<group name="sys-group-2" depends-on="sys-group-1"/>
-				<group name="sys-group-3" depends-on="sys-group-2"/>
-			</dependencies>
-                </groups>
+	<test name="CLI_Tests">
+	<classes>
+		<class name="com.redhat.qe.katello.tests.cli.SetupServers"/>
+		<class name="com.redhat.qe.katello.tests.cli.SystemBasicTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.SystemRhsmRegTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.SystemSysGroupsTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.SystemCustomInfoTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.SystemInfoTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.SystemPackagesTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.SystemGroupTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.AboutTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.ActivationKeyTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.ChangesetTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.ClientTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.CompositeContentViewTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.ContentDefAccessTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.ContentDefinitionTest"/>
+		<class name="com.redhat.qe.katello.tests.cli.ContentFilterTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.ContentViewTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.DistributionTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.EnvironmentTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.ErrataTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.GpgKeyExtTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.GpgKeyTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.KatelloDistributorTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.OrgTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.PackageGroupTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.PackageTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.PermissionTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.PingTest"/>
+		<class name="com.redhat.qe.katello.tests.cli.ProductRepoTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.ProductTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.ProviderTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.PuppetModuleTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.RepoTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.SyncPlanTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.TaskTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.UserNoRoleNoAccess"/>
+		<class name="com.redhat.qe.katello.tests.cli.UserPermissionTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.UserRoleTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.UserTests"/>
+		<class name="com.redhat.qe.katello.tests.cli.VersionTest"/>
+	</classes>
 	</test>
 
-	<test name="E2E_Tests" order-by-instances="true">
+	<test name="E2E_Tests">
 		<classes>
 			<class name="com.redhat.qe.katello.tests.e2e.SetupServers"/>
-			<class name="com.redhat.qe.katello.tests.e2e.BPMTests"/>
 			<class name="com.redhat.qe.katello.tests.e2e.RhsmOnlyPermissions"/>
+			<class name="com.redhat.qe.katello.tests.e2e.SystemsReport"/>
+			<class name="com.redhat.qe.katello.tests.e2e.BPMTests"/>
 			<class name="com.redhat.qe.katello.tests.e2e.ConsumeCombineContent"/>
-			<class name="com.redhat.qe.katello.tests.e2e.ConsumeFilteredPackage"/>
-			<class name="com.redhat.qe.katello.tests.e2e.ConsumeFilteredErrata"/>
-			<class name="com.redhat.qe.katello.tests.e2e.ConsumeFilteredPackageGroup"/>
-			<class name="com.redhat.qe.katello.tests.e2e.CRLRegen"/>
 			<class name="com.redhat.qe.katello.tests.e2e.MultyManifest"/>
-			<class name="com.redhat.qe.katello.tests.e2e.ConsumerAccess"/>
+			<class name="com.redhat.qe.katello.tests.e2e.ConsumeFilteredPackage"/>
+			<class name="com.redhat.qe.katello.tests.e2e.ConsumeFilteredPackageGroup"/>
 			<class name="com.redhat.qe.katello.tests.e2e.ContentViewRefreshTests"/>
 			<class name="com.redhat.qe.katello.tests.e2e.ProductsSameName"/>
-			<class name="com.redhat.qe.katello.tests.e2e.StackedSubscriptions"/>
-			<class name="com.redhat.qe.katello.tests.e2e.RhsmAkWithSubscription"/>
-			<class name="com.redhat.qe.katello.tests.e2e.OrgDeletion"/>
-			<class name="com.redhat.qe.katello.tests.e2e.SystemErratas"/>
-			<class name="com.redhat.qe.katello.tests.e2e.SystemEnvironments"/>
-			<class name="com.redhat.qe.katello.tests.e2e.SystemListAccess"/>
-			<class name="com.redhat.qe.katello.tests.e2e.SystemsReport"/>
-			<class name="com.redhat.qe.katello.tests.e2e.OrgReCreate"/>
-			<class name="com.redhat.qe.katello.tests.e2e.PromoteChangeset"/>
-			<class name="com.redhat.qe.katello.tests.e2e.PromoteProductToDifferentEnvs"/>
-			<class name="com.redhat.qe.katello.tests.e2e.SystemFilteredInstallTest"/>
-			<class name="com.redhat.qe.katello.tests.e2e.SystemGroupErratas"/>
-<!--
-	SECTION OF BROKEN TESTS
-			<class name="com.redhat.qe.katello.tests.e2e.PackagesWithGPGKey"/>
-			<class name="com.redhat.qe.katello.tests.e2e.PromoteErrata"/>
-			<class name="com.redhat.qe.katello.tests.e2e.PromotePackageWithDashes"/>
-			<class name="com.redhat.qe.katello.tests.e2e.PromoteWithFilters"/>
-			<class name="com.redhat.qe.katello.tests.e2e.RepoSyncByPlan"/>
-			<class name="com.redhat.qe.katello.tests.e2e.RepoSyncProgress"/>
--->
+                        <class name="com.redhat.qe.katello.tests.e2e.RhsmAkWithSubscription"/>
+                        <class name="com.redhat.qe.katello.tests.e2e.OrgDeletion"/>
+                        <class name="com.redhat.qe.katello.tests.e2e.SystemErratas"/>
+                        <class name="com.redhat.qe.katello.tests.e2e.SystemEnvironments"/>
+                        <class name="com.redhat.qe.katello.tests.e2e.SystemListAccess"/>
+                        <class name="com.redhat.qe.katello.tests.e2e.OrgReCreate"/>
+                        <class name="com.redhat.qe.katello.tests.e2e.PromoteChangeset"/>
+                        <class name="com.redhat.qe.katello.tests.e2e.PromoteProductToDifferentEnvs"/>
+                        <class name="com.redhat.qe.katello.tests.e2e.SystemFilteredInstallTest"/>
+                        <class name="com.redhat.qe.katello.tests.e2e.CRLRegen"/>
+			
 		</classes>
 	</test>
 
@@ -138,11 +159,6 @@
                 </classes>
         </test>	
     <test name="Katello_LDAP_Tests">
-		<groups>
-    			<run>
-      				<include name="cfse-cli"/>
-    			</run>
- 		</groups>
 		<classes>
 		    <class name="com.redhat.qe.katello.tests.installation.SetupServers"/>
 			<class name="com.redhat.qe.katello.tests.installation.GroupTests"/>
@@ -150,22 +166,12 @@
 		</classes>
 	</test>
 	<test name="Katello_ISO_Tests">
-		<groups>
-    			<run>
-      				<include name="cfse-cli"/>
-    			</run>
- 		</groups>
 		<classes>
 		    <class name="com.redhat.qe.katello.tests.installation.SetupServers"/>
 			<class name="com.redhat.qe.katello.tests.installation.InstallISOTests"/>
 		</classes>
 	</test>
 	<test name="Katello_Backup_Tests">
-		<groups>
-			<run>
-				<include name="cfse-cli"/>
-			</run>
-		</groups>
 		<classes>
 			<class name="com.redhat.qe.katello.tests.installation.SetupServers"/>
 			<class name="com.redhat.qe.katello.tests.installation.FillDatabase"/>
@@ -173,11 +179,6 @@
 		</classes>
 	</test>
 	<test name="Katello_MultipleClient_Tests">
-		<groups>
-    			<run>
-      				<include name="cfse-cli"/>
-    			</run>
- 		</groups>
 		<classes>
 		    <class name="com.redhat.qe.katello.tests.installation.TestMultipleAgents"/>
 		</classes>
@@ -186,5 +187,10 @@
 		<classes>
 			<class name="com.redhat.qe.katello.tests.deltacloud.DestroyServers"/>
 		</classes>
+	</test>
+	<test name="Hammer_CLI_Tests">
+		<packages>
+			<package name="com.redhat.qe.katello.tests.hammer.cli"/>
+		</packages>
 	</test>
 </suite>

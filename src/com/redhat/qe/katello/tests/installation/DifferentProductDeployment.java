@@ -12,7 +12,7 @@ import com.redhat.qe.katello.common.KatelloConstants;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups = { "cfse-cli", "headpin-cli" })
+@Test(groups = {"headpin-cli" })
 public class DifferentProductDeployment extends KatelloCliTestBase {
 
 	private String deployment = KatelloConstants.KATELLO_PRODUCT;

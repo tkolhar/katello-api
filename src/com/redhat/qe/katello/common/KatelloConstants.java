@@ -15,7 +15,7 @@ public interface KatelloConstants {
 	 * # == == == == == == == == == == == == == #
 	 */
 	public static final int SSH_SLEEP_INTERVAL = 
-			new Integer(System.getProperty("general.ssh.sleep","200")).intValue();
+			new Integer(System.getProperty("general.ssh.sleep","20")).intValue();
 	public static final String KATELLO_PRODUCT = 
 			System.getProperty("katello.product", "katello");
 	public static final int NOWORKER_SLEEP = 10000;
@@ -44,7 +44,12 @@ public interface KatelloConstants {
 
 	public static final String REPO_HHOVSEPY_ZOO4 = "http://hhovsepy.fedorapeople.org/fakerepos/zoo4/";
 
-
+	public static final String RPM_GRINDER_RHEL6 = "http://repos.fedorapeople.org/repos/pulp/pulp/stable/2/6Server/x86_64/grinder-0.1.16-1.el6.noarch.rpm http://dl.fedoraproject.org/pub/epel/6/x86_64/PyYAML-3.10-3.el6.x86_64.rpm";
+	
+	// MANIFEST NAMES
+	public static final String MANIFEST_MANIFEST_ZIP = "manifest.zip";
+	
+	
 	/** curl -sk -u {username}:{password} 
 	 * https://${servername}/api${call} */
 	public static final String KATELLO_HTTP_GET =
@@ -130,7 +135,6 @@ public interface KatelloConstants {
 					"'product_id':'%s', " +
 					"'url':'%s'}";	
 
-	public static final String TNG_CFSE_CLI = "cfse-cli";
 	public static final String TNG_PRE_UPGRADE = "pre-upgrade";
 	public static final String TNG_UPGRADE = "upgrade";
 	public static final String TNG_POST_UPGRADE = "post-upgrade";
@@ -221,5 +225,5 @@ public interface KatelloConstants {
 	}};
 	
 	public static final int RHEVM_MAX_WAIT = 1200; // in seconds, so: 20 min.
-	public static final int RHEVM_AGENTD_WAIT = 120; // in seconds, so: 2 min.
+	public static final int RHEVM_AGENTD_WAIT = 300; // in seconds, so: 2 min.
 }

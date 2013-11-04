@@ -1,11 +1,9 @@
 package com.redhat.qe.katello.tests.e2e;
 
 import java.util.logging.Logger;
-
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
@@ -15,10 +13,11 @@ import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
+import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(singleThreaded = true)
+@TngPriority(10000)
 public class ProductsSameName extends KatelloCliTestBase {
 	
 	protected static Logger log = Logger.getLogger(ProductsSameName.class.getName());
@@ -47,7 +46,7 @@ public class ProductsSameName extends KatelloCliTestBase {
 		org_name = "org"+uid;
 		provider_name = "provider"+uid;
 		product_name = "product"+uid;
-		product_name2 = product_name;
+		product_name2 = "product2"+uid;
 		repo_name = "repo-1-"+uid;
 		repo_name2 = "repo-2-"+uid;
 		env_name = "env"+uid;
@@ -126,7 +125,6 @@ public class ProductsSameName extends KatelloCliTestBase {
 		Assert.assertNotNull(package_id2, "Package ID is not null");
 	}
 
-	//@ TODO Bug 921103
 	@Test(description="package info of two repos", dependsOnMethods={"test_packageList"})
 	public void test_packageInfo() {
 		

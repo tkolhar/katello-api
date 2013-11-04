@@ -8,18 +8,22 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
+
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloSyncPlan;
 import com.redhat.qe.katello.base.obj.KatelloSyncPlan.SyncPlanInterval;
+import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups={"cfse-cli",TngRunGroups.TNG_KATELLO_Content})
+@TngPriority(31)
+@Test(groups={TngRunGroups.TNG_KATELLO_Content})
 public class SyncPlanTests extends KatelloCliTestBase {
 
 	protected static Logger log = Logger
@@ -90,7 +94,6 @@ public class SyncPlanTests extends KatelloCliTestBase {
 		Assert.assertEquals(getOutput(exec_result).trim(), "Time format is invalid. Required: HH:MM:SS[+HH:MM]");
 	}
 
-	//@ TODO bug 920187
 	@Test(description = "Create sync plan update it's name", groups = { "cli-sync_plan" })
 	public void test_updateSyncPlanName() {
 		KatelloSyncPlan sp = createSyncPlan(new Date(), SyncPlanInterval.hourly);

@@ -12,10 +12,12 @@ import com.redhat.qe.katello.base.obj.KatelloContentView;
 import com.redhat.qe.katello.base.obj.KatelloPackage;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.base.obj.helpers.FilterRulePackage;
+import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 
-@Test(groups=TngRunGroups.TNG_KATELLO_Content, singleThreaded = true)
+@TngPriority(6000)
+@Test(groups=TngRunGroups.TNG_KATELLO_Content)
 public class ConsumeFilteredPackage extends KatelloCliTestBase {
 	
 	String uid = KatelloUtils.getUniqueID();
@@ -67,6 +69,7 @@ public class ConsumeFilteredPackage extends KatelloCliTestBase {
 				new FilterRulePackage("lion"),
 				new FilterRulePackage("bear"),
 				new FilterRulePackage("whale"),
+				new FilterRulePackage("wolf"),
 				new FilterRulePackage("shark"),
 				new FilterRulePackage("stork"),
 				new FilterRulePackage("cockateel"),
@@ -74,7 +77,7 @@ public class ConsumeFilteredPackage extends KatelloCliTestBase {
 				new FilterRulePackage("walrus", "0.71", null, null),
 				new FilterRulePackage("dog", null, "4.20", null),
 				new FilterRulePackage("dolphin", null, null, "3.11"),
-				new FilterRulePackage("duck", null, "0.6", "0.7")
+				new FilterRulePackage("duck", null, "0.5", "0.7")
 		};
 
 		exec_result = filter.add_rule(KatelloContentFilter.TYPE_INCLUDES, include_packages);

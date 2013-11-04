@@ -10,7 +10,6 @@ import com.redhat.qe.katello.base.obj.KatelloPackage;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups={"cfse-e2e"}, singleThreaded = true)
 public class PromotePackageWithDashes extends KatelloCliTestBase {
 	protected static Logger log = Logger.getLogger(PromotePackageWithDashes.class.getName());
 

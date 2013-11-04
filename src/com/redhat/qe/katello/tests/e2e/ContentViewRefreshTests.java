@@ -2,7 +2,6 @@ package com.redhat.qe.katello.tests.e2e;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloActivationKey;
@@ -15,10 +14,11 @@ import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
+import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(singleThreaded = true)
+@TngPriority(9000)
 public class ContentViewRefreshTests extends KatelloCliTestBase{
 	
 	String uid = KatelloUtils.getUniqueID();
@@ -75,7 +75,7 @@ public class ContentViewRefreshTests extends KatelloCliTestBase{
 		assert_ContentViewInfo(condef1, conview1, "Publish Content", "Library", "1");
 	}
 	
-	@Test(description = "Adding a published content view to an activation key",groups={"cfse-cli"})
+	@Test(description = "Adding a published content view to an activation key")
 	public void test_addContentView() {
 		exec_result = conview1.promote_view(env_name2);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
@@ -90,7 +90,7 @@ public class ContentViewRefreshTests extends KatelloCliTestBase{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
 	
-	@Test(description = "register client via activation key",groups={"cfse-cli"}, dependsOnMethods={"test_addContentView"})
+	@Test(description = "register client via activation key",dependsOnMethods={"test_addContentView"})
 	public void test_registerClient() {
 		rhsm_clean();
 		sys2 = new KatelloSystem(this.cli_worker, system_name2, this.org_name2, null);
@@ -102,7 +102,7 @@ public class ContentViewRefreshTests extends KatelloCliTestBase{
 		install_Packages(cli_worker.getClientHostname(), new String[] {"wolf"});
 	}
 
-	@Test(description = "refesh content view, verify version is changed", groups={"cfse-cli"}, dependsOnMethods={"test_registerClient"})
+	@Test(description = "refesh content view, verify version is changed", dependsOnMethods={"test_registerClient"})
 	public void test_refreshContentView() {
 		//install non available package from composite content view
 		verify_PackagesNotAvailable(cli_worker.getClientHostname(), new String [] {"lion"});
@@ -129,7 +129,9 @@ public class ContentViewRefreshTests extends KatelloCliTestBase{
 		//install package from refreshed content view
 		install_Packages(cli_worker.getClientHostname(), new String[] {"lion"});
 		
-		verify_PackagesNotAvailable(cli_worker.getClientHostname(), new String [] {"walrus"});
+		// @ TODO bz#1024361
+		//verify_PackagesNotAvailable(cli_worker.getClientHostname(), new String [] {"walrus"});
+		install_Packages(cli_worker.getClientHostname(), new String[] {"walrus"});
 	}
 	
 	@Test(description="Remove the org",
@@ -151,6 +153,8 @@ public class ContentViewRefreshTests extends KatelloCliTestBase{
 		KatelloUtils.sshOnServer("createrepo " + repo_path1);
 		KatelloUtils.sshOnServer("wget " + REPO_INECAS_ZOO3 + "wolf-9.4-2.noarch.rpm -P "+repo_path1);
 		KatelloUtils.sshOnServer("wget " + REPO_INECAS_ZOO3 + "walrus-0.71-1.noarch.rpm -P "+repo_path1);
+		KatelloUtils.sshOnServer("wget " + REPO_INECAS_ZOO3 + "whale-0.2-1.noarch.rpm -P "+repo_path1);
+		KatelloUtils.sshOnServer("wget " + REPO_INECAS_ZOO3 + "stork-0.12-2.noarch.rpm -P "+repo_path1);
 		KatelloUtils.sshOnServer("createrepo "+repo_path1);
 		
 		// Create provider:

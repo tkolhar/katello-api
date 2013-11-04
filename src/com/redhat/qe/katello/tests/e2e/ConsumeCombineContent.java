@@ -13,10 +13,12 @@ import com.redhat.qe.katello.base.obj.KatelloContentView;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.base.obj.helpers.FilterRulePackage;
 import com.redhat.qe.katello.base.obj.helpers.FilterRulePackageGroups;
+import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 
-@Test(groups=TngRunGroups.TNG_KATELLO_Content, singleThreaded = true)
+@TngPriority(4000)
+@Test(groups=TngRunGroups.TNG_KATELLO_Content)
 public class ConsumeCombineContent extends KatelloCliTestBase{
 
 	String uid = KatelloUtils.getUniqueID();

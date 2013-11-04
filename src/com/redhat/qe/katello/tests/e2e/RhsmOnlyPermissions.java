@@ -13,6 +13,7 @@ import com.redhat.qe.katello.base.obj.KatelloPermission;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.base.obj.KatelloUser;
 import com.redhat.qe.katello.base.obj.KatelloUserRole;
+import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
@@ -26,7 +27,7 @@ import com.redhat.qe.tools.SSHCommandResult;
  * @author gkhachik
  *
  */
-@Test(singleThreaded=true, groups={"RhsmOnlyPermissions"})
+@TngPriority(1000)
 public class RhsmOnlyPermissions extends KatelloCliTestBase{
 	private static Logger log = Logger.getLogger(RhsmOnlyPermissions.class.getName());
 

@@ -14,11 +14,11 @@ import com.redhat.qe.katello.base.obj.KatelloMisc;
 import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
+import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
-
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups={"cfse-e2e","headpin-cli"}, singleThreaded = true)
+@TngPriority(11000)
 public class StackedSubscriptions extends KatelloCliTestBase {
 	
 	protected static Logger log = Logger.getLogger(StackedSubscriptions.class.getName());

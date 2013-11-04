@@ -4,6 +4,7 @@ import java.util.UUID;
 import java.util.logging.Logger;
 import org.ovirt.engine.sdk.Api;
 import org.ovirt.engine.sdk.entities.Action;
+import org.ovirt.engine.sdk.entities.GuestInfo;
 import org.ovirt.engine.sdk.entities.VM;
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.obj.DeltaCloudInstance;
@@ -84,10 +85,17 @@ public class DeltaCloudAPI implements KatelloConstants {
 				machineState = api.getVMs().get(myVM.getName()).getStatus().getState();
 			}
 			log.finest(String.format("RHEV-M guest bring up after: [%s] rounds.",(RHEVM_MAX_WAIT - waitForUp)));
-			// sleep a bit to get IP via rhev-agentd
-			log.finest(String.format("RHEV-M guest wait to load rhev-agentd for [%s] sec.", (RHEVM_AGENTD_WAIT)));
-			try{Thread.sleep(RHEVM_AGENTD_WAIT*1000);}catch(InterruptedException ex){}
-			
+
+			// wait until get IP via rhev-agentd
+			int waitToGetIp = RHEVM_AGENTD_WAIT;
+			GuestInfo guestInfo = api.getVMs().get(myVM.getName()).getGuestInfo();
+			while(waitToGetIp>0 && (guestInfo==null || guestInfo.getIps().getIPs().get(0).getAddress().isEmpty())){
+				try{Thread.sleep(1000);}catch(Exception ex){}
+				waitToGetIp--;
+				guestInfo = api.getVMs().get(myVM.getName()).getGuestInfo();
+			}
+			log.finest(String.format("RHEV-M guest got IP after [%s] rounds.", (RHEVM_AGENTD_WAIT - waitToGetIp)));
+
 			// Set the object and return
 			machine.setInstance(api.getVMs().get(myVM.getName()));
 			
