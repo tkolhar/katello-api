@@ -20,9 +20,9 @@ public class HammerArchitecture extends _HammerObject{
 	public static final String OUT_CREATE = 
 			"Architecture created";
 	public static final String OUT_UPDATE = 
-			"Architecture [ %s ] updated.";
+			"Architecture updated";
 	public static final String OUT_DELETE = 
-			"Architecture [ %s ] deleted.";
+			"Architecture deleted";
 	
 	public static final String ERR_NAME_EXISTS = 
 			"Name has already been taken";

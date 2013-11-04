@@ -46,7 +46,7 @@ public class ArchitectureTests extends KatelloCliTestBase {
 		Assert.assertFalse(res.getExitCode().intValue() == 0, "Check - return code");
 		
 		// @ TODO error message
-		//Assert.assertTrue(getOutput(res).contains(String.format(HammerArchitecture.ERR_NAME_EXISTS, name)),"Check - returned error string");
+		Assert.assertTrue(getOutput(res).contains(String.format(HammerArchitecture.ERR_NAME_EXISTS, name)),"Check - returned error string");
 	}
 	
 	@Test(description="info Architecture", dependsOnMethods={"testArchitecture_createExists"})
@@ -68,8 +68,7 @@ public class ArchitectureTests extends KatelloCliTestBase {
 		res = arch.update(new_name);
 		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
 		
-		// @ TODO error message
-		//Assert.assertTrue(getOutput(res).contains(String.format(HammerArchitecture.OUT_UPDATE, name)),"Check - returned output string");
+		Assert.assertTrue(getOutput(res).contains(HammerArchitecture.OUT_UPDATE),"Check - returned output string");
 	}
 	
 	@Test(description="list Architecture", dependsOnMethods={"testArchitecture_update"})
@@ -106,9 +105,7 @@ public class ArchitectureTests extends KatelloCliTestBase {
 		HammerArchitecture arch = new HammerArchitecture(cli_worker, new_name);
 		res = arch.delete();
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
-		
-		// @ TODO error message
-		//Assert.assertTrue(getOutput(res).contains(String.format(HammerArchitecture.OUT_DELETE, new_name)),"Check - returned output string");
+		Assert.assertTrue(getOutput(res).contains(HammerArchitecture.OUT_DELETE),"Check - returned output string");
 	}
 
 	@Test(description="update Architecture name not found", dependsOnMethods={"testArchitecture_delete"})
