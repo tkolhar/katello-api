@@ -168,5 +168,48 @@ public class HammerOs extends _HammerObject {
 		return run(CMD_DELETE_PARAMETER);
 	}
 	
+	public SSHCommandResult add_config(String configtemplate) {
+		args.clear();
+		if (this.Id != null) {
+			args.add(new Attribute("id", this.Id));	
+		} else {
+			args.add(new Attribute("name", this.name));
+		}
+		args.add(new Attribute("configtemplate", configtemplate));
+		return run(CMD_ADD_CONFIG);
+	}
+
+	public SSHCommandResult remove_config(String configtemplate) {
+		args.clear();
+		if (this.Id != null) {
+			args.add(new Attribute("id", this.Id));	
+		} else {
+			args.add(new Attribute("name", this.name));
+		}
+		args.add(new Attribute("configtemplate", configtemplate));
+		return run(CMD_REMOVE_CONFIG);
+	}
+	
+	public SSHCommandResult add_architecture(String architecture) {
+		args.clear();
+		if (this.Id != null) {
+			args.add(new Attribute("id", this.Id));	
+		} else {
+			args.add(new Attribute("name", this.name));
+		}
+		args.add(new Attribute("architecture", architecture));
+		return run(CMD_ADD_ARCH);
+	}
+
+	public SSHCommandResult remove_architecture(String architecture) {
+		args.clear();
+		if (this.Id != null) {
+			args.add(new Attribute("id", this.Id));	
+		} else {
+			args.add(new Attribute("name", this.name));
+		}
+		args.add(new Attribute("architecture", architecture));
+		return run(CMD_REMOVE_ARCH);
+	}
 	
 }
