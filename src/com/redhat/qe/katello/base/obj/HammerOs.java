@@ -20,7 +20,7 @@ public class HammerOs extends _HammerObject {
 	public static final String CMD_SET_PARAMETER = "os set_parameter";
 	public static final String CMD_REMOVE_PTABLE = "os remove_ptable";
 	public static final String CMD_ADD_PTABLE = "os add_ptable";
-	public static final String CMD_REMOVE_ARCH = "os remove_parchitecture";
+	public static final String CMD_REMOVE_ARCH = "os remove_architecture";
 	public static final String CMD_ADD_ARCH = "os add_architecture";
 	public static final String CMD_REMOVE_CONFIG = "os remove_configtemplate";
 	public static final String CMD_ADD_CONFIG = "os add_configtemplate";
@@ -28,14 +28,24 @@ public class HammerOs extends _HammerObject {
 	public static final String OUT_CREATE = "Operating system created";
 	public static final String OUT_UPDATE = "Operating system updated";
 	public static final String OUT_DELETE = "Operating system deleted";
+	public static final String OUT_SET_PARAM =
+			"New os parameter created";
+	public static final String OUT_UPDATE_PARAM =
+			"Os parameter updated";
+	public static final String OUT_DELETE_PARAM =
+			"Os parameter deleted";
 	
 	public static final String ERR_CREATE = "Could not create the Operating system:";
+	public static final String ERR_NOT_FOUND =
+			"404 Resource Not Found";
 	
-	public static final String REG_OS_INFO = ".*Name\\s*:\\s+%s.*";
+	public static final String REG_OS_INFO = "Id\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Release name\\s*:\\s+%s.*Family\\s*:\\s+%s.*Installation media\\s*:\\s+%s" +
+			".*Architectures\\s*:\\s+%s.*Partition tables\\s*:\\s+%s.*Config templates\\s*:\\s+%s.*Parameters\\s*:\\s*%s";
 
 	// ** ** ** ** ** ** ** Class members
 	public String Id;
 	public String name;
+	public String label;
 	public String relName;
 	public String arch_ids;
 	public String config_ids;
@@ -44,6 +54,8 @@ public class HammerOs extends _HammerObject {
 	public String major;
 	public String minor;
 	public String family;
+	public String parameters;
+	public String installMedia;
 	
 	public HammerOs(){super();}
 	
@@ -93,24 +105,33 @@ public class HammerOs extends _HammerObject {
 		return run(CMD_INFO);
 	}
 
+	public SSHCommandResult cli_search(String search){
+		args.clear();
+		args.add(new Attribute("search", search));
+		return run(CMD_LIST);
+	}
+	
 	public SSHCommandResult cli_list() {
 		args.clear();
 		return run(CMD_LIST);
 	}
 	
-	public SSHCommandResult cli_list(String searchStr, String order, String page, Integer per_page) {
+	public SSHCommandResult cli_list(String order, Integer page, Integer per_page) {
 		args.clear();
-		args.add(new Attribute("search", searchStr));
 		args.add(new Attribute("order", order));
 		args.add(new Attribute("page", page));
 		args.add(new Attribute("per-page", per_page));
 		return run(CMD_LIST);
 	}
 	
-	public SSHCommandResult update(String newName) {
+	public SSHCommandResult update() {
 		args.clear();
-		args.add(new Attribute("Id", this.Id));
-		args.add(new Attribute("name", newName));
+		if (this.Id != null) {
+			args.add(new Attribute("id", this.Id));	
+		} else {
+			args.add(new Attribute("name", this.name));
+		}
+		args.add(new Attribute("label", this.label));
 		args.add(new Attribute("major", this.major));
 		args.add(new Attribute("minor", this.minor));
 		args.add(new Attribute("architecture-ids", this.arch_ids));
