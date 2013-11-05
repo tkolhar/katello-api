@@ -7,6 +7,7 @@ import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.common.KatelloConstants;
 import com.redhat.qe.katello.common.KatelloUtils;
+import com.redhat.qe.katello.tests.longrun.KatelloQASetup;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class KatelloCliLongrunBase extends KatelloCliTestBase implements KatelloConstants {
@@ -20,6 +21,7 @@ public class KatelloCliLongrunBase extends KatelloCliTestBase implements Katello
 		ArrayList<String> products;
 		SSHCommandResult res;
 		for(String _org: orgs){
+			if (_org.equals(KatelloQASetup.ORG_KATELLO_QA)) continue; 
 			products = new KatelloProduct(this.cli_worker, null, _org, KatelloProvider.PROVIDER_REDHAT, null, null, null, null, null).custom_listNames();
 			for(String product: products){
 				if(product.equals(KatelloProduct.RHEL_SERVER)){
