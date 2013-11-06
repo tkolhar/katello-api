@@ -240,9 +240,11 @@ public class OsTests extends KatelloCliTestBase {
 	@Test(description="search Os")
 	public void testOs_search() {		
 		HammerOs os = new HammerOs(cli_worker, null);
-		exec_result = os.cli_search(base_names[1]);
+		exec_result = os.cli_search("name="+base_names[1]);
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
-		Assert.assertTrue(base_names[1].equals(KatelloUtils.grepCLIOutput("Name", getOutput(exec_result))), "Check - name is listed");
+		String name = KatelloUtils.grepCLIOutput("Name", getOutput(exec_result));
+		Assert.assertNotNull(name, "Name must be listed in output");
+		Assert.assertTrue(name.contains(base_names[1]), "Check - name is listed");
 		String cnt = KatelloUtils.run_local(false, String.format("echo -e \"%s\"|grep \"Name:\"|wc -l",getOutput(exec_result)));
 		Assert.assertTrue(cnt.equals("1"), "Count of returned Os must be 1.");
 	}
