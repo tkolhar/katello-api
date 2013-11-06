@@ -65,8 +65,8 @@ public class HostTests extends KatelloCliTestBase {
 		ptable_id = KatelloUtils.grepCLIOutput("Id", getOutput(exec_result));
 		
 		exec_result = ptable.add_os(operatingsystem_id);
-		//@ TODO http://projects.theforeman.org/issues/3555?
-		//Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		//@ TODO bz#1027170
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 	}
 	
 	@Test(description="create Host")
