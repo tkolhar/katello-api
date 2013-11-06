@@ -211,5 +211,26 @@ public class HammerOs extends _HammerObject {
 		args.add(new Attribute("architecture", architecture));
 		return run(CMD_REMOVE_ARCH);
 	}
-	
+
+	public SSHCommandResult add_ptable(String ptable) {
+		args.clear();
+		if (this.Id != null) {
+			args.add(new Attribute("id", this.Id));	
+		} else {
+			args.add(new Attribute("name", this.name));
+		}
+		args.add(new Attribute("ptable", ptable));
+		return run(CMD_ADD_PTABLE);
+	}
+
+	public SSHCommandResult remove_ptable(String ptable) {
+		args.clear();
+		if (this.Id != null) {
+			args.add(new Attribute("id", this.Id));	
+		} else {
+			args.add(new Attribute("name", this.name));
+		}
+		args.add(new Attribute("ptable", ptable));
+		return run(CMD_REMOVE_PTABLE);
+	}
 }

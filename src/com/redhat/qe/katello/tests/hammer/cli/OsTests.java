@@ -8,6 +8,7 @@ import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.HammerArchitecture;
 import com.redhat.qe.katello.base.obj.HammerOrganization;
 import com.redhat.qe.katello.base.obj.HammerOs;
+import com.redhat.qe.katello.base.obj.HammerPartitionTable;
 import com.redhat.qe.katello.base.obj.HammerTemplate;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
@@ -22,6 +23,8 @@ public class OsTests extends KatelloCliTestBase {
 	private String arch_name;
 	private String architecture_id;
 	private String template_name;
+	private String ptable_id;
+	private String ptable_name;
 	private String[] base_names;
 	
 	@BeforeClass(description="Prepare an data to work with")
@@ -45,6 +48,15 @@ public class OsTests extends KatelloCliTestBase {
 		exec_result = templ.cli_list();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		template_name = KatelloUtils.grepCLIOutput("Name", getOutput(exec_result));
+		
+		KatelloUtils.sshOnServer("echo \"test\" > /tmp/ptableinfo"+uid);
+		HammerPartitionTable ptable = new HammerPartitionTable(cli_worker, "ptb"+uid, "RHEL");
+		exec_result = ptable.cli_create("/tmp/ptableinfo"+uid);
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		exec_result = ptable.cli_info();
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		ptable_id = KatelloUtils.grepCLIOutput("Id", getOutput(exec_result));
+		ptable_name = KatelloUtils.grepCLIOutput("Name", getOutput(exec_result));
 	}
 	
 	@Test(description="Create a operating system")
@@ -118,7 +130,33 @@ public class OsTests extends KatelloCliTestBase {
 		Assert.assertTrue(getOutput(exec_result).contains(HammerOs.OUT_UPDATE), "Check - returned output string");
 		os.arch_ids = null;
 		assert_OsInfo(os);
-	} 
+	}
+	
+	//@ TODO bz#1026803
+	@Test(description="add partition table to Os", dependsOnMethods={"test_osCreate"})
+	public void test_OsAddPtable() {
+		HammerOs os = new HammerOs(cli_worker, name);
+		os.Id = Id;
+		os.name = name;
+		exec_result = os.add_ptable(ptable_name);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).contains(HammerOs.OUT_UPDATE), "Check - returned output string");
+		os.ptable_ids = ptable_id;
+		assert_OsInfo(os);
+	}
+
+	//@ TODO bz#1026803
+	@Test(description="remove partition table to Os", dependsOnMethods={"test_OsAddPtable"})
+	public void test_OsRemovePtable() {
+		HammerOs os = new HammerOs(cli_worker, name);
+		os.Id = Id;
+		os.name = name;
+		exec_result = os.remove_ptable(ptable_name);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).contains(HammerOs.OUT_UPDATE), "Check - returned output string");
+		os.ptable_ids = null;
+		assert_OsInfo(os);
+	}
 	
 	//@ TODO bz#1026803
 	@Test(description="set parameter to Os", dependsOnMethods={"test_osCreate"})
@@ -204,9 +242,9 @@ public class OsTests extends KatelloCliTestBase {
 		HammerOs os = new HammerOs(cli_worker, null);
 		exec_result = os.cli_search(base_names[1]);
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
-		Assert.assertTrue(KatelloUtils.grepCLIOutput("Name", getOutput(exec_result)).equals(base_names[1]), "Check - name is listed");
+		Assert.assertTrue(base_names[1].equals(KatelloUtils.grepCLIOutput("Name", getOutput(exec_result))), "Check - name is listed");
 		String cnt = KatelloUtils.run_local(false, String.format("echo -e \"%s\"|grep \"Name:\"|wc -l",getOutput(exec_result)));
-		Assert.assertTrue(cnt.equals("1"), "Count of returned Oss must be 1.");
+		Assert.assertTrue(cnt.equals("1"), "Count of returned Os must be 1.");
 	}
 	
 	@Test(description="list Os by order and pagination")
