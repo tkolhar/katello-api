@@ -70,6 +70,8 @@ public class KatelloContentDefinition extends _KatelloObject{
 	public static final String ERR_NOT_A_COMPONENT = "Content view [ %s ] is not a component of definition [ %s ]";
 	public static final String ERR_NOT_FOUND = "Could not find content view definition [ %s ] within organization [ %s ]";
 	public static final String ERR_NOT_COMPOSITE = "%s is not a composite definition";
+	public static final String ERR_CANNOT_REMOVE_PRODUCT = "Cannot remove product [ %s ]. Product not in content view definition [ %s ].";
+	public static final String ERR_CANNOT_REMOVE_REPO = "Could not remove repository [ %s ]. Repository not in definition [ %s ].";
 	
 	public static final String REG_DEF_INFO = ".*ID\\s*:\\s*\\d+.*Name\\s*:\\s*%sLabel\\s*:\\s*%s.*Description\\s*:\\s*%s.*Org\\s*:\\s*%s.*Published Views\\s*:\\s*%s.*Component Views\\s*:\\s*%s.*Products\\s*:\\s*%s.*Repos\\s*:\\s*%s.*";
 	public static final String REG_DEF_LIST = ".*\\s+\\d+.*\\s+%s.*\\s+%s.*\\s+%s.*\\s+%s.*";

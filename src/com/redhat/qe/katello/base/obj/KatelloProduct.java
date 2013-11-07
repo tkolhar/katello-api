@@ -147,13 +147,6 @@ public class KatelloProduct extends _KatelloObject{
 		return run(CLI_CMD_LIST);
 	}
 
-	public SSHCommandResult cli_list(String environment){
-		opts.clear();
-		opts.add(new Attribute("org", org));
-		opts.add(new Attribute("environment", environment));
-		return run(CLI_CMD_LIST);
-	}
-
 	public SSHCommandResult cli_list_provider(String prov){
 		opts.clear();
 		opts.add(new Attribute("org", org));
@@ -321,13 +314,6 @@ public class KatelloProduct extends _KatelloObject{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		Assert.assertTrue(KatelloCliTestBase.sgetOutput(res).replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST),
 				"List should contain info about product (requested by: provider)");
-
-		if(envName!=null){
-			res = cli_list(envName);
-			Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-			Assert.assertTrue(KatelloCliTestBase.sgetOutput(res).replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST), 
-					"List should contain info about product (requested by: environment)");
-		}
 		
 		if(!synced){
 			res = status();

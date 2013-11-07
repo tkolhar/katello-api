@@ -25,8 +25,7 @@ public class KatelloCliDataProvider {
 		return new Object[][] {
 				{ "orgNoDescr_"+uniqueID1,null, null, new Integer(0), String.format(KatelloOrg.OUT_CREATE, "orgNoDescr_"+uniqueID1)},
 				{ "org "+uniqueID2+"", null, "Org with space", new Integer(0), String.format(KatelloOrg.OUT_CREATE, "org "+uniqueID2+"")},
-				{strRepeat("0123456789", 25)+"abcde", null, "Org name with 255 characters", new Integer(0), String.format(KatelloOrg.OUT_CREATE, strRepeat("0123456789", 25)+"abcde")},
-				//{"\\!@%^&*(<_-~+=//\\||,.>)"+uniqueID1, null, "Org name with special characters", new Integer(0), String.format(KatelloOrg.OUT_CREATE, "\\!@%^&*(<_-~+=//\\||,.>)"+uniqueID1)},
+				{uniqueID1+strRepeat("0123456789", 24)+"ab", null, "Org name with 255 characters", new Integer(0), String.format(KatelloOrg.OUT_CREATE, uniqueID1+strRepeat("0123456789", 24)+"ab")},
 				{"!@#$%^&*()_+{}|:?[];.,"+uniqueID1, null, "Org name with special characters", new Integer(0), String.format(KatelloOrg.OUT_CREATE, "!@#$%^&*()_+{}|:?[];.,"+uniqueID1)}
 		};
 	}
@@ -45,14 +44,14 @@ public class KatelloCliDataProvider {
 	public static Object[][] provider_create(){
 		// TODO - the cases with unicode characters still missing - there 
 		// is a bug: to display that characters.
-		String uid = KatelloUtils.getUniqueID();
+		String uid = KatelloUtils.getUniqueID(); // .length() == 13
 		return new Object[][] {
 				// name
 				{ "aa", null, null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,"aa")},
 				{ "11", null, null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,"11")},
 				{ "1a", null, null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,"1a")},
 				{ "a1", null, null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,"a1")},
-				{ strRepeat("0123456789", 25)+"abcde", null, null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,strRepeat("0123456789", 25)+"abcde")},
+				{ uid+strRepeat("0123456789", 24)+"ab", null, null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,uid+strRepeat("0123456789", 24)+"ab")},
 				{ "prov-"+uid, null, null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,"prov-"+uid)},
 				{ "prov "+uid, "Provider with space in name", null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,"prov "+uid)},
 				{ null, null, null, new Integer(2), System.getProperty("katello.engine", "katello")+": error: Option --name is required; please see --help"},
@@ -61,7 +60,6 @@ public class KatelloCliDataProvider {
 				{ "a ", null, null, new Integer(166), "Validation failed: Name must not contain leading or trailing white spaces."},
 				{ "a", null, null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,"a")},
 				{ "\\!@%^&*(<_-~+=//\\||,.>)", "Name with special characters", null, new Integer(0), String.format(KatelloProvider.OUT_CREATE, "\\!@%^&*(<_-~+=//\\||,.>)")},
-				{ strRepeat("a123456789", 25)+"defabc", null, null, new Integer(166), "Validation failed: Name cannot contain more than 255 characters"},
 				// description
 				{ "desc-specChars"+uid, "\\!@%^&*(<_-~+=//\\||,.>)", null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,"desc-specChars"+uid)},
 				{ "desc-255Chars"+uid, strRepeat("0123456789", 25)+"dabce", null, new Integer(0), String.format(KatelloProvider.OUT_CREATE,"desc-255Chars"+uid)},
@@ -387,5 +385,33 @@ public class KatelloCliDataProvider {
 			images.add(new Object[] {tok.nextToken().trim()});
 		}
 		return images.toArray(new Object[images.size()][]);
+	}
+	
+	@DataProvider(name="subnet_create")
+	public static Object[][] subnet_create() {
+		String uid = KatelloUtils.getUniqueID().substring(7);
+		return new Object[][] {
+				//{String name, String network, String mask, String gateway, String dns_primary, String dns_secondary,
+				//	String from, String to, String domain, String vlan, Integer exit_code, String output},
+				{"wrongsubn"+uid, "277.777.777.888", "255.255.255.0", "251.10.10.255", "251.10.11.255", "251.10.12.255", "251.10.10.10", "251.10.10.12",
+					"1", "2"},
+				{"wrongsubn"+uid, "251.10.10.11", "255.255.255", "251.10.10.255", "251.10.11.255", "251.10.12.255", "251.10.10.10", "251.10.10.12",
+					"1", "2"},
+				{"wrongsubn"+uid, "251.10.10.11", "255.255.255.0", "wrong", "251.10.11.255", "251.10.12.255", "251.10.10.10", "251.10.10.12",
+					"1", "2"},
+				{"wrongsubn"+uid, "251.10.10.11", "255.255.255.0", "251.10.10.255", "251", "251.10.12.255", "251.10.10.10", "251.10.10.12",
+					"1", "2"},		
+				{"wrongsubn"+uid, "251.10.10.11", "255.255.255.0", "251.10.10.255", "251.10.11.255", "wrong", "251.10.10.10", "251.10.10.12",
+					"1", "2"},
+				{"wrongsubn"+uid, "251.10.10.11", "255.255.255.0", "251.10.10.255", "251.10.11.255", "251.10.12.255", "333", "251.10.10.12",
+					"1", "2"},
+				{"wrongsubn"+uid, "251.10.10.11", "255.255.255.0", "251.10.10.255", "251.10.11.255", "251.10.12.255", "251.10.10.10", "#wrong",
+					"1", "2"},
+				{"wrongsubn"+uid, "251.10.10.11", "255.255.255.0", "251.10.10.255", "251.10.11.255", "251.10.12.255", "251.10.10.10", "251.10.10.12",
+					")wrong", "2"},
+				{"wrongsubn"+uid, "251.10.10.11", "255.255.255.0", "251.10.10.255", "251.10.11.255", "251.10.12.255", "251.10.10.10", "251.10.10.12",
+					"1", "[wrong1"},
+		};
+
 	}
 }

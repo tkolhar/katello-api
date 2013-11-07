@@ -10,11 +10,14 @@ import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
 import com.redhat.qe.katello.base.obj.KatelloContentFilter;
 import com.redhat.qe.katello.base.obj.KatelloContentView;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
+import com.redhat.qe.katello.base.obj.helpers.FilterRulePackage;
 import com.redhat.qe.katello.base.obj.helpers.FilterRulePackageGroups;
+import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 
-@Test(groups=TngRunGroups.TNG_KATELLO_Content, singleThreaded = true)
+@TngPriority(7000)
+@Test(groups=TngRunGroups.TNG_KATELLO_Content)
 public class ConsumeFilteredPackageGroup extends KatelloCliTestBase {
 	
 	public static final String ERRATA_ZOO_SEA = "RHEA-2012:0002";
@@ -47,7 +50,6 @@ public class ConsumeFilteredPackageGroup extends KatelloCliTestBase {
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
     
-	// @ TODO fails because of bug 957057
 	@Test(description="Consume content from filtered package group")
 	public void test_consumePackageGroupContent() {
 
@@ -61,6 +63,15 @@ public class ConsumeFilteredPackageGroup extends KatelloCliTestBase {
 		exec_result = filter.add_repo(base_zoo_product_name, base_zoo_repo_name);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentFilter.OUT_ADD_REPO, base_zoo_repo_name, packageGroup_filter)), "Check output");
+		
+		// add package rules there     
+		FilterRulePackage [] include_packages = {
+				new FilterRulePackage("pike"),
+				new FilterRulePackage("crow")
+		};
+
+		exec_result = filter.add_rule(KatelloContentFilter.TYPE_INCLUDES, include_packages);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		
 		exec_result = filter.add_rule(KatelloContentFilter.TYPE_INCLUDES, new FilterRulePackageGroups("mammals"));
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
@@ -98,7 +109,7 @@ public class ConsumeFilteredPackageGroup extends KatelloCliTestBase {
 
 		KatelloUtils.sshOnClient(cli_worker.getClientHostname(), "subscription-manager refresh; service rhsmcertd restart");
 		yum_clean();		
-		
+
 		// consume packages from group mammals, verify that they are available
 		install_Packages(cli_worker.getClientHostname(), new String[] {"lion", "zebra"});
 		

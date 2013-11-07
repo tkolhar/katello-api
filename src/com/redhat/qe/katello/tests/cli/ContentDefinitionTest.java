@@ -3,25 +3,33 @@ package com.redhat.qe.katello.tests.cli;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
+import com.redhat.qe.katello.base.obj.KatelloContentView;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
+import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups={"cfse-cli",TngRunGroups.TNG_KATELLO_Content})
+@TngPriority(11)
+@Test(groups={TngRunGroups.TNG_KATELLO_Content})
 public class ContentDefinitionTest extends KatelloCliTestBase{
 	private String content_name;
 	private String content_name_edit;
 	private String content_name_prod;
 	private String content_name_repo;
+	private String prov_name;
+	private String prod_name;
+	private String repo_name;
 	
 	private String _cvdClone;
 	
@@ -29,7 +37,22 @@ public class ContentDefinitionTest extends KatelloCliTestBase{
 	public void setUp() {
 		String uid = KatelloUtils.getUniqueID();
 		_cvdClone = "cvdClone-"+uid;
+		prov_name = "SatelliteTools"+uid;
+		prod_name = ""+uid;
+		repo_name = ""+uid;
 		init_cvdClone();
+		KatelloProvider prov = new KatelloProvider(cli_worker, prov_name, base_org_name, null, null);
+		exec_result = prov.create();
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
+		KatelloProduct prod = new KatelloProduct(cli_worker, prod_name, base_org_name, prov_name, null, null, null, null, null);
+		exec_result = prod.create();
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
+		KatelloRepo repo = new KatelloRepo(cli_worker, repo_name, base_org_name, prod_name, "http://satellite6.lab.eng.rdu2.redhat.com/devel/candidate-trees/Satellite/latest-Satellite-6.0-RHEL-6/compose/Tools/x86_64/os/", null, null);
+		repo.content_type = "yum";
+		exec_result = repo.create(true);
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
+		exec_result = prov.synchronize();
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 	}
 	
 	@Test(description = "Create new content definition")
@@ -231,6 +254,44 @@ public class ContentDefinitionTest extends KatelloCliTestBase{
 		exec_result = def1.remove_view(view_name);
 		Assert.assertTrue(exec_result.getExitCode()==65, "Check exit code (remove view)");
 		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentDefinition.ERR_NOT_COMPOSITE, def1.name)), "Check error (remove view)");
+	} 
+
+	@Test(description="remove repo and product from empty definition - check error")
+	public void test_EmptyDefRemoveRepoProduct() {
+		String def_name = "definition-"+KatelloUtils.getUniqueID();
+		KatelloContentDefinition def = new KatelloContentDefinition(cli_worker, def_name, null, base_org_name, null);
+		exec_result = def.create();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (create definition)");
+		exec_result = def.remove_product(base_zoo_product_name);
+		Assert.assertTrue(exec_result.getExitCode()==65, "Check exit code (remove product)");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentDefinition.ERR_CANNOT_REMOVE_PRODUCT, base_zoo_product_name, def_name)), "Check error (remove product)");
+		exec_result = def.remove_repo(base_zoo_product_name, base_zoo_repo_name);
+		Assert.assertTrue(exec_result.getExitCode()==65, "Check exit code (remove repo)");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentDefinition.ERR_CANNOT_REMOVE_REPO, base_zoo_repo_name, def_name)), "Check error (remove repo)");
+	}
+	
+	@Test(description="publish content definition second time with same name")
+	public void test_publishExisting() {
+		KatelloContentDefinition def = createContentDefinition();
+		exec_result = def.publish("view-"+def.name, null, null);
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check exit code (def. publish)");
+		exec_result = def.publish("view-"+def.name, null, null);
+		Assert.assertFalse(exec_result.getExitCode().intValue() == 0, "Check exit code (def. publish)");
+		Assert.assertTrue(getOutput(exec_result).contains(KatelloContentDefinition.ERR_DEFINITION_EXISTS), "Check error (republish)");
+	}
+
+	@Test(description="publish content definition fpr unprotected yum repo and refesh it")
+	public void test_publishUnprotected() {
+		KatelloContentDefinition def = createContentDefinition();
+		exec_result = def.add_repo(prod_name, repo_name);
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check exit code");
+		exec_result = def.publish("view-"+def.name, null, null);
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check exit code (def. publish)");
+		
+		KatelloContentView view = new KatelloContentView(cli_worker, "view-"+def.name, base_org_name);
+		exec_result = view.refresh_view();
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check exit code (refresh view)");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentView.OUT_REFRESH, "view-"+def.name)), "Check output (refresh view)");
 	}
 	
 	private void assert_contentList(List<KatelloContentDefinition> contents, List<KatelloContentDefinition> excludeContents) {

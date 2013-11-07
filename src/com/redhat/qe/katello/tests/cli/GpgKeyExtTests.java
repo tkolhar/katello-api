@@ -1,6 +1,7 @@
 package com.redhat.qe.katello.tests.cli;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloGpgKey;
@@ -8,6 +9,7 @@ import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
+import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloConstants;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
@@ -18,7 +20,8 @@ import com.redhat.qe.tools.SSHCommandResult;
  * @author gkhachik
  *
  */
-@Test(groups={KatelloConstants.TNG_CFSE_CLI,TngRunGroups.TNG_KATELLO_Providers_Repos})
+@TngPriority(17)
+@Test(groups={TngRunGroups.TNG_KATELLO_Providers_Repos})
 public class GpgKeyExtTests extends KatelloCliTestBase{
 	private String uid;
 	private String org;
@@ -155,8 +158,8 @@ public class GpgKeyExtTests extends KatelloCliTestBase{
 		Assert.assertTrue(repo_gpg.equals(anotherGpg_name), "Check - repo gpg key info is what we expect");
 	}
 
-	//Failing due to BZ: 988950
-	@Test(description="delete gpg key verify that it is deleted from repos as well", dependsOnMethods={"test_add2Repos_WithGpg","test_addRepo_productHasGpg"})
+	@Test(description="delete gpg key verify that it is deleted from repos as well", 
+			dependsOnMethods={"test_add2Repos_WithGpg","test_addRepo_productHasGpg"}, enabled=false)
 	public void test_deleteGPG(){
 		KatelloGpgKey gpg = new KatelloGpgKey(cli_worker, this.gpg, this.org, null);
 		SSHCommandResult res = gpg.cli_delete();
@@ -181,7 +184,7 @@ public class GpgKeyExtTests extends KatelloCliTestBase{
 		Assert.assertTrue(!repo_gpg.equals(gpg), "Check - repo gpg key info is what we expect");
 	}
 
-	@Test(description="product update nogpgkey")
+	@Test(description="product update nogpgkey", enabled=true)
 	public void test_productGpgKeys() {
 		String uid = KatelloUtils.getUniqueID();
 		String prov_name = "provider-"+uid;

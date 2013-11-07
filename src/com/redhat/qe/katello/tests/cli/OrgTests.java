@@ -3,9 +3,11 @@ package com.redhat.qe.katello.tests.cli;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
@@ -15,11 +17,14 @@ import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.base.obj.KatelloProduct;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
+import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
+
 import java.io.File;
 
+@TngPriority(20)
 @Test(groups=TngRunGroups.TNG_KATELLO_Organizations)
 public class OrgTests extends KatelloCliTestBase{
 	List<KatelloOrg> orgs = Collections.synchronizedList(new ArrayList<KatelloOrg>());
@@ -32,7 +37,7 @@ public class OrgTests extends KatelloCliTestBase{
 	String org_system_name = "org_system-"+uid;
 	String env_system_name = "Library"; // initially - for headpin
 
-	@BeforeClass(description="Generate unique objects", groups={"cfse-cli","headpin-cli"})
+	@BeforeClass(description="Generate unique objects", groups={"headpin-cli"})
 	public void setUp() {
 		KatelloOrg org = new KatelloOrg(this.cli_worker, "FOO"+uid,"Package tests", "BAR"+uid);
 		exec_result = org.cli_create();
@@ -53,7 +58,7 @@ public class OrgTests extends KatelloCliTestBase{
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 	}
 
-	@Test(description = "List all orgs - default org should be there",groups={"cfse-cli","headpin-cli"})
+	@Test(description = "List all orgs - default org should be there",groups={"headpin-cli"})
 	public void test_listOrgs_DefaultOrg(){
 		KatelloOrg list_org = new KatelloOrg(this.cli_worker, null,null);
 		SSHCommandResult res = list_org.cli_list();
@@ -61,10 +66,9 @@ public class OrgTests extends KatelloCliTestBase{
 		Assert.assertTrue(getOutput(res).contains(KatelloOrg.getDefaultOrg()), "Check - contains default org");
 	}
 
-	//TODO: BZ 987670
 	@Test(description = "Create org - different variations",
 			dataProviderClass = KatelloCliDataProvider.class,
-			dataProvider = "org_create",groups={"cfse-cli","headpin-cli"})
+			dataProvider = "org_create",groups={"headpin-cli"})
 	public void test_createOrg(String name, String lable, String descr, Integer exitCode, String output){
 		KatelloOrg org = new KatelloOrg(this.cli_worker, name, descr);
 		SSHCommandResult res = org.cli_create();
@@ -80,7 +84,7 @@ public class OrgTests extends KatelloCliTestBase{
 	}
 
 	/** TCMS scenario is: <a href="https://tcms.engineering.redhat.com/case/243076/?from_plan=7791">here</a> */
-	@Test(description = "9fbfc747-c343-4c94-b76e-5c262db355c9", groups={"cfse-cli","headpin-cli"})
+	@Test(description = "9fbfc747-c343-4c94-b76e-5c262db355c9", groups={"headpin-cli"})
 	public void test_createOrgNonLatin(){		
 		String uniqueID = KatelloUtils.getUniqueID();
 
@@ -101,7 +105,7 @@ public class OrgTests extends KatelloCliTestBase{
 	}
 
 	@Test(description = "List orgs - created", 
-			dependsOnMethods={"test_createOrg", "test_createOrgNonLatin"},groups={"cfse-cli","headpin-cli"})
+			dependsOnMethods={"test_createOrg", "test_createOrgNonLatin"},groups={"headpin-cli"})
 	public void test_infoListOrg(){
 		String uniqueID = KatelloUtils.getUniqueID();
 		KatelloOrg list_org = new KatelloOrg(this.cli_worker, "orgUpd"+uniqueID, "Simple description");		
@@ -122,7 +126,7 @@ public class OrgTests extends KatelloCliTestBase{
 		}
 	}
 
-	@Test(description="Update org's description",groups={"cfse-cli","headpin-cli"})
+	@Test(description="Update org's description",groups={"headpin-cli"})
 	public void test_updateOrg(){
 		SSHCommandResult res;
 		String uniqueID = KatelloUtils.getUniqueID();
@@ -143,7 +147,7 @@ public class OrgTests extends KatelloCliTestBase{
 	}
 
 	/** TCMS scenario is: <a href="https://tcms.engineering.redhat.com/case/243077/?from_plan=7791">here</a> */
-	@Test(description="dc5d228a-b998-4845-b050-f9d2fcfa5ec3",groups={"cfse-cli","headpin-cli"})
+	@Test(description="dc5d228a-b998-4845-b050-f9d2fcfa5ec3",groups={"headpin-cli"})
 	public void test_deleteOrg(){
 		String uniqueID = KatelloUtils.getUniqueID();
 		KatelloOrg org = new KatelloOrg(this.cli_worker, "orgDel"+uniqueID, null);
@@ -159,7 +163,7 @@ public class OrgTests extends KatelloCliTestBase{
 				String.format(KatelloOrg.ERR_ORG_NOTFOUND,org.name));
 	}
 
-	@Test(description="Delete an organization which does not exist",groups={"cfse-cli","headpin-cli"})
+	@Test(description="Delete an organization which does not exist",groups={"headpin-cli"})
 	public void test_deleteOrgNotExist(){
 		String uniqueID = KatelloUtils.getUniqueID();
 		KatelloOrg org = new KatelloOrg(this.cli_worker, "orgDel"+uniqueID, null);
@@ -170,7 +174,7 @@ public class OrgTests extends KatelloCliTestBase{
 				String.format(KatelloOrg.ERR_ORG_NOTFOUND,org.name));
 	}
 
-	@Test(description="List org subscriptions.",groups={"cfse-cli"})
+	@Test(description="List org subscriptions.")
 	public void test_orgSubscriptions(){
 		String uniqueID = KatelloUtils.getUniqueID();
 		String orgName = "subscriptions-" + uniqueID;
@@ -201,7 +205,7 @@ public class OrgTests extends KatelloCliTestBase{
 	}
 
 	/** TCMS scenario is: <a href="https://tcms.engineering.redhat.com/case/243073/?from_plan=7791">here</a> */
-	@Test(description = "5a63c8c1-3add-4269-86d7-9b3caac413db",groups={"cfse-cli","headpin-cli"})
+	@Test(description = "5a63c8c1-3add-4269-86d7-9b3caac413db",groups={"headpin-cli"})
 	public void test_createOrgExists(){
 		String uniqueID = KatelloUtils.getUniqueID();
 		KatelloOrg org = new KatelloOrg(this.cli_worker, "orgCrt"+uniqueID, "Simple description");	
@@ -214,8 +218,7 @@ public class OrgTests extends KatelloCliTestBase{
 		Assert.assertEquals(getOutput(res).trim(), KatelloOrg.ERR_ORG_EXISTS_MUST_BE_UNIQUE);
 	}
 
-	//TODO: BZ: 987670
-	@Test(description = "Create org - name with special characters",groups={"cfse-cli","headpin-cli"})
+	@Test(description = "Create org - name with special characters",groups={"headpin-cli"})
 	public void test_createOrgNameSpecialCharacters(){
 		String uniqueID = KatelloUtils.getUniqueID();
 		KatelloOrg org = new KatelloOrg(this.cli_worker, "orgCrt"+uniqueID + " very < invalid name", "Simple description");	
@@ -237,7 +240,7 @@ public class OrgTests extends KatelloCliTestBase{
 				String.format(KatelloOrg.OUT_CREATE, "orgCrt"+uniqueID + " very / Invalid name"));
 	}
 
-	@Test(description = "Create org - name is already used",groups={"cfse-cli","headpin-cli"})
+	@Test(description = "Create org - name is already used",groups={"headpin-cli"})
 	public void test_createOrgExistingName(){
 		KatelloOrg org = new KatelloOrg(this.cli_worker, orgName_Exists, "existing org", "label"+KatelloUtils.getUniqueID());
 		org.cli_create();
@@ -247,7 +250,7 @@ public class OrgTests extends KatelloCliTestBase{
 		Assert.assertEquals(getOutput(exec_result).trim(), KatelloOrg.ERR_ORG_NAME_EXISTS);
 	}
 
-	@Test(description = "Create org - label is already used",groups={"cfse-cli","headpin-cli"})
+	@Test(description = "Create org - label is already used",groups={"headpin-cli"})
 	public void test_createOrgExistingLabel(){
 		KatelloOrg org = new KatelloOrg(this.cli_worker, "labelExists-"+uid, "existing label", orgLabel_Exists);
 		org.cli_create();
@@ -257,7 +260,7 @@ public class OrgTests extends KatelloCliTestBase{
 		Assert.assertEquals(getOutput(exec_result).trim(), KatelloOrg.ERR_ORG_LABEL_EXISTS);
 	}
 
-	@Test(description = "Create org - name and label are already used",groups={"cfse-cli","headpin-cli"}, dependsOnMethods={"test_createOrgExistingLabel"})
+	@Test(description = "Create org - name and label are already used",groups={"headpin-cli"}, dependsOnMethods={"test_createOrgExistingLabel"})
 	public void test_createOrgExistingNameAndLabel(){
 		KatelloOrg org = new KatelloOrg(this.cli_worker, "bothExist-"+uid, "existing both name and label", "bothExist-"+uid);
 		org.cli_create();
@@ -267,7 +270,7 @@ public class OrgTests extends KatelloCliTestBase{
 		Assert.assertEquals(getOutput(exec_result).trim(), KatelloOrg.ERR_ORG_EXISTS_MUST_BE_UNIQUE);
 	}	
 
-	@Test(description = "Delete Organization with Systems ",groups={"cfse-cli","headpin-cli"})
+	@Test(description = "Delete Organization with Systems ",groups={"headpin-cli"})
 	public void test_deleteOrgWithSystems(){
 		String uniqueID = KatelloUtils.getUniqueID();
 		String sys_del_name = "system_del-" + uniqueID;
@@ -279,7 +282,7 @@ public class OrgTests extends KatelloCliTestBase{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
 
-	@Test(description = "699bb444-5cfd-4e6f-ab50-cb77292bc57a",groups={"cfse-cli","headpin-cli", TngRunGroups.TNG_KATELLO_Manifests_CDN})
+	@Test(description = "699bb444-5cfd-4e6f-ab50-cb77292bc57a",groups={"headpin-cli", TngRunGroups.TNG_KATELLO_Manifests_CDN})
 	public void test_UploadManifestDiffOrg(){
 
 		KatelloProvider providerRH;
@@ -321,7 +324,7 @@ public class OrgTests extends KatelloCliTestBase{
 		}
 	}
 
-	@Test(description = "ee630a0d-7455-4b92-8069-b14b3d9d1173",groups={"cfse-cli","headpin-cli", TngRunGroups.TNG_KATELLO_Manifests_CDN})
+	@Test(description = "ee630a0d-7455-4b92-8069-b14b3d9d1173",groups={"headpin-cli", TngRunGroups.TNG_KATELLO_Manifests_CDN})
 	public void test_UploadManifestSameOrg(){
 
 		String uniqueID = KatelloUtils.getUniqueID();
@@ -378,7 +381,7 @@ public class OrgTests extends KatelloCliTestBase{
 	}
 
 
-	@Test(description = "Set or Get SLA for an ORG",groups={"cfse-cli","headpin-cli"})
+	@Test(description = "Set or Get SLA for an ORG",groups={"headpin-cli"})
 	public void test_SLAOrg() {
 		String uniqueID = KatelloUtils.getUniqueID();
 		String org_name = "sla-org-" + uniqueID;
@@ -482,7 +485,7 @@ public class OrgTests extends KatelloCliTestBase{
 		else
 			Assert.assertTrue(getOutput(exec_result).contains(String.format(output, org_name, keyname, "Systems")), "Check error (add custom info)");
 	}
-    // TODO: Failing due to BZ: 990687
+
 	@Test(description="add distributor custom information key",
 			dataProviderClass=KatelloCliDataProvider.class, dataProvider="org_add_custom_info")
 	public void test_addDistributorCustomKey(String keyname, Integer exitCode, String output) {
@@ -500,8 +503,9 @@ public class OrgTests extends KatelloCliTestBase{
 			Assert.assertTrue(getOutput(exec_result).contains(String.format(output, org_name, keyname, "Distributors")), "Check error (add custom info)");
 	}
 
-	//TODO: Failing due to BZ: 973907
-	@Test(description = "Org name with a dot, verify that providers, product, environments are handled normally",groups={"katello-cli"})
+	//TODO: bz#973907
+	@Test(description = "Org name with a dot, verify that providers, product, environments are handled normally",
+			groups={"katello-cli"}, enabled=false)
 	public void test_OrgNameContainsDot(){
 
 		String uid = KatelloUtils.getUniqueID();
@@ -510,6 +514,7 @@ public class OrgTests extends KatelloCliTestBase{
 		String prodName = "prod-"+uid;
 		String desc = "Simple description";
 		String orgName = "org."+uid;
+		String orgLabel = "org_"+uid;
 		String sysName = "Sys-"+uid;
 		SSHCommandResult res;
 
@@ -518,7 +523,7 @@ public class OrgTests extends KatelloCliTestBase{
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 
 		// Create Environment
-		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, envName, desc, orgName, KatelloEnvironment.LIBRARY);
+		KatelloEnvironment env = new KatelloEnvironment(this.cli_worker, envName, desc, orgLabel, KatelloEnvironment.LIBRARY);
 		res = env.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code (Enviornment - create)");
 		//List
@@ -535,7 +540,7 @@ public class OrgTests extends KatelloCliTestBase{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (System - list)");
 
 		// Create provider
-		KatelloProvider prov = new KatelloProvider(this.cli_worker, provName, orgName, desc, KATELLO_SMALL_REPO);
+		KatelloProvider prov = new KatelloProvider(this.cli_worker, provName, orgLabel, desc, KATELLO_SMALL_REPO);
 		res = prov.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (Provider - create)");
 		//List
@@ -546,7 +551,7 @@ public class OrgTests extends KatelloCliTestBase{
 				String.format("Provider [%s] should be found in the list",provName));
 
 		// Create Product
-		KatelloProduct prod = new KatelloProduct(this.cli_worker, prodName, orgName, provName, desc, null, null, null, null);
+		KatelloProduct prod = new KatelloProduct(this.cli_worker, prodName, orgLabel, provName, desc, null, null, null, null);
 		res = prod.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (Product - create)");
 		//List
@@ -554,7 +559,7 @@ public class OrgTests extends KatelloCliTestBase{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (Provider - list)");		
 	}
 
-	@Test(description = "Default distributor info - at organisation level",groups={"cfse-cli","headpin-cli"})
+	@Test(description = "Default distributor info - at organisation level",groups={"headpin-cli"})
 	public void test_defaultDistributorInfoOrg(){
 
 		String org_rm_name = "org-remove-"+ uid;
@@ -584,7 +589,7 @@ public class OrgTests extends KatelloCliTestBase{
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
 	}
 
-	@Test(description = "Default distributor info remove - at organisation level",groups={"cfse-cli","headpin-cli"})
+	@Test(description = "Default distributor info remove - at organisation level",groups={"headpin-cli"})
 	public void test_defaultDistributorRemoveInfoOrg(){
 
 		String uid = KatelloUtils.getUniqueID();
@@ -647,12 +652,12 @@ public class OrgTests extends KatelloCliTestBase{
 		Assert.assertTrue(getOutput(exec_result).contains(default_info), "Check output (system info)");
 	}
 
-	// TODO bz 1001525
 	@Test(description="attach available subscriptions to all systems", dependsOnMethods={"test_defaultInfoNoAsync"})
 	public void test_attachAllSystems() {
 		KatelloOrg org = new KatelloOrg(cli_worker, base_org_name, null);
 		exec_result = org.attach_all_systems();
 		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (attach all systems)");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloOrg.OUT_ATTACH_ALL, base_org_name)), "Check output (attach all systems)");
 	}
 
 	@AfterClass(description="Remove org objects", alwaysRun=true)

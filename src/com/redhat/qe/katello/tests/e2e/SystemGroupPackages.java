@@ -15,7 +15,6 @@ import com.redhat.qe.katello.base.obj.KatelloSystemGroup;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups={"cfse-e2e"}, singleThreaded = true)
 public class SystemGroupPackages extends KatelloCliTestBase {
 	
 	private SSHCommandResult exec_result;

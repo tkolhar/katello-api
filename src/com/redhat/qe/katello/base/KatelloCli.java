@@ -46,8 +46,10 @@ public class KatelloCli implements KatelloConstants {
 		this.args = new ArrayList<Attribute>();
 		
 		if (user != null) {
-			this.args.add(new Attribute("username", user.username));
-			this.args.add(new Attribute("password", user.password));
+			if(user.getUsername()!=null)
+				this.args.add(new Attribute("username", user.username));
+			if(user.getPassword()!=null)
+				this.args.add(new Attribute("password", user.password));
 		} else {		
 			this.args.add(new Attribute("username", System.getProperty("katello.admin.user", KatelloUser.DEFAULT_ADMIN_USER)));
 			this.args.add(new Attribute("password", System.getProperty("katello.admin.password", KatelloUser.DEFAULT_ADMIN_PASS)));

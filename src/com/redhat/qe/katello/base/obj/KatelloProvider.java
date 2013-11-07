@@ -39,6 +39,8 @@ public class KatelloProvider extends _KatelloObject{
 	public static final String OUT_NO_SYNC_RUNNING = "No synchronization is currently running";
 	public static final String OUT_REFRESH_MANIFEST = "Provider [ %s ] manifest refresh complete";
 	public static final String OUT_REFRESH_PRODUCTS = "Provider successfully refreshed [ %s ]";
+	public static final String OUT_MANIFEST_REFRESH =
+			 "Provider [ Red Hat ] manifest refresh complete";
 	
 	public static final String ERR_IMPORT_CUSTOM = "Manifests cannot be imported for a custom provider.";
 	public static final String ERR_REFRESH_CUSTOM = "Products cannot be refreshed for custom provider.";
@@ -60,6 +62,9 @@ public class KatelloProvider extends _KatelloObject{
 		
 	public static final String MANIFEST_12SUBSCRIPTIONS = "manifest-automation-CLI-12subscriptions.zip";
 	public static final String MANIFEST_2SUBSCRIPTIONS  = "manifest-automation-CLI-2subscriptions.zip";
+	public static final String MANIFEST_CLI1 = "katello-CLI-1.zip";
+	public static final String MANIFEST_CLI2 = "katello-CLI-2.zip";
+	public static final String MANIFEST_KATELLO_QA_ORG 	= "manifest-KatelloQAOrg-gkhachik-BRQ-30subscriptions.zip"; // access.redhat.com; ( gkhachik-BRQ-30subscriptions )
 
 	// ** ** ** ** ** ** ** Class members
 	public String name;

@@ -14,7 +14,7 @@ import com.redhat.qe.tools.SSHCommandResult;
  * Test for checking Katello backup/restore by Katello Server backup Guide https://fedorahosted.org/katello/wiki/GuideServerBackups
  * @author hhovsepy
  */
-@Test(groups = { "cfse-cli", "headpin-cli" })
+@Test(groups = {"headpin-cli" })
 public class BackupRecovery extends KatelloCliTestBase {
 	protected static Logger log = Logger.getLogger(BackupRecovery.class.getName());
 	

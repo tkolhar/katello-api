@@ -23,7 +23,6 @@ import com.redhat.qe.tools.SSHCommandResult;
  * GPG Keys: End to end "If I sign it can I install it"?<BR>
  * @author gkhachik
  */
-@Test(groups={"cfse-e2e"}, singleThreaded = true)
 public class PackagesWithGPGKey extends KatelloCliTestBase{
 	protected static Logger log = Logger.getLogger(PackagesWithGPGKey.class.getName());
 
@@ -66,7 +65,6 @@ public class PackagesWithGPGKey extends KatelloCliTestBase{
 		gpg_key.cli_create();
 	}
 	
-	//@ TODO bug 918452
 	@Test(description="Create org, provider, product and repo", dependsOnMethods={"test_prepareEnvGpgKey"}, enabled=true)
 	public void test_prepareRepo(){
 		log.info("E2E - Create provider/product/repo");

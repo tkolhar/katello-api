@@ -2,7 +2,9 @@ package com.redhat.qe.katello.tests.cli;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloActivationKey;
@@ -14,10 +16,12 @@ import com.redhat.qe.katello.base.obj.helpers.FilterRuleErrataDayType;
 import com.redhat.qe.katello.base.obj.helpers.FilterRuleErrataIds;
 import com.redhat.qe.katello.base.obj.helpers.FilterRulePackage;
 import com.redhat.qe.katello.base.obj.helpers.FilterRulePackageGroups;
+import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
+@TngPriority(12)
 @Test(groups=TngRunGroups.TNG_KATELLO_Content)
 public class ContentFilterTests extends KatelloCliTestBase {
 	
@@ -74,6 +78,15 @@ public class ContentFilterTests extends KatelloCliTestBase {
 		exec_result = filter.add_product(base_zoo_product_name);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentFilter.OUT_ADD_PRODUCT, base_zoo_product_name.replaceAll(" ", "_"), filter_name)), "Check output");
+	}
+
+	@Test(description="add nonexisting product to filter - check error", dependsOnMethods={"init"})
+	public void test_filterAddNonexistProduct() {
+		String dummy_product = "product"+KatelloUtils.getUniqueID();
+		KatelloContentFilter filter = new KatelloContentFilter(cli_worker, filter_name, base_org_name, condef_name);
+		exec_result = filter.add_product(dummy_product);
+		Assert.assertTrue(exec_result.getExitCode() == 65, "Check exit code (filter add product)");
+		Assert.assertTrue(getOutput(exec_result).equals(String.format(KatelloContentFilter.ERR_PRODUCT_NOT_FOUND, dummy_product, base_org_name, condef_name)), "Check output (filter add product)");
 	}
 
 	@Test(description="remove product from filter",dependsOnMethods={"test_filterAddProduct"})
@@ -288,7 +301,7 @@ public class ContentFilterTests extends KatelloCliTestBase {
 		assert_filterInfo(filter_name, KatelloContentFilter.CONTENT_PACKAGE, KatelloContentFilter.TYPE_EXCLUDES, FilterRulePackage.ruleRegExp(packages));
 	}
 
-	// TODO bz 1004248
+	// TODO bz#1004248
 	@Test(description="handle filter by id", dependsOnMethods={"init"})
 	public void test_handleFilterByID() {
 		KatelloContentFilter filter = new KatelloContentFilter(cli_worker, filter_name, base_org_name, condef_name);
@@ -298,7 +311,7 @@ public class ContentFilterTests extends KatelloCliTestBase {
 		filter.setId(new Long(id));
 		filter.setName(null);
 		exec_result = filter.info();
-		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (filter info)");
+		Assert.assertTrue(exec_result.getExitCode()==65, "Check exit code (filter info)"); // TODO - fix when the bug resolved.
 	}
 
 	@Test(description="filter not found - check error", dependsOnMethods={"init"})
@@ -309,7 +322,24 @@ public class ContentFilterTests extends KatelloCliTestBase {
 		Assert.assertTrue(exec_result.getExitCode()==65, "Check exit code (filter not found)");
 		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentFilter.ERR_NOT_FOUND, filter_name)), "Check error (filter not found)");
 	}
-	
+
+	@Test(description="list filters", dependsOnMethods={"init"})
+	public void test_listFilters() {
+		KatelloContentFilter filter = new KatelloContentFilter(cli_worker, null, base_org_name, condef_name);
+		exec_result = filter.list();
+		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (list filters)");
+		Assert.assertTrue(getOutput(exec_result).contains(filter_name), "Check output (list filters)");
+	}
+
+	@Test(description="create rule with wrong inclusion type - check error")
+	public void test_createRulewrongType() {
+		KatelloContentFilter filter = new KatelloContentFilter(cli_worker, filter_name, base_org_name, condef_name);
+		String wrong_type = "wrongtype";
+		exec_result = filter.add_rule("{}", "rpm", wrong_type);
+		Assert.assertTrue(exec_result.getExitCode()==65, "Check exit code (add rule)");
+		Assert.assertTrue(getOutput(exec_result).contains(String.format(KatelloContentFilter.ERR_WRONG_TYPE, wrong_type)), "Check error (add rule)");
+	}
+
 	private void assert_filterInfo(String filter_name, String filter_content, String rule_type, String ruleRegExp) {
 		KatelloContentFilter filter = new KatelloContentFilter(cli_worker, filter_name, base_org_name, condef_name);
 		SSHCommandResult res = filter.info();

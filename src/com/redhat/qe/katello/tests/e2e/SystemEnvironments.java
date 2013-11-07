@@ -9,9 +9,10 @@ import com.redhat.qe.katello.base.obj.KatelloActivationKey;
 import com.redhat.qe.katello.base.obj.KatelloContentView;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
 import com.redhat.qe.katello.base.obj.KatelloSystem;
+import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
 
-@Test(groups={"cfse-e2e"}, singleThreaded = true)
+@TngPriority(15000)
 public class SystemEnvironments extends KatelloCliTestBase {
 
 	// Katello objects below
@@ -81,7 +82,6 @@ public class SystemEnvironments extends KatelloCliTestBase {
 		Assert.assertTrue(getOutput(exec_result).trim().contains(String.format("Validation failed: Content view '%s' is not in environment '%s'", this.contentView_name, this.env_name_Test)));
 	}
 
-	//@ TODO bug 980948
 	@Test(description = "Install some package in system after moving to another environment", dependsOnMethods={"test_moveSystem"})
 	public void test_installPackageOnMovedSystem() {
 		sshOnClient("yum -y erase wolf lion");

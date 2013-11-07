@@ -7,16 +7,18 @@ import java.util.logging.Logger;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloChangeset;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
+import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
 
-
-@Test(groups={"cfse-cli",TngRunGroups.TNG_KATELLO_Content})
+@TngPriority(700)
+@Test(groups={TngRunGroups.TNG_KATELLO_Content})
 public class ChangesetTests extends KatelloCliTestBase{
 
 	protected static Logger log = Logger.getLogger(ChangesetTests.class.getName());
@@ -165,8 +167,10 @@ public class ChangesetTests extends KatelloCliTestBase{
 		Assert.assertFalse(getOutput(exec_result).contains(view_name), "Check output");
 	}
 
-	// TODO bz 997364
-	@Test(description="get dependencies info")
+	// TODO bz#997364
+	@Test(description="get dependencies info", enabled = false) 
+	// TODO complete remove it once we remove that feature, see Justin comment:
+	// https://bugzilla.redhat.com/show_bug.cgi?id=997364#c2
 	public void test_dependencies() {
 		KatelloChangeset chst = createChangeset();
 		exec_result = chst.info_dependencies();

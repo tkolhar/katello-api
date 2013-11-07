@@ -11,7 +11,6 @@ import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.DeltaCloudInstance;
 import com.redhat.qe.katello.common.KatelloUtils;
 
-@Test(groups = { "cfse-e2e" }, singleThreaded = true)
 public class SetupServers extends KatelloCliTestBase {
 	
 	protected DeltaCloudInstance server;
@@ -44,7 +43,8 @@ public class SetupServers extends KatelloCliTestBase {
 	
 	@AfterSuite(alwaysRun=true)
 	public void tearDown() {
-		if (isDeltacloud) {
+		String keepAlive = System.getProperty("deltacloud.keepalive", "false").trim();
+		if (isDeltacloud && !keepAlive.equalsIgnoreCase("true")) {
 			KatelloUtils.destroyDeltaCloudMachine(server);
 			for (DeltaCloudInstance client : clients) {
 				KatelloUtils.destroyDeltaCloudMachine(client);

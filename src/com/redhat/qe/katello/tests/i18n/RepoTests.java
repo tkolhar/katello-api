@@ -118,7 +118,7 @@ public class RepoTests extends KatelloCliTestBase {
 		Assert.assertTrue(getOutput(exec_result).trim().contains(getText("repo.synchronize.stdout", repo.name)));
 	}
 	
-	// @ TODO BZ 869933
+	// @ TODO bz#869933
 	@Test(description = "Try to enable/disable custom repo, check error", dependsOnMethods = {"test_createRepo"})
 	public void test_enableDisableRepo() {
 

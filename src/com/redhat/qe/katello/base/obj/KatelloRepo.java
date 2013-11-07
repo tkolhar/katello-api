@@ -25,6 +25,7 @@ public class KatelloRepo extends _KatelloObject{
 	public static final String CMD_STATUS = "repo status";
 	public static final String CMD_LIST = "repo list -v";
 	public static final String CMD_CANCEL_SYNC = "repo cancel_sync";
+	public static final String CMD_CONTENT_UPLOAD = "repo content_upload";
 	
 	public static final String OUT_CREATE = 
 			"Successfully created repository [ %s ]";
@@ -40,7 +41,15 @@ public class KatelloRepo extends _KatelloObject{
 	public static final String OUT_REPO_SYNC_CANCELLED = "Repo [ %s ] synchronization canceled";
 	public static final String OUT_REPO_ENABLED = "Repository '%s' enabled.";
 	public static final String OUT_REPO_DISABLED = "Repository '%s' disabled.";
+	public static final String OUT_CONTENT_UPLOADED = "Successfully uploaded '%s' into repository";
 	
+	public static final String ERR_REPO_SYNC_FAIL = "Repo [ %s ] failed to sync:";
+	public static final String ERR_INVALID_MODULE = "Invalid puppet module '%s'. Please make sure the file is valid and is named author-name-version.tar.gz";
+	public static final String ERR_INVALID_RPM = "Invalid rpm '%s'. Please check the file and try again.";
+	public static final String ERR_INVALID_TYPE = "Content type '%s' not valid. Must be one of: yum, puppet.";
+	public static final String ERR_NOT_ACCEPT_PUPPET = "Repo [ %s ] does not accept puppet uploads.";
+	public static final String ERR_NOT_ACCEPT_YUM = "Repo [ %s ] does not accept yum uploads.";
+
 	public static final String REG_REPO_INFO = ".*ID\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*URL\\s*:\\s+%s.*Last Sync\\s*:\\s+%s.*GPG Key\\s*:\\s*+%s.*";
 	public static final String REG_REPO_STATUS = ".*Package Count\\s*:\\s+\\d+.*Last Sync\\s*:\\s+%s.*";
 	public static final String REG_REPO_LIST = ".*ID\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Package Count\\s*:\\s+\\d+.*Last Sync\\s*:\\s+%s.*";
@@ -58,6 +67,8 @@ public class KatelloRepo extends _KatelloObject{
 	public String gpgkey;
 	public String lastSync;
 	public boolean nogpgkey = false;
+	public String repo_id;
+	public String content_type;
 	
 	public KatelloRepo(KatelloCliWorker kcr, String pName, String pOrg, 
 			String pProd, String pUrl, 
@@ -99,6 +110,7 @@ public class KatelloRepo extends _KatelloObject{
 			opts.add(new Attribute("nogpgkey", ""));	
 		if (unprotected)
 			opts.add(new Attribute("unprotected", "true"));
+		opts.add(new Attribute("content_type", content_type));
 		return run(CMD_CREATE);
 	}
 
@@ -154,12 +166,13 @@ public class KatelloRepo extends _KatelloObject{
 		return run(CMD_INFO);
 	}
 	
-	public SSHCommandResult info(String environment){
+	public SSHCommandResult info(String environment, String contentview){
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("name", name));
 		opts.add(new Attribute("product", product));
 		opts.add(new Attribute("environment", environment));
+		opts.add(new Attribute("content_view", contentview));
 		opts.add(new Attribute("product_label", product_label));
 		opts.add(new Attribute("product_id", product_id));
 		return run(CMD_INFO);
@@ -225,10 +238,11 @@ public class KatelloRepo extends _KatelloObject{
 		return run(CMD_LIST);
 	}
 
-	public SSHCommandResult list(String environment){
+	public SSHCommandResult list(String environment, String contentview){
 		opts.clear();
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("environment", environment));
+		opts.add(new Attribute("content_view", contentview));
 		opts.add(new Attribute("product", product)); // gkhachik - added, seems was missing.
 		opts.add(new Attribute("product_label", product_label));
 		opts.add(new Attribute("product_id", product_id));
@@ -243,7 +257,11 @@ public class KatelloRepo extends _KatelloObject{
 		return run(CMD_LIST);
 	}
 
-	public SSHCommandResult custom_reposCount(String environment, Boolean includeDisabled){
+	public SSHCommandResult custom_reposCount(){
+		return custom_reposCount(null, null, null);
+	}
+	
+	public SSHCommandResult custom_reposCount(String environment, String contentview, Boolean includeDisabled){
 		opts.clear();
 		if(environment == null) 
 			environment = KatelloEnvironment.LIBRARY;
@@ -251,6 +269,7 @@ public class KatelloRepo extends _KatelloObject{
 			opts.add(new Attribute("include_disabled", ""));
 		opts.add(new Attribute("org", org));
 		opts.add(new Attribute("environment", environment));
+		opts.add(new Attribute("content_view", contentview));
 		opts.add(new Attribute("product", product));
 		opts.add(new Attribute("product_label", product_label));
 		opts.add(new Attribute("product_id", product_id));
@@ -275,6 +294,22 @@ public class KatelloRepo extends _KatelloObject{
 		opts.add(new Attribute("name", name));
 		return run(CMD_CANCEL_SYNC);
 	}
+
+	public SSHCommandResult content_upload(String filePath, String contentType, String chunk) {
+		opts.clear();
+		if(repo_id != null) {
+			opts.add(new Attribute("repo_id", repo_id));
+		} else {
+			opts.add(new Attribute("org", org));
+			opts.add(new Attribute("product", product));
+			opts.add(new Attribute("repo", name));
+		}
+		opts.add(new Attribute("filepath", filePath));
+		opts.add(new Attribute("content_type", contentType));
+		opts.add(new Attribute("chunk", chunk));
+		return run(CMD_CONTENT_UPLOAD);
+	}
+
 	// ** ** ** ** ** ** **
 	// ASSERTS
 	// ** ** ** ** ** ** **

@@ -1,17 +1,21 @@
 package com.redhat.qe.katello.tests.cli;
 
 import java.util.logging.Logger;
+
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloErrata;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
+import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.katello.tests.e2e.PromoteErrata;
 
-@Test(groups={"cfse-cli",TngRunGroups.TNG_KATELLO_Errata})
+@TngPriority(16)
+@Test(groups={TngRunGroups.TNG_KATELLO_Errata})
 public class ErrataTests extends KatelloCliTestBase {
 
 	protected static Logger log = Logger.getLogger(ErrataTests.class.getName());

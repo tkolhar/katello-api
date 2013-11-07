@@ -37,7 +37,7 @@ public class KatelloSystemGroup extends _KatelloObject{
 	public static final String OUT_COPY = 
 			"Successfully copied system group [ %s ] to [ %s ]";
 	public static final String OUT_ADD_SYSTEMS = 
-			"Successfully added systems \\[ .*\\w{8}-\\w{4}-\\w{4}-\\w{4}-\\w{12}.* \\] to system group \\[ %s \\].";
+			"Successfully added systems \\[ \\w{8}-\\w{4}-\\w{4}-\\w{4}-\\w{12}.* \\] to system group \\[ %s \\]."; // .* after the UUID is for in case we would be mass adding +1 systems there 
 	public static final String OUT_REMOVE_SYSTEMS = 
 			"Successfully removed systems \\[ \\w{8}-\\w{4}-\\w{4}-\\w{4}-\\w{12}.* \\] from system group \\[ %s \\].";
 	public static final String OUT_UPDATE_SYSTEMS = "Successfully updated systems in group [ %s ]";

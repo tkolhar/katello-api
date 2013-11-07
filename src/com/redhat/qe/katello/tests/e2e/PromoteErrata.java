@@ -22,7 +22,6 @@ import com.redhat.qe.tools.SSHCommandResult;
  * Promoting errata to the next environment.
  * @author gkhachik
  */
-@Test(groups={"cfse-e2e"}, singleThreaded = true)
 public class PromoteErrata extends KatelloCliTestBase{
 	protected static Logger log = Logger.getLogger(PromoteErrata.class.getName());
 
@@ -79,7 +78,6 @@ public class PromoteErrata extends KatelloCliTestBase{
 		repo.synchronize();
 	}
 	
-	//@ TODO bug 918157
 	@Test(description="Add errata and promote 2nd time", dependsOnMethods={"test_syncRepo"}, enabled=true)
 	public void test_addErrataAndPromote(){
 		SSHCommandResult res;

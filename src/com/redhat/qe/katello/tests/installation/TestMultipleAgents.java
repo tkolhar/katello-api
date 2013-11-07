@@ -20,7 +20,7 @@ import com.redhat.qe.katello.base.obj.KatelloSystem;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@Test(groups = { "cfse-cli", "headpin-cli" })
+@Test(groups = {"headpin-cli" })
 public class TestMultipleAgents extends KatelloCliTestBase {
 
 	protected DeltaCloudInstance server;
@@ -47,14 +47,16 @@ public class TestMultipleAgents extends KatelloCliTestBase {
 	protected String rhel5_act_key_name = null;
 	protected String rhel5_package_name = "lion";
 	
-	
-	@BeforeClass(description = "setup Deltacloud Server")
+	@BeforeClass(description = "setup Deltacloud Server", alwaysRun=true)
 	public void setUp() {
-		server = KatelloUtils.getDeltaCloudServer();
-		server_name = server.getHostName();
-		System.setProperty("katello.server.hostname", server_name);
+		server_name = System.getProperty("katello.server.hostname");
+		
+		if (server_name == null || server_name.isEmpty() || !KatelloUtils.isKatelloAvailable(server_name)) {
+			server = KatelloUtils.getDeltaCloudServer();
+			server_name = server.getHostName();
+			System.setProperty("katello.server.hostname", server_name);
+		}
 		System.setProperty("katello.client.hostname", server_name);
-
 		createOrgStuff();
 	}
 	
@@ -71,15 +73,16 @@ public class TestMultipleAgents extends KatelloCliTestBase {
 		KatelloUtils.disableYumRepo(client.getIpAddress(),"katello-tools");
 		
 		try {
+			configClient(client.getIpAddress(), type);
 			testClientConsume(client.getIpAddress(), type);
 		} finally {
+			rhsm_clean(client.getIpAddress());
 			KatelloUtils.destroyDeltaCloudMachine(client);
 		}
 	}
 
 	@AfterClass(alwaysRun = true)
 	public void tearDown() {
-		KatelloUtils.destroyDeltaCloudMachine(server);
 		for (DeltaCloudInstance client : clients) {
 			KatelloUtils.destroyDeltaCloudMachine(client);
 		}
@@ -159,7 +162,12 @@ public class TestMultipleAgents extends KatelloCliTestBase {
 
 	}
 	
-	//TODO bug fails for RHEL 5 988776
+	private void configClient(String client_name, String client_type) {
+		if (client_type.matches(".*RHEL\\s+5.*")) {
+			KatelloUtils.sshOnClient(client_name, "rpm -q python-hashlib || yum install -y python-hashlib");
+		}
+	}
+	
 	private void testClientConsume(String client_name, String client_type) {
 		String actKey = null;
 		String packName = null;

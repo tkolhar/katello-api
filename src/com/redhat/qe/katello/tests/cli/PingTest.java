@@ -1,12 +1,14 @@
 package com.redhat.qe.katello.tests.cli;
 import org.testng.annotations.Test;
+
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestBase;
 import com.redhat.qe.katello.base.obj.KatelloPing;
+import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.TngRunGroups;
-
 import com.redhat.qe.tools.SSHCommandResult;
 
+@TngPriority(24)
 @Test(groups={"headpin-cli",TngRunGroups.TNG_KATELLO_Install_Configuration})
 public class PingTest extends KatelloCliTestBase{
 	private SSHCommandResult exec_result;
