@@ -10,6 +10,8 @@ import com.redhat.qe.tools.SSHCommandResult;
 public class HammerComputeResource extends _HammerObject {
 	protected static Logger log = Logger.getLogger(HammerArchitecture.class.getName());
 	
+	 public enum Provider {Libvirt, oVirt, EC2, Vmware, Openstack, Rackspace, GCE, WRONG};
+	
 	// ** ** ** ** ** ** ** Public constants
 	public static final String CMD_CREATE = "compute_resource create";
 	public static final String CMD_UPDATE = "compute_resource update";
@@ -21,9 +23,13 @@ public class HammerComputeResource extends _HammerObject {
 	public static final String OUT_UPDATE = "Compute resource updated";
 	public static final String OUT_DELETE = "Compute resource deleted";
 	
+	public static final String ERR_USER_MISS = "Username can't be blank";
+	public static final String ERR_PASS_MISS = "Password can't be blank";
+	public static final String ERR_UUID_MISS = "Datacenter can't be blank";
 	public static final String ERR_CREATE = "Could not create the compute resource";
+	public static final String ERR_NOT_FOUND = "404 Resource Not Found";
 	
-	public static final String REG_INFO = ".*Id\\s*:\\s+%s.*Name\\s*:\\s+%s.*Provider\\s*:\\s+%s.*Url\\s*:\\s+%s.*User\\s*:\\s+%s.*UUID\\s*:\\s+%s.*";
+	public static final String REG_INFO = "Id\\s*:\\s+\\d+.*Name\\s*:\\s+%s.*Provider\\s*:\\s+%s.*Url\\s*:\\s+%s.*Description\\s*:\\s+%s.*User\\s*:\\s+%s.*UUID\\s*:\\s*%s.*";
 
 	// ** ** ** ** ** ** ** Class members
 	public String Id;
@@ -46,12 +52,12 @@ public class HammerComputeResource extends _HammerObject {
 		this.Id = pId;
 	}
 	
-	public HammerComputeResource(KatelloCliWorker kcr, String pName, String pDescription, String provider, String url, String user, String password)
+	public HammerComputeResource(KatelloCliWorker kcr, String pName, String pDescription, Provider provider, String url, String user, String password)
 	{
 		this.kcr = kcr;
 		this.name = pName;
 		this.description = pDescription;
-		this.provider = provider;
+		if (provider!= null) this.provider = provider.toString();
 		this.url = url;
 		this.user = user;
 		this.password = password;
@@ -90,14 +96,19 @@ public class HammerComputeResource extends _HammerObject {
 		return run(CMD_INFO);
 	}
 
+	public SSHCommandResult cli_search(String search) {
+		args.clear();
+		args.add(new Attribute("search", search));
+		return run(CMD_LIST);
+	}
+	
 	public SSHCommandResult cli_list() {
 		args.clear();
 		return run(CMD_LIST);
 	}
 	
-	public SSHCommandResult cli_list(String searchStr, String order, String page, Integer per_page) {
+	public SSHCommandResult cli_list(String order, Integer page, Integer per_page) {
 		args.clear();
-		args.add(new Attribute("search", searchStr));
 		args.add(new Attribute("order", order));
 		args.add(new Attribute("page", page));
 		args.add(new Attribute("per-page", per_page));
@@ -107,7 +118,7 @@ public class HammerComputeResource extends _HammerObject {
 	public SSHCommandResult update(String newName) {
 		args.clear();
 		if (this.Id != null) {
-			args.add(new Attribute("Id", this.Id));	
+			args.add(new Attribute("id", this.Id));	
 		} else {
 			args.add(new Attribute("name", this.name));
 		}
