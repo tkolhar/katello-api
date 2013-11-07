@@ -167,6 +167,7 @@ public class ErrataTests extends KatelloCliLongrunBase {
 		configureClient("actkeyerrataremove" + uid, content_view_remove_errata, sys_name3, env_name);
 	}
 	
+	//@ TODO bz#1026683
 	@Test(description="list rhel repo errata deleted to test environment", dependsOnMethods={"test_deleteRHELErrata"})
 	public void test_listRHELRepoErrataDeleted() {
 		KatelloErrata errata = new KatelloErrata(cli_worker, base_org_name, KatelloProduct.RHEL_SERVER, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, content_view_remove_errata);
