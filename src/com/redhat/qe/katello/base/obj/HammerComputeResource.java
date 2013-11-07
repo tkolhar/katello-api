@@ -10,7 +10,7 @@ import com.redhat.qe.tools.SSHCommandResult;
 public class HammerComputeResource extends _HammerObject {
 	protected static Logger log = Logger.getLogger(HammerArchitecture.class.getName());
 	
-	 public enum Provider {Libvirt, oVirt, EC2, Vmware, Openstack, Rackspace, GCE};
+	 public enum Provider {Libvirt, oVirt, EC2, Vmware, Openstack, Rackspace, GCE, WRONG};
 	
 	// ** ** ** ** ** ** ** Public constants
 	public static final String CMD_CREATE = "compute_resource create";
@@ -23,6 +23,9 @@ public class HammerComputeResource extends _HammerObject {
 	public static final String OUT_UPDATE = "Compute resource updated";
 	public static final String OUT_DELETE = "Compute resource deleted";
 	
+	public static final String ERR_USER_MISS = "Username can't be blank";
+	public static final String ERR_PASS_MISS = "Password can't be blank";
+	public static final String ERR_UUID_MISS = "Datacenter can't be blank";
 	public static final String ERR_CREATE = "Could not create the compute resource";
 	public static final String ERR_NOT_FOUND = "404 Resource Not Found";
 	

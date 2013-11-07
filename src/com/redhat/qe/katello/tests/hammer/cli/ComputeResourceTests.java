@@ -42,6 +42,75 @@ public class ComputeResourceTests extends KatelloCliTestBase {
 		Assert.assertFalse(exec_result.getExitCode().intValue() == 0, "Check - return code");
 		Assert.assertTrue(getOutput(exec_result).contains("Name has already been taken"), "Check - returned output string");
 	}
+
+	@Test(description="Create a compute resource wrong provider name", dependsOnMethods={"test_computeResourceCreate"})
+	public void test_computeResourceCreateWrongProvider() {
+		HammerComputeResource compRes = new HammerComputeResource(cli_worker, name+"wrong", "test resource", HammerComputeResource.Provider.WRONG, "http://localhost/ovirt", "admin", "admin");
+		exec_result = compRes.cli_create();
+		Assert.assertFalse(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		//@ TODO error message
+		//Assert.assertTrue(getOutput(exec_result).contains("Name has already been taken"), "Check - returned output string");
+	}
+
+	@Test(description="Create a compute resource wrong url", dependsOnMethods={"test_computeResourceCreate"})
+	public void test_computeResourceCreateWrongUrl() {
+		HammerComputeResource compRes = new HammerComputeResource(cli_worker, name+"wrong", "test resource", HammerComputeResource.Provider.oVirt, "wrongurl", "admin", "admin");
+		exec_result = compRes.cli_create();
+		Assert.assertFalse(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).contains("URL is invalid"), "Check - returned output string");
+	}
+
+	@Test(description="Create a compute resource missing uuid", dependsOnMethods={"test_computeResourceCreate"})
+	public void test_computeResourceCreateMissingUUID() {
+		HammerComputeResource compRes = new HammerComputeResource(cli_worker, name+"wrong", "test resource", HammerComputeResource.Provider.Vmware, "http://localhost/ovirt", "admin", "admin");
+		exec_result = compRes.cli_create();
+		Assert.assertFalse(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).contains(HammerComputeResource.ERR_UUID_MISS), "Check - returned output string");
+		//@ TODO check server missing error
+	}
+	
+	@Test(description="Create a compute resource missing tenant", dependsOnMethods={"test_computeResourceCreate"})
+	public void test_computeResourceCreateMissingTenant() {
+		HammerComputeResource compRes = new HammerComputeResource(cli_worker, name+"wrong", "test resource", HammerComputeResource.Provider.Openstack, "http://localhost/ovirt", "admin", "admin");
+		exec_result = compRes.cli_create();
+		Assert.assertFalse(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		//@ TODO check tenant missing error
+	}
+
+	@Test(description="Create a compute resource missing region", dependsOnMethods={"test_computeResourceCreate"})
+	public void test_computeResourceCreateMissingregion() {
+		HammerComputeResource compRes = new HammerComputeResource(cli_worker, name+"wrong", "test resource", HammerComputeResource.Provider.EC2, "http://localhost/ovirt", "admin", "admin");
+		exec_result = compRes.cli_create();
+		Assert.assertFalse(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		//@ TODO check region missing error
+	}
+	
+	@Test(description="Create a compute resource without user/password", dependsOnMethods={"test_computeResourceCreate"})
+	public void test_computeResourceCreateMissingUser() {
+		HammerComputeResource compRes = new HammerComputeResource(cli_worker, name+"wrong", "test resource", HammerComputeResource.Provider.oVirt, "http://localhost/ovirt", null, null);
+		exec_result = compRes.cli_create();
+		Assert.assertFalse(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).contains(HammerComputeResource.ERR_USER_MISS), "Check - returned output string");
+		Assert.assertTrue(getOutput(exec_result).contains(HammerComputeResource.ERR_PASS_MISS), "Check - returned output string");
+		
+		compRes.provider = HammerComputeResource.Provider.EC2.toString();
+		exec_result = compRes.cli_create();
+		Assert.assertFalse(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).contains(HammerComputeResource.ERR_USER_MISS), "Check - returned output string");
+		Assert.assertTrue(getOutput(exec_result).contains(HammerComputeResource.ERR_PASS_MISS), "Check - returned output string");
+		
+		compRes.provider = HammerComputeResource.Provider.Vmware.toString();
+		exec_result = compRes.cli_create();
+		Assert.assertFalse(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).contains(HammerComputeResource.ERR_USER_MISS), "Check - returned output string");
+		Assert.assertTrue(getOutput(exec_result).contains(HammerComputeResource.ERR_PASS_MISS), "Check - returned output string");
+		
+		compRes.provider = HammerComputeResource.Provider.Openstack.toString();
+		exec_result = compRes.cli_create();
+		Assert.assertFalse(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		Assert.assertTrue(getOutput(exec_result).contains(HammerComputeResource.ERR_USER_MISS), "Check - returned output string");
+		Assert.assertTrue(getOutput(exec_result).contains(HammerComputeResource.ERR_PASS_MISS), "Check - returned output string");
+	}
 	
 	@Test(description="List ComputeResources. Check if name is provided", dependsOnMethods={"test_computeResourceCreate"})
 	public void test_ComputeResourceSearch() {
