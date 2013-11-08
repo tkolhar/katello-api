@@ -160,4 +160,23 @@ public class DisconnectedTests {
 		Assert.assertTrue(KatelloCliTestBase.sgetOutput(res).contains("content-export-00"), "Check - output export files(1)");
 		Assert.assertTrue(KatelloCliTestBase.sgetOutput(res).contains("expand_export.sh"), "Check - output export files(2)");
 	}
+	
+	@Test(description="refresh - pull content afresh from CDN", dependsOnMethods={"test_exportToTmp"})
+	public void test_refresh(){
+		res = disc.refresh("/etc/rhsm/ca/redhat-uep.pem");
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+	}
+	
+	@Test(description="info - print manifest info", dependsOnMethods={"test_refresh"})
+	public void test_info(){
+		res = disc.info();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+	}
+	
+	@Test(description="clean - remove all pulp repos", dependsOnMethods={"test_info"})
+	public void test_clean(){
+		res = disc.clean();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+	}
+	
 }
