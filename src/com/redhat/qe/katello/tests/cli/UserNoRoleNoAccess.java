@@ -29,6 +29,8 @@ public class UserNoRoleNoAccess extends KatelloCliTestBase {
 	private KatelloEnvironment environment;
 	private KatelloUser user;
 	private KatelloUserRole user_role;
+	
+	// bz#1011748
 	@BeforeClass(description="init: create initial stuff", groups={"headpin-cli"})
 	public void setUp()
 	{

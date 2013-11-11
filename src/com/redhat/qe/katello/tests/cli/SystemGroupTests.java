@@ -68,8 +68,6 @@ public class SystemGroupTests extends KatelloCliTestBase{
 		KatelloContentView contentView = new KatelloContentView(this.cli_worker, this.contentView, this.orgName);
 		exec_result = contentView.promote_view(this.envName);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
-		
-		
 	}
 	
 	@Test(description = "Create system group", groups = {"headpin-cli" })

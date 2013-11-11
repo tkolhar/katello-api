@@ -23,7 +23,6 @@ import com.redhat.qe.tools.SSHCommandResult;
 public class ActivationKeyTests extends KatelloCliTestBase{
 	private String systemgroup;
 	private String content_view;
-	
 	@BeforeClass(description="Prepare fake content view")
 	public void setUp(){
 		String uid = KatelloUtils.getUniqueID();
@@ -36,7 +35,6 @@ public class ActivationKeyTests extends KatelloCliTestBase{
 		exec_result = new KatelloContentView(cli_worker, content_view, base_org_name).promote_view(base_dev_env_name);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
-	
 	@BeforeClass(description="init: headpin specific, no katello",groups={"headpin-cli","cfse-ignore"})
 	public void setUp_headpinOnly()
 	{

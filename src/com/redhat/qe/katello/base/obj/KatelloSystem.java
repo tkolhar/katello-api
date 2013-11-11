@@ -48,7 +48,7 @@ public class KatelloSystem extends _KatelloObject{
 	public static final String RHSM_REFRESH = "subscription-manager refresh";
 	public static final String RHSM_ENVIRONMENTS ="subscription-manager environments --username %s --password %s";
 	
-	public static final String OUT_CREATE = 
+	public static final String OUT_CREATE =
 			"The system has been registered with"; // TODO - add back the " ID:" when the good times come :P RHSM changes so much
 	public static final String ERR_RHSM_LOBRARY_ONLY = 
 			"Organization %s has the '%s' environment only. Please create an environment for system registration.";
