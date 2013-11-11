@@ -40,6 +40,7 @@ public class PrepareDCEnvironment extends KatelloCliTestBase {
 			sout += ","+clients.get(i).getHostName();
 		}
 		KatelloUtils.run_local("echo -en \""+sout+"\" > "+filename);
+		KatelloUtils.logServerInfo(server.getHostName(), sout);
 	}
 	
 }

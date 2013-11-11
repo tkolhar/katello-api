@@ -86,6 +86,7 @@ public class TestMultipleAgents extends KatelloCliTestBase {
 		for (DeltaCloudInstance client : clients) {
 			KatelloUtils.destroyDeltaCloudMachine(client);
 		}
+		KatelloUtils.logServerInfo(server_name);
 	}
 	
 	private void createOrgStuff() {

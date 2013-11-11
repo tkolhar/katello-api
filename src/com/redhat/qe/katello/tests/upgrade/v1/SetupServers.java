@@ -52,6 +52,8 @@ public class SetupServers extends KatelloCliTestBase {
 			KatelloUtils.destroyDeltaCloudMachine(client);
 			KatelloUtils.destroyDeltaCloudMachine(client2);
 			KatelloUtils.destroyDeltaCloudMachine(client3);
+		} else if (isDeltacloud && keepAlive) {
+			KatelloUtils.logServerInfo(server_name,	client_name + "," + client_name2 + "," + client_name3);
 		}
 	}
 }

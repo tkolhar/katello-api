@@ -10,6 +10,7 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import com.redhat.qe.Assert;
+import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import com.redhat.qe.katello.base.obj.DeltaCloudInstance;
 import com.redhat.qe.katello.base.obj.KatelloContentDefinition;
 import com.redhat.qe.katello.base.obj.KatelloContentFilter;
@@ -759,6 +760,50 @@ public class KatelloUtils implements KatelloConstants {
 		}
 		
 		return new KatelloPing(new KatelloCliWorker(hostname, hostname)).cli_ping().getExitCode().intValue()==0;
+	}
+	
+	public static void logServerInfo(String hostname) {
+		logServerInfo(hostname, null);
+	}
+	
+	/**
+	 * Logs information about server and clients.
+	 */
+	public static void logServerInfo(String hostname, String clients) {
+		String ldap = System.getProperty("ldap.server.type", "");
+		String product = System.getProperty("katello.product", "katello");
+		boolean isClient = Boolean.parseBoolean(System.getProperty("deltacloud.installserver", "true"));
+		StringBuilder out = new StringBuilder();
+		out.append(KatelloCliDataProvider.strRepeat("!", 60));
+		out.append("\n");
+		out.append("	 Server Machine is kept for later reuse!!!!");
+		out.append("\n");
+		out.append("     Server Hostname is: " + hostname);
+		out.append("\n");
+		if (isClient) {
+			out.append("     Server is configured as a client");
+			out.append("\n");
+		} else {
+			out.append("     Server is NOT configured as a client");
+			out.append("\n");
+		}
+		if (isClient && (product.equals("sat6") || product.equals("katello"))) {
+			out.append("     Hammer CLI client is installed and configured on server");
+			out.append("\n");
+		}
+		if (ldap != null && !ldap.isEmpty()) {
+			out.append("     LDAP " + ldap + " is configured on server");
+			out.append("\n");
+		}
+		if (clients != null && !clients.isEmpty()) {
+			out.append("     Client machines configured to use server: ");
+			out.append(clients);
+			out.append("\n");
+		}
+		out.append(KatelloCliDataProvider.strRepeat("!", 60));
+		
+		log.info(out.toString());
+		
 	}
 	
 }
