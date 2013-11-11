@@ -771,12 +771,12 @@ public class KatelloUtils implements KatelloConstants {
 	 */
 	public static void logServerInfo(String hostname, String clients) {
 		String ldap = System.getProperty("ldap.server.type", "");
-		boolean isHammer = Boolean.parseBoolean(System.getProperty("katello.install.hammercli", "false"));
+		String product = System.getProperty("katello.product", "katello");
 		boolean isClient = Boolean.parseBoolean(System.getProperty("deltacloud.installserver", "true"));
 		StringBuilder out = new StringBuilder();
 		out.append(KatelloCliDataProvider.strRepeat("!", 60));
 		out.append("\n");
-		out.append("	Server Machine is kept for later reuse!!!!");
+		out.append("	 Server Machine is kept for later reuse!!!!");
 		out.append("\n");
 		out.append("     Server Hostname is: " + hostname);
 		out.append("\n");
@@ -787,7 +787,7 @@ public class KatelloUtils implements KatelloConstants {
 			out.append("     Server is NOT configured as a client");
 			out.append("\n");
 		}
-		if (isHammer) {
+		if (isClient && (product.equals("sat6") || product.equals("katello"))) {
 			out.append("     Hammer CLI client is installed and configured on server");
 			out.append("\n");
 		}
