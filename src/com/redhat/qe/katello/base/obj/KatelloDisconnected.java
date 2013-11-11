@@ -95,4 +95,21 @@ public class KatelloDisconnected extends _KatelloObject{
 			cmd += " -t "+filename;
 		return new KatelloDisconnectedCli(cmd).run();		
 	}
+	
+	public SSHCommandResult refresh(String caFile){
+		cmd = "refresh";
+		if(caFile != null)
+			cmd += " --cdnca " + caFile;
+		return new KatelloDisconnectedCli(cmd).run();
+	}
+	
+	public SSHCommandResult info(){
+		cmd = "info";
+		return new KatelloDisconnectedCli(cmd).run();
+	}
+	
+	public SSHCommandResult clean(){
+		cmd = "clean";
+		return new KatelloDisconnectedCli(cmd).run();
+	}
 }
