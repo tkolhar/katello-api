@@ -32,19 +32,18 @@ public class DomainTests extends KatelloCliTestBase {
 		Assert.assertTrue(getOutput(exec_result).contains(HammerDomain.OUT_CREATE), "Check - returned output string");
 	}
 	
-	//TODO: Confirm error messages 
 	@Test(description="Create duplicate domain", dependsOnMethods={"test_domainCreate"})
 	public void test_duplicateDomainCreate() {
 		//Duplicate name
 		HammerDomain domain = new HammerDomain(cli_worker, name, "new Full Name", null);
 		exec_result = domain.cli_create();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 65, "Check - error code");
-		Assert.assertTrue(getOutput(exec_result).contains(HammerDomain.ERR_CREATE), "Check - returned output string");
+		Assert.assertTrue(getOutput(exec_result).contains(HammerDomain.ERR_DUPLICATE_NAME), "Check - returned output string");
 		//Duplicate fullName
 		domain = new HammerDomain(cli_worker, "newName.domain", fullName, null);
 		exec_result = domain.cli_create();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 65, "Check - error code");
-		Assert.assertTrue(getOutput(exec_result).contains(HammerDomain.ERR_CREATE), "Check - returned output string");	
+		Assert.assertTrue(getOutput(exec_result).contains(HammerDomain.ERR_DUPLICATE_DESCRIPTION), "Check - returned output string");	
 	}
 	
 	@Test(description="Verify info of a domain", dependsOnMethods={"test_duplicateDomainCreate"})

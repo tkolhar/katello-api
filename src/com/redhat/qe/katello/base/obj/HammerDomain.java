@@ -23,7 +23,8 @@ public class HammerDomain extends _HammerObject {
 	public static final String OUT_UPDATE = "Domain updated";
 	public static final String OUT_DELETE = "Domain deleted";
 	
-	public static final String ERR_CREATE = "Could not create the domain:";
+	public static final String ERR_DUPLICATE_DESCRIPTION = "Could not create the domain:" + "\n" + "  Description has already been taken";
+	public static final String ERR_DUPLICATE_NAME = "Could not create the domain:"+ "\n" + "  DNS domain has already been taken";
 	
 	public static final String REG_DOMAIN_INFO = ".*Name\\s*:\\s+%s.*Full Name\\s*:\\s+%s.*DNS Id\\s*:\\s+%s.*";
 
