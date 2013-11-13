@@ -16,6 +16,7 @@ import com.redhat.qe.katello.base.obj.helpers.FilterRuleErrataDayType;
 import com.redhat.qe.katello.base.obj.helpers.FilterRuleErrataIds;
 import com.redhat.qe.katello.base.obj.helpers.FilterRulePackage;
 import com.redhat.qe.katello.base.obj.helpers.FilterRulePackageGroups;
+import com.redhat.qe.katello.base.obj.helpers.FilterRulePuppetModule;
 import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.katello.common.TngRunGroups;
@@ -299,6 +300,40 @@ public class ContentFilterTests extends KatelloCliTestBase {
 
 		assert_filterInfo(filter_name, KatelloContentFilter.CONTENT_PACKAGE, KatelloContentFilter.TYPE_EXCLUDES, REG_EMPTY_RULE);
 		assert_filterInfo(filter_name, KatelloContentFilter.CONTENT_PACKAGE, KatelloContentFilter.TYPE_EXCLUDES, FilterRulePackage.ruleRegExp(packages));
+	}
+
+	@Test(description="add include puppet module rules", dependsOnMethods={"init"})
+	public void test_includePuppetModules() {
+		FilterRulePuppetModule[] modules = new FilterRulePuppetModule[] {
+			new FilterRulePuppetModule(null, "ruby", null, null, null),
+			new FilterRulePuppetModule("ghoneycutt", "apache", null, null, null),
+			new FilterRulePuppetModule(null, "openstack", null, "2.0.0", null),
+			new FilterRulePuppetModule(null, "git", null, null, "1.0.0"),
+			new FilterRulePuppetModule(null, "lvm", null, "0.0.1", "0.2.0"),
+			new FilterRulePuppetModule(null, "ssh", "1.2.0", null, null),
+		};
+		KatelloContentFilter filter = new KatelloContentFilter(cli_worker, filter_name, base_org_name, condef_name);
+		exec_result = filter.add_rule(KatelloContentFilter.TYPE_INCLUDES, modules);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check exit code (filter add_rule)");
+		Assert.assertTrue(true, FilterRulePuppetModule.filterRuleRegExp(modules));
+		assert_filterInfo(filter_name, KatelloContentFilter.CONTENT_PUPPET, KatelloContentFilter.TYPE_INCLUDES, FilterRulePuppetModule.filterRuleRegExp(modules));
+	}
+
+	@Test(description="add exclude puppet module rules", dependsOnMethods={"init"})
+	public void test_excludePuppetModules() {
+		FilterRulePuppetModule[] modules = new FilterRulePuppetModule[] {
+			new FilterRulePuppetModule(null, "ruby", null, null, null),
+			new FilterRulePuppetModule("ghoneycutt", "apache", null, null, null),
+			new FilterRulePuppetModule(null, "openstack", null, "2.0.0", null),
+			new FilterRulePuppetModule(null, "git", null, null, "1.0.0"),
+			new FilterRulePuppetModule(null, "lvm", null, "0.0.1", "0.2.0"),
+			new FilterRulePuppetModule(null, "ssh", "1.2.0", null, null),
+		};
+		KatelloContentFilter filter = new KatelloContentFilter(cli_worker, filter_name, base_org_name, condef_name);
+		exec_result = filter.add_rule(KatelloContentFilter.TYPE_EXCLUDES, modules);
+		Assert.assertTrue(exec_result.getExitCode() == 0, "Check exit code (filter add_rule)");
+		Assert.assertTrue(true, FilterRulePuppetModule.filterRuleRegExp(modules));
+		assert_filterInfo(filter_name, KatelloContentFilter.CONTENT_PUPPET, KatelloContentFilter.TYPE_EXCLUDES, FilterRulePuppetModule.filterRuleRegExp(modules));
 	}
 
 	// TODO bz#1004248

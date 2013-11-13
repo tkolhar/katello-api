@@ -9,6 +9,7 @@ import com.redhat.qe.katello.base.obj.helpers.FilterRuleErrataIds;
 import com.redhat.qe.katello.base.obj.helpers.FilterRuleErrataDayType;
 import com.redhat.qe.katello.base.obj.helpers.FilterRulePackage;
 import com.redhat.qe.katello.base.obj.helpers.FilterRulePackageGroups;
+import com.redhat.qe.katello.base.obj.helpers.FilterRulePuppetModule;
 import com.redhat.qe.katello.base.threading.KatelloCliWorker;
 
 public class KatelloContentFilter extends _KatelloObject{
@@ -44,6 +45,7 @@ public class KatelloContentFilter extends _KatelloObject{
 	public static final String CONTENT_PACKAGE = "rpm";
 	public static final String CONTENT_PACKAGE_GROUP = "package_group";
 	public static final String CONTENT_ERRATUM = "erratum";
+	public static final String CONTENT_PUPPET = "puppet_module";
 	public static final String ERRATA_TYPE_ENHANCEMENT = "enhancement";
 	public static final String ERRATA_TYPE_SECURITY = "security";
 	public static final String ERRATA_TYPE_BUGFIX = "bugfix";
@@ -138,6 +140,10 @@ public class KatelloContentFilter extends _KatelloObject{
 
 	public SSHCommandResult add_rule(String type, FilterRuleErrataDayType errata) {
 		return add_rule(errata.filterRule(), CONTENT_ERRATUM, type);
+	}
+
+	public SSHCommandResult add_rule(String type, FilterRulePuppetModule [] modules) {
+		return add_rule(FilterRulePuppetModule.filterRule(modules), CONTENT_PUPPET, type);
 	}
 
 	public SSHCommandResult remove_rule(String rule_id) {
