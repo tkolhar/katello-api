@@ -13,6 +13,7 @@ public class PrepareDCEnvironment extends KatelloCliTestBase {
 	protected SSHCommandResult res;
 	protected static DeltaCloudInstance server;
 	protected static ArrayList<DeltaCloudInstance> clients;
+	protected static String clientNames = ""; 
 
 	@Test(description="Create server, clients")
 	public void test_createServerAndClients(){
@@ -39,9 +40,10 @@ public class PrepareDCEnvironment extends KatelloCliTestBase {
 		
 		for(int i=0;i<clients.size();i++){
 			sout += "\\\\nKATELLO_CLIENT_" + (i+1) + "="+clients.get(i).getHostName();
+			clientNames += clients.get(i).getHostName() + ", ";
 		}
 		KatelloUtils.run_local("echo -en \""+sout+"\" > "+filename);
-		KatelloUtils.logServerInfo(server.getHostName(), sout);
+		KatelloUtils.logServerInfo(server.getHostName(), clientNames);
 	}
 	
 }

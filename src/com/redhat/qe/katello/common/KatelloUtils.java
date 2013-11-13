@@ -779,9 +779,12 @@ public class KatelloUtils implements KatelloConstants {
 		String product = System.getProperty("katello.product", "katello");
 		boolean isClient = Boolean.parseBoolean(System.getProperty("deltacloud.installserver", "true"));
 		StringBuilder out = new StringBuilder();
-		out.append(KatelloCliDataProvider.strRepeat("!", 60));
+		out.append("\n\n\n");
+		out.append(KatelloCliDataProvider.strRepeat("!", 100));
 		out.append("\n");
-		out.append("	 Server Machine is kept for later reuse!!!!");
+		out.append(KatelloCliDataProvider.strRepeat("!", 100));
+		out.append("\n");
+		out.append("     Server Machine is kept for later reuse!!!!");
 		out.append("\n");
 		out.append("     Server Hostname is: " + hostname);
 		out.append("\n");
@@ -805,7 +808,10 @@ public class KatelloUtils implements KatelloConstants {
 			out.append(clients);
 			out.append("\n");
 		}
-		out.append(KatelloCliDataProvider.strRepeat("!", 60));
+		out.append(KatelloCliDataProvider.strRepeat("!", 100));
+		out.append("\n");
+		out.append(KatelloCliDataProvider.strRepeat("!", 100));
+		out.append("\n\n\n");
 		
 		log.info(out.toString());
 		
