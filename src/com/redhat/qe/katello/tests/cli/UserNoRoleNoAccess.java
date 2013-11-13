@@ -62,7 +62,7 @@ public class UserNoRoleNoAccess extends KatelloCliTestBase {
 	@BeforeClass(description="init: headpin specific, no katello", dependsOnMethods={"setUp"}, groups={"headpin-cli","cfse-ignore"})
 	public void setUp_headpinOnly(){
 		this.env = KatelloEnvironment.LIBRARY;
-		user = new KatelloUser(cli_worker, this.users,this.user_email,"password",false,this.organization,this.env);
+		user = new KatelloUser(cli_worker, this.users,this.user_email,"password",false,this.organization,null);
 		res =  user.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		user_role = new KatelloUserRole(cli_worker, this.user_role_name,"test role");
