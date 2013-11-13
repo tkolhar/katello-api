@@ -510,6 +510,11 @@ public class KatelloUtils implements KatelloConstants {
 		configureNtp(hostname);
 		BeakerUtils.Katello_Installation_ConfigureRepos(hostname);
 		BeakerUtils.Katello_Configuration_KatelloClient(hostname, server, version, product);
+		
+		if ( (product.equals("sat6") || product.equals("katello") )
+				&& Boolean.parseBoolean(System.getProperty("katello.install.hammercli", "false"))) {
+			BeakerUtils.Katello_Installation_HammerCLI(hostname);
+		}
 	}
 	
 	/**
