@@ -35,9 +35,10 @@ public class PrepareDCEnvironment extends KatelloCliTestBase {
 	@Test(description="Write out machine info", dependsOnMethods={"test_createServerAndClients"})
 	public void test_dumpServersInfo(){
 		String filename = System.getProperty("user.dir")+"/"+System.getProperty("jenkins.build.id","null")+".properties";		
-		String sout = "KATELLO_SERVER_HOSTNAME="+server.getHostName()+"\\\\nKATELLO_CLIENTS=";
+		String sout = "KATELLO_SERVER_HOSTNAME="+server.getHostName();
+		
 		for(int i=0;i<clients.size();i++){
-			sout += ","+clients.get(i).getHostName();
+			sout += "\\\\nKATELLO_CLIENT_" + (i+1) + "="+clients.get(i).getHostName();
 		}
 		KatelloUtils.run_local("echo -en \""+sout+"\" > "+filename);
 		KatelloUtils.logServerInfo(server.getHostName(), sout);
