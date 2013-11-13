@@ -137,9 +137,13 @@ public class BeakerUtils {
 	}
 	
 	public static SSHCommandResult Katello_Installation_HammerCLI(String hostname){
+		String sat6Url = System.getProperty("SAT6_URL",null);
 		String cmds = 
 				"yum install -y Katello-Katello-Installation-HammerCLI --disablerepo=* --enablerepo=beaker*; " +
-				"cd /mnt/tests/Katello/Installation/HammerCLI; make run";
+				"cd /mnt/tests/Katello/Installation/HammerCLI ";
+		if(sat6Url!=null)
+			cmds +="; export REPO_URL="+sat6Url;
+		cmds += "; make run";
 		return KatelloUtils.sshOnClient(hostname, cmds);
 	}
 }
