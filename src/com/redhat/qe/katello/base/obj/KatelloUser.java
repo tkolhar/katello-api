@@ -127,11 +127,11 @@ public class KatelloUser extends _KatelloObject{
 		opts.add(new Attribute("email", email));
 		if(disabled)
 			opts.add(new Attribute("disabled", "true"));
-		if(!(orgname.isEmpty()))
+		if(orgname != null && !(orgname.isEmpty()))
 			opts.add(new Attribute("default_organization",orgname));
-		if(!(envname.isEmpty()))
+		if(envname != null && !(envname.isEmpty()))
 			opts.add(new Attribute("default_environment",envname));
-		if(!(locale.isEmpty()))
+		if(locale != null && !(locale.isEmpty()))
 			opts.add(new Attribute("default_locale",locale));
 		return run(CMD_CREATE);
 	}
@@ -221,7 +221,7 @@ public class KatelloUser extends _KatelloObject{
 			REGEXP_LIST = ".*ID\\s*:\\s*\\d+.*Username\\s*:\\s*%s.*Email\\s*:\\s*%s.*Disabled\\s*:\\s*True.*Default Organization\\s*:\\s*%s.*Default Environment\\s*:\\s*%s.*";
 
 		String match_info = String.format(REGEXP_LIST,
-				this.username,this.email, this.orgname != null ? this.orgname : "None", this.envname != null ? this.envname : "None").replaceAll("\"", "");
+				this.username,this.email, this.orgname != null ? this.orgname : "None",this.orgname != null ? (this.envname != null ? this.envname : "Library") : "None").replaceAll("\"", "");
 
 		Assert.assertTrue(KatelloCliTestBase.sgetOutput(res).replaceAll("\n", "").matches(match_info), 
 				String.format("User [%s] should be found in the list",this.username));
@@ -233,7 +233,7 @@ public class KatelloUser extends _KatelloObject{
 		if(this.disabled)
 			REGEXP_INFO =  ".*ID\\s*:\\s*\\d+.*Username\\s*:\\s*%s.*Email\\s*:\\s*%s.*Disabled\\s*:\\s*True.*Default Organization\\s*:\\s*%s.*Default Environment\\s*:\\s*%s.*";
 		match_info = String.format(REGEXP_INFO,
-				this.username, this.email, this.orgname != null ? this.orgname : "None", this.envname != null ? this.envname : "None").replaceAll("\"", "");
+				this.username, this.email, this.orgname != null ? this.orgname : "None", this.orgname != null ? (this.envname != null ? this.envname : "Library") : "None").replaceAll("\"", "");
 		Assert.assertTrue(KatelloCliTestBase.sgetOutput(res).replaceAll("\n", "").matches(match_info), 
 				String.format("User [%s] should contain correct info",this.username));			
 	}

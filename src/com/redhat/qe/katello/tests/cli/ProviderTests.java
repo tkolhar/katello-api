@@ -685,7 +685,10 @@ public class ProviderTests extends KatelloCliTestBase{
 
 	@AfterClass(description="remove the org(s) with manifests", alwaysRun=true)
 	public void tearDown() {
-		exec_result = new KatelloOrg(cli_worker, org_manifest, null).delete();
-		Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (delete org)");
+		if(org_manifest != null)
+		{
+			exec_result = new KatelloOrg(cli_worker, org_manifest, null).delete();
+			Assert.assertTrue(exec_result.getExitCode()==0, "Check exit code (delete org)");
+		}
 	}
 }
