@@ -36,7 +36,13 @@ public class BeakerUtils {
 	}
 	
 	public static SSHCommandResult Katello_Installation_ConfigureRepos(String hostname){
-		String cmds = 
+		String product = System.getProperty("katello.product", "katello");
+		String cmds = "";
+		String sat6Url = System.getProperty("SAT6_URL",null);
+		String sat6ToolsUrl = System.getProperty("SAT6_TOOLS_URL",null);
+		if(product.equals("sat6"))
+			cmds += String.format("export SAT6_MDP=yes; export SAT6_URL=\"%s\"; export SAT6_TOOLS_URL=\"%s\"; ",sat6Url, sat6ToolsUrl);
+		cmds += 
 				"yum install -y Katello-Katello-Installation-ConfigureRepos --disablerepo=* --enablerepo=beaker*; " +
 				"cd /mnt/tests/Katello/Installation/ConfigureRepos/; make run";
 		return KatelloUtils.sshOnClient(hostname, cmds);
@@ -136,13 +142,14 @@ public class BeakerUtils {
 		return KatelloUtils.sshOnClient(hostname, cmds);
 	}
 	
-	public static SSHCommandResult Katello_Installation_HammerCLI(String hostname){
+	public static SSHCommandResult Katello_Installation_HammerCLI(String hostname, String servername){
 		String sat6Url = System.getProperty("SAT6_URL",null);
 		String cmds = 
 				"yum install -y Katello-Katello-Installation-HammerCLI --disablerepo=* --enablerepo=beaker*; " +
 				"cd /mnt/tests/Katello/Installation/HammerCLI ";
 		if(sat6Url!=null)
 			cmds +="; export REPO_URL="+sat6Url;
+		cmds +="; export KATELLO_SERVER_HOSTNAME="+servername;
 		cmds += "; make run";
 		return KatelloUtils.sshOnClient(hostname, cmds);
 	}

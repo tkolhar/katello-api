@@ -318,7 +318,7 @@ public class KatelloUtils implements KatelloConstants {
 		
 		DeltaCloudInstance client = DeltaCloudAPI.provideClient(configs[0],imageId);
 
-		Assert.assertNotNull(client.getInstance());
+		Assert.assertNotNull(client.getInstance(), "Check - RHEV-M instance is not null");
 		
 		configureDDNS(client, configs);
 		
@@ -463,7 +463,7 @@ public class KatelloUtils implements KatelloConstants {
 				} else{
 					BeakerUtils.Katello_Installation_KatelloWithLdap(hostIP, ldap, user, password);
 				}
-				BeakerUtils.Katello_Installation_HammerCLI(hostIP);
+				BeakerUtils.Katello_Installation_HammerCLI(hostIP, machine.getHostName());
 			} else if (product.equals("sam")) {
 				if (ldap.isEmpty()) {
 					BeakerUtils.Katello_Installation_SAMLatest(hostIP, version);
@@ -483,7 +483,7 @@ public class KatelloUtils implements KatelloConstants {
 				} else{
 					BeakerUtils.Katello_Installation_Satellite6WithLdap(hostIP, version, ldap, user, password);
 				}
-				BeakerUtils.Katello_Installation_HammerCLI(hostIP);
+				BeakerUtils.Katello_Installation_HammerCLI(hostIP, machine.getHostName());
 			}
 			
 			// Configure the server as a self-client
@@ -503,18 +503,22 @@ public class KatelloUtils implements KatelloConstants {
 	 */
 	private static void installClient(DeltaCloudInstance machine, String server) {
 		String hostname = machine.getIpAddress();
-		String version = System.getProperty("katello.product.version", "1.1");
+		String version = System.getProperty("katello.product.version", "1.4");
 		String product = System.getProperty("katello.product", "katello");
 
+		KatelloUtils.sshOnClient(hostname, "rm -f /etc/sysconfig/rhn/systemid*; yum clean all;");
 		BeakerUtils.Katello_Installation_RegisterCDN(hostname);
 		configureNtp(hostname);
-		BeakerUtils.Katello_Installation_ConfigureRepos(hostname);
-		BeakerUtils.Katello_Configuration_KatelloClient(hostname, server, version, product);
 		
+		BeakerUtils.Katello_Installation_ConfigureRepos(hostname);
+
 		if ( (product.equals("sat6") || product.equals("katello") )
 				&& Boolean.parseBoolean(System.getProperty("katello.install.hammercli", "false"))) {
-			BeakerUtils.Katello_Installation_HammerCLI(hostname);
+			BeakerUtils.Katello_Installation_HammerCLI(hostname, server);
 		}
+
+		// NOTE: this needs to be always the very last job to be executed (as gets disconnected from live CDN).
+		BeakerUtils.Katello_Configuration_KatelloClient(hostname, server, version, product);		
 	}
 	
 	/**
