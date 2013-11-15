@@ -18,7 +18,7 @@ import com.redhat.qe.katello.common.TngRunGroups;
 import com.redhat.qe.tools.SSHCommandResult;
 
 @TngPriority(500)
-@Test(groups={"headpin-cli",TngRunGroups.TNG_KATELLO_System_Consumer})
+@Test(groups={TngRunGroups.TNG_KATELLO_System_Consumer})
 public class SystemInfoTests extends KatelloCliTestBase{	
 	protected static Logger log = Logger.getLogger(SystemBasicTests.class.getName());
 
@@ -64,8 +64,21 @@ public class SystemInfoTests extends KatelloCliTestBase{
 		exec_result = contentView.promote_view(this.environment);
 		Assert.assertTrue(exec_result.getExitCode() == 0, "Check - return code");
 	}
+	
+	@BeforeClass(description="Generate unique names", groups={"headpin-cli","cfse-ignore"})
+	public void setup_headpinOnly() {
+		String uid = KatelloUtils.getUniqueID();
+		this.org = "org-default-"+uid;
+		this.system = "system-" + uid;
+		this.environment = "Library";
+		
+		KatelloOrg org = new KatelloOrg(this.cli_worker, this.org, "Default org");
+		exec_result = org.cli_create();
+		Assert.assertTrue(exec_result.getExitCode().intValue()==0, "Check - return code");
+		
+	}
 
-	@Test
+	@Test(groups={"headpin-cli"})
 	public void checkSystemList() {
 		KatelloSystem sys = new KatelloSystem(this.cli_worker, system, this.org, this.environment);
 		exec_result = sys.rhsm_registerForce(); 
@@ -74,7 +87,7 @@ public class SystemInfoTests extends KatelloCliTestBase{
 		Assert.assertTrue(getOutput(exec_result).trim().contains(this.system), "System should be contained");
 	}
 
-	@Test(dependsOnMethods={"checkSystemList"})
+	@Test(dependsOnMethods={"checkSystemList"}, groups={"headpin-cli"})
 	public void checkSystemInfo() {
 		KatelloSystem sys = new KatelloSystem(this.cli_worker, this.system, this.org, this.environment);
 		exec_result = sys.info();
@@ -83,7 +96,7 @@ public class SystemInfoTests extends KatelloCliTestBase{
 		assert_systemInfo(sys, new LinkedList<String[]>());
 	}
 
-	@Test(dependsOnMethods={"checkSystemInfo"})
+	@Test(dependsOnMethods={"checkSystemInfo"}, groups={"headpin-cli"})
 	public void checkOrgInfo() {
 		KatelloOrg org = new KatelloOrg(this.cli_worker, this.org, "Default org");
 		exec_result = org.cli_info();
@@ -92,7 +105,7 @@ public class SystemInfoTests extends KatelloCliTestBase{
 		assert_orgInfo(org, new LinkedList<String>());
 	}	
 
-	@Test(description="added a parameter to org, verifies that it exists in system as well", dependsOnMethods={"checkOrgInfo"})
+	@Test(description="added a parameter to org, verifies that it exists in system as well", dependsOnMethods={"checkOrgInfo"}, groups={"headpin-cli"})
 	public void addOrgInfo() {
 		KatelloOrg org = new KatelloOrg(this.cli_worker, this.org, "Default org");
 		exec_result = org.default_info_add(keyname,"system");
@@ -119,7 +132,7 @@ public class SystemInfoTests extends KatelloCliTestBase{
 		assert_orgInfo(org, orgparamsList);
 	}
 
-	@Test(description="remove existing parameter from org, verifies that it still exists in system", dependsOnMethods={"addOrgInfo"})
+	@Test(description="remove existing parameter from org, verifies that it still exists in system", dependsOnMethods={"addOrgInfo"}, groups={"headpin-cli"})
 	public void test_removeOrgInfo() {
 		KatelloOrg org = new KatelloOrg(this.cli_worker, this.org, "Default org");
 		exec_result = org.default_info_remove(keyname,"system");
@@ -138,7 +151,7 @@ public class SystemInfoTests extends KatelloCliTestBase{
 		assert_orgInfo(org, orgparamsList);
 	}
 
-	@Test(description="Sync the systems, the removed default parameters should also be removed from the system", dependsOnMethods={"test_removeOrgInfo"})
+	@Test(description="Sync the systems, the removed default parameters should also be removed from the system", dependsOnMethods={"test_removeOrgInfo"}, groups={"headpin-cli"})
 	public void test_syncRemovedInfo()
 	{
 		KatelloOrg org = new KatelloOrg(this.cli_worker, this.org, "Default org");
@@ -156,7 +169,7 @@ public class SystemInfoTests extends KatelloCliTestBase{
 
 	}
 
-	@Test(description="trying to remove an invalid parameter from org, verifies the error message", dependsOnMethods={"addOrgInfo"})
+	@Test(description="trying to remove an invalid parameter from org, verifies the error message", dependsOnMethods={"addOrgInfo"}, groups={"headpin-cli"})
 	public void test_removeOrgInvalidInfo() {
 		KatelloOrg org = new KatelloOrg(this.cli_worker, this.org, "Default org");
 		exec_result = org.default_info_remove(keyInvalid, "system");
@@ -184,7 +197,7 @@ public class SystemInfoTests extends KatelloCliTestBase{
 		assert_orgInfo(org, orgparamsList);
 	}
 
-	@Test(description="Adding multiple default org parameters without syncing the systems, verify that they do not exist in the system yet", dependsOnMethods={"test_syncRemovedInfo"})
+	@Test(description="Adding multiple default org parameters without syncing the systems, verify that they do not exist in the system yet", dependsOnMethods={"test_syncRemovedInfo"}, groups={"headpin-cli"})
 	public void addMultipleOrgInfo()
 	{
 		KatelloOrg org = new KatelloOrg(this.cli_worker, this.org, "Default org");
@@ -213,7 +226,7 @@ public class SystemInfoTests extends KatelloCliTestBase{
 		
 	}
 
-	@Test(description="adding the same 2 parameters as the default ones to system", dependsOnMethods={"addMultipleOrgInfo"})
+	@Test(description="adding the same 2 parameters as the default ones to system", dependsOnMethods={"addMultipleOrgInfo"}, groups={"headpin-cli"})
 	public void test_addSystemInfo() {
 		KatelloSystem sys = new KatelloSystem(this.cli_worker, this.system, this.org, this.environment);
 		exec_result = sys.add_custom_info(keyname2, value2);
@@ -238,7 +251,7 @@ public class SystemInfoTests extends KatelloCliTestBase{
 		assert_systemInfo(new KatelloSystem(this.cli_worker, this.system, this.org, this.environment), sysparamsList);
 	}
 
-	@Test(description="Sync the added default parameters, verify that the sync process of org does not override the custom info keys of the system", dependsOnMethods={"test_addSystemInfo"})
+	@Test(description="Sync the added default parameters, verify that the sync process of org does not override the custom info keys of the system", dependsOnMethods={"test_addSystemInfo"}, groups={"headpin-cli"})
 	public void test_syncAddedInfo()
 	{
 		KatelloOrg org = new KatelloOrg(this.cli_worker, this.org, "Default org");
@@ -252,7 +265,7 @@ public class SystemInfoTests extends KatelloCliTestBase{
 
 	}
 
-	@Test(description="update a parameter in system", dependsOnMethods={"test_addSystemInfo"})
+	@Test(description="update a parameter in system", dependsOnMethods={"test_addSystemInfo"}, groups={"headpin-cli"})
 	public void updateSystemInfo() {
 		KatelloSystem sys = new KatelloSystem(this.cli_worker, this.system, this.org, this.environment);
 		exec_result = sys.update_custom_info(keyname2, value2_edit);
@@ -269,7 +282,7 @@ public class SystemInfoTests extends KatelloCliTestBase{
 		assert_systemInfo(new KatelloSystem(this.cli_worker, this.system, this.org, this.environment), sysparamsList);
 	}
 
-	@Test(description="remove existing parameter from system", dependsOnMethods={"updateSystemInfo"})
+	@Test(description="remove existing parameter from system", dependsOnMethods={"updateSystemInfo"}, groups={"headpin-cli"})
 	public void test_removeSystemInfo() {
 		KatelloSystem sys = new KatelloSystem(this.cli_worker, this.system, this.org, this.environment);
 		exec_result = sys.remove_custom_info(keyname2);
@@ -285,7 +298,7 @@ public class SystemInfoTests extends KatelloCliTestBase{
 		assert_systemInfo(new KatelloSystem(this.cli_worker, this.system, this.org, this.environment), sysparamsList);
 	}
 
-	@Test(description="remove all existing default parameters and sync, verify that the info still exists for the system", dependsOnMethods={"updateSystemInfo"})
+	@Test(description="remove all existing default parameters and sync, verify that the info still exists for the system", dependsOnMethods={"updateSystemInfo"}, groups={"headpin-cli"})
 	public void test_removeAllDefaultInfo() {
 
 		KatelloOrg org = new KatelloOrg(this.cli_worker, this.org, "Default org");
