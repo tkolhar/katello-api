@@ -30,7 +30,6 @@ public class UserNoRoleNoAccess extends KatelloCliTestBase {
 	private KatelloUser user;
 	private KatelloUserRole user_role;
 	
-	// bz#1011748
 	@BeforeClass(description="init: create initial stuff", groups={"headpin-cli"})
 	public void setUp()
 	{
@@ -43,7 +42,7 @@ public class UserNoRoleNoAccess extends KatelloCliTestBase {
 		res = org.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 	}
-	
+
 	@BeforeClass(description="init: katello specific, no headpin", dependsOnMethods={"setUp"})
 	public void setUp_katelloOnly(){
 		String uid = KatelloUtils.getUniqueID();
@@ -58,7 +57,7 @@ public class UserNoRoleNoAccess extends KatelloCliTestBase {
 		res = user_role.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 	}
-  	
+
 	@BeforeClass(description="init: headpin specific, no katello", dependsOnMethods={"setUp"}, groups={"headpin-cli","cfse-ignore"})
 	public void setUp_headpinOnly(){
 		this.env = KatelloEnvironment.LIBRARY;

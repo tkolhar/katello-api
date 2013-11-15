@@ -106,7 +106,7 @@ public class UserTests extends KatelloCliTestBase{
 		usr.asserts_create();
 
 		//update default_org
-		res = usr.update_defaultOrgEnv(this.organization, this.env);
+		res = usr.update_defaultOrgEnv(this.organization, null);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+KatelloUser.CMD_UPDATE+")");
 		Assert.assertTrue(getOutput(res).contains(
 				String.format(KatelloUser.OUT_UPDATE, usr.getUsername())), "Check - return output string ("+KatelloUser.CMD_UPDATE+")");
@@ -369,7 +369,7 @@ public class UserTests extends KatelloCliTestBase{
 		String userpass = "password";
 		String usermail = username + "@localhost";
 		KatelloUser usr = new KatelloUser(cli_worker, username, usermail, userpass, false,
-				this.organization, this.env);
+				this.organization, null);
 		res = usr.cli_create();
 		Assert.assertTrue(res.getExitCode().intValue() == 0,
 				"Check - return code (" + KatelloUser.CMD_CREATE + ")");
@@ -382,7 +382,7 @@ public class UserTests extends KatelloCliTestBase{
 		usr.asserts_create();
 	}
 
-	@Test(description="Create a user with default org and environment from other org, verify error", groups={"headpin-cli"})
+	@Test(description="Create a user with default org and environment from other org, verify error")
 	public void test_createUserDefaultValuesWrong() {
 		SSHCommandResult res;
 		String uniqueID = KatelloUtils.getUniqueID();
@@ -574,11 +574,11 @@ public class UserTests extends KatelloCliTestBase{
 		Assert.assertFalse(getOutput(exec_result).contains(base_dev_env_name), "Check output (user info)");
 	}
 
-	@Test(description="assign role which does not exist")
+	@Test(description="assign role which does not exist", groups={"headpin-cli"})
 	public void test_assingNonexistRole() {
 		String role_nonexist = "role-nonexist-"+KatelloUtils.getUniqueID();
 		String username = "user"+KatelloUtils.getUniqueID();
-		KatelloUser user = new KatelloUser(cli_worker, username, KatelloUser.DEFAULT_USER_EMAIL, KatelloUser.DEFAULT_USER_PASS, false, base_org_name, base_dev_env_name);
+		KatelloUser user = new KatelloUser(cli_worker, username, KatelloUser.DEFAULT_USER_EMAIL, KatelloUser.DEFAULT_USER_PASS, false, base_org_name, null);
 		exec_result = user.cli_create();
 		exec_result = user.assign_role(role_nonexist);
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 65, "Check exit code (user assign_role)");
