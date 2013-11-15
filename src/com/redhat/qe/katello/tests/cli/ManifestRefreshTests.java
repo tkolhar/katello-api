@@ -14,7 +14,7 @@ import com.redhat.qe.katello.base.tngext.TngPriority;
 import com.redhat.qe.katello.common.KatelloUtils;
 import com.redhat.qe.tools.SSHCommandResult;
 
-@TngPriority(15)
+@TngPriority(38)
 @Test(groups="cli-ManifestRefreshTests")
 public class ManifestRefreshTests extends KatelloCliTestBase{
 	private String org_name;
