@@ -5,9 +5,12 @@ import com.redhat.qe.tools.SSHCommandResult;
 public class BeakerUtils {
 
 	public static SSHCommandResult Katello_Installation_RegisterCDN(String hostname){
+//		String cmds = 
+//				"yum install -y Katello-Katello-Installation-RegisterRHSM --disablerepo=* --enablerepo=beaker*; " +
+//				"cd /mnt/tests/Katello/Installation/RegisterRHSM/; make run";
 		String cmds = 
-				"yum install -y Katello-Katello-Installation-RegisterRHSM --disablerepo=* --enablerepo=beaker*; " +
-				"cd /mnt/tests/Katello/Installation/RegisterRHSM/; make run";
+				"yum install -y Katello-Katello-Installation-RegisterRHNClassic --disablerepo=* --enablerepo=beaker*; " +
+				"cd /mnt/tests/Katello/Installation/RegisterRHNClassic/; make run";
 		return KatelloUtils.sshOnClient(hostname, cmds);
 	}
 	
@@ -151,6 +154,13 @@ public class BeakerUtils {
 			cmds +="; export REPO_URL="+sat6Url;
 		cmds +="; export KATELLO_SERVER_HOSTNAME="+servername;
 		cmds += "; make run";
+		return KatelloUtils.sshOnClient(hostname, cmds);
+	}
+	
+	public static SSHCommandResult Katello_Installation_ForemanNightly(String hostname){
+		String cmds = 
+				"yum install -y Katello-Katello-Installation-ForemanNightly --disablerepo=* --enablerepo=beaker*; " +
+				"cd /mnt/tests/Katello/Installation/ForemanNightly/; make run";
 		return KatelloUtils.sshOnClient(hostname, cmds);
 	}
 }

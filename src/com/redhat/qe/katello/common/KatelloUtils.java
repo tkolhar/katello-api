@@ -484,6 +484,8 @@ public class KatelloUtils implements KatelloConstants {
 					BeakerUtils.Katello_Installation_Satellite6WithLdap(hostIP, version, ldap, user, password);
 				}
 				BeakerUtils.Katello_Installation_HammerCLI(hostIP, machine.getHostName());
+			} else if (product.equals("foreman")) {
+				BeakerUtils.Katello_Installation_ForemanNightly(hostIP);	
 			}
 			
 			// Configure the server as a self-client
