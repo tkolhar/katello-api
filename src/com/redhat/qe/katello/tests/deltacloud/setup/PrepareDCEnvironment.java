@@ -23,7 +23,7 @@ public class PrepareDCEnvironment extends KatelloCliTestBase {
 		String server_name = server.getHostName();
 		
 		ArrayList<String> clientImages; 
-		StringTokenizer tok = new StringTokenizer(System.getProperty("deltacloud.client.imageid"),",");
+		StringTokenizer tok = new StringTokenizer(System.getProperty("deltacloud.client.imageid",""),",");
 		clientImages = new ArrayList<String>();
 		clients = new ArrayList<DeltaCloudInstance>();
 		while(tok.hasMoreTokens()){
