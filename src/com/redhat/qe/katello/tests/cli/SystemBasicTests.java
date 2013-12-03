@@ -397,8 +397,8 @@ public class SystemBasicTests extends KatelloCliTestBase{
 		sys.setEnvironmentName(null); // does not work with --environment option (either name or environment)
 		exec_result = sys.subscriptions();
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
-		Assert.assertTrue(KatelloUtils.grepCLIOutput("Pool Name", getOutput(exec_result)).contains(KatelloProduct.RHEL_SERVER), 
-				"Check - stdout contains pool name == '"+KatelloProduct.RHEL_SERVER+"'");
+//		Assert.assertTrue(KatelloUtils.grepCLIOutput("Pool Name", getOutput(exec_result)).contains(KatelloProduct.RHEL_SERVER), 
+//				"Check - stdout contains pool name == '"+KatelloProduct.RHEL_SERVER+"'");
 	}
 
 	@Test(description="list system packages")
