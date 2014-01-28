@@ -457,13 +457,7 @@ public class KatelloUtils implements KatelloConstants {
 		if (Boolean.parseBoolean(System.getProperty("deltacloud.installserver", "true"))) {
 			// Install the product
 			if (product.equals("katello")) {
-				BeakerUtils.Katello_Installation_ConfigureRepos(hostIP);
-				if (ldap.isEmpty()) {
-					BeakerUtils.Katello_Installation_KatelloNightly(hostIP);	
-				} else{
-					BeakerUtils.Katello_Installation_KatelloWithLdap(hostIP, ldap, user, password);
-				}
-				BeakerUtils.Katello_Installation_HammerCLI(hostIP, machine.getHostName());
+				BeakerUtils.Katello_Installation_KatelloNightly(hostIP);	
 			} else if (product.equals("sam")) {
 				if (ldap.isEmpty()) {
 					BeakerUtils.Katello_Installation_SAMLatest(hostIP, version);
