@@ -457,7 +457,8 @@ public class KatelloUtils implements KatelloConstants {
 		if (Boolean.parseBoolean(System.getProperty("deltacloud.installserver", "true"))) {
 			// Install the product
 			if (product.equals("katello")) {
-				BeakerUtils.Katello_Installation_KatelloNightly(hostIP);	
+				BeakerUtils.Katello_Installation_KatelloNightly(hostIP);
+				return; // NEW - for recent katello-installer (the one integrated in foreman)
 			} else if (product.equals("sam")) {
 				if (ldap.isEmpty()) {
 					BeakerUtils.Katello_Installation_SAMLatest(hostIP, version);
